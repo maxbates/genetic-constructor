@@ -17,7 +17,7 @@ module.exports = {
 
     // now we can go to the project page
     browser
-      .url('http://localhost:3001/')
+      .url(browser.launchUrl + '/')
       // wait for inventory and inspector to be present
       .waitForElementPresent('.SidePanel.Inventory', 5000, 'Expected Inventory Groups')
       .waitForElementPresent('.SidePanel.Inspector', 5000, 'Expected Inspector');

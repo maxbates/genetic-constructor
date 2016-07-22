@@ -56,7 +56,7 @@ module.exports = {
       // save original project url
       var projectURL = response.value;
       var projectId = response.value.split('/').pop();
-      var uri = 'http://localhost:3001/export/genbank/' + projectId;
+      var uri = browser.launchUrl + '/export/genbank/' + projectId;
       browser
         .url(uri)
         .pause(5000)

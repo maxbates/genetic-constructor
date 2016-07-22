@@ -18,6 +18,7 @@
     "test": "rm -rf ./storage/test && NODE_ENV=test babel-node tools/run setup && NODE_ENV=test mocha --recursive --compilers js:babel-register,css:test/css-null-compiler.js --require ./test/setup.js --timeout=25000",
     "test:watch": "npm test -- --watch",
     "nightwatch": "node ./node_modules/nightwatch/bin/nightwatch --retries 3 --config ./test-e2e/nightwatch.json",
+    "saucelabs": "node ./node_modules/nightwatch/bin/nightwatch --retries 3 --config ./test-e2e/saucelabs.json",
     "e2e": "node ./bin/e2e.js",
     "imagediff": "node ./bin/imagediff/imagediff.js --truth ./test-e2e/cannonical-screenshots/ --hypothesis ./test-e2e/current-screenshots/",
     "selenium": "node ./node_modules/selenium-standalone/bin/selenium-standalone install",
