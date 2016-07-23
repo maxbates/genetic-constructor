@@ -6,27 +6,17 @@
   "page_objects_path" : "",
   "globals_path" : "",
 
-  "selenium" : {
-    "start_process" : true,
-    "server_path" : "./node_modules/selenium-standalone/.selenium/selenium-server/2.50.1-server.jar",
-    "log_path" : "",
-    "host" : "127.0.0.1",
-    "port" : 4444,
-    "cli_args" : {
-      "webdriver.chrome.driver" : "./node_modules/selenium-standalone/.selenium/chromedriver/2.21-x64-chromedriver",
-      "webdriver.ie.driver" : ""
-    }
-  },
-
   "test_settings" : {
     "default" : {
       "launch_url" : "https://geneticconstructor.dev.bionano.autodesk.com",
-      "selenium_port"  : 4444,
-      "selenium_host"  : "localhost",
+      "selenium_port"  : 80,
+      "selenium_host"  : "ondemand.saucelabs.com",
+      "username": "bionano",
+      "access_key": "49cd81ab-976a-495e-bedb-e6cfce3e8aad",
       "silent": true,
       "screenshots" : {
         "enabled" : true,
-        "path" : "./test-e2e/screenshots"
+        "path" : ""
       },
       "desiredCapabilities": {
         "browserName": "chrome",
