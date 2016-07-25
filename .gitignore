@@ -17,3 +17,4 @@ plugins/*/*/outputs
 storage/
 build/
 screenshots/
+genome-designer-*.tgz
