@@ -11,8 +11,8 @@
       "launch_url" : "https://geneticconstructor.dev.bionano.autodesk.com",
       "selenium_port"  : 80,
       "selenium_host"  : "ondemand.saucelabs.com",
-      "username": "bionano",
-      "access_key": "49cd81ab-976a-495e-bedb-e6cfce3e8aad",
+      "username": "",
+      "access_key": "",
       "silent": true,
       "screenshots" : {
         "enabled" : true,
@@ -21,7 +21,9 @@
       "desiredCapabilities": {
         "browserName": "chrome",
         "javascriptEnabled": true,
-        "acceptSslCerts": true
+        "acceptSslCerts": true,
+        "platform": "OS X 10.11",
+        "version": "51.0"
       }
     },
 
