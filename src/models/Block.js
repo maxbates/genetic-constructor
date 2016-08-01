@@ -88,7 +88,7 @@ export default class Block extends Instance {
    * Calls {@link Instance.clone} internally, but structure of block history is different than that of the Instance class.
    * Cloning a block will disable the frozen rule.
    * note that if you are cloning multiple blocks / blocks with components, you likely need to clone the components as well. You will need to re-map the IDs outside of this function. See {@link blockClone} action for an example.
-   * @param {object|null} parentInfo Parent info for denoting ancestry. If pass null to parentInfo, the Block is simply cloned, and nothing is added to the history.
+   * @param {object|null} parentInfo Parent info for denoting ancestry. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
    * @param overwrites
    * @returns {Block} Cloned block
    */
@@ -102,7 +102,7 @@ export default class Block extends Instance {
       overwrites;
 
     if (parentInfo === null) {
-      return super.clone(false, mergeWith);
+      return super.clone(parentInfo, mergeWith);
     }
 
     const parentObject = Object.assign({

@@ -27,6 +27,7 @@ export const initialState = {
   userWidgetVisible: true,
   spinMessage: null,
   showSaveError: false,
+  showReportError: false,
 };
 
 export default function modals(state = initialState, action) {
@@ -69,6 +70,10 @@ export default function modals(state = initialState, action) {
 
   case ActionTypes.UI_SAVE_ERROR:
     return Object.assign({}, state, { showSaveError: true });
+
+  case ActionTypes.UI_SHOW_REPORT_ERROR:
+    const { modalState } = action;
+    return Object.assign({}, state, { showReportError: modalState });
 
   case LOCATION_CHANGE :
     const toKeep = ['gruntMessage'].reduce((acc, field) => Object.assign(acc, { [field]: state[field] }), {});

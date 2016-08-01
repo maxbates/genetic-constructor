@@ -6,6 +6,7 @@
   "scripts": {
     "start": "babel-node tools/run start",
     "start-instance": "babel-node tools/run start-instance",
+    "start-auth-stack": "babel-node tools/run auth-stack",
     "clean": "babel-node tools/run clean",
     "build": "babel-node tools/run build",
     "build-client": "babel-node tools/run bundle",

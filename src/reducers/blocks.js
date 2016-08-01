@@ -19,7 +19,7 @@ import * as instanceMap from '../store/instanceMap';
 const initialState = {};
 
 if (process.env.NODE_ENV === 'test') {
-  const testBlocks = require('./testProject').blocks;
+  const testBlocks = require('../../test/res/testProject').blocks;
   testBlocks.forEach(block => Object.assign(initialState,
     { [block.id]: block }
   ));

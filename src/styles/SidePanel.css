@@ -7,7 +7,6 @@
   position: relative;
   flex-direction: column;
   width: var(--width-SidePanel-closed);
-  overflow-x: hidden;
   height: calc(100vh - var(--GlobalNav-height-chrome));
   top: 0;
   bottom: 0;
@@ -82,8 +81,11 @@
 
   &-content {
     display: flex;
+    overflow-x: hidden;
+    overflow-y: scroll;
     flex-grow: 1;
     flex-shrink: 0;
+    flex-basis: 0;
     width: var(--width-SidePanel-open);
     padding: 0 var(--SidePanel-width-padding-content);
     opacity: 0;

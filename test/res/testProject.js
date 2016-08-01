@@ -13,10 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import Block from '../models/Block';
-import Project from '../models/Project';
+import Block from '../../src/models/Block';
+import Project from '../../src/models/Project';
 
-import exampleWithAnnotations from '../inventory/examples/exampleWithAnnotations';
+import exampleWithAnnotations from './exampleWithAnnotations';
 import dummyBlocks from '../../data/egf_parts/parts';
 
 const annotationExample = new Block(exampleWithAnnotations);

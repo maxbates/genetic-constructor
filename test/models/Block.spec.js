@@ -1,6 +1,7 @@
 import { expect, assert } from 'chai';
 import { writeFile } from '../../src/middleware/data';
 import Block from '../../src/models/Block';
+import Project from '../../src/models/Project';
 import AnnotationSchema from '../../src/schemas/Annotation';
 import md5 from 'md5';
 import merge from 'lodash.merge';
@@ -29,20 +30,47 @@ describe('Model', () => {
 
       it('Block.classless(input) creates unfrozen JSON object, no instance methods', () => {
         const instance = Block.classless({
-          rules: { role: 'promoter'},
+          rules: { role: 'promoter' },
         });
         expect(instance.id).to.be.defined;
         expect(instance.rules.role === 'promoter');
         expect(instance.merge).to.be.undefined;
         expect(instance.clone).to.be.undefined;
         expect(instance.getName).to.be.undefined;
-        expect(() => Object.assign(instance, {id: 'newId'})).to.not.throw();
+        expect(() => Object.assign(instance, { id: 'newId' })).to.not.throw();
         expect(instance.id).to.equal('newId');
       });
     });
 
+    describe('Clone', () => {
+      const dummyProject = new Project();
+
+      it('clone() should add to history', () => {
+        block = block.setProjectId(dummyProject.id);
+        assert(block.parents.length === 0, 'should have no parents');
+
+        const cloned = block.clone();
+        assert(cloned.parents.length === 1, 'should have parent');
+        expect(cloned.parents[0].projectId).to.equal(dummyProject.id);
+        expect(cloned.parents[0].id).to.equal(block.id);
+      });
+
+      it('clone(null) should not change the ID, or add to history', () => {
+        const frozen = block.setFrozen(true);
+        const cloned = frozen.clone(null);
+        assert(cloned !== frozen, 'should not be the same instance');
+        assert(cloned.id === frozen.id, 'should have same id ' + cloned.id + ' ' + frozen.id);
+      });
+
+      it('clone() should unfreeze', () => {
+        const frozen = block.setFrozen(true);
+        const cloned = frozen.clone(null);
+        assert(!cloned.isFrozen(), 'should not be frozen after cloning');
+      });
+    });
+
     describe('Annotations', () => {
-      const annotation = merge({},AnnotationSchema.scaffold(), {'name': 'annotationName'});
+      const annotation = merge({}, AnnotationSchema.scaffold(), { name: 'annotationName' });
 
       it('annotate() should validate invalid annotations', () => {
         const clone = Object.assign({}, annotation);

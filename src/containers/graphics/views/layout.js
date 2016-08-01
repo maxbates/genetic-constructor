@@ -204,8 +204,11 @@ export default class Layout {
           listParentNode: parentNode,
         });
     } else {
-      // update all the list items
-      let focusedOptionRendered = false;
+      // find the index of the focused list option, or default the first one
+      let focusedIndex = enabled.findIndex(blockId => focusedOptionId === blockId);
+      if (focusedIndex < 0) {
+        focusedIndex = 0;
+      }
       enabled.forEach((blockId, index) => {
         // ensure we have a hash of list nodes for this block.
         let nodes = this.listNodes[block.id];
@@ -231,18 +234,9 @@ export default class Layout {
           listParentBlock: block,
           listParentNode: this.nodeFromElement(block.id),
           listBlock,
-          optionSelected: focusedOptionId === blockId,
+          optionSelected: index === focusedIndex,
         });
-        if (focusedOptionId === blockId) {
-          focusedOptionRendered = true;
-        }
       });
-      // if the enabled set of options does not contain the focused option
-      // then focus the first option. This will cause a re-render and would be
-      // better performed in the data store but here will do for now.
-      if (!focusedOptionRendered) {
-        this.constructViewer.optionSelected(block.id, enabled[0])
-      }
     }
   }
 

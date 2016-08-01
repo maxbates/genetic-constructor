@@ -46,6 +46,11 @@
     &Inner {
       overflow-y: scroll;
     }
+
+    &Nester {
+      display: flex;
+      flex-direction: column;
+    }
   }
 
   &-placeholderContent {

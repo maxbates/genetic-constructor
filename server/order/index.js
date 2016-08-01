@@ -59,11 +59,12 @@ router.route('/:projectId/:orderId?')
     const { foundry, order, positionalCombinations } = req.body;
 
     if (projectId !== order.projectId) {
-      return res.status(401).send('project ID and order.projectId must match');
+      return res.status(422).send('project ID and order.projectId must match');
     }
 
     //note - this expects order.id to be defined
     if (!Order.validateSetup(order)) {
+      res.status(422);
       return next(errorInvalidModel);
     }
 

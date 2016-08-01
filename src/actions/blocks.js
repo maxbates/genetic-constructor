@@ -202,7 +202,7 @@ export const blockFreeze = (blockId, recursive = true) => {
   return (dispatch, getState) => {
     const oldBlocks = [getState().blocks[blockId]];
     if (recursive === true) {
-      oldBlocks.push(...dispatch(selectors.blockGetComponentsRecursive(blockId)));
+      oldBlocks.push(...dispatch(selectors.blockGetContentsRecursive(blockId)));
     }
 
     const blocks = oldBlocks.map(block => block.setFrozen(true));

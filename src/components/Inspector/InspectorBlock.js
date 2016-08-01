@@ -21,7 +21,6 @@ import { blockMerge, blockSetColor, blockSetRole, blockRename } from '../../acti
 import { uiShowOrderForm } from '../../actions/ui';
 import InputSimple from './../InputSimple';
 import ColorPicker from './../ui/ColorPicker';
-import Toggler from './../ui/Toggler';
 import SymbolPicker from './../ui/SymbolPicker';
 import BlockSource from './BlockSource';
 import ListOptions from './ListOptions';
@@ -122,9 +121,9 @@ export class InspectorBlock extends Component {
   /**
    * current name of instance or null if multi-select
    */
-  currentName(defaultToRole) {
+  currentName(useGetName = true) {
     if (this.props.instances.length === 1) {
-      return this.props.instances[0].metadata.name || (defaultToRole ? this.props.instances[0].rules.role : '') || '';
+      return useGetName ? this.props.instances[0].getName() : this.props.instances[0].metadata.name;
     }
     return '';
   }

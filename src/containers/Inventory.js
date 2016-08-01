@@ -54,7 +54,7 @@ export class Inventory extends Component {
           </div>
         </div>
 
-        <div className="SidePanel-content">
+        <div className="SidePanel-content no-vertical-scroll">
           <div className="Inventory-groups">
             <InventoryGroup title="Search"
                             type="search"

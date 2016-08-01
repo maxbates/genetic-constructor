@@ -1,7 +1,7 @@
 @import 'variables.css';
 
 .cvc-drop-target {
-  padding: 2rem 0 2rem 0;
+  padding: 2rem 1rem;
   margin: 1rem 12px 3rem 22px;
   font-size: var(--font-size-sectionLabel);
   font-family: var(--font-family-base);

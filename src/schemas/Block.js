@@ -37,6 +37,7 @@ const blockFields = {
     'Block UUID',
   ],
 
+  //todo - scaffold this to null to mark unassociated? and require the field?
   projectId: [
     fields.id({ prefix: 'project' }),
     'Project UUID',

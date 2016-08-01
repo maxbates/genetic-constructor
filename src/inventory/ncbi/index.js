@@ -1,23 +1,22 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import rejectingFetch from '../../middleware/rejectingFetch';
 import queryString from 'query-string';
 import Block from '../../models/Block';
-import merge from 'lodash.merge';
-import debounce from 'lodash.debounce';
+import { merge, debounce } from 'lodash';
 import { convertGenbank } from '../../middleware/genbank';
 
 // NCBI limits number of requests per user/ IP, so better to initate from the client and I support process on client...
@@ -25,7 +24,7 @@ export const name = 'NCBI';
 
 const makeFastaUrl = (id) => `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${id}&rettype=fasta&retmode=text`;
 
-//todo - handle RNA
+//todo - handle RNA? reject it? what do we want to do?
 
 //convert genbank file to bunch of blocks
 //assume there is always one root construct
@@ -50,14 +49,27 @@ const wrapBlock = (block, id) => {
   }));
 };
 
+//pass in form { blockField: summaryField }
+const mapSummaryToNotes = (map, summary) => {
+  return Object.keys(map).reduce((acc, blockField) => {
+    const summaryField = map[blockField];
+    const summaryValue = summary[summaryField];
+    if (summaryValue) {
+      return Object.assign(acc, { [ blockField]: summaryValue });
+    }
+    return acc;
+  }, {});
+};
+
 const parseSummary = (summary) => {
   const fastaUrl = makeFastaUrl(summary.accessionversion);
 
   return new Block({
     metadata: {
-      name: summary.caption,
-      description: summary.title,
-      organism: summary.organism,
+      name: summary.title,
+      description: `${summary.title}
+
+NCBI Accession: ${summary.accessionversion}`,
     },
     sequence: {
       length: summary.slen,
@@ -69,10 +81,17 @@ const parseSummary = (summary) => {
       source: 'ncbi',
       id: summary.accessionversion,
     },
+    notes: mapSummaryToNotes({
+      Organism: 'organism',
+      Molecule: 'moltype',
+      'Date Created (NCBI)': 'createdate',
+      'Last Updated (NCBI)': 'updatedate',
+      extra: 'extra',
+    }, summary),
   });
 };
 
-export const getSummary = (...ids) => {
+const getSummary = (...ids) => {
   if (!ids.length) {
     return Promise.resolve([]);
   }
@@ -90,14 +109,16 @@ export const getSummary = (...ids) => {
       //return array of results
       return Object.keys(results).map(key => results[key]);
     })
-    .then(results => results.map(result => parseSummary(result)));
+    .then(results => results.map(result => parseSummary(result)))
+    .catch(err => {
+      console.log(err);
+      throw err;
+    });
 };
 
 // http://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch
 //note that these may be very very large, use getSummary unless you need the whole thing
-//!! important - Note that NCBI is moving to accession versions from UIDs
-//   this should be the accessionversion by this point, as it was set as source.id on parseSummary.
-export const get = (accessionVersion, parameters = {}, summary) => {
+export const get = (accessionVersion, parameters = {}, searchResult) => {
   const parametersMapped = Object.assign({
     format: 'gb',
     onlyConstruct: false,
@@ -112,14 +133,23 @@ export const get = (accessionVersion, parameters = {}, summary) => {
     .then(genbank => genbankToBlock(genbank, parametersMapped.onlyConstruct))
     .then(blocks => blocks.map(block => wrapBlock(block, accessionVersion)))
     .then(blockModels => {
-      if (parametersMapped.onlyConstruct) {
-        const first = blockModels[0];
-        const merged = first.merge({
-          sequence: summary.sequence,
-        });
-        return [merged];
-      }
-      return blockModels;
+      const [constructUnmerged, ... rest] = blockModels;
+
+      //we assign the ID so it matches the summary, and focuses in the inventory properly
+      //note that this depends on the construct being cloned on drop
+      const construct = constructUnmerged.merge({
+        id: searchResult.id,
+        metadata: searchResult.metadata,
+        notes: searchResult.notes,
+      });
+
+      return parametersMapped.onlyConstruct ?
+        [construct.merge({ sequence: searchResult.sequence })] : //if just returning the construct (e.g. for inventory), patch it with the sequence information
+        [construct, ...rest];
+    })
+    .catch(err => {
+      console.log(err);
+      throw err;
     });
 };
 
@@ -143,10 +173,20 @@ export const search = (query, options = {}) => {
 
   const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nuccore&${parameterString}`;
 
+  let count;
+
   return rejectingFetch(url)
     .then(resp => resp.json())
-    .then(json => json.esearchresult.idlist)
-    .then(ids => getSummary(...ids));
+    .then(json => {
+      count = json.esearchresult.count;
+      return json.esearchresult.idlist;
+    })
+    .then(ids => getSummary(...ids))
+    .then(results => Object.assign(results, { count, parameters }))
+    .catch(err => {
+      console.log(err);
+      throw err;
+    });
 };
 
 export const sourceUrl = ({ url, id }) => {

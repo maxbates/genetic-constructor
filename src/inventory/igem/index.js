@@ -23,7 +23,7 @@ export const name = 'iGEM Registry';
 const collection = 'igem';
 
 export const search = (term, options = {}) => {
-  const opts = Object.assign(
+  const parameters = Object.assign(
     {
       start: 0,
       entries: 50,
@@ -34,19 +34,20 @@ export const search = (term, options = {}) => {
     }
   );
 
-  return fetch(`${url}/search/?query_text=${term}&${queryString.stringify(opts)}`)
+  return fetch(`${url}/search/?query_text=${term}&${queryString.stringify(parameters)}`)
     .then(resp => resp.json())
     .then(results => parseResults(results))
+    .then(results => Object.assign(results, { parameters }))
     .catch(err => {
       console.error(err);
       return [];
     });
 };
 
-export const get = (id, parameters = {}) => {
+export const get = (id, parameters = {}, searchResult) => {
   return fetch(`${url}/${collection}/parts/${id}`)
     .then(resp => resp.json())
-    .then(result => parseFullResult(result));
+    .then(result => parseFullResult(result, searchResult));
 };
 
 export const sourceUrl = ({url, id}) => {

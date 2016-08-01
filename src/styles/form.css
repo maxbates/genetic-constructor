@@ -1,13 +1,13 @@
 @import './variables.css';
 
 :root {
---radius: 3px;
---element-height: 3rem;
---inputcolor: #E1E2E5;
---textcolor: #888899;
---primarycolor: #343A4D;
---errorcolor: #FF6A5E;
---fontsize: 1.25rem;
+  --radius: 3px;
+  --element-height: 3rem;
+  --inputcolor: #E1E2E5;
+  --textcolor: #888899;
+  --primarycolor: #343A4D;
+  --errorcolor: #FF6A5E;
+  --fontsize: 1.25rem;
 }
 
 .gd-form {
@@ -30,13 +30,13 @@
   .title {
     font-size: var(--element-height * 0.5);
     color: var(--textcolor);
-    text-align:center;
+    text-align: center;
     margin-top: 1rem;
     margin-bottom: 2rem !important;
   }
 
-  input {
-    height: var(--element-height);
+  input,
+  textarea {
     font-size: var(--fontsize);
     border-radius: var(--radius);
     border: 1px solid whitesmoke;
@@ -44,10 +44,17 @@
     text-indent: 0.5rem;
     outline: none;
     color: var(--primarycolor);
+    padding: 0.25em;
+
+    &:focus {
+      border: 1px solid lightgray;
+    }
   }
-  input:focus {
-    border: 1px solid lightgray;
+
+  input {
+    height: var(--element-height);
   }
+
   select {
     font-size: 1rem;
   }
@@ -58,7 +65,7 @@
     border-radius: 0;
     cursor: pointer;
   }
-  button[type="button"]  {
+  button[type="button"] {
     background-color: white;
     border: none;
     color: textcolor;
@@ -120,7 +127,7 @@
     font-size: var(--fontsize);
     color: var(--textcolor);
   }
-  
+
   p {
     font-size: var(--fontsize);
     color: var(--textcolor);

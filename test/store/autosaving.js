@@ -19,9 +19,11 @@ describe('Store', () => {
       }
     };
 
+    const throttleTime = 30;
+    const waitTime = 13;
+    assert(throttleTime > waitTime * 2, 'wait time must be less than throttle time');
+
     const saveSpy = sinon.spy();
-    const throttleTime = 500;
-    const waitTime = 250;
     const forceSaveActionType = 'FORCE_SAVE';
     const autosaving = autosaveCreator({
       time: throttleTime,
@@ -119,8 +121,8 @@ describe('Store', () => {
 
     it('coordinates across multiple reducers', (done) => {
       const coordinatingSpy = sinon.spy();
-      const savingTime = 500;
-      const waitingTime = 200;
+      const savingTime = 50;
+      const waitingTime = 20;
       const autosave = autosaveCreator({
         onSave: coordinatingSpy,
         time: savingTime,

@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
@@ -59,8 +59,11 @@ import {
   uiSetGrunt,
   uiShowAbout,
   inventorySelectTab,
+  inspectorToggleVisibility,
+  inventoryToggleVisibility,
+  uiShowDNAImport,
+  uiReportError,
 } from '../actions/ui';
-import { inspectorToggleVisibility, inventoryToggleVisibility, uiShowDNAImport } from '../actions/ui';
 import KeyboardTrap from 'mousetrap';
 import { stringToShortcut } from '../utils/ui/keyboard-translator';
 import {
@@ -112,6 +115,7 @@ class GlobalNav extends Component {
     blockAddComponents: PropTypes.func.isRequired,
     uiShowAbout: PropTypes.func.isRequired,
     uiShowDNAImport: PropTypes.func.isRequired,
+    uiReportError: PropTypes.func.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
     inspectorVisible: PropTypes.bool.isRequired,
     detailViewVisible: PropTypes.bool.isRequired,
@@ -261,7 +265,7 @@ class GlobalNav extends Component {
       const projectId = this.props.currentProjectId;
       //load another project, avoiding this one
       this.props.projectLoad(null, false, [projectId])
-        //open the new project, skip saving the previous one
+      //open the new project, skip saving the previous one
         .then(project => this.props.projectOpen(project.id, true))
         //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
         .then(() => this.props.projectDelete(projectId));
@@ -331,7 +335,7 @@ class GlobalNav extends Component {
   copyFocusedBlocksToClipboard() {
     // we don't currently allow copying from frozen / fixed constructs since that would allow copy ( and then pasting )
     // of list blocks from temlates.
-    if (this.props.focus.blockIds.length  && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
+    if (this.props.focus.blockIds.length && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
       // sort selected blocks so they are pasted in the same order as they exist now.
       // NOTE: we don't copy the children of any selected parents since they will
       // be cloned along with their parent
@@ -610,7 +614,7 @@ class GlobalNav extends Component {
           items: [
             {
               text: 'Report a Bug',
-              action: () => { window.open('https://github.com/autodesk-bionano/genome-designer/issues', '_blank')}
+              action: () => { this.props.uiReportError(true); },
             },
             {},
             {
@@ -676,7 +680,8 @@ class GlobalNav extends Component {
           messageHTML={(
             <div className="message">
               <br/>
-              <span className="line">{this.props.project ? (`"${this.props.project.getName()}"` || "Your Project") : ""}</span>
+              <span
+                className="line">{this.props.project ? (`"${this.props.project.getName()}"` || "Your Project") : ""}</span>
               <br/>
               <span className="line">and all related project data will be permanently deleted.</span>
               <br/>
@@ -690,11 +695,11 @@ class GlobalNav extends Component {
           okText="Delete"
           cancelText="Cancel"
           ok={() => {
-            this.setState({showDeleteProject: false});
+            this.setState({ showDeleteProject: false });
             this.deleteProject();
           }}
           cancel={() => {
-            this.setState({showDeleteProject: false});
+            this.setState({ showDeleteProject: false });
           }}
         />
       </div>
@@ -744,6 +749,7 @@ export default connect(mapStateToProps, {
   uiToggleDetailView,
   uiShowAbout,
   uiSetGrunt,
+  uiReportError,
   focusBlocks,
   focusBlocksAdd,
   focusBlocksToggle,

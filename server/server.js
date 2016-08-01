@@ -22,6 +22,7 @@ import dataRouter from './data/index';
 import orderRouter from './order/index';
 import fileRouter from './file/index';
 import extensionsRouter from './extensions/index';
+import reportRouter from './report/index';
 import bodyParser from 'body-parser';
 import errorHandlingMiddleware from './utils/errorHandlingMiddleware';
 import checkUserSetup from './auth/userSetup';
@@ -103,6 +104,7 @@ app.use('/data', dataRouter);
 app.use('/order', orderRouter);
 app.use('/file', fileRouter);
 app.use('/extensions', extensionsRouter);
+app.use('/report', reportRouter);
 
 //extensions
 app.use('/import', importRouter);

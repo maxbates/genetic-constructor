@@ -15,15 +15,19 @@ limitations under the License.
 */
 import invariant from 'invariant';
 import BlockSchema from '../schemas/Block';
-import { values, flatten } from 'lodash';
+import { values, flatten, get as pathGet, pickBy } from 'lodash';
 import saveCombinations from '../utils/generators/orderConstructs';
+
+const assertBlockExists = (block, blockId) => invariant(block && block.metadata, 'no block exists for block ID ' + blockId);
 
 /***************************************
  * Parent accessing / store knowledge-requiring
  ***************************************/
 
 const _getBlockFromStore = (blockId, store) => {
-  return store.blocks[blockId] || null;
+  const block = store.blocks[blockId] || null;
+  assertBlockExists(block, blockId);
+  return block;
 };
 
 const _getParentFromStore = (blockId, store, def = null) => {
@@ -32,6 +36,15 @@ const _getParentFromStore = (blockId, store, def = null) => {
     return block.components.indexOf(blockId) > -1;
   });
   return !!id ? store.blocks[id] : def;
+};
+
+//ommitting constructId will just return first found list owner
+const _getListOwnerFromStore = (optionId, constructId, store) => {
+  const block = _getBlockFromStore(optionId, store); //assert option is in the store
+  const contents = !!constructId ? _getAllContents(constructId, store) : store.blocks;
+  return Object.keys(contents)
+    .map(blockId => contents[blockId])
+    .find(block => block.options.hasOwnProperty(optionId));
 };
 
 //todo - move to object
@@ -81,6 +94,12 @@ const _getAllOptions = (rootId, store, includeUnselected) => {
   }, {});
 };
 
+const _getAllContents = (rootId, state) => {
+  const options = _getAllOptions(rootId, state);
+  const components = _getAllComponents(rootId, state).reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+  return Object.assign(options, components);
+};
+
 const _filterToLeafNodes = (blocks) => blocks.filter(child => !child.components.length);
 
 const _getParents = (blockId, state) => {
@@ -126,9 +145,26 @@ const _flattenConstruct = (blockId, state) => {
   ));
 };
 
+//e.g. _getWithFieldValue('metadata.name', 'my block', state)
+const _getWithFieldValue = (path, value, store) => {
+  return pickBy(store.blocks, (block) => pathGet(block, path) === value);
+};
+
 export const blockGet = (blockId) => {
   return (dispatch, getState) => {
     return _getBlockFromStore(blockId, getState());
+  };
+};
+
+export const blockGetBlocksWithName = (name) => {
+  return (dispatch, getState) => {
+    return _getWithFieldValue('metadata.name', name, getState());
+  };
+};
+
+export const blockGetParent = (blockId) => {
+  return (dispatch, getState) => {
+    return _getParentFromStore(blockId, getState());
   };
 };
 
@@ -136,8 +172,7 @@ export const blockGet = (blockId) => {
 //returns blocks, not ids
 export const blockGetParents = (blockId) => {
   return (dispatch, getState) => {
-    const store = getState();
-    return _getParents(blockId, store);
+    return _getParents(blockId, getState());
   };
 };
 
@@ -171,15 +206,13 @@ export const blockGetOptionsRecursive = (blockId) => {
 //returns object
 export const blockGetContentsRecursive = (blockId) => {
   return (dispatch, getState) => {
-    const state = getState();
-    const options = _getAllOptions(blockId, state);
-    const components = _getAllComponents(blockId, state).reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
-    return Object.assign(options, components);
+    return _getAllContents(blockId, getState());
   };
 };
 
 //get all non-constructs
 //todo - move to object
+//todo - include list blocks
 export const blockGetLeaves = (blockId) => {
   return (dispatch, getState) => {
     return _filterToLeafNodes(_getAllComponents(blockId, getState()));
@@ -279,6 +312,33 @@ export const blockHasSequence = blockId => {
   return (dispatch, getState) => {
     const block = _getBlockFromStore(blockId, getState());
     return !!block && block.hasSequence();
+  };
+};
+
+//constructId is required as list options may exist in multiple places within a project - should be lowest known parent
+export const blockGetListOwner = (optionId, constructId) => {
+  return (dispatch, getState) => {
+    return _getListOwnerFromStore(optionId, constructId, getState());
+  };
+};
+
+export const blockIsListOption = (optionId, constructId, returnParentId = false) => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const block = _getBlockFromStore(optionId, state);
+
+    //basic checks
+    if (block.isConstruct() || block.isList()) {
+      return false;
+    }
+
+    const listOwner = _getListOwnerFromStore(optionId, constructId, state);
+
+    if (!listOwner) {
+      return false;
+    }
+
+    return !!returnParentId ? listOwner.id : true;
   };
 };
 
@@ -396,8 +456,10 @@ export const blockFlattenConstructAndLists = (blockId) => {
       const preference = optionPreferences[block.id];
       return (block.isList() && options.length) ?
         //give the block a color if in a list - technically the block in the store but all immutable so whatever
-        //hack - clone it because technically frozen
-        state.blocks[preference || options[0]].clone(false).merge({ metadata: { color: block.metadata.color } }) :
+        //clone it because technically frozen
+        state.blocks[preference || options[0]]
+          .clone(null)
+          .merge({ metadata: { color: block.metadata.color } }) :
         block;
     });
   };

@@ -98,6 +98,12 @@ export default class MouseTrap {
    * mouse down handler, invoked on our target element
    */
   onMouseDown(event) {
+    // whenever our element gets a mouse down ( any button ) ensure any inputs are unfocused
+    if (document.activeElement
+      && document.activeElement.tagName
+      && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' )) {
+      document.activeElement.blur();
+    }
     // left button only
     if (event.which !== 1) {
       return;

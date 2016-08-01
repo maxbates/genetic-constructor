@@ -23,6 +23,7 @@ import AboutForm from '../components/aboutform';
 import OrderModal from '../containers/orders/ordermodal';
 import ModalSpinner from '../components/modal/modalspinner';
 import SaveErrorModal from '../components/modal/SaveErrorModal';
+import ReportErrorModal from '../components/modal/ReportErrorModal';
 import track from '../analytics/ga';
 
 import '../styles/App.css';
@@ -86,6 +87,7 @@ class App extends Component {
         <ImportDNAForm />
         <AboutForm />
         <SaveErrorModal />
+        <ReportErrorModal />
         <OrderModal projectId={this.props.currentProjectId} />
         <div className="App-pageContent">
           {this.props.children}

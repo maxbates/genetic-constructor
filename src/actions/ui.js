@@ -209,3 +209,13 @@ export const uiSaveFailure = () => {
     return null;
   };
 };
+
+export const uiReportError = (nextState) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: ActionTypes.UI_SHOW_REPORT_ERROR,
+      modalState: nextState,
+    });
+    return null;
+  };
+};

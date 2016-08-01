@@ -16,7 +16,7 @@ limitations under the License.
 import invariant from 'invariant';
 import Block from '../../models/Block';
 import Annotation from '../../models/Annotation';
-import merge from 'lodash.merge';
+import { merge } from 'lodash';
 
 function normalizePartType(inputType) {
   let partType = inputType.toLowerCase();
@@ -51,7 +51,7 @@ export function parseSearchResult(result) {
 }
 
 //async
-export function parseFullResult(result) {
+export function parseFullResult(result, searchResult) {
   const { sequence } = result;
   const basics = parseBasicFields(result);
   const annotations = (result.metadata.features && Array.isArray(result.metadata.features.feature)) ?
@@ -77,7 +77,12 @@ export function parseFullResult(result) {
       url: result.metadata.part_url,
     },
   };
-  const block = new Block(merge(basics, additional));
+
+  const overrides = {
+    id: searchResult.id,
+  };
+
+  const block = new Block(merge(basics, additional, overrides));
   return block.setSequence(sequence, false, true);
 }
 
@@ -86,5 +91,3 @@ export function parseResults(results) {
 
   return results.map(parseSearchResult);
 }
-
-export default parseResults;

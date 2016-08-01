@@ -110,16 +110,21 @@ async function start() {
           //helpers for events listening
           const eventsCareAbout = ['add', 'change', 'unlink', 'addDir', 'unlinkDir'];
           const handleChange = (evt, path, stat) => {
-            if (!eventsCareAbout.indexOf(evt) >= 0) {
-              return;
+            if (eventsCareAbout.includes(evt)) {
+              console.log(evt, path);
+              runServer();
             }
-            console.log(evt, path);
-            runServer();
           };
+
+          //helpers for ignoring certain files
           const ignoreDotFilesAndNestedNodeModules = /([\/\\]\.)|(node_modules\/.*?\/node_modules)/gi;
           const ignoreFilePathCheck = (path) => {
             console.log(path);
             if (ignoreDotFilesAndNestedNodeModules.test(path)) {
+              return true;
+            }
+            //ignore jetbrains temp filesystem
+            if (/__jb_/ig.test(path)) {
               return true;
             }
             //ignore node_modules for things in the root /extensions/ folder

@@ -1,0 +1,18 @@
+@import './variables.css';
+
+.fourohfour {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--colors-blueBlack);
+  z-index: var(--z404);
+}
+
+iframe.fourohfour[seamless]{
+  background-color: var(--colors-blueBlack);
+  border: none;
+  padding: 0px;
+  overflow: hidden;
+}

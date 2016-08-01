@@ -113,5 +113,13 @@ describe('Model', () => {
       expect(inst.clone.bind(inst, badVersion)).to.throw();
       expect(inst.clone.bind(inst, goodVersion)).to.not.throw();
     });
+
+    it('clone(null) does not change ID or add to history', () => {
+      const inst = new Instance();
+      const clone = inst.clone(null);
+      assert(clone !== inst, 'should not be the same instance');
+      assert(clone.id === inst.id, 'should have same id after clone(null)');
+      assert(clone.parents.length === inst.parents.length, 'should not add a parent');
+    });
   });
 });
