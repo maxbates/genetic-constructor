@@ -8,7 +8,6 @@ e2ereports
 selenium-debug.log
 /redis-stable
 dump.rdb
-storage/test/*
 temp.*
 *.pyc
 *__pycache__*
@@ -18,3 +17,7 @@ storage/
 build/
 screenshots/
 genome-designer-*.tgz
+report.xml
+eslint.xml
+VERSION
+build-manifest.txt

@@ -13,30 +13,38 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import registry, { register, validRegion } from './clientRegistry';
-import merge from 'lodash.merge';
+import registry, { registerRender } from './clientRegistry';
 import invariant from 'invariant';
 
-const registerExtension = (manifest, render) => {
-  const { name, region } = manifest;
-  invariant(name, 'Name is required');
-  invariant(typeof render === 'function', 'Must provide a render function to register a plugin');
-  invariant(region || region === null, 'Region (manifest.region) is required to register a plugin, or null for non-visual plugins');
-  invariant(validRegion(region), 'Region must be a valid region');
+/**
+ * Register a client-side extension with Genetic Constructor. This function registers a `render` function with the manifest of the extension, allowing the extension to render on the page.
+ * @name register
+ * @function
+ * @memberOf module:constructor.module:extensions
+ * @param {string} key Name of the extension, must match package.json of the extension
+ * @param {function} render Function called when the extension is requested to render. Called with signature `render(container, options)`
+ */
+const registerExtension = (key, render) => {
+  const manifest = registry[key];
 
-  //wrap the render function in a closer and try-catch
+  //we've already checked the manifest is valid when registering the manifest, so if its present, its valid.
+  invariant(!!manifest, `Cannot register an extension which does not have a registered manifest, tried to register ${key}`);
+
+  //check the render function
+  invariant(typeof render === 'function', 'Must provide a render function to register a plugin. Plugins can interact with the exposed API at window.constructor without registering themselves.');
+
+  //wrap the render function in a closure and try-catch, and ensure it is downloaded
   const wrappedRender = function wrappedRender() {
     try {
-      render.apply(null, arguments);
-    } catch (e) {
-      console.error('there was an error loading the extension' + name);
-      console.error(e);
+      return render.apply(null, arguments);
+    } catch (err) {
+      console.error('there was an error rendering the extension ' + key);
+      console.error(err);
+      throw err;
     }
   };
 
-  const merged = merge({}, registry[name], manifest, { render: wrappedRender });
-  register(merged);
-  return merged;
+  registerRender(key, wrappedRender);
 };
 
 export default registerExtension;

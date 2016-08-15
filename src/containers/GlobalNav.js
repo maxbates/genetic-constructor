@@ -76,6 +76,8 @@ import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import OkCancel from '../components/okcancel';
 import * as instanceMap from '../store/instanceMap';
 import { merge } from 'lodash';
+import { extensionApiPath } from '../middleware/paths';
+
 
 import '../styles/GlobalNav.css';
 
@@ -291,7 +293,7 @@ class GlobalNav extends Component {
     this.saveProject()
       .then(() => {
         // for now use an iframe otherwise any errors will corrupt the page
-        const url = `${window.location.protocol}//${window.location.host}/export/genbank/${this.props.currentProjectId}`;
+        const url = extensionApiPath('genbank', `export/${this.props.currentProjectId}`);
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.src = url;
@@ -616,6 +618,17 @@ class GlobalNav extends Component {
               text: 'Report a Bug',
               action: () => { this.props.uiReportError(true); },
             },
+            {
+              text: 'Give Us Feedback',
+              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
+            },
+            {
+              text: 'Forums',
+              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
+            }, {
+              text: 'Get Support',
+              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/support'),
+            },
             {},
             {
               text: 'User Guide',
@@ -624,17 +637,12 @@ class GlobalNav extends Component {
               text: 'Tutorials',
               action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/tutorials'),
             }, {
-              text: 'Forums',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
-            }, {
-              text: 'Get Support',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/support'),
-            }, {
               text: 'Keyboard Shortcuts',
               action: this.disgorgeDiscourse.bind(this, '/t/keyboard-shortcuts'),
-            }, {
-              text: 'Give Us Feedback',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
+            },
+            {
+              text: 'API Documentation',
+              action: () => { window.open('/help/docs', '_blank'); },
             },
             {},
             {
@@ -672,7 +680,7 @@ class GlobalNav extends Component {
         <img className="GlobalNav-logo" src="/images/homepage/app-logo.png"/>
         {showMenu && this.menuBar()}
         <span className="GlobalNav-spacer"/>
-        {showMenu && <AutosaveTracking projectId={currentProjectId}/>}
+        {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId}/>}
         <UserWidget/>
         <OkCancel
           open={this.state.showDeleteProject}

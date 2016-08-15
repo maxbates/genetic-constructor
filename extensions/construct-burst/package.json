@@ -1,0 +1,23 @@
+{
+  "name": "construct-burst",
+  "version": "1.0.0",
+  "description": "Sunburst diagram for Constructor constructs",
+  "main": "index.js",
+  "geneticConstructor": {
+    "readable": "Sunburst",
+    "client": "index.js",
+    "region": "sequenceDetail"
+  },
+  "scripts": {
+    "dev": "webpack main.js -o index.js -d -s --watch",
+    "build": "webpack main.js -o index.js -d -s",
+    "prepublish": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^3.5.17",
+    "webpack": "^1.13.1"
+  }
+}

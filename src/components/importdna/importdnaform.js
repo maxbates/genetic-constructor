@@ -71,7 +71,7 @@ class DNAImportForm extends Component {
       this.setState({
         inputValid: true,
         validLength: 0,
-        sequence: null,        
+        sequence: null,
       });
     }
   }
@@ -166,6 +166,11 @@ class DNAImportForm extends Component {
           <form className="gd-form importdnaform" onSubmit={this.onSubmit.bind(this)}>
             <div className="title">Add Sequence</div>
             <textarea
+              onKeyDown={event => {
+                if (event.key === 'Enter') {
+                  this.onSubmit(event);
+                }
+              }}
               style={{textTransform: 'uppercase'}}
               placeholder="Type or paste DNA sequence data here."
               rows="10"

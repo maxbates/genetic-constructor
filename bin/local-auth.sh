@@ -12,7 +12,7 @@ correct_cwd () {
         exit 1
     fi
     PROJECT=$(grep '"name":' package.json | tr -d ' ' | tr -d ',' | tr -d '"' | cut -f 2 -d :)
-    if [ "$PROJECT" != "genome-designer" ]
+    if [ "$PROJECT" != "genetic-constructor" ]
     then
         echo "unexpected project name: $PROJECT"
         exit 1

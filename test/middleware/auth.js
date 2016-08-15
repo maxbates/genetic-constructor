@@ -2,32 +2,15 @@ import { assert, expect } from 'chai';
 import request from 'supertest';
 import { login, getUser } from '../../src/middleware/auth';
 
-const devServer = require('../../server/server');
+//noinspection JSUnusedLocalSymbols
+const devServer = require('../../server/server'); // starts the server which will be accessed by methods below
 
 describe('middleware', () => {
   describe('auth', () => {
-    let server;
     const dummyUser = {
       email: 'bio.nano.dev@autodesk.com',
       password: 'HelpMe#1',
     };
-
-    before('server setup', (done) => {
-      // this is needed for the middleware functions and could cause conflicts with other tests
-      // recommend creating a global module to provide an app proxy to all tests using the web server from client side
-      // methods
-      server = devServer.listen(3000, 'localhost', function (err) {
-        if (err) {
-          console.log("server failure", err);
-          return done(err);
-        }
-        done();
-      });
-    });
-
-    after(() => {
-      server.close();
-    });
 
     it('login() receive the user object', () => {
       return login(dummyUser.email, dummyUser.password)

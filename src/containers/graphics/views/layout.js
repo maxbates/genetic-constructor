@@ -456,17 +456,18 @@ export default class Layout {
       if (this.construct.isTemplate()) {
         text += '<span style="color:gray">&nbsp;Template</span>';
       }
-      const width = this.titleNode.measureText(text).x + kT.textPad + kT.contextDotsW;
+      this.titleNodeTextWidth = this.titleNode.measureText(text).x + kT.textPad;
 
       this.titleNode.set({
         text: text,
         color: this.baseColor,
-        bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, width, kT.titleH),
+        bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, this.sceneGraph.availableWidth - this.insetX - kT.rightPad, kT.titleH),
+        dataAttribute: {name: 'construct-title', value: text},
       });
 
       // set dots to the right of the text
       this.titleNodeDots.set({
-        bounds: new Box2D(width - kT.contextDotsW, (kT.titleH - kT.contextDotsH) / 2, kT.contextDotsW, kT.contextDotsH),
+        bounds: new Box2D(this.titleNodeTextWidth, (kT.titleH - kT.contextDotsH) / 2, kT.contextDotsW, kT.contextDotsH),
         visible: this.titleNode.hover,
         dotColor: this.baseColor,
       });

@@ -19,6 +19,7 @@ import Schema from './SchemaClass';
 /**
  * BlockSource denotes where a block came from. It is generally set on import / addition to the project
  * @name BlockSourceSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 const blockSourceFields = {
@@ -33,8 +34,8 @@ const blockSourceFields = {
   ],
 
   url: [
-    fields.url(),
-    `URL to resource`,
+    fields.string(),
+    `URL to resource, relative paths are relative to genetic construct root URL`,
     { scaffold: false },
   ],
 };

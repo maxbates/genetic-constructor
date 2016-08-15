@@ -23,6 +23,7 @@ import Schema from './SchemaClass';
  * Later, we may want to make a field that notes how optimizable the sequence is. E.g. none, codon-optimize, or random sequence. It may be represented as a degenerate sequence?
  *
  * @name AnnotationSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 

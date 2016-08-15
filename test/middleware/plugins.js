@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
 import fs from 'fs';
 import * as api from '../../src/middleware/data';
-import { exportBlock, importConstruct, importProject, importGenbankOrCSV } from '../../src/middleware/genbank';
+import { exportBlock, importFile, importGenbankOrCSV } from '../../src/middleware/genbank';
 
 describe('Middleware', () => {
   describe('Plugins', () => {
@@ -32,7 +32,7 @@ describe('Middleware', () => {
               expect(gotRoll.blocks.length).to.equal(8); // There are 8 blocks in that file
               // Now add a construct to it...
               fs.readFile('./test/res/sampleGenbankContiguous.gb', 'utf8', (err, sampleStrConstruct) => {
-                importConstruct('genbank', sampleStrConstruct, result.ProjectId)
+                importFile(sampleStrConstruct, result.ProjectId)
                   .then(data => {
                     // This just tests that the api works as expected. The tests about the particular
                     // Genbank conversions to and from blocks are in the genbank.spec.js file
@@ -54,20 +54,6 @@ describe('Middleware', () => {
               done(err);
             });
         });
-    });
-
-    it.skip('importProject() should be able convert feature file -.tab- to Blocks', function testFunc(done) {
-      fs.readFile('./test/res/sampleFeatureFile.tab', 'utf8', (err, sampleFeatures) => {
-        importProject('features', sampleFeatures)
-          .then(result => {
-            expect(result.project.components.length === 125).to.equal(true);
-            expect(result.blocks[result.project.components[19]].metadata.name === '19:CBDcenA ').to.equal(true);
-            done();
-          })
-          .catch(err => {
-            done(err);
-          });
-      });
     });
   });
 });

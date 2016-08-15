@@ -35,10 +35,10 @@ const idValidator = (id) => safeValidate(validators.id(), true, id);
  *
  * - when blocks are frozen, they are just copied between projects. When a block becomes unfrozen, it needs to be cloned. This is in part because blocks that are frozen are shared between projects, and when two projects share a block with the same ID, it is assumed (and should be guaranteed) that they are completely identical.
  *
+ * @name Block
  * @class
  * @extends Instance
  *
- * @memberOf module:Models
  * @gc Model
  */
 export default class Block extends Instance {
@@ -59,6 +59,7 @@ export default class Block extends Instance {
   /**
    * Create an unfrozen block, extending input with schema
    * @method classless
+   * @memberOf Block
    * @static
    * @param {Object} [input]
    * @returns {Object} an unfrozen JSON, no instance methods
@@ -70,6 +71,7 @@ export default class Block extends Instance {
   /**
    * Validate a Block data object
    * @method validate
+   * @memberOf Block
    * @static
    * @param {Object} input
    * @param {boolean} [throwOnError=false] Whether to throw on errors
@@ -88,6 +90,8 @@ export default class Block extends Instance {
    * Calls {@link Instance.clone} internally, but structure of block history is different than that of the Instance class.
    * Cloning a block will disable the frozen rule.
    * note that if you are cloning multiple blocks / blocks with components, you likely need to clone the components as well. You will need to re-map the IDs outside of this function. See {@link blockClone} action for an example.
+   * @method clone
+   * @memberOf Block
    * @param {object|null} parentInfo Parent info for denoting ancestry. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
    * @param overwrites
    * @returns {Block} Cloned block
@@ -117,6 +121,7 @@ export default class Block extends Instance {
   /**
    * Mutate a property of a Block to a new value. calls {@link Instance.mutate}.
    * @method mutate
+   * @memberOf Block
    * @param {string} path Path of property to change
    * @param {*} value New value
    * @throws if the block is frozen
@@ -135,6 +140,7 @@ export default class Block extends Instance {
   /**
    * Return a new Block with input object merged into it. Calls {@link Instance.merge}
    * @method merge
+   * @memberOf Block
    * @param {Object} obj Object to merge into instance
    * @throws if the block is frozen
    * @returns {Block} A new Block, with `obj` merged in
@@ -158,6 +164,7 @@ export default class Block extends Instance {
   /**
    * Check whether Block has components or list options
    * @method hasContents
+   * @memberOf Block
    * @returns {boolean}
    */
   hasContents() {
@@ -169,6 +176,7 @@ export default class Block extends Instance {
   /**
    * Check if Block is a construct (it has components)
    * @method isConstruct
+   * @memberOf Block
    * @returns {boolean}
    */
   isConstruct() {
@@ -178,6 +186,7 @@ export default class Block extends Instance {
   /**
    * Check whether Block is fixed
    * @method isFixed
+   * @memberOf Block
    * @returns {boolean}
    */
   isFixed() {
@@ -187,6 +196,7 @@ export default class Block extends Instance {
   /**
    * Check whether Block is a template
    * @method isTemplate
+   * @memberOf Block
    * @returns {boolean}
    */
   isTemplate() {
@@ -196,6 +206,7 @@ export default class Block extends Instance {
   /**
    * Check whether Block is a filler block
    * @method isFiller
+   * @memberOf Block
    * @returns {boolean}
    */
   isFiller() {
@@ -205,6 +216,7 @@ export default class Block extends Instance {
   /**
    * Check whether Block is a list Block
    * @method isList
+   * @memberOf Block
    * @returns {boolean}
    */
   isList() {
@@ -214,6 +226,7 @@ export default class Block extends Instance {
   /**
    * Check whether Block is hidden
    * @method isHidden
+   * @memberOf Block
    * @returns {boolean}
    */
   isHidden() {
@@ -223,6 +236,7 @@ export default class Block extends Instance {
   /**
    * Check whether Block is frozen
    * @method isFrozen
+   * @memberOf Block
    * @returns {boolean}
    */
   isFrozen() {
@@ -236,6 +250,7 @@ export default class Block extends Instance {
   /**
    * Set a rule on a Block
    * @method setRule
+   * @memberOf Block
    * @param rule
    * @param value
    * @returns {Block}
@@ -247,6 +262,7 @@ export default class Block extends Instance {
   /**
    * Get the Block's role. Roles are defined in {@link module:roles}
    * @method getRole
+   * @memberOf Block
    * @param {boolean} [userFriendly=true] Format string to human readable version
    * @returns {string} Block rule
    */
@@ -262,6 +278,7 @@ export default class Block extends Instance {
   /**
    * Freeze a Block. Returns the instance if attempt to freeze a frozen Block.
    * @method setFrozen
+   * @memberOf Block
    * @param {boolean} [isFrozen=true] Frozen state
    * @throws if `!isFrozen` and block is frozen (must clone block to unfreeze it)
    * @returns {Block}
@@ -277,6 +294,7 @@ export default class Block extends Instance {
   /**
    * Set the role of the Block
    * @method setRole
+   * @memberOf Block
    * @param {string} role Role, should be from {@link module:roles}
    * @returns {Block}
    */
@@ -288,6 +306,7 @@ export default class Block extends Instance {
   /**
    * Specify whether Block is a list block. Clears components when setting to true, and clears options when setting to false.
    * @method setListBlock
+   * @memberOf Block
    * @param {boolean} isList
    * @returns {Block}
    */
@@ -312,6 +331,7 @@ export default class Block extends Instance {
   /**
    * Set Project ID for block.
    * @method setProjectId
+   * @memberOf Block
    * @param {UUID|null} projectId
    * @returns {Block}
    */
@@ -323,6 +343,7 @@ export default class Block extends Instance {
   /**
    * Get Block's name
    * @method getName
+   * @memberOf Block
    * @param {string} [defaultName] Prefer this string to the default e.g. `New Block`
    * @param {boolean} [defaultToBases] If no name, use initial bases as default
    * @returns {string}
@@ -338,6 +359,7 @@ export default class Block extends Instance {
   /**
    * Set Block's name
    * @method setName
+   * @memberOf Block
    * @param {string} newName
    * @throws if not a string
    * @returns {Block}
@@ -355,6 +377,7 @@ export default class Block extends Instance {
   /**
    * Get the type of Block
    * @method getType
+   * @memberOf Block
    * @param {string} [defaultType='Block']
    * @returns {string}
    */
@@ -368,6 +391,7 @@ export default class Block extends Instance {
   /**
    * Set Block's description
    * @method setDescription
+   * @memberOf Block
    * @param {string} desc New Description
    * @returns {Block}
    */
@@ -378,6 +402,7 @@ export default class Block extends Instance {
   /**
    * Set Block's color
    * @method setColor
+   * @memberOf Block
    * @param {string} [newColor] Hex string to use as color. Include leading `#`. Defaults to random color.
    * @returns {Block}
    * @example
@@ -396,6 +421,7 @@ export default class Block extends Instance {
   /**
    * Adds a component by ID
    * @method addComponent
+   * @memberOf Block
    * @param {UUID} componentId ID of child block
    * @param {number} [index=this.components.length]
    * @throws if fixed or list block, or if component ID invalid
@@ -414,6 +440,7 @@ export default class Block extends Instance {
   /**
    * Remove a component by ID
    * @method removeComponent
+   * @memberOf Block
    * @param componentId
    * @throws If fixed
    * @returns {Block} Returns same instance if componentId not found
@@ -435,6 +462,7 @@ export default class Block extends Instance {
   /**
    * Move a component to a new index
    * @method moveComponent
+   * @memberOf Block
    * @param {UUID} componentId Component ID
    * @param {number} newIndex index for block, after spliced out
    * @throws if fixed or list
@@ -470,6 +498,7 @@ export default class Block extends Instance {
    * Toggle whether a list option is active.
    * For Template usage.
    * @method toggleOptions
+   * @memberOf Block
    * @param {...UUID} optionIds
    * @throws if not a list block, or any optionId is not already a list option
    * @returns {Block}
@@ -482,6 +511,12 @@ export default class Block extends Instance {
     optionIds.forEach(optionId => {
       Object.assign(options, { [optionId]: !this.options[optionId] });
     });
+
+    //disallow removing all the options
+    if (Object.keys(options).filter(id => options[id]).length === 0) {
+      return this;
+    }
+
     return this.mutate('options', options);
   }
 
@@ -489,6 +524,7 @@ export default class Block extends Instance {
    * Add list options as possibilities (they will be inactive).
    * For template authoring.
    * @method addOptions
+   * @memberOf Block
    *
    * @private
    *
@@ -499,7 +535,7 @@ export default class Block extends Instance {
   addOptions(...optionIds) {
     invariant(this.isList(), 'must be a list block to add list options');
     invariant(optionIds.every(option => idValidator(option)), 'must pass component IDs');
-    const toAdd = optionIds.reduce((acc, id) => Object.assign(acc, { [id]: false }));
+    const toAdd = optionIds.reduce((acc, id) => Object.assign(acc, { [id]: false }), {});
     const newOptions = Object.assign(cloneDeep(this.options), toAdd);
 
     if (Object.keys(newOptions).length === Object.keys(this.options).length) {
@@ -513,6 +549,7 @@ export default class Block extends Instance {
    * Remove list options from possibilities.
    * For template authoring.
    * @method removeOptions
+   * @memberOf Block
    *
    * @private
    *
@@ -535,6 +572,7 @@ export default class Block extends Instance {
   /**
    * Returns array of list options, by default only active ones
    * @method getOptions
+   * @memberOf Block
    * @param {boolean} [includeUnselected=false] Include inactive list options
    * @returns {Array.<UUID>}
    */
@@ -549,6 +587,7 @@ export default class Block extends Instance {
   /**
    * Check whether block has a sequence saved on the server, or an associated URL
    * @method hasSequence
+   * @memberOf Block
    * @returns {boolean}
    */
   hasSequence() {
@@ -558,6 +597,7 @@ export default class Block extends Instance {
   /**
    * Retrieve the sequence of the block. Retrieves the sequence from the server, since it is stored in a separate file.
    * @method getSequence
+   * @memberOf Block
    * @returns {Promise} Promise which resolves with the sequence value, or (resolves) with null if no sequence is associated.
    */
   getSequence() {
@@ -578,6 +618,7 @@ export default class Block extends Instance {
   /**
    * Set sequence and write to server. Updates the length and initial bases. The block's source will be set to 'user'.
    * @method setSequence
+   * @memberOf Block
    * @param {string} sequence New sequence
    * @param {boolean} [useStrict=false] strictness of sequence validation (IUPAC bases)
    * @param {boolean} [persistSource=false] Maintain the source of the block
@@ -620,6 +661,7 @@ export default class Block extends Instance {
   /**
    * Add an Annotation
    * @method annotate
+   * @memberOf Block
    * @param {Annotation} annotation
    * @returns {Block}
    */
@@ -631,6 +673,7 @@ export default class Block extends Instance {
   /**
    * Remove an annotation
    * @method removeAnnotation
+   * @memberOf Block
    * @param {Annotation|string} annotation Annotation or annotation's name
    * @returns {Block}
    */

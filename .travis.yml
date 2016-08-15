@@ -1,0 +1,26 @@
+language: node_js
+node_js:
+- '4'
+python:
+- '2.7'
+env:
+- CXX=g++-4.8
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+install:
+- npm install
+- pip install --user biopython
+script:
+- npm run lint
+- npm run test
+cache:
+  directories:
+  - node_modules
+notifications:
+  email: false
+  slack:
+    secure: JOZIqZ8s4vFEtmgMYSy6TlVqIXiyjDWYhdkxIRg4SlXwcD/akuXM6Zn8S9J5kbmLcA7swZ5Z7Pu+v7Zhkq9MlJd09Dj2ROYBg9fL8biLhfte9WUK9lG/uAoNmOLeAApzhUhLRnXJR6lY7hPfUCUW5iWVWWvBbVKz6aw5MORaoasO097IHkmUZhVZdnajfZ5NFEc4EIyrZ/tn3ovR+eYg8zqdtUOsA+xY7+568bcg5gBqeY/zjTBVIrgoZ87j4/OdEQ/35v57iTQSc28O/uGBLg8c3NBxp+pvhueMWMkPyqzm4QacU0x3N3uOE2/9MZdicyW9+J99xe/19O/xrxkjrBWPDASdYIhCfhY9X/TzQmZ3xnIDR7KzW2cE5H5hrhxFnXc6hZ2hALkmA7QyV7mBnBGH09LHdDpB0yczdz+Xp42UQSCIag71dJRxDpO2FV+FRfQdrWAbFt5IVN0tll6OqX7DyI8gvo9YmjCSt5ZTWPm8YcW/GALwAD/oNt2mZSReMaRPjpzous3yLoF0++/MGJ0w4w80P3bMgoOLJX137vm4jXh0e1ZPDBTcmNK8XKZCdfljq0FPkp2ny80I+cdf6JjX3oNmcTpdrSVB4RYjosVjH/jl+pj1hBK+p4qf63BSmWLbc+uBT6k3eKPEE1g7RqmVvefPwfki8J1TO2chM2Q=

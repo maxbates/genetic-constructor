@@ -16,7 +16,9 @@ limitations under the License.
 import path from 'path';
 import { errorDoesNotExist } from '../utils/errors';
 import registry from './registry';
+import { clientBundleUrl, defaultClientFilePath } from './constants';
 
+//todo - no need for this right now - everything is statically avaialbe in the beginning (but other code expects this to be a promise)
 const loadExtension = (name) => {
   return new Promise((resolve, reject) => {
     const manifest = registry[name];
@@ -28,6 +30,17 @@ const loadExtension = (name) => {
   });
 };
 
-export const getExtensionInternalPath = (name, fileName = 'index.js') => path.resolve(__dirname, `./node_modules/${name}/${fileName}`);
+export const getExtensionInternalPath = (name, fileName = clientBundleUrl) => {
+  const extensionPath = path.resolve(__dirname, `./node_modules/${name}`);
+
+  //if requesting the bundle, see if the extension has a preferred route for it, otherwise just use index.js
+  if (fileName === clientBundleUrl) {
+    const manifest = registry[name];
+    const client = manifest.geneticConstructor.client || defaultClientFilePath;
+    return path.resolve(extensionPath, client);
+  }
+
+  path.resolve(extensionPath, fileName);
+};
 
 export default loadExtension;

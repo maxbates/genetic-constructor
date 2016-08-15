@@ -80,4 +80,7 @@
   ===================== */
   --listItem-background: rgba(255,255,255,0.2);
   --listItem-backgroundHover: var(--colors-selected);
+
+  /* Project Details */
+  --projectDetailsHeight: calc(100% - 24px);
 }

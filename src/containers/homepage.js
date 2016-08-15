@@ -22,6 +22,9 @@ import {
  } from '../actions/ui';
 import '../styles/homepage.css';
 import { projectOpen } from '../actions/projects';
+import {
+  privacy,
+} from '../utils/ui/uiapi';
 
 export default class HomePage extends Component {
   static propTypes = {
@@ -34,6 +37,11 @@ export default class HomePage extends Component {
     user: PropTypes.object,
   };
 
+  state = {
+    showCookieWarning: this.showCookieWarning(),
+  };
+
+
   // this route can result from path like 'homepage/signin', 'homepage', 'homepage/register' etc.
   // If the final path is the name of an authorization form we will show it
   componentDidMount() {
@@ -45,7 +53,7 @@ export default class HomePage extends Component {
       // NOTE: the nodirect query string prevents redirection
       if (this.props.user && this.props.user.userid && !this.props.location.query.noredirect) {
         // revisit last project
-        this.props.projectOpen(null);
+        this.props.projectOpen(null, true);
         return;
       }
     }
@@ -67,11 +75,33 @@ export default class HomePage extends Component {
     this.props.uiShowAuthenticationForm('signin');
   }
 
+  /**
+   * used is closing the cookie warnig so update local storage as seen
+   */
+  cookieWarningClosed() {
+    localStorage.setItem('cookie-warning', 'acknowledged');
+    this.setState({
+      showCookieWarning: false,
+    });
+  }
+  // truthy if the cookie warning must be shown
+  showCookieWarning() {
+    return !localStorage.getItem('cookie-warning');
+  }
+
   render() {
+    const warning =  this.state.showCookieWarning ? 'block' : 'none';
     return (
       <div className="homepage">
         <div className="homepage-image-area">
           <img className="homepage-logo" src="/images/homepage/app-logo.png"/>
+          <div className="homepage-cookie-warning" style={{display: warning}}>
+            Genetic Constructor uses cookies to ensure you get the best experience.
+            <a href={privacy} target="_blank">More Information</a>
+            <div onClick={this.cookieWarningClosed.bind(this)} className="homepage-cookie-close">
+              Close
+            </div>
+          </div>
           <img className="homepage-background" src="/images/homepage/tiles.jpg"/>
             <div className="homepage-name">
               <div className="lighter">Autodesk&nbsp;</div>
@@ -84,38 +114,6 @@ export default class HomePage extends Component {
         </div>
         <img className="homepage-autodesk" src="/images/homepage/autodesk-logo.png"/>
         <img className="homepage-egf" src="/images/homepage/egf-logo.png"/>
-        <div className="homepage-footer">
-          <div className="homepage-footer-title">New in version 0.1:</div>
-          <div className="homepage-footer-list">
-            <ul>
-              <li><span>&bull;</span>Search and import parts directly from the IGEM and NCBI databases.</li>
-              <li><span>&bull;</span>Specify parts from the Edinburgh Genome Foundry inventory.</li>
-              <li><span>&bull;</span>Import and export GenBank and FASTA files.</li>
-              <li><span>&bull;</span>Create an inventory of your own projects, constructs and parts to reuse.</li>
-              <li><span>&bull;</span>Drag and drop editing.</li>
-            </ul>
-            <ul>
-              <li><span>&bull;</span>Inspect sequence detail.</li>
-              <li><span>&bull;</span>Create nested constructs to manage complexity.</li>
-              <li><span>&bull;</span>Assign SBOL visual symbols and colors.</li>
-              <li><span>&bull;</span>Add titles and descriptions blocks, constructs and projects.</li>
-              <li><span>&bull;</span>Organize constructs into separate projects.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  renderOLD() {
-    return (
-      <div className="homepage">
-        <div className="homepage-image-area">
-          <img className="homepage-background" src="/images/homepage/tiles.jpg"/>
-          <div className="homepage-getstarted" onClick={this.signIn.bind(this)}>Get started</div>
-          <img className="homepage-title" src="/images/homepage/genomedesigner.png"/>
-        </div>
-        <img className="homepage-autodesk" src="/images/homepage/autodesk-logo.png"/>
-        <div className="homepage-egf">Edinburgh Genome Foundry</div>
         <div className="homepage-footer">
           <div className="homepage-footer-title">New in version 0.1:</div>
           <div className="homepage-footer-list">

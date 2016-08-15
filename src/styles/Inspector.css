@@ -12,6 +12,7 @@
   flex-grow: 1;
   color: var(--colors-greyLight);
   padding-bottom: 1rem;
+  width: 100%;
 
   &Block {
 

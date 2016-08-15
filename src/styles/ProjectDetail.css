@@ -1,17 +1,13 @@
 @import './variables.css';
 
 .ProjectDetail {
-  display: flex;
   position: relative;
-  flex-direction: column;
-  align-content: center;
   min-height: 30px;
-  flex-basis: 0;
+  flex-shrink: 0;
   background-color: var(--colors-blueGreyMed);
 
   &.visible {
     background-color: var(--colors-white);
-    min-height: 400px;
   }
 
   &-resizeHandle {
@@ -37,7 +33,7 @@
     display: flex;
     position: relative;
     flex-shrink: 0;
-    padding: 4px 10px 0px 10px;
+    padding: 4px 10px 4px 10px;
 
     &-close,
     &-toggle {
@@ -48,7 +44,6 @@
 
     &-toggle {
       align-self: flex-start;
-      color: white;
       background-image: url('/images/ui/caret_open_light.svg');
       cursor: pointer;
 
@@ -68,14 +63,19 @@
     &-extension {
       padding: 0px 20px;
       border-right: 1px solid var(--colors-grey);
-      color: #e6e6e6;
+      color: var(--colors-greyMedLight);
       cursor: pointer;
 
       .visible & {
-        color: #4c505f;
-        padding: 0px;
-        border: 0;
         cursor: default;
+        color: var(--colors-greyMedLight);
+        border-color: var(--colors-greyMedLight);
+        cursor: pointer;
+
+        &.active {
+          color: var(--colors-blueBlack);
+          cursor: default;
+        }
       }
 
       &.disabled {
@@ -89,25 +89,9 @@
     }
 
     &-close {
-      position: absolute;
-      top: 5px;
-      right: 5px;
+      align-self: flex-end;
       background-image: url('/images/ui/close_icon_dark.svg');
       cursor: pointer;
-    }
-  }
-
-  &-chrome {
-    display: flex;
-    flex-grow: 1;
-  }
-
-  &-extensionView {
-    display: none;
-    flex-grow: 1;
-
-    .visible & {
-      display: flex;
     }
   }
 

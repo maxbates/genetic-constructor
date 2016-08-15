@@ -8,6 +8,7 @@
   justify-content: space-between;
   color: var(--colors-blueGreyLighter);
   cursor: default;
+  transition: background-color var(--timing-fast) ease-out;
 
   /* left side */
   &-info {

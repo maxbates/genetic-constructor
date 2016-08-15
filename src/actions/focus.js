@@ -14,7 +14,7 @@
  limitations under the License.
  */
 /**
- * @module Focus Actions
+ * @module Actions_Focus
  * @memberOf module:Actions
  */
 import * as ActionTypes from '../constants/ActionTypes';
@@ -29,24 +29,8 @@ import { symbolMap } from '../inventory/roles';
 const idValidator = (id) => safeValidate(idValidatorCreator(), true, id);
 
 /**
- * Focus a project by ID
- * @param {UUID} inputProjectId
- * @returns {UUID} Focused ID, or null if invalid ID
- */
-export const focusProject = (inputProjectId = null) => {
-  return (dispatch, getState) => {
-    const projectId = idValidator(inputProjectId) ? inputProjectId : null;
-
-    dispatch({
-      type: ActionTypes.FOCUS_PROJECT,
-      projectId,
-    });
-    return projectId;
-  };
-};
-
-/**
  * Focus a construct by ID, updating block selection if a new construct
+ * @function
  * @param {UUID} inputConstructId
  * @returns {UUID} Construct ID
  */
@@ -76,8 +60,10 @@ export const focusConstruct = (inputConstructId) => {
   };
 };
 
+//todo - ensure all blocks are from the same construct
 /**
  * Focus blocks (from a single construct) , updating construct if necessary
+ * @function
  * @param {Array.<UUID>} blockIds
  * @returns {Array.<UUID>} focused block IDs
  */
@@ -85,14 +71,21 @@ export const focusBlocks = (blockIds) => {
   return (dispatch, getState) => {
     invariant(Array.isArray(blockIds), 'must pass array to focus blocks');
     invariant(blockIds.every(block => idValidator(block)), 'must pass array of block IDs');
+    const focusedConstructId = getState().focus.constructId;
+
+    //todo - ensure none of the blocks are actually constructs, instead of just the current one (and dipatch an action)
+    if (blockIds.some(blockId => blockId === focusedConstructId)) {
+      //focus a construct instead
+      return getState().focus.blockIds;
+    }
 
     if (blockIds.length) {
       const firstBlockId = blockIds[0];
       const construct = dispatch(BlockSelector.blockGetParentRoot(firstBlockId));
       // null => no parent => construct (or detached)... undefined could be soething else
       //const constructId = !!construct ? construct.id : (construct !== null ? firstBlockId : undefined);
-      const constructId = construct ? construct.id : undefined;
-      if (constructId !== getState().focus.constructId || constructId === firstBlockId) {
+      const constructId = construct ? construct.id : null;
+      if (constructId !== focusedConstructId || constructId === firstBlockId) {
         dispatch({
           type: ActionTypes.FOCUS_CONSTRUCT,
           constructId,
@@ -110,6 +103,7 @@ export const focusBlocks = (blockIds) => {
 
 /**
  * Add blocks to focus
+ * @function
  * @param {Array.<UUID>} blocksIdsToAdd
  * @returns {Array.<UUID>} all block IDs focused
  */
@@ -127,6 +121,7 @@ export const focusBlocksAdd = (blocksIdsToAdd) => {
 
 /**
  * Toggle focus of blocks
+ * @function
  * @param {Array.<UUID>} blockToToggle
  * @returns {Array.<UUID>} all block IDs focused
  */
@@ -152,6 +147,7 @@ export const focusBlocksToggle = (blocksToToggle) => {
 
 /**
  * Force focus of blocks, passing in Block Models rather than IDs (blocks may not be in the store)
+ * @function
  * @param {Array.<Block>} blocks
  * @returns {Array.<Block>} force-focused blocks
  */
@@ -169,6 +165,7 @@ export const focusForceBlocks = (blocks) => {
 
 /**
  * Force focusing of project, passing in Project Models rahter than IDs (may not be in store)
+ * @function
  * @param {Project} project
  * @returns {Project}
  */
@@ -186,6 +183,7 @@ export const focusForceProject = (project) => {
 
 /**
  * Specify which level of focus has priority
+ * @function
  * @param level One of `project`, `construct`, `block`, `option`, or `role`
  * @returns {string} focused level
  */
@@ -203,6 +201,7 @@ export const focusPrioritize = (level = 'project') => {
 
 /**
  * Focus a role
+ * @function
  * @param {string} roleId
  * @returns {string} roleId
  */
@@ -220,6 +219,7 @@ export const focusRole = (roleId) => {
 
 /**
  * Specify which list option is selected for a list Block
+ * @function
  * @param {UUID} blockId List block ID
  * @param {UUID} optionId
  * @returns {Object} Map of selected options

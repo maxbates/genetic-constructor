@@ -18,7 +18,8 @@ limitations under the License.
 
 /**
  * Genetic Constructor includes a set of roles, inspired by SBOL visual, but extended to include types which accommodate the hierarchical nature of constructs.
- * @module roles
+ * @name roles
+ * @memberOf module:Constants
  */
 
 export const symbolMap = {

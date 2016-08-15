@@ -2,17 +2,14 @@ import { expect } from 'chai';
 import fetch from 'isomorphic-fetch';
 import Project from '../../../../src/models/Project';
 import { dataApiPath } from '../../../../src/middleware/paths';
-import devServer from '../../../../server/server';
+
+//noinspection ES6UnusedImports
+import devServer from '../../../../server/server'; // starts the server which will be accessed by methods below
 
 describe('Server', () => {
   describe('Data', () => {
     describe('REST', () => {
       describe('fetch', function fetchTest() {
-        before((done) => {
-          //make sure the server has actually started and is ready to go
-          devServer.listen(3000, done);
-        });
-
         it('basic test', () => {
           const testProject = new Project({
             notes: {

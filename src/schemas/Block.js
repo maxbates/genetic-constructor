@@ -28,6 +28,7 @@ import BlockSourceSchema from './BlockSource';
  * List Blocks allow for combinatorial logic, where multiple blocks can be associated as combinatorial `options` for this block. A block cannot be both a list block and have components.
  * In addition to sequence annotations, a block may list `notes`, which are essentially annotations that do not specifically reference the sequence.
  * @name BlockSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 

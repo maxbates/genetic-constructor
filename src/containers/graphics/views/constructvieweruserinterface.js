@@ -325,7 +325,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
       // over the entire block, refine test as required
       if (onlyDots) {
         const AABB = this.layout.titleNode.getAABB();
-        if (point.x < AABB.right - kT.contextDotsW) {
+        if (point.x < this.layout.titleNodeTextWidth) {
           return false;
         }
       }

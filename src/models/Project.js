@@ -29,13 +29,12 @@ const versionValidator = (ver, required = false) => safeValidate(version(), requ
  * @name Project
  * @class
  * @extends Instance
- *
- * @memberOf module:Models
  * @gc Model
  */
 export default class Project extends Instance {
   /**
    * Create a project given some input object
+   * @memberOf Project
    * @param {Object} [input]
    * @returns {Project}
    */
@@ -45,6 +44,8 @@ export default class Project extends Instance {
 
   /**
    * Create an unfrozen project, extending input with schema
+   * @method classless
+   * @memberOf Project
    * @param {Object} [input]
    * @returns {Object} an unfrozen JSON, no instance methods
    */
@@ -54,6 +55,9 @@ export default class Project extends Instance {
 
   /**
    * Validate a Project data object
+   * @method validate
+   * @memberOf Project
+   * @static
    * @param {Object} input
    * @param {boolean} [throwOnError=false] Whether to throw on errors
    * @throws if `throwOnError===true`, will throw when invalid
@@ -68,6 +72,9 @@ export default class Project extends Instance {
 
   /**
    * compares two projects, checking if they are the same (ignoring project version)
+   * @method compare
+   * @memberOf Project
+   * @static
    * @param {Object} one
    * @param {Object} two
    * @returns {boolean} whether equal
@@ -87,6 +94,8 @@ export default class Project extends Instance {
 
   /**
    * Set name of the project
+   * @method setName
+   * @memberOf Project
    * @param {string} name
    * @throws if not a string
    * @returns {Project}
@@ -98,7 +107,9 @@ export default class Project extends Instance {
 
   /**
    * Get name of Project
-   * @returns {*|string}
+   * @method getName
+   * @memberOf Project
+   * @returns {string}
    */
   getName() {
     return this.metadata.name || 'Untitled Project';
@@ -107,6 +118,8 @@ export default class Project extends Instance {
   //ideally, this would just return the same instance, would be much easier
   /**
    * Update the version of the project. Returns a new Instance, so use {@link Project.compare} to check if two projects are the same and ignore the version
+   * @method updateVersion
+   * @memberOf Project
    * @param {string} version Must be a valid SHA
    * @param {number} [lastSaved=Date.now()] POSIX time
    * @returns {Project}
@@ -119,6 +132,8 @@ export default class Project extends Instance {
 
   /**
    * Add constructs to the Project
+   * @method addComponents
+   * @memberOf Project
    * @param {...UUID} components IDs of components
    * @returns {Project}
    */
@@ -129,6 +144,8 @@ export default class Project extends Instance {
 
   /**
    * Remove constructs from the project
+   * @method removeComponents
+   * @memberOf Project
    * @param {...UUID} components IDs of components
    * @returns {Project}
    */

@@ -25,15 +25,15 @@ const versionValidator = (ver, required = false) => safeValidate(version(), requ
 /**
  * Instances are immutable objects, which conform to a schema, and provide an explicit API for modifying their data.
  * Instances have an ID, metadata, and are versioned (explicitly or implicitly by the Instance which owns them)
+ * @name Instance
  * @class
  * @extends Immutable
- *
- * @memberOf module:Models
  * @gc Model
  */
 export default class Instance extends Immutable {
   /**
    * Create an instance
+   * @constructor
    * @param {Object} input Input object
    * @param {Object} [subclassBase] If extending the class, additional fields to use in the scaffold
    * @param {Object} [moreFields] Additional fields, beyond the scaffold
@@ -52,6 +52,8 @@ export default class Instance extends Immutable {
 
   /**
    * See {@link Immutable.mutate}
+   * @method mutate
+   * @memberOf Instance
    */
   mutate(path, value) {
     return super.mutate(path, value);
@@ -59,6 +61,8 @@ export default class Instance extends Immutable {
 
   /**
    * See {@link Immutable.merge}
+   * @method merge
+   * @memberOf Instance
    */
   merge(obj) {
     return super.merge(obj);
@@ -66,6 +70,8 @@ export default class Instance extends Immutable {
 
   /**
    * Clone an instance, adding the parent to the ancestry of the child Instance.
+   * @method clone
+   * @memberOf Instance
    * @param {object|null|string} [parentInfo={}] Parent info for denoting ancestry. If pass null to parentInfo, the instance is simply cloned, and nothing is added to the history. If pass a string, it will be used as the version.
    * @param {Object} [overwrites={}] object to merge into the cloned Instance
    * @throws if version is invalid (not provided and no field version on the instance)

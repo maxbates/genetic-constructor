@@ -25,13 +25,12 @@ import { symbolMap } from '../inventory/roles';
  * @name Annotation
  * @class
  * @extends Immutable
- *
- * @memberOf module:Models
  * @gc Model
  */
 export default class Annotation extends Immutable {
   /**
    * Create an annotation
+   * @constructor
    * @param {Object} input Input object for the annotation to merge onto the scaffold
    */
   constructor(input) {
@@ -44,6 +43,8 @@ export default class Annotation extends Immutable {
 
   /**
    * Create an unfrozen annotation, extending input with schema
+   * @method classless
+   * @memberOf Annotation
    * @param {Object} [input]
    * @returns {Object} an unfrozen JSON, no instance methods
    */
@@ -53,6 +54,8 @@ export default class Annotation extends Immutable {
 
   /**
    * Validate an annotation
+   * @method validate
+   * @memberOf Annotation
    * @static
    * @param {Object} input Object to validate
    * @param {boolean} [throwOnError=false] Validation should throw on errors
@@ -65,6 +68,8 @@ export default class Annotation extends Immutable {
 
   /**
    * Get the length of the annotation
+   * @property length
+   * @memberOf Annotation
    * @returns {number}
    */
   get length() {
@@ -72,6 +77,13 @@ export default class Annotation extends Immutable {
     return this.end - this.start;
   }
 
+  /**
+   * Get the annotation role
+   * @method getRole
+   * @memberOf Annotation
+   * @param {boolean} [userFriendly=true] Return readable text
+   * @returns {string} Annotation role
+   */
   getRole(userFriendly = true) {
     const friendly = symbolMap[this.role];
 

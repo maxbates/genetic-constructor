@@ -4,6 +4,8 @@ import { applyMiddleware, createStore, combineReducers } from 'redux';
 import { expect } from 'chai';
 import saveLastActionMiddleware from '../../src/store/saveLastActionMiddleware';
 
+console.error('todo - update this with freezeing reducer enhancer... or deprecate this all together?');
+
 const middlewares = [
   thunk,
   saveLastActionMiddleware,

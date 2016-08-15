@@ -19,6 +19,7 @@ import Schema from './SchemaClass';
 /**
  * Parameters for Order
  * @name OrderParametersSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 const fieldDefs = {

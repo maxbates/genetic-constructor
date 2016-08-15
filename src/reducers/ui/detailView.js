@@ -14,27 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as ActionTypes from '../../constants/ActionTypes';
-import invariant from 'invariant';
 import { LOCATION_CHANGE } from 'react-router-redux';
 
 export const initialState = {
   isVisible: false,
-  currentExtension: null,
+  currentExtension: null, //key, not manifest
 };
 
 export default function detailView(state = initialState, action) {
   switch (action.type) {
   case ActionTypes.DETAIL_VIEW_TOGGLE_VISIBILITY :
     const { nextState } = action;
-    return Object.assign({}, state, { isVisible: nextState });
+    const next = { isVisible: nextState };
+    if (!nextState) {
+      Object.assign(next, { currentExtension: null });
+    }
+    return Object.assign({}, state, next);
 
   case ActionTypes.DETAIL_VIEW_SELECT_EXTENSION :
-    const { manifest } = action;
-    if (!manifest || manifest === state.currentExtension) {
+    const { key } = action;
+    if (!key || key === state.currentExtension) {
       return state;
     }
-    invariant(manifest.name && typeof manifest.render === 'function', 'must pass the extension manifest, which has a name and render()');
-    return Object.assign({}, state, { currentExtension: manifest });
+    return Object.assign({}, state, { currentExtension: key });
 
   case ActionTypes.USER_SET_USER :
   case LOCATION_CHANGE :

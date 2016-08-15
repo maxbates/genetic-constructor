@@ -1,10 +1,18 @@
-[![Docker Repository on Quay](https://quay.io/repository/autodesk_bionano/genomedesigner_genome-designer/status "Docker Repository on Quay")](https://quay.io/repository/autodesk_bionano/genomedesigner_genome-designer)
+[![Docker Repository on Quay](https://quay.io/repository/autodesk_bionano/gctor_webapp/status "Docker Repository on Quay")](https://quay.io/repository/autodesk_bionano/genomedesigner_genome-designer)
 
 # Genetic Constructor
 
 ### Installation
 
-Notes can be found at [Installation](docs/installation.md)
+Notes can be found at [Installation](docs/installation/installation.md)
+
+### Contributing + Documentation
+
+[Contributions](./CONTRIBUTING.md) are welcome!
+
+See [Documentation](docs/README.md).
+
+For API documentation, see generated JSDocs in `/jsdoc/` (improvements forthcoming, we promise).
 
 ### License
 

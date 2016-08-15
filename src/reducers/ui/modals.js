@@ -25,8 +25,9 @@ export const initialState = {
   gruntMessage: null,
   showGenBankImport: false,
   userWidgetVisible: true,
-  spinMessage: null,
+  spinMessage: '',
   showSaveError: false,
+  showOrderForm: false,
   showReportError: false,
 };
 

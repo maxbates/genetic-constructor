@@ -113,6 +113,16 @@ class RegisterForm extends Component {
   }
 
   onTextChanged() {
+    if (this.firstName === 'darwin magic') {
+        this.refs.firstName.value = 'Charles';
+        this.refs.lastName.value = 'Darwin';
+        const email = `charlesdarwin_${Date.now()}@royalsociety.co.uk`;
+        this.refs.emailAddress.value = email;
+        this.refs.emailConfirm.value = email;
+        this.refs.password.value = '123456';
+        this.refs.passwordConfirm.value = '123456';
+        this.refs.tos.checked = true;
+    }
     this.setState({
       canSubmit: this.firstName &&
       this.lastName &&

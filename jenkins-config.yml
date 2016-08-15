@@ -1,10 +1,6 @@
-service-name: genomedesigner
-# NOTE set this value in the Jenkins job as it varies by environment
-environment: ""
-
-# used to avoid container collisions when testing in the same Docker Host
-# This project does (yet) have test targets
-test-docker-project: ""
+service-name: gctor
+# NOTE override this value in the Jenkins job as it varies by environment
+environment: local
 
 # parameters used when calling cloudformation update-stack
 # NOTE set this value in the Jenkins job as it varies by environment
@@ -23,8 +19,7 @@ verify-enabled: true
 verify-url-full: ""
 
 build-compose-file: docker-compose.yml
-# No test targets yet
-jenkins-test-compose-file: ""
+jenkins-test-compose-file: docker-compose-jenkins.yml
 
 version-file: ./package.json
 

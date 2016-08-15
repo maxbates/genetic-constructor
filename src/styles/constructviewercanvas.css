@@ -10,6 +10,7 @@
   text-align: center;
   transition: color var(--timing-fast) ease-in-out, background-color var(--timing-fast) ease-in-out, border-color var(--timing-fast) ease-in-out;
   cursor: default;
+  user-select: none;
 }
 .cvc-hovered {
   border: 1px solid var(--colors-selected);

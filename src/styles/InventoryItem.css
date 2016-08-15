@@ -36,7 +36,7 @@
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: center;
     cursor: pointer;
     padding: 2px 5px;
     margin: 1px 0;

@@ -11,7 +11,7 @@ describe('Middleware', () => {
           assert(typeof output === 'object', 'wrong format for info');
           assert(Object.keys(output).every(key => {
             const manifest = output[key];
-            return manifest.name && manifest.version && manifest.region;
+            return manifest.name && manifest.version && (manifest.geneticConstructor.region || manifest.geneticConstructor.region === null);
           }), 'some extensions are not in correct format');
         });
     });

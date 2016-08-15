@@ -20,7 +20,6 @@ import invariant from 'invariant';
 export const initialState = {
   forceProject: null, //forced model
   forceBlocks: [], //forced models
-  projectId: null, //current project. Set by projectPage. preferred over route query.
   blockIds: [], //ids of selection
   constructId: null, //id of current
   roleId: null, //ID of focused Role
@@ -51,16 +50,6 @@ export default function inventory(state = initialState, action) {
       constructId: null,
       roleId: null,
       level: 'block',
-    });
-
-  case ActionTypes.FOCUS_PROJECT:
-    const { projectId } = action;
-    return Object.assign({}, state, {
-      forceProject: null,
-      forceBlocks: [],
-      projectId: projectId,
-      roleId: null,
-      level: 'project',
     });
 
   case ActionTypes.FOCUS_CONSTRUCT:

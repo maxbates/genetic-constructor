@@ -144,5 +144,18 @@ describe('Model', () => {
           });
       });
     });
+
+    describe('Lists', () => {
+      it('should not allow unselecting all list options', () => {
+        const options = [0, 1, 2, 3].map(() => new Block());
+        const optionIds = options.map(opt => opt.id);
+        const block = new Block()
+          .setListBlock(true)
+          .addOptions(...optionIds)
+          .toggleOptions(...optionIds);
+
+        expect(block.toggleOptions(...optionIds)).to.equal(block);
+      });
+    });
   });
 });

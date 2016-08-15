@@ -30,11 +30,14 @@ const idValidator = (id) => safeValidate(validators.id(), true, id);
  * @name Order
  * @class
  * @extends Instance
- *
- * @memberOf module:Models
  * @gc Model
  */
 export default class Order extends Instance {
+  /**
+   * @constructor
+   * @param {Object} [input={}]
+   * @returns {Order}
+   */
   constructor(input = {}) {
     invariant(input.projectId, 'project Id is required to make an order');
     invariant(input.constructIds, 'constructIDs are required on creation for generating number of constructs');
@@ -51,13 +54,20 @@ export default class Order extends Instance {
     return Object.assign({}, cloneDeep(new Order(input)));
   }
 
-  //validate a complete order (with a project ID, which is after submission)
+  /**
+   * validate a complete order (with a project ID, which is after submission)
+   * @method validate
+   * @memberOf Order
+   * @static
+   */
   static validate(input, throwOnError = false) {
     return OrderDefinition.validate(input, throwOnError);
   }
 
   /**
    * validate order prior to submission - should have parameters, constructs, user, projectId
+   * @method validateSetup
+   * @memberOf Order
    * @param input
    * @param throwOnError
    * @throws if throwOnError === true
@@ -72,6 +82,9 @@ export default class Order extends Instance {
 
   /**
    * Validate the parameters of an order
+   * @method validateParameters
+   * @memberOf Order
+   * @static
    * @param input
    * @param throwOnError
    * @throws if throwOnError ==== true
@@ -87,6 +100,8 @@ export default class Order extends Instance {
 
   /**
    * Change a property of the Order
+   * @method mutate
+   * @memberOf Order
    * @param path
    * @param value
    * @throws if the order has been submitted
@@ -99,25 +114,35 @@ export default class Order extends Instance {
 
   /**
    * Merge an object onto the Order
-   * @param object Object to merge with order
+   * @method merge
+   * @memberOf Order
+   * @param {Object} obj Object to merge with order
    * @throws if the order has been submitted
    * @returns {Instance}
    */
-  merge(...args) {
+  merge(obj) {
     invariant(!this.isSubmitted(), 'cannot change a submitted order');
-    return super.merge(...args);
+    return super.merge(obj);
   }
 
   /************
    metadata etc
    ************/
 
+  /**
+   * Get order name
+   * @method getName
+   * @memberOf Order
+   * @returns {*|string}
+   */
   getName() {
     return this.metadata.name || 'Untitled Order';
   }
 
   /**
    * Set name of the order
+   * @method setName
+   * @memberOf Order
    * @param newName
    * @returns {Order}
    */
@@ -127,6 +152,8 @@ export default class Order extends Instance {
 
   /**
    * Check whether the order has been submitted
+   * @method isSubmitted
+   * @memberOf Order
    * @returns {boolean}
    */
   isSubmitted() {
@@ -135,6 +162,8 @@ export default class Order extends Instance {
 
   /**
    * If submitted, return time order placed
+   * @method dateSubmitted
+   * @memberOf Order
    * @returns {number|null} POSIX time
    */
   dateSubmitted() {
@@ -147,6 +176,8 @@ export default class Order extends Instance {
 
   /**
    * Set order parameters
+   * @method setParameters
+   * @memberOf Order
    * @param parameters
    * @returns {Order}
    */
@@ -157,6 +188,8 @@ export default class Order extends Instance {
 
   /**
    * Check whether only ordering a subset of possible combinations
+   * @method onlySubset
+   * @memberOf Order
    * @returns {boolean}
    */
   onlySubset() {
@@ -170,6 +203,8 @@ export default class Order extends Instance {
 
   /**
    * If supported by the foundry, get a quote for the order
+   * @method quote
+   * @memberOf Order
    * @param foundry
    */
   quote(foundry) {
@@ -179,6 +214,8 @@ export default class Order extends Instance {
   //todo - should not need to pass this to the server. should be able to generated deterministically. Set up better code shsraing between client + server
   /**
    * Submit the order
+   * @method submit
+   * @memberOf Order
    * @param {string} foundry ID of the foundry. Currently, 'egf'
    * @param {Array.<Array.<UUID>>} positionalCombinations 2D of positional combinations, used on the server for generating all combinations
    */

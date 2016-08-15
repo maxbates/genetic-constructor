@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * @module Project Actions
+ * @module Actions_Projects
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
@@ -51,6 +51,7 @@ export const projectMerge = (projectId, toMerge) => {
 
 /**
  * List manifests of all of a user's projects
+ * @function
  * @returns {Promise}
  * @resolve {Array.<Project>}
  * @reject {Response}
@@ -73,6 +74,7 @@ export const projectList = () => {
 
 /**
  * Delete a project. THIS CANNOT BE UNDONE.
+ * @function
  * @param {UUID} projectId
  * @returns {UUID} project ID deleted
  */
@@ -99,6 +101,7 @@ export const projectDelete = (projectId) => {
 
 /**
  * Save the project, e.g. for autosave.
+ * @function
  * @param {UUID} [inputProjectId] Omit to save the current project
  * @param {boolean} [forceSave=false] Force saving, even if the project has not changed since last save
  * @returns {Promise}
@@ -151,6 +154,7 @@ export const projectSave = (inputProjectId, forceSave = false) => {
 
 /**
  * Snapshots are saves of the project at an important point, creating an explicit commit with a user-specified message.
+ * @function
  * @param {UUID} projectId
  * @param {string} message Commit message
  * @param {boolean} [withRollup=true] Save the current version of the project
@@ -191,6 +195,7 @@ export const projectSnapshot = (projectId, message, withRollup = true) => {
 
 /**
  * Create a project
+ * @function
  * @param {Object} initialModel Data to merge onto scaffold
  * @returns {Project} New project
  */
@@ -208,6 +213,7 @@ export const projectCreate = (initialModel) => {
 
 /**
  * Internal method to load a project. Attempt to load another on failure. Used internally by projectLoad, can recursive in this verison.
+ * @function
  * @private
  * @param projectId
  * @param {Array|boolean} [loadMoreOnFail=false] Pass array for list of IDs to ignore
@@ -260,6 +266,7 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
 
 /**
  * Load a project and add it and its contents to the store
+ * @function
  * @param projectId
  * @param {boolean} [avoidCache=false]
  * @param {Array|boolean} [loadMoreOnFail=false] False to only attempt to load single project ID. Pass array of IDs to ignore in case of failure
@@ -301,6 +308,7 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
 
 /**
  * Open a project, that has already been loaded using projectLoad()
+ * @function
  * @param [inputProjectId] Defaults to most recently saved project
  * @param {boolean} [skipSave=false] By default, save the current project. Skip saving the current project before navigating e.g. if deleting it.
  * @returns {Promise}
@@ -356,12 +364,17 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
       //projectPage will load the project + its blocks
       //change the route
       dispatch(push(`/project/${projectId}`));
+      dispatch({
+        type: ActionTypes.PROJECT_OPEN,
+        projectId,
+      });
     });
   };
 };
 
 /**
  * Rename a project
+ * @function
  * @param {UUID} projectId
  * @param {string} newName
  * @returns {Project}
@@ -382,6 +395,7 @@ export const projectRename = (projectId, newName) => {
 /**
  * Adds a construct to a project. Does not create the construct. Use a Block Action.
  * The added construct should have the project ID of the current project.
+ * @function
  * @param {UUID} projectId
  * @param {UUID} componentId
  * @param {boolean} [forceProjectId=false]
@@ -426,6 +440,7 @@ export const projectAddConstruct = (projectId, componentId, forceProjectId = fal
 
 /**
  * Removes a construct from a project.
+ * @function
  * @param {UUID} projectId
  * @param {UUID} componentId
  * @returns {Project}

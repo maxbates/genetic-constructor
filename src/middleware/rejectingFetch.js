@@ -29,3 +29,5 @@ export default function rejectingFetch(...args) {
       return resp;
     });
 }
+
+export { fetch };

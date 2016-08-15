@@ -136,11 +136,13 @@ const _projectSetup = (projectId, userId) => {
   const orderDirectory = filePaths.createOrderDirectoryPath(projectId);
   const blockDirectory = filePaths.createBlockDirectoryPath(projectId);
   const blockManifestPath = filePaths.createBlockManifestPath(projectId);
+  const fileDirectory = filePaths.createProjectFilesDirectoryPath(projectId);
 
   return directoryMake(projectPath)
     .then(() => directoryMake(projectDataPath))
     .then(() => directoryMake(orderDirectory))
     .then(() => directoryMake(blockDirectory))
+    .then(() => directoryMake(fileDirectory))
     .then(() => fileWrite(blockManifestPath, {})) //write an empty file in case try to merge with it
     .then(() => permissions.createProjectPermissions(projectId, userId))
     .then(() => versioning.initialize(projectDataPath, userId));

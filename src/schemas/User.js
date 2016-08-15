@@ -20,6 +20,8 @@ import Schema from './SchemaClass';
 /**
  * A user account
  * @name UserSchema
+ * @memberOf module:Schemas
+ * @gc Schema
 */
 const fieldDefs = {
   id: [

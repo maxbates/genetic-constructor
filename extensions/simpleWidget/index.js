@@ -1,18 +1,23 @@
-//in a more complex project using a build system, you could simply include package.json here and define your fields there
-var manifest = {
-  "name": "linked",
-  "version": "1.0.0",
-  "description": "Linked Extension",
-  "region": "sequenceDetail",
-  "readable": "Linked Example"
-};
-
 function render(container, options) {
+  //change the content of the widget
   container.innerHTML = 'extension loaded!';
 
-  var subscriber = window.gd.store.subscribe(function storeSubscription(state, lastAction) {
+  //simple, beautiful CSS changes through DOM manipulation
+  container.style.cssText = 'background: red; height: 100%; width: 100%';
+
+  //find out the size of the element we are rendering into
+  console.log(options.boundingBox);
+
+  //listen to changes in the Constructor app
+  var subscriber = window.constructor.store.subscribe(function storeSubscription(state, lastAction) {
     console.log(lastAction.type);
   });
+
+  //return an unsubscribe function to clean up when the extension unmounts
+  return function () {
+    console.log('i am called when the extension is closed');
+    subscriber();
+  };
 }
 
-window.gd.registerExtension(manifest, render);
+window.constructor.extensions.register('simpleWidget', render);

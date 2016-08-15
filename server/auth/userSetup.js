@@ -24,7 +24,7 @@ This file creates starting content for users
 NOTE - create instances using Block.classless and Project.classless - the server is expect JSON blobs that it can assign to, and instances of classes are frozen.
  */
 
-//create the EGF project for them
+//create the EGF project + empty project for them
 const createInitialData = (user) => {
   const egfRollup = makeEgfRollup();
   console.log('[EGF ROLLUP] made rollup ' + egfRollup.project.id + ' for user ' + user.uuid);
@@ -32,10 +32,8 @@ const createInitialData = (user) => {
 
   const emptyProjectRollup = rollupWithConstruct(true);
 
-  return Promise.all([
-    rollup.writeProjectRollup(emptyProjectRollup.project.id, emptyProjectRollup, user.uuid),
-    rollup.writeProjectRollup(egfRollup.project.id, egfRollup, user.uuid),
-  ]);
+  return rollup.writeProjectRollup(egfRollup.project.id, egfRollup, user.uuid)
+    .then(() => rollup.writeProjectRollup(emptyProjectRollup.project.id, emptyProjectRollup, user.uuid));
 };
 
 const checkUserSetup = (user) => {
@@ -44,7 +42,7 @@ const checkUserSetup = (user) => {
       if (!projects.length) {
         // create rollups return ID of empty project
         return createInitialData(user)
-          .then(rollups => rollups[0].project.id);
+          .then(rollup => rollup.project.id);
       }
     });
 };

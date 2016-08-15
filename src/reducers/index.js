@@ -18,6 +18,7 @@ import { USER_SET_USER } from '../constants/ActionTypes';
 import { combineReducers } from 'redux';
 import { undoReducer, undoReducerEnhancerCreator } from '../store/undo/reducerEnhancer';
 import { autosaveReducerEnhancer } from '../store/autosave/autosaveInstance';
+import freezeReducerEnhancer from '../store/freezeReducerEnhancer';
 
 //all the reducers
 
@@ -42,7 +43,7 @@ const undoReducerEnhancer = undoReducerEnhancerCreator({
 
 //combined reducers
 
-export const rootReducer = combineReducers({
+export const rootReducer = freezeReducerEnhancer(combineReducers({
   blocks: autosaveReducerEnhancer(undoReducerEnhancer(blocks, 'blocks')),
   projects: autosaveReducerEnhancer(undoReducerEnhancer(projects, 'projects')),
   router,
@@ -54,6 +55,6 @@ export const rootReducer = combineReducers({
   user,
   orders,
   undo: undoReducer,
-});
+}));
 
 export default rootReducer;

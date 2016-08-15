@@ -27,8 +27,8 @@ import { id as idRegex } from '../../utils/regex';
  *
  * In general, when defining a Schema you should use fields instead of validators directly. However, you may want to use these when just running validation. Note that they expect parameters.
  *
- * @module validators
- *
+ * @name validators
+ * @memberOf module:Schemas
  *
  * @example
  * let validator = number({min:5});

@@ -38,14 +38,14 @@ const autosave = autosaveCreator({
   //
   //want this to run prior to route change -- note if have other middleware to prune store
   //only run if this reducer was updated so compare states
-  //if dont compare states, will likely trigger on all route changes (including init, which will not find window.gd.api
+  //if dont compare states, will likely trigger on all route changes (including init, which will not find window.constructor.api
   //forceOn: ({ type }, alreadyDirty) => {
   //  return type === LOCATION_CHANGE && alreadyDirty;
   //},
 
   //this is pretty hack, but want to rely on action to do this (and actions have a dependency on the store, so cant import directly or create circular dependency. just need to be sure this doesnt run until after everything has been set up...
   onSave: () => {
-    return window.gd.api.projects.projectSave();
+    return window.constructor.api.projects.projectSave();
   },
 
   purgeOn: ({ type }, alreadyDirty, nextState, lastState) => {

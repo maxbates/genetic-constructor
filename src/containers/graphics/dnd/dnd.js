@@ -22,7 +22,7 @@ import { difference } from '../../../utils/set/set';
 
 /**
  * Drag and Drop manager. Creates a singleton which allows registration of drag targets and drop targets
- * The singleton is exposed on the window at window.gd.DnD for extensions to register their own drop targets
+ * The singleton is exposed on the window at window.constructor.DnD for extensions to register their own drop targets
  * @module DnD
  */
 class DnD {

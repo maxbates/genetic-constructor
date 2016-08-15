@@ -1,6 +1,8 @@
 import { exec, spawn } from 'child_process';
 import path from 'path';
 
+//todo - have a check to make sure docker is running
+
 /** paths **/
 
 const pathProjectRoot = path.resolve(__dirname, '../');
@@ -27,13 +29,15 @@ console.log('path for bio-user-platform is ' + pathBioNanoPlatform + '. Set by p
 /** command utils **/
 
 //simple wrap around console.log
-const log = (output, forceOutput = false) => {
+const log = (output = '', forceOutput = false) => {
   if (DEBUG || forceOutput === true) {
-    console.log(output);
+    console.log(output.trim());
   }
 };
 
-const promisedExec = (cmd, opts, forceOutput) => {
+const promisedExec = (cmd, opts, {
+  forceOutput = false,
+} = {}) => {
   console.log('running ' + cmd);
 
   return new Promise((resolve, reject) => {
@@ -44,16 +48,24 @@ const promisedExec = (cmd, opts, forceOutput) => {
       }
 
       //`` to convert from buffers
-      log(`${stdout}`, forceOutput);
-      log(`${stderr}`, forceOutput);
+      if (stdout) {
+        log(`${stdout}`, forceOutput);
+      }
+      if (stderr) {
+        log(`${stderr}`, forceOutput);
+      }
 
       return resolve(`${stdout}`, `${stderr}`);
     });
   });
 };
 
-const spawnWaitUntilString = (cmd, args, opts, waitUntil, forceOutput) => {
-  console.log('running: ' + cmd + ' ' + args.join(' '));
+const spawnWaitUntilString = (cmd, args, opts, {
+  waitUntil = `${Math.random()}`,
+  forceOutput = false,
+  failOnStderr = false,
+} = {}) => {
+  console.log('\nrunning: ' + cmd + ' ' + args.join(' '));
 
   return new Promise((resolve, reject) => {
     //const [ command, ...args ] = cmd.split(' ');
@@ -67,9 +79,14 @@ const spawnWaitUntilString = (cmd, args, opts, waitUntil, forceOutput) => {
     });
 
     process.stderr.on('data', data => {
-      log(`${data}`, forceOutput);
+      log(`${data}`, true);
       if (`${data}`.indexOf(waitUntil) >= 0) {
-        resolve(process);
+        return resolve(process);
+      }
+      if (failOnStderr === true) {
+        console.log('REJECTING');
+        process.kill();
+        reject(process);
       }
     });
 
@@ -88,57 +105,57 @@ const spawnWaitUntilString = (cmd, args, opts, waitUntil, forceOutput) => {
 
 let dockerEnv;
 
-const setupBioNanoPlatform = () => {
-  return promisedExec(`git checkout genome-designer`, {
-    cwd: pathBioNanoPlatform,
-  })
-    .then(() => promisedExec(`npm install`, {
-      cwd: pathBioNanoPlatform,
-    }));
+const setupBioNanoPlatform = (useGenomeDesignerBranch = false) => {
+  const checkoutPromise = useGenomeDesignerBranch == true ?
+    promisedExec(`git checkout genome-designer`,
+      { cwd: pathBioNanoPlatform }
+    ) :
+    Promise.resolve();
+
+  return checkoutPromise
+    .then(() => promisedExec(`npm install`,
+      { cwd: pathBioNanoPlatform }
+    ));
 };
 
 const startBioNanoPlatform = () => {
-  return spawnWaitUntilString('bash', ['/Applications/Docker/Docker\ Quickstart\ Terminal.app/Contents/Resources/Scripts/start.sh'], {
-    cwd: pathBioNanoPlatform,
-  }, 'For help getting started,')
-    .then(() => promisedExec(`docker-machine env default --shell=bash`, {
+  return spawnWaitUntilString('npm', ['run', 'storage-background'],
+    {
       cwd: pathBioNanoPlatform,
-    }))
-    .then((stdout, stderr) => {
-      //manually handle docker-machine ENV and insert it, since spawn chaining commands complains
-      dockerEnv = stdout.split('\n')
-        .slice(0, 4)
-        .map(line => line.substr(7))
-        .map(line => line.replace(/\"/g, ''))
-        .reduce((acc, line) => {
-          const [ key, value ] = line.split('=');
-          return Object.assign(acc, { [key]: value });
-        }, {});
-
-      return spawnWaitUntilString('npm', ['run', 'storage-background'], {
-        cwd: pathBioNanoPlatform,
-        env: Object.assign({}, process.env, dockerEnv),
-      }, 'LOG:  database system is ready to accept connections');
-    });
+      env: Object.assign({}, process.env, dockerEnv),
+    },
+    { waitUntil: 'database system is ready to accept connections' }
+  );
 };
 
 const startAuthServer = () => {
-  return spawnWaitUntilString('npm', ['start'], {
-    cwd: pathBioNanoPlatform,
-  }, `{ address: { address: '::', family: 'IPv6', port: 8080 } } 'started'`);
+  return spawnWaitUntilString('npm', ['start'],
+    { cwd: pathBioNanoPlatform },
+    { waitUntil: `{ address: { address: '::', family: 'IPv6', port: 8080 } } 'started'` });
 };
 
 const startRunAuth = () => {
-  return spawnWaitUntilString('npm', ['run', 'auth'], {
-    cwd: pathProjectRoot,
-  }, 'Server listening at http://0.0.0.0:3000/', true);
+  console.log('\n\n');
+  return spawnWaitUntilString('npm', ['run', 'auth'],
+    { cwd: pathProjectRoot },
+    {
+      waitUntil: 'Server listening at http://0.0.0.0:3000/',
+      forceOutput: true,
+      failOnStderr: false,
+    }
+  );
 };
 
 async function auth() {
-  await setupBioNanoPlatform();
-  await startBioNanoPlatform();
-  await startAuthServer();
-  await startRunAuth();
+  try {
+    await setupBioNanoPlatform();
+    await startBioNanoPlatform();
+    await startAuthServer();
+    await startRunAuth();
+  } catch (err) {
+    console.log('CAUGHT', err);
+    throw err;
+  }
 }
 
 export default auth;

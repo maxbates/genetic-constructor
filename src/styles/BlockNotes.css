@@ -3,7 +3,7 @@
 .BlockNotes {
   &-group {
     padding-bottom: 0.5em;
-    user-select: none;
+    user-select: text;
 
     &-title {
       color: var(--colors-grey);

@@ -14,7 +14,7 @@
  limitations under the License.
  */
 /**
- * @module Block Actions
+ * @module Actions_Blocks
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
@@ -30,8 +30,12 @@ import { pauseAction, resumeAction } from '../store/pausableStore';
 
 //todo - helper to wrap dispatch()'s in a paused transaction - make sure dispatch still runs when passed as arg
 
+//so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
+const space_filler = 10;
+
 /**
  * Retrieves a block, and its options and components if specified
+ * @function
  * @param {UUID} blockId
  * @param {UUID} inputProjectId
  * @param {boolean} [withContents=false]
@@ -63,6 +67,7 @@ export const blockLoad = (blockId, inputProjectId, withContents = false, skipIfC
 
 /**
  * Create a new Block
+ * @function
  * @param {Object} initialModel
  * @param {boolean} [useDefaults=true] Set e.g. current project ID automatically. Set to false if you are creating a block outside of a project (i.e. floating, not associated with project yet)
  * @returns {Block}
@@ -84,6 +89,7 @@ export const blockCreate = (initialModel, useDefaults = true) => {
 
 /**
  * Add Block Models to the store directly
+ * @function
  * @param {...Block|Object} inputBlocks
  * @returns {...Block}
  */
@@ -114,7 +120,7 @@ export const blockMerge = (blockId, toMerge) => {
 
 /**
  * Clone a block (and its children, by default)
- *
+ * @function
  * @param blockInput {ID|Object} JSON of block directly, or ID. Accept both since inventory items may not be in the store, so we need to pass the block directly. Prefer to use ID.
  * @param parentObjectInput {Object} information about parent, defaults to generated:
  *  {id: from block input
@@ -194,6 +200,7 @@ export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = fal
 
 /**
  * Freeze a block, so that no further changes can be made to it without cloning it first
+ * @function
  * @param {UUID} blockId
  * @param {boolean} [recursive=true] Apply to contents (components + options)
  * @returns {...Block} all blocks frozen
@@ -219,6 +226,7 @@ export const blockFreeze = (blockId, recursive = true) => {
 
 /**
  * Deletes blocks from the store by ID, and removes from constructs containing it
+ * @function
  * @param {...UUID} blockIds
  * @returns {...UUID} IDs removed
  */
@@ -254,6 +262,7 @@ export const blockDelete = (...blockIds) => {
 
 /**
  * Remove blocks from constructs / projects, but leave in the store, and removing block from constructs containing it
+ * @function
  * @param {...UUID} blockIds
  * @returns {...UUID} IDs removed
  */
@@ -285,6 +294,7 @@ export const blockDetach = (...blockIds) => {
 
 /**
  * Remove components from a construct
+ * @function
  * @param {UUID} constructId
  * @param {...UUID} componentIds
  * @returns {Block} Updated construct
@@ -309,6 +319,7 @@ export const blockRemoveComponent = (constructId, ...componentIds) => {
  * Add component to a construct.
  * Removes from previous parent if currently part of a construct
  * Note you may use blockAddComponents to add more than one at a time.
+ * @function
  * @param {UUID} blockId Construct
  * @param {UUID} componentId Component
  * @param {number} index to insert component
@@ -363,6 +374,7 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
 
 /**
  * Add multiple components to a construct at once, calling blockAddComponent
+ * @function
  * @param {UUID} blockId Construct
  * @param {Array.<UUID>} componentIds Components
  * @param {number} index to insert component
@@ -386,7 +398,8 @@ export const blockAddComponents = (blockId, componentIds, index, forceProjectId 
 };
 
 /**
- * Move component within a construt
+ * Move component within a construct
+ * @function
  * @param {UUID} blockId
  * @param {UUID} componentId
  * @param {number} newIndex
@@ -443,6 +456,7 @@ export const blockOptionsRemove = (blockId, ...optionIds) => {
 
 /**
  * Toggle whether a list option is active
+ * @function
  * @param blockId
  * @param optionIds
  * @returns {function(*, *)}
@@ -467,6 +481,7 @@ export const blockOptionsToggle = (blockId, ...optionIds) => {
 
 /**
  * Rename a block
+ * @function
  * @param {UUID} blockId
  * @param {string} name
  * @returns {Block} Updated Block
@@ -491,6 +506,7 @@ export const blockRename = (blockId, name) => {
 
 /**
  * Set block's color
+ * @function
  * @param {UUID} blockId
  * @param {string} color Hex color string
  * @returns {Block} Updated Block
@@ -515,6 +531,7 @@ export const blockSetColor = (blockId, color) => {
 
 /**
  * Set block's role
+ * @function
  * @param {UUID} blockId
  * @param {string} role Role as defined in {@link module:roles}
  * @returns {Block} Updated Block
@@ -545,6 +562,7 @@ export const blockSetRole = (blockId, role) => {
 
 /**
  * Add an annotation to a block
+ * @function
  * @param {UUID} blockId
  * @param {Annotation} annotation
  * @returns {Block} Updated Block
@@ -564,6 +582,7 @@ export const blockAnnotate = (blockId, annotation) => {
 
 /**
  * Remove an annotation
+ * @function
  * @param {UUID} blockId
  * @param {Annotation|string} annotation Annotation or its name
  * @returns {Block} Updated Block
@@ -587,6 +606,7 @@ export const blockRemoveAnnotation = (blockId, annotation) => {
 
 /**
  * Download a Block's sequence
+ * @function
  * @param {UUID} blockId Block ID with sequence to retrieve
  * @returns {Promise} Resolves to plain string of sequence
  */
@@ -599,6 +619,7 @@ export const blockGetSequence = (blockId) => {
 
 /**
  * Set a block's sequence, updating its source and sequence metadata
+ * @function
  * @param {UUID} blockId
  * @param {string} sequence Sequence string
  * @param {boolean} [useStrict] Use strict sequence validation (canonical IUPAC bases)

@@ -1,6 +1,6 @@
 import { assert, expect } from 'chai';
 import * as actions from '../../../src/store/undo/actions';
-import * as ActionTypes from '../../../src/store/undo/actionTypes';
+import * as ActionTypes from '../../../src/store/undo/ActionTypes';
 
 describe('Store', () => {
   describe('Undo', () => {

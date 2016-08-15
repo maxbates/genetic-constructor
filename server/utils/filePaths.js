@@ -33,6 +33,7 @@ export const blockPath = 'blocks';
 export const projectPath = 'projects';
 export const projectDataPath = 'data';
 export const orderPath = 'orders';
+export const projectFilesPath = 'files';
 
 export const manifestFilename = 'manifest.json';
 export const permissionsFilename = 'permissions.json';
@@ -114,4 +115,15 @@ export const createOrderProjectManifestPath = (orderId, projectId) => {
 
 export const createSequencePath = (md5) => {
   return createStorageUrl(sequencePath, md5);
+};
+
+// PROJECT FILES
+
+export const createProjectFilesDirectoryPath = (projectId, ...rest) => {
+  return createProjectDataPath(projectId, projectFilesPath, ...rest);
+};
+
+export const createProjectFilePath = (projectId, extension, fileName) => {
+  invariant(extension, 'must pass a directory name (extension key)');
+  return createProjectFilesDirectoryPath(projectId, extension, fileName);
 };

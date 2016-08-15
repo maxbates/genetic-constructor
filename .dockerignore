@@ -5,3 +5,9 @@
 .idea
 node_modules/
 test-deprecated/
+storage/test/*
+genome-designer-*.tgz
+genetic-constructor-*.tgz
+jenkins-docker-*.tgz
+report.xml
+eslint.xml

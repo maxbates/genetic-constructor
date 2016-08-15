@@ -1,3 +1,5 @@
+@import './variables.css';
+
 .InventoryListGroupAction {
   flex-grow: 1;
   text-align: right;

@@ -23,6 +23,7 @@ import OrderStatusSchema from './OrderStatus';
 /**
  * Orders are intended / placed orders of DNA with a remote foundry.
  * @name OrderSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 const orderFields = {

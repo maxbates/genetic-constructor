@@ -15,6 +15,9 @@ limitations under the License.
 */
 /**
  * Genetic Constructor exposes actions for making changes + performing data mutations.
+ *
+ * **Choose a specific section from the TOC**
+ *
  * @module Actions
  */
 import * as blocks from './blocks';

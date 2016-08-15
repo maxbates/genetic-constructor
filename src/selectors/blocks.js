@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
 import BlockSchema from '../schemas/Block';
 import { values, flatten, get as pathGet, pickBy } from 'lodash';
@@ -227,32 +227,56 @@ export const blockGetSiblings = (blockId) => {
 };
 
 //this could be optimized...
-const _getBoundingBlocks = (state, ...blockIds) => {
-  const construct = _getParentFromStore(blockIds[0], state);
-  if (!construct) {
+const _nearestParent = (state, ...blockIds) => {
+  if (blockIds.length === 1) {
+    return _getBlockFromStore(blockIds[0], state);
+  }
+
+  //map block IDs to arrays of parents
+  const parentsMap = blockIds.reduce((acc, blockId) => Object.assign(acc, { [blockId]: _getParents(blockId, state) }), {});
+
+  //if any block is detached (doesn't have a parent) and not the current construct ID, return null
+  //todo - check if any construct, not the currently focused one
+  if (Object.keys(parentsMap).some(blockId => {
+    const parents = parentsMap[blockId];
+    return parents.length === 0 && state.focus.constructId !== blockId;
+  })) {
     return null;
   }
-  const depthMap = _getAllComponentsByDepth(construct.id, state);
-  const idsToDepth = blockIds.reduce((acc, id) => Object.assign(acc, { [id]: depthMap[id] }), {});
-  const highestLevel = blockIds.reduce((acc, id) => Math.min(acc, idsToDepth[id]), Number.MAX_VALUE);
-  const blocksIdsAtHighest = blockIds.filter(id => idsToDepth[id] === highestLevel);
-  const highSiblings = _getSiblings(blocksIdsAtHighest[0], state);
 
-  //dumb search of all children of siblings to see if focused block present
-  const relevantSiblings = highSiblings.filter(sibling => {
-    if (blockIds.indexOf(sibling.id) >= 0) {
+  //figure out the nearest common parent by iterating through all the parent lists
+  let lastParents = parentsMap[blockIds[0]];
+  for (let index = 1; index < blockIds.length; index++) {
+    const nextParents = parentsMap[blockIds[index]];
+    const nearestLastParent = lastParents.find(parent => nextParents.some(nextParent => nextParent.id === parent.id));
+    const nextOverlapStartIndex = nextParents.findIndex(parent => parent.id === nearestLastParent.id);
+    const nextOverlap = nextParents.slice(nextOverlapStartIndex);
+    lastParents = nextOverlap;
+  }
+  return lastParents[0];
+};
+
+//this could be optimized...
+const _getBoundingBlocks = (state, ...blockIds) => {
+  const nearestParent = _nearestParent(state, ...blockIds);
+
+  if (blockIds.length === 1 || nearestParent.components.length < 1) {
+    return [nearestParent, nearestParent];
+  }
+
+  const components = nearestParent.components.map(blockId => _getBlockFromStore(blockId, state));
+
+  const findComponentWithBlock = (component) => {
+    if (blockIds.indexOf(component.id) >= 0) {
       return true;
     }
-    const kids = _getAllComponents(sibling.id, state);
+    const kids = _getAllComponents(component.id, state);
     return kids.some(kid => blockIds.indexOf(kid.id) >= 0);
-  });
-  const relevantSiblingIds = relevantSiblings.map(sib => sib.id);
+  };
+  const left = components.find(findComponentWithBlock);
+  const right = components.reverse().find(findComponentWithBlock);
 
-  //get the bounds of highest level siblings: [firstId, lastId]
-  return [
-    highSiblings.find(sib => relevantSiblingIds.indexOf(sib.id) >= 0),
-    highSiblings.slice().reverse().find(sib => relevantSiblingIds.indexOf(sib.id) >= 0),
-  ];
+  return [left, right];
 };
 
 export const blockGetBounds = (...blockIds) => {
@@ -429,16 +453,16 @@ export const blockGetCombinations = (blockId, onlyIds, includeUnselected) => {
     const positions = dispatch(blockGetPositionalCombinations(blockId, onlyIds, includeUnselected));
 
     /*
-    //guarantee both accumulator (and positions) array have at least one item to map over
-    const last = positions.pop();
-    //iterate through positions, essentially generating tree with * N branches for N options at position
-    const combos = positions.reduceRight((acc, position) => {
-      // for each extant construct, create one variant which adds each part respectively
-      // flatten them for return and repeat!
-      return flatten(position.map(option => acc.map(partialConstruct => [option].concat(partialConstruct))));
-    }, [last]);
-    return combos;
-    */
+     //guarantee both accumulator (and positions) array have at least one item to map over
+     const last = positions.pop();
+     //iterate through positions, essentially generating tree with * N branches for N options at position
+     const combos = positions.reduceRight((acc, position) => {
+     // for each extant construct, create one variant which adds each part respectively
+     // flatten them for return and repeat!
+     return flatten(position.map(option => acc.map(partialConstruct => [option].concat(partialConstruct))));
+     }, [last]);
+     return combos;
+     */
 
     const combinations = [];
     saveCombinations(positions, combinations);

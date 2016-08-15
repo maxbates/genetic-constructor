@@ -14,14 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * @module Clipboard Actions
+ * @module Actions_Clipboard
  * @memberOf module:Actions
  */
 import * as ActionTypes from '../constants/ActionTypes';
 import invariant from 'invariant';
 
+//so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
+const space_filler = 10;
+
 /**
  * Set the data on the clipboard
+ * @function
  * @param {Array} formats
  * @param {Array} data
  * @returns {Object} In form {formats, data}

@@ -92,9 +92,8 @@ function mapStateToProps(state, props) {
   //UI adjustment
   const showingGrunt = !!state.ui.modals.gruntMessage;
 
-  const { level, projectId, blockIds } = state.focus;
-  //if projectId is not set in store, ProjectPage is passing it in, so lets default to it
-  const currentProject = state.projects[projectId || props.projectId];
+  const { level, blockIds } = state.focus;
+  const currentProject = state.projects[props.projectId];
 
   //delegate handling of focus state handling to selector
   const { type, readOnly, focused } = _getFocused(state, true, props.projectId);

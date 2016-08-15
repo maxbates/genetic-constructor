@@ -15,6 +15,9 @@ limitations under the License.
 */
 /**
  * Genetic Constructor exposes selectors for accessing application data + performing data queries
+ *
+ * **Choose a specific section from the TOC**
+ *
  * @module Selectors
  */
 import * as blocks from './blocks';

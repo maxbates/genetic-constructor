@@ -15,6 +15,11 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import ImportGenBankModal from '../components/genbank/import';
+import ImportDNAForm from '../components/importdna/importdnaform';
+import OrderModal from '../containers/orders/ordermodal';
+import SaveErrorModal from '../components/modal/SaveErrorModal';
+
 import ConstructViewer from './graphics/views/constructviewer';
 import ConstructViewerCanvas from './graphics/views/constructViewerCanvas';
 import ProjectDetail from '../components/ProjectDetail';
@@ -24,7 +29,7 @@ import Inventory from './Inventory';
 import Inspector from './Inspector';
 import { projectList, projectLoad, projectCreate, projectOpen } from '../actions/projects';
 import { uiSetGrunt } from '../actions/ui';
-import { focusProject, focusConstruct } from '../actions/focus';
+import { focusConstruct } from '../actions/focus';
 import { orderList } from '../actions/orders';
 import autosaveInstance from '../store/autosave/autosaveInstance';
 
@@ -43,15 +48,9 @@ class ProjectPage extends Component {
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
-    focusProject: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
   };
-
-  constructor(props) {
-    super(props);
-    this.lastProjectId = null;
-  }
 
   componentDidMount() {
     // todo - use react router History to do this:
@@ -60,15 +59,14 @@ class ProjectPage extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    //set state.focus.project -- might be a better way to do this, but hard otuside components with react-router
-    if (!!nextProps.project && Array.isArray(nextProps.project.components) && (!this.lastProjectId || nextProps.projectId !== this.props.projectId)) {
-      this.lastProjectId = nextProps.projectId;
-      this.props.focusProject(nextProps.projectId);
+    if (!!nextProps.project && Array.isArray(nextProps.project.components) && (!this.props.projectId || nextProps.projectId !== this.props.projectId)) {
+      //focus construct if there is one
       if (nextProps.project.components.length) {
         this.props.focusConstruct(nextProps.project.components[0]);
       }
 
-      //temp - get all the projects orders lazily, will re-render when have them
+      //get all the projects orders lazily, will re-render when have them
+      //run in project page so only request them when we actually load the project
       this.props.orderList(nextProps.projectId);
     }
   }
@@ -108,14 +106,18 @@ class ProjectPage extends Component {
 
     return (
       <div className={'ProjectPage' + (showingGrunt ? ' gruntPushdown' : '')}>
+        <ImportGenBankModal currentProjectId={projectId}/>
+        <ImportDNAForm />
+        <SaveErrorModal />
+        <OrderModal projectId={projectId} />
+
         <Inventory projectId={projectId}/>
 
         <div className="ProjectPage-content">
 
           <ProjectHeader project={project}/>
 
-          <ConstructViewerCanvas
-            currentProjectId={this.props.projectId}>
+          <ConstructViewerCanvas currentProjectId={projectId}>
             {constructViewers}
           </ConstructViewerCanvas>
 
@@ -161,7 +163,6 @@ export default connect(mapStateToProps, {
   projectCreate,
   projectOpen,
   uiSetGrunt,
-  focusProject,
   focusConstruct,
   orderList,
 })(ProjectPage);

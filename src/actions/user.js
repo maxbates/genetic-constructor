@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * @module User Actions
+ * @module Actions_User
  * @memberOf module:Actions
  *
  * @private

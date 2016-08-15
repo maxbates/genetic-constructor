@@ -4,7 +4,7 @@ import userReducer from '../../src/reducers/user';
 import { simpleStore } from '../store/mocks';
 
 describe('Actions', () => {
-  describe('User', () => {
+  describe('User Actions', () => {
     const initialState = {
       userid: null,
       email: null,

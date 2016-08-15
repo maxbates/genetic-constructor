@@ -20,6 +20,7 @@ import Schema from './SchemaClass';
 /**
  * Metadata is a subfield of Instances
  * @name MetadataSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 const fieldDefs = {

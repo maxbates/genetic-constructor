@@ -167,6 +167,7 @@ export const search = (query, options = {}) => {
     retmax: parameters.entries,
     term: query,
     retmode: 'json',
+    sort: 'relevance',
   };
 
   const parameterString = queryString.stringify(mappedParameters);

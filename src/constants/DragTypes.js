@@ -15,7 +15,8 @@ limitations under the License.
 */
 /**
  * DragTypes enumerates the possible drag types supported through Genetic Constructor. Each type corresponds to a different data format and likely will need to be handled differently by respective drop targets.
- * @module DragTypes
+ * @name DragTypes
+ * @memberOf module:Constants
  */
 
 //top-level for anything dragged from inventory

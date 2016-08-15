@@ -21,10 +21,14 @@ import invariant from 'invariant';
  * @name Immutable
  * @class
  *
- * @memberOf module:Models
  * @gc Model
  */
 export default class Immutable {
+  /**
+   * @constructor
+   * @param {Object} input
+   * @returns {Immutable}
+   */
   constructor(input = {}) {
     invariant(typeof input === 'object', 'must pass an object Immutable constructor');
 
@@ -42,6 +46,8 @@ export default class Immutable {
   /**
    * Change the value of a property, returning a new Immutable
    * Uses {@link https://lodash.com/docs#set lodash _.set()} syntax for path, e.g. `a[0].b.c`
+   * @method mutate
+   * @memberOf Immutable
    * @param {string} path Path of property to change
    * @param {*} value New value
    * @returns {Immutable} A new instance
@@ -62,6 +68,8 @@ export default class Immutable {
   /**
    * Return a new Immutable with input object merged into it
    * Uses {@link https://lodash.com/docs#merge lodash _.merge()} for performing a deep merge
+   * @method merge
+   * @memberOf Immutable
    * @param {Object} obj Object to merge into instance
    * @returns {Immutable} A new instance, with `obj` merged in
    * @example

@@ -11,16 +11,16 @@ module.exports = function (browser, srcSelector, blockIndex) {
     var blocks = src.querySelectorAll('[data-nodetype="block"]');
     var block = blocks[blockIndex];
     var bounds = block.getBoundingClientRect();
-    var temp = {left: bounds.left, top: bounds.top, width: bounds.width, height: bounds.height};
-    return temp;
+    return {left: bounds.left , top: bounds.top, width: bounds.width, height: bounds.height};
 
   }, [srcSelector, blockIndex], function(result) {
     b = result.value;
+
     browser
       .moveToElement('body', b.left + b.width - 8, b.top + 15)
-      .pause(100)
+      .pause(250)
       .mouseButtonDown(0)
-      .pause(100)
+      .pause(250)
       .mouseButtonUp(0)
       .waitForElementPresent('.menu-popup-blocker-visible .menu-popup-container', 5000, 'expected an open menu')
   });

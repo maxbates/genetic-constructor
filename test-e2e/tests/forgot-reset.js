@@ -12,10 +12,12 @@ module.exports = {
   browser
     .url(browser.launchUrl + '/homepage/forgot')
     .waitForElementPresent('#forgot-form', 5000, 'Expected form to be present')
+    .pause(2000)
     .click('#forgot-form button:nth-of-type(2)')
     .waitForElementNotPresent('#forgot-form', 5000, 'Expected form to go away')
     .url(browser.launchUrl + '/homepage/reset')
     .waitForElementPresent('#reset-form', 5000, 'Expected form to be present')
+    .pause(2000)
     .click('#reset-form button:nth-of-type(2)')
     .waitForElementNotPresent('#reset-form', 5000, 'Expected form to go away')
     .end();

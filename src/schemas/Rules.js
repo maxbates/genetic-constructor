@@ -19,6 +19,7 @@ import Schema from './SchemaClass';
 /**
  * Rules defining a block and its function. See the chart in Rules_notes.png
  * @name RulesSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 const rulesFields = {

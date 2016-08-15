@@ -55,6 +55,7 @@ import mapValues from '../utils/object/mapValues';
 export default class Schema {
   /**
    * Create a Schema
+   * @constructor
    * @param {Object} fieldDefinitions Object whose keys are field names, and values are arrays as defined in {@link Schema} class description
    */
   constructor(fieldDefinitions) {
@@ -77,6 +78,9 @@ export default class Schema {
 
   /**
    * Clone the schema
+   * @function
+   * @name clone
+   * @memberOf Schema
    * @returns {Schema}
    */
   clone() {
@@ -85,6 +89,9 @@ export default class Schema {
 
   /**
    * Validate the fields of the schema, skipping object wide validation if the schema has defined any.
+   * @name validateFields
+   * @function
+   * @memberOf Schema
    * @param {Object} instance Object to validate
    * @param {boolean} [shouldThrow=false]
    * @throws if `shouldThrow === true` and instance is invalid
@@ -132,6 +139,9 @@ export default class Schema {
   /**
    * Validate a schema.
    * This function can be extended in subclasses for instance-wide validation, not just of fields
+   * @name validate
+   * @function
+   * @memberOf Schema
    * @param {Object} instance Object to validate
    * @param {boolean} [shouldThrow=false]
    * @throws if `shouldThrow === true` and instance is invalid
@@ -143,6 +153,9 @@ export default class Schema {
 
   /**
    * Describe the Schema. Outputs an object whose keys are all the fields, and whose values are descriptions of each field.
+   * @name describe
+   * @function
+   * @memberOf Schema
    * @returns {Object}
    */
   describe() {
@@ -152,6 +165,9 @@ export default class Schema {
 
   /**
    * Create a scaffold of a schema, which includes required fields (unless specified not to be scaffolded) and default values
+   * @name describe
+   * @function
+   * @memberOf Schema
    * @param {boolean} [onlyRequiredFields=false]
    * @returns {Object} Object with keys of the schema and their default values
    */

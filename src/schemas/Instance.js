@@ -22,6 +22,7 @@ import MetadataSchema from './Metadata';
 /**
  * Instance is a parent class. These are IDed and versioned objects with an ancestry, with a dedicated metadata field.
  * @name InstanceSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 const instanceFields = {

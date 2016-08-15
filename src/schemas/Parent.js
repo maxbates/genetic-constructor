@@ -19,6 +19,7 @@ import Schema from './SchemaClass';
 /**
  * Parents are objects in an Instance's ancestry
  * @name ParentSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 const fieldDefs = {

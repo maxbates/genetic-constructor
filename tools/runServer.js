@@ -15,8 +15,7 @@ function runServer(cb) {
     const time = new Date().toTimeString();
     const match = data.toString('utf8').match(RUNNING_REGEXP);
 
-    process.stderr.write(`${server.pid}`);
-    process.stdout.write(time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
+    process.stdout.write(`[PID=${server.pid}]` + time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
     process.stdout.write(data);
 
     if (match) {

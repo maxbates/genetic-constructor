@@ -20,6 +20,7 @@ import { InstanceSchemaClass } from './Instance';
 /**
  * Project is the container for a body of work. It consists primarily of constructs, but also orders, settings, etc.
  * @name ProjectSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 

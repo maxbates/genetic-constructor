@@ -13,8 +13,40 @@
 
   &-logo {
     position: absolute;
+    left: 0;
+    top: 0;
     width: 50px;
     height: 50px;
+  }
+  &-cookie-warning {
+    position: absolute;
+    left: 50px;
+    top: 0;
+    width: calc(100% - 50px);
+    height: 50px;
+    line-height: 50px;
+    padding-left: 3rem;
+    background-color: white;
+
+    a {
+      color: #259BA8;
+      text-decoration: none;
+      font-weight: bold;
+      padding-left: 0.5rem;
+    }
+  }
+  &-cookie-close {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 8rem;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    background-color: var(--button-color);
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
   }
 
   &-image-area {

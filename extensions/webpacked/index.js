@@ -45,21 +45,19 @@
 /*!*****************!*\
   !*** ./main.js ***!
   \*****************/
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var manifest = __webpack_require__(/*! json!./package.json */ 1);
-	
 	function render(container, options) {
-	  container.innerHTML = 'extension loaded!';
+	  container.innerHTML = 'extension rendered this!';
 	
-	  console.log(options.boundingBox);
+	  //console.log(options.boundingBox);
 	
 	  //throw an error for debugging debugging
 	  //require('./externalFile.js').doBadThing();
 	
-	  var subscriber = window.gd.store.subscribe(function (state, lastAction) {
+	  var subscriber = window.constructor.store.subscribe(function (state, lastAction) {
 	    var last = [];
-	    var current = state.ui.currentBlocks;
+	    var current = state.focus.blockIds;
 	    if (current &&
 	      current.length &&
 	        (current.length !== last.length ||
@@ -77,29 +75,8 @@
 	  });
 	}
 	
-	window.gd.registerExtension(manifest, render);
+	window.constructor.extensions.register('webpacked', render);
 
-
-/***/ },
-/* 1 */
-/*!**************************************!*\
-  !*** ./~/json-loader!./package.json ***!
-  \**************************************/
-/***/ function(module, exports) {
-
-	module.exports = {
-		"name": "simple",
-		"version": "1.0.0",
-		"description": "Simple Extensions",
-		"region": "sequenceDetail",
-		"readable": "Simple",
-		"scripts": {
-			"build": "npm install && webpack -d main.js index.js"
-		},
-		"devDependencies": {
-			"json-loader": "^0.5.4"
-		}
-	};
 
 /***/ }
 /******/ ]);

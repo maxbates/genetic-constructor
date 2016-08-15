@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import express from 'express';
 import bodyParser from 'body-parser';
 import {
@@ -27,6 +27,8 @@ import * as querying from './querying';
 import * as persistence from './persistence';
 import * as rollup from './rollup';
 import { permissionsMiddleware } from './permissions';
+
+import projectFileRouter from './projectFileRouter';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json({
@@ -88,13 +90,11 @@ router.param('blockId', (req, res, next, id) => {
 
 /********** ROUTES ***********/
 
-/*
- In general:
+/* project files */
 
- PUT - replace
- POST - merge
- */
+router.use('/file/:projectId', permissionsMiddleware, projectFileRouter);
 
+/* sequence */
 //expect that a well-formed md5 is sent. however, not yet checking. So you really could just call it whatever you wanted...
 
 // future - url + `?format=${format}`;
@@ -130,6 +130,8 @@ router.route('/sequence/:md5/:blockId?')
   .delete((req, res) => {
     res.status(403).send('Not allowed to delete sequence');
   });
+
+/* info queries */
 
 router.route('/info/:type/:detail?/:additional?')
   .all(jsonParser)
@@ -169,9 +171,11 @@ router.route('/info/:type/:detail?/:additional?')
     }
   });
 
+/* rollups */
 // routes for non-atomic operations
 // response/request with data in rollup format {project: {}, blocks: {}, ...}
 // e.g. used in autosave, loading / saving whole project
+
 router.route('/projects/:projectId')
   .all(jsonParser, permissionsMiddleware)
   .get((req, res, next) => {
@@ -204,6 +208,8 @@ router.route('/projects')
       .then(metadatas => res.status(200).json(metadatas))
       .catch(err => next(err));
   });
+
+/* versioning */
 
 router.route('/:projectId/commit/:sha?')
   .all(permissionsMiddleware)
@@ -245,6 +251,13 @@ router.route('/:projectId/commit/:sha?')
         return next(err);
       });
   });
+
+/*
+ In general:
+
+ PUT - replace
+ POST - merge
+ */
 
 router.route('/:projectId/:blockId')
   .all(permissionsMiddleware)

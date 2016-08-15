@@ -19,7 +19,10 @@ import AnnotationSchema from './Annotation';
 
 /**
  * Definition of a schema, including metadata about the schema and references to how to retrieve it.
+ *
+ * A sequence, typically of a part and a large string. Sequences are references because they are not usually loaded in the application, and may be very large, so can be loaded with their own API for defining desired regions.
  * @name SequenceSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 const fieldDefs = {
@@ -62,8 +65,4 @@ export class SequenceSchemaClass extends Schema {
   }
 }
 
-/**
- A sequence, typically of a part and a large string. Sequences are references because they are not usually loaded in the application, and may be very large, so can be loaded with their own API for defining desired regions.
- @name SequenceSchema
- */
 export default new SequenceSchemaClass();

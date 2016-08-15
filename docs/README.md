@@ -1,6 +1,6 @@
 ## Genetic Constructor Docs
 
-The following are the primary topics of the Constructor Application
+The following are the primary topics of the Constructor Application:
 
 - Application Use
     - Purpose
@@ -11,21 +11,29 @@ The following are the primary topics of the Constructor Application
         - Inspector
         - Detail View
 
+- Application Architecture
+    - Structure
+
 - Data
-    - Models
-    - Schemas
+    - [Models](../src/models/README.md)
+    - [Schemas](../src/schemas/README.md)
 
 - Client API
-    - Store
-    - Actions
-    - Selectors
-    - Reducers
-    - Middleware
+    - [Store](../src/store/README.md)
+    - [Actions](../src/actions/README.md)
+    - [Selectors](../src/selectors/README.md)
+    - [Reducers](../src/reducers/README.md)
+    - [Middleware](../src/middleware/README.md)
 
-- Server API
-    - REST
-    - Plugins
+- Server REST API
+    - Project + Block Data
+    - Orders
+    - Sequences
+    - Extensions
 
 - Extensions
-    - Types
-    - Writing
+    - [Overview](extensions/README.md)
+    - [Client Extensions](extensions/ClientExtensions.md)
+    - [Server Extensions](extensions/ServerExtensions.md)
+
+- [Testing](../test/README.md)

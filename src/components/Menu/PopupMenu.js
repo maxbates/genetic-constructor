@@ -19,7 +19,7 @@ import ReactDOM from 'react-dom';
 import MenuItem from './MenuItem';
 import MenuSeparator from './MenuSeparator';
 
-export default class Menu extends Component {
+export default class PopupMenu extends Component {
 
   static propTypes = {
     open: PropTypes.bool.isRequired,

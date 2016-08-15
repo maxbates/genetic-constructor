@@ -19,6 +19,7 @@ import Schema from './SchemaClass';
 /**
  * Information about a placed order
  * @name OrderStatusSchema
+ * @memberOf module:Schemas
  * @gc Schema
  */
 const fieldDefs = {

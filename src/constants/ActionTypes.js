@@ -20,12 +20,13 @@
  *
  * This object is exported on the Genetic Constructor global object. It is recommended you specify event types dynamically using that object, rather than strings, as these types may change internally over time.
  *
- * @module ActionTypes
+ * @name ActionTypes
+ * @memberOf module:Constants
  *
  * @example
  *
- * gd.store.subscribe((store, lastAction) => {
- *   if (lastAction.type === gd.actionTypes.BLOCK_CREATE) {
+ * constructor.store.subscribe((store, lastAction) => {
+ *   if (lastAction.type === constructor.constants.actionTypes.BLOCK_CREATE) {
  *     //do something
  *   }
  * });
@@ -67,7 +68,6 @@ export const INVENTORY_SET_SEARCH_TERM = 'INVENTORY_SET_SEARCH_TERM';
 
 export const FOCUS_FORCE_PROJECT = 'FOCUS_FORCE_PROJECT';
 export const FOCUS_FORCE_BLOCKS = 'FOCUS_FORCE_BLOCKS';
-export const FOCUS_PROJECT = 'FOCUS_PROJECT';
 export const FOCUS_CONSTRUCT = 'FOCUS_CONSTRUCT';
 export const FOCUS_BLOCKS = 'FOCUS_BLOCKS';
 export const FOCUS_PRIORITIZE = 'FOCUS_PRIORITIZE';
@@ -79,6 +79,7 @@ export const PROJECT_CREATE = 'PROJECT_CREATE';
 export const PROJECT_SAVE = 'PROJECT_SAVE';
 export const PROJECT_SNAPSHOT = 'PROJECT_SNAPSHOT';
 export const PROJECT_LOAD = 'PROJECT_LOAD';
+export const PROJECT_OPEN = 'PROJECT_OPEN';
 export const PROJECT_DELETE = 'PROJECT_DELETE';
 export const PROJECT_MERGE = 'PROJECT_MERGE';
 export const PROJECT_RENAME = 'PROJECT_RENAME';

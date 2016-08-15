@@ -1,8 +1,8 @@
-genome-designer:
+webapp:
   extends:
-    file: docker-compose-common.yml
-    service: genome-designer
-  image: quay.io/autodesk_bionano/genomedesigner_genome-designer${BNR_ENV_TAG}
+    file: docker-compose.yml
+    service: webapp
+  image: quay.io/autodesk_bionano/gctor_webapp${BNR_ENV_TAG}
   volumes:
     - /storage/genome-designer/projects:/projects
   environment:

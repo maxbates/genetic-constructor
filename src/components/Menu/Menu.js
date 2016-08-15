@@ -1,24 +1,23 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import MenuItem from './MenuItem';
 import MenuSeparator from './MenuSeparator';
 
 export default class Menu extends Component {
-
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onToggle: PropTypes.func.isRequired,
@@ -30,14 +29,49 @@ export default class Menu extends Component {
     })).isRequired,
   };
 
+  constructor() {
+    super();
+    this.timeout = null;
+  }
+
+  componentWillUnmount() {
+    this.killTimeout();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.isOpen && !this.props.isOpen) {
+      this.killTimeout();
+    }
+  }
+
   toggle = (forceVal) => {
+    this.killTimeout();
     this.props.onToggle(forceVal);
+  };
+
+  startTimeout = () => {
+    this.killTimeout();
+
+    if (this.props.isOpen) {
+      this.timeout = window.setTimeout(() => {
+        this.toggle(false);
+        this.timeout = null;
+      }, 500);
+    }
+  };
+
+  killTimeout = () => {
+    if (this.timeout) {
+      window.clearTimeout(this.timeout);
+      this.timeout = null;
+    }
   };
 
   render() {
     return (
       <div className="menu-dropdown"
-          onMouseLeave={() => this.toggle(false)}>
+           onMouseLeave={() => this.startTimeout()}
+           onMouseEnter={() => this.killTimeout()}>
         <div className={this.props.isOpen ? 'menu-header menu-header-open' : 'menu-header'}
              onClick={this.toggle}>
           {this.props.title}
@@ -58,9 +92,9 @@ export default class Menu extends Component {
                     checked={item.checked}
                     disabled={!!item.disabled}
                     classes={item.classes}
-                    action={boundAction} />) :
-                  (<MenuSeparator key={index} />)
-                );
+                    action={boundAction}/>) :
+                  (<MenuSeparator key={index}/>)
+              );
             })}
           </div>
         )}

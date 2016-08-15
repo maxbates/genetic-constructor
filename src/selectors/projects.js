@@ -16,6 +16,11 @@ limitations under the License.
 import invariant from 'invariant';
 import * as blockSelectors from './blocks';
 
+const _getCurrentProjectId = () => {
+  const match = /^\/project\/(.*?)\??$/gi.exec(window.location.pathname);
+  return match ? match[1] : null;
+};
+
 const _getProjectFromStore = (projectId, store) => {
   if (!projectId) {
     return null;
@@ -29,12 +34,10 @@ export const projectGet = (projectId) => {
   };
 };
 
-//expects focus section of store, and projectPage to have set it
-//alternatively, support we could query react-router directly
+//get the focused project from the URL, since react-router is only accessible in react components
 export const projectGetCurrentId = () => {
   return (dispatch, getState) => {
-    const { focus } = getState();
-    return !!focus ? focus.projectId : null;
+    return _getCurrentProjectId();
   };
 };
 

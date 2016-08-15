@@ -1,7 +1,9 @@
-genome-designer:
+webapp:
   extends:
     file: docker-compose-quickstart.yml
-    service: genome-designer
-  image: quay.io/autodesk_bionano/genomedesigner_genome-designer${BNR_ENV_TAG}
+    service: webapp
+  image: quay.io/autodesk_bionano/gctor_webapp${BNR_ENV_TAG}
   environment:
     HOST_URL: https://geneticconstructor.bionano.autodesk.com
+    REG_ALERT_EMAIL: ${REG_ALERT_EMAIL}
+    REG_ALERT_SUBJECT: "Genetic Constructor Registration"
