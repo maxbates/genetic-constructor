@@ -15,8 +15,6 @@ webtests:
 
 platform:
   image: quay.io/bionano/biouserplatform_service:dev
-  ports:
-    - "8080:8080"
   environment:
     PGHOST: storage
   links:
@@ -27,8 +25,6 @@ platform:
 
 storage:
   image: quay.io/bionano/biouserplatform_storage:dev
-  ports:
-    - "5432:5432"
   environment:
     POSTGRES_PASSWORD: geScongThExtesGO
     POSTGRES_USER: postgres
