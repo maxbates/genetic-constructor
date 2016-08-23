@@ -5,6 +5,16 @@ VERSION_FILE="./node_modules/bio-user-platform/package.json"
 VERSION=$(cat ./auth-version.txt)
 LOCALHOST="http://localhost:3000"
 
+GIT_AUTH_MODULE_URL="git+https://git.autodesk.com:bionano/bio-user-platform.git#v${VERSION}"
+
+if [ -z ${AUTH_MODULE_URL} ];
+then
+    AUTH_MODULE_URL=${GIT_AUTH_MODULE_URL}
+    echo "Using git+https to install Auth Module: ${AUTH_MODULE_URL}"
+else
+    echo "Auth Module URL set in environment: ${AUTH_MODULE_URL}"
+fi
+
 correct_cwd () {
     if [ ! -f "package.json" ]
     then
@@ -28,7 +38,7 @@ install_platform () {
             return 0
         fi
     fi
-    npm install git+https://git.autodesk.com:bionano/bio-user-platform.git#v${VERSION}
+    npm install ${AUTH_MODULE_URL}
 }
 
 correct_cwd

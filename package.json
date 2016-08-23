@@ -25,7 +25,7 @@
     "imagediff": "node ./bin/imagediff/imagediff.js --truth ./test-e2e/cannonical-screenshots/ --hypothesis ./test-e2e/current-screenshots/",
     "selenium": "node ./node_modules/selenium-standalone/bin/selenium-standalone install",
     "start-docker": "docker build -t genome-designer . && docker run --privileged -v /var/run/docker.sock:/run/docker.sock -i -p 3000:3000 -t genome-designer",
-    "auth": "./bin/local-auth.sh",
+    "auth": "COMMAND='npm run start-instance --' ./bin/local-auth.sh",
     "auth-testing": "NODE_ENV=test npm run auth",
     "server-auth": "EMAIL=1 COMMAND='npm run start-instance -- --release' ./bin/server-auth.sh"
   },

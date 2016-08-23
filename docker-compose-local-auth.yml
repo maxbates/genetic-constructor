@@ -1,0 +1,35 @@
+webapp:
+  build: .
+  ports:
+    - "3000:3000"
+  environment:
+    PORT: 3000
+    NODE_ENV: local
+    AUTH_MODULE_URL: ${AUTH_MODULE_URL}
+    API_END_POINT: http://platform:8080/api
+  log_driver: json-file
+  links:
+    - platform
+  command:
+    npm run auth
+
+platform:
+  image: quay.io/bionano/biouserplatform_service:dev
+  ports:
+    - "8080:8080"
+  environment:
+    PGHOST: storage
+  links:
+    - storage
+  log_driver: json-file
+  command:
+    npm run wait-n-server
+
+storage:
+  image: quay.io/bionano/biouserplatform_storage:dev
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: geScongThExtesGO
+    POSTGRES_USER: postgres
+  log_driver: json-file
