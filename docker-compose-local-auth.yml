@@ -1,4 +1,4 @@
-webapp:
+webtests:
   build: .
   ports:
     - "3000:3000"
@@ -11,7 +11,7 @@ webapp:
   links:
     - platform
   command:
-    npm run auth
+    npm run auth-testing
 
 platform:
   image: quay.io/bionano/biouserplatform_service:dev
