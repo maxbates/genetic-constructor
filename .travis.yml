@@ -12,6 +12,7 @@ before_install:
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" quay.io
+- docker ps
 
 install:
 - docker-compose -p gctortravis -f docker-compose-local-auth.yml build
