@@ -30,6 +30,7 @@ WORKDIR /app
 
 #setup node
 ADD package.json /app/package.json
+ADD ./tools /app/tools
 RUN npm update -g npm && npm install
 
 ADD . /app
