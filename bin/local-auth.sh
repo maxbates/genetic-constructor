@@ -7,12 +7,14 @@ LOCALHOST="http://localhost:3000"
 
 GIT_AUTH_MODULE_URL="git+https://git.autodesk.com:bionano/bio-user-platform.git#v${VERSION}"
 
-if [ -z ${AUTH_MODULE_URL} ];
+if [ ! -z ${AUTH_MODULE_KEY} ] && [ ! -z ${AUTH_MODULE_SIG} ] && [ ! -z ${AUTH_MODULE_EXPIRES} ];
 then
+    BASE="https://s3-us-west-2.amazonaws.com/bionano-npm/bio-user-platform-latest.tgz?AWSAccessKeyId="
+    AUTH_MODULE_URL="${BASE}${AUTH_MODULE_KEY}&Expires=${AUTH_MODULE_EXPIRES}&Signature=${AUTH_MODULE_SIG}"
+    echo "Auth Module URL set in environment: ${AUTH_MODULE_URL}"
+else
     AUTH_MODULE_URL=${GIT_AUTH_MODULE_URL}
     echo "Using git+https to install Auth Module: ${AUTH_MODULE_URL}"
-else
-    echo "Auth Module URL set in environment: ${AUTH_MODULE_URL}"
 fi
 
 correct_cwd () {
