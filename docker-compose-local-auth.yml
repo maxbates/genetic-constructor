@@ -5,7 +5,9 @@ webtests:
   environment:
     PORT: 3000
     NODE_ENV: local
-    AUTH_MODULE_URL: ${AUTH_MODULE_URL}
+    AUTH_MODULE_KEY: ${AUTH_MODULE_KEY}
+    AUTH_MODULE_SIG: ${AUTH_MODULE_SIG}
+    AUTH_MODULE_EXPIRES: ${AUTH_MODULE_EXPIRES}
     API_END_POINT: http://platform:8080/api
   log_driver: json-file
   links:

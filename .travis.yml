@@ -18,7 +18,7 @@ install:
 - docker-compose -p gctortravis -f docker-compose-local-auth.yml build
 
 script:
-- AUTH_MODULE_URL="$AUTH_MODULE_URL" docker-compose -p gctortravis -f docker-compose-local-auth.yml run webtests
+- docker-compose -p gctortravis -f docker-compose-local-auth.yml run webtests
 
 notifications:
   email: false
