@@ -6,7 +6,7 @@
   "geneticConstructor": {
     "readable": "Sunburst",
     "client": "index.js",
-    "region": "sequenceDetail"
+    "region": "projectDetail"
   },
   "scripts": {
     "dev": "webpack main.js -o index.js -d -s --watch",
