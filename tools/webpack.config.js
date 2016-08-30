@@ -66,7 +66,7 @@ const config = {
           // https://github.com/babel/babel-loader#options
           cacheDirectory: DEBUG,
 
-          presets: ['stage-0', 'react', 'es2015'],
+          presets: ['stage-2', 'react', 'es2015'],
           plugins: ['transform-class-properties', 'transform-decorators-legacy', 'add-module-exports', 'transform-runtime'],
         },
       },

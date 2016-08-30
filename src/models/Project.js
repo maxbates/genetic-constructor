@@ -150,6 +150,6 @@ export default class Project extends Instance {
    * @returns {Project}
    */
   removeComponents(...components) {
-    return this.mutate('components', [...new Set(this.components.filter(comp => !components.includes(comp)))]);
+    return this.mutate('components', [...new Set(this.components.filter(comp => components.indexOf(comp) < 0))]);
   }
 }

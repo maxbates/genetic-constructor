@@ -32,6 +32,7 @@ import { pauseAction, resumeAction } from '../store/pausableStore';
 
 import { getItem, setItem } from '../middleware/localStorageCache';
 const recentProjectKey = 'mostRecentProject';
+const saveMessageKey = 'projectSaveMessage';
 
 const rollupDefined = (roll) => roll && roll.project && roll.blocks;
 
@@ -133,11 +134,12 @@ export const projectSave = (inputProjectId, forceSave = false) => {
         setItem(recentProjectKey, projectId);
 
         //if no version => first time saving, show a grunt
-        if (!roll.project.version) {
+        if (!getItem(saveMessageKey)) {
           dispatch({
             type: ActionTypes.UI_SET_GRUNT,
             gruntMessage: 'Project Saved. Changes will continue to be saved automatically as you work.',
           });
+          setItem(saveMessageKey, 'true');
         }
 
         const { sha, time } = commitInfo;
@@ -249,7 +251,7 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
 
       return dispatch(projectList())
         .then(manifests => manifests
-          .filter(manifest => !ignores.includes(manifest.id))
+          .filter(manifest => !(ignores.indexOf(manifest.id) >= 0))
           .sort((one, two) => two.lastSaved - one.lastSaved)
         )
         .then(manifests => {
@@ -330,7 +332,7 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
       :
       dispatch(projectSave(currentProjectId))
         .catch(err => {
-          if (currentProjectId) {
+          if (!!currentProjectId && currentProjectId !== null && currentProjectId !== 'null') {
             dispatch({
               type: ActionTypes.UI_SET_GRUNT,
               gruntMessage: `Project ${currentProjectId} couldn't be saved, but navigating anyway...`,

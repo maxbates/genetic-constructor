@@ -83,14 +83,14 @@ export const projectListAllBlocks = (projectId) => {
 export const projectHasComponent = (projectId, blockId) => {
   return (dispatch, getState) => {
     const components = dispatch(projectListAllComponents(projectId));
-    return components.map(comp => comp.id).includes(blockId);
+    return components.map(comp => comp.id).indexOf(blockId) >= 0;
   };
 };
 
 export const projectHasOption = (projectId, blockId) => {
   return (dispatch, getState) => {
     const options = dispatch(projectListAllOptions(projectId));
-    return options.map(option => option.id).includes(blockId);
+    return options.map(option => option.id).indexOf(blockId) >= 0;
   };
 };
 

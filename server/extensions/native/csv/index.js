@@ -15,6 +15,7 @@ import * as persistence from '../../../../server/data/persistence';
 import * as rollup from '../../../../server/data/rollup';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
+import { permissionsMiddleware } from '../../../data/permissions';
 
 const extensionKey = 'csv';
 
@@ -155,7 +156,7 @@ router.post('/import/:projectId?', jsonParser, (req, resp, next) => {
 });
 
 //todo
-router.get('export/:projectId', (req, res, next) => {
+router.get('export/:projectId', permissionsMiddleware, (req, res, next) => {
   res.status(501).send();
 });
 

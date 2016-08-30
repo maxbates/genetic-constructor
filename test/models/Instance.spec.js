@@ -2,6 +2,7 @@ import Instance from '../../src/models/Instance';
 import InstanceSchema from '../../src/schemas/Instance';
 import chai from 'chai';
 import sha1 from 'sha1';
+import { merge } from 'lodash';
 
 const { assert, expect } = chai;
 
@@ -17,8 +18,11 @@ describe('Model', () => {
       it('should include scaffold for default input', () => {
         const inst = new Instance();
         const scaffold = InstanceSchema.scaffold();
-        const massaged = Object.assign({}, scaffold, {
+        const massaged = merge({}, scaffold, {
           id: inst.id,
+          metadata: {
+            created: inst.metadata.created,
+          },
         });
         expect(inst).to.eql(massaged);
         assert(typeof inst.metadata === 'object', 'should have metadata field');

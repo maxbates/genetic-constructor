@@ -22,6 +22,7 @@ export const errorInvalidId = 'INVALID_ID';
 export const errorInvalidModel = 'INVALID_MODEL';
 export const errorInvalidRoute = 'INVALID_ROUTE';
 
+export const errorNoUser = 'NO_USER';
 export const errorInvalidSessionKey = 'INVALID_SESSION_KEY';
 export const errorSessionKeyNotValidated = 'SESSION_KEY_NOT_VALIDATED';
 

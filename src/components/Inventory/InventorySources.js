@@ -37,7 +37,7 @@ export default function InventorySources({ toggling, sourceList, registry, onSou
             evt.stopPropagation();
             onSourceToggle(key);
           },
-          checked: sourceList.includes(key),
+          checked: sourceList.indexOf(key) >= 0,
         };
       })),
   ];

@@ -14,3 +14,4 @@ webapp:
   command:
     npm run server-auth
   log_driver: json-file
+  restart: always

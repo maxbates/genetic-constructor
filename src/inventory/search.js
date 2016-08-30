@@ -65,7 +65,7 @@ export const search = (term, parameters = {}, sourceKey) => {
   const sources = getSources('search');
 
   invariant(typeof term === 'string', 'Term must be a string');
-  invariant(sources.includes(sourceKey), `source ${sourceKey} not found in list of sources: ${sources.join(', ')}`);
+  invariant(sources.indexOf(sourceKey) >= 0, `source ${sourceKey} not found in list of sources: ${sources.join(', ')}`);
 
   const searchPromise = !term.length ?
     Promise.resolve([]) :
@@ -92,7 +92,7 @@ export const searchMultiple = (term, options, sourceList = []) => {
   const searchSources = (sourceList.length === 0) ? sources : sourceList;
 
   invariant(Array.isArray(sourceList), 'must pass array of sources');
-  invariant(sourceList.every(source => sources.includes(source)), `sourceList contains source not in the list of supported sources: ${sourceList} // ${sources}`);
+  invariant(sourceList.every(source => sources.indexOf(source) >= 0), `sourceList contains source not in the list of supported sources: ${sourceList} // ${sources}`);
 
   return Promise.all(searchSources.map(source => search(term, options, source)))
     .then(results => Object.assign({}, ...results));

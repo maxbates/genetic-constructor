@@ -521,7 +521,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         dispatch(transact());
         // if the block being dragging is one of the selections then single select it
         let draggables = this.selectedElements;
-        if (!this.constructViewer.props.focus.blockIds.includes(block)) {
+        if (!(this.constructViewer.props.focus.blockIds.indexOf(block) >= 0)) {
           draggables = [block];
           this.constructViewer.blockSelected(draggables);
         }

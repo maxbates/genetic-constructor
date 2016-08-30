@@ -32,7 +32,7 @@ Joe Lachoff - Designer
 
 Florencio Mazzoldi - Business Owner
 
-Cornelia Schultz - Product Owner
+Cornelia Scheitz - Product Owner
 
 ### Timing
 

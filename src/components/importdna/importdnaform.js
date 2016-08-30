@@ -46,6 +46,8 @@ class DNAImportForm extends Component {
     this.state = {
       inputValid: true,
       validLength: 0,
+      // we don't want to render until we have the sequence
+      haveSequence: false,
     };
   }
 
@@ -54,7 +56,7 @@ class DNAImportForm extends Component {
     if (!this.props.open && nextProps.open) {
       if (nextProps.focusedBlocks.length !== 1) {
         this.props.uiShowDNAImport(false);
-        this.props.uiSetGrunt(`Sequence data must be added to a selected block. Please select a block and try again.`);
+        this.props.uiSetGrunt(`Sequence data must be added to a selected block. Please select a single block and try again.`);
         return;
       }
       if (nextProps.currentConstruct.isFrozen() || nextProps.currentConstruct.isFixed() || nextProps.currentConstruct.isTemplate()) {
@@ -68,11 +70,26 @@ class DNAImportForm extends Component {
         this.props.uiSetGrunt(`You cannot add sequence to a block with child components.`);
         return;
       }
-      this.setState({
-        inputValid: true,
-        validLength: 0,
-        sequence: null,
-      });
+      // can edit the sequence of blocks that were previously manually edited or have no source
+      if (!(block.source.source === '' || block.source.source === 'user')) {
+        this.props.uiShowDNAImport(false);
+        this.props.uiSetGrunt(`You cannot add sequence to a block obtained from ${block.source.source}`);
+        return;
+      }
+      block.getSequence()
+        .then(sequence => {
+          this.setState({
+            inputValid: true,
+            validLength: sequence ? sequence.length : 0,
+            sequence: sequence || '',
+            haveSequence: true,
+          });
+        })
+        .catch(() => {
+          this.props.uiShowDNAImport(false);
+          this.props.uiSetGrunt(`There was a problem fetching that blocks sequence.`);
+          return;
+        });
     }
   }
 
@@ -81,8 +98,7 @@ class DNAImportForm extends Component {
     if (source) {
       // strip anything except atgc and whitespace
       const cleanRegex = new RegExp(`[^${dnaLoose}]`, 'gmi');
-      // while cleaning convert to lowercase
-      const clean = source.replace(cleanRegex, '').toLowerCase();
+      const clean = source.replace(cleanRegex, '');
       if (clean !== source) {
         evt.target.value = clean;
       }
@@ -93,7 +109,7 @@ class DNAImportForm extends Component {
       this.setState({
         inputValid: isValid,
         validLength: clean.length,
-        sequence: clean.toUpperCase(),
+        sequence: clean,
       });
     } else {
       this.setState({
@@ -111,26 +127,7 @@ class DNAImportForm extends Component {
       && this.state.validLength
       && this.state.sequence
       && this.state.validLength === this.state.sequence.length) {
-      // get the currently selected blocks from the store
-      Promise.all(this.props.focusedBlocks.map(blockId => {
-        return this.props.blockGetSequence(blockId);
-      }))
-      .then(sequences => {
-        // get index of first empty sequence
-        const emptyIndex = sequences.findIndex(sequence => !sequence);
-        if (emptyIndex >= 0) {
-          this.setSequenceAndClose(this.props.focusedBlocks[emptyIndex], this.state.sequence);
-        } else {
-          const block = this.props.blockCreate();
-          this.props.blockAddComponent(this.props.currentConstruct.id, block.id, 0);
-          this.setSequenceAndClose(block.id, this.state.sequence);
-        }
-      })
-      .catch(reason => {
-        // close the dialog
-        this.props.uiShowDNAImport(false);
-        this.props.uiSetGrunt(`There was a problem fetching the block sequences: ${reason.toString()}`);
-      });
+      this.setSequenceAndClose(this.props.focusedBlocks[0], this.state.sequence);
     }
   }
 
@@ -151,7 +148,7 @@ class DNAImportForm extends Component {
 
   render() {
     // no render when not open
-    if (!this.props.open) {
+    if (!this.props.open || !this.state.haveSequence) {
       return null;
     }
 
@@ -171,7 +168,6 @@ class DNAImportForm extends Component {
                   this.onSubmit(event);
                 }
               }}
-              style={{textTransform: 'uppercase'}}
               placeholder="Type or paste DNA sequence data here."
               rows="10"
               autoComplete="off"
