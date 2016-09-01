@@ -51,9 +51,9 @@ const colors = [
 ];
 
 const colorModes = {
-  normal: 0,
-  depth: 1,
-  role: 2,
+  normal: 'normal',
+  depth: 'depth',
+  role: 'role',
 };
 
 // map symbol roles to colors
@@ -79,7 +79,7 @@ export default class Layout {
       insetY: 0,
       initialRowXLimit: -Infinity,
       depth: 0,
-      colorMode: colorModes.role,
+      colorMode: colorModes.normal,
     }, options);
 
     // prep data structures for layout`
@@ -331,6 +331,17 @@ export default class Layout {
       list = list.concat(this.nestedLayouts[key].allNodesAndBlocks());
     });
     return list;
+  }
+
+  /**
+   * set the color mode on ourselves and all children
+   * @param {[type]} mode [description]
+   */
+  setColorMode(mode) {
+    this.colorMode = mode;
+    Object.keys(this.nestedLayouts).forEach(key => {
+      this.nestedLayouts[key].setColorMode(mode);
+    });
   }
 
   /**
@@ -764,6 +775,7 @@ export default class Layout {
             insetX: nestedX,
             insetY: nestedY,
             depth: this.depth + 1,
+            colorMode: this.colorMode,
           });
         }
 

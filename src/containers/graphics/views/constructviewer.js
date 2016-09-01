@@ -435,6 +435,28 @@ export class ConstructViewer extends Component {
           this.props.focusConstruct(clone.id);
         },
       },
+      {},
+      {
+        text: `Blocks Color Normal`,
+        action: () => {
+          this.layout.setColorMode('normal');
+        },
+        checked: this.layout && this.layout.colorMode === 'normal',
+      },
+      {
+        text: `Blocks Color by Depth`,
+        action: () => {
+          this.layout.setColorMode('depth');
+        },
+        checked: this.layout && this.layout.colorMode === 'depth',
+      },
+      {
+        text: `Blocks Color by Role`,
+        action: () => {
+          this.layout.setColorMode('role');
+        },
+        checked: this.layout && this.layout.colorMode === 'role',
+      },
     ];
   };
 
