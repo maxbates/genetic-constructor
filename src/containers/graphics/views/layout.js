@@ -24,10 +24,43 @@ import LineNode2D from '../scenegraph2d/line2d';
 import kT from './layoutconstants';
 import objectValues from '../../../utils/object/values';
 import invariant from 'invariant';
+import { symbolMap } from '../../../inventory/roles';
 
 // just for internal tracking of what type of block a node represents.
 const blockType = 'block';
 const roleType = 'role';
+
+// colors for alternate colors schemes e.g. color by depth
+const colors = [
+  '#e7aaa9',
+  '#D28482',
+  '#E9BA9b',
+  '#efac7e',
+  '#EFD79A',
+  '#F1D26C',
+  '#E4E480',
+  '#D3D34F',
+  '#9CC6C0',
+  '#6DA19C',
+  '#B1CED0',
+  '#65AAB1',
+  '#8EC78D',
+  '#53B15F',
+  '#C5C4C1',
+  '#A5A6A2',
+];
+
+const colorModes = {
+  normal: 0,
+  depth: 1,
+  role: 2,
+};
+
+// map symbol roles to colors
+const symbolToColor = {};
+Object.keys(symbolMap).forEach((symbolName, index) => {
+  symbolToColor[symbolName] = colors[index % colors.length];
+});
 
 /**
  * layout and scene graph manager for the construct viewer
@@ -45,7 +78,8 @@ export default class Layout {
       insetX: 0,
       insetY: 0,
       initialRowXLimit: -Infinity,
-      rootLayout: true,
+      depth: 0,
+      colorMode: colorModes.role,
     }, options);
 
     // prep data structures for layout`
@@ -72,7 +106,7 @@ export default class Layout {
    *
    */
   autoSizeSceneGraph() {
-    if (this.rootLayout) {
+    if (this.depth === 0) {
       // start with a box at 0,0, to ensure we capture the top left of the view
       // and ensure we at least use the available
       const aabb = this.getBlocksAABB();
@@ -342,8 +376,19 @@ export default class Layout {
     if (this.blockColor) {
       return this.blockColor(part);
     }
-    // use color in meta data
-    return block.metadata.color || 'lightgray';
+    switch (this.colorMode) {
+
+      case colorModes.role:
+      return symbolToColor[block.rules.role] || 'lightgray'
+      break;
+
+      case colorModes.depth:
+      return colors[this.depth % colors.length];
+
+      default:
+      return block.metadata.color || 'lightgray';
+    }
+
   }
   /**
    * filler blocks get a special color
@@ -718,7 +763,7 @@ export default class Layout {
             showHeader: false,
             insetX: nestedX,
             insetY: nestedY,
-            rootLayout: false,
+            depth: this.depth + 1,
           });
         }
 
