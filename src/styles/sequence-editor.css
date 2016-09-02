@@ -1,0 +1,36 @@
+@import './variables.css';
+
+:root {
+  --monospaced: 'Roboto Mono', monospace;
+  --monosize: 13px;
+  --margin-width: 84px;
+}
+
+.sequence-editor {
+
+  width: 100%;
+  height: 20em;
+  font-family: var(--monospaced);
+  font-size: var(--monosize);
+  border: 1px solid lightgray;
+  margin-bottom: 1rem;
+  position: relative;
+
+  .row-index {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--margin-width);
+    height: 100%;
+    background-color: red;
+  }
+  .sequence {
+    position: absolute;
+    width: calc(100% - var(--margin-width));
+    left: var(--margin-width);
+    top: 0;
+    height: 100%;
+    background-color: dodgerblue;
+  }
+
+}
