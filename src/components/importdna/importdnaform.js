@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { uiShowDNAImport } from '../../actions/ui';
 import { blockGetSequence, blockSetSequence } from '../../actions/blocks';
@@ -47,11 +48,18 @@ class DNAImportForm extends Component {
     this.state = {
       // we don't want to render until we have the sequence
       haveSequence: false,
-      sequence: '',
+      sequence: '', //
     };
   }
 
   componentWillReceiveProps(nextProps) {
+    // if closing dispose of sequence editor
+    if (this.props.open && !nextProps.open) {
+      if (this.sequenceEditor) {
+        this.sequenceEditor.dispose();
+        this.sequenceEditor = null;
+      }
+    }
     // we need a focused block that is not frozen or locked to operate on.
     if (!this.props.open && nextProps.open) {
       if (nextProps.focusedBlocks.length !== 1) {
@@ -117,6 +125,23 @@ class DNAImportForm extends Component {
   //       this.props.uiSetGrunt(`There was a problem inserting that DNA: ${reason.toString()}`);
   //     });
   // }
+  //
+
+
+  componentDidUpdate() {
+    if (!this.sequenceEditor) {
+      const dom = ReactDOM.findDOMNode(this);
+      if (dom) {
+        this.sequenceEditor = new SequenceEditor({
+          parent: dom.querySelector('.sequence-editor'),
+        });
+      }
+    }
+    if (this.sequenceEditor) {
+      this.sequenceEditor.update();
+    }
+  }
+
 
   render() {
     // no render when not open
@@ -133,7 +158,7 @@ class DNAImportForm extends Component {
       payload={
           <form className="gd-form importdnaform" onSubmit={this.onSubmit.bind(this)}>
             <div className="title">Edit Sequence</div>
-            <SequenceEditor sequence={this.state.sequence}/>
+            <div key="editor" className="sequence-editor"/>
             <div style={{width: '75%', textAlign: 'center'}}>
               <button type="submit">Apply</button>
               <button

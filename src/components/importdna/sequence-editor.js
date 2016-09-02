@@ -13,33 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { Component, PropTypes } from 'react';
 
 import '../../../src/styles/sequence-editor.css';
 
-export default class SequenceEditor extends Component {
+export default class SequenceEditor {
 
-  static propTypes = {
-    sequence: PropTypes.string.isRequired,
-  };
+  constructor(props) {
+    Object.assign(this, {
 
-  constructor() {
-    super();
+    }, props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.sequence !== this.props.sequence) {
-      console.log('getting a new sequence');
-    }
+  dispose() {
   }
 
-  render() {
-    return (
-      <div className="sequence-editor">
-        <div className="row-index">0123456789</div>
-        <div className="sequence">{this.props.sequence}</div>
-      </div>
-    )
+  update() {
+    this.parent.innerHTML = new Date().toString();
   }
 }
 /*
