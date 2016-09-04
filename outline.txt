@@ -1,0 +1,36 @@
+1. Scene graphs for 2D visualization in the browser.
+
+1.a https://en.wikipedia.org/wiki/Scene_graph
+
+2. Why?
+   - Integrate Raster ( canvas ) Vector ( svg ) and HTML into a single coherent layer.
+   - Precise interaction is made easy using simple 2D vector/matrix computations versus element ( svg, html )
+     or pixel level interactions ( canvas )
+   - Separate components for geometry and visual representation.
+   - Group related elements into a single object.
+   - Easy view culling.
+   - Is very close to the browsers native modus operandi and therefore we can take advantage
+     the browsers native capabilities in various areas. i.e. parent / child relationships + css transforms
+   - Performance, Opaque frameworks like ReactJS/Angular attempt to conceal the
+     complexity of the update/render cycle from you with sub optimal results for visualization apps.
+
+3. Background on scene graphs
+   - hierarchy of boxes
+   - transformations
+   - sub divide and co
+
+4. Browser based implementations
+   - scene graph
+   - nodes
+   - glyphs
+   - vector / matrix computations https://www.willamette.edu/~gorr/classes/GeneralGraphics/Transforms/transforms2d.htm
+
+ 5. Interaction
+   - Picking
+   - Fence / Region Selection
+
+ 6. Integrating 3rd party glyphs / content
+
+ 7. A few examples from Autodesk / Personal Projects.
+
+ 8. Github resources

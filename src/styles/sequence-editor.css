@@ -6,12 +6,31 @@
   --gutter-width: 84px;
 }
 
+.sequence-editor-text {
+  font-family: var(--monospaced);
+  font-size: var(--monosize);
+  padding: 0;
+  letter-spacing: 0;
+  font-kerning: none;
+  white-space: nowrap;
+}
+/*element used for measuring chars*/
+.sequence-editor-measure {
+  display: inline-block;
+  line-height: normal;
+  white-space: nowrap;
+  width: auto !important;
+  height: auto !important;
+}
+
+.sequence-editor * {
+  border-radius: 0 !important;
+}
+
 .sequence-editor {
 
   width: 100% !important;
   height: 100%;
-  font-family: var(--monospaced);
-  font-size: var(--monosize);
   border: 1px solid lightgray;
   margin-bottom: 1rem;
   position: relative;
@@ -31,6 +50,16 @@
     top: 0;
     height: 100%;
     background-color: dodgerblue;
+
+    .bases-row {
+      position: absolute;
+      color: black;
+      background-color: lightgray;
+      margin: 0 !important;
+      padding: 0;
+      white-space: pre-wrap;
+      width: auto !important;
+    }
   }
 
 }
