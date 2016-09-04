@@ -67,7 +67,15 @@ const config = {
           cacheDirectory: DEBUG,
 
           presets: ['stage-2', 'react', 'es2015'],
-          plugins: ['transform-class-properties', 'transform-decorators-legacy', 'add-module-exports', 'transform-runtime'],
+          plugins: [
+            'transform-class-properties',
+            'transform-decorators-legacy',
+            'add-module-exports',
+            'transform-runtime',
+            ["babel-plugin-transform-builtin-extend", {
+              globals: ["Array"],
+            }]
+          ],
         },
       },
       {

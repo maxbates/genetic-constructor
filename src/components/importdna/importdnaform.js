@@ -86,9 +86,13 @@ class DNAImportForm extends Component {
       // }
       block.getSequence()
         .then(sequence => {
+          const seq = sequence || '';
           this.setState({
-            sequence: sequence || '',
+            sequence: seq,
           });
+          if (this.sequenceEditor) {
+            this.sequenceEditor.setSequence(seq);
+          }
         })
         .catch(() => {
           this.props.uiShowDNAImport(false);
@@ -130,15 +134,14 @@ class DNAImportForm extends Component {
 
   componentDidUpdate() {
     if (!this.sequenceEditor) {
-      const dom = ReactDOM.findDOMNode(this);
-      if (dom) {
+      if (this.refs.editor) {
         this.sequenceEditor = new SequenceEditor({
-          parent: dom.querySelector('.sequence-editor'),
+          parent: this.refs.editor,
         });
       }
     }
-    if (this.sequenceEditor) {
-      this.sequenceEditor.update();
+    if (this.sequenceEditor && this.state.sequence) {
+      this.sequenceEditor.setSequence(this.state.sequence);
     }
   }
 
@@ -158,7 +161,7 @@ class DNAImportForm extends Component {
       payload={
           <form className="gd-form importdnaform" onSubmit={this.onSubmit.bind(this)}>
             <div className="title">Edit Sequence</div>
-            <div key="editor" className="sequence-editor"/>
+            <div key="editor" ref="editor" style={{width: '80%', height: '20rem'}}/>
             <div style={{width: '75%', textAlign: 'center'}}>
               <button type="submit">Apply</button>
               <button

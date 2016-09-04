@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import invariant from 'invariant';
+import D from './dom';
 
 import '../../../src/styles/sequence-editor.css';
 
@@ -22,13 +24,33 @@ export default class SequenceEditor {
     Object.assign(this, {
 
     }, props);
+    invariant(this.parent, 'parent element must be supplied as an option');
+    this.fabric();
   }
 
   dispose() {
+
   }
 
-  update() {
-    this.parent.innerHTML = new Date().toString();
+  /**
+   * setup the basic elements of the DOM
+   */
+  fabric() {
+    this.dom = D(
+      `<div data-ref="outer" class="sequence-editor">
+        <div data-ref="gutter" class="gutter"></div>
+        <div data-ref="bases" class="bases"></div>
+      </div>`);
+    this.dom.zip(this);
+    this.parent.appendChild(this.dom.el);
+  }
+
+  /**
+   * update is called whenever a new sequence is available for editing.
+   */
+  setSequence(s) {
+    this.sequence = s;
+    this.bases.innerText = this.sequence;
   }
 }
 /*
