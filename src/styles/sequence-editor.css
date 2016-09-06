@@ -41,7 +41,20 @@
     top: 0;
     width: var(--gutter-width);
     height: 100%;
-    background-color: red;
+    border-right: 1px solid lightgray;
+    pointer-events: none;
+    user-select: none;
+
+    .gutter-row {
+      position: absolute;
+      color: black;
+      margin: 0 !important;
+      padding: 0;
+      white-space: pre-wrap;
+      width: auto !important;
+      pointer-events: none;
+      user-select: none;
+    }
   }
   .bases {
     position: absolute;
@@ -49,17 +62,29 @@
     left: var(--gutter-width);
     top: 0;
     height: 100%;
-    background-color: dodgerblue;
 
     .bases-row {
       position: absolute;
       color: black;
-      background-color: lightgray;
       margin: 0 !important;
       padding: 0;
       white-space: pre-wrap;
       width: auto !important;
+      pointer-events: none;
+      user-select: none;
     }
+  }
+  .bases:focus {
+    background-color: lightgray;
+    outline: none;
+  }
+  .caret {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    background-color: dodgerblue;
+    width: 2px;
+    z-index: 1;
   }
 
 }

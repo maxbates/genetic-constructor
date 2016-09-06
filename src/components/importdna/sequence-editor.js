@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
+import Vector2D from '../../containers/graphics/geometry/vector2d';
 import D from './dom';
 
 import '../../../src/styles/sequence-editor.css';
@@ -47,11 +48,100 @@ export default class SequenceEditor {
     this.dom = D(
       `<div data-ref="outer" class="sequence-editor sequence-editor-text">
         <div data-ref="gutter" class="gutter"></div>
-        <div data-ref="bases" class="bases"></div>
+        <div data-ref="bases" class="bases" tabindex="0"></div>
       </div>`);
     this.dom.zip(this);
     this.parent.appendChild(this.dom.el);
+    this.userInterfaceFabric();
   }
+
+  /**
+   * setup the user interface
+   */
+  userInterfaceFabric() {
+    // keyboard interface
+    this.keyboardSetup();
+  }
+
+  /**
+ * setup and handler all keyboard interactions
+ * NOTE: Currently we don't have the notion of a permanent caret like a text editor
+ * so certain operations are impossible ( because they need a caret to anchor them ) e.g. shift reduce
+ * the right edge of selection and continue selecting to the left of the caret when the selection
+ * becomes collapsed
+ */
+keyboardSetup() {
+
+  // handle key presses according to state
+  this.bases.on('keydown', event => {
+
+    const keyboardMap = {
+      'Home'            : event => {
+        this.firstRow = 0;
+      },
+      'End'             : event => {
+
+      },
+      'ArrowUp'         : event => {
+
+      },
+      'ArrowUp+Shift'   : event => {
+
+      },
+      'ArrowDown'       : event => {
+
+      },
+      'ArrowDown+Shift' : event => {
+
+      },
+      'ArrowRight'      : event => {
+        // move caret to the right and make visible
+        // const next = this.selection.nextCaret(this.selection.caretRowEnd);
+        // this.setSelection(next, next);
+        // this.viewer.ensureRowVisible(next.y);
+        console.log('Arrow Right');
+      },
+      'ArrowLeft'       : event => {
+        // move caret to the right and make visible
+        // const prev = this.selection.previousCaret(this.selection.caretRowEnd);
+        // this.setSelection(prev, prev);
+        // this.viewer.ensureRowVisible(prev.y);
+        console.log('Arrow Left');
+      },
+      // increase selection to the right
+      'ArrowRight+Shift': (event) => {
+
+      },
+      // decrease selection at right end
+      'ArrowLeft+Shift' : (event) => {
+
+      },
+    };
+
+    // call the handler if there is one ( add modifiers to name used to select action )
+    let code = event.key;
+    if (event.shiftKey) {
+      code += '+Shift';
+    }
+    if (event.metaKey) {
+      code += '+Meta';
+    }
+    if (event.ctrlKey) {
+      code += '+Ctrl';
+    }
+    if (event.altKey) {
+      code += '+Alt';
+    }
+
+    if (keyboardMap[code]) {
+      keyboardMap[code].call(this, event);
+      // // hide mouse cursor, most of these actions will move the display
+      // this.hideCursor();
+      // // redraw
+      // this.viewer.render();
+    }
+  });
+}
 
   // calculate metrics for fixed pitch font that we use
   measureChars() {
@@ -74,6 +164,7 @@ export default class SequenceEditor {
    * groupsRequired       : number of groups required to display entire sequence
    * groupWidth           : width of a single group in pixels, including a leading space char
    * groupsPerRow         : how many groups we can fit per row
+   * basesPerRow          : actual bases per row not including spacers
    * rowsRequired         : number of rows required to display entire sequence.
    * visibleRows          : number of fully or partially visible rows
    *
@@ -83,7 +174,8 @@ export default class SequenceEditor {
     this.groupWidth = this.CW * (groupLength + 1);
     const box = this.bases.getBoundingClientRect();
     this.groupsPerRow = Math.floor(box.width / this.groupWidth);
-    this.rowWidth = this.groupWidth * this.groupsPerRow;
+    this.basesPerRow = this.groupsPerRow * groupLength;
+    this.rowWidth = box.width;
     this.rowsRequired = Math.ceil(this.groupsRequired / this.groupsPerRow);
     this.visibleRows = Math.ceil(box.height / this.CH);
   }
@@ -94,8 +186,10 @@ export default class SequenceEditor {
   setSequence(s) {
     this.sequence = s;
     this.firstRow = 0;
-    this.bases.empty();
+    this.selection = new Selection(this);
+    D('.bases-row', this.bases).remove();
     this.rowCache = [];
+    this.gutterCache = [];
     this.measureChars();
     this.metrics();
     this.render();
@@ -114,7 +208,9 @@ export default class SequenceEditor {
         break;
       }
       this.renderRow(rowIndex);
+      this.renderGutter(rowIndex);
     }
+    this.renderSelection();
   }
 
   /**
@@ -141,6 +237,88 @@ export default class SequenceEditor {
     row.setStyles({
       top: (rowIndex - this.firstRow) * this.CH + 'px',
     });
+  }
+  /**
+   * render the gutter for a given row
+   */
+  renderGutter(rowIndex) {
+    let row = this.gutterCache[rowIndex];
+    if (!row) {
+      row = this.gutterCache[rowIndex] = D('<div class="gutter-row"></div>');
+      row.setStyles({
+        height: this.CH + 'px',
+      });
+      this.gutter.appendChild(row.el);
+      row.innerHTML = (rowIndex * groupLength * this.groupsPerRow + 1).toString();
+    }
+    row.setStyles({
+      top: (rowIndex - this.firstRow) * this.CH + 'px',
+    });
+  }
+  /**
+   * render the selection or caret its current position.
+   */
+  renderSelection() {
+    if (this.selection.isCollapsed) {
+      if (!this.caretElement) {
+        this.caretElement = D('<div class="caret"></div>');
+        this.bases.appendChild(this.caretElement.el);
+      }
+      const position = this.caretToXY(this.selection.caretStart);
+      this.caretElement.setStyles({
+        left: position.x + 'px',
+        top: position.y + 'px',
+        height: this.CH + 'px',
+      });
+    } else {
+      // hide the caret
+      if (this.caretElement) {
+        this.caretElement.remove();
+        this.caretElement = null;
+      }
+    }
+  }
+
+  /**
+   * get the XY position of the given caret position, relative to the bases element
+   * @return {Vector2D}
+   */
+  caretToXY(caret) {
+    return new Vector2D(caret.caret * this.CW, (caret.row - this.firstRow) * this.CH);
+  }
+}
+
+/**
+ * represents the selection/caret
+ */
+class Selection {
+
+  constructor(editor, caretStart = null, caretEnd = null) {
+    this.editor = editor;
+    this.set(caretStart, caretEnd);
+  }
+
+  /**
+   * set start/end of selection. If not specified defaults to a collapsed caret at 0,0
+   */
+  set(caretStart, caretEnd) {
+    this.caretStart = caretStart || {row: 0, caret: 0};
+    this.caretEnd = caretEnd || {row: 0, caret: 0};
+  }
+
+  /**
+   * return if we have no range, only a position i.e. a caret
+   */
+  get isCollapsed() {
+    return this.caretStart.row === this.caretEnd.row && this.caretStart.caret === this.caretEnd.caret;
+  }
+
+  /**
+   * render the selection into the given layer of the viewer
+   * @param viewer
+   */
+  render() {
+
   }
 }
 /*
