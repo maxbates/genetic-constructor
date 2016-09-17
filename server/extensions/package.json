@@ -7,6 +7,6 @@
     "testErrorServer" : "../../extensions/testErrorServer",
     "gslEditor" : "../../extensions/gslEditor",
     "SequenceDetail" : "IsaacLuo/onion2#extensions-refactor",
-    "seq-viewer": "git+http://github.com/duncanmeech/sequence-viewer.git"
+    "seq-viewer": "git+http://github.com/duncanmeech/sequence-viewer.git#0fdc090f4e902ffdaa0d7b30ee21a08547cc5450"
   }
 }

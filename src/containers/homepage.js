@@ -26,7 +26,7 @@ import {
   privacy,
 } from '../utils/ui/uiapi';
 
-export default class HomePage extends Component {
+export class HomePage extends Component {
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiShowUserWidget: PropTypes.func.isRequired,
