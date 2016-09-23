@@ -44,7 +44,9 @@ module.exports = {
       .assert.countelements('.construct-viewer', 1)
       .assert.countelements('[data-nodetype="block"]', 1);
 
-    browser.pause(5000)
+    browser
+      .pause(5000)
+      .waitForElementNotPresent('.ribbongrunt', 5000, 'expected autosave message to go away');
 
     var blockBounds = openNthBlockContextMenu(browser, '.sceneGraph', 0);
     clickNthContextMenuItem(browser, 3);
