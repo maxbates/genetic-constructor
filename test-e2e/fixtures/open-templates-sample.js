@@ -11,6 +11,7 @@ var openTemplatesSample = function(browser) {
             browser.elementIdClick(element.ELEMENT, function (clicked) {
               browser
                 .pause(10000)
+                .waitForElementPresent('[data-nodetype="block"]', 5000, 'expected blocks to appear')
                 .assert.countelements('.construct-viewer', 29);
             });
           });
