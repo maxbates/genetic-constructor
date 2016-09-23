@@ -1,7 +1,7 @@
 var registerViaHomepage = function(browser) {
 
   browser
-    .url('http://localhost:3001/homepage')
+    .url(browser.launchUrl + 'homepage')
     // wait for homepage to be present before starting
     .waitForElementPresent('.homepage', 5000, 'Expected homepage element to be present')
     // open sign in dialog
