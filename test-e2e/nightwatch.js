@@ -23,11 +23,13 @@ module.exports = {
     local: {
       launch_url: 'http://geneticconstructor.com/',
       //launch_url: 'http://localhost:3001/',
-      selenium_port: 4444,
-      selenium_host: '127.0.0.1',
+      selenium_port: 80,
+      selenium_host: 'ondemand.saucelabs.com',
+      username: process.env.SAUCE_USERNAME,
+      access_key: process.env.SAUCE_ACCESS_KEY,
       silent: true,
       screenshots: {
-        enabled: true,
+        enabled: false,
         path: './test-e2e/screenshots',
       },
       desiredCapabilities: {
