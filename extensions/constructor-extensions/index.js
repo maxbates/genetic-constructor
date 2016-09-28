@@ -52,12 +52,10 @@ fs.readdirSync(nodeModulesDir).forEach(function goThroughExtensions(packageName)
 
 console.log('[Extensions Loaded] ' + Object.keys(registry));
 
-// todo- update references to old registry
-
-function list(filters) {
-  if (typeof filters === 'function') {
-    return _.pickBy(registry, filters);
-  }
+function list() {
+  //future - prefer optimized version
+  //const filters = Array.apply(null, arguments);
+  var filters = Array.prototype.slice.call(arguments);
 
   return _.reduce(filters, function pickFilter(acc, filter) {
     return _.pickBy(acc, filter);
@@ -86,6 +84,11 @@ function getInternalFilePath(name, filePath) {
   return path.resolve(nodeModulesDir, name, filePath);
 }
 
+function requireInternalFile(name, filePath) {
+  const fullPath = getInternalFilePath(name, filePath);
+  return require(fullPath);
+}
+
 module.exports = {
   list: list,
   get: get,
@@ -93,4 +96,5 @@ module.exports = {
   getServerExtensions: getServerExtensions,
   isRegistered: isRegistered,
   getInternalFilePath: getInternalFilePath,
+  requireInternalFile: requireInternalFile,
 };

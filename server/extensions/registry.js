@@ -13,67 +13,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import path from 'path';
-import invariant from 'invariant';
-import fs from 'fs';
-import { pickBy } from 'lodash';
-import { validateManifest, manifestIsServer, manifestIsClient } from './manifestUtils';
 
-const nodeModulesDir = process.env.BUILD ? 'gd_extensions' : path.resolve(__dirname, './node_modules');
+import {
+  list,
+  get,
+  isRegistered,
+  getClientExtensions,
+  getServerExtensions,
+  getInternalFilePath,
+} from 'constructor-extensions';
 
-const registry = {};
-
-//todo - this should include the 'native' extensions -- these wont show up in registry currently
-
-fs.readdirSync(nodeModulesDir).forEach(packageName => {
-  try {
-    //skip the test extensions unless we're in the test environment
-    if (packageName.startsWith('test') && process.env.NODE_ENV !== 'test') {
-      return;
-    }
-
-    //future process.env.BUILD support (if not already handled by line above)
-    const filePath = path.resolve(nodeModulesDir, packageName + '/package.json');
-    const depManifest = require(filePath);
-
-    validateManifest(depManifest);
-
-    Object.assign(registry, {
-      [packageName]: depManifest,
-    });
-  } catch (err) {
-    console.warn('\n\nerror loading extension: ' + packageName);
-    console.error(err);
-  }
-});
-
-console.log('[Extensions Loaded] ' + Object.keys(registry));
-
-export const isRegistered = (name) => {
-  return registry.hasOwnProperty(name);
-};
-
-//each filter takes arguments (manifest, key), should return true or false
-export const getExtensions = (...filters) => {
-  return filters.reduce((acc, filter) => {
-    return pickBy(acc, filter);
-  }, registry);
-};
-
-export const getClientExtensions = (...filters) => {
-  return getExtensions(manifestIsClient, ...filters);
-};
-
-export const getServerExtensions = (...filters) => {
-  return getExtensions(manifestIsServer, ...filters);
-};
-
-export const list = () => registry;
-
-export const get = (name) => registry[name] || null;
-
-export const getInternalFilePath = (name, filePath) => {
-  invariant(isRegistered(name), 'extension must be registered');
-  invariant(filePath && typeof filePath === 'string', 'must pass a path');
-  return path.resolve(nodeModulesDir, name, filePath);
+export {
+  list,
+  isRegistered,
+  getClientExtensions,
+  getServerExtensions,
+  get,
+  getInternalFilePath,
+  list as getExtensions,
 };

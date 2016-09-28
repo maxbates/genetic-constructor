@@ -23,6 +23,7 @@ import {
   checkUserExtensionAccessMiddleware,
   checkExtensionIsServerMiddleware,
 } from './middlewareChecks';
+import { requireInternalFile } from 'constructor-extensions';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json();
@@ -52,8 +53,7 @@ Object.keys(serverExtensions).forEach(key => {
   const routePath = manifest.geneticConstructor.router;
 
   try {
-    //future - build dependent path lookup
-    const extensionRouter = require(path.resolve(__dirname, 'node_modules', key, routePath));
+    const extensionRouter = requireInternalFile(key, routePath);
 
     //todo - Put in own process?
     router.use(`/${key}/`, extensionRouter);

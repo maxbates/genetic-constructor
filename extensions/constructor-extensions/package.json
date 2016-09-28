@@ -2,11 +2,14 @@
   "name": "constructor-extensions",
   "version" : "0.0.1",
   "description": "list of the default extensions for Genetic Constructor",
+  "repository": {},
+  "license": "Apache-2.0",
+  "scripts": {},
   "dependencies": {
-    "testClient" : "../../extensions/testClient",
-    "testPrivate" : "../../extensions/testPrivate",
-    "testErrorServer" : "../../extensions/testErrorServer",
-    "gslEditor" : "../../extensions/gslEditor",
+    "testClient" : "../testClient",
+    "testPrivate" : "../testPrivate",
+    "testErrorServer" : "../testErrorServer",
+    "gslEditor" : "../gslEditor",
     "SequenceDetail" : "IsaacLuo/onion2#8f03cd9d4820b9e98965dc945539afed9b9205cb",
     "GC-Sequence-Viewer": "duncanmeech/sequence-viewer"
   }
