@@ -14,7 +14,6 @@
  limitations under the License.
  */
 import express from 'express';
-import path from 'path';
 import bodyParser from 'body-parser';
 import { getServerExtensions } from './registry';
 import { pruneUserObjectMiddleware } from '../user/utils';

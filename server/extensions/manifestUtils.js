@@ -25,7 +25,7 @@ function validateManifest(manifest) {
     }), 'each client extension object must have a region, or define region as null');
 
     const regions = client.map(function mapToRegion(clientObj) { return clientObj.region; })
-      .filter(function filterNulls(region) { return !!region });
+      .filter(function filterNulls(region) { return !!region; });
 
     //get regions, ignore null, make sure no repeats
     const unique = Object.keys(regions.reduce(function reduceRegions(acc, region) {
