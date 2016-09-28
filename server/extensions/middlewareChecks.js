@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 import { errorNoPermission, errorExtensionNotFound } from '../utils/errors';
 import { getConfigFromUser } from '../user/utils';
-import extensionRegistry from './registry';
+import { list as listExtensions, get as getExtension } from './registry';
 import { manifestIsServer, manifestIsClient, manifestClientFiles } from './manifestUtils';
 
 export const manifestIsPrivate = (manifest) => {
@@ -71,10 +71,10 @@ export const checkExtensionExistsMiddleware = (req, res, next) => {
     return res.status(401).send('expected :extension in route params');
   }
 
-  const extensionManifest = extensionRegistry[extension];
+  const extensionManifest = getExtension(extension);
 
   if (!extensionManifest) {
-    console.log(`could not find extension ${extension} in registry (${Object.keys(extensionRegistry).join(', ')})`);
+    console.log(`could not find extension ${extension} in registry (${Object.keys(listExtensions()).join(', ')})`);
     return res.status(404).send(errorExtensionNotFound);
   }
 

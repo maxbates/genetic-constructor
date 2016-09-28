@@ -1,13 +1,13 @@
 {
-  "name": "genome-designer-default-extensions",
+  "name": "constructor-extensions",
   "version" : "0.0.1",
-  "description": "list of the default extensions for genome designer",
+  "description": "list of the default extensions for Genetic Constructor",
   "dependencies": {
     "testClient" : "../../extensions/testClient",
     "testPrivate" : "../../extensions/testPrivate",
     "testErrorServer" : "../../extensions/testErrorServer",
-    "SequenceDetail" : "IsaacLuo/onion2#8f03cd9d4820b9e98965dc945539afed9b9205cb",
     "gslEditor" : "../../extensions/gslEditor",
+    "SequenceDetail" : "IsaacLuo/onion2#8f03cd9d4820b9e98965dc945539afed9b9205cb",
     "GC-Sequence-Viewer": "duncanmeech/sequence-viewer"
   }
 }

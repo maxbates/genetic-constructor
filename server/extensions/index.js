@@ -16,8 +16,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { errorDoesNotExist } from '../utils/errors';
-import { getExtensions } from './registry';
-import { getExtensionInternalPath } from './loadExtension';
+import { getInternalFilePath, getExtensions } from './registry';
 import errorHandlingMiddleware from '../utils/errorHandlingMiddleware';
 import extensionApiRouter from './apiRouter';
 import {
@@ -119,7 +118,7 @@ router.get('/load/:extension/*',
   (req, res, next) => {
     const { filePath, extension } = req;
 
-    const extensionFile = getExtensionInternalPath(extension, filePath);
+    const extensionFile = getInternalFilePath(extension, filePath);
     res.sendFile(extensionFile, (err) => {
       if (err) {
         console.log('error sending extension!', err);

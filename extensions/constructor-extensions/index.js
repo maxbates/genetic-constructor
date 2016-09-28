@@ -13,19 +13,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import path from 'path';
-import invariant from 'invariant';
-import fs from 'fs';
-import { pickBy } from 'lodash';
-import { validateManifest, manifestIsServer, manifestIsClient } from './manifestUtils';
 
-const nodeModulesDir = process.env.BUILD ? 'gd_extensions' : path.resolve(__dirname, './node_modules');
+const fs = require('fs');
+const path = require('path');
+const invariant = require('invariant');
+const _ = require('lodash');
+const manifestUtils = require('../../server/extensions/manifestUtils.js');
+
+// todo - ensure this is module not webpacked - add to externals
 
 const registry = {};
 
 //todo - this should include the 'native' extensions -- these wont show up in registry currently
 
-fs.readdirSync(nodeModulesDir).forEach(packageName => {
+const nodeModulesDir = path.resolve(__dirname, './node_modules');
+
+fs.readdirSync(nodeModulesDir).forEach(function goThroughExtensions(packageName) {
   try {
     //skip the test extensions unless we're in the test environment
     if (packageName.startsWith('test') && process.env.NODE_ENV !== 'test') {
@@ -36,7 +39,7 @@ fs.readdirSync(nodeModulesDir).forEach(packageName => {
     const filePath = path.resolve(nodeModulesDir, packageName + '/package.json');
     const depManifest = require(filePath);
 
-    validateManifest(depManifest);
+    manifestUtils.validateManifest(depManifest);
 
     Object.assign(registry, {
       [packageName]: depManifest,
@@ -49,31 +52,45 @@ fs.readdirSync(nodeModulesDir).forEach(packageName => {
 
 console.log('[Extensions Loaded] ' + Object.keys(registry));
 
-export const isRegistered = (name) => {
-  return registry.hasOwnProperty(name);
-};
+// todo- update references to old registry
 
-//each filter takes arguments (manifest, key), should return true or false
-export const getExtensions = (...filters) => {
-  return filters.reduce((acc, filter) => {
-    return pickBy(acc, filter);
+function list(filters) {
+  if (typeof filters === 'function') {
+    return _.pickBy(registry, filters);
+  }
+
+  return _.reduce(filters, function pickFilter(acc, filter) {
+    return _.pickBy(acc, filter);
   }, registry);
-};
+}
 
-export const getClientExtensions = (...filters) => {
-  return getExtensions(manifestIsClient, ...filters);
-};
+function get(name) {
+  return registry[name] || null;
+}
 
-export const getServerExtensions = (...filters) => {
-  return getExtensions(manifestIsServer, ...filters);
-};
+function isRegistered(name) {
+  return registry.hasOwnProperty(name);
+}
 
-export const list = () => registry;
+function getClientExtensions() {
+  return list(manifestUtils.manifestIsClient);
+}
 
-export const get = (name) => registry[name] || null;
+function getServerExtensions() {
+  return list(manifestUtils.manifestIsServer);
+}
 
-export const getInternalFilePath = (name, filePath) => {
+function getInternalFilePath(name, filePath) {
   invariant(isRegistered(name), 'extension must be registered');
   invariant(filePath && typeof filePath === 'string', 'must pass a path');
   return path.resolve(nodeModulesDir, name, filePath);
+}
+
+module.exports = {
+  list: list,
+  get: get,
+  getClientExtensions: getClientExtensions,
+  getServerExtensions: getServerExtensions,
+  isRegistered: isRegistered,
+  getInternalFilePath: getInternalFilePath,
 };
