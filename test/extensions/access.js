@@ -18,7 +18,7 @@ import { assert, expect } from 'chai';
 import testPrivate from '../../extensions/testPrivate/package.json';
 import { updateAccount } from '../../src/middleware/auth';
 import { getExtensionsInfo } from '../../src/middleware/extensions';
-import extensionManifest from '../../server/extensions/package.json';
+import extensionManifest from '../../extensions/constructor-extensions/package.json';
 
 describe('Extensions', () => {
   describe('Access', () => {
