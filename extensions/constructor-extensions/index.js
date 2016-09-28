@@ -14,30 +14,32 @@
  limitations under the License.
  */
 
-const fs = require('fs');
-const path = require('path');
-const invariant = require('invariant');
-const _ = require('lodash');
-const manifestUtils = require('../../server/extensions/manifestUtils.js');
+var fs = require('fs');
+var path = require('path');
+var invariant = require('invariant');
+var _ = require('lodash');
 
-// todo - ensure this is module not webpacked - add to externals
+//todo - this can't be es2016 format - either rewrite, or try updating to node 6.x (may be other breaking changes)...
+var manifestUtils = require('../../server/extensions/manifestUtils.js');
 
-const registry = {};
+// todo - ensure this is module not webpacked
 
-//todo - this should include the 'native' extensions -- these wont show up in registry currently
+var registry = {};
 
-const nodeModulesDir = path.resolve(__dirname, './node_modules');
+//future - this should include the 'native' extensions -- these wont show up in registry currently
+
+var nodeModulesDir = path.resolve(__dirname, './node_modules');
 
 fs.readdirSync(nodeModulesDir).forEach(function goThroughExtensions(packageName) {
   try {
     //skip the test extensions unless we're in the test environment
-    if (packageName.startsWith('test') && process.env.NODE_ENV !== 'test') {
+    if (packageName.substring(0, 4).toLowerCase() === 'test' && process.env.NODE_ENV !== 'test') {
       return;
     }
 
     //future process.env.BUILD support (if not already handled by line above)
-    const filePath = path.resolve(nodeModulesDir, packageName + '/package.json');
-    const depManifest = require(filePath);
+    var filePath = path.resolve(nodeModulesDir, packageName + '/package.json');
+    var depManifest = require(filePath);
 
     manifestUtils.validateManifest(depManifest);
 
@@ -84,8 +86,11 @@ function getInternalFilePath(name, filePath) {
   return path.resolve(nodeModulesDir, name, filePath);
 }
 
+//HACK
+//enable dynamic requires, outside of webpack bundle
+//do not allow API access to this.
 function requireInternalFile(name, filePath) {
-  const fullPath = getInternalFilePath(name, filePath);
+  var fullPath = getInternalFilePath(name, filePath);
   return require(fullPath);
 }
 

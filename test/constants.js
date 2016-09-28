@@ -14,14 +14,20 @@
  limitations under the License.
  */
 
-export const testUserId = '11111111-1111-1111-9111-111111111111';
+var testUserId = '11111111-1111-1111-9111-111111111111';
 
 //client form testUser
-export const testUserClient = () => ({
-  userid: testUserId,
-  firstName: 'Dev',
-  lastName: 'Eloper',
-  email: 'developer@localhost',
-  config: {},
-});
+function testUserClient() {
+  return {
+    userid: testUserId,
+    firstName: 'Dev',
+    lastName: 'Eloper',
+    email: 'developer@localhost',
+    config: {},
+  };
+}
 
+module.exports = {
+  testUserId: testUserId,
+  testUserClient: testUserClient,
+};
