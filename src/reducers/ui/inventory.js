@@ -17,7 +17,7 @@ import * as ActionTypes from '../../constants/ActionTypes';
 import { getLocal, setLocal } from '../../utils/ui/localstorage';
 
 export const initialState = {
-  isVisible: getLocal('inventoryVisibility') || true,
+  isVisible: getLocal('inventoryVisibility', true),
   currentTab: getLocal('inventoryTab') || 'projects',
 };
 
