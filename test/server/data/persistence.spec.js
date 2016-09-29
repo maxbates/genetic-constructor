@@ -197,7 +197,7 @@ describe('Server', () => {
           const invalidData = { my: 'data' };
           //start with write to reset
           return persistence.projectWrite(projectId, projectData, userId)
-            .then(() => persistence.projectWrite(projectId, invalidData))
+            .then(() => persistence.projectWrite(projectId, invalidData, userId))
             .then(() => assert(false, 'shouldnt happen'))
             .catch(err => expect(err).to.equal(errorInvalidModel))
             .then(() => fileRead(projectManifestPath))
@@ -222,7 +222,7 @@ describe('Server', () => {
           const merged = merge({}, projectData, projectPatch);
           //start with write to reset
           return persistence.projectWrite(projectId, projectData, userId)
-            .then(() => persistence.projectMerge(projectId, projectPatch))
+            .then(() => persistence.projectMerge(projectId, projectPatch, userId))
             .then(result => expect(result).to.eql(merged))
             .then(() => fileRead(projectManifestPath))
             .then(result => expect(result).to.eql(merged));
@@ -385,7 +385,7 @@ describe('Server', () => {
           return persistence.projectCreate(projectId, projectData, userId) //3
             .then(() => persistence.blockWrite(projectId, blockData))
             .then(() => persistence.projectSave(projectId, userId)) //2
-            .then(() => persistence.projectWrite(projectId, newProject))
+            .then(() => persistence.projectWrite(projectId, newProject, userId))
             .then(() => persistence.projectSave(projectId, userId)) //1
             .then(() => persistence.blockWrite(projectId, newBlock))
             .then(() => persistence.projectSave(projectId, userId)) //0
