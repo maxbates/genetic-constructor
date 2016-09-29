@@ -220,17 +220,17 @@ const projectAssertNew = (projectId) => {
 };
 
 /*
-const blockAssertNew = (blockId, projectId) => {
-  return blocksExist(projectId, false, blockId)
-    .then(() => Promise.reject(errorAlreadyExists))
-    .catch((err) => {
-      if (err === errorDoesNotExist) {
-        return Promise.resolve(blockId);
-      }
-      return Promise.reject(err);
-    });
-};
-*/
+ const blockAssertNew = (blockId, projectId) => {
+ return blocksExist(projectId, false, blockId)
+ .then(() => Promise.reject(errorAlreadyExists))
+ .catch((err) => {
+ if (err === errorDoesNotExist) {
+ return Promise.resolve(blockId);
+ }
+ return Promise.reject(err);
+ });
+ };
+ */
 
 const orderAssertNew = (orderId, projectId) => {
   return orderExists(orderId, projectId)
@@ -311,7 +311,10 @@ export const projectCreate = (projectId, project, userId) => {
 
 //SET (WRITE + MERGE)
 
-export const projectWrite = (projectId, project = {}, userId) => {
+export const projectWrite = (projectId, project = {}, userId, bypassValidation = false) => {
+  invariant(project, 'project is required');
+  invariant(userId, 'user id is required to write project');
+
   //todo (future) - merge author IDs, not just assign
   const authors = [userId];
 
@@ -322,7 +325,7 @@ export const projectWrite = (projectId, project = {}, userId) => {
     },
   });
 
-  if (!validateProject(idedProject)) {
+  if (bypassValidation !== true && !validateProject(idedProject)) {
     return Promise.reject(errorInvalidModel);
   }
 
@@ -343,8 +346,8 @@ export const projectMerge = (projectId, project, userId) => {
 };
 
 //overwrite all blocks
-export const blocksWrite = (projectId, blockMap, overwrite = true) => {
-  if (!values(blockMap).every(block => validateBlock(block))) {
+export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
+  if (bypassValidation !== true && !values(blockMap).every(block => validateBlock(block))) {
     return Promise.reject(errorInvalidModel);
   }
 
@@ -514,10 +517,12 @@ export const sequenceGet = (md5) => {
     .then(path => fileRead(path, false));
 };
 
-//blockId and projectId optional, will create commit if provided
 export const sequenceWrite = (md5, sequence, blockId, projectId) => {
   const sequencePath = filePaths.createSequencePath(md5);
-  return fileWrite(sequencePath, sequence, false)
+
+  //only write if it doesnt exist
+  return fileExists(sequencePath)
+    .catch(() => fileWrite(sequencePath, sequence, false))
     .then(() => sequence);
 };
 

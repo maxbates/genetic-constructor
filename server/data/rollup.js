@@ -51,7 +51,7 @@ export const getProjectRollup = (projectId) => {
     });
 };
 
-export const writeProjectRollup = (projectId, rollup, userId) => {
+export const writeProjectRollup = (projectId, rollup, userId, bypassValidation = false) => {
   invariant(projectId, 'must pass a projectId');
   invariant(rollup && rollup.project && rollup.blocks, 'rollup must not be empty');
   invariant(typeof rollup.blocks === 'object', 'rollup expects blocks to be an object');
@@ -73,16 +73,19 @@ export const writeProjectRollup = (projectId, rollup, userId) => {
       return Promise.reject(err);
     })
     .then(() => {
-      //validate all the blocks and project before we save
-      const projectValid = validateProject(project);
-      const blocksValid = values(blocks).every(block => validateBlock(block));
-      if (!projectValid || !blocksValid) {
-        return Promise.reject(errorInvalidModel);
+      //validate all the blocks and project before we save, unless forcibly bypass
+      if (process.env.NODE_ENV !== 'dev' && bypassValidation !== true) {
+        const projectValid = validateProject(project);
+        const blocksValid = values(blocks).every(block => validateBlock(block));
+        if (!projectValid || !blocksValid) {
+          return Promise.reject(errorInvalidModel);
+        }
       }
     })
+    //bypass validation on writes, since checking above anyway
     .then(() => Promise.all([
-      persistence.projectWrite(projectId, project),
-      persistence.blocksWrite(projectId, blocks),
+      persistence.projectWrite(projectId, project, userId, true),
+      persistence.blocksWrite(projectId, blocks, true, true),
     ]))
     .then(() => rollup);
 };
