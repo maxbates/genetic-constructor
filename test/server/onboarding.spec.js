@@ -20,7 +20,7 @@ import uuid from 'node-uuid';
 import checkUserSetup from '../../server/onboarding/userSetup';
 
 describe('Server', () => {
-  describe.only('Onboarding', function onboardingSuite() {
+  describe('Onboarding', function onboardingSuite() {
     //this.timeout(5000);
 
     const numUsers = 50;
