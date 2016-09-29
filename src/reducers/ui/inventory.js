@@ -18,7 +18,7 @@ import { getLocal, setLocal } from '../../utils/ui/localstorage';
 
 export const initialState = {
   isVisible: getLocal('inventoryVisibility', true),
-  currentTab: getLocal('inventoryTab') || 'projects',
+  currentTab: getLocal('inventoryTab', 'projects'),
 };
 
 export default function inventory(state = initialState, action) {

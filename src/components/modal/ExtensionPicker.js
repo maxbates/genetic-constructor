@@ -133,7 +133,7 @@ export class ExtensionPicker extends Component {
               })}
             </div>
 
-            <div style={{ width: '200px', paddingTop: '1.5rem', textAlign: 'center' }}>
+            <div style={{ paddingTop: '1.5rem', textAlign: 'center' }}>
               <button
                 type="submit"
                 disabled={!this.state.dirty}
