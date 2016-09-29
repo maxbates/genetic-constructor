@@ -17,6 +17,8 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import ModalWindow from './modalwindow';
 
+import '../../../src/styles/SaveErrorModal.css';
+
 class SaveErrorModal extends Component {
   static propTypes = {
     open: PropTypes.bool.isRequired,
@@ -34,8 +36,8 @@ class SaveErrorModal extends Component {
         title="Unable to Save"
         closeModal={() => {}}
         payload={(
-          <div style={{padding: '1rem 2em 3rem', width: '60rem'}}
-               className="gd-form">
+          <div style={{padding: '1rem 2em 3rem' }}
+               className="gd-form save-error-form">
             <div className="title">Unable to Save</div>
 
             <p>Genetic Constructor automatically saves every edit you make, but the most recent edit could not be saved, and will be rolled back.</p>
