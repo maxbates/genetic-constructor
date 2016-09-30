@@ -19,7 +19,6 @@ import '../styles/404.css';
 
 export default class RouteNotFound extends Component {
   render() {
-
     return (
       <div className="fourohfour">
         <div className="grid">
@@ -45,6 +44,6 @@ export default class RouteNotFound extends Component {
 
 
       </div>
-    )
+    );
   }
 }
