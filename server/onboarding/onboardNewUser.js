@@ -21,6 +21,7 @@
 import invariant from 'invariant';
 import * as rollup from '../data/rollup';
 import { getConfigFromUser } from '../user/utils';
+import DebugTimer from '../utils/DebugTimer';
 
 //NOTE - egf_parts vs egf_templates
 import makeEgfRollup from '../../data/egf_parts/index';
@@ -55,8 +56,7 @@ const createGeneratorsInitialProjects = (user) => {
 
 //create initial projects and set up configuration for them
 export default function onboardNewUser(user) {
-  //debug
-  const start = process.hrtime();
+  const timer = new DebugTimer('Onboarding');
   console.log('[User Setup] Onboarding ' + user.uuid + ' ' + user.email);
 
   const initialProjectGenerators = createGeneratorsInitialProjects(user);
@@ -66,43 +66,18 @@ export default function onboardNewUser(user) {
   return Promise.all(
     restRollGens.map(generator => {
       const roll = generator();
-
-      //debug
-      if (process.env.NODE_ENV === 'test') {
-        const mid = process.hrtime();
-        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
-        console.log('made first roll ' + user.email + ' took ', time);
-      }
-
+      timer.time('first roll generated');
       return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true);
     })
   )
     .then((restRolls) => {
-      //debug
-      if (process.env.NODE_ENV === 'test') {
-        const mid = process.hrtime();
-        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
-        console.log('wrote first roll ' + user.email + ' took ', time);
-      }
-
+      timer.time('first roll wrote');
       const roll = firstRollGen();
-
-      //debug
-      if (process.env.NODE_ENV === 'test') {
-        const mid2 = process.hrtime();
-        const time2 = (mid2[0] - start[0]) + ((mid2[1] - start[1]) / Math.pow(10, 9));
-        console.log('made second roll ' + user.email + ' took ', time2);
-      }
+      timer.time('second roll generated');
 
       return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true)
         .then(firstRoll => {
-          //debug
-          if (process.env.NODE_ENV === 'test') {
-            const end = process.hrtime();
-            const time = (end[0] - start[0]) + ((end[1] - start[1]) / Math.pow(10, 9));
-            console.log('\n\nonboarding ' + user.email + ' took ', time);
-          }
-
+          timer.end('onboarding complete');
           return [firstRoll, ...restRolls];
         });
     });
