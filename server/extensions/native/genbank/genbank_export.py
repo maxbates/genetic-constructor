@@ -21,9 +21,7 @@ def convert_block_name(sf, block):
             # Unfortunately if the name doesn't fit in genbank we have to drop it!
 
 def add_GC_info(sf, block, allblocks):
-    encoded_data = { "GC": {} }
-
-    encoded_data["GC"]["name"] = block["metadata"]["name"]
+    encoded_data = { "GC": { "name": block["metadata"]["name"], "type": "block", "id": block["id"], "parents": [] } }
 
     # The color
     if "color" in block["metadata"] and block["metadata"]["color"] != "":
@@ -36,12 +34,16 @@ def add_GC_info(sf, block, allblocks):
     if "genbank" in block["metadata"] and "note" in block["metadata"]["genbank"]:
         encoded_data["note"] = block["metadata"]["genbank"]["note"]
 
+    for potential_parent in allblocks:
+        if block["id"] in potential_parent["components"]:
+            encoded_data["GC"]["parents"].append(potential_parent["id"])
+
     sf.qualifiers["note"] = json.dumps(encoded_data).replace("\"", "'").replace("\n", " ")
 
 def add_features(block, allblocks, gb, start):
     # Disregard fillers... don't create features for them
     if is_filler(block):
-        return start + block["sequence"]["length"] + 1
+        return start + block["sequence"]["length"]
 
     # For handling list blocks!
     if "current_option" in block:
@@ -122,7 +124,7 @@ def convert_annotations(block, gb, start):
                     elif gb_key == "type":
                         annotation_type = gb_value
 
-        gc_info = { "GC": { "name": annotation["name"] } }
+        gc_info = { "GC": { "name": annotation["name"], "type": "annotation", "parents": [block["id"]] } }
         if "color" in annotation:
             gc_info["GC"]["color"] = annotation["color"]
         if "notes" in annotation and "genbank" in annotation["notes"] and "note" in annotation["notes"]["genbank"]:

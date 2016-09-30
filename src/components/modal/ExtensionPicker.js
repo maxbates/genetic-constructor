@@ -19,7 +19,6 @@ import { merge } from 'lodash';
 import ModalWindow from './modalwindow';
 import { uiShowExtensionPicker } from '../../actions/ui';
 import { userUpdateConfig } from '../../actions/user';
-import loadAllExtensions from '../../extensions/loadExtensions';
 import registry from '../../extensions/clientRegistry';
 import {
   extensionName,
@@ -73,7 +72,6 @@ export class ExtensionPicker extends Component {
 
     this.props.userUpdateConfig(nextConfig)
       .then(user => {
-        loadAllExtensions(true, true);
         this.setState({ dirty: false });
         this.props.uiShowExtensionPicker(false);
       });
@@ -135,7 +133,7 @@ export class ExtensionPicker extends Component {
               })}
             </div>
 
-            <div style={{ width: '200px', paddingTop: '1.5rem', textAlign: 'center' }}>
+            <div style={{ paddingTop: '1.5rem', textAlign: 'center' }}>
               <button
                 type="submit"
                 disabled={!this.state.dirty}
