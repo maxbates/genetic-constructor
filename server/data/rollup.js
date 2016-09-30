@@ -52,6 +52,9 @@ export const getProjectRollup = (projectId) => {
 };
 
 export const writeProjectRollup = (projectId, rollup, userId, bypassValidation = false) => {
+  //debug
+  const start = process.hrtime();
+
   invariant(projectId, 'must pass a projectId');
   invariant(rollup && rollup.project && rollup.blocks, 'rollup must not be empty');
   invariant(typeof rollup.blocks === 'object', 'rollup expects blocks to be an object');
@@ -87,7 +90,16 @@ export const writeProjectRollup = (projectId, rollup, userId, bypassValidation =
       persistence.projectWrite(projectId, project, userId, true),
       persistence.blocksWrite(projectId, blocks, true, true),
     ]))
-    .then(() => rollup);
+    .then(() => {
+      //debug
+      if (process.env.NODE_ENV === 'test') {
+        const mid = process.hrtime();
+        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
+        console.log('writing rollup for ' + userId + ' took ', time);
+      }
+
+      return rollup
+    });
 };
 
 //helper

@@ -5,6 +5,8 @@ import rollupFromArray from '../../src/utils/rollup/rollupFromArray';
 import { templates, blocks as templateBlocks } from './templates';
 import { examples, blocks as exampleBlocks } from './examples';
 
+//note - dont need to set projectId, since it will be set when writing the rollup
+
 //clone everything so that IDs are unique -- note we pass clone(false), NOT clone(null) intentionally
 //NOTE - if clone the tempalte blocks and example blocks, need to update components: [] in list blocks
 //remember to set to frozen if clone them
