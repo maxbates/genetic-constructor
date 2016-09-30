@@ -67,6 +67,7 @@ export default function onboardNewUser(user) {
     restRollGens.map(generator => {
       const roll = generator();
 
+      //debug
       if (process.env.NODE_ENV === 'test') {
         const mid = process.hrtime();
         const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
@@ -77,6 +78,7 @@ export default function onboardNewUser(user) {
     })
   )
     .then((restRolls) => {
+      //debug
       if (process.env.NODE_ENV === 'test') {
         const mid = process.hrtime();
         const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
@@ -84,6 +86,14 @@ export default function onboardNewUser(user) {
       }
 
       const roll = firstRollGen();
+
+      //debug
+      if (process.env.NODE_ENV === 'test') {
+        const mid2 = process.hrtime();
+        const time2 = (mid2[0] - start[0]) + ((mid2[1] - start[1]) / Math.pow(10, 9));
+        console.log('made second roll ' + user.email + ' took ', time2);
+      }
+
       return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true)
         .then(firstRoll => {
           //debug

@@ -17,13 +17,13 @@
 import { assert, expect } from 'chai';
 import { range, merge } from 'lodash';
 import uuid from 'node-uuid';
-import checkUserSetup from '../../server/onboarding/userSetup';
+import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
 describe('Server', () => {
-  describe('Onboarding', function onboardingSuite() {
+  describe.only('Onboarding', function onboardingSuite() {
     //this.timeout(5000);
 
-    const numUsers = 50;
+    const numUsers = 5;
     const users = range(numUsers)
       .map(() => uuid.v4())
       .map((userId, index) => ({
@@ -40,7 +40,7 @@ describe('Server', () => {
     it('should onboard many users quickly', () => {
       const start = process.hrtime();
       return Promise.all(
-        users.map((user) => checkUserSetup(user))
+        users.map((user) => onboardNewUser(user))
       )
         .then(projectIds => {
           console.log(projectIds);

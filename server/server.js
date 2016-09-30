@@ -101,6 +101,7 @@ if (process.env.BIO_NANO_AUTH) {
     resetForm: '/homepage/reset',
     apiEndPoint: API_END_POINT,
     onLogin: onLoginHandler,
+    //onLogin: (req, res, next) => next(req, res), //mock
     registerRedirect: false,
   };
   app.use(initAuthMiddleware(authConfig));

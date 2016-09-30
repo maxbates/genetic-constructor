@@ -17,9 +17,24 @@ limitations under the License.
 import * as querying from '../data/querying';
 import onboardNewUser from './onboardNewUser';
 
-const ensureUserSetup = (user) => {
+//if user has been setup, then return true
+const ensureUserSetup = (user, skipQuery = false) => {
+  const start = process.hrtime();
+
+  console.log('ensuring setup', user);
+
+  if (user && user.data && user.data.constructor === true) {
+    return Promise.resolve(true);
+  }
+
   return querying.listProjectsWithAccess(user.uuid)
     .then(projects => {
+      if (process.env.NODE_ENV === 'test') {
+        const mid = process.hrtime();
+        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
+        console.log('query ' + user.email + ' took ', time);
+      }
+
       if (!projects.length) {
         return onboardNewUser(user)
           .then(rolls => {
