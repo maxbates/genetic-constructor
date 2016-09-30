@@ -312,6 +312,9 @@ export const projectCreate = (projectId, project, userId) => {
 //SET (WRITE + MERGE)
 
 export const projectWrite = (projectId, project = {}, userId, bypassValidation = false) => {
+  //debug
+  const start = process.hrtime();
+
   invariant(project, 'project is required');
   invariant(userId, 'user id is required to write project');
 
@@ -334,7 +337,16 @@ export const projectWrite = (projectId, project = {}, userId, bypassValidation =
     .catch(() => _projectSetup(projectId, userId))
     .then(() => _projectWrite(projectId, idedProject))
     //.then(() => _projectCommit(projectId, userId))
-    .then(() => idedProject);
+    .then(() => {
+      //debug
+      if (process.env.NODE_ENV === 'test') {
+        const mid = process.hrtime();
+        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
+        console.log('writing project ' + projectId + ' for ' + userId + ' took ', time);
+      }
+
+      return idedProject;
+    });
 };
 
 export const projectMerge = (projectId, project, userId) => {
@@ -347,6 +359,9 @@ export const projectMerge = (projectId, project, userId) => {
 
 //overwrite all blocks
 export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
+  //debug
+  const start = process.hrtime();
+
   if (bypassValidation !== true && !values(blockMap).every(block => validateBlock(block))) {
     return Promise.reject(errorInvalidModel);
   }
@@ -355,7 +370,16 @@ export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidat
   forEach(blockMap, (block, blockId) => Object.assign(block, { projectId }));
 
   return _blocksWrite(projectId, blockMap, overwrite)
-    .then(() => blockMap);
+    .then(() => {
+      //debug
+      if (process.env.NODE_ENV === 'test') {
+        const mid = process.hrtime();
+        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
+        console.log('writing blocks for ' + projectId + ' took ', time);
+      }
+
+      return blockMap;
+    });
 };
 
 //merge all blocks

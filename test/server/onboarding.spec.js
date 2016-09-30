@@ -23,7 +23,7 @@ describe('Server', () => {
   describe.only('Onboarding', function onboardingSuite() {
     //this.timeout(5000);
 
-    const numUsers = 5;
+    const numUsers = 50;
     const users = range(numUsers)
       .map(() => uuid.v4())
       .map((userId, index) => ({
