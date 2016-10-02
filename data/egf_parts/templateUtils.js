@@ -46,7 +46,7 @@ export const getOptionParts = (pos, optionId) => {
 
 // create list block with parts
 export const list = (pos, optionId) => {
-  const listBlock = new Block({
+  const listBlock = Block.classless({
     metadata: {
       name: `Position ${pos}`,
     },
@@ -98,7 +98,7 @@ export const makeComponents = (...terms) => {
 export const templateFromComponents = (components, toMerge = {}) => {
   invariant(components.every(comp => Block.validate(comp)), 'must pass valid blocks');
 
-  return new Block(merge({},
+  return Block.classless(merge({},
     toMerge,
     {
       components: components.map(comp => comp.id),

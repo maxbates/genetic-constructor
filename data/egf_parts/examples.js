@@ -18,7 +18,7 @@ const exampleOfTemplate = (template, options, toMerge = {}) => {
   const components = template.components
     .map(componentId => templateBlocks.find(block => block.id === componentId))
     .map(component => {
-      if (!component.isList()) {
+      if (!component.rules.list) {
         return component.id;
       }
 
@@ -48,14 +48,12 @@ const exampleOfTemplate = (template, options, toMerge = {}) => {
       return newListComponent.id;
     });
 
-  const mergeWith = merge({}, toMerge, {
+  return merge({}, toMerge, {
     components,
     rules: {
       frozen: true,
     },
-  });
-
-  return template.clone(false, mergeWith);
+  }, template);
 };
 
 export const examples = [

@@ -1,9 +1,10 @@
+import { merge } from 'lodash';
 import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
 import rollupFromArray from '../../src/utils/rollup/rollupFromArray';
 
-import { templates, blocks as templateBlocks } from './templates';
-import { examples, blocks as exampleBlocks } from './examples';
+import { templates, makeTemplates, blocks as templateBlocks } from './templates';
+import { examples, makeExamples, blocks as exampleBlocks } from './examples';
 
 //note - dont need to set projectId, since it will be set when writing the rollup
 
@@ -12,13 +13,20 @@ import { examples, blocks as exampleBlocks } from './examples';
 //remember to set to frozen if clone them
 const makeBlocks = () => {
   return {
+    //todo - write these functions
+    /*
     constructs: [
-      ...templates.map(template => template.clone(false, { rules: { frozen: true } })).map(block => Block.classless(block)),
-      ...examples.map(example => example.clone(false, { rules: { frozen: true } })).map(block => Block.classless(block)),
+      ...makeTemplates({ rules: { frozen: true } }),
+      ...makeExamples({ rules: { frozen: true } }),
+    ],
+    */
+    constructs: [
+      ...templates.map(template => merge({}, template, { rules: { frozen: true } })),
+      ...examples.map(example => merge({}, example, { rules: { frozen: true } })),
     ],
     blocks: [
-      ...templateBlocks.map(block => Block.classless(block)),
-      ...exampleBlocks.map(block => Block.classless(block)),
+      ...templateBlocks,
+      ...exampleBlocks,
     ],
   };
 };

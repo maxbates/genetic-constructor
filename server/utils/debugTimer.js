@@ -18,6 +18,8 @@ import invariant from 'invariant';
 const toTime = (hrtime) => (hrtime[0] + (hrtime[1] / Math.pow(10, 9)));
 const diff = (one, two) => toTime(two) - toTime(one);
 
+const realtime = true;
+
 export default class DebugTimer {
   constructor(name, condition = true) {
     this.name = name;
@@ -28,6 +30,11 @@ export default class DebugTimer {
 
   addTime(msg, time) {
     this.times.push({ msg, time });
+    if (realtime && msg !== 'init') {
+      const prev = this.times.length > 1 ? this.times[this.times.length - 2].time : this.start;
+      const difference = diff(prev, time)
+      console.log(`${difference}\t${msg}\t(${this.name})`);
+    }
   }
 
   log() {
@@ -68,7 +75,9 @@ export default class DebugTimer {
     if (process.env.NODE_ENV === 'test') {
       invariant(this.time, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
-      this.log();
+      if (!realtime) {
+        this.log();
+      }
     }
   }
 }

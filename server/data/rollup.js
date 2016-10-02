@@ -53,7 +53,7 @@ export const getProjectRollup = (projectId) => {
 };
 
 export const writeProjectRollup = (projectId, rollup, userId, bypassValidation = false) => {
-  const timer = new DebugTimer(`Writing Rollup ${projectId} (${userId})`);
+  const timer = new DebugTimer(`rollup.write ${projectId} (${userId})`);
 
   invariant(projectId, 'must pass a projectId');
   invariant(rollup && rollup.project && rollup.blocks, 'rollup must not be empty');
@@ -94,7 +94,7 @@ export const writeProjectRollup = (projectId, rollup, userId, bypassValidation =
       persistence.blocksWrite(projectId, blocks, true, true),
     ]))
     .then(() => {
-      timer.end();
+      timer.end('files written');
       return rollup;
     });
 };
