@@ -56,11 +56,12 @@ const createGeneratorsInitialProjects = (user) => {
 
 //create initial projects and set up configuration for them
 export default function onboardNewUser(user) {
-  const timer = new DebugTimer('Onboarding');
+  const timer = new DebugTimer('Onboarding ' + user.uuid + ' ' + user.email);
   console.log('[User Setup] Onboarding ' + user.uuid + ' ' + user.email);
 
   const initialProjectGenerators = createGeneratorsInitialProjects(user);
   const [firstRollGen, ...restRollGens] = initialProjectGenerators;
+  timer.time('made generators');
 
   //generate the firstRoll last, so that it has the most recent timestamp, and is opened first
   return Promise.all(

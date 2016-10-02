@@ -36,6 +36,7 @@ import {
   directoryMove,
 } from '../utils/fileSystem';
 import * as permissions from './permissions';
+import DebugTimer from '../utils/DebugTimer';
 
 /*********
  Helpers
@@ -131,6 +132,8 @@ const _orderRead = (orderId, projectId) => {
 // SETUP
 
 const _projectSetup = (projectId, userId) => {
+  const timer = new DebugTimer('projectSetup ' + projectId);
+
   const projectPath = filePaths.createProjectPath(projectId);
   const projectDataPath = filePaths.createProjectDataPath(projectId);
   const orderDirectory = filePaths.createOrderDirectoryPath(projectId);
@@ -139,13 +142,27 @@ const _projectSetup = (projectId, userId) => {
   const fileDirectory = filePaths.createProjectFilesDirectoryPath(projectId);
 
   return directoryMake(projectPath)
-    .then(() => directoryMake(projectDataPath))
-    .then(() => directoryMake(orderDirectory))
-    .then(() => directoryMake(blockDirectory))
-    .then(() => directoryMake(fileDirectory))
-    .then(() => fileWrite(blockManifestPath, {})) //write an empty file in case try to merge with it
-    .then(() => permissions.createProjectPermissions(projectId, userId))
-    .then(() => versioning.initialize(projectDataPath, userId));
+    .then(() => Promise.all([
+      directoryMake(projectDataPath),
+      directoryMake(orderDirectory),
+      directoryMake(blockDirectory),
+      directoryMake(fileDirectory),
+    ]))
+    .then(() => {
+      timer.time('directories made');
+      return Promise.all([
+        fileWrite(blockManifestPath, {}), //write an empty file in case try to merge with it
+        permissions.createProjectPermissions(projectId, userId)
+      ])
+    })
+    .then(() => {
+      timer.time('initial files written');
+      return versioning.initialize(projectDataPath, userId)
+    })
+    .then((path) => {
+      timer.end('versioned');
+      return path;
+    });
 };
 
 const _orderSetup = (orderId, projectId) => {
@@ -312,8 +329,7 @@ export const projectCreate = (projectId, project, userId) => {
 //SET (WRITE + MERGE)
 
 export const projectWrite = (projectId, project = {}, userId, bypassValidation = false) => {
-  //debug
-  const start = process.hrtime();
+  const timer = new DebugTimer('projectWrite ' + projectId, false);
 
   invariant(project, 'project is required');
   invariant(userId, 'user id is required to write project');
@@ -335,32 +351,20 @@ export const projectWrite = (projectId, project = {}, userId, bypassValidation =
   //create directory etc. if doesn't exist
   return projectExists(projectId)
     .catch(() => _projectSetup(projectId, userId))
-    .then(() => _projectWrite(projectId, idedProject))
+    .then(() => {
+      timer.time('setup');
+      return _projectWrite(projectId, idedProject)
+    })
     //.then(() => _projectCommit(projectId, userId))
     .then(() => {
-      //debug
-      if (process.env.NODE_ENV === 'test') {
-        const mid = process.hrtime();
-        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
-        console.log('writing project ' + projectId + ' for ' + userId + ' took ', time);
-      }
-
+      timer.end('writing complete');
       return idedProject;
-    });
-};
-
-export const projectMerge = (projectId, project, userId) => {
-  return projectGet(projectId)
-    .then(oldProject => {
-      const merged = merge({}, oldProject, project, { id: projectId });
-      return projectWrite(projectId, merged, userId);
     });
 };
 
 //overwrite all blocks
 export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
-  //debug
-  const start = process.hrtime();
+  const timer = new DebugTimer('blocksWrite ' + projectId);
 
   if (bypassValidation !== true && !values(blockMap).every(block => validateBlock(block))) {
     return Promise.reject(errorInvalidModel);
@@ -371,14 +375,16 @@ export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidat
 
   return _blocksWrite(projectId, blockMap, overwrite)
     .then(() => {
-      //debug
-      if (process.env.NODE_ENV === 'test') {
-        const mid = process.hrtime();
-        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
-        console.log('writing blocks for ' + projectId + ' took ', time);
-      }
-
+      timer.end('complete');
       return blockMap;
+    });
+};
+
+export const projectMerge = (projectId, project, userId) => {
+  return projectGet(projectId)
+    .then(oldProject => {
+      const merged = merge({}, oldProject, project, { id: projectId });
+      return projectWrite(projectId, merged, userId);
     });
 };
 
@@ -509,16 +515,21 @@ export const orderDelete = (orderId, projectId) => {
 
 //e.g. autosave
 export const projectSave = (projectId, userId, messageAddition) => {
+  const timer = new DebugTimer('projectSave ' + projectId);
   const message = commitMessages.messageSave(projectId, messageAddition);
   return _projectCommit(projectId, userId, message)
     .then(commit => {
       //not only create the commit, but then save the project so that is has the right commit (but dont commit again)
       //but still return the commit
+      timer.time('committed');
       return projectMerge(projectId, {
         version: commit.sha,
         lastSaved: commit.time,
       }, userId)
-        .then(() => commit);
+        .then(() => {
+          timer.end('merged');
+          return commit;
+        });
     });
 };
 
@@ -555,4 +566,3 @@ export const sequenceDelete = (md5) => {
   return sequenceExists(md5)
     .then(path => fileDelete(path));
 };
-

@@ -19,9 +19,11 @@ const toTime = (hrtime) => (hrtime[0] + (hrtime[1] / Math.pow(10, 9)));
 const diff = (one, two) => toTime(two) - toTime(one);
 
 export default class DebugTimer {
-  constructor(name) {
+  constructor(name, condition = true) {
     this.name = name;
+    this.condition = condition;
     this.times = [];
+    this.start('init');
   }
 
   addTime(msg, time) {
@@ -30,16 +32,24 @@ export default class DebugTimer {
 
   log() {
     if (process.env.NODE_ENV === 'test') {
-      console.log('\n' + this.name);
-      this.times.forEach(obj => {
-        const time = toTime(obj.time);
-        const difference = diff(this.start, obj.time);
-        console.log(`${difference} | ${time} | ${obj.msg}`);
-      });
-      console.log('\n');
+      const cond = typeof this.condition === 'function' ? this.condition() : this.condition;
+      if (!!cond) {
+        console.log('\n' + this.name);
+        //console.log('Diff Last | Diff Start | Message');
+        this.times.forEach((obj, index) => {
+          if (index === 0) {
+            return;
+          }
+          const last = index > 0 ? this.times[index - 1].time : this.start;
+          const diffLast = diff(last, obj.time);
+          const diffStart = diff(this.start, obj.time);
+          console.log(`${diffLast}\t${diffStart}\t${obj.msg}`);
+        });
+      }
     }
   }
 
+  //run by constructor
   start(msg) {
     if (process.env.NODE_ENV === 'test') {
       this.start = process.hrtime();
@@ -54,7 +64,7 @@ export default class DebugTimer {
     }
   }
 
-  end(msg) {
+  end(msg = 'complete') {
     if (process.env.NODE_ENV === 'test') {
       invariant(this.time, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
