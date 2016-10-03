@@ -425,7 +425,7 @@ export default class Block extends Instance {
    */
   getType(defaultType = 'Block') {
     if (this.isTemplate()) return 'Template';
-    if (this.isConstruct()) return 'Construct';
+    //if (this.isConstruct()) return 'Construct';
     if (this.isList()) return 'List Block';
     if (this.isFiller()) return 'Filler';
     return defaultType;

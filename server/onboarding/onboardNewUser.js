@@ -55,6 +55,8 @@ const createGeneratorsInitialProjects = (user) => {
 
 //create initial projects and set up configuration for them
 export default function onboardNewUser(user) {
+  //debug
+  const start = process.hrtime();
   console.log('[User Setup] Onboarding ' + user.uuid + ' ' + user.email);
 
   const initialProjectGenerators = createGeneratorsInitialProjects(user);
@@ -64,13 +66,35 @@ export default function onboardNewUser(user) {
   return Promise.all(
     restRollGens.map(generator => {
       const roll = generator();
-      return rollup.writeProjectRollup(roll.project.id, roll, user.uuid);
+
+      if (process.env.NODE_ENV === 'test') {
+        const mid = process.hrtime();
+        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
+        console.log('made first roll ' + user.email + ' took ', time);
+      }
+
+      return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true);
     })
   )
     .then((restRolls) => {
+      if (process.env.NODE_ENV === 'test') {
+        const mid = process.hrtime();
+        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
+        console.log('wrote first roll ' + user.email + ' took ', time);
+      }
+
       const roll = firstRollGen();
-      return rollup.writeProjectRollup(roll.project.id, roll, user.uuid)
-        .then(firstRoll => [firstRoll, ...restRolls]);
+      return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true)
+        .then(firstRoll => {
+          //debug
+          if (process.env.NODE_ENV === 'test') {
+            const end = process.hrtime();
+            const time = (end[0] - start[0]) + ((end[1] - start[1]) / Math.pow(10, 9));
+            console.log('\n\nonboarding ' + user.email + ' took ', time);
+          }
+
+          return [firstRoll, ...restRolls];
+        });
     });
 }
 

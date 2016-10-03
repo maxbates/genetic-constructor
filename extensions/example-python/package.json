@@ -1,0 +1,23 @@
+{
+  "name": "example-python",
+  "version": "1.0.0",
+  "description": "Example extension running python scripts",
+  "geneticConstructor": {
+    "type": "(Example)",
+    "router": "router.js",
+    "client": [
+      {
+        "file": "client.js",
+        "region": null
+      }
+    ]
+  },
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "isomorphic-fetch": "^2.2.1"
+  }
+}
