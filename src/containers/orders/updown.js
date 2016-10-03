@@ -21,11 +21,11 @@ export default class UpDown extends Component {
   static propTypes = {
     min: PropTypes.number.isRequired,
     max: PropTypes.number.isRequired,
-    value: PropTypes.bool.isRequired,
+    value: PropTypes.number.isRequired,
     disabled: PropTypes.bool,
     enabled: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
-    onBlur: PropTypes.func.isRequired,
+    onBlur: PropTypes.func,
   };
 
   /**
