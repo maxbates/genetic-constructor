@@ -27,7 +27,10 @@ import { headersPost } from '../../src/middleware/utils/headers';
 //need error handling to handle them already registered
 //note - expects JSON parser ahead of it
 export function registrationHandler(req, res, next) {
-  invariant(req.body && typeof req.body === 'object', 'must pass object to register handler, use json parser');
+  if (!req.body || typeof req.body !== 'object') {
+    next('must pass object to login handler, use json parser');
+  }
+
   const { user, config } = req.body;
   const { email, password, firstName, lastName } = user;
 
@@ -95,9 +98,11 @@ export function registrationHandler(req, res, next) {
 }
 
 export function loginHandler(req, res, next) {
-  invariant(req.body && typeof req.body === 'object', 'must pass object to login handler, use json parser');
-  const { email, password } = req.body;
+  if (!req.body || typeof req.body !== 'object') {
+    next('must pass object to login handler, use json parser');
+  }
 
+  const { email, password } = req.body;
   console.log(email, password);
 
   //basic checks before we hand off to auth/register

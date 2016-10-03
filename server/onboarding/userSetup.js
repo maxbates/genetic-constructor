@@ -22,7 +22,7 @@ import DebugTimer from '../utils/DebugTimer';
 const ensureUserSetup = (user) => {
   /*
    if (user && user.data && user.data.constructor === true) {
-    return Promise.resolve(true);
+   return Promise.resolve(true);
    }
    */
 
@@ -39,6 +39,11 @@ const ensureUserSetup = (user) => {
 ${rolls.map(roll => `${roll.project.metadata.name || 'Unnamed'} @ ${roll.project.id}`).join('\n')}`);
             timer.end('onboarded');
             return rolls[0].project.id;
+          })
+          .catch(err => {
+            console.log('error onboarding user');
+            console.log(user);
+            return Promise.reject(err);
           });
       }
 
