@@ -15,7 +15,6 @@
  */
 
 import fetch from 'isomorphic-fetch';
-import invariant from 'invariant';
 import validEmail from 'valid-email';
 import { INTERNAL_HOST, API_END_POINT } from '../urlConstants';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
