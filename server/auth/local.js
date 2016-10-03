@@ -150,11 +150,10 @@ const handleRegister = (req, res, next) => {
   //if not logged in (requireLogin) then mockAuth won't setup user on register, so lets double check here (even though ID not changing)
   checkUserSetup(defaultUser)
     .then(() => {
-    currentCookie = generateMockCookieValue();
-    res.cookie('sess', currentCookie);
-
-    res.send(defaultUser);
-  })
+      currentCookie = generateMockCookieValue();
+      res.cookie('sess', currentCookie);
+      res.send(defaultUser);
+    })
     .catch(err => {
       console.error(err);
       res.status(500).send(err);
