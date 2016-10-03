@@ -61,6 +61,9 @@ app.use(morgan(logLevel, {
     if (req.path.indexOf('browser-sync') >= 0 || req.path.indexOf('__webpack') >= 0) {
       return true;
     }
+    if (process.env.NODE_ENV === 'test' && !process.env.DEBUG) {
+      return true;
+    }
     return false;
   },
 }));
