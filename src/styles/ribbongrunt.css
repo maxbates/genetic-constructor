@@ -3,14 +3,14 @@
 :root {
 --background: #FFFA81;
 --color: #67654D;
---fontsize: 1rem;
+--ribbon-fontsize: 1rem;
 --close-size: 20px;
 }
 
 .ribbongrunt {
   height: var(--grunt-height);
   line-height: var(--grunt-height);
-  font-size: var(--fontsize);
+  font-size: var(--ribbon-fontsize);
   background-color: var(--background);
   color: var(--color);
   text-align: center;
