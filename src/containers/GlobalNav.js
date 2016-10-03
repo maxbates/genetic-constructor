@@ -661,7 +661,7 @@ class GlobalNav extends Component {
             {
               text: 'Forums',
               action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
-            }, 
+            },
             {
               text: 'Get Support',
               action: () => { window.open('https://geneticconstructor.readme.io/discuss', '_blank'); },
