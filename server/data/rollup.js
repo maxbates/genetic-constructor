@@ -32,6 +32,7 @@ import * as persistence from './persistence';
 import { validateBlock, validateProject } from '../utils/validation';
 import { getAllBlocksInProject } from './querying';
 import { values } from 'lodash';
+import DebugTimer from '../utils/DebugTimer';
 
 export const getProjectRollup = (projectId) => {
   //dont use Promise.all so we can handle errors of project not existing better
@@ -52,9 +53,12 @@ export const getProjectRollup = (projectId) => {
 };
 
 export const writeProjectRollup = (projectId, rollup, userId, bypassValidation = false) => {
+  const timer = new DebugTimer(`rollup.write ${projectId} (${userId})`);
+
   invariant(projectId, 'must pass a projectId');
   invariant(rollup && rollup.project && rollup.blocks, 'rollup must not be empty');
   invariant(typeof rollup.blocks === 'object', 'rollup expects blocks to be an object');
+  invariant(typeof userId !== 'undefined', 'userID is necessary to create a project from rollup');
 
   const { project, blocks } = rollup;
 
@@ -62,17 +66,18 @@ export const writeProjectRollup = (projectId, rollup, userId, bypassValidation =
     return Promise.reject('rollup project ID does not match');
   }
 
+  //need to check existence + create here, avoid race of project setup vs. block write
   return persistence.projectExists(projectId)
     .catch(err => {
+      timer.time('init project creation');
       //if the project doesn't exist, let's make it
       if (err === errorDoesNotExist) {
-        invariant(typeof userId !== 'undefined', 'userID is necessary to create a project from rollup');
-
         return persistence.projectCreate(projectId, project, userId);
       }
       return Promise.reject(err);
     })
     .then(() => {
+      timer.time('project setup');
       //validate all the blocks and project before we save, unless forcibly bypass
       if (process.env.NODE_ENV !== 'dev' && bypassValidation !== true) {
         const projectValid = validateProject(project);
@@ -80,6 +85,7 @@ export const writeProjectRollup = (projectId, rollup, userId, bypassValidation =
         if (!projectValid || !blocksValid) {
           return Promise.reject(errorInvalidModel);
         }
+        timer.time('validated');
       }
     })
     //bypass validation on writes, since checking above anyway
@@ -87,7 +93,10 @@ export const writeProjectRollup = (projectId, rollup, userId, bypassValidation =
       persistence.projectWrite(projectId, project, userId, true),
       persistence.blocksWrite(projectId, blocks, true, true),
     ]))
-    .then(() => rollup);
+    .then(() => {
+      timer.end('files written');
+      return rollup;
+    });
 };
 
 //helper

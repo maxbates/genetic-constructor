@@ -17,39 +17,39 @@
 import { assert, expect } from 'chai';
 import { range, merge } from 'lodash';
 import uuid from 'node-uuid';
-import checkUserSetup from '../../server/onboarding/userSetup';
+import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
 describe('Server', () => {
-  describe('Onboarding', function onboardingSuite() {
-    //this.timeout(5000);
+  describe('Onboarding', () => {
+    const makeUser = (userId = uuid.v4(), nameStub) => ({
+      uuid: userId,
+      email: `test${nameStub}@tester.com`,
+      firstName: 'Dev',
+      lastName: 'Eloper',
+    });
 
     const numUsers = 50;
-    const users = range(numUsers)
-      .map(() => uuid.v4())
-      .map((userId, index) => ({
-        uuid: userId,
-        email: `test${index}@tester.com`,
-        firstName: 'Dev',
-        lastName: 'Eloper',
-      }));
+    const users = range(numUsers).map((num, index) => makeUser(undefined, index));
 
-    //todo
-    it('should onboard a user and create at least a project for them');
+    it('should onboard a user and create at least a project for them', () => {
+      const user = makeUser();
+      return onboardNewUser(user)
+        .then(rolls => {
+          assert(rolls.length > 0 && !!rolls[0].project.id, 'should have some projects');
+        });
+    });
 
-    //todo
+    it('can take a config of starting projects');
+
     it('should onboard many users quickly', () => {
       const start = process.hrtime();
       return Promise.all(
-        users.map((user) => checkUserSetup(user))
+        users.map((user) => onboardNewUser(user))
       )
         .then(projectIds => {
-          console.log(projectIds);
           const end = process.hrtime();
           const time = (end[0] - start[0]) + ((end[1] - start[1]) / Math.pow(10, 9));
-
-          console.log('took ', time);
-
-          assert(time < 10000, 'should take less than 10 seconds to onboard users')
+          assert(time < 10000, 'should take less than 10 seconds to onboard users');
         });
     });
   });

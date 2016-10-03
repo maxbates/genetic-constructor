@@ -38,14 +38,15 @@ const components13A = make(1, 2, 3, 'd-f', 6, 7, 8, 9, 10, 11, 'l-n', 14, 15, 16
 const components13B = make(1, 2, 3, 'd-f', 6, 7, 'h-ha', '8b', 9, 10, 11, 'l-n', 14, 15, 16, 'q-w', 23, 24, 'y-z');
 
 //all parts + connectors + list blocks used and created
+//note that baseTemplates does not affect this list
 export const blocks = [...new Set([
   ...created,
   ...parts,
   ...connectors,
-  ])];
+])];
 
 //export the templates
-export const templates = [
+export const makeBaseTemplates = () => [
   templateFromComponents(
     components1A,
     {
@@ -240,25 +241,25 @@ export const templates = [
   ),
 
   /*
-  templateFromComponents(
-    components10,
-    {
-      metadata: {
-        name: `Template 10`,
-        description: `Vector for integration into a landing pad`,
-      },
-      notes: {
-        Category: 'Stable transfection',
-        Subcategory: 'Recombinase–mediated Genome targeting',
-        Application: 'Integration into a genomic landing pad',
-        'Transcription Units': 2,
-        'Transcription Unit Structure': 'Bicistronic; Monocistronic',
-        'Coding sequence design': null,
-        'Selection Marker': 'Present',
-      },
-    }
-  ),
-  */
+   templateFromComponents(
+   components10,
+   {
+   metadata: {
+   name: `Template 10`,
+   description: `Vector for integration into a landing pad`,
+   },
+   notes: {
+   Category: 'Stable transfection',
+   Subcategory: 'Recombinase–mediated Genome targeting',
+   Application: 'Integration into a genomic landing pad',
+   'Transcription Units': 2,
+   'Transcription Unit Structure': 'Bicistronic; Monocistronic',
+   'Coding sequence design': null,
+   'Selection Marker': 'Present',
+   },
+   }
+   ),
+   */
 
   templateFromComponents(
     components11A,
@@ -336,3 +337,6 @@ export const templates = [
     }
   ),
 ];
+
+//need to make them so we can track the created blocks
+export const baseTemplates = makeBaseTemplates();
