@@ -11,6 +11,7 @@ import * as rollup from '../../../../server/data/rollup';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 import { filter } from 'lodash';
 import { permissionsMiddleware } from '../../../data/permissions';
+import DebugTimer from '../../../utils/DebugTimer';
 
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
 
@@ -157,6 +158,8 @@ router.post('/import/:format/:projectId?',
     const { noSave, returnRoll, format, projectId, files } = req; //eslint-disable-line no-unused-vars
     const { constructsOnly } = req.body;
 
+    const timer = new DebugTimer(`Genbank Import (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
+
     console.log(`importing genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
@@ -172,7 +175,9 @@ router.post('/import/:format/:projectId?',
           { roots, blocks: rootBlocks } :
             converted;
 
-          res.status(200).json(payload);
+          timer.end('converted');
+
+          return res.status(200).json(payload);
         })
         .catch(err => next(err));
     }
@@ -180,6 +185,8 @@ router.post('/import/:format/:projectId?',
     return importProject(filePath)
     //wrap all the childless blocks in a construct (so they dont appear as top-level constructs), update rollup with construct Ids
       .then(roll => {
+        timer.time('imported');
+
         const blockIds = Object.keys(roll.blocks);
 
         if (!blockIds.length) {
@@ -211,11 +218,13 @@ router.post('/import/:format/:projectId?',
         return roll;
       })
       .then(roll => {
-        return fileSystem.fileWrite(filePath + '-converted', roll)
-          .then(() => {
-            Object.assign(req, { roll });
-            next();
-          });
+        //dont care about timing
+        fileSystem.fileWrite(filePath + '-converted', roll);
+
+        timer.end('remapped');
+
+        Object.assign(req, { roll });
+        next();
       })
       .catch((err) => {
         console.log('error in Genbank conversion', err);

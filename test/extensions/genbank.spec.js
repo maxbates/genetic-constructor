@@ -228,5 +228,9 @@ describe('Extensions', () => {
           .catch(done);
       });
     });
+
+    it.only('should import quickly', () => {
+
+    });
   });
 });
