@@ -655,6 +655,19 @@ class GlobalNav extends Component {
           text: 'HELP',
           items: [
             {
+              text: 'User Guide and Tutorials',
+              action: () => { window.open('https://geneticconstructor.readme.io', '_blank'); },
+            },
+            {
+              text: 'Forums',
+              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
+            }, 
+            {
+              text: 'Get Support',
+              action: () => { window.open('https://geneticconstructor.readme.io/discuss', '_blank'); },
+            },
+            {},
+            {
               text: 'Report a Bug',
               action: () => { this.props.uiReportError(true); },
             },
@@ -662,24 +675,7 @@ class GlobalNav extends Component {
               text: 'Give Us Feedback',
               action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
             },
-            {
-              text: 'Forums',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
-            }, {
-              text: 'Get Support',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/support'),
-            },
             {},
-            {
-              text: 'User Guide',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/user-guide'),
-            }, {
-              text: 'Tutorials',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/tutorials'),
-            }, {
-              text: 'Keyboard Shortcuts',
-              action: this.disgorgeDiscourse.bind(this, '/t/keyboard-shortcuts'),
-            },
             {
               text: 'API Documentation',
               action: () => { window.open('/help/docs', '_blank'); },
