@@ -1,7 +1,6 @@
 @import './variables.css';
 
-.gd-form {
-
+:root {
   --radius: 3px;
   --element-height: 3rem;
   --inputcolor: #E1E2E5;
@@ -9,10 +8,11 @@
   --primarycolor: #343A4D;
   --errorcolor: #FF6A5E;
   --fontsize: 1.25rem;
+}
+.gd-form {
 
   padding-bottom: 1rem;
   font-size: 1.5rem;
-
 
   .title {
     font-size: var(--element-height);

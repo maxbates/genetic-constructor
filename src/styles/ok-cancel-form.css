@@ -1,3 +1,6 @@
+@import './variables.css';
+@import './form.css';
+
 .ok-cancel-form {
   min-width: 50rem;
   display: flex;
