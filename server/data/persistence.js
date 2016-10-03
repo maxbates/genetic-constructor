@@ -152,12 +152,12 @@ const _projectSetup = (projectId, userId) => {
       timer.time('directories made');
       return Promise.all([
         fileWrite(blockManifestPath, {}), //write an empty file in case try to merge with it
-        permissions.createProjectPermissions(projectId, userId)
-      ])
+        permissions.createProjectPermissions(projectId, userId),
+      ]);
     })
     .then(() => {
       timer.time('initial files written');
-      return versioning.initialize(projectDataPath, userId)
+      return versioning.initialize(projectDataPath, userId),
     })
     .then((path) => {
       timer.end('versioned');
@@ -353,7 +353,7 @@ export const projectWrite = (projectId, project = {}, userId, bypassValidation =
     .catch(() => _projectSetup(projectId, userId))
     .then(() => {
       timer.time('setup');
-      return _projectWrite(projectId, idedProject)
+      return _projectWrite(projectId, idedProject);
     })
     //.then(() => _projectCommit(projectId, userId))
     .then(() => {

@@ -56,8 +56,10 @@ const createGeneratorsInitialProjects = (user) => {
 
 //create initial projects and set up configuration for them
 export default function onboardNewUser(user) {
+  invariant(user && user.email && user.uuid, 'must pass valid user');
+
+  console.log('[User Setup] Onboarding ' + user.uuid + ' - ' + user.email);
   const timer = new DebugTimer('Onboarding ' + user.uuid + ' ' + user.email);
-  console.log('[User Setup] Onboarding ' + user.uuid + ' ' + user.email);
 
   const initialProjectGenerators = createGeneratorsInitialProjects(user);
   const [firstRollGen, ...restRollGens] = initialProjectGenerators;
