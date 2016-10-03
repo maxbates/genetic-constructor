@@ -1,10 +1,10 @@
 import { jsdom } from 'jsdom';
-import mkpath from 'mkpath';
+import rimraf from 'rimraf';
 //import { login } from '../src/middleware/api';
 
 //FILE SYSTEM SETUP
 
-mkpath('storage/test/sequence');
+rimraf.sync('server/auth/temp.config.json');
 
 //DOM SETUP
 

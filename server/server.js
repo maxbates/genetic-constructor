@@ -61,7 +61,7 @@ app.use(morgan(logLevel, {
     if (req.path.indexOf('browser-sync') >= 0 || req.path.indexOf('__webpack') >= 0) {
       return true;
     }
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'test' && !process.env.DEBUG) {
       return true;
     }
     return false;
@@ -101,6 +101,7 @@ if (process.env.BIO_NANO_AUTH) {
     resetForm: '/homepage/reset',
     apiEndPoint: API_END_POINT,
     onLogin: onLoginHandler,
+    //onLogin: (req, res, next) => next(req, res), //mock
     registerRedirect: false,
   };
   app.use(initAuthMiddleware(authConfig));

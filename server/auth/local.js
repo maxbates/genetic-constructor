@@ -148,12 +148,16 @@ const handleRegister = (req, res, next) => {
   //console.log(JSON.stringify(defaultUser, null, 2));
 
   //if not logged in (requireLogin) then mockAuth won't setup user on register, so lets double check here (even though ID not changing)
-  checkUserSetup(defaultUser).then(() => {
-    currentCookie = generateMockCookieValue();
-    res.cookie('sess', currentCookie);
-
-    res.send(defaultUser);
-  });
+  checkUserSetup(defaultUser)
+    .then(() => {
+      currentCookie = generateMockCookieValue();
+      res.cookie('sess', currentCookie);
+      res.send(defaultUser);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).send(err);
+    });
 };
 
 // register the new user
@@ -185,8 +189,9 @@ export const mockUser = (req, res, next) => {
     Object.assign(req, { user: defaultUser });
 
     //stub the initial user setup here as well
-    checkUserSetup({ uuid: defaultUser.uuid })
-      .then(() => next());
+    checkUserSetup(defaultUser)
+      .then(() => next())
+      .catch(err => next(err));
   } else {
     next();
   }
