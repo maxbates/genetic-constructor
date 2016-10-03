@@ -20,7 +20,7 @@ import uuid from 'node-uuid';
 import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
 describe('Server', () => {
-  describe.only('Onboarding', () => {
+  describe('Onboarding', () => {
     const makeUser = (userId = uuid.v4(), nameStub) => ({
       uuid: userId,
       email: `test${nameStub}@tester.com`,
