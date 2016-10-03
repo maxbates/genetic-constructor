@@ -157,7 +157,7 @@ class ConstructPreview extends Component {
             min={1}
             max={this.constructs ? this.constructs.length : 1}
             value={this.state.index}
-            enabled={this.constructs}
+            enabled={!!(this.constructs && this.constructs.length)}
             onChange={this.onChangeConstruct}
           />
           <label className="of">{label}</label>
