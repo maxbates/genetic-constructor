@@ -13,6 +13,9 @@ import Block from '../../../../src/models/Block';
 import Annotation from '../../../../src/models/Annotation';
 import BlockSchema from '../../../../src/schemas/Block';
 
+import DebugTimer from '../../../utils/DebugTimer';
+const timer = new DebugTimer('Genbank', { delayed: true });
+
 //////////////////////////////////////////////////////////////
 // COMMON
 //////////////////////////////////////////////////////////////
@@ -92,10 +95,13 @@ const createBlockStructureAndSaveSequence = (block, sourceId) => {
 const createAllBlocks = (outputBlocks, sourceId) => {
   const batches = chunk(Object.keys(outputBlocks), 50);
 
+  timer.time('start writing sequences');
+
   return batches.reduce((acc, batch) => {
     return acc.then((allBlocks) => {
       return Promise.all(batch.map(block => createBlockStructureAndSaveSequence(outputBlocks[block], sourceId)))
         .then((createdBatch) => {
+          timer.time('made 50 blocks + wrote sequences');
           return allBlocks.concat(createdBatch);
         });
     });
@@ -145,8 +151,11 @@ const readGenbankFile = (inputFilePath) => {
 
   const cmd = `python ${path.resolve(__dirname, 'convert.py')} from_genbank ${inputFilePath} ${outputFilePath}`;
 
+  timer.time('starting python');
   return runCommand(cmd, inputFilePath, outputFilePath)
     .then(resStr => {
+      timer.time('ran python');
+
       fileSystem.fileDelete(outputFilePath);
       try {
         const res = JSON.parse(resStr);
@@ -167,15 +176,22 @@ const readGenbankFile = (inputFilePath) => {
 const handleBlocks = (inputFilePath) => {
   return readGenbankFile(inputFilePath)
     .then(result => {
+      timer.time('file read');
+
       if (result && result.project && result.blocks &&
         result.project.components && result.project.components.length > 0) {
         return createAllBlocks(result.blocks, inputFilePath)
           .then(blocksWithOldIds => {
+            timer.time('blocks created');
+
             const remappedBlocksArray = remapHierarchy(blocksWithOldIds);
             const newRootBlocks = result.project.components.map((oldBlockId) => {
               return getNewId(blocksWithOldIds, oldBlockId);
             });
             const blockMap = remappedBlocksArray.reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+
+            timer.time('blocks remapped');
+
             return { project: result.project, rootBlocks: newRootBlocks, blocks: blockMap };
           });
       }
@@ -186,12 +202,19 @@ const handleBlocks = (inputFilePath) => {
 // Import project and construct/s from genbank
 // Returns a project structure and the list of all blocks
 export const importProject = (inputFilePath) => {
+  timer.start('start');
+
   return handleBlocks(inputFilePath)
     .then((result) => {
+      timer.time('blocks handled');
+
       if (_.isString(result)) {
         return result;
       }
       const resProject = handleProject(result.project, result.rootBlocks);
+
+      timer.log();
+      timer.clear();
 
       //const outputFile = filePaths.createStorageUrl('imported_from_genbank.json');
       //fileSystem.fileWrite(outputFile, {project: resProject, blocks: result.blocks});

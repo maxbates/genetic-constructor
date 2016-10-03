@@ -25,27 +25,35 @@ const toReadable = (float) => {
 const realtime = process.env.DEBUG === 'realtime';
 
 export default class DebugTimer {
-  constructor(name, condition = true) {
+  constructor(name, options = {}) {
     this.name = name;
-    this.condition = condition;
+    this.options = options; //disabled, condition, delayed
     this.times = [];
-    this.start('init');
+
+    if (options.delayed !== true) {
+      this.start('init');
+    }
   }
 
   //private
   addTime(msg, time) {
     this.times.push({ msg, time });
-    if (realtime && msg !== 'init') {
-      const prev = this.times.length > 1 ? this.times[this.times.length - 2].time : this.start;
+    if (this.shouldLog() && realtime && this.times.length > 1) {
+      const prev = this.times[this.times.length - 2].time;
       const difference = toReadable(diff(prev, time));
       console.log(`${difference}\t${msg}\t(${this.name})`);
     }
   }
 
+  shouldLog() {
+    const disabled = this.options.disabled === true;
+    const cond = typeof this.options.condition === 'function' ? this.options.condition() : this.options.condition !== false;
+    return process.env.DEBUG && !disabled && cond;
+  }
+
   log() {
-    if (process.env.NODE_ENV === 'test' && !!process.env.DEBUG) {
-      const cond = typeof this.condition === 'function' ? this.condition() : this.condition;
-      if (!!cond) {
+    if (process.env.DEBUG) {
+      if (this.shouldLog() && !realtime) {
         console.log('\n' + this.name);
         //console.log('Diff Last | Diff Start | Message');
         this.times.forEach((obj, index) => {
@@ -61,28 +69,33 @@ export default class DebugTimer {
     }
   }
 
+  clear() {
+    this.times.length = 0;
+  }
+
   //run by constructor
   start(msg) {
-    if (process.env.NODE_ENV === 'test' && !!process.env.DEBUG) {
+    if (process.env.DEBUG) {
       this.start = process.hrtime();
       this.addTime(msg, this.start);
     }
   }
 
   time(msg) {
-    if (process.env.NODE_ENV === 'test' && !!process.env.DEBUG) {
+    if (process.env.DEBUG) {
       invariant(this.time, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
     }
   }
 
   end(msg = 'complete') {
-    if (process.env.NODE_ENV === 'test' && !!process.env.DEBUG) {
+    if (process.env.DEBUG) {
       invariant(this.time, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
       if (!realtime) {
         this.log();
       }
+      this.clear();
     }
   }
 }

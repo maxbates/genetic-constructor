@@ -329,7 +329,7 @@ export const projectCreate = (projectId, project, userId) => {
 //SET (WRITE + MERGE)
 
 export const projectWrite = (projectId, project = {}, userId, bypassValidation = false) => {
-  const timer = new DebugTimer('projectWrite ' + projectId, false);
+  const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
 
   invariant(project, 'project is required');
   invariant(userId, 'user id is required to write project');
