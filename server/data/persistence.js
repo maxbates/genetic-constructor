@@ -364,8 +364,6 @@ export const projectWrite = (projectId, project = {}, userId, bypassValidation =
 
 //overwrite all blocks
 export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
-  const timer = new DebugTimer('blocksWrite ' + projectId);
-
   if (bypassValidation !== true && !values(blockMap).every(block => validateBlock(block))) {
     return Promise.reject(errorInvalidModel);
   }
@@ -374,10 +372,7 @@ export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidat
   forEach(blockMap, (block, blockId) => Object.assign(block, { projectId }));
 
   return _blocksWrite(projectId, blockMap, overwrite)
-    .then(() => {
-      timer.end('complete');
-      return blockMap;
-    });
+    .then(() => blockMap);
 };
 
 export const projectMerge = (projectId, project, userId) => {

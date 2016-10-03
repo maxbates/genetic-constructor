@@ -17,8 +17,12 @@ import invariant from 'invariant';
 
 const toTime = (hrtime) => (hrtime[0] + (hrtime[1] / Math.pow(10, 9)));
 const diff = (one, two) => toTime(two) - toTime(one);
+const toReadable = (float) => {
+  const precision = 6;
+  return String(float).substr(0, precision + 2);
+};
 
-const realtime = true;
+const realtime = process.env.DEBUG === 'realtime';
 
 export default class DebugTimer {
   constructor(name, condition = true) {
@@ -28,17 +32,18 @@ export default class DebugTimer {
     this.start('init');
   }
 
+  //private
   addTime(msg, time) {
     this.times.push({ msg, time });
     if (realtime && msg !== 'init') {
       const prev = this.times.length > 1 ? this.times[this.times.length - 2].time : this.start;
-      const difference = diff(prev, time)
+      const difference = toReadable(diff(prev, time));
       console.log(`${difference}\t${msg}\t(${this.name})`);
     }
   }
 
   log() {
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'test' && !!process.env.DEBUG) {
       const cond = typeof this.condition === 'function' ? this.condition() : this.condition;
       if (!!cond) {
         console.log('\n' + this.name);
@@ -48,8 +53,8 @@ export default class DebugTimer {
             return;
           }
           const last = index > 0 ? this.times[index - 1].time : this.start;
-          const diffLast = diff(last, obj.time);
-          const diffStart = diff(this.start, obj.time);
+          const diffLast = toReadable(diff(last, obj.time));
+          const diffStart = toReadable(diff(this.start, obj.time));
           console.log(`${diffLast}\t${diffStart}\t${obj.msg}`);
         });
       }
@@ -58,21 +63,21 @@ export default class DebugTimer {
 
   //run by constructor
   start(msg) {
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'test' && !!process.env.DEBUG) {
       this.start = process.hrtime();
       this.addTime(msg, this.start);
     }
   }
 
   time(msg) {
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'test' && !!process.env.DEBUG) {
       invariant(this.time, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
     }
   }
 
   end(msg = 'complete') {
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'test' && !!process.env.DEBUG) {
       invariant(this.time, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
       if (!realtime) {

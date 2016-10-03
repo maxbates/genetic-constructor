@@ -95,16 +95,21 @@ export const makeComponents = (...terms) => {
 };
 
 //pass in actual list of compoennts
+//mark it frozen to save a mapping call later...
+//note - does not make a real block. Does not have an ID. need to wrap these appropriately.
 export const templateFromComponents = (components, toMerge = {}) => {
-  invariant(components.every(comp => Block.validate(comp)), 'must pass valid blocks');
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(components.every(comp => Block.validate(comp)), 'must pass valid blocks');
+  }
 
-  return Block.classless(merge({},
+  return merge({},
     toMerge,
     {
       components: components.map(comp => comp.id),
       rules: {
         fixed: true,
+        frozen: true,
       },
     },
-  ));
+  );
 };

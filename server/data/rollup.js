@@ -69,7 +69,7 @@ export const writeProjectRollup = (projectId, rollup, userId, bypassValidation =
   //need to check existence + create here, avoid race of project setup vs. block write
   return persistence.projectExists(projectId)
     .catch(err => {
-      timer.time('init project creation')
+      timer.time('init project creation');
       //if the project doesn't exist, let's make it
       if (err === errorDoesNotExist) {
         return persistence.projectCreate(projectId, project, userId);
@@ -85,7 +85,7 @@ export const writeProjectRollup = (projectId, rollup, userId, bypassValidation =
         if (!projectValid || !blocksValid) {
           return Promise.reject(errorInvalidModel);
         }
-        timer.time('validated')
+        timer.time('validated');
       }
     })
     //bypass validation on writes, since checking above anyway

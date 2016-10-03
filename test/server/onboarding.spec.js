@@ -20,7 +20,7 @@ import uuid from 'node-uuid';
 import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
 describe('Server', () => {
-  describe.only('Onboarding', function onboardingSuite() {
+  describe('Onboarding', function onboardingSuite() {
     //this.timeout(5000);
 
     const numUsers = 50;
@@ -35,6 +35,9 @@ describe('Server', () => {
 
     //todo
     it('should onboard a user and create at least a project for them');
+
+    //todo
+    it('can take a config of starting projects');
 
     //todo
     it('should onboard many users quickly', () => {
