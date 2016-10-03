@@ -3,7 +3,7 @@ import md5 from 'md5';
 import invariant from 'invariant';
 import _, { merge, chunk, cloneDeep } from 'lodash';
 import uuid from 'node-uuid';
-import { fork, exec } from 'child_process';
+import { fork } from 'child_process';
 
 import * as filePaths from '../../../utils/filePaths';
 import * as fileSystem from '../../../utils/fileSystem';
