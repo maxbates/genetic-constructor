@@ -157,7 +157,7 @@ const _projectSetup = (projectId, userId) => {
     })
     .then(() => {
       timer.time('initial files written');
-      return versioning.initialize(projectDataPath, userId),
+      return versioning.initialize(projectDataPath, userId);
     })
     .then((path) => {
       timer.end('versioned');
