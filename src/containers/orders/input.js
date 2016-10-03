@@ -18,7 +18,7 @@ import React, { Component, PropTypes } from 'react';
 export default class Input extends Component {
   static propTypes = {
     value: PropTypes.string.isRequired,
-    placeholder: PropTypes.string.isRequired,
+    placeholder: PropTypes.string,
     onChange: PropTypes.func.isRequired,
   };
 
