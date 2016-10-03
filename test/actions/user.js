@@ -27,7 +27,11 @@ describe('Actions', () => {
         expect(user.email).to.eql(dummyUser.email);
         expect(userStore.getState().user).to.eql(user);
         expect(user.config).to.be.defined;
-      });
+      })
+        .catch(resp => {
+          resp.text()
+            .then(console.log.bind(console));
+        })
     });
 
     it('should update user on userLogout', () => {
@@ -35,7 +39,7 @@ describe('Actions', () => {
 
       return logoutPromise.then(() => {
         expect(userStore.getState().user).to.eql(initialState);
-      });
+      })
     });
   });
 });
