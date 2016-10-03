@@ -33,6 +33,8 @@ export default class DebugTimer {
     if (options.delayed !== true) {
       this.start('init');
     }
+
+    return this;
   }
 
   //private
@@ -60,9 +62,9 @@ export default class DebugTimer {
           if (index === 0) {
             return;
           }
-          const last = index > 0 ? this.times[index - 1].time : this.start;
+          const last = index > 0 ? this.times[index - 1].time : this.init;
           const diffLast = toReadable(diff(last, obj.time));
-          const diffStart = toReadable(diff(this.start, obj.time));
+          const diffStart = toReadable(diff(this.init, obj.time));
           console.log(`${diffLast}\t${diffStart}\t${obj.msg}`);
         });
       }
@@ -73,24 +75,24 @@ export default class DebugTimer {
     this.times.length = 0;
   }
 
-  //run by constructor
+  //run by constructor, or if delayed
   start(msg) {
     if (process.env.DEBUG) {
-      this.start = process.hrtime();
-      this.addTime(msg, this.start);
+      this.init = process.hrtime();
+      this.addTime(msg, this.init);
     }
   }
 
   time(msg) {
     if (process.env.DEBUG) {
-      invariant(this.time, 'must have start()-ed');
+      invariant(this.init, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
     }
   }
 
   end(msg = 'complete') {
     if (process.env.DEBUG) {
-      invariant(this.time, 'must have start()-ed');
+      invariant(this.init, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
       if (!realtime) {
         this.log();

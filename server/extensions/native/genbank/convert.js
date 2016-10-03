@@ -3,7 +3,7 @@ import md5 from 'md5';
 import invariant from 'invariant';
 import _, { merge, chunk, cloneDeep } from 'lodash';
 import uuid from 'node-uuid';
-import { exec } from 'child_process';
+import { fork, exec } from 'child_process';
 
 import * as filePaths from '../../../utils/filePaths';
 import * as fileSystem from '../../../utils/fileSystem';
@@ -11,7 +11,6 @@ import * as persistence from '../../../data/persistence';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import Annotation from '../../../../src/models/Annotation';
-import BlockSchema from '../../../../src/schemas/Block';
 
 import DebugTimer from '../../../utils/DebugTimer';
 const timer = new DebugTimer('Genbank', { delayed: true });
@@ -21,19 +20,54 @@ const timer = new DebugTimer('Genbank', { delayed: true });
 //////////////////////////////////////////////////////////////
 const createTempFilePath = () => filePaths.createStorageUrl('temp/' + uuid.v4());
 
+//todo - will need to consider bundling
+//one process for each
+const importFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
+const exportFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
+
+process.on('exit', () => {
+  importFork.kill('SIGHUP');
+  exportFork.kill('SIGHUP');
+});
+
 // Run an external command and return the data in the specified output file
+//commmand is 'import' or 'export'
 const runCommand = (command, inputFile, outputFile) => {
+  const fork = command === 'import' ? importFork : exportFork;
+
   return new Promise((resolve, reject) => {
-    exec(command, (err, stdout) => {
-      if (err) {
-        console.log('ERROR!!!!!');
-        console.log(err);
-        reject(err);
+    const procId = uuid.v4();
+    timer.time('starting fork ' + procId);
+
+    fork.send({ type: command, id: procId, input: inputFile, output: outputFile });
+
+    fork.on('message', (message) => {
+      if (procId === message.id) {
+        timer.time('fork completed ' + procId);
+        console.log('proc completed', message);
+
+        if (message.success) {
+          return resolve(message.result);
+        }
+        return reject(message.error);
       }
-      else resolve(stdout);
     });
   })
     .then(() => fileSystem.fileRead(outputFile, false));
+
+  /*
+   return new Promise((resolve, reject) => {
+   exec(command, (err, stdout) => {
+   if (err) {
+   console.log('ERROR!!!!!');
+   console.log(err);
+   return reject(err);
+   }
+   return resolve(stdout);
+   });
+   })
+   .then(() => fileSystem.fileRead(outputFile, false));
+   */
 };
 
 //////////////////////////////////////////////////////////////
@@ -137,14 +171,16 @@ const handleProject = (outputProject, rootBlockIds) => {
 const readGenbankFile = (inputFilePath) => {
   const outputFilePath = createTempFilePath();
 
-  const cmd = `python ${path.resolve(__dirname, 'convert.py')} from_genbank ${inputFilePath} ${outputFilePath}`;
+  timer.time('starting conversion');
 
-  timer.time('starting python');
-  return runCommand(cmd, inputFilePath, outputFilePath)
+  return runCommand('import', inputFilePath, outputFilePath)
     .then(resStr => {
       timer.time('ran python');
 
-      fileSystem.fileDelete(outputFilePath);
+      if (!process.env.DEBUG) {
+        fileSystem.fileDelete(outputFilePath);
+      }
+
       try {
         const res = JSON.parse(resStr);
         return Promise.resolve(res);
@@ -155,7 +191,9 @@ const readGenbankFile = (inputFilePath) => {
     .catch(err => {
       console.log('ERROR IN PYTHON');
       console.log(err);
-      fileSystem.fileDelete(outputFilePath);
+      if (!process.env.DEBUG) {
+        fileSystem.fileDelete(outputFilePath);
+      }
       return Promise.reject(err);
     });
 };
@@ -172,7 +210,7 @@ const handleBlocks = (inputFilePath) => {
           .then(blocksWithOldIds => {
             timer.time('blocks created');
 
-            const idMap = _.zip(
+            const idMap = _.zipObject(
               _.map(blocksWithOldIds, 'oldId'),
               _.map(blocksWithOldIds, 'id')
             );
@@ -250,15 +288,19 @@ const exportProjectStructure = (project, blocks) => {
   //console.log(JSON.stringify(input));
 
   return fileSystem.fileWrite(inputFilePath, input)
-    .then(() => runCommand(`python ${path.resolve(__dirname, 'convert.py')} to_genbank ${inputFilePath} ${outputFilePath}`, inputFilePath, outputFilePath))
+    .then(() => runCommand('export', inputFilePath, outputFilePath))
     .then(resStr => {
-      fileSystem.fileDelete(inputFilePath);
+      if (!process.env.DEBUG) {
+        fileSystem.fileDelete(inputFilePath);
+      }
       return outputFilePath;
     })
     .catch(err => {
       //dont need to wait for promises to resolve
-      fileSystem.fileDelete(inputFilePath);
-      fileSystem.fileDelete(outputFilePath);
+      if (!process.env.DEBUG) {
+        fileSystem.fileDelete(inputFilePath);
+        fileSystem.fileDelete(outputFilePath);
+      }
       console.log('ERROR IN PYTHON');
       console.log('Command');
       console.log(`python ${path.resolve(__dirname, 'convert.py')} to_genbank ${inputFilePath} ${outputFilePath}`);

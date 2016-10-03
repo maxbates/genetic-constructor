@@ -53,7 +53,7 @@ export const getProjectRollup = (projectId) => {
 };
 
 export const writeProjectRollup = (projectId, rollup, userId, bypassValidation = false) => {
-  const timer = new DebugTimer(`rollup.write ${projectId} (${userId})`);
+  const timer = new DebugTimer(`rollup.write ${projectId} (${userId})`, { disabled: true });
 
   invariant(projectId, 'must pass a projectId');
   invariant(rollup && rollup.project && rollup.blocks, 'rollup must not be empty');

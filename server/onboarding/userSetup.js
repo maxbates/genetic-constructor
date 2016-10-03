@@ -26,7 +26,7 @@ const ensureUserSetup = (user) => {
    }
    */
 
-  const timer = new DebugTimer('ensureUserSetup ' + user.uuid);
+  const timer = new DebugTimer('ensureUserSetup ' + user.uuid, { disabled: true });
 
   return querying.listProjectsWithAccess(user.uuid)
     .then(projects => {
