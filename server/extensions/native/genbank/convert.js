@@ -44,7 +44,6 @@ const runCommand = (command, inputFile, outputFile) => {
 const createBlockStructureAndSaveSequence = (block, sourceId) => {
   // generate a valid block scaffold. This is similar to calling new Block(),
   // but a bit more light weight and easier to work with (models are frozen so you cannot edit them)
-  const scaffold = BlockSchema.scaffold();
   const fileName = /[^/]*$/.exec(sourceId)[0];
 
   //get the sequence md5
@@ -74,7 +73,7 @@ const createBlockStructureAndSaveSequence = (block, sourceId) => {
   };
 
   //be sure to pass in empty project first, so you arent overwriting scaffold each time
-  const outputBlock = merge({}, scaffold, toMerge);
+  const outputBlock = Block.classless(toMerge);
 
   //promise, for writing sequence if we have one, or just immediately resolve if we dont
   const sequencePromise = sequenceMd5 ?
@@ -108,25 +107,14 @@ const createAllBlocks = (outputBlocks, sourceId) => {
   }, Promise.resolve([]));
 };
 
-// Given an old ID, returns the new ID for a block
-const getNewId = (blockStructureArray, oldId) => {
-  for (let i = 0, len = blockStructureArray.length; i < len; i++) {
-    if (blockStructureArray[i].oldId === oldId) {
-      return blockStructureArray[i].id;
-    }
-  }
-};
-
 // Takes a block structure and sets up the hierarchy through GD ids.
 // This is necessary because Python returns ids that are not produced by GD.
-const remapHierarchy = (blockArray) => {
-  return blockArray.map(blockStructure => {
-    const newBlock = blockStructure.block;
-    blockStructure.children.map(oldChildId => {
-      const newid = getNewId(blockArray, oldChildId);
-      newBlock.components.push(newid);
-    });
-    return Block.classless(newBlock);
+// takes block structure (block, id, oldId, children) and returns blocks with proper IDs
+const remapHierarchy = (blockArray, idMap) => {
+  return _.map(blockArray, (structure) => {
+    const newBlock = structure.block;
+    newBlock.components = structure.children.map(oldId => idMap[oldId]);
+    return newBlock;
   });
 };
 
@@ -184,10 +172,13 @@ const handleBlocks = (inputFilePath) => {
           .then(blocksWithOldIds => {
             timer.time('blocks created');
 
-            const remappedBlocksArray = remapHierarchy(blocksWithOldIds);
-            const newRootBlocks = result.project.components.map((oldBlockId) => {
-              return getNewId(blocksWithOldIds, oldBlockId);
-            });
+            const idMap = _.zip(
+              _.map(blocksWithOldIds, 'oldId'),
+              _.map(blocksWithOldIds, 'id')
+            );
+
+            const remappedBlocksArray = remapHierarchy(blocksWithOldIds, idMap);
+            const newRootBlocks = result.project.components.map((oldBlockId) => idMap[oldBlockId]);
             const blockMap = remappedBlocksArray.reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 
             timer.time('blocks remapped');
