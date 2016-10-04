@@ -67,7 +67,7 @@ export default class Schema {
   //prefer ES6 extension
   extend(childDefinitions = {}) {
     if (process.env.NODE_ENV !== 'production') {
-      console.warn('it is recommedned you extend Schemas using ES6 classes, not the extend() method');
+      console.warn('it is recommedned you extend Schemas using ES6 classes, not the extend() method'); //eslint-disable-line no-console
     }
 
     return new Schema(Object.assign({},
@@ -113,7 +113,7 @@ export default class Schema {
 
       //check for improperly bound fields
       if (process.env.NODE_ENV !== 'production' && !field.validate) {
-        console.error(field);
+        console.error(field); //eslint-disable-line no-console
       }
 
       //need to bind field in case it's a schema
@@ -233,6 +233,7 @@ function isFieldRequired(field) {
 }
 
 const defaultScaffoldValue = null;
+
 function scaffoldField(field) {
   return (typeof field.scaffold === 'function' && !field.avoidScaffold) ?
     field.scaffold(field.params) :

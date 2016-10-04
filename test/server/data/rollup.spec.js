@@ -1,6 +1,6 @@
 import { assert, expect } from 'chai';
-import uuid from 'node-uuid';
 import { merge } from 'lodash';
+import { testUserId } from '../../constants';
 import Block from '../../../src/models/Block';
 import Project from '../../../src/models/Project';
 import * as rollup from '../../../server/data/rollup';
@@ -12,7 +12,7 @@ import { numberBlocksInRollup, createExampleRollup } from '../../utils/rollup';
 describe('Server', () => {
   describe('Data', () => {
     describe('Rollup', () => {
-      const userId = uuid.v4();
+      const userId = testUserId;
       const roll = createExampleRollup();
       const project = roll.project;
       const projectId = project.id;

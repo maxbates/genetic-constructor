@@ -1,5 +1,3 @@
-import _ from 'lodash';
-import uuid from 'node-uuid';
 import { assert, expect } from 'chai';
 import * as persistence from '../../server/data/persistence';
 import { callExtensionApi } from '../../src/middleware/extensions';

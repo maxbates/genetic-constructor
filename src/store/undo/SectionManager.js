@@ -1,19 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-import invariant from 'invariant';
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import StoreHistory from './storeHistory';
 
 /* eslint-disable no-console */
@@ -124,7 +123,9 @@ export default class SectionManager {
     this.transactionDepth++;
 
     if (this.debug) {
-      console.group && console.group(`SectionManager: Beginning Transaction (depth = ${this.transactionDepth})`);
+      if (console.group) {
+        console.group(`SectionManager: Beginning Transaction (depth = ${this.transactionDepth})`);
+      }
     }
 
     //use current state (opposed to present) in case in a Transaction
@@ -145,7 +146,10 @@ export default class SectionManager {
       console.log('SectionManager: commit() ' +
         (this.transactionFailure ? 'failed (aborted).' : 'committing...') +
         (this.transactionDepth === 0 ? 'all transactions complete' : 'nested transaction'));
-      console.groupEnd && console.groupEnd();
+
+      if (console.groupEnd) {
+        console.groupEnd();
+      }
     }
 
     if (this.transactionDepth === 0) {
@@ -175,7 +179,10 @@ export default class SectionManager {
     if (this.debug) {
       console.log('SectionManager: aborting transaction. ' +
         (this.transactionDepth === 0 ? 'all transactions complete' : 'nested transaction'));
-      console.groupEnd && console.groupEnd();
+
+      if (console.groupEnd) {
+        console.groupEnd();
+      }
     }
 
     if (this.transactionDepth === 0) {

@@ -1,10 +1,7 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import invariant from 'invariant';
 
 //GC specific
-import Project from '../../../../src/models/Project';
-import Block from '../../../../src/models/Block';
 import * as fileSystem from '../../../../server/utils/fileSystem';
 import * as filePaths from '../../../../server/utils/filePaths';
 import * as persistence from '../../../../server/data/persistence';
@@ -20,16 +17,9 @@ const createFilePath = (fileName) => {
   invariant(fileName, 'need a file name');
   return filePaths.createStorageUrl(extensionKey, fileName);
 };
-const createFileUrl = (fileName) => {
-  invariant(fileName, 'need a file name');
-  return extensionKey + '/file/' + fileName;
-};
 
 //create the router
 const router = express.Router(); //eslint-disable-line new-cap
-const jsonParser = bodyParser.json({
-  strict: false, //allow values other than arrays and objects
-});
 
 //route to download files
 router.get('/file/:fileId', (req, res, next) => {

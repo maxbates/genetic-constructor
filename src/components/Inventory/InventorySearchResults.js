@@ -43,7 +43,7 @@ export default class InventorySearchResults extends Component {
   };
 
   getFullItem = (registryKey, item, onlyConstruct = false, shouldAddToStore = true) => {
-    const { source, id } = item.source;
+    const { id } = item.source;
     const parameters = {
       onlyConstruct,
     };
@@ -104,26 +104,24 @@ export default class InventorySearchResults extends Component {
       return (<Spinner />);
     }
 
-    const groupsContent = noSearchResults
-      ?
-      (<div className="InventoryGroup-placeholderContent">No Results Found</div>)
-      :
-      (groupBy === 'source')
+    let groupsContent = (<div className="InventoryGroup-placeholderContent">No Results Found</div>);
+
+    if (!noSearchResults) {
+      groupsContent = (groupBy === 'source')
         ?
-        <InventorySearchResultsBySource searchResults={searchResults}
-                                        sourcesVisible={sourcesVisible}
-                                        onListGroupAction={(key) => this.handleListGroupAction(key)}
-                                        onListGroupToggle={(key) => this.handleListGroupToggle(key)}
-                                        onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
-                                        onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}
-        />
+        (<InventorySearchResultsBySource searchResults={searchResults}
+                                         sourcesVisible={sourcesVisible}
+                                         onListGroupAction={(key) => this.handleListGroupAction(key)}
+                                         onListGroupToggle={(key) => this.handleListGroupToggle(key)}
+                                         onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
+                                         onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}/>)
         :
-        <InventorySearchResultsByKind searchResults={searchResults}
-                                      sourcesVisible={sourcesVisible}
-                                      onListGroupToggle={(key) => this.handleListGroupToggle(key)}
-                                      onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
-                                      onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}
-        />;
+        (<InventorySearchResultsByKind searchResults={searchResults}
+                                       sourcesVisible={sourcesVisible}
+                                       onListGroupToggle={(key) => this.handleListGroupToggle(key)}
+                                       onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
+                                       onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}/>);
+    }
 
     const showTabs = !(!searchTerm || sourcesToggling || (searching && noSearchResults) || noSearchResults);
 

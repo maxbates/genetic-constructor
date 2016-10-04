@@ -20,6 +20,7 @@ export default class Page3 extends Component {
 
   static propTypes = {
     open: PropTypes.bool.isRequired,
+    order: PropTypes.object.isRequired,
   };
 
   render() {

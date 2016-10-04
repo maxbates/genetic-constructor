@@ -64,9 +64,6 @@ describe('Middleware', () => {
     });
 
     it('readFile / writeFile should work with multiple files', function multipleFiles(done) {
-      //only takes a long time the first time docker build is run
-      this.timeout(30000);
-
       const file1Path = 'test/file1';
       const file1Contents = 'exhibit a';
       const storage1Path = makeStoragePath(file1Path);

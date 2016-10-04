@@ -16,16 +16,10 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 
 export default class Row extends Component {
-
   static propTypes = {
     text: PropTypes.string.isRequired,
+    children: PropTypes.any.isRequired,
   };
-
-  constructor() {
-    super();
-    this.state = {
-    };
-  }
 
   render() {
     return (
@@ -33,6 +27,6 @@ export default class Row extends Component {
         <div className="row-left">{this.props.text}</div>
         <div className="row-right">{this.props.children}</div>
       </div>
-    )
+    );
   }
 }

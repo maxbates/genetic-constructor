@@ -54,7 +54,7 @@ export default function InventorySources({ toggling, sourceList, registry, onSou
       <div className="InventorySources-back">
         <div className="InventorySources-back-cog"></div>
         <div className="InventorySources-back-sources">
-          <span>{`Sources: ${sourceList.map(source => registry[source].name).join(', ')}`}</span>
+          <span>{`Sources: ${sourceList.filter(source => registry[source]).map(source => registry[source].name).join(', ')}`}</span>
         </div>
       </div>
       <PopupMenu open={toggling}

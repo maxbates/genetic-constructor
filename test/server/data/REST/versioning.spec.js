@@ -1,5 +1,6 @@
 import { assert, expect } from 'chai';
 import request from 'supertest';
+import { testUserId } from '../../../constants';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import * as filePaths from '../../../../server/utils/filePaths';
@@ -15,7 +16,7 @@ describe('Server', () => {
         let server;
         let versionLog;
         let versions;
-        const userId = '0';
+        const userId = testUserId;
         const projectData = new Project();
         const projectId = projectData.id;
         const projectRepoDataPath = filePaths.createProjectDataPath(projectId);

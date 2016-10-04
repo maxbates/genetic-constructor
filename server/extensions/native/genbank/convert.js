@@ -12,7 +12,6 @@ import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import Annotation from '../../../../src/models/Annotation';
 import BlockSchema from '../../../../src/schemas/Block';
-import ProjectSchema from '../../../../src/schemas/Project';
 
 //////////////////////////////////////////////////////////////
 // COMMON
@@ -130,13 +129,13 @@ const handleProject = (outputProject, rootBlockIds) => {
   //just get fields we want using destructuring and use them to merge
   const { name, description } = outputProject;
 
-  return Project.classless(merge({}, ProjectSchema.scaffold(), {
+  return Project.classless({
     components: rootBlockIds,
     metadata: {
       name,
       description,
     },
-  }));
+  });
 };
 
 // Reads a genbank file and returns a project structure and all the blocks
@@ -180,9 +179,7 @@ const handleBlocks = (inputFilePath) => {
             return { project: result.project, rootBlocks: newRootBlocks, blocks: blockMap };
           });
       }
-      else {
-        return 'Invalid Genbank format.';
-      }
+      return 'Invalid Genbank format.';
     });
 };
 
@@ -236,13 +233,13 @@ const exportProjectStructure = (project, blocks) => {
 
   //const outputFile2 = filePaths.createStorageUrl('exported_to_genbank.json');
   //fileSystem.fileWrite(outputFile2, input);
+  //console.log(JSON.stringify(input));
 
   return fileSystem.fileWrite(inputFilePath, input)
     .then(() => runCommand(`python ${path.resolve(__dirname, 'convert.py')} to_genbank ${inputFilePath} ${outputFilePath}`, inputFilePath, outputFilePath))
     .then(resStr => {
       fileSystem.fileDelete(inputFilePath);
-      fileSystem.fileDelete(outputFilePath);
-      return resStr;
+      return outputFilePath;
     })
     .catch(err => {
       //dont need to wait for promises to resolve

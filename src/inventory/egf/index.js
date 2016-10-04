@@ -39,7 +39,7 @@ export const search = (term, options = {}) => {
     .then(results => parseResults(results))
     .then(results => Object.assign(results, { parameters }))
     .catch(err => {
-      console.error(err);
+      console.error(err); //eslint-disable-line no-console
       return [];
     });
 };

@@ -14,8 +14,8 @@
  limitations under the License.
  */
 import * as ActionTypes from '../constants/ActionTypes';
-import { registry, getSources } from '../inventory/registry';
-import { getItem, setItem } from '../middleware/localStorageCache';
+import { getSources } from '../inventory/registry';
+import { getLocal, setLocal } from '../utils/ui/localstorage';
 
 /*
  Search results take the form:
@@ -42,7 +42,7 @@ const createSourcesVisible = (valueFunction = () => false, sourceList = getSourc
 };
 
 const searchSources = getSources('search');
-const initialSearchSources = getItem('searchSources') ? getItem('searchSources').split(',') : searchSources;
+const initialSearchSources = getLocal('searchSources') ? getLocal('searchSources').split(',') : searchSources;
 const defaultSearchResults = createEmptySearchResults(searchSources);
 
 export const initialState = {
@@ -69,7 +69,7 @@ export default function inventory(state = initialState, action) {
     });
   }
   case ActionTypes.INVENTORY_SEARCH_RESOLVE_PARTIAL : {
-    const { patch, searchTerm, source } = action;
+    const { patch, searchTerm } = action;
 
     if (searchTerm !== state.searchTerm) {
       return state;
@@ -109,7 +109,7 @@ export default function inventory(state = initialState, action) {
     });
   }
   case ActionTypes.INVENTORY_SEARCH_PAGINATE : {
-    const { searchTerm, source, parameters } = action;
+    const { source, parameters } = action;
     const results = state.searchResults[source];
     const nextResults = Object.assign([...results], { parameters, loading: true });
     const nextSearchResults = Object.assign({}, state.searchResults, { [source]: nextResults });
@@ -142,7 +142,7 @@ export default function inventory(state = initialState, action) {
   }
   case ActionTypes.INVENTORY_SET_SOURCES : {
     const { sourceList } = action;
-    setItem('searchSources', sourceList.join(','));
+    setLocal('searchSources', sourceList.join(','));
     return Object.assign({}, state, {
       sourceList,
     });
@@ -161,9 +161,6 @@ export default function inventory(state = initialState, action) {
       searchTerm,
     });
   }
-
-  case ActionTypes.USER_SET_USER :
-    return Object.assign({}, initialState);
 
   default :
     return state;

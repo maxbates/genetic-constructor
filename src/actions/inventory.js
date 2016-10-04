@@ -175,7 +175,7 @@ export const inventorySearchPaginate = (source) => {
 
     return searchApi.search(searchTerm, parameters, source)
       .catch(err => {
-        console.error(err);
+        console.error(err); //eslint-disable-line no-console
         return Object.assign([], { parameters });
       })
       .then((resultObject) => {

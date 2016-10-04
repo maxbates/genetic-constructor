@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import Glyph2D from '../glyph2d';
-
 import kT from '../../../views/layoutconstants';
-import { setAttribute } from '../../../utils';
 
 export default class RoleGlyph2D extends Glyph2D {
 
@@ -57,6 +55,5 @@ export default class RoleGlyph2D extends Glyph2D {
     this.el.style.borderRight = sw ? `${sw}px solid ${this.node.stroke}` : 'none';
 
     this.dot.style.visibility = this.node.optionSelected ? 'visible' : 'hidden';
-
   }
 }

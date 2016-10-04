@@ -79,7 +79,9 @@ export default class InventoryListGroup extends Component {
       this.setState({ expanded: nextState });
     }
 
-    onToggle && onToggle(nextState);
+    if (typeof onToggle === 'function') {
+      onToggle(nextState);
+    }
   };
 
   handleSelect = (evt) => {
@@ -95,12 +97,12 @@ export default class InventoryListGroup extends Component {
   };
 
   render() {
-    const { isSelectable, hideToggle, title, manual, isLoading, isExpanded, isActive, children, disabled, canToggle, dataAttribute, actionButton } = this.props;
+    const { isSelectable, hideToggle, title, manual, isLoading, isExpanded, isActive, children, disabled, dataAttribute, actionButton } = this.props;
     const expanded = manual ? isExpanded : this.state.expanded;
 
     const rightSide = actionButton ?
       <InventoryListGroupAction {...actionButton} /> :
-      <span className="InventoryListGroup-heading-filler" />;
+      <span className="InventoryListGroup-heading-filler"/>;
 
     return (
       <div className={'InventoryListGroup' +

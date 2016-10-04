@@ -45,7 +45,7 @@ module.exports = {
     browser.assert.countelements(".scenegraph-userinterface-selection", 5);
 
       // click outside the blocks to deselect them all
-    clickAt(browser, '.scenegraph-userinterface', 10, 10);
+    clickAt(browser, '.scenegraph-userinterface', 100, 10);
     browser.pause(1000);
     browser.assert.countelements(".scenegraph-userinterface-selection", 0);
 

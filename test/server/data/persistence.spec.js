@@ -2,7 +2,9 @@ import { assert, expect } from 'chai';
 import path from 'path';
 import uuid from 'node-uuid';
 import merge from 'lodash.merge';
+import { updateProjectWithAuthor } from '../../utils/userUtils';
 import md5 from 'md5';
+import { testUserId } from '../../constants';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../server/utils/errors';
 import {
   fileExists,
@@ -27,7 +29,7 @@ describe('Server', () => {
     describe('persistence', function persistenceTests() {
       describe('existence + reading', () => {
         const projectName = 'persistenceProject';
-        const projectData = new Project({ metadata: { name: projectName } });
+        const projectData = new Project(updateProjectWithAuthor({ metadata: { name: projectName } }));
         const projectId = projectData.id;
         const projectPath = filePaths.createProjectPath(projectId);
         const projectDataPath = filePaths.createProjectDataPath(projectId);
@@ -123,9 +125,9 @@ describe('Server', () => {
       });
 
       describe('creation', () => {
-        const userId = uuid.v4();
+        const userId = testUserId;
 
-        const projectData = new Project();
+        const projectData = new Project(updateProjectWithAuthor());
         const projectId = projectData.id;
         const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const projectManifestPath = filePaths.createProjectManifestPath(projectId);
@@ -164,9 +166,9 @@ describe('Server', () => {
       });
 
       describe('write + merge', () => {
-        const userId = uuid.v4();
+        const userId = testUserId;
 
-        const projectData = new Project();
+        const projectData = new Project(updateProjectWithAuthor());
         const projectId = projectData.id;
         const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const projectManifestPath = filePaths.createProjectManifestPath(projectId);
@@ -195,7 +197,7 @@ describe('Server', () => {
           const invalidData = { my: 'data' };
           //start with write to reset
           return persistence.projectWrite(projectId, projectData, userId)
-            .then(() => persistence.projectWrite(projectId, invalidData))
+            .then(() => persistence.projectWrite(projectId, invalidData, userId))
             .then(() => assert(false, 'shouldnt happen'))
             .catch(err => expect(err).to.equal(errorInvalidModel))
             .then(() => fileRead(projectManifestPath))
@@ -220,7 +222,7 @@ describe('Server', () => {
           const merged = merge({}, projectData, projectPatch);
           //start with write to reset
           return persistence.projectWrite(projectId, projectData, userId)
-            .then(() => persistence.projectMerge(projectId, projectPatch))
+            .then(() => persistence.projectMerge(projectId, projectPatch, userId))
             .then(result => expect(result).to.eql(merged))
             .then(() => fileRead(projectManifestPath))
             .then(result => expect(result).to.eql(merged));
@@ -297,9 +299,9 @@ describe('Server', () => {
       });
 
       describe('deletion', () => {
-        const userId = uuid.v4();
+        const userId = testUserId;
 
-        const projectData = new Project();
+        const projectData = new Project(updateProjectWithAuthor());
         const projectId = projectData.id;
         const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const projectManifestPath = filePaths.createProjectManifestPath(projectId);
@@ -362,12 +364,12 @@ describe('Server', () => {
       });
 
       describe('versioning', () => {
-        const userId = uuid.v4();
+        const userId = testUserId;
 
         let versionLog;
         let versions;
         const nonExistentSHA = '795c5751c8e0b0c9b5993ec81928cd89f7eefd27';
-        const projectData = new Project();
+        const projectData = new Project(updateProjectWithAuthor());
         const projectId = projectData.id;
         const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const newProject = projectData.merge({ projectData: 'new stuff' });
@@ -383,7 +385,7 @@ describe('Server', () => {
           return persistence.projectCreate(projectId, projectData, userId) //3
             .then(() => persistence.blockWrite(projectId, blockData))
             .then(() => persistence.projectSave(projectId, userId)) //2
-            .then(() => persistence.projectWrite(projectId, newProject))
+            .then(() => persistence.projectWrite(projectId, newProject, userId))
             .then(() => persistence.projectSave(projectId, userId)) //1
             .then(() => persistence.blockWrite(projectId, newBlock))
             .then(() => persistence.projectSave(projectId, userId)) //0

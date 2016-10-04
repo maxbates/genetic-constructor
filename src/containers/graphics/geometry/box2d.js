@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
 import Vector2D from './vector2d';
 import Line2D from './line2d';
@@ -66,9 +66,6 @@ export default class Box2D {
   /**
    * extend ourselves with any of the property names in props,
    * renaming them to the given target property name
-   * 
-   * 
-   * 
    */
   extend(from, props) {
     for (const key in props) {
@@ -125,82 +122,107 @@ export default class Box2D {
   get left() {
     return this.x;
   }
+
   set left(_x) {
     this.x = _x;
   }
+
   get width() {
     return this.w;
   }
+
   set width(_w) {
     this.w = _w;
   }
+
   get height() {
     return this.h;
   }
+
   set height(_h) {
     this.h = _h;
   }
+
   get top() {
     return this.y;
   }
+
   set top(_y) {
     this.y = _y;
   }
+
   get right() {
     return this.x + this.w;
   }
+
   set right(_r) {
     this.w = _r - this.x;
   }
+
   get bottom() {
     return this.y + this.h;
   }
+
   set bottom(_b) {
     this.h = _b - this.y;
   }
+
   get cx() {
     return this.x + this.w / 2;
   }
+
   set cx(_cx) {
     this.x = _cx - this.w / 2;
   }
+
   get cy() {
     return this.y + this.h / 2;
   }
+
   set cy(_cy) {
     this.y = _cy - this.h / 2;
   }
+
   get center() {
     return new Vector2D(this.cx, this.cy);
   }
+
   set center(vector) {
     this.cx = vector.x;
     this.cy = vector.y;
   }
+
   get topLeft() {
     return new Vector2D(this.x, this.y);
   }
+
   set topLeft(vector) {
     this.x = vector.x;
     this.y = vector.y;
   }
+
   get topRight() {
     return new Vector2D(this.right, this.y);
   }
+
   set topRight(vector) {
     this.right = vector.x;
     this.y = vector.y;
   }
+
   get bottomRight() {
     return new Vector2D(this.right, this.bottom);
   }
+
   set bottomRight(vector) {
     this.right = vector.x;
     this.bottom = vector.y;
   }
+
   get bottomLeft() {
     return new Vector2D(this.x, this.bottom);
   }
+
   set bottomLeft(vector) {
     this.x = vector.x;
     this.bottom = vector.y;
@@ -366,6 +388,7 @@ export default class Box2D {
   proximityX(other) {
     return Math.abs(this.center.x - other.center.x);
   }
+
   proximityY(other) {
     return Math.abs(this.center.y - other.center.y);
   }

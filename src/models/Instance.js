@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { set as pathSet, unset as pathUnset, cloneDeep, merge } from 'lodash';
+import { cloneDeep, merge } from 'lodash';
 import invariant from 'invariant';
 import Immutable from './Immutable';
 import InstanceSchema from '../schemas/Instance';

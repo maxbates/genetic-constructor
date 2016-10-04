@@ -1,4 +1,5 @@
 import { assert, expect } from 'chai';
+import { testUserId } from '../../../constants';
 import request from 'supertest';
 import md5 from 'md5';
 import uuid from 'node-uuid';
@@ -12,7 +13,7 @@ describe('Server', () => {
     describe('REST', () => {
       describe('Sequence', () => {
         let server;
-        const userId = uuid.v4();
+        const userId = testUserId;
         const projectData = new Project();
         const projectId = projectData.id;
 

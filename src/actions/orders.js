@@ -25,11 +25,11 @@ import * as undoActions from '../store/undo/actions';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 import * as blockActions from './blocks';
 import * as blockSelectors from '../selectors/blocks';
-import { cloneDeep, merge, flatten, sampleSize, range, shuffle } from 'lodash';
+import { cloneDeep, merge, flatten, range, shuffle } from 'lodash';
 import * as instanceMap from '../store/instanceMap';
 
-//so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
-const space_filler = 10;
+//hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
+const spaceFiller = 10; //eslint-disable-line no-unused-vars
 
 /**
  * List a user's orders
@@ -147,7 +147,7 @@ export const orderGenerateConstructs = (orderId, allPossibilities = false) => {
   return (dispatch, getState) => {
     const state = getState();
     const order = state.orders[orderId];
-    const { projectId, constructIds, parameters } = order;
+    const { constructIds, parameters } = order;
     invariant(Order.validateParameters(parameters), 'parameters must pass validation');
 
     //for each constructId, get construct combinations as blocks

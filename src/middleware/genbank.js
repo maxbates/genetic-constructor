@@ -13,70 +13,105 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './rejectingFetch';
+import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
-import { headersGet, headersPost, headersPut, headersDelete } from './headers';
-import { extensionApiPath } from './paths';
+import { headersPost } from './utils/headers';
+import { extensionApiPath } from './utils/paths';
+import uploadFiles from './utils/uploadFiles';
 
 const extensionKey = 'genbank';
 
-const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
+function parseResponseIfText(resp) {
+  if (resp.headers.get('content-type') === 'text/plain') {
+    return resp.text();
+  }
+  return resp;
+}
 
 /**
- * import a genbank or CSV file into the given project or into a new project.
+ * import a Genbank file into the given project or into a new project.
  * project ID is returned and should be reloaded if the current project or opened if a new project.
- * Promise resolves with projectId on success and rejects with statusText of xhr
+ * Promise resolves with projectId on success and rejects with fetch response
  * @private
  */
-export const importGenbankOrCSV = (file, projectId) => {
-  invariant(file && file.name, 'expected a file object of the type that can be added to FormData');
+export function importFile(projectId = null, ...files) {
+  const url = extensionApiPath(extensionKey, `import/file${!!projectId ? ('/' + projectId) : ''}`);
 
-  const formData = new FormData();
-  formData.append('data', file, file.name);
-
-  //hack - CSV should have its own middleware but so sparingly used we just put it here
-  const isCSV = file.name.toLowerCase().endsWith('.csv');
-  const extensionName = isCSV ? 'csv' : extensionKey;
-  const uri = extensionApiPath(extensionName, `import${projectId ? ('/' + projectId) : ''}`);
-
-  //define these here so content type not automatically applied so webkit can define its own boundry
-  const headers = {
-    method: 'POST',
-    credentials: 'same-origin',
-    body: formData,
-  };
-
-  return rejectingFetch(uri, headers)
+  return uploadFiles(url, {}, ...files)
     .then(resp => resp.json())
     .then(json => {
-      invariant(json && json.ProjectId, 'expect a project ID');
-      return json.ProjectId;
+      if (projectId === 'convert') {
+        return json;
+      }
+      invariant(json && json.projectId, 'expect a project ID');
+      return json.projectId;
+    });
+}
+
+function importStringBase(payload, projectId) {
+  invariant(typeof payload === 'object', 'payload must be object');
+  invariant(typeof payload.string === 'string', 'must pass string to import');
+
+  const url = extensionApiPath(extensionKey, `import/string${projectId ? ('/' + projectId) : ''}`);
+
+  return rejectingFetch(url, headersPost(JSON.stringify(payload)))
+    .then(resp => resp.json());
+}
+
+/**
+ * import a genbank string (file contents) into the given project or into a new project.
+ * project ID is returned and should be reloaded if the current project or opened if a new project.
+ * Promise resolves with projectId on success and rejects with fetch response
+ * @private
+ */
+export const importString = (genbankString, projectId, options = {}) => {
+  invariant(typeof genbankString === 'string', 'must pass a genbank file as text. to use a file, use importFile.');
+
+  const payload = Object.assign({}, options, { string: genbankString });
+
+  return importStringBase(payload, projectId)
+    .then(json => {
+      invariant(json && json.projectId, 'expect a project ID');
+      return json.projectId;
     });
 };
 
 //convert without creating a project, but will save sequences
-export const convertGenbank = (genbank, constructsOnly = false) => {
-  const url = extensionApiPath('genbank', `import/convert${constructsOnly ? '?constructsOnly=true' : ''}`);
-  return rejectingFetch(url, headersPost(genbank, contentTypeTextHeader))
-    .then(resp => resp.json());
+export const convert = (genbankString, constructsOnly = false) => {
+  invariant(typeof genbankString === 'string', 'must pass a genbank file as text. to use a file, use importGenbankFile.');
+
+  const payload = {
+    constructsOnly,
+    string: genbankString,
+  };
+
+  return importStringBase(payload, 'convert');
 };
 
-export const exportBlock = (projectId, constructId) => {
-  const url = extensionApiPath(extensionKey, `export/${projectId}${constructId ? ('/' + constructId) : ''}`);
-  return rejectingFetch(url, headersGet())
-    .then(resp => resp.text());
+/* export */
+
+//todo - better handling if zip - do we download it for the user? copy code from globalNav to do this.
+//todo - options to specify blocks instead of zip
+
+export const exportConstruct = (projectId, constructId, options = {}) => {
+  invariant(projectId, 'project ID is required');
+  invariant(constructId, 'construct ID is required, otherwise export project');
+  invariant(typeof options === 'object', 'options must be an object');
+
+  const url = extensionApiPath(extensionKey, `export/${projectId}/${constructId}`);
+  const opts = JSON.stringify(options);
+
+  return rejectingFetch(url, headersPost(opts))
+    .then(parseResponseIfText);
 };
 
-export const exportProject = (projectId) => {
+export const exportProject = (projectId, options = {}) => {
+  invariant(projectId, 'project ID is required');
+  invariant(typeof options === 'object', 'options must be an object');
+
   const url = extensionApiPath(extensionKey, `export/${projectId}`);
-  return rejectingFetch(url, headersGet())
-    .then(resp => resp.text());
-};
+  const opts = JSON.stringify(options);
 
-export const importFile = (genbankString, projectId) => {
-  invariant(typeof genbankString === 'string', 'must pass a genbank file as text. to use a file, use importGenbankOrCSV.');
-
-  const url = extensionApiPath(extensionKey, `import${projectId ? ('/' + projectId) : ''}`);
-  return rejectingFetch(url, headersPost(genbankString, contentTypeTextHeader))
-    .then(resp => resp.json());
+  return rejectingFetch(url, headersPost(opts))
+    .then(parseResponseIfText);
 };

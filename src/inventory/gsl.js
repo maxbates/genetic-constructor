@@ -49,7 +49,7 @@ export const operators = [
     type: 'Level 1 Prefix',
     description: `Type the u operator as a prefix to a gene name to specify that gene's upstream part`,
     examples: [
-      'uHO'
+      'uHO',
     ],
     color: colors.blue,
     text: 'u',
@@ -156,7 +156,7 @@ export const operators = [
     type: 'Level 2 Operator',
     description: ``,
     examples: [
-      'uHO ; ### ; dHO'
+      'uHO ; ### ; dHO',
     ],
     color: colors.blue,
     text: '###',
@@ -182,7 +182,7 @@ export const operators = [
     examples: [
       '@R12345',
       '@BBa_J11053',
-      '@myStrongPromoter'
+      '@myStrongPromoter',
     ],
     color: colors.blue,
     text: '@',

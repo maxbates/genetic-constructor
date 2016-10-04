@@ -4,7 +4,7 @@ module.exports = {
   'Test homepage.' : function (browser) {
     size(browser);
     browser
-      .url(browser.launch_url + 'homepage')
+      .url('http://localhost:3001/homepage')
       // wait for homepage to be present before starting
       .waitForElementPresent('.homepage', 5000, 'Expected homepage element to be present')
       .waitForElementPresent('.homepage-title', 5000, 'Expected homepage title element to be present')

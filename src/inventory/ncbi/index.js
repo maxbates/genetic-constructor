@@ -13,11 +13,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from '../../middleware/rejectingFetch';
+import rejectingFetch from '../../middleware/utils/rejectingFetch';
 import queryString from 'query-string';
 import Block from '../../models/Block';
-import { merge, debounce } from 'lodash';
-import { convertGenbank } from '../../middleware/genbank';
+import { merge } from 'lodash';
+import { convert } from '../../middleware/genbank';
+
+const fetchOpts = {
+  mode: 'cors',
+};
 
 // NCBI limits number of requests per user/ IP, so better to initate from the client and I support process on client...
 export const name = 'NCBI';
@@ -30,7 +34,7 @@ const makeFastaUrl = (id) => `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efet
 //assume there is always one root construct
 //returns array in form [construct, ...blocks]
 const genbankToBlock = (gb, onlyConstruct) => {
-  return convertGenbank(gb, onlyConstruct)
+  return convert(gb, onlyConstruct)
     .then(result => {
       const { blocks, roots } = result;
       const blockArray = Object.keys(blocks).map(blockId => blocks[blockId]);
@@ -100,7 +104,7 @@ const getSummary = (...ids) => {
 
   const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=nuccore&id=${idList}&retmode=json`;
 
-  return rejectingFetch(url)
+  return rejectingFetch(url, fetchOpts)
     .then(resp => resp.json())
     .then(json => {
       //returns dictionary of UID -> ncbi entry, with extra key uids
@@ -115,7 +119,7 @@ const getSummary = (...ids) => {
       .filter(summary => summary.sequence.length < 1000000)
     )
     .catch(err => {
-      console.log(err);
+      console.log(err); //eslint-disable-line no-console
       throw err;
     });
 };
@@ -132,8 +136,15 @@ export const get = (accessionVersion, parameters = {}, searchResult) => {
 
   const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${accessionVersion}&rettype=${format}&retmode=text`;
 
-  return rejectingFetch(url)
+  return rejectingFetch(url, fetchOpts)
     .then(resp => resp.text())
+    .then(text => {
+      //make sure we didnt get a 500 error from them
+      if (text.indexOf('<!DOCTYPE') === 0) {
+        return Promise.reject(text);
+      }
+      return text;
+    })
     .then(genbank => genbankToBlock(genbank, parametersMapped.onlyConstruct))
     .then(blocks => blocks.map(block => wrapBlock(block, accessionVersion)))
     .then(blockModels => {
@@ -152,7 +163,7 @@ export const get = (accessionVersion, parameters = {}, searchResult) => {
         [construct, ...rest];
     })
     .catch(err => {
-      console.log(err);
+      console.log(err); //eslint-disable-line no-console
       throw err;
     });
 };
@@ -180,7 +191,7 @@ export const search = (query, options = {}) => {
 
   let count;
 
-  return rejectingFetch(url)
+  return rejectingFetch(url, fetchOpts)
     .then(resp => resp.json())
     .then(json => {
       count = json.esearchresult.count;
@@ -189,7 +200,7 @@ export const search = (query, options = {}) => {
     .then(ids => getSummary(...ids))
     .then(results => Object.assign(results, { count, parameters }))
     .catch(err => {
-      console.log(err);
+      console.log(err); //eslint-disable-line no-console
       throw err;
     });
 };

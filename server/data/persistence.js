@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 /**
  * Interface for checking existence / creating / replacing / merging / deleting instances
  * @module persistence
@@ -20,7 +20,7 @@ limitations under the License.
 import invariant from 'invariant';
 import path from 'path';
 import { merge, values, forEach } from 'lodash';
-import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel, errorVersioningSystem } from '../utils/errors';
+import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../utils/errors';
 import { validateBlock, validateProject, validateOrder } from '../utils/validation';
 import * as filePaths from './../utils/filePaths';
 import * as versioning from './versioning';
@@ -219,16 +219,18 @@ const projectAssertNew = (projectId) => {
     });
 };
 
-const blockAssertNew = (blockId, projectId) => {
-  return blocksExist(projectId, false, blockId)
-    .then(() => Promise.reject(errorAlreadyExists))
-    .catch((err) => {
-      if (err === errorDoesNotExist) {
-        return Promise.resolve(blockId);
-      }
-      return Promise.reject(err);
-    });
-};
+/*
+ const blockAssertNew = (blockId, projectId) => {
+ return blocksExist(projectId, false, blockId)
+ .then(() => Promise.reject(errorAlreadyExists))
+ .catch((err) => {
+ if (err === errorDoesNotExist) {
+ return Promise.resolve(blockId);
+ }
+ return Promise.reject(err);
+ });
+ };
+ */
 
 const orderAssertNew = (orderId, projectId) => {
   return orderExists(orderId, projectId)
@@ -295,6 +297,9 @@ export const orderGet = (orderId, projectId) => {
 export const projectCreate = (projectId, project, userId) => {
   invariant(typeof userId !== 'undefined', 'user id is required');
 
+  //force the user as author of the project
+  merge(project, { metadata: { authors: [userId] } });
+
   return projectAssertNew(projectId)
     .then(() => _projectSetup(projectId, userId))
     .then(() => _projectWrite(projectId, project))
@@ -306,10 +311,21 @@ export const projectCreate = (projectId, project, userId) => {
 
 //SET (WRITE + MERGE)
 
-export const projectWrite = (projectId, project, userId) => {
-  const idedProject = Object.assign({}, project, { id: projectId });
+export const projectWrite = (projectId, project = {}, userId, bypassValidation = false) => {
+  invariant(project, 'project is required');
+  invariant(userId, 'user id is required to write project');
 
-  if (!validateProject(idedProject)) {
+  //todo (future) - merge author IDs, not just assign
+  const authors = [userId];
+
+  const idedProject = merge({}, project, {
+    id: projectId,
+    metadata: {
+      authors,
+    },
+  });
+
+  if (bypassValidation !== true && !validateProject(idedProject)) {
     return Promise.reject(errorInvalidModel);
   }
 
@@ -330,8 +346,8 @@ export const projectMerge = (projectId, project, userId) => {
 };
 
 //overwrite all blocks
-export const blocksWrite = (projectId, blockMap, overwrite = true) => {
-  if (!values(blockMap).every(block => validateBlock(block))) {
+export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
+  if (bypassValidation !== true && !values(blockMap).every(block => validateBlock(block))) {
     return Promise.reject(errorInvalidModel);
   }
 
@@ -501,10 +517,12 @@ export const sequenceGet = (md5) => {
     .then(path => fileRead(path, false));
 };
 
-//blockId and projectId optional, will create commit if provided
 export const sequenceWrite = (md5, sequence, blockId, projectId) => {
   const sequencePath = filePaths.createSequencePath(md5);
-  return fileWrite(sequencePath, sequence, false)
+
+  //only write if it doesnt exist
+  return fileExists(sequencePath)
+    .catch(() => fileWrite(sequencePath, sequence, false))
     .then(() => sequence);
 };
 

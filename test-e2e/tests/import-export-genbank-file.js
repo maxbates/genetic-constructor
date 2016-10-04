@@ -12,7 +12,7 @@ module.exports = {
   'Import a genbank file as a project then export project as a genbank file' : function (browser) {
 
     size(browser);
-    
+
     // register via fixture
     var credentials = homepageRegister(browser);
 
@@ -27,7 +27,7 @@ module.exports = {
     browser.pause(3000);
 
     // import from menu
-    clickMainMenu(browser, 1, 7);
+    clickMainMenu(browser, 1, 8);
 
     browser
       .waitForElementPresent('.genbank-import-form', 5000, 'Expect the import dialog to appear')

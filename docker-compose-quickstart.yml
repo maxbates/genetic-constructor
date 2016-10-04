@@ -10,7 +10,6 @@ webapp:
     API_END_POINT: http://auth${BNR_ENV_URL_SUFFIX}.bionano.bio:8080/api
     HOST_URL: https://geneticconstructor${BNR_ENV_URL_SUFFIX}.bionano.autodesk.com
     NODE_ENV: ${NODE_ENV}
-    BUILD_ENV: ${BNR_ENV_TAG}
     GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
   command:
     npm run server-auth

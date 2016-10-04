@@ -15,12 +15,9 @@ limitations under the License.
 */
 import express from 'express';
 import {
-  errorNoIdProvided,
   errorInvalidModel,
-  errorDoesNotExist,
-  errorVersioningSystem,
 } from './../utils/errors';
-import { merge, flatten } from 'lodash';
+import { merge } from 'lodash';
 import * as querying from './../data/querying';
 import * as persistence from './../data/persistence';
 import * as rollup from './../data/rollup';
@@ -41,7 +38,7 @@ router.param('projectId', (req, res, next, id) => {
 router.route('/:projectId/:orderId?')
   .all(permissionsMiddleware)
   .get((req, res, next) => {
-    const { user, projectId } = req;
+    const { user, projectId } = req; //eslint-disable-line no-unused-vars
     const { orderId } = req.params;
 
     if (!!orderId) {

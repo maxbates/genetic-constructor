@@ -34,14 +34,14 @@ export default class Menu extends Component {
     this.timeout = null;
   }
 
-  componentWillUnmount() {
-    this.killTimeout();
-  }
-
   componentDidUpdate(prevProps) {
     if (prevProps.isOpen && !this.props.isOpen) {
       this.killTimeout();
     }
+  }
+
+  componentWillUnmount() {
+    this.killTimeout();
   }
 
   toggle = (forceVal) => {

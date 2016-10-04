@@ -18,7 +18,7 @@ import { argConfig } from './config';
 const repoName = 'GSL';
 const gslDir = path.resolve(__dirname, process.env.EXTENSION_DEPLOY_DIR ? process.env.EXTENSION_DEPLOY_DIR : '', repoName);
 const gslBinary = path.resolve(gslDir, 'bin/gslc/gslc.exe');
-const envVariables = `GSL_LIB=${gslDir}/data/lib`;
+const libArg = `--lib ${gslDir}/data/lib`;
 
 const router = express.Router();
 const jsonParser = bodyParser.json({
@@ -45,21 +45,27 @@ router.post('/gslc', jsonParser, (req, res, next) => {
   // make sure that mono is installed on the server.
   commandExists('mono', (err, commandExists) => {
     if (err || !commandExists) {
-      console.log('ERROR: Could not find mono/fsharp installation on the server to run GSL.');
+      const monoErrorMessage = 'ERROR: Could not find a valid mono installation on the server to run GSL. \n' +
+      'Please refer to https://github.com/autodesk-bionano/genome-designer/blob/master/extensions/gslEditor/README.md for server installation instructions. \n' +
+      'Alternatively, you could run `npm run install-fsharp` from extensions/gslEditor';
       const result = {
-        'result': 'ERROR: Could not find a valid mono installation on the server to run GSL.',
+        'result': monoErrorMessage,
         'contents': [],
         'status': -1,
       };
+      console.log(monoErrorMessage);
       res.status(501).json(result); // Service not implemented
-    }
-    // make sure that the server is configured with GSL before sending out
-    if (!gslDir || !gslBinary || !fs.existsSync(gslDir) || !fs.existsSync(gslBinary)) {
-      console.log('ERROR: Someone requested to run GSL code, but this has not been configured.');
+    } else if (!gslDir || !gslBinary || !fs.existsSync(gslDir) || !fs.existsSync(gslBinary)) {
+      const errorMessage = 'ERROR: Failed to execute GSL code. \nThe server ' +
+      'has not been configured for GSL. \n Please refer to https://github.com/autodesk-bionano/genome-designer/blob/master/extensions/gslEditor/README.md for ' +
+      'server installation instructions.';
+
+      console.log(errorMessage);
       console.log(`gslDir: ${gslDir} and gslBinary: ${gslBinary}`);
       console.log(gslDir, gslBinary, fs.existsSync(gslDir), fs.existsSync(gslBinary));
+
       const result = {
-        'result': 'ERROR: Failed to execute GSL code. The server has not been configured for GSL.',
+        'result': errorMessage,
         'contents': [],
         'status': -1,
       };
@@ -83,7 +89,7 @@ router.post('/gslc', jsonParser, (req, res, next) => {
           console.log(err);
         }
         // execute the code
-        const command = `${envVariables} mono ${gslBinary} ${argumentString} ${filePath}`;
+        const command = `mono ${gslBinary} ${libArg} ${argumentString} ${filePath}`;
         console.log('Running: ', command);
 
         let process;

@@ -16,9 +16,9 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 
 export default class Input extends Component {
-
   static propTypes = {
     value: PropTypes.string.isRequired,
+    placeholder: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
   };
 
@@ -31,6 +31,6 @@ export default class Input extends Component {
         defaultValue={this.props.value}
         placeholder={this.props.placeholder}
       />
-    )
+    );
   }
 }

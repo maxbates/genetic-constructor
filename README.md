@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/autodesk-bionano/genome-designer.svg?branch=master)](https://travis-ci.org/autodesk-bionano/genome-designer)
 [![Docker Repository on Quay](https://quay.io/repository/autodesk_bionano/gctor_webapp/status "Docker Repository on Quay")](https://quay.io/repository/autodesk_bionano/genomedesigner_genome-designer)
 
 # Genetic Constructor

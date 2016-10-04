@@ -1,5 +1,6 @@
 import { assert, expect } from 'chai';
 import request from 'supertest';
+import { testUserId } from '../../../constants';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import * as persistence from '../../../../server/data/persistence';
@@ -11,7 +12,7 @@ describe('Server', () => {
     describe('REST', () => {
       describe('Blocks', () => {
         let server;
-        const userId = '0'; //for test environment
+        const userId = testUserId; //for test environment
         const projectData = new Project();
         const projectId = projectData.id;
 

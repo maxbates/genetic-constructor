@@ -64,5 +64,6 @@ Object.assign(exposed, {
       });
     },
     replaceReducer: () => {}, //hide from 3rd party
-  }, DnD,
+  },
+  DnD,
 });

@@ -113,14 +113,74 @@ export default class CodeEditorLayout extends Component {
     if (gslState.hasOwnProperty('isConsoleOpen')) {
       this.props.onToggleConsoleVisibility(gslState.isConsoleOpen);
     }
-    if (gslState.hasOwnProperty('editorContent') && this.state.editorContent !== gslState.editorContent) {
-      this.onEditorContentChange(gslState.editorContent);
-      this.onResultContentChange(gslState.resultContent);
-      this.onStatusMessageChange(gslState.statusContent);
-    }
     registerKeysRunCode(this.codeEditor.ace, this.runCode);
-  }
 
+    // Load code from the server if the code from the previous project isn't already in the state.
+    if (!gslState.hasOwnProperty('prevProject') || gslState.prevProject !== window.constructor.api.projects.projectGetCurrentId()) {
+      this.codeEditor.ace.editor.env.editor.setReadOnly(true);
+      this.onStatusMessageChange('Loading...');
+      let fileList = [];
+      window.constructor.extensions.files.list(
+      window.constructor.api.projects.projectGetCurrentId(),
+      extensionConfig.name)
+      .then((response) => {
+        fileList = response;
+        if (fileList.indexOf('project.gsl') >= 0) {
+          // read code from the server.
+          window.constructor.extensions.files.read(
+            window.constructor.api.projects.projectGetCurrentId(),
+            extensionConfig.name,
+            'project.gsl')
+          .then((response) => {
+            if (response.status === 200) {
+              compiler.loadProjectCode(response.url)
+              .then(()=> {
+                this.onStatusMessageChange('');
+                this.refreshEditorFromState();
+              });
+              if (fileList.indexOf('settings.json') >= 0) {
+                window.constructor.extensions.files.read(
+                  window.constructor.api.projects.projectGetCurrentId(),
+                  extensionConfig.name,
+                  'settings.json')
+                .then((response) => {
+                  if (response.status === 200) {
+                    compiler.loadSettings(response.url);
+                  } else {
+                    gslState.gslConstructs = [];
+                  }
+                })
+                .catch((err) => {
+                });
+              }
+            }
+          })
+          .catch((err) => {
+            compiler.loadDefaults()
+            .then(() => {
+              this.refreshEditorFromState();
+            });
+          });
+        } else {
+          compiler.loadDefaults()
+          .then(() => {
+            this.refreshEditorFromState();
+          });
+        }
+      })
+      .catch((err) => {
+        compiler.loadDefaults()
+        .then(() => {
+          this.refreshEditorFromState();
+        });
+      });
+      gslState.prevProject = window.constructor.api.projects.projectGetCurrentId();
+    } else {
+      if (gslState.hasOwnProperty('editorContent') && this.state.editorContent !== gslState.editorContent) {
+        this.refreshEditorFromState();
+      }
+    }
+  }
   /**
    * Actions to be performed when the editor content changes
    * @param {string} content
@@ -200,14 +260,13 @@ export default class CodeEditorLayout extends Component {
     let index = 0;
     for (const item of this.state.downloadItems) {
       // special case gsl
-      if (items.type === 'gsl' && this.state.editorContent !== '') {
+      if (item.type === 'gsl' && this.state.editorContent !== '') {
         items[index].disabled = false;
       } else {
         items[index].disabled = !settings[item.type];
       }
       index++;
     }
-
     this.setState( {
       downloadItems: items,
     });
@@ -222,6 +281,17 @@ export default class CodeEditorLayout extends Component {
     .then((data) => {
       this.onDownloadMenuSettingsChange(data);
     });
+  }
+
+  /**
+   * reload editor content from saved global state (cache)
+   * @param {string} content
+   */
+  refreshEditorFromState = () => {
+    this.onEditorContentChange(gslState.editorContent);
+    this.onResultContentChange(gslState.resultContent);
+    this.onStatusMessageChange(gslState.statusContent);
+    this.codeEditor.ace.editor.env.editor.setReadOnly(false);
   }
 
   /**
@@ -309,8 +379,15 @@ export default class CodeEditorLayout extends Component {
       offsetLeft = 10;
       offsetBottom = 8;
     }
+    // TODO: Figure this out from the DOM node after it has been mounted.
+    const menuWidth = 230;
+    let fitInPageOffset = 0;
+    const xMax = evt.target.getBoundingClientRect().left - offsetLeft + menuWidth;
+    if (xMax > document.body.getBoundingClientRect().right) {
+      fitInPageOffset = xMax - document.body.getBoundingClientRect().right;
+    }
     this.onDownloadMenuPositionSet({
-      'x': evt.target.getBoundingClientRect().left - offsetLeft,
+      'x': evt.target.getBoundingClientRect().left - offsetLeft - fitInPageOffset,
       'y': evt.target.getBoundingClientRect().bottom + offsetBottom,
     });
   }
@@ -410,6 +487,7 @@ export default class CodeEditorLayout extends Component {
       this.refreshDownloadMenu();
       gslState.refreshDownloadList = false;
     }
+
     return (
       <div className="CodeEditorLayout">
         <Toolbar toolbarItems={this.state.toolbarItems} />

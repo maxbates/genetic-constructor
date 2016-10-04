@@ -18,7 +18,6 @@ import React, { PropTypes } from 'react';
 import '../../styles/OrderList.css';
 
 export default function OrderList({ orders, onClick, ...rest }) {
-
   if (!orders.length) {
     return null;
   }

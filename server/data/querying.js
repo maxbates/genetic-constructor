@@ -22,9 +22,9 @@ import * as filePaths from '../utils/filePaths';
 import * as persistence from './persistence';
 import * as versioning from './versioning';
 import invariant from 'invariant';
-import { spawn, exec } from 'child_process';
-import { merge, flatten, filter, values } from 'lodash';
-import { errorDoesNotExist, errorCouldntFindProjectId } from '../utils/errors';
+import { spawn } from 'child_process';
+import { merge, filter, values } from 'lodash';
+import { errorDoesNotExist } from '../utils/errors';
 
 // key for no role rule
 const untypedKey = 'none';

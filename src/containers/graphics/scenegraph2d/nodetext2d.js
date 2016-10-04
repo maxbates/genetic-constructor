@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 export default class Node2DText {
-
   // construct our element and append to parents element
   constructor(node) {
     this.node = node;
@@ -28,7 +27,6 @@ export default class Node2DText {
    * update to our current dimensions styles and innerHTML (text)
    */
   update() {
-
     const cacheString = this.node.width +
     this.node.height +
     this.node.fontWeight +

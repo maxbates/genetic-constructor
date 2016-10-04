@@ -10,7 +10,6 @@
   opacity: 0.5;
 }
 
-
 /* base node type in scene graph*/
 .node {
   position: absolute;
@@ -43,6 +42,7 @@
   display: inline-block;
   box-sizing: border-box;
 }
+
 
 /* overlaid panel for handling mouse inputs and displaying overlaid UI affordances/glyphs */
 .scenegraph-userinterface {
@@ -95,7 +95,6 @@
   .sceneGraphContainer {
     overflow: hidden;
     position: relative;
-    min-height: 10rem;
   }
 
   .construct-viewer-menu {

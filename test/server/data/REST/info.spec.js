@@ -1,8 +1,7 @@
 import { assert, expect } from 'chai';
-import uuid from 'node-uuid';
 import request from 'supertest';
+import { testUserId } from '../../../constants';
 import Block from '../../../../src/models/Block';
-import * as persistence from '../../../../server/data/persistence';
 import * as rollup from '../../../../server/data/rollup';
 import devServer from '../../../../server/server';
 import { numberBlocksInRollup, createExampleRollup } from '../../../utils/rollup';
@@ -13,7 +12,7 @@ describe('Server', () => {
     describe('REST', () => {
       describe('Info', () => {
         let server;
-        const userId = '0'; //testing
+        const userId = testUserId;
 
         const roll = createExampleRollup();
 

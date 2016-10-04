@@ -18,7 +18,7 @@ limitations under the License.
  This is (not yet) a search mechanism - NCBI is probably what youre looking for to search for genbank files
  */
 
-import { extensionApiPath } from '../../middleware/paths';
+import { extensionApiPath } from '../../middleware/utils/paths';
 
 export const name = 'Genbank';
 
@@ -26,5 +26,5 @@ export const sourceUrl = ({ url, id }) => {
   if (!id && !url) {
     return null;
   }
-  return url || extensionApiPath('genbank', `/file/${id}`);
+  return url || extensionApiPath('genbank', `file/${id}`);
 };

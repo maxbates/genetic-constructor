@@ -66,11 +66,11 @@ export const number = ({ reals, min, max } = {}) => input => {
   }
 
   if (isNumber(min) && input < min) {
-    return new Error(`input ${input} is less than minimum ${params.min}`);
+    return new Error(`input ${input} is less than minimum ${min}`);
   }
 
   if (isNumber(max) && input > max) {
-    return new Error(`input ${input} is greater than maximum ${params.max}`);
+    return new Error(`input ${input} is greater than maximum ${max}`);
   }
 };
 
@@ -116,7 +116,7 @@ export const sequence = (params = {}) => input => {
   const sequenceRegex = params.loose === true ? dnaLooseRegexp() : dnaStrictRegexp();
 
   if (sequenceRegex.test(input) !== true) {
-    console.log('got error');
+    console.log('got error validating sequence', input); //eslint-disable-line no-console
     return new Error(`${input} is not a valid sequence`);
   }
 };

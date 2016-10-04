@@ -19,6 +19,8 @@ import ModalWindow from './modalwindow';
 import { uiReportError } from '../../actions/ui';
 import { reportError } from '../../middleware/reporting';
 
+import '../../../src/styles/ReportErrorModal.css';
+
 const initialState = {
   title: '',
   description: '',
@@ -37,7 +39,7 @@ class SaveErrorModal extends Component {
 
   formValid = () => {
     const { title, description } = this.state;
-    return !!title && title.length > 8 && !!description && description.length > 5;
+    return !!title && title.length > 8 && !!description && description.length > 8;
   };
 
   submitForm = () => {
@@ -57,7 +59,7 @@ class SaveErrorModal extends Component {
         });
       })
       .catch(resp => {
-        resp.json().then(json => console.log(json));
+        resp.json().then(json => console.log(json)); //eslint-disable-line no-console
         this.setState({
           submitted: false,
           hasError: true,
@@ -85,19 +87,19 @@ class SaveErrorModal extends Component {
         title="Report an Issue"
         closeModal={this.closeModal}
         payload={(
-          <div className="gd-form"
-                style={{ padding: '1rem 2em 3rem', width: '50vw', minWidth: '300px' }}>
+          <div className="gd-form report-error-form"
+                style={{ padding: '1rem 2em 3rem' }}>
             <div className="title">Report an Issue</div>
 
             <input ref="title"
                    type="text"
-                   placeholder="Title"
+                   placeholder="Title, at least 8 characters."
                    value={this.state.title}
                    onChange={evt => this.setState({title: evt.target.value}) }/>
 
             <textarea ref="description"
                       rows="5"
-                      placeholder="Please describe what led to the issue"
+                      placeholder="Please describe what led to the issue; at least 8 characters."
                       value={this.state.description}
                       onChange={evt => this.setState({description: evt.target.value})} />
 

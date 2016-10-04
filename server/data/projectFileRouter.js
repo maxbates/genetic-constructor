@@ -14,14 +14,9 @@
  limitations under the License.
  */
 import express from 'express';
-import textParser from 'body-parser';
 import {
-  errorNoIdProvided,
-  errorInvalidModel,
   errorInvalidRoute,
   errorDoesNotExist,
-  errorCouldntFindProjectId,
-  errorVersioningSystem,
   errorFileNotFound,
 } from './../utils/errors';
 import * as filePaths from '../utils/filePaths';
@@ -58,7 +53,7 @@ router.route('/:extension/:file')
       });
   })
   .post((req, res, next) => {
-    const { projectId, user, extension, folderPath, filePath } = req;
+    const { folderPath, filePath } = req;
 
     //assuming contents to be string
     let buffer = '';
@@ -96,7 +91,7 @@ router.route('/:extension')
     next();
   })
   .get((req, res, next) => {
-    const { projectId, extension, folderPath } = req;
+    const { folderPath } = req;
 
     fileSystem.directoryContents(folderPath)
       .then(contents => res.json(contents))

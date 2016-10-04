@@ -49,6 +49,10 @@ const roleIcon = 27;
 // min size of layout
 const minWidth = blockH * 4;
 const minHeight = blockH + rowBarH + titleH;
+// height when collapsed
+const collapsedHeight = blockH + titleH + bannerHeight + rowBarH;
+// width of message for collapsed constructs e.g. 'and 123 more...'
+const collapsedMessageWidth = 100;
 // padding at right / bottom of scenegraph to make selection easier
 const bottomPad = 50;
 const rightPad = 30;
@@ -67,30 +71,32 @@ export default {
   layoutFull: 'full',
 
   // layout metrics
-  blockH: blockH,
-  optionH: optionH,
-  optionDotW: optionDotW,
-  optionDotS: optionDotS,
-  optionDotL: optionDotL,
-  contextDotsW: contextDotsW,
-  contextDotsH: contextDotsH,
-  titleW: titleW,
-  titleH: titleH,
-  rowH: rowH,
-  rowBarH: rowBarH,
-  rowBarW: rowBarW,
-  textPad: textPad,
-  condensedText: condensedText,
-  insetX: insetX,
-  insetY: insetY,
-  nestedInsetX: nestedInsetX,
-  nestedInsetY: nestedInsetY,
-  bannerHeight: bannerHeight,
-  roleIcon: roleIcon,
-  minWidth: minWidth,
-  minHeight: minHeight,
-  bottomPad: bottomPad,
-  rightPad: rightPad,
+  blockH,
+  optionH,
+  optionDotW,
+  optionDotS,
+  optionDotL,
+  contextDotsW,
+  contextDotsH,
+  titleW,
+  titleH,
+  rowH,
+  rowBarH,
+  rowBarW,
+  textPad,
+  condensedText,
+  insetX,
+  insetY,
+  nestedInsetX,
+  nestedInsetY,
+  bannerHeight,
+  roleIcon,
+  minWidth,
+  minHeight,
+  collapsedHeight,
+  collapsedMessageWidth,
+  bottomPad,
+  rightPad,
 
   // display properties for various elements
   titleAppearance: {
@@ -117,6 +123,14 @@ export default {
     glyph: 'rectangle',
     strokeWidth: 1,
     stroke: background,
+    fontSize: blockFontSize,
+  },
+  labelAppearance: {
+    color: 'white',
+    fill: 'transparent',
+    glyph: 'rectangle',
+    strokeWidth: 0,
+    stroke: 'transparent',
     fontSize: blockFontSize,
   },
   connectorAppearance: {

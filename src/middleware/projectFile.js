@@ -13,10 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './rejectingFetch';
+import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
-import { headersGet, headersPost, headersDelete } from './headers';
-import { projectFilePath } from './paths';
+import { headersGet, headersPost, headersDelete } from './utils/headers';
+import { projectFilePath } from './utils/paths';
 
 const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
 
@@ -89,7 +89,7 @@ export const writeProjectFile = (projectId, extension, fileName, contents) => {
 export const listProjectFiles = (projectId, extension) => {
   invariant(projectId, 'projectId is required');
   invariant(extension, 'must pass an extension');
-  
+
   return rejectingFetch(projectFilePath(projectId, extension, ''), headersGet())
     .then(resp => resp.text());
 };

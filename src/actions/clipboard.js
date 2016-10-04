@@ -20,8 +20,8 @@ limitations under the License.
 import * as ActionTypes from '../constants/ActionTypes';
 import invariant from 'invariant';
 
-//so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
-const space_filler = 10;
+//hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
+const spaceFiller = 10; //eslint-disable-line no-unused-vars
 
 /**
  * Set the data on the clipboard

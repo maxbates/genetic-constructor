@@ -76,7 +76,8 @@ export function sortBlocksByIndexAndDepth(blockIds) {
    */
   const compareBlockPaths = (infoA, infoB) => {
     let i = 0;
-    while (true) {
+    //todo - refactor to non-constant condition
+    while (true) { //eslint-disable-line no-constant-condition
       if (i < infoA.length && i < infoB.length && infoA[i].index === infoB[i].index) {
         i++;
       } else {
@@ -93,7 +94,7 @@ export function sortBlocksByIndexAndDepth(blockIds) {
   // ( trueIndices is an array of arrays, where the last block is the actual block
   //   and the preceeding blocks are its parents )
   return trueIndices.map(ary => ary.pop());
-};
+}
 
 /**
  * similar to sortBlocksByIndexAndDepth except that if any of a blocks
@@ -112,13 +113,12 @@ export function sortBlocksByIndexAndDepthExclude(blockIds) {
     });
     return !found;
   });
-};
+}
 
 /**
  * clear any selected text in the entire document
  */
 export function clearSelection() {
-
   let selection = null;
   if (window.getSelection) {
     selection = window.getSelection();

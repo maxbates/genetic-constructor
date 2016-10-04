@@ -18,7 +18,6 @@ import { connect } from 'react-redux';
 import InputSimple from './../InputSimple';
 import { operators } from '../../inventory/gsl';
 import InspectorRow from './InspectorRow';
-import PickerItem from '../ui/PickerItem';
 
 export class InspectorGsl extends Component {
   static propTypes = {

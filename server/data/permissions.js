@@ -20,7 +20,6 @@
  *
  * @module permissions
  */
-import { exec } from 'child_process';
 import * as filePaths from '../utils/filePaths';
 import * as fileSystem from '../utils/fileSystem';
 import { errorInvalidId, errorNoIdProvided, errorNoPermission, errorDoesNotExist } from '../utils/errors';
@@ -54,7 +53,7 @@ export const permissionsMiddleware = (req, res, next) => {
   const { projectId, user } = req;
 
   if (!user) {
-    console.error('no user attached by auth middleware!', req.url);
+    console.error('no user attached by auth middleware @', req.url);
     next('[permissionsMiddleware] user not attached to request by middleware');
     return;
   }

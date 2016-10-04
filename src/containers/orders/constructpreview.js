@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
@@ -27,6 +27,7 @@ import '../../../src/styles/SceneGraphPage.css';
 
 class ConstructPreview extends Component {
   static propTypes = {
+    blocks: PropTypes.object.isRequired,
     order: PropTypes.object.isRequired,
     orderGenerateConstructs: PropTypes.func.isRequired,
   };
@@ -39,18 +40,6 @@ class ConstructPreview extends Component {
   state = {
     index: 1,
   };
-
-  get dom() {
-    return ReactDOM.findDOMNode(this);
-  }
-
-  get sceneGraphEl() {
-    return this.dom.querySelector('.scenegraph');
-  }
-
-  get containerEl() {
-    return this.dom.querySelector('.container');
-  }
 
   /**
    * construct scene graph and layout once mounted
@@ -113,6 +102,25 @@ class ConstructPreview extends Component {
   }
 
   /**
+   * when the value is changed in the up down
+   */
+  onChangeConstruct = (index) => {
+    this.setState({ index });
+  };
+
+  get dom() {
+    return ReactDOM.findDOMNode(this);
+  }
+
+  get sceneGraphEl() {
+    return this.dom.querySelector('.scenegraph');
+  }
+
+  get containerEl() {
+    return this.dom.querySelector('.container');
+  }
+
+  /**
    * gets called with the id of an option. Return the color for the owning block
    */
   blockColor(optionId) {
@@ -129,7 +137,8 @@ class ConstructPreview extends Component {
     });
     if (blockIndex >= 0) {
       // we have the index of the parent block
-      return this.optionColorHash[optionId] = this.props.blocks[parentConstruct.components[blockIndex]].metadata.color;
+      this.optionColorHash[optionId] = this.props.blocks[parentConstruct.components[blockIndex]].metadata.color;
+      return this.optionColorHash[optionId];
     }
     return 'lightgray';
   }
@@ -137,13 +146,6 @@ class ConstructPreview extends Component {
   generateConstructs(props = this.props) {
     this.constructs = props.orderGenerateConstructs(props.order.id);
   }
-
-  /**
-   * when the value is changed in the up down
-   */
-  onChangeConstruct = (index) => {
-    this.setState({index});
-  };
 
   render() {
     const label = `of ${this.constructs ? this.constructs.length : 1} combinations`;

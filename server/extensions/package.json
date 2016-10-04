@@ -4,9 +4,10 @@
   "description": "list of the default extensions for genome designer",
   "dependencies": {
     "testClient" : "../../extensions/testClient",
+    "testPrivate" : "../../extensions/testPrivate",
     "testErrorServer" : "../../extensions/testErrorServer",
+    "SequenceDetail" : "IsaacLuo/onion2#8f03cd9d4820b9e98965dc945539afed9b9205cb",
     "gslEditor" : "../../extensions/gslEditor",
-    "SequenceDetail" : "IsaacLuo/onion2#extensions-refactor",
-    "seq-viewer": "git+http://github.com/duncanmeech/sequence-viewer.git#0fdc090f4e902ffdaa0d7b30ee21a08547cc5450"
+    "GC-Sequence-Viewer": "duncanmeech/sequence-viewer"
   }
 }

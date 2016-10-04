@@ -13,22 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import rejectingFetch from './rejectingFetch';
-import { getItem, setItem } from './localStorageCache';
-import { headersGet, headersPost } from './headers';
-import { dataApiPath } from './paths';
+import rejectingFetch from './utils/rejectingFetch';
+import { getLocal } from '../utils/ui/localstorage.js';
+import { headersGet, headersPost } from './utils/headers';
+import { dataApiPath } from './utils/paths';
 
 const getSequenceUrl = (md5, format = null, blockId = null, projectId) => dataApiPath(`sequence/${md5}` + (!!blockId ? `/${blockId}` : ''));
 
 const cacheSequence = (md5, sequence) => {
   //do nothing for now...
-  //setItem(md5, sequence);
+  //setLocal(md5, sequence);
 };
 
 export const getSequence = (md5, format) => {
   const url = getSequenceUrl(md5, format);
 
-  const cached = getItem(md5);
+  const cached = getLocal(md5);
   if (cached) {
     return Promise.resolve(cached);
   }

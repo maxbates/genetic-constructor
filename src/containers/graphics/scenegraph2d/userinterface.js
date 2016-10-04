@@ -122,7 +122,7 @@ export default class UserInterface {
       const bounds = node.getAABBWithChildren();
       sel.style.left = bounds.x + 'px';
       sel.style.top = bounds.y + 'px';
-      sel.style.width = bounds.width + 1 +'px';
+      sel.style.width = bounds.width + 1 + 'px';
       sel.style.height = bounds.height + 1 + 'px';
     });
 

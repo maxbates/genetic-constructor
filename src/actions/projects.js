@@ -23,14 +23,14 @@ import { saveProject, loadProject, snapshot, listProjects, deleteProject } from 
 import * as projectSelectors from '../selectors/projects';
 import * as undoActions from '../store/undo/actions';
 import { push } from 'react-router-redux';
+import { merge } from 'lodash';
 
 import * as instanceMap from '../store/instanceMap';
 import Block from '../models/Block';
 import Project from '../models/Project';
-import rollupWithConstruct from '../utils/rollup/rollupWithConstruct';
+import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
-
-import { getItem, setItem } from '../middleware/localStorageCache';
+import { getLocal, setLocal } from '../utils/ui/localstorage';
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
 
@@ -131,15 +131,15 @@ export const projectSave = (inputProjectId, forceSave = false) => {
 
     return saveProject(projectId, roll)
       .then(commitInfo => {
-        setItem(recentProjectKey, projectId);
+        setLocal(recentProjectKey, projectId);
 
         //if no version => first time saving, show a grunt
-        if (!getItem(saveMessageKey)) {
+        if (!getLocal(saveMessageKey)) {
           dispatch({
             type: ActionTypes.UI_SET_GRUNT,
             gruntMessage: 'Project Saved. Changes will continue to be saved automatically as you work.',
           });
-          setItem(saveMessageKey, 'true');
+          setLocal(saveMessageKey, true);
         }
 
         const { sha, time } = commitInfo;
@@ -203,7 +203,14 @@ export const projectSnapshot = (projectId, message, withRollup = true) => {
  */
 export const projectCreate = (initialModel) => {
   return (dispatch, getState) => {
-    const project = new Project(initialModel);
+    const userId = getState().user.userid;
+    const defaultModel = {
+      metadata: {
+        authors: [ userId ],
+      },
+    };
+
+    const project = new Project(merge(defaultModel, initialModel));
     dispatch({
       type: ActionTypes.PROJECT_CREATE,
       project,
@@ -252,6 +259,8 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
       return dispatch(projectList())
         .then(manifests => manifests
           .filter(manifest => !(ignores.indexOf(manifest.id) >= 0))
+          //first sort descending by created date (i.e. if never saved) then descending by saved date (so it takes precedence)
+          .sort((one, two) => two.metadata.created - one.metadata.created)
           .sort((one, two) => two.lastSaved - one.lastSaved)
         )
         .then(manifests => {
@@ -260,8 +269,10 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
             //recurse, ignoring this projectId
             return _projectLoad(nextId, ignores, dispatch);
           }
-          //if no manifests, create a new rollup - shouldnt happen while users have sample projects
-          return rollupWithConstruct();
+          //if no manifests, create a new rollup
+          //note - this shouldnt happen while users have sample projects
+          //todo - may want to hit the server to re-setup the user's account
+          return emptyProjectWithConstruct();
         });
     });
 };
@@ -320,8 +331,9 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
 export const projectOpen = (inputProjectId, skipSave = false) => {
   return (dispatch, getState) => {
     const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
-    const projectId = inputProjectId || getItem(recentProjectKey);
+    const projectId = inputProjectId || getLocal(recentProjectKey);
 
+    //ignore if on a project, and passed the same one
     if (!!currentProjectId && currentProjectId === projectId) {
       return Promise.resolve();
     }
@@ -332,7 +344,7 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
       :
       dispatch(projectSave(currentProjectId))
         .catch(err => {
-          if (!!currentProjectId && currentProjectId !== 'null') {
+          if (!!currentProjectId && currentProjectId !== null && currentProjectId !== 'null') {
             dispatch({
               type: ActionTypes.UI_SET_GRUNT,
               gruntMessage: `Project ${currentProjectId} couldn't be saved, but navigating anyway...`,
@@ -370,6 +382,7 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
         type: ActionTypes.PROJECT_OPEN,
         projectId,
       });
+      return projectId;
     });
   };
 };

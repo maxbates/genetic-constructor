@@ -3,9 +3,9 @@ import fs from 'fs';
 import { expect } from 'chai';
 import request from 'supertest';
 import { convertCsv } from '../../server/extensions/native/csv/convert';
-import { extensionApiPath } from '../../src/middleware/paths';
+import { extensionApiPath } from '../../src/middleware/utils/paths';
 import { callExtensionApi } from '../../src/middleware/extensions'
-import rejectingFetch from '../../src/middleware/rejectingFetch';
+import rejectingFetch from '../../src/middleware/utils/rejectingFetch';
 
 describe('Extensions', () => {
   describe('CSV', () => {
@@ -23,9 +23,6 @@ describe('Extensions', () => {
     it('should convert a simple file', () => {
       return convertCsv(fileContents)
         .then(({ blocks, sequences }) => {
-          console.log(blocks);
-          console.log(sequences);
-
           expect(Object.keys(blocks).length === 1);
           expect(Object.keys(sequences).length === 1);
 

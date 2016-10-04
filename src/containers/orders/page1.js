@@ -1,25 +1,24 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Row from './row';
 import Selector from './selector';
 import Input from './input';
 import Checkbox from './checkbox';
-import Link from './link';
 import Permutations from './permutations';
 import debounce from 'lodash.debounce';
 import {
@@ -27,7 +26,6 @@ import {
   orderSetParameters,
   orderList,
 } from '../../actions/orders';
-import OrderParameters from '../../schemas/OrderParameters';
 
 import '../../../src/styles/form.css';
 import '../../../src/styles/ordermodal.css';
@@ -41,7 +39,6 @@ const methodOptions = [
   'Random Subset',
   'Maximum Unique Set',
 ];
-
 
 export class Page1 extends Component {
   static propTypes = {
@@ -57,7 +54,7 @@ export class Page1 extends Component {
   constructor() {
     super();
     //todo - this should use a transaction + commit, not deboucne like this. See InputSimple
-    this.labelChanged = debounce(value => this._labelChanged(value), 500, {leading: false, trailing: true});
+    this.labelChanged = debounce(value => this._labelChanged(value), 500, { leading: false, trailing: true });
   }
 
   assemblyContainerChanged = (newValue) => {
@@ -105,49 +102,45 @@ export class Page1 extends Component {
     let method = <label>All Combinations</label>;
     if (!order.parameters.onePot) {
       method = (<Selector
-                  disabled={order.isSubmitted()}
-                  value={order.parameters.combinatorialMethod}
-                  options={methodOptions}
-                  onChange={this.methodChanged}
-                />)
+        disabled={order.isSubmitted()}
+        value={order.parameters.combinatorialMethod}
+        options={methodOptions}
+        onChange={this.methodChanged}
+      />);
     }
     return (
       <div className="order-page page1">
         <fieldset disabled={order.isSubmitted()}>
           <Row text="Label:">
-            <Input
-              onChange={this.labelChanged}
-              value={this.props.order.metadata.name}
+            <Input onChange={this.labelChanged}
+                   value={this.props.order.metadata.name}
             />
           </Row>
           <Row text="Assembly Containers:">
-            <Selector
-              disabled={order.isSubmitted()}
-              value={assemblyOptions[order.parameters.onePot ? 0 : 1]}
-              options={assemblyOptions}
-              onChange={(val) => this.assemblyContainerChanged(val)}
+            <Selector disabled={order.isSubmitted()}
+                      value={assemblyOptions[order.parameters.onePot ? 0 : 1]}
+                      options={assemblyOptions}
+                      onChange={(val) => this.assemblyContainerChanged(val)}
             />
           </Row>
           <Row text="Number of assemblies:">
-            <Permutations
-              total={this.props.numberConstructs}
-              value={this.props.order.parameters.permutations}
-              editable={!order.parameters.onePot}
-              disabled={order.isSubmitted()}
-              onBlur={(val) => {
-                this.numberOfAssembliesChanged(val);
-              }}
+            <Permutations total={this.props.numberConstructs}
+                          value={this.props.order.parameters.permutations}
+                          editable={!order.parameters.onePot}
+                          disabled={order.isSubmitted()}
+                          onBlur={(val) => {
+                            this.numberOfAssembliesChanged(val);
+                          }}
             />
           </Row>
           <Row text="Combinatorial method:">
             {method}
           </Row>
           <Row text="After fabrication:">
-            <Checkbox
-              onChange={this.sequenceAssemblies}
-              label="Sequence Assemblies"
-              value={order.parameters.sequenceAssemblies}
-              disabled={order.parameters.onePot}
+            <Checkbox onChange={this.sequenceAssemblies}
+                      label="Sequence Assemblies"
+                      value={order.parameters.sequenceAssemblies}
+                      disabled={order.parameters.onePot}
             />
           </Row>
           <br/>

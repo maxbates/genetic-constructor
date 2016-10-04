@@ -25,7 +25,7 @@ module.exports = {
 
     browser
       // wait for a block to appear
-      .waitForElementPresent('[data-nodetype="block"]', 5000, 'expected blocks to appear')
+      .waitForElementPresent('[data-nodetype="block"]', 30000, 'expected blocks to appear')
       .assert.countelements('[data-nodetype="block"]', 25)
       .end();
   }

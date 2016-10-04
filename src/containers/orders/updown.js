@@ -1,48 +1,32 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 
 import '../../styles/updown.css';
 
 export default class UpDown extends Component {
-
   static propTypes = {
     min: PropTypes.number.isRequired,
     max: PropTypes.number.isRequired,
     value: PropTypes.bool.isRequired,
+    disabled: PropTypes.bool,
     enabled: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
+    onBlur: PropTypes.func.isRequired,
   };
-
-  up = () => {
-    const value = Math.min(this.getValue() + 1, this.props.max);
-    if (this.props.onChange) {
-      this.props.onChange(value);
-    } else {
-      this.props.onBlur(value);
-    }
-  }
-  down = () => {
-    const value = Math.max(this.getValue() - 1, this.props.min);
-    if (this.props.onChange) {
-      this.props.onChange(value);
-    } else {
-      this.props.onBlur(value);
-    }
-  }
 
   /**
    * cursor up/down increment / decrement the value within the current range.
@@ -52,27 +36,21 @@ export default class UpDown extends Component {
     if (this.props.disabled) {
       return;
     }
+
     switch (evt.keyCode) {
       // up arrow
-      case 38:
-        this.up();
-        evt.preventDefault();
-        break;
+    case 38:
+      this.up();
+      evt.preventDefault();
+      break;
       // down arrow
-      case 40:
-        this.down();
-        evt.preventDefault();
-        break;
+    case 40:
+      this.down();
+      evt.preventDefault();
+      break;
+    default:
     }
-  }
-
-  /**
-   * get the current value of the input, if invalid return this.props.min
-   */
-  getValue() {
-    let val = parseInt(this.refs.updown.value);
-    return isNaN(val) || val < this.props.min || val > this.props.max ? this.props.min : val;
-  }
+  };
 
   /**
    * when the input is changed fire the change handler
@@ -89,7 +67,7 @@ export default class UpDown extends Component {
         this.props.onChange(value);
       }
     }
-  }
+  };
 
   onBlur = (evt) => {
     if (this.props.disabled) {
@@ -101,7 +79,33 @@ export default class UpDown extends Component {
         this.props.onBlur(value);
       }
     }
+  };
+
+  /**
+   * get the current value of the input, if invalid return this.props.min
+   */
+  getValue() {
+    const val = parseInt(this.refs.updown.value, 10);
+    return isNaN(val) || val < this.props.min || val > this.props.max ? this.props.min : val;
   }
+
+  up = () => {
+    const value = Math.min(this.getValue() + 1, this.props.max);
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    } else {
+      this.props.onBlur(value);
+    }
+  };
+
+  down = () => {
+    const value = Math.max(this.getValue() - 1, this.props.min);
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    } else {
+      this.props.onBlur(value);
+    }
+  };
 
   render() {
     return (
@@ -122,6 +126,6 @@ export default class UpDown extends Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }

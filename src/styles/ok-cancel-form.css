@@ -1,5 +1,14 @@
 .ok-cancel-form {
   min-width: 50rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  * {
+    width: 80%;
+    margin-bottom: 0.5rem;
+    border-radius: var(--radius);
+  }
 
   button {
     width: 30rem;

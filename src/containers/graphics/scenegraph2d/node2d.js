@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import uuid from 'node-uuid';
 import Vector2D from '../geometry/vector2d';
 import Box2D from '../geometry/box2d';
@@ -35,7 +35,6 @@ const textCache = {};
  * basic rectangular node
  */
 export default class Node2D {
-
   constructor(props) {
     // top level element is just a div
     this.el = document.createElement('div');
@@ -136,16 +135,17 @@ export default class Node2D {
         this.glyph = value;
         break;
 
-      // apply a data-??? attribute with the given value to our element
-      // value should be {name:'xyz', value:'123'} which would appear in
-      // the dom as data-xyz="123"
+        // apply a data-??? attribute with the given value to our element
+        // value should be {name:'xyz', value:'123'} which would appear in
+        // the dom as data-xyz="123"
       case 'dataAttribute':
         this.dataAttribute = value;
         this.el.setAttribute(`data-${value.name}`, value.value);
         break;
 
         // default behaviour is to just set the property
-      default: this[key] = props[key];
+      default:
+        this[key] = props[key];
       }
     });
   }
@@ -196,9 +196,8 @@ export default class Node2D {
     while (current) {
       if (current === otherNode) {
         return true;
-      } else {
-        current = current.parent;
       }
+      current = current.parent;
     }
     return false;
   }
@@ -302,6 +301,7 @@ export default class Node2D {
 
     return new Box2D(xmin, ymin, xmax - xmin, ymax - ymin);
   }
+
   /**
    * AABB of node including all child nodes
    * @return {Box2D}
@@ -328,8 +328,8 @@ export default class Node2D {
   }
 
   /**
- * remove from our current parent.
- */
+   * remove from our current parent.
+   */
   detach() {
     invariant(this.parent, 'Node is not parented');
     this.parent.children.splice(this.parent.children.indexOf(this), 1);
@@ -380,7 +380,6 @@ export default class Node2D {
     this.el.removeChild(child.el);
     return child;
   }
-
 
   /**
    * Updating all display properties of the node and returning our element.

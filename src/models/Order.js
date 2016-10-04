@@ -15,7 +15,7 @@ limitations under the License.
 */
 import invariant from 'invariant';
 import Instance from '../models/Instance';
-import { merge, cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash';
 import OrderDefinition from '../schemas/Order';
 import OrderParametersSchema from '../schemas/OrderParameters';
 import * as validators from '../schemas/fields/validators';

@@ -85,7 +85,7 @@
     background-color: rgba(0,0,0,0.15);
     background-size: contain;
     text-align:center;
-    transition: border-color var(--timing-fast) ease-out;
+    transition: border-color var(--timing-fast) ease-out, background-color var(--timing-fast) ease-out;
 
     &:nth-child(4n + 1) {
       clear: left;

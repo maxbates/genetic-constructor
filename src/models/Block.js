@@ -243,6 +243,16 @@ export default class Block extends Instance {
     return this.rules.frozen === true;
   }
 
+  /**
+   * Check whether a template is being authored
+   * @method isAuthoring
+   * @memberOf Block
+   * @returns {boolean}
+   */
+  isAuthoring() {
+    return this.rules.authoring === true;
+  }
+
   /************
    rules
    ************/
@@ -267,7 +277,7 @@ export default class Block extends Instance {
    * @returns {string} Block rule
    */
   getRole(userFriendly = true) {
-    const role = this.rules.role;
+    const role = this.rules.role || this.metadata.role;
     const friendly = symbolMap[role];
 
     return (userFriendly === true && friendly) ?
@@ -313,14 +323,46 @@ export default class Block extends Instance {
   setListBlock(isList = true) {
     if (!!isList) {
       //clear components
-      const cleared = this.merge({
-        components: [],
-      });
+      const cleared = this.mutate('components', []);
       return cleared.setRule('list', true);
     }
 
-    const cleared = this.merge(Object.keys(this.options).reduce((acc, key) => Object.assign(acc, { [key]: false })));
+    const cleared = this.mutate('options', {});
     return cleared.setRule('list', false);
+  }
+
+  /**
+   * Set a construct as a template
+   * @method setTemplate
+   * @memberOf Block
+   * @param {boolean} [isTemplate=true]
+   */
+  setTemplate(isTemplate = true) {
+    return this.setRule('fixed', Boolean(isTemplate));
+  }
+
+  /**
+   * Enable Authoring for a template.
+   * @method setProjectId
+   * @memberOf Block
+   * @param {boolean} [isAuthoring=true]
+   * @returns {Block}
+   */
+  setAuthoring(isAuthoring = true) {
+    invariant(this.isTemplate(), 'can only author a template');
+    return this.setRule('authoring', Boolean(isAuthoring));
+  }
+
+  /**
+   * Mark a block as hidden
+   * @method setHidden
+   * @memberOf Block
+   * @param {boolean} [isHidden=true]
+   * @returns {Block}
+   */
+  setHidden(isHidden = true) {
+    invariant(!this.isTemplate(), 'cannnot hide a template');
+    return this.setRule('hidden', Boolean(isHidden));
   }
 
   /************
@@ -383,7 +425,8 @@ export default class Block extends Instance {
    */
   getType(defaultType = 'Block') {
     if (this.isTemplate()) return 'Template';
-    if (this.isConstruct()) return 'Construct';
+    //if (this.isConstruct()) return 'Construct';
+    if (this.isList()) return 'List Block';
     if (this.isFiller()) return 'Filler';
     return defaultType;
   }
@@ -412,6 +455,16 @@ export default class Block extends Instance {
     return this.mutate('metadata.color', newColor);
   }
 
+  /**
+   * Get Block's color
+   * @method getColor
+   * @memberOf Block
+   * @returns {string} Hex Color value
+   */
+  getColor() {
+    return this.metadata.color;
+  }
+
   /************
    components
    ************/
@@ -428,7 +481,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   addComponent(componentId, index) {
-    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove/move components');
+    invariant(!this.isFixed() || this.isAuthoring(), 'Block is fixed - cannot add/remove/move components');
     invariant(!this.isList(), 'cannot add components to a list block');
     invariant(idValidator(componentId), 'must pass valid component ID');
     const spliceIndex = (Number.isInteger(index) && index >= 0) ? index : this.components.length;
@@ -446,7 +499,7 @@ export default class Block extends Instance {
    * @returns {Block} Returns same instance if componentId not found
    */
   removeComponent(componentId) {
-    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove/move components');
+    invariant(!this.isFixed() || this.isAuthoring(), 'Block is fixed - cannot add/remove/move components');
     const spliceIndex = this.components.findIndex(compId => compId === componentId);
 
     if (spliceIndex < 0) {
@@ -470,7 +523,7 @@ export default class Block extends Instance {
    */
   //
   moveComponent(componentId, newIndex) {
-    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove/move components');
+    invariant(!this.isFixed() || this.isAuthoring(), 'Block is fixed - cannot add/remove/move components');
     invariant(!this.isList(), 'cannot add components to a list block');
     const spliceFromIndex = this.components.findIndex(compId => compId === componentId);
 
@@ -535,7 +588,7 @@ export default class Block extends Instance {
   addOptions(...optionIds) {
     invariant(this.isList(), 'must be a list block to add list options');
     invariant(optionIds.every(option => idValidator(option)), 'must pass component IDs');
-    const toAdd = optionIds.reduce((acc, id) => Object.assign(acc, { [id]: false }), {});
+    const toAdd = optionIds.reduce((acc, id) => Object.assign(acc, { [id]: true }), {});
     const newOptions = Object.assign(cloneDeep(this.options), toAdd);
 
     if (Object.keys(newOptions).length === Object.keys(this.options).length) {
@@ -595,23 +648,45 @@ export default class Block extends Instance {
   }
 
   /**
+   * Get the blocks sequence length, respecting trim
+   * @method getSequenceLength
+   * @memberOf Block
+   * @param {boolean} [ignoreTrim=false]
+   */
+  getSequenceLength(ignoreTrim = false) {
+    const { length, trim } = this.sequence;
+    if (!Array.isArray(trim) || !!ignoreTrim) {
+      return length;
+    }
+    return length - trim[0] - trim[1];
+  }
+
+  /**
    * Retrieve the sequence of the block. Retrieves the sequence from the server, since it is stored in a separate file.
    * @method getSequence
    * @memberOf Block
    * @returns {Promise} Promise which resolves with the sequence value, or (resolves) with null if no sequence is associated.
    */
-  getSequence() {
-    const { md5, download, url } = this.sequence;
+  getSequence(ignoreTrim = false) {
+    const { md5, download, url, trim } = this.sequence;
+    let promise;
 
     if (typeof download === 'function') {
-      return Promise.resolve(download());
+      promise = Promise.resolve(download());
     } else if (md5) {
-      return getSequence(md5);
+      promise = getSequence(md5);
     } else if (url) {
-      return fetch(url).then(resp => resp.text());
+      promise = fetch(url).then(resp => resp.text());
+    } else {
+      promise = Promise.resolve(null);
     }
 
-    return Promise.resolve(null);
+    return promise.then(seq => {
+      if (typeof seq === 'string' && Array.isArray(trim) && ignoreTrim !== true) {
+        return seq.substring(trim[0], seq.length - trim[1]);
+      }
+      return seq;
+    });
   }
 
   //todo - ability to set source
@@ -647,6 +722,7 @@ export default class Block extends Instance {
           length: sequenceLength,
           initialBases: '' + sequence.substr(0, 6),
           download: null,
+          trim: null,
         };
 
         return this.merge({
@@ -654,6 +730,26 @@ export default class Block extends Instance {
           source: updatedSource,
         });
       });
+  }
+
+  /**
+   * Set trim (number of bases to skip) on the sequence
+   * @method setSequenceTrim
+   * @memberOf Block
+   * @param {number} start
+   * @param {number} end
+   */
+  setSequenceTrim(start = 0, end = 0) {
+    invariant(this.hasSequence(), 'must have a sequence to set trim');
+    invariant(Number.isInteger(start) && start >= 0, 'must pass 0 or positive integer for start');
+    invariant(Number.isInteger(end) && end >= 0, 'must pass 0 or positive integer for end');
+    invariant((start <= (this.sequence.length - 1)) && (end <= (this.sequence.length - 1)), 'start and end must be less than length of sequence');
+
+    return this.merge({
+      sequence: {
+        trim: [start, end],
+      },
+    });
   }
 
   //todo - annotations are essentially keyed using name, since we got rid of ID. is that ok?

@@ -6,12 +6,8 @@
   flex-direction: row;
   flex-grow: 1;
 
-  /*most of the content on the project page uses overflow-y: scroll, except on chrome this requires an explicit height to work. needs to be here to accomodate padding-top of .gruntPushdown*/
+  /*most of the content on the project page uses overflow-y: scroll, except on chrome this requires an explicit height to work*/
   height: calc(100vh - var(--GlobalNav-height-chrome));
-
-  &.gruntPushdown {
-    padding-top: var(--grunt-height);
-  }
 
   &-content {
     display: flex;

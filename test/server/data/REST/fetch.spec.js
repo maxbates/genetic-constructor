@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import fetch from 'isomorphic-fetch';
 import Project from '../../../../src/models/Project';
-import { dataApiPath } from '../../../../src/middleware/paths';
+import { dataApiPath } from '../../../../src/middleware/utils/paths';
+import { updateProjectWithAuthor } from '../../../utils/userUtils';
 
 //noinspection ES6UnusedImports
 import devServer from '../../../../server/server'; // starts the server which will be accessed by methods below
@@ -29,7 +30,7 @@ describe('Server', () => {
               return res.json();
             })
             .then(json => {
-              expect(json).to.eql(testProject);
+              expect(json).to.eql(updateProjectWithAuthor(testProject));
             });
         });
       });

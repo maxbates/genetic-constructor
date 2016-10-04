@@ -15,10 +15,7 @@ limitations under the License.
 */
 import { errorInvalidPart, errorOrderRejected } from '../utils/errors';
 import fetch from 'isomorphic-fetch';
-import { headersPost } from '../../src/middleware/headers';
-
-//testing
-import { fileWrite } from '../utils/fileSystem';
+import { headersPost } from '../../src/middleware/utils/headers';
 
 const url = 'http://synnp.org:8010/api/order/';
 

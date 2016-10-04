@@ -21,9 +21,9 @@ import * as ActionTypes from '../constants/ActionTypes';
 import invariant from 'invariant';
 import extensionRegistry from '../extensions/clientRegistry';
 
-//so this is super weird - jsdoc will work when you have some statements here. This file needs 2!
-const space_filler = 10;
-const space_filler_2 = 20;
+//hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 2!
+const spaceFiller = 10; //eslint-disable-line no-unused-vars
+const spaceFiller2 = 20; //eslint-disable-line no-unused-vars
 
 /**
  * Toggle whether the inspector is visible
@@ -135,7 +135,7 @@ export const detailViewSelectExtension = (key) => {
 
 export const uiShowAuthenticationForm = (name) => {
   return (dispatch, getState) => {
-    invariant(['signin', 'signup', 'forgot', 'reset', 'account', 'none'].indexOf(name) >= 0, 'attempting to show invalid form name');
+    invariant(['signin', 'register', 'forgot', 'reset', 'account', 'none'].indexOf(name) >= 0, 'attempting to show invalid form name');
     dispatch({
       type: ActionTypes.UI_SHOW_AUTHENTICATION_FORM,
       authenticationForm: name,
@@ -149,6 +149,17 @@ export const uiShowGenBankImport = (bool) => {
     dispatch({
       type: ActionTypes.UI_SHOW_GENBANK_IMPORT,
       showGenBankImport: bool,
+    });
+    return bool;
+  };
+};
+
+export const uiShowPartsCSVImport = (bool, listBlock) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: ActionTypes.UI_SHOW_PARTSCSV_IMPORT,
+      showPartsCSVImport: bool,
+      listBlock,
     });
     return bool;
   };
@@ -234,3 +245,15 @@ export const uiReportError = (nextState) => {
     return null;
   };
 };
+
+export const uiShowExtensionPicker = (nextState = true) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: ActionTypes.UI_SHOW_EXTENSION_PICKER,
+      pickerState: nextState,
+    });
+    return nextState;
+  };
+};
+
+

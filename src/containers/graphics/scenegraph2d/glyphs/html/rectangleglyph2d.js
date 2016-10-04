@@ -19,7 +19,7 @@ export default class RectangleGlyph2D extends Glyph2D {
 
   /**
    * Simple HTML based rectangle. The only complexity is that we carefully
-   * adjust the size to accomodate the stroke ( which is rendered using a border property).
+   * adjust the size to accommodate the stroke ( which is rendered using a border property).
    * HTML borders are either inside or outside the elenent, for compatibility
    * with canvas/svg with make the border straddle the edges.
    * @param {Node2D} node - the node for which we render ourselves

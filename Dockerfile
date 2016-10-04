@@ -24,12 +24,6 @@ RUN yes | pip install biopython
 
 RUN pip install awscli
 
-#temp - instal fsharp
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-RUN echo "deb http://download.mono-project.com/repo/debian wheezy main" | tee /etc/apt/sources.list.d/mono-xamarin.list
-RUN apt-get update -y
-RUN apt-get install -y mono-complete fsharp
-
 EXPOSE 3000
 ENV PORT=3000
 
@@ -41,8 +35,15 @@ ADD package.json /app/package.json
 RUN npm update -g npm && npm install
 
 ADD . /app
+
+#install fsharp (needed by gslEditor extension if it exists)
+RUN if [ -d ./extensions/gslEditor/ ]; then ./extensions/gslEditor/tools/install-fsharp.sh ; fi
+
 #install extensions, continue even if errors
 RUN npm run install-extensions || true
+
+# add docs, even if package.json hasnt changed
+RUN npm run jsdoc
 
 RUN cd /app
 

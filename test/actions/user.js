@@ -1,4 +1,6 @@
 import { expect } from 'chai';
+import { merge } from 'lodash';
+import { testUserClient } from '../constants';
 import * as actions from '../../src/actions/user';
 import userReducer from '../../src/reducers/user';
 import { simpleStore } from '../store/mocks';
@@ -10,24 +12,21 @@ describe('Actions', () => {
       email: null,
       firstName: null,
       lastName: null,
+      config: {},
     };
 
     //this actually comes from the default user in server/auth/local
-    const dummyUser = {
-      userid: '0',
-      firstName: 'Dev',
-      lastName: 'Eloper',
-      email: 'developer@localhost',
-    };
+    const dummyUser = testUserClient();
 
     const userStore = simpleStore(initialState, userReducer, 'user');
 
     it('should update user on userLogin', () => {
-      const loginPromise = userStore.dispatch(actions.userLogin(dummyUser));
+      const loginPromise = userStore.dispatch(actions.userLogin(dummyUser.email, '123456'));
 
       return loginPromise.then(user => {
-        expect(user).to.eql(dummyUser);
-        expect(userStore.getState().user).to.eql(dummyUser);
+        expect(user.email).to.eql(dummyUser.email);
+        expect(userStore.getState().user).to.eql(user);
+        expect(user.config).to.be.defined;
       });
     });
 

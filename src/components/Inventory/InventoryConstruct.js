@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import DnD from '../../containers/graphics/dnd/dnd';
@@ -47,11 +47,6 @@ export class InventoryConstruct extends Component {
     depth: 1, // 0 for 'New Construct'
   };
 
-  shouldRenderAsConstruct(props = this.props) {
-    const { isConstruct, isTemplate } = props;
-    return isConstruct && !isTemplate;
-  }
-
   componentDidMount() {
     if (this.shouldRenderAsConstruct()) {
       this.registerMouseTrap();
@@ -68,6 +63,11 @@ export class InventoryConstruct extends Component {
     if (!this.shouldRenderAsConstruct(prevProps) && this.shouldRenderAsConstruct()) {
       this.registerMouseTrap();
     }
+  }
+
+  shouldRenderAsConstruct(props = this.props) {
+    const { isConstruct, isTemplate } = props;
+    return isConstruct && !isTemplate;
   }
 
   registerMouseTrap() {
@@ -125,13 +125,15 @@ export class InventoryConstruct extends Component {
                             isSelectable
                             dataAttribute={`construct ${block.id}`}
                             ref={(el) => {
-                              if (el) { this.itemElement = el.getHeading(); }
+                              if (el) {
+                                this.itemElement = el.getHeading();
+                              }
                             }}>
           {block.components.map(compId => (
             <InventoryConstructConnected {...rest}
-              key={compId}
-              depth={depth + 1}
-              blockId={compId}/>
+                                         key={compId}
+                                         depth={depth + 1}
+                                         blockId={compId}/>
           ))}
         </InventoryListGroup>
       );

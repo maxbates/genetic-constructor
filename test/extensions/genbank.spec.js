@@ -1,9 +1,13 @@
 import {expect} from 'chai';
 import path from 'path';
 import fs from 'fs';
+import JSZip from 'jszip';
 import {importProject, exportProject, exportConstruct} from '../../server/extensions/native/genbank/convert';
 import BlockSchema from '../../src/schemas/Block';
 import ProjectSchema from '../../src/schemas/Project';
+import * as fileSystem from '../../server/utils/fileSystem';
+import { createExampleProject } from '../fixtures/rollup';
+
 
 const getBlock = (allBlocks, blockId) => {
   return allBlocks[blockId];
@@ -24,10 +28,13 @@ describe('Extensions', () => {
           expect(parentBlock.metadata.name).to.equal('EU912544');
           expect(parentBlock.metadata.description).to.equal('Cloning vector pDM313, complete sequence.');
           expect(parentBlock.metadata.genbank.feature_annotations.mol_type).to.equal('other DNA');
-          expect(parentBlock.metadata.start).to.equal(0);
-          expect(parentBlock.metadata.end).to.equal(119);
+          expect(parentBlock.metadata.start).to.equal(undefined);
+          expect(parentBlock.metadata.end).to.equal(undefined);
           expect(parentBlock.metadata.genbank.annotations.gi).to.equal('198078160');
-          expect(parentBlock.metadata.genbank.feature_annotations.note).to.equal('GFP-tag for C-terminal fusion');
+
+          // We have to drop the note that comes in the file because that's where we put our stuff!
+          //expect(parentBlock.metadata.genbank.feature_annotations.note).to.equal('GFP-tag for C-terminal fusion');
+
           expect(parentBlock.metadata.genbank.annotations.data_file_division).to.equal('SYN');
           expect(parentBlock.metadata.genbank.annotations.date).to.equal('06-FEB-2009');
           expect(parentBlock.source.source).to.equal('genbank');
@@ -125,23 +132,27 @@ describe('Extensions', () => {
           expect(output.project.metadata.name).to.equal('EU912544');
           expect(output.project.metadata.description).to.equal('Cloning vector pDM313, complete sequence.');
           return exportProject(output)
-            .then(result => {
-              expect(result).to.contain('LOCUS       EU912544                 120 bp    DNA');
-              expect(result).to.contain('SYN 06-FEB-2009');
-              expect(result).to.contain('DEFINITION  Cloning vector pDM313, complete sequence.');
-              expect(result).to.contain('ACCESSION   EU912544');
-              expect(result).to.contain('VERSION     EU912544.1  GI:198078160');
-              expect(result).to.contain('SOURCE      Cloning vector pDM313');
-              expect(result).to.contain('ORGANISM  Cloning vector pDM313');
-              expect(result).to.contain('other sequences; artificial sequences; vectors.');
-              expect(result).to.contain('REFERENCE   1');
-              expect(result).to.contain('AUTHORS   Veltman,D.M., Akar,G., Bosgraaf,L. and Van Haastert,P.J.');
-              expect(result).to.contain('TITLE     A new set of small, extrachromosomal expression vectors for');
-              expect(result).to.contain('Dictyostelium discoideum');
-              expect(result).to.contain('JOURNAL   Plasmid 61 (2), 110-118 (2009)');
-              expect(result).to.contain('PUBMED   19063918');
-              expect(result).to.contain('');
-              done();
+            .then(resultFileName => {
+              fileSystem.fileRead(resultFileName, false)
+                .then(result => {
+                  expect(result).to.contain('LOCUS       EU912544                 120 bp    DNA');
+                  expect(result).to.contain('SYN 06-FEB-2009');
+                  expect(result).to.contain('DEFINITION  Cloning vector pDM313, complete sequence.');
+                  expect(result).to.contain('ACCESSION   EU912544');
+                  expect(result).to.contain('VERSION     EU912544.1  GI:198078160');
+                  expect(result).to.contain('SOURCE      Cloning vector pDM313');
+                  expect(result).to.contain('ORGANISM  Cloning vector pDM313');
+                  expect(result).to.contain('other sequences; artificial sequences; vectors.');
+                  expect(result).to.contain('REFERENCE   1');
+                  expect(result).to.contain('AUTHORS   Veltman,D.M., Akar,G., Bosgraaf,L. and Van Haastert,P.J.');
+                  expect(result).to.contain('TITLE     A new set of small, extrachromosomal expression vectors for');
+                  expect(result).to.contain('Dictyostelium discoideum');
+                  expect(result).to.contain('JOURNAL   Plasmid 61 (2), 110-118 (2009)');
+                  expect(result).to.contain('PUBMED   19063918');
+                  expect(result).to.contain('');
+                  fileSystem.fileDelete(resultFileName);
+                  done();
+                });
             });
         })
         .catch(done);
@@ -156,26 +167,52 @@ describe('Extensions', () => {
           expect(output.project.metadata.description).to.equal('Cloning vector pDM313, complete sequence.');
 
           return exportConstruct({ roll: output, constructId: output.project.components[0] })
-            .then(result => {
-              expect(result).to.contain('LOCUS       EU912544                 120 bp    DNA');
-              expect(result).to.contain('SYN 06-FEB-2009');
-              expect(result).to.contain('DEFINITION  Cloning vector pDM313, complete sequence.');
-              expect(result).to.contain('ACCESSION   EU912544');
-              expect(result).to.contain('VERSION     EU912544.1  GI:198078160');
-              expect(result).to.contain('SOURCE      Cloning vector pDM313');
-              expect(result).to.contain('ORGANISM  Cloning vector pDM313');
-              expect(result).to.contain('other sequences; artificial sequences; vectors.');
-              expect(result).to.contain('REFERENCE   1');
-              expect(result).to.contain('AUTHORS   Veltman,D.M., Akar,G., Bosgraaf,L. and Van Haastert,P.J.');
-              expect(result).to.contain('TITLE     A new set of small, extrachromosomal expression vectors for');
-              expect(result).to.contain('Dictyostelium discoideum');
-              expect(result).to.contain('JOURNAL   Plasmid 61 (2), 110-118 (2009)');
-              expect(result).to.contain('PUBMED   19063918');
-              expect(result).to.contain('');
-              done();
+            .then(resultFileName => {
+              fileSystem.fileRead(resultFileName, false)
+                .then(result => {
+                  expect(result).to.contain('LOCUS       EU912544                 120 bp    DNA');
+                  expect(result).to.contain('SYN 06-FEB-2009');
+                  expect(result).to.contain('DEFINITION  Cloning vector pDM313, complete sequence.');
+                  expect(result).to.contain('ACCESSION   EU912544');
+                  expect(result).to.contain('VERSION     EU912544.1  GI:198078160');
+                  expect(result).to.contain('SOURCE      Cloning vector pDM313');
+                  expect(result).to.contain('ORGANISM  Cloning vector pDM313');
+                  expect(result).to.contain('other sequences; artificial sequences; vectors.');
+                  expect(result).to.contain('REFERENCE   1');
+                  expect(result).to.contain('AUTHORS   Veltman,D.M., Akar,G., Bosgraaf,L. and Van Haastert,P.J.');
+                  expect(result).to.contain('TITLE     A new set of small, extrachromosomal expression vectors for');
+                  expect(result).to.contain('Dictyostelium discoideum');
+                  expect(result).to.contain('JOURNAL   Plasmid 61 (2), 110-118 (2009)');
+                  expect(result).to.contain('PUBMED   19063918');
+                  expect(result).to.contain('');
+                  fileSystem.fileDelete(resultFileName);
+                  done();
+                });
             });
         })
         .catch(done);
+    });
+
+    it('should export project with list block', function exportListBlock(done) {
+      return createExampleProject()
+        .then(roll => exportProject(roll))
+        .then(resultFileName => {
+          fs.readFile(resultFileName, function(err, data) {
+            if (err) throw err;
+            JSZip.loadAsync(data)
+            .then((zip) => {
+              expect(zip.file(/\.gb/).length).to.equal(22);
+              zip.file(' -  - 10.gb').async('string')
+                .then((content) => {
+                  expect(content).to.contain('LOCUS');
+                  fileSystem.fileDelete(resultFileName);
+                  done();
+                })
+                .catch(done);
+            })
+            .catch(done);
+          });
+        });
     });
 
     it.skip('should export project to multi-record Genbank', function exportGB(done) {

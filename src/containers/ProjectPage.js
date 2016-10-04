@@ -16,6 +16,7 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import ImportGenBankModal from '../components/genbank/import';
+import ImportPartsCSVModal from '../components/importpartscsv/importpartscsv';
 import ImportDNAForm from '../components/importdna/importdnaform';
 import OrderModal from '../containers/orders/ordermodal';
 import SaveErrorModal from '../components/modal/SaveErrorModal';
@@ -32,13 +33,14 @@ import { uiSetGrunt } from '../actions/ui';
 import { focusConstruct } from '../actions/focus';
 import { orderList } from '../actions/orders';
 import autosaveInstance from '../store/autosave/autosaveInstance';
+import loadAllExtensions from '../extensions/loadExtensions';
 
 import '../styles/ProjectPage.css';
 import '../styles/SceneGraphPage.css';
 
 class ProjectPage extends Component {
   static propTypes = {
-    showingGrunt: PropTypes.bool,
+    userId: PropTypes.string,
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object, //if have a project (not fetching)
     constructs: PropTypes.array, //if have a project (not fetching)
@@ -56,6 +58,11 @@ class ProjectPage extends Component {
     // todo - use react router History to do this:
     // https://github.com/mjackson/history/blob/master/docs/ConfirmingNavigation.md
     window.onbeforeunload = window.onunload = this.onWindowUnload;
+
+    //load extensions (also see componentWillReceiveProps)
+    if (!!this.props.userId) {
+      loadAllExtensions();
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -68,6 +75,12 @@ class ProjectPage extends Component {
       //get all the projects orders lazily, will re-render when have them
       //run in project page so only request them when we actually load the project
       this.props.orderList(nextProps.projectId);
+    }
+
+    //reload extensions if user changed
+    //could be smarter about this... but probably not an issue since log the user out and refrresh the page
+    if (this.props.userId !== nextProps.userId && nextProps.userId) {
+      loadAllExtensions();
     }
   }
 
@@ -82,7 +95,7 @@ class ProjectPage extends Component {
   }
 
   render() {
-    const { showingGrunt, project, projectId, constructs } = this.props;
+    const { project, projectId, constructs } = this.props;
 
     //handle project not loaded
     if (!project || !project.metadata) {
@@ -105,9 +118,10 @@ class ProjectPage extends Component {
     });
 
     return (
-      <div className={'ProjectPage' + (showingGrunt ? ' gruntPushdown' : '')}>
+      <div className="ProjectPage">
         <ImportGenBankModal currentProjectId={projectId}/>
         <ImportDNAForm />
+        <ImportPartsCSVModal />
         <SaveErrorModal />
         <OrderModal projectId={projectId} />
 
@@ -131,13 +145,13 @@ class ProjectPage extends Component {
 }
 
 function mapStateToProps(state, ownProps) {
+  const userId = state.user.userid;
+
   const projectId = ownProps.params.projectId;
   const project = state.projects[projectId];
-  const showingGrunt = !!state.ui.modals.gruntMessage;
 
   if (!project) {
     return {
-      showingGrunt,
       projectId,
     };
   }
@@ -149,11 +163,11 @@ function mapStateToProps(state, ownProps) {
     .sort((one, two) => one.status.timeSent - two.status.timeSent);
 
   return {
-    showingGrunt,
     projectId,
     project,
     constructs,
     orders,
+    userId,
   };
 }
 

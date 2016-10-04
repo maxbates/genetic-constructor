@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
 
 import '../../../src/styles/ordermodal.css';
 

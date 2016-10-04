@@ -4,8 +4,6 @@ import Block from '../../../../src/models/Block';
 import parse from 'csv-parse';
 import md5 from 'md5';
 
-//default fields in the CSV
-const defaultColumns = ['name', 'description', 'role', 'color', 'sequence'];
 //one of these fields is required for each block attempting to import
 const requiredFields = ['name', 'description', 'role', 'sequence'];
 
@@ -29,6 +27,8 @@ const mapPartFields = (importedObject) => {
     role = null,
     sequence = null,
     color,
+    index = 0,
+    fileName = 'CSV Import',
     ...rest,
   } = importedObject;
 
@@ -40,6 +40,8 @@ const mapPartFields = (importedObject) => {
       name,
       description,
       color,
+      csv_row: index,
+      csv_file: fileName,
     },
     rules: {
       role,
@@ -51,7 +53,7 @@ const mapPartFields = (importedObject) => {
   };
 };
 
-export function convertCsv(csvContents, fileName, fileUrl) {
+export function convertCsv(csvContents, fileName, fileUrl, hash) {
   invariant(typeof csvContents === 'string', 'expected a string');
 
   let fields;
@@ -66,7 +68,6 @@ export function convertCsv(csvContents, fileName, fileUrl) {
     //remove top rows
     .then(lines => {
       //todo - ensure these are fields, beyond just making sure a required field is present
-      //todo - should be lower case in the doc
       fields = lines.shift(1);
       console.log('csvjs import - using fields: ' + fields.join(', '));
       if (!fields.some(fieldName => requiredFields.indexOf(fieldName) >= 0)) {
@@ -78,10 +79,18 @@ export function convertCsv(csvContents, fileName, fileUrl) {
     .then(lines => lines.filter(line => line.some(field => !!field)))
     //make object with appropriate keys
     .then(lines => lines.map(line => zip(fields, line)))
+    //assign the index before we do more filtering, and the file name
+    //hack - assumes that none were filtered
+    .then(parts => parts.map((part, index) => Object.assign(part, {
+      index: `${index + 1}`,
+      fileName,
+    })))
     //remove parts which do not have any required fields
     .then(parts => parts.filter(part => requiredFields.some(field => !!part[field])))
-    //assign role
-    .then(parts => parts.map(part => Object.assign(part, { role: roleMassageMap[part.role] || part.role || null })))
+    //assign role + index
+    .then(parts => parts.map((part, index) => Object.assign(part, {
+      role: roleMassageMap[part.role] || part.role || null,
+    })))
     //map fields to block fields
     .then(parts => parts.map(part => mapPartFields(part)))
     //assign the source
@@ -90,8 +99,8 @@ export function convertCsv(csvContents, fileName, fileUrl) {
       return Object.assign(part, {
         source: {
           source: 'csv',
-          id: fileName,
-          url: fileUrl,
+          id: hash,
+          url: '/extensions/api/csv/file/' + hash, //todo - use fileUrl once import router is up
         },
       });
     }))

@@ -30,8 +30,8 @@ import { pauseAction, resumeAction } from '../store/pausableStore';
 
 //todo - helper to wrap dispatch()'s in a paused transaction - make sure dispatch still runs when passed as arg
 
-//so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
-const space_filler = 10;
+//hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
+const spaceFiller = 10; //eslint-disable-line no-unused-vars
 
 /**
  * Retrieves a block, and its options and components if specified
@@ -332,6 +332,8 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
     const oldBlock = getState().blocks[blockId];
     const component = getState().blocks[componentId];
 
+    invariant(!component.isTemplate(), 'cannot add a template as a component');
+
     const componentProjectId = component.projectId;
     const nextParentProjectId = oldBlock.projectId;
 
@@ -386,11 +388,16 @@ export const blockAddComponents = (blockId, componentIds, index, forceProjectId 
     dispatch(pauseAction());
     dispatch(undoActions.transact());
 
-    componentIds.forEach((componentId, subIndex) => {
-      dispatch(blockAddComponent(blockId, componentId, index + subIndex, forceProjectId));
-    });
+    try {
+      componentIds.forEach((componentId, subIndex) => {
+        dispatch(blockAddComponent(blockId, componentId, index + subIndex, forceProjectId));
+      });
+      dispatch(undoActions.commit());
+    } catch (err) {
+      dispatch(undoActions.abort());
+      console.error(err); //eslint-disable-line no-console
+    }
 
-    dispatch(undoActions.commit());
     dispatch(resumeAction());
 
     return componentIds;
@@ -422,8 +429,74 @@ export const blockMoveComponent = (blockId, componentId, newIndex) => {
  Options
  ***************************************/
 
-//not exposing authoring actions yet, as there is some work to be done to ensure blocks are actually part of the project etc.
+//todo - doc
+export const blockMarkTemplate = (blockId, isTemplate = true) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+    invariant(dispatch(selectors.blockIsTopLevelConstruct(blockId)), 'construct must be direct child of project');
 
+    const block = oldBlock.setTemplate(isTemplate);
+    dispatch({
+      type: ActionTypes.BLOCK_SET_TEMPLATE,
+      undoable: true,
+      isTemplate,
+      block,
+    });
+    return block;
+  };
+};
+
+//todo - doc
+export const blockSetHidden = (blockId, isHidden = true) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+
+    const block = oldBlock.setHidden(isHidden);
+    dispatch({
+      type: ActionTypes.BLOCK_SET_HIDDEN,
+      undoable: true,
+      isHidden,
+      block,
+    });
+    return block;
+  };
+};
+
+//todo - doc
+export const blockSetAuthoring = (blockId, isAuthoring = true) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+
+    invariant(oldBlock.isTemplate(), 'can only start authoring a template');
+    invariant(dispatch(selectors.blockIsTopLevelConstruct(blockId)), 'construct must be direct child of project');
+
+    const block = oldBlock.setAuthoring(isAuthoring);
+    dispatch({
+      type: ActionTypes.BLOCK_SET_AUTHORING,
+      undoable: true,
+      isAuthoring,
+      block,
+    });
+    return block;
+  };
+};
+
+//todo - doc
+export const blockSetListBlock = (blockId, isList = true) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+    const block = oldBlock.setListBlock(isList);
+    dispatch({
+      type: ActionTypes.BLOCK_SET_LIST,
+      undoable: true,
+      isList,
+      block,
+    });
+    return block;
+  };
+};
+
+//todo - doc
 //for authoring template
 export const blockOptionsAdd = (blockId, ...optionIds) => {
   return (dispatch, getState) => {
@@ -439,6 +512,7 @@ export const blockOptionsAdd = (blockId, ...optionIds) => {
   };
 };
 
+//todo - doc
 //for authoring template
 export const blockOptionsRemove = (blockId, ...optionIds) => {
   return (dispatch, getState) => {
@@ -633,6 +707,30 @@ export const blockSetSequence = (blockId, sequence, useStrict) => {
       .then(block => {
         dispatch({
           type: ActionTypes.BLOCK_SET_SEQUENCE,
+          undoable: true,
+          block,
+        });
+        return block;
+      });
+  };
+};
+
+/**
+ * Set trim of a block's sequence, i.e. how many bases at start and end to skip when viewing
+ * @function
+ * @param {UUID} blockId
+ * @param {number} start bases from start to skip
+ * @param {number} end bases from end to ignore
+ * @returns {Block}
+ */
+export const blockTrimSequence = (blockId, start = 0, end = 0) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+
+    return oldBlock.setSequenceTrim(start, end)
+      .then(block => {
+        dispatch({
+          type: ActionTypes.BLOCK_SET_TRIM,
           undoable: true,
           block,
         });

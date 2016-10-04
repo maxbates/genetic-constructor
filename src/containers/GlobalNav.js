@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+/* global flashedUser:false, heap:false */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
@@ -75,9 +76,7 @@ import {
 import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import OkCancel from '../components/okcancel';
 import * as instanceMap from '../store/instanceMap';
-import { merge } from 'lodash';
-import { extensionApiPath } from '../middleware/paths';
-
+import { extensionApiPath } from '../middleware/utils/paths';
 
 import '../styles/GlobalNav.css';
 
@@ -126,6 +125,11 @@ class GlobalNav extends Component {
     detailViewVisible: PropTypes.bool.isRequired,
     focus: PropTypes.object.isRequired,
     blocks: PropTypes.object,
+    project: PropTypes.shape({
+      isSample: PropTypes.bool,
+      getName: PropTypes.func,
+      metadata: PropTypes.object,
+    }),
   };
 
   constructor(props) {
@@ -202,18 +206,25 @@ class GlobalNav extends Component {
     });
   }
 
+  state = {
+    showAddProject: false,
+    recentProjects: [],
+    showDeleteProject: false,
+  };
+
+  componentDidMount() {
+    // if we have a user then identify them to heap
+    if (heap && heap.identify && flashedUser && flashedUser.email) {
+      heap.identify(flashedUser.email);
+    }
+  }
+
   /**
    * unsink all keyboard events on unmount
    */
   componentWillUnmount() {
     KeyboardTrap.reset();
   }
-
-  state = {
-    showAddProject: false,
-    recentProjects: [],
-    showDeleteProject: false,
-  };
 
   /**
    * select all blocks of the current construct
@@ -280,12 +291,17 @@ class GlobalNav extends Component {
   /**
    * add a new construct to the current project
    */
-  newConstruct() {
+  newConstruct(initialModel = {}) {
     this.props.transact();
-    const block = this.props.blockCreate();
+    const block = this.props.blockCreate(initialModel);
     this.props.projectAddConstruct(this.props.currentProjectId, block.id);
     this.props.commit();
     this.props.focusConstruct(block.id);
+    return block;
+  }
+
+  newTemplate() {
+    return this.newConstruct({ rules: { authoring: true, fixed: true } });
   }
 
   /**
@@ -295,12 +311,43 @@ class GlobalNav extends Component {
   downloadProjectGenbank() {
     this.saveProject()
       .then(() => {
-        // for now use an iframe otherwise any errors will corrupt the page
+        //todo - maybe this whole complicated bit should go in middleware as its own function
+
         const url = extensionApiPath('genbank', `export/${this.props.currentProjectId}`);
+        const postBody = this.props.focus.options;
+        const iframeTarget = '' + Math.floor(Math.random() * 10000) + +Date.now();
+
+        // for now use an iframe otherwise any errors will corrupt the page
         const iframe = document.createElement('iframe');
+        iframe.name = iframeTarget;
         iframe.style.display = 'none';
-        iframe.src = url;
+        iframe.src = '';
         document.body.appendChild(iframe);
+
+        //make form to post to iframe
+        const form = document.createElement('form');
+        form.style.display = 'none';
+        form.action = url;
+        form.method = 'post';
+        form.target = iframeTarget;
+
+        //add inputs to the form for each value in postBody
+        Object.keys(postBody).forEach(key => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = postBody[key];
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+
+        //removing elements will cancel, so give them a nice timeout
+        setTimeout(() => {
+          document.body.removeChild(form);
+          document.body.removeChild(iframe);
+        }, 60 * 1000);
       });
   }
 
@@ -375,30 +422,6 @@ class GlobalNav extends Component {
    */
   saveProject() {
     return this.props.projectSave(this.props.currentProjectId);
-  }
-
-  /**
-   * add a new construct to the current project
-   */
-  newConstruct() {
-    this.props.transact();
-    const block = this.props.blockCreate();
-    this.props.projectAddConstruct(this.props.currentProjectId, block.id);
-    this.props.commit();
-    this.props.focusConstruct(block.id);
-  }
-
-  /**
-   * new project and navigate to new project
-   */
-  newProject() {
-    // create project and add a default construct
-    const project = this.props.projectCreate();
-    // add a construct to the new project
-    const block = this.props.blockCreate({ projectId: project.id });
-    this.props.projectAddConstruct(project.id, block.id);
-    this.props.focusConstruct(block.id);
-    this.props.projectOpen(project.id);
   }
 
   /**
@@ -506,6 +529,12 @@ class GlobalNav extends Component {
                 this.newConstruct();
               },
             },
+            {
+              text: 'New Template',
+              action: () => {
+                this.newTemplate();
+              },
+            },
             {},
             {
               text: 'Import Genbank or CSV File...',
@@ -514,7 +543,7 @@ class GlobalNav extends Component {
               },
             },
             {
-              text: 'Download Genbank File',
+              text: 'Download Genbank/Zip File',
               action: () => {
                 this.downloadProjectGenbank();
               },
@@ -700,7 +729,7 @@ class GlobalNav extends Component {
             <div className="message">
               <br/>
               <span
-                className="line">{this.props.project ? (`"${this.props.project.getName()}"` || "Your Project") : ""}</span>
+                className="line">{this.props.project ? (`"${this.props.project.getName()}"` || 'Your Project') : ''}</span>
               <br/>
               <span className="line">and all related project data will be permanently deleted.</span>
               <br/>

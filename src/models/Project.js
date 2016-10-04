@@ -71,7 +71,7 @@ export default class Project extends Instance {
   }
 
   /**
-   * compares two projects, checking if they are the same (ignoring project version)
+   * compares two projects, checking if they are the same (ignoring project version + save time)
    * @method compare
    * @memberOf Project
    * @static

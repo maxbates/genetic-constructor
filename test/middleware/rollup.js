@@ -1,7 +1,7 @@
 import chai from 'chai';
 import * as api from '../../src/middleware/data';
 import { merge, range } from 'lodash';
-const { assert, expect } = chai;
+import { testUserId } from '../constants';
 import {
   fileExists,
   fileRead,
@@ -18,13 +18,14 @@ import * as filePaths from '../../server/utils/filePaths';
 import * as rollup from '../../server/data/rollup';
 import * as versioning from '../../server/data/versioning';
 import * as persistence from '../../server/data/persistence';
-
 import { createExampleRollup } from '../utils/rollup';
+
+const { assert, expect } = chai;
 
 describe('Middleware', () => {
   describe('Rollup', () => {
     //create a test project to load
-    const userId = '0'; //for test environment
+    const userId = testUserId;
     const roll = createExampleRollup();
     const project = roll.project;
     const projectId = project.id;
@@ -50,7 +51,7 @@ describe('Middleware', () => {
         });
     });
 
-    it('saveProject() saves a project and blocks, can be loaded by persistence', () => {
+    it('saveProject() saves a project and blocks, can be loaded by persistence, adds version, lastSaved, authors', () => {
       const roll = createExampleRollup();
       const project = roll.project;
       const projectId = project.id;
@@ -66,7 +67,13 @@ describe('Middleware', () => {
             persistence.blocksGet(projectId, false, block2.id).then(map => map[block2.id]),
           ])
           .then(([gotProject, got1, got2]) => {
-            expect(gotProject).to.eql(Object.assign({}, project, { version: commit.sha, lastSaved: commit.time }));
+            expect(gotProject).to.eql(merge({}, project, {
+              version: commit.sha,
+              lastSaved: commit.time,
+              metadata: {
+                authors: [testUserId],
+              },
+            }));
             expect(got1).to.eql(block1);
             expect(got2).to.eql(block2);
           }));

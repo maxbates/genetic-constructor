@@ -3,13 +3,20 @@
   "version": "1.0.0",
   "description": "Extension to write and execute GSL (Genotype Specification Language) code and create constructs.",
   "geneticConstructor": {
-    "readable": "GSL Editor (S288C)",
-    "region": "projectDetail",
-    "router": "server-build.js",
-    "client": "client-build.js"
+    "readable": "GSL Editor",
+    "type": "Code editor",
+    "client": [
+      {
+        "file": "client-build.js",
+        "region": "projectDetail"
+      }
+    ],
+    "router": "server-build.js"
   },
   "scripts": {
-    "postinstall": "rm -rf GSL && git clone https://github.com/rupalkhilari/GSL.git && cd GSL && git checkout json_assembly && ./build.sh CopyBinaries",
+    "install-fsharp": "babel-node tools/run install-fsharp",
+    "install-gsl": "babel-node tools/run install-gsl",
+    "postinstall": "npm run install-fsharp && npm run install-gsl",
     "test": "node_modules/mocha/bin/mocha --compilers js:babel-core/register tests/unit/editor.test.js",
     "nightwatch": "node ./node_modules/nightwatch/bin/nightwatch --config ./tests/e2e/nightwatch.json",
     "selenium": "node ./node_modules/selenium-standalone/bin/selenium-standalone install",
@@ -21,7 +28,6 @@
     "debug-client": "webpack --config webpack.client.config.js",
     "watch-client": "webpack --watch --config webpack.client.config.js",
     "release-client": "webpack --optimize-minimize --config webpack.client.config.js",
-    "watch": "npm run watch-server && npm run watch-client",
     "debug": "npm run debug-server && npm run debug-client",
     "release": "npm run release-server && npm run release-client"
   },
@@ -42,7 +48,8 @@
     "react-addons-test-utils": "^0.14.2",
     "react-dom": "0.14.2",
     "shelljs": "^0.7.4",
-    "skin-deep": "^0.16.0"
+    "skin-deep": "^0.16.0",
+    "s288c": "git+http://github.com/rupalkhilari/gsl-genome-s288c.git"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",

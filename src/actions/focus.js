@@ -25,7 +25,7 @@ import { id as idValidatorCreator } from '../schemas/fields/validators';
 import Block from '../models/Block';
 import Project from '../models/Project';
 import { operators } from '../inventory/gsl';
-import { symbolMap } from '../inventory/roles'; 
+import { symbolMap } from '../inventory/roles';
 
 const idValidator = (id) => safeValidate(idValidatorCreator(), true, id);
 
