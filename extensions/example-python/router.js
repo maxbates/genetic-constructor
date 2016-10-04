@@ -1,6 +1,5 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var fetch = require('isomorphic-fetch');
 var cp = require('child_process');
 var path = require('path');
 var fs = require('fs');
@@ -9,10 +8,13 @@ var fs = require('fs');
 var router = express.Router();
 router.use(bodyParser.text());
 
+//declare routes
 router.route('*')
+  //non-functional get route
   .get(function (req, res, next) {
-    res.send('use post instead');
+    res.status(400).send('use post instead');
   })
+  //post route, expects text on the body
   .post(function (req, res, next) {
     var posted = req.body;
 
@@ -28,6 +30,7 @@ router.route('*')
       }
 
       //execute our python helper, passing the file name
+      //std out is captured and sent back to to the client
       cp.exec('python ' + scriptLocation + ' ' + fileLocation, function runPython(error, stdout, stderr) {
         if (error) {
           console.error(`exec error: ${error}`);
