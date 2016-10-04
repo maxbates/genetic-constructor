@@ -3,7 +3,8 @@ import md5 from 'md5';
 import invariant from 'invariant';
 import _, { merge, chunk, cloneDeep } from 'lodash';
 import uuid from 'node-uuid';
-import { fork } from 'child_process';
+import { spawn } from 'child_process';
+import fetch from 'isomorphic-fetch';
 
 import * as filePaths from '../../../utils/filePaths';
 import * as fileSystem from '../../../utils/fileSystem';
@@ -22,52 +23,35 @@ const createTempFilePath = () => filePaths.createStorageUrl('temp/' + uuid.v4())
 
 //todo - will need to consider bundling
 //one process for each
-const importFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
-const exportFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
+const ports = _.range(3).map(num => num + 4444);
+let serverIndex = 0;
+const servers = ports.map(port => spawn('node', [__dirname + '/standalone.js', `${port}`], { stdio: 'inherit' }));
 
-process.on('exit', () => {
-  importFork.kill('SIGHUP');
-  exportFork.kill('SIGHUP');
+process.on('SIGTERM', () => {
+  console.log('killing servers');
+  servers.forEach(server => server.kill('SIGTERM'));
 });
 
 // Run an external command and return the data in the specified output file
 //commmand is 'import' or 'export'
 const runCommand = (command, inputFile, outputFile) => {
-  const fork = command === 'import' ? importFork : exportFork;
+  const port = ports[serverIndex];
+  serverIndex = (serverIndex + 1) % ports.length;
 
-  return new Promise((resolve, reject) => {
-    const procId = uuid.v4();
-    timer.time('starting fork ' + procId);
-
-    fork.send({ type: command, id: procId, input: inputFile, output: outputFile });
-
-    fork.on('message', (message) => {
-      if (procId === message.id) {
-        timer.time('fork completed ' + procId);
-        console.log('proc completed', message);
-
-        if (message.success) {
-          return resolve(message.result);
-        }
-        return reject(message.error);
+  return fileSystem.fileRead(inputFile, false)
+    .then(contents => fetch(`http://localhost:${port}/${command}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': command === 'import' ? 'text/plain' : 'application/json',
+      },
+      body: contents,
+    }))
+    .then(resp => {
+      if (!resp.ok) {
+        return Promise.reject('error fetching');
       }
+      return resp.text();
     });
-  })
-    .then(() => fileSystem.fileRead(outputFile, false));
-
-  /*
-   return new Promise((resolve, reject) => {
-   exec(command, (err, stdout) => {
-   if (err) {
-   console.log('ERROR!!!!!');
-   console.log(err);
-   return reject(err);
-   }
-   return resolve(stdout);
-   });
-   })
-   .then(() => fileSystem.fileRead(outputFile, false));
-   */
 };
 
 //////////////////////////////////////////////////////////////
@@ -175,6 +159,7 @@ const readGenbankFile = (inputFilePath) => {
 
   return runCommand('import', inputFilePath, outputFilePath)
     .then(resStr => {
+      console.log(resStr.substr(0,100));
       timer.time('ran python');
 
       if (!process.env.DEBUG) {

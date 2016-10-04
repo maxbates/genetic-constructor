@@ -62,4 +62,4 @@ app.post('*', bodyParser.json(), bodyParser.text(), function handlePost(req, res
 
 app.listen(parseInt(port, 10));
 
-console.log('Server listening at port: ' + port);
+console.log('Genbank server at port: ' + port);
