@@ -38,7 +38,8 @@ const createBuildPath = (isBuild, notBuild = isBuild) => {
   return path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
 };
 const pathContent = createBuildPath('content', '../src/content');
-const pathDocs = createBuildPath('jsdoc', '../docs/jsdoc/genetic-constructor/0.5.0');
+//todo - dynamic, based on package number
+const pathDocs = createBuildPath('jsdoc', '../docs/jsdoc/genetic-constructor/0.6.0');
 const pathImages = createBuildPath('images', '../src/images');
 const pathPublic = createBuildPath('public', '../src/public');
 const pathClientBundle = createBuildPath('client.js', '../build/client.js');
