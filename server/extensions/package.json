@@ -6,7 +6,6 @@
     "testClient" : "../../extensions/testClient",
     "testPrivate" : "../../extensions/testPrivate",
     "testErrorServer" : "../../extensions/testErrorServer",
-    "example-python" : "../../extensions/example-python",
     "SequenceDetail" : "IsaacLuo/onion2#8f03cd9d4820b9e98965dc945539afed9b9205cb",
     "gslEditor" : "../../extensions/gslEditor",
     "GC-Sequence-Viewer": "duncanmeech/sequence-viewer"
