@@ -132,7 +132,7 @@ const _orderRead = (orderId, projectId) => {
 // SETUP
 
 const _projectSetup = (projectId, userId) => {
-  const timer = new DebugTimer('projectSetup ' + projectId);
+  const timer = new DebugTimer('projectSetup ' + projectId, { disabled: true });
 
   const projectPath = filePaths.createProjectPath(projectId);
   const projectDataPath = filePaths.createProjectDataPath(projectId);
@@ -329,7 +329,7 @@ export const projectCreate = (projectId, project, userId) => {
 //SET (WRITE + MERGE)
 
 export const projectWrite = (projectId, project = {}, userId, bypassValidation = false) => {
-  const timer = new DebugTimer('projectWrite ' + projectId, false);
+  const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
 
   invariant(project, 'project is required');
   invariant(userId, 'user id is required to write project');
@@ -510,7 +510,7 @@ export const orderDelete = (orderId, projectId) => {
 
 //e.g. autosave
 export const projectSave = (projectId, userId, messageAddition) => {
-  const timer = new DebugTimer('projectSave ' + projectId);
+  const timer = new DebugTimer('projectSave ' + projectId, { disabled: true });
   const message = commitMessages.messageSave(projectId, messageAddition);
   return _projectCommit(projectId, userId, message)
     .then(commit => {

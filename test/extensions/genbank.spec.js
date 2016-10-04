@@ -1,13 +1,12 @@
-import {expect} from 'chai';
+import { assert, expect } from 'chai';
 import path from 'path';
 import fs from 'fs';
 import JSZip from 'jszip';
-import {importProject, exportProject, exportConstruct} from '../../server/extensions/native/genbank/convert';
+import { importProject, exportProject, exportConstruct } from '../../server/extensions/native/genbank/convert';
 import BlockSchema from '../../src/schemas/Block';
 import ProjectSchema from '../../src/schemas/Project';
 import * as fileSystem from '../../server/utils/fileSystem';
 import { createExampleProject } from '../fixtures/rollup';
-
 
 const getBlock = (allBlocks, blockId) => {
   return allBlocks[blockId];
@@ -197,20 +196,20 @@ describe('Extensions', () => {
       return createExampleProject()
         .then(roll => exportProject(roll))
         .then(resultFileName => {
-          fs.readFile(resultFileName, function(err, data) {
+          fs.readFile(resultFileName, function (err, data) {
             if (err) throw err;
             JSZip.loadAsync(data)
-            .then((zip) => {
-              expect(zip.file(/\.gb/).length).to.equal(22);
-              zip.file(' -  - 10.gb').async('string')
-                .then((content) => {
-                  expect(content).to.contain('LOCUS');
-                  fileSystem.fileDelete(resultFileName);
-                  done();
-                })
-                .catch(done);
-            })
-            .catch(done);
+              .then((zip) => {
+                expect(zip.file(/\.gb/).length).to.equal(22);
+                zip.file(' -  - 10.gb').async('string')
+                  .then((content) => {
+                    expect(content).to.contain('LOCUS');
+                    fileSystem.fileDelete(resultFileName);
+                    done();
+                  })
+                  .catch(done);
+              })
+              .catch(done);
           });
         });
     });
@@ -227,6 +226,20 @@ describe('Extensions', () => {
           })
           .catch(done);
       });
+    });
+
+    it('should handle large files', () => {
+      const start = process.hrtime();
+
+      return importProject(path.resolve(__dirname, '../res/chromosome.gb'))
+        .then(output => {
+          const end = process.hrtime();
+
+          console.log(output.project);
+          console.log(Object.keys(output.blocks).length);
+
+          assert(end[0] - 15 < start[0], 'should take less than 15 seconds (this is very long)');
+        });
     });
   });
 });
