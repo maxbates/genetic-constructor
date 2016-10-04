@@ -23,23 +23,23 @@ const createTempFilePath = () => filePaths.createStorageUrl('temp/' + uuid.v4())
 
 //todo - will need to consider bundling
 //one process for each
-const ports = _.range(3).map(num => num + 4444);
-let serverIndex = 0;
-const servers = ports.map(port => spawn('node', [__dirname + '/standalone.js', `${port}`], { stdio: 'inherit' }));
-
-process.on('SIGTERM', () => {
-  console.log('killing servers');
-  servers.forEach(server => server.kill('SIGTERM'));
-});
+//const ports = _.range(3).map(num => num + 4444);
+//let serverIndex = 0;
+//const servers = ports.map(port => spawn('node', [__dirname + '/standalone.js', `${port}`], { stdio: 'inherit' }));
+//
+//process.on('SIGTERM', () => {
+//  console.log('killing servers');
+//  servers.forEach(server => server.kill('SIGTERM'));
+//});
 
 // Run an external command and return the data in the specified output file
 //commmand is 'import' or 'export'
 const runCommand = (command, inputFile, outputFile) => {
-  const port = ports[serverIndex];
-  serverIndex = (serverIndex + 1) % ports.length;
+  //const port = ports[serverIndex];
+  //serverIndex = (serverIndex + 1) % ports.length;
 
   return fileSystem.fileRead(inputFile, false)
-    .then(contents => fetch(`http://localhost:${port}/${command}`, {
+    .then(contents => fetch(`https://genbank-server.herokuapp.com/${command}`, {
       method: 'POST',
       headers: {
         'Content-Type': command === 'import' ? 'text/plain' : 'application/json',
@@ -159,7 +159,6 @@ const readGenbankFile = (inputFilePath) => {
 
   return runCommand('import', inputFilePath, outputFilePath)
     .then(resStr => {
-      console.log(resStr.substr(0,100));
       timer.time('ran python');
 
       if (!process.env.DEBUG) {
