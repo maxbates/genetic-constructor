@@ -40,7 +40,7 @@ Add this to `package.json` at the root level.
 ```json
 "geneticConstructor": {
   "type": "Contributed",
-  "router": "router.js"
+  "router": "router.js",
   "client": [
     {
       "file": "client.js",
@@ -167,7 +167,7 @@ router.route('*')
   //post route, expects text on the body
   .post(function (req, res, next) {
     //todo
-    res.status(501).send('not implemented);
+    res.status(501).send('not implemented');
   });
 
 module.exports = router;
@@ -224,7 +224,7 @@ var fs = require('fs');
     console.log('received body:', posted);
 
     //todo - run python + respond
-    res.status(501).send('not implemented);
+    res.status(501).send('not implemented');
 })
 ```
 
@@ -248,7 +248,7 @@ We'll write a file, and pass the filename to python, so we can easily pass infor
         }
 
         //todo - call python + respond
-        res.status(501).send('not implemented);
+        res.status(501).send('not implemented');
     });
 });
 ```
