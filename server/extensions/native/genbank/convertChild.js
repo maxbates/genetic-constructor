@@ -15,11 +15,9 @@
  */
 const cp = require('child_process');
 
-process.on('message', (message) => {
-  console.log('CHILD got message:', message.type, message.id);
-  console.log(message.input);
-  console.log(message.output);
+console.log('Initiated genbank converter slave');
 
+process.on('message', (message) => {
   //whether we are importing or exporting
   const conversion = message.type === 'import' ? 'from_genbank' : 'to_genbank';
 

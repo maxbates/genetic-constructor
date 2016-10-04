@@ -54,7 +54,8 @@ export default function importMiddleware(req, res, next) {
     const filePath = createFilePath(hash);
     const fileUrl = createFileUrl(hash);
 
-    promise = fileSystem.fileWrite(filePath, string, false)
+    promise = fileSystem.fileExists(filePath)
+      .catch((err) => fileSystem.fileWrite(filePath, string, false))
       .then(() => [{
         name,
         string,

@@ -187,6 +187,11 @@ router.post('/import/:format/:projectId?',
       .then(roll => {
         timer.time('imported');
 
+        if (!roll || typeof roll !== 'object') {
+          console.log('error retrieving roll ' + filePath);
+          return Promise.reject('error retrieving roll');
+        }
+
         const blockIds = Object.keys(roll.blocks);
 
         if (!blockIds.length) {
