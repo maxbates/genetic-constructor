@@ -1,14 +1,14 @@
+import { merge } from 'lodash';
 import Block from '../../src/models/Block';
 import connectorList from './connectorList.json';
 
 export default connectorList
-  .map(connector => new Block(connector))
-  .map(connector => connector.merge({
+  .map(connector => Block.classless(merge({}, connector, {
     metadata: {
       color: '#bababa',
     },
     rules: {
       hidden: true,
+      frozen: true,
     },
-  }))
-  .map(connector => connector.setFrozen());
+  })));

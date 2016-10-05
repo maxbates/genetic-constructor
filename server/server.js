@@ -38,7 +38,8 @@ const createBuildPath = (isBuild, notBuild = isBuild) => {
   return path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
 };
 const pathContent = createBuildPath('content', '../src/content');
-const pathDocs = createBuildPath('jsdoc', '../docs/jsdoc/genetic-constructor/0.5.0');
+//todo - dynamic, based on package number
+const pathDocs = createBuildPath('jsdoc', '../docs/jsdoc/genetic-constructor/0.6.0');
 const pathImages = createBuildPath('images', '../src/images');
 const pathPublic = createBuildPath('public', '../src/public');
 const pathClientBundle = createBuildPath('client.js', '../build/client.js');
@@ -61,7 +62,7 @@ app.use(morgan(logLevel, {
     if (req.path.indexOf('browser-sync') >= 0 || req.path.indexOf('__webpack') >= 0) {
       return true;
     }
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === 'test' && !process.env.DEBUG) {
       return true;
     }
     return false;
@@ -101,6 +102,7 @@ if (process.env.BIO_NANO_AUTH) {
     resetForm: '/homepage/reset',
     apiEndPoint: API_END_POINT,
     onLogin: onLoginHandler,
+    //onLogin: (req, res, next) => next(req, res), //mock
     registerRedirect: false,
   };
   app.use(initAuthMiddleware(authConfig));

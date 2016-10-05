@@ -22,7 +22,7 @@ import {
   uiSpin,
 } from '../../actions/ui';
 import { projectGet, projectListAllBlocks } from '../../selectors/projects';
-import { projectList, projectLoad, projectOpen } from '../../actions/projects';
+import { projectSave, projectList, projectLoad, projectOpen } from '../../actions/projects';
 import { importFile as importGenbankFile } from '../../middleware/genbank';
 import { importFile as importCsvFile } from '../../middleware/csv';
 
@@ -40,6 +40,7 @@ class ImportGenBankModal extends Component {
     uiShowGenBankImport: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
+    projectSave: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -82,7 +83,13 @@ class ImportGenBankModal extends Component {
       const isCSV = file.name.toLowerCase().endsWith('.csv');
       const importer = isCSV ? importCsvFile : importGenbankFile;
 
-      importer(projectId, file)
+      //if saving into current project, save the current project first (and force the save) so its on the server
+      const savePromise = !!projectId ?
+        this.props.projectSave(this.props.currentProjectId, true) :
+        Promise.resolve();
+
+      savePromise
+        .then(() => importer(projectId, file))
         .then(projectId => {
           this.props.uiSpin();
           if (projectId === this.props.currentProjectId) {
@@ -193,6 +200,7 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps, {
   uiShowGenBankImport,
   uiSpin,
+  projectSave,
   projectGet,
   projectListAllBlocks,
   projectList,

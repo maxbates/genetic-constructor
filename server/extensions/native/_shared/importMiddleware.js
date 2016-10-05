@@ -54,7 +54,9 @@ export default function importMiddleware(req, res, next) {
     const filePath = createFilePath(hash);
     const fileUrl = createFileUrl(hash);
 
-    promise = fileSystem.fileWrite(filePath, string, false)
+    //only write the file if it doesnt exist
+    promise = fileSystem.fileExists(filePath)
+      .catch((err) => fileSystem.fileWrite(filePath, string, false))
       .then(() => [{
         name,
         string,
@@ -93,7 +95,9 @@ export default function importMiddleware(req, res, next) {
                 const hash = md5(string);
                 const filePath = createFilePath(hash);
                 const fileUrl = createFileUrl(hash);
-                return fileSystem.fileWrite(filePath, string, false)
+
+                return fileSystem.fileExists(filePath)
+                  .catch((err) => fileSystem.fileWrite(filePath, string, false))
                   .then(() => ({
                     name,
                     string,

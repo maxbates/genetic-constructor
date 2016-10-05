@@ -1,6 +1,7 @@
 @import '../../node_modules/normalize.css/normalize.css';
 @import 'variables.css';
 @import 'base.css';
+@import 'fonts.css';
 
 .App {
   display: flex;
