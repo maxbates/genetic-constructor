@@ -19,6 +19,8 @@ const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');
 
+//todo - CLI flag to force deleting of all
+
 const nodeModulePath = path.resolve(__dirname, 'node_modules');
 
 fs.stat(nodeModulePath, function checkDirExists(err, stat) {
@@ -38,6 +40,8 @@ fs.stat(nodeModulePath, function checkDirExists(err, stat) {
 
   dirContents.forEach(function checkDir(dir) {
     if (!deps[dir]) {
+      //todo - should check version and see if newer available as well
+
       rimraf(path.resolve(nodeModulePath, dir), function callback() {
         console.log('deleted extension (not listed in package.json): ' + dir);
       });

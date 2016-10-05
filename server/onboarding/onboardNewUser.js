@@ -21,6 +21,7 @@
 import invariant from 'invariant';
 import * as rollup from '../data/rollup';
 import { getConfigFromUser } from '../user/utils';
+import DebugTimer from '../utils/DebugTimer';
 
 //NOTE - egf_parts vs egf_templates
 import makeEgfRollup from '../../data/egf_parts/index';
@@ -55,44 +56,32 @@ const createGeneratorsInitialProjects = (user) => {
 
 //create initial projects and set up configuration for them
 export default function onboardNewUser(user) {
-  //debug
-  const start = process.hrtime();
-  console.log('[User Setup] Onboarding ' + user.uuid + ' ' + user.email);
+  invariant(user && user.email && user.uuid, 'must pass valid user');
+
+  console.log('[User Setup] Onboarding ' + user.uuid + ' - ' + user.email);
+  const timer = new DebugTimer('Onboarding ' + user.uuid + ' ' + user.email);
 
   const initialProjectGenerators = createGeneratorsInitialProjects(user);
   const [firstRollGen, ...restRollGens] = initialProjectGenerators;
+  timer.time('made generators');
 
   //generate the firstRoll last, so that it has the most recent timestamp, and is opened first
-  return Promise.all(
-    restRollGens.map(generator => {
-      const roll = generator();
-
-      if (process.env.NODE_ENV === 'test') {
-        const mid = process.hrtime();
-        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
-        console.log('made first roll ' + user.email + ' took ', time);
-      }
-
-      return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true);
-    })
-  )
+  return Promise.resolve()
+    .then(() => Promise.all(
+      restRollGens.map(generator => {
+        const roll = generator();
+        timer.time('non-primary rolls generated');
+        return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true);
+      })
+    ))
     .then((restRolls) => {
-      if (process.env.NODE_ENV === 'test') {
-        const mid = process.hrtime();
-        const time = (mid[0] - start[0]) + ((mid[1] - start[1]) / Math.pow(10, 9));
-        console.log('wrote first roll ' + user.email + ' took ', time);
-      }
-
+      timer.time('non-primary rolls wrote');
       const roll = firstRollGen();
+      timer.time('second roll generated');
+
       return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true)
         .then(firstRoll => {
-          //debug
-          if (process.env.NODE_ENV === 'test') {
-            const end = process.hrtime();
-            const time = (end[0] - start[0]) + ((end[1] - start[1]) / Math.pow(10, 9));
-            console.log('\n\nonboarding ' + user.email + ' took ', time);
-          }
-
+          timer.end('onboarding complete');
           return [firstRoll, ...restRolls];
         });
     });

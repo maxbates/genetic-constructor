@@ -9,12 +9,12 @@ const middlewares = [
   saveLastActionMiddleware,
 ];
 
+console.error('todo - update store mock with freezeing reducer enhancer... or deprecate mock all together?');
+
 //note - not an undoable store
 //first two arguments required,
 //combineUnderNamespace to create namespaced store automatically
 export function simpleStore(initialState, reducer, combineUnderNamespace) {
-  console.error('todo - update store mock with freezeing reducer enhancer... or deprecate mock all together?');
-
   const finalReducer = (typeof combineUnderNamespace === 'string') ?
     combineReducers({ [combineUnderNamespace]: reducer }) :
     reducer;

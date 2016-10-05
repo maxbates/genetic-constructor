@@ -8,16 +8,17 @@
     "client": [
       {
         "file": "client.js",
-        "region": null
+        "region": "projectDetail"
       }
     ]
   },
-  "scripts": {},
+  "scripts": {
+    "postinstall": "pip install biopython"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "isomorphic-fetch": "^2.2.1"
+    "express": "^4.14.0"
   }
 }

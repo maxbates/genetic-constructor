@@ -1,22 +1,25 @@
+import { merge } from 'lodash';
 import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
 import rollupFromArray from '../../src/utils/rollup/rollupFromArray';
 
-import { templates, blocks as templateBlocks } from './templates';
-import { examples, blocks as exampleBlocks } from './examples';
+import { baseTemplates, blocks as templateBlocks } from './templates';
+import { baseExamples, blocks as exampleBlocks } from './examples';
 
-//clone everything so that IDs are unique -- note we pass clone(false), NOT clone(null) intentionally
+//note - dont need to set projectId, since it will be set when writing the rollup
+
+//take the base tempaltes + examples, make them real blocks (give them IDs)
+//not cloning, i.e. not tracking origin, since users just getting this project directly for the time being.
 //NOTE - if clone the tempalte blocks and example blocks, need to update components: [] in list blocks
-//remember to set to frozen if clone them
 const makeBlocks = () => {
   return {
     constructs: [
-      ...templates.map(template => template.clone(false, { rules: { frozen: true } })).map(block => Block.classless(block)),
-      ...examples.map(example => example.clone(false, { rules: { frozen: true } })).map(block => Block.classless(block)),
+      ...baseTemplates.map(baseTemplate => Block.classless(baseTemplate)),
+      ...baseExamples.map(baseExample => Block.classless(baseExample)),
     ],
     blocks: [
-      ...templateBlocks.map(block => Block.classless(block)),
-      ...exampleBlocks.map(block => Block.classless(block)),
+      ...templateBlocks,
+      ...exampleBlocks,
     ],
   };
 };

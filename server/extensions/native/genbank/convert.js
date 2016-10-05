@@ -3,7 +3,7 @@ import md5 from 'md5';
 import invariant from 'invariant';
 import _, { merge, chunk, cloneDeep } from 'lodash';
 import uuid from 'node-uuid';
-import { exec } from 'child_process';
+import { fork } from 'child_process';
 
 import * as filePaths from '../../../utils/filePaths';
 import * as fileSystem from '../../../utils/fileSystem';
@@ -11,26 +11,63 @@ import * as persistence from '../../../data/persistence';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import Annotation from '../../../../src/models/Annotation';
-import BlockSchema from '../../../../src/schemas/Block';
+
+import DebugTimer from '../../../utils/DebugTimer';
+const timer = new DebugTimer('Genbank', { delayed: true });
 
 //////////////////////////////////////////////////////////////
 // COMMON
 //////////////////////////////////////////////////////////////
 const createTempFilePath = () => filePaths.createStorageUrl('temp/' + uuid.v4());
 
+//todo - will need to consider bundling
+//one process for each
+const importFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
+const exportFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
+
+process.on('exit', () => {
+  importFork.kill('SIGHUP');
+  exportFork.kill('SIGHUP');
+});
+
 // Run an external command and return the data in the specified output file
+//commmand is 'import' or 'export'
 const runCommand = (command, inputFile, outputFile) => {
+  const fork = command === 'import' ? importFork : exportFork;
+
   return new Promise((resolve, reject) => {
-    exec(command, (err, stdout) => {
-      if (err) {
-        console.log('ERROR!!!!!');
-        console.log(err);
-        reject(err);
+    const procId = uuid.v4();
+    timer.time('starting fork ' + procId);
+
+    fork.send({ type: command, id: procId, input: inputFile, output: outputFile });
+
+    fork.on('message', (message) => {
+      if (procId === message.id) {
+        timer.time('fork completed ' + procId);
+        console.log('proc completed', message);
+
+        if (message.success) {
+          return resolve(message.result);
+        }
+        return reject(message.error);
       }
-      else resolve(stdout);
     });
   })
     .then(() => fileSystem.fileRead(outputFile, false));
+
+  /*
+   return new Promise((resolve, reject) => {
+   exec(command, (err, stdout) => {
+   if (err) {
+   console.log('ERROR!!!!!');
+   console.log(err);
+   return reject(err);
+   }
+   return resolve(stdout);
+   });
+   })
+   .then(() => fileSystem.fileRead(outputFile, false));
+   */
 };
 
 //////////////////////////////////////////////////////////////
@@ -41,7 +78,6 @@ const runCommand = (command, inputFile, outputFile) => {
 const createBlockStructureAndSaveSequence = (block, sourceId) => {
   // generate a valid block scaffold. This is similar to calling new Block(),
   // but a bit more light weight and easier to work with (models are frozen so you cannot edit them)
-  const scaffold = BlockSchema.scaffold();
   const fileName = /[^/]*$/.exec(sourceId)[0];
 
   //get the sequence md5
@@ -71,7 +107,7 @@ const createBlockStructureAndSaveSequence = (block, sourceId) => {
   };
 
   //be sure to pass in empty project first, so you arent overwriting scaffold each time
-  const outputBlock = merge({}, scaffold, toMerge);
+  const outputBlock = Block.classless(toMerge);
 
   //promise, for writing sequence if we have one, or just immediately resolve if we dont
   const sequencePromise = sequenceMd5 ?
@@ -92,35 +128,27 @@ const createBlockStructureAndSaveSequence = (block, sourceId) => {
 const createAllBlocks = (outputBlocks, sourceId) => {
   const batches = chunk(Object.keys(outputBlocks), 50);
 
+  timer.time('start writing sequences');
+
   return batches.reduce((acc, batch) => {
     return acc.then((allBlocks) => {
       return Promise.all(batch.map(block => createBlockStructureAndSaveSequence(outputBlocks[block], sourceId)))
         .then((createdBatch) => {
+          timer.time('made 50 blocks + wrote sequences');
           return allBlocks.concat(createdBatch);
         });
     });
   }, Promise.resolve([]));
 };
 
-// Given an old ID, returns the new ID for a block
-const getNewId = (blockStructureArray, oldId) => {
-  for (let i = 0, len = blockStructureArray.length; i < len; i++) {
-    if (blockStructureArray[i].oldId === oldId) {
-      return blockStructureArray[i].id;
-    }
-  }
-};
-
 // Takes a block structure and sets up the hierarchy through GD ids.
 // This is necessary because Python returns ids that are not produced by GD.
-const remapHierarchy = (blockArray) => {
-  return blockArray.map(blockStructure => {
-    const newBlock = blockStructure.block;
-    blockStructure.children.map(oldChildId => {
-      const newid = getNewId(blockArray, oldChildId);
-      newBlock.components.push(newid);
-    });
-    return Block.classless(newBlock);
+// takes block structure (block, id, oldId, children) and returns blocks with proper IDs
+const remapHierarchy = (blockArray, idMap) => {
+  return _.map(blockArray, (structure) => {
+    const newBlock = structure.block;
+    newBlock.components = structure.children.map(oldId => idMap[oldId]);
+    return newBlock;
   });
 };
 
@@ -143,11 +171,16 @@ const handleProject = (outputProject, rootBlockIds) => {
 const readGenbankFile = (inputFilePath) => {
   const outputFilePath = createTempFilePath();
 
-  const cmd = `python ${path.resolve(__dirname, 'convert.py')} from_genbank ${inputFilePath} ${outputFilePath}`;
+  timer.time('starting conversion');
 
-  return runCommand(cmd, inputFilePath, outputFilePath)
+  return runCommand('import', inputFilePath, outputFilePath)
     .then(resStr => {
-      fileSystem.fileDelete(outputFilePath);
+      timer.time('ran python');
+
+      if (!process.env.DEBUG) {
+        fileSystem.fileDelete(outputFilePath);
+      }
+
       try {
         const res = JSON.parse(resStr);
         return Promise.resolve(res);
@@ -158,7 +191,9 @@ const readGenbankFile = (inputFilePath) => {
     .catch(err => {
       console.log('ERROR IN PYTHON');
       console.log(err);
-      fileSystem.fileDelete(outputFilePath);
+      if (!process.env.DEBUG) {
+        fileSystem.fileDelete(outputFilePath);
+      }
       return Promise.reject(err);
     });
 };
@@ -167,15 +202,25 @@ const readGenbankFile = (inputFilePath) => {
 const handleBlocks = (inputFilePath) => {
   return readGenbankFile(inputFilePath)
     .then(result => {
+      timer.time('file read');
+
       if (result && result.project && result.blocks &&
         result.project.components && result.project.components.length > 0) {
         return createAllBlocks(result.blocks, inputFilePath)
           .then(blocksWithOldIds => {
-            const remappedBlocksArray = remapHierarchy(blocksWithOldIds);
-            const newRootBlocks = result.project.components.map((oldBlockId) => {
-              return getNewId(blocksWithOldIds, oldBlockId);
-            });
+            timer.time('blocks created');
+
+            const idMap = _.zipObject(
+              _.map(blocksWithOldIds, 'oldId'),
+              _.map(blocksWithOldIds, 'id')
+            );
+
+            const remappedBlocksArray = remapHierarchy(blocksWithOldIds, idMap);
+            const newRootBlocks = result.project.components.map((oldBlockId) => idMap[oldBlockId]);
             const blockMap = remappedBlocksArray.reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+
+            timer.time('blocks remapped');
+
             return { project: result.project, rootBlocks: newRootBlocks, blocks: blockMap };
           });
       }
@@ -186,12 +231,19 @@ const handleBlocks = (inputFilePath) => {
 // Import project and construct/s from genbank
 // Returns a project structure and the list of all blocks
 export const importProject = (inputFilePath) => {
+  timer.start('start');
+
   return handleBlocks(inputFilePath)
     .then((result) => {
+      timer.time('blocks handled');
+
       if (_.isString(result)) {
         return result;
       }
       const resProject = handleProject(result.project, result.rootBlocks);
+
+      timer.log();
+      timer.clear();
 
       //const outputFile = filePaths.createStorageUrl('imported_from_genbank.json');
       //fileSystem.fileWrite(outputFile, {project: resProject, blocks: result.blocks});
@@ -236,15 +288,19 @@ const exportProjectStructure = (project, blocks) => {
   //console.log(JSON.stringify(input));
 
   return fileSystem.fileWrite(inputFilePath, input)
-    .then(() => runCommand(`python ${path.resolve(__dirname, 'convert.py')} to_genbank ${inputFilePath} ${outputFilePath}`, inputFilePath, outputFilePath))
+    .then(() => runCommand('export', inputFilePath, outputFilePath))
     .then(resStr => {
-      fileSystem.fileDelete(inputFilePath);
+      if (!process.env.DEBUG) {
+        fileSystem.fileDelete(inputFilePath);
+      }
       return outputFilePath;
     })
     .catch(err => {
       //dont need to wait for promises to resolve
-      fileSystem.fileDelete(inputFilePath);
-      fileSystem.fileDelete(outputFilePath);
+      if (!process.env.DEBUG) {
+        fileSystem.fileDelete(inputFilePath);
+        fileSystem.fileDelete(outputFilePath);
+      }
       console.log('ERROR IN PYTHON');
       console.log('Command');
       console.log(`python ${path.resolve(__dirname, 'convert.py')} to_genbank ${inputFilePath} ${outputFilePath}`);
