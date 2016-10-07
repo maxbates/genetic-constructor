@@ -176,8 +176,9 @@ class ImportGenBankModal extends Component {
                 }}>Cancel
               </button>
               <div className="link">
-                <span>Format documentation and sample .CSV files can be found here</span>
-                <a className="blue-link" href="https://forum.bionano.autodesk.com/t/importing-data-using-csv-format/94" target="_blank">discourse.bionano.autodesk.com/genetic-constructor/formats</a>
+                <span>Format documentation and sample .CSV files can be found
+                    <a className="blue-link" href="https://geneticconstructor.readme.io/docs/csv-upload" target="_blank"> here</a>
+                </span>
               </div>
             </form>
           )}
