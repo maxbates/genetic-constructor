@@ -175,8 +175,8 @@ class ImportPartsCSVModal extends Component {
                 }}>Cancel
               </button>
               <div className="link">
-                <span>Format documentation and sample .CSV files can be found 
-                    <a className="blue-link" href="https://geneticconstructor.readme.io/docs/csv-upload" target="_blank">here</a>
+                <span>Format documentation and sample .CSV files can be found
+                    <a className="blue-link" href="https://geneticconstructor.readme.io/docs/csv-upload" target="_blank"> here</a>
                 </span>
               </div>
             </form>
