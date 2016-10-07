@@ -548,6 +548,10 @@ export const sequenceGet = (md5) => {
 };
 
 export const sequenceWrite = (md5, sequence, blockId, projectId) => {
+  if (!sequence.length) {
+    return Promise.resolve();
+  }
+
   const sequencePath = filePaths.createSequencePath(md5);
 
   //only write if it doesnt exist
