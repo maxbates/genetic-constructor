@@ -177,7 +177,7 @@ class ImportGenBankModal extends Component {
               </button>
               <div className="link">
                 <span>Format documentation and sample .CSV files can be found here
-                    <a className="blue-link" href="https://geneticconstructor.readme.io/v1.0/docs/csv-upload" target="_blank">here</a>
+                    <a className="blue-link" href="https://geneticconstructor.readme.io/docs/csv-upload" target="_blank">here</a>
                 </span>
               </div>
             </form>
