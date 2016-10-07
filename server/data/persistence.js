@@ -19,7 +19,7 @@
  */
 import invariant from 'invariant';
 import path from 'path';
-import { merge, values, forEach } from 'lodash';
+import { chunk, merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../utils/errors';
 import { validateBlock, validateProject, validateOrder } from '../utils/validation';
 import * as filePaths from './../utils/filePaths';
@@ -554,6 +554,30 @@ export const sequenceWrite = (md5, sequence, blockId, projectId) => {
   return fileExists(sequencePath)
     .catch(() => fileWrite(sequencePath, sequence, false))
     .then(() => sequence);
+};
+
+//expect object, map of md5 to sequence
+export const sequenceWriteMany = (map) => {
+  invariant(typeof map === 'object', 'must pass an object');
+
+  const timer = new DebugTimer('sequenceWriteMany', { disabled: true });
+  const batches = chunk(Object.keys(map), 50);
+
+  return batches.reduce((acc, batch) => {
+    //promise for each batch
+    return acc.then((allWrites) => {
+      //sequenceWrite for each member of batch
+      return Promise.all(batch.map(md5 => sequenceWrite(md5, map[md5])))
+        .then((createdBatch) => {
+          timer.time('(sequenceWriteMany) made + wrote a chunk');
+          return allWrites.concat(createdBatch);
+        });
+    });
+  }, Promise.resolve([]))
+    .then((allWrites) => {
+      timer.end('all sequences written');
+      return map;
+    });
 };
 
 //probably dont want to let people do this, since sequence may be referenced by multiple blocks...
