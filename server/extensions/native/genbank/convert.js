@@ -1,7 +1,7 @@
 import path from 'path';
 import md5 from 'md5';
 import invariant from 'invariant';
-import _, { merge, chunk, cloneDeep } from 'lodash';
+import _, { merge, cloneDeep } from 'lodash';
 import uuid from 'node-uuid';
 import { fork } from 'child_process';
 
@@ -74,8 +74,8 @@ const runCommand = (command, inputFile, outputFile) => {
 // IMPORT
 //////////////////////////////////////////////////////////////
 // Create a GD block given a structure coming from Python
-// Also saves the sequence and stores the MD5 in the block
-const createBlockStructureAndSaveSequence = (block, sourceId) => {
+//assigns the sequence to a custom field
+const createBlockStructure = (block, sourceId) => {
   // generate a valid block scaffold. This is similar to calling new Block(),
   // but a bit more light weight and easier to work with (models are frozen so you cannot edit them)
   const fileName = /[^/]*$/.exec(sourceId)[0];
@@ -109,36 +109,31 @@ const createBlockStructureAndSaveSequence = (block, sourceId) => {
   //be sure to pass in empty project first, so you arent overwriting scaffold each time
   const outputBlock = Block.classless(toMerge);
 
-  //promise, for writing sequence if we have one, or just immediately resolve if we dont
-  const sequencePromise = sequenceMd5 ?
-    persistence.sequenceWrite(sequenceMd5, block.sequence.sequence) :
-    Promise.resolve();
-
   //return promise which will resolve with block once done
-  return sequencePromise.then(() => ({
+  return {
     block: outputBlock,
     id: outputBlock.id,
     oldId: block.id,
     children: block.components,
-  }));
+  };
 };
 
 // Creates a structure of GD blocks given the structure coming from Python
-// We chunk here because otherwise the OS complains of too many open files
+//and save sequences
 const createAllBlocks = (outputBlocks, sourceId) => {
-  const batches = chunk(Object.keys(outputBlocks), 50);
+  const allBlocks = _.map(outputBlocks, (block) => createBlockStructure(block, sourceId));
 
-  timer.time('start writing sequences');
+  const sequenceMap = allBlocks.reduce((acc, structure) => {
+    const sequence = structure.block.sequence.sequence;
+    const sequenceMd5 = structure.block.sequence.md5;
+    if (!sequenceMd5) {
+      return acc;
+    }
+    return Object.assign(acc, { [sequenceMd5]: sequence });
+  }, {});
 
-  return batches.reduce((acc, batch) => {
-    return acc.then((allBlocks) => {
-      return Promise.all(batch.map(block => createBlockStructureAndSaveSequence(outputBlocks[block], sourceId)))
-        .then((createdBatch) => {
-          timer.time('made 50 blocks + wrote sequences');
-          return allBlocks.concat(createdBatch);
-        });
-    });
-  }, Promise.resolve([]));
+  return persistence.sequenceWriteMany(sequenceMap)
+    .then(() => allBlocks);
 };
 
 // Takes a block structure and sets up the hierarchy through GD ids.

@@ -548,7 +548,7 @@ export const sequenceGet = (md5) => {
 };
 
 export const sequenceWrite = (md5, sequence, blockId, projectId) => {
-  if (!sequence.length) {
+  if (!sequence || !sequence.length) {
     return Promise.resolve();
   }
 
@@ -561,6 +561,7 @@ export const sequenceWrite = (md5, sequence, blockId, projectId) => {
 };
 
 //expect object, map of md5 to sequence
+//todo - could support array, and compute md5 ourselves
 export const sequenceWriteMany = (map) => {
   invariant(typeof map === 'object', 'must pass an object');
 
