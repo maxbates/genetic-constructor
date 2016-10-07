@@ -123,8 +123,8 @@ describe('Extensions', () => {
         .catch(done);
     });
 
-    it('should roundtrip a Genbank project through our app', function exportGB(done) {
-      importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
+    it('should roundtrip a Genbank project through our app', function exportGB() {
+      return importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
         .then(output => {
           expect(output.project).not.to.equal(undefined);
           expect(ProjectSchema.validate(output.project)).to.equal(true);
@@ -132,7 +132,7 @@ describe('Extensions', () => {
           expect(output.project.metadata.description).to.equal('Cloning vector pDM313, complete sequence.');
           return exportProject(output)
             .then(resultFileName => {
-              fileSystem.fileRead(resultFileName, false)
+              return fileSystem.fileRead(resultFileName, false)
                 .then(result => {
                   expect(result).to.contain('LOCUS       EU912544                 120 bp    DNA');
                   expect(result).to.contain('SYN 06-FEB-2009');
@@ -149,16 +149,14 @@ describe('Extensions', () => {
                   expect(result).to.contain('JOURNAL   Plasmid 61 (2), 110-118 (2009)');
                   expect(result).to.contain('PUBMED   19063918');
                   expect(result).to.contain('');
-                  fileSystem.fileDelete(resultFileName);
-                  done();
+                  return fileSystem.fileDelete(resultFileName);
                 });
             });
         })
-        .catch(done);
     });
 
-    it('should roundtrip a Genbank construct through our app', function exportGB(done) {
-      importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
+    it('should roundtrip a Genbank construct through our app', function exportGB() {
+      return importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
         .then(output => {
           expect(output.project).not.to.equal(undefined);
           expect(ProjectSchema.validate(output.project)).to.equal(true);
@@ -167,7 +165,7 @@ describe('Extensions', () => {
 
           return exportConstruct({ roll: output, constructId: output.project.components[0] })
             .then(resultFileName => {
-              fileSystem.fileRead(resultFileName, false)
+              return fileSystem.fileRead(resultFileName, false)
                 .then(result => {
                   expect(result).to.contain('LOCUS       EU912544                 120 bp    DNA');
                   expect(result).to.contain('SYN 06-FEB-2009');
@@ -184,12 +182,10 @@ describe('Extensions', () => {
                   expect(result).to.contain('JOURNAL   Plasmid 61 (2), 110-118 (2009)');
                   expect(result).to.contain('PUBMED   19063918');
                   expect(result).to.contain('');
-                  fileSystem.fileDelete(resultFileName);
-                  done();
+                  return fileSystem.fileDelete(resultFileName);
                 });
             });
         })
-        .catch(done);
     });
 
     it('should export project with list block', function exportListBlock(done) {

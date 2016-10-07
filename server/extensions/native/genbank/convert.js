@@ -44,7 +44,7 @@ const runCommand = (command, inputFile, outputFile) => {
     fork.on('message', (message) => {
       if (procId === message.id) {
         timer.time('fork completed ' + procId);
-        console.log('proc completed', message);
+        //console.log('proc completed', message);
 
         if (message.success) {
           return resolve(message.result);
@@ -112,6 +112,7 @@ const createBlockStructure = (block, sourceId) => {
   //return promise which will resolve with block once done
   return {
     block: outputBlock,
+    sequence: block.sequence.sequence,
     id: outputBlock.id,
     oldId: block.id,
     children: block.components,
@@ -124,7 +125,7 @@ const createAllBlocks = (outputBlocks, sourceId) => {
   const allBlocks = _.map(outputBlocks, (block) => createBlockStructure(block, sourceId));
 
   const sequenceMap = allBlocks.reduce((acc, structure) => {
-    const sequence = structure.block.sequence.sequence;
+    const sequence = structure.sequence;
     const sequenceMd5 = structure.block.sequence.md5;
     if (!sequenceMd5) {
       return acc;
