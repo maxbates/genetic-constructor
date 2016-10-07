@@ -1,11 +1,20 @@
+//import dependencies
+
+//server router
 var express = require('express');
+//parse message bodies
 var bodyParser = require('body-parser');
+//run shell scripts + create child processes
 var cp = require('child_process');
+//file system paths
 var path = require('path');
+//file system IO
 var fs = require('fs');
 
 //construct our router
 var router = express.Router();
+
+//automatically parse text bodies and make them available on req.body
 router.use(bodyParser.text());
 
 //declare routes
@@ -29,17 +38,20 @@ router.route('*')
         return res.status(500).send('error writing file');
       }
 
+      var command = 'python ' + scriptLocation + ' ' + fileLocation;
+
       //execute our python helper, passing the file name
       //std out is captured and sent back to to the client
-      cp.exec('python ' + scriptLocation + ' ' + fileLocation, function runPython(error, stdout, stderr) {
+      cp.exec(command, function runPython(error, stdout, stderr) {
         if (error) {
           console.error(`exec error: ${error}`);
-          res.status(500).send('error running python');
+          return res.status(500).send('error running python');
         }
 
         console.log(`stdout: ${stdout}`);
         console.log(`stderr: ${stderr}`);
 
+        //if no errors, send stdout as our response
         res.send(`${stdout}`);
       });
     });
