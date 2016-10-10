@@ -3,21 +3,27 @@
 
 # Genetic Constructor
 
+[Getting Started + Tutorials](https://geneticconstructor.readme.io/docs/getting-started)
+
 ### Installation
 
 Notes can be found at [Installation](docs/installation/installation.md)
 
-### Contributing + Documentation
+### Contributing
 
-[Contributions](./CONTRIBUTING.md) are welcome!
+Want to file a bug, contribute some code, or improve documentation? Excellent! Read up on our guidelines for [contributions](./CONTRIBUTING.md).
 
-See [Documentation](docs/README.md).
+### Developer Documentation
 
-For API documentation, see generated JSDocs in `/jsdoc/` (improvements forthcoming, we promise).
+[Application Documentation](docs/README.md)
+
+[Extensions Documentation](docs/extensions/README.md)
+
+[Client API Documentation](https://geneticconstructor.bionano.autodesk.com/help/docs/)
 
 ### License
 
-Copyright 2015 Autodesk Inc.
+Copyright 2016 Autodesk Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
