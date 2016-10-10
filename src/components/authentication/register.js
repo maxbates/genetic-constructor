@@ -112,7 +112,7 @@ export class RegisterForm extends Component {
     this.props.uiShowAuthenticationForm('signin');
   }
 
-  onTextChanged() {
+  onFormChanged = () => {
     if (this.firstName === 'darwin magic') {
       this.refs.firstName.value = 'Charles';
       this.refs.lastName.value = 'Darwin';
@@ -290,24 +290,24 @@ export class RegisterForm extends Component {
         <input
           ref="firstName"
           className="input"
-          onChange={this.onTextChanged.bind(this)}
+          onChange={this.onFormChanged}
           placeholder="First Name"/>
         <input
           ref="lastName"
           className="input"
-          onChange={this.onTextChanged.bind(this)}
+          onChange={this.onFormChanged}
           placeholder="Last Name"/>
         <div className={`error ${this.state.nameError.visible ? 'visible' : ''}`}>{`${this.state.nameError.text}`}</div>
         <div
           className={`error ${this.state.email1Error.visible ? 'visible' : ''}`}>{`${this.state.email1Error.text}`}</div>
         <input
           ref="emailAddress"
-          onChange={this.onTextChanged.bind(this)}
+          onChange={this.onFormChanged}
           className="input"
           placeholder="Email Address"/>
         <input
           ref="emailConfirm"
-          onChange={this.onTextChanged.bind(this)}
+          onChange={this.onFormChanged}
           className="input"
           placeholder="Confirm Email Address"/>
         <div
@@ -316,14 +316,14 @@ export class RegisterForm extends Component {
           className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}>{`${this.state.password1Error.text}`}</div>
         <input
           ref="password"
-          onChange={this.onTextChanged.bind(this)}
+          onChange={this.onFormChanged}
           maxLength={32}
           type="password"
           className="input"
           placeholder="Password"/>
         <input
           ref="passwordConfirm"
-          onChange={this.onTextChanged.bind(this)}
+          onChange={this.onFormChanged}
           maxLength={32}
           type="password"
           className="input"
@@ -333,7 +333,9 @@ export class RegisterForm extends Component {
         <div className="checkbox">
           <input
             ref="tos"
-            type="checkbox"/>
+            type="checkbox"
+            onChange={this.onFormChanged}
+          />
           <span>I agree to the
             <a
               target="_blank"
