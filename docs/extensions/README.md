@@ -4,6 +4,8 @@ Extensions are additions for Genetic Constructor, with client and/or server func
 
 [Server Extensions](ServerExtensions.md) add dynamic REST APIs to the server, which can be called by client-extensions, and have some access to persisted Genetic Constructor data.
 
+Some [Walkthroughs](walkthroughs.md) are available, after you've read through the basics.
+
 ### Requirements
 
 Extensions must be valid NPM packages, including a file `package.json`.

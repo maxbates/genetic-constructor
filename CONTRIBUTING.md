@@ -1,10 +1,22 @@
 # Contributing to Genetic Constructor
 
-Contributions to this project are encouraged! Email the maintainers to become a contributor.
+Contributions to this project are encouraged! All you need is a Github account to contribute.
 
-## Tips
+Please ask questions by [opening an issue](https://github.com/autodesk-bionano/genome-designer/issues/new).
+
+## Quickstart
 
 To get started, as always: [open an issue](https://github.com/autodesk-bionano/genome-designer/issues/new).
+
+Make your code changes, and submit a pull request. Add tests and update documentation when appropriate. Fill out the pull request template entirely on GitHub.
+
+You must sign our Contributor License Agreement (CLA) before pull requests can be accepted, which will pop up as a comment after submitting your pull request.
+
+All submissions must pass lint + unit test checks, which will be run automatically (Travis CI) when you make a pull request.
+
+Admins will respond quickly, and may request changes, on the pull request.
+
+## What Can I Do?
 
 Here are some ideas:
 
@@ -89,3 +101,7 @@ Before you submit your pull request consider the following guidelines:
 [Testing Documentation](tests/README.md)
 
 Tests will be run to ensure no regressions are introduced in new code.
+
+## Becoming a contributor
+
+Frequent contributors can email the maintainers to become a project administrator, at the approval of existing project admins.
