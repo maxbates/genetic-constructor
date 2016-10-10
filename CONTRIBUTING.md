@@ -104,4 +104,4 @@ Tests will be run to ensure no regressions are introduced in new code.
 
 ## Becoming a contributor
 
-Frequent contributors can email the maintainers to become a project administrator, at the approval of existing project admins.
+Frequent contributors can email the maintainers at geneticconstructor.maintainers@autodesk.com to become a project administrator, at the approval of existing project admins.
