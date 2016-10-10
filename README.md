@@ -3,17 +3,17 @@
 
 # Genetic Constructor
 
+[Getting Started + Tutorials](https://geneticconstructor.readme.io/docs/getting-started)
+
 ### Installation
 
 Notes can be found at [Installation](docs/installation/installation.md)
 
 ### Contributing
 
-[Contributions](./CONTRIBUTING.md) are welcome!
+Want to file a bug, contribute some code, or improve documentation? Excellent! Read up on our guidelines for [contributions](./CONTRIBUTING.md).
 
-### Documentation
-
-[Getting started + Tutorials](https://geneticconstructor.readme.io/docs/getting-started)
+### Developer Documentation
 
 [Application Documentation](docs/README.md)
 
