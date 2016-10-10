@@ -66,10 +66,20 @@ const optimizeBlock = (blockId, organism) => {
     return optimized;
   })
     .then(optimizedMap => {
-      Object.keys(optimizedMap).forEach(blockId => {
+      return Promise.all(Object.keys(optimizedMap).map(blockId => {
         const optSeq = optimizedMap[blockId];
         return constructor.api.blocks.blockSetSequence(blockId, optSeq);
+      }));
+    })
+    .then(optimizedBlocks => {
+      const projectId = constructor.api.projects.projectGetCurrentId();
+      const construct = constructor.api.blocks.blockCreate({
+        metadata: {
+          name: 'Optimized Construct',
+        },
+        components: [clone.id],
       });
+      return constructor.api.projects.projectAddConstruct(projectId, construct.id);
     })
     .catch((err) => {
       console.error('there was an error');
@@ -106,7 +116,7 @@ function optimizedSequenceFromAnimos(aminos, table) {
 function generateAminos(sequence, table) {
   const map = table.reduce((acc, codonObj) => Object.assign(acc, { [codonObj.codon]: codonObj.aa }), {});
   return sequence
-    //break up into chunks of three
+  //break up into chunks of three
     .match(/.{1,3}/g)
     //if we can't find the codon (e.g. length is 1 or 2), just effectively skip it by returning empty string
     .map(codon => map[codon] || '')
@@ -117,6 +127,7 @@ function generateAminos(sequence, table) {
 function parseTable(tableString) {
   return tableString
     .trim()
+    .replace(/U/gi, 'T')
     .replace(/\n/, '  ')
     .split('  ')
     .map(codonString => codonString.split(' '))
