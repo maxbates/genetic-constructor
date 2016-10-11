@@ -118,8 +118,13 @@ export const blockMerge = (blockId, toMerge) => {
   };
 };
 
+// NOTE - currently, we dont clone frozen blocks by default. This is fine as long as blocks are not being shared, since they will always be owned by the same person.
+// This means the same blocks (by ID) may exist in multiple projects - but they will be identical. This is compatible with block referencing.
+const frozenFilter = (block) => !block.isFrozen();
+
 /**
- * Clone a block (and its children, by default)
+ * Clone a block (and its contents - components + list options)
+ * Sets projectId to null for all cloned elements. Project ID is set when added back to the project.
  * @function
  * @param blockInput {ID|Object} JSON of block directly, or ID. Accept both since inventory items may not be in the store, so we need to pass the block directly. Prefer to use ID.
  * @param parentObjectInput {Object} information about parent, defaults to generated:
@@ -127,10 +132,10 @@ export const blockMerge = (blockId, toMerge) => {
  *   projectId - same as block being cloned, or block.projectId
   *  version - that of project ID if in the store, or first parent if available and same project id
   * }
- * @param shallowOnly {Boolean} Does a deep clone by default, adds all child blocks to store
+ * @param filter {function} when true, block is cloned. By default, filter out frozen blocks: `(block) => !block.isFrozen()`
  * @returns {Block} clone block (root node if has children)
  */
-export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = false) => {
+export const blockClone = (blockInput, parentObjectInput = {}, filter = frozenFilter) => {
   return (dispatch, getState) => {
     let oldBlock;
     if (typeof blockInput === 'string') {
@@ -141,12 +146,7 @@ export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = fal
       throw new Error('invalid input to blockClone', blockInput);
     }
 
-    //note - Block.options
-    // we dont need to do anything in cloning for block.options, since these are just copied over from project to project
-    // the assumption is that options will be fetched and stashed (not cloned) in the project as needed, but separate from cloning.
-    // this is so the option IDs remain consistent, and projects are not huge with duplicate blocks that are just options (since they are static)
-    // NB - this is reliant on the expectation that the whole project has been loaded and all the list options are in the store
-    // this assumption is valid so long as the project is loaded when browsing templates
+    invariant(typeof filter === 'function', 'filter must be a function');
 
     //get the project ID to use for parent, considering the block may be detached from a project (e.g. inventory block)
     const parentProjectId = oldBlock.projectId || null;
@@ -159,8 +159,16 @@ export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = fal
       version: parentProjectVersion,
     }, parentObjectInput);
 
-    if (!!shallowOnly || !oldBlock.components.length) {
-      const block = oldBlock.clone(parentObject);
+    //overwrite to set the correct projectId
+    const overwriteObject = { projectId: null };
+
+    //get all components + list options and clone them
+    const allChildren = dispatch(selectors.blockGetContentsRecursive(oldBlock.id));
+    //filter based on passed filter
+    const filteredChildren = _.filter(allChildren, (block, index) => filter(block, index));
+
+    if (filteredChildren.length === 0) {
+      const block = oldBlock.clone(parentObject, overwriteObject);
       dispatch({
         type: ActionTypes.BLOCK_CLONE,
         block,
@@ -168,10 +176,9 @@ export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = fal
       return block;
     }
 
-    const allChildren = dispatch(selectors.blockGetComponentsRecursive(oldBlock.id));
-    const allToClone = [oldBlock, ...allChildren];
-    //all blocks must be from same project, and all were from given version
-    const unmappedClones = allToClone.map(block => block.clone(parentObject));
+    const allToClone = [oldBlock, ...filteredChildren];
+    //all blocks must be from same project, so we can give them the same parent projectId + verion
+    const unmappedClones = allToClone.map(block => block.clone(parentObject, overwriteObject));
 
     //update IDs in components
     const cloneIdMap = allToClone.reduce((acc, next, index) => {
@@ -179,11 +186,15 @@ export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = fal
       return acc;
     }, {});
     const clones = unmappedClones.map(clone => {
-      if (!clone.isConstruct()) {
-        return clone;
+      if (clone.isConstruct()) {
+        const newComponents = clone.components.map(componentId => cloneIdMap[componentId]);
+        return clone.mutate('components', newComponents);
       }
-      const newComponents = clone.components.map(componentId => cloneIdMap[componentId]);
-      return clone.mutate('components', newComponents);
+      if (clone.isList()) {
+        const newOptions = Object.keys(clone.options).reduce((acc, oldOption) => Object.assign(acc, { [cloneIdMap[oldOption]]: clone.options[oldOption] }), {});
+        return clone.mutate('options', newOptions);
+      }
+      return clone;
     });
 
     dispatch({

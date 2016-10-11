@@ -93,16 +93,6 @@ describe('Actions', () => {
         }]);
       });
 
-      it('blockClone() can shallow clone', () => {
-        const preClone = blockStore.getState().blocks;
-        const rootClone = blockStore.dispatch(actions.blockClone(root.id, {}, true));
-        const postClone = blockStore.getState().blocks;
-
-        expect(Object.keys(preClone).length + 1).to.equal(Object.keys(postClone).length);
-
-        expect(rootClone.components).to.eql(root.components);
-      });
-
       it('blockClone() infers parent from what is cloned'); //todo
     });
 
