@@ -21,18 +21,28 @@ module.exports = {
       .pause(1000)
       .waitForElementPresent('.ProjectDetail-heading-extensionList', 5000, 'expected Extension list to appear');
 
-    loadExtension(browser);
-
-    clickElementText(browser, 'GSL Editor (S288C)');
+    clickElementText(browser, 'GSL Editor');
 
     browser.waitForElementPresent('.GSLEditorLayout', 5000, 'expected extension to render')
+
+    browser
+      .keys([browser.Keys.NULL, browser.Keys.DOWN_ARROW])
+      .pause(50)
+      .keys([browser.Keys.NULL, browser.Keys.DOWN_ARROW])
+      .pause(50)
+      .keys([browser.Keys.NULL, browser.Keys.DOWN_ARROW])
+      .pause(50)
+      .keys([browser.Keys.NULL, browser.Keys.DOWN_ARROW])
+      .pause(50)
+      .keys([browser.Keys.NULL, browser.Keys.DOWN_ARROW])
+      .pause(50)
 
     // Running code to check persistence.
     const codeString = 'pADH4 ; mADH2';
 
     saveCode(browser, codeString);
     
-    downloadItem(browser, 'gsl file');
+    downloadItem(browser, 'Source GSL');
 
     browser
       .pause(2000)

@@ -9,7 +9,7 @@ var openGSLLibrary = require('../fixtures/open-gsl-library');
 var loadExtension = require('../fixtures/load-extension');
 
 module.exports = {
-  'Test drag and drop GSL operator on a Gene': function (browser) {
+  'Test drag-drop GSL operator and Autocomplete on a Gene': function (browser) {
 
     // maximize for graphical tests
     size(browser);
@@ -20,11 +20,9 @@ module.exports = {
       .pause(1000)
       .waitForElementPresent('.ProjectDetail-heading-extensionList', 5000, 'expected Extension list to appear');
 
-    loadExtension(browser);
-
     openGSLLibrary(browser); // open the GSL library and be prepared for drag drop
 
-    clickElementText(browser, 'GSL Editor (S288C)');
+    clickElementText(browser, 'GSL Editor');
 
     browser.waitForElementPresent('.GSLEditorLayout', 4000, 'expected extension to render')
     

@@ -2,7 +2,7 @@
 
 [GSL](http://pubs.acs.org/doi/abs/10.1021/acssynbio.5b00194) (Genotype Specification Language) is a programming language developed by [Amyris](https://amyris.com/) for the rapid design of high level DNA components. GSL is an open-source project, written in [F#](http://fsharp.org/) and is available on Git [here](https://github.com/Amyris/GSL).
 
-This GSL Editor extension provides an interface to execute GSL code within the Genetic Constructor, and render the results as block constructs. It currently only supports the S288C Genome.
+This GSL Editor extension provides an interface to execute GSL code within the Genetic Constructor, and render the results as block constructs. It currently supports the [S288C](http://www.yeastgenome.org/strain/S288C/overview), [BY4741](http://www.yeastgenome.org/strain/BY4741/overview) and [BY4742](http://www.yeastgenome.org/strain/BY4742/overview) genomes. To use a specific genome in your GSL code, preceed your code with a valid `#refgenome` statement (eg. To refer to genes from the S288C genome, use `#refgenome S288C`). More information on the GSL syntax [here](https://geneticconstructor.readme.io/docs/genotype-specification-language).
 
 ## Installation
 
@@ -60,7 +60,7 @@ As shown below, at a high level, the GSL extension is made up of a client (React
 
 ## Documentation
 
-To learn more about the Genotype Specification Language, you could look [here](https://github.com/Amyris/GSL/blob/master/README.md) and in [this forum post](https://forum.bionano.autodesk.com/t/extensions-genotype-specification-language-gsl/131).
+To learn more about the Genotype Specification Language, you could look at the documentation [here](https://geneticconstructor.readme.io/docs/genotype-specification-language) or in the GSL respository [here](https://github.com/Amyris/GSL/blob/master/README.md).
 
 ## Shortcuts
 * ```Alt + Space``` lists the available keywords, snippets and Genes.
