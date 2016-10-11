@@ -143,12 +143,7 @@ export function mergeRollupMiddleware(req, res, next) {
   //we write the sequences no matter what right now
   //todo - param to not write sequences (when do we want this?)
 
-  return Promise.all(Object.keys(sequences).map(sequenceMd5 => {
-    const sequence = sequences[sequenceMd5];
-    return sequence.length > 0 ?
-      persistence.sequenceWrite(sequenceMd5, sequence) :
-      Promise.resolve();
-  }))
+  return persistence.sequenceWriteMany(sequences)
     .then(() => {
       if (!projectId || returnRoll) {
         return Promise.resolve({
