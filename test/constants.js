@@ -21,7 +21,7 @@ export const testUserClient = () => ({
   userid: testUserId,
   firstName: 'Dev',
   lastName: 'Eloper',
-  email: 'developer@localhost',
+  email: 'developer@localhost.com',
   config: {},
 });
 
