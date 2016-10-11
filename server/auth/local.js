@@ -63,7 +63,7 @@ try {
 //this object will get updated as /register and /update the user (one user in local auth)
 export const defaultUser = Object.assign(
   {
-    email: 'developer@localhost',
+    email: 'developer@localhost.com',
     firstName: 'Dev',
     lastName: 'Eloper',
   },
