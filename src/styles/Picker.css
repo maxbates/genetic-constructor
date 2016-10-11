@@ -29,6 +29,7 @@
 
   &-content {
     position: absolute;
+    z-index: 1; /* make stacking context so appears on top */
     display: block;
     width: 270px; /* todo - var */
     background-color: var(--colors-blueGreyMed);
