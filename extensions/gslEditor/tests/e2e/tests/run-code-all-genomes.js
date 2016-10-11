@@ -9,7 +9,7 @@ var loadExtension = require('../fixtures/load-extension');
 var constants = require('../fixtures/extension-constants');
 
 module.exports = {
-  'Test cases where GSL code produces blocks': function (browser) {
+  'Test cases running code from all genomes supported': function (browser) {
     size(browser);
     homepageRegister(browser);
     newProject(browser);
@@ -25,10 +25,13 @@ module.exports = {
     browser
       .waitForElementPresent('.GSLEditorLayout', 3000, 'expected extension to render')
 
+
+
     const code =
-      '#stitch \r' + 
-      '/ATGG/ ; gHMG1[1586:~200E] \r'+
-      '#name Construct2 \r'+
+      'pADH5\r' +
+      '#refgenome BY4741\r' + 
+      'pADH5 \r'+
+      '#refgenome BY4742 \r'+
       'pADH5 \r';
 
     // Running code that produces 2 constructs.
@@ -41,7 +44,7 @@ module.exports = {
     browser
       .pause(8000)
 
-    blockCount(browser, 6);
+    blockCount(browser, 7);
 
     // Verify the properties of the constructs.
 
