@@ -69,16 +69,11 @@ export const blockLoad = (blockId, inputProjectId, withContents = false, skipIfC
  * Create a new Block
  * @function
  * @param {Object} initialModel
- * @param {boolean} [useDefaults=true] Set e.g. current project ID automatically. Set to false if you are creating a block outside of a project (i.e. floating, not associated with project yet)
  * @returns {Block}
  */
-export const blockCreate = (initialModel, useDefaults = true) => {
+export const blockCreate = (initialModel) => {
   return (dispatch, getState) => {
-    const toMerge = (useDefaults === true) ?
-    { projectId: dispatch(projectSelectors.projectGetCurrentId()) } :
-    {};
-
-    const block = new Block(merge(toMerge, initialModel));
+    const block = new Block(initialModel);
     dispatch({
       type: ActionTypes.BLOCK_CREATE,
       block,
