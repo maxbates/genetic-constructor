@@ -59,6 +59,7 @@
     "csv-parse": "^1.1.7",
     "d3": "^3.5.12",
     "deep-freeze": "0.0.1",
+    "email-validator": "^1.0.7",
     "express": "^4.13.3",
     "fast-csv": "^1.0.0",
     "file-loader": "^0.8.5",
@@ -109,7 +110,6 @@
     "source-map-support": "^0.4.0",
     "style-loader": "^0.13.0",
     "url-regex": "^3.0.0",
-    "valid-email": "0.0.2",
     "yamljs": "^0.2.4"
   },
   "devDependencies": {
