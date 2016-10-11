@@ -110,7 +110,6 @@
     "source-map-support": "^0.4.0",
     "style-loader": "^0.13.0",
     "url-regex": "^3.0.0",
-    "valid-email": "0.0.2",
     "yamljs": "^0.2.4"
   },
   "devDependencies": {

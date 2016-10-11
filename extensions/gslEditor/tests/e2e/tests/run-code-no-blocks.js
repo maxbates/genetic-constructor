@@ -6,6 +6,7 @@ var size = require('../../../../../test-e2e/fixtures/size');
 var runCode = require('../fixtures/run-code');
 var blockCount = require('../fixtures/block-count');
 var loadExtension = require('../fixtures/load-extension');
+var constants = require('../fixtures/extension-constants');
 
 module.exports = {
   'Test cases where GSL code is run producing no output blocks': function (browser) {
@@ -20,9 +21,7 @@ module.exports = {
       .pause(1000)
       .waitForElementPresent('.ProjectDetail-heading-extensionList', 3000, 'expected Extension list to appear');
 
-    loadExtension(browser);
-
-    clickElementText(browser, 'GSL Editor (S288C)');
+    clickElementText(browser, 'GSL Editor');
 
     browser
       .waitForElementPresent('.GSLEditorLayout', 3000, 'expected extension to render')
@@ -32,7 +31,7 @@ module.exports = {
     runCode(
       browser,
       '',
-      'Code executed successfully.'
+      constants.codeExecuteSuccessString
     );
 
     browser
@@ -42,7 +41,7 @@ module.exports = {
     runCode(
       browser,
       'Invalid code',
-      'Running this code resulted in errors. Please check the console for details.'
+      constants.codeExecuteFailureString
     )
 
     blockCount(browser, 1);
