@@ -105,7 +105,7 @@ export function loginHandler(req, res, next) {
   console.log(email, password);
 
   //basic checks before we hand off to auth/register
-  if (!email || !validEmail(email)) {
+  if (!email || !EmailValidator.validate(email)) {
     return res.status(422).json({ message: 'invalid email' });
   }
   if (!password || password.length < 6) {
