@@ -17,6 +17,7 @@ import path from 'path';
 import fs from 'fs';
 import express from 'express';
 import morgan from 'morgan';
+import compression from 'compression';
 
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
@@ -46,6 +47,9 @@ const pathClientBundle = createBuildPath('client.js', '../build/client.js');
 
 //create server app
 const app = express();
+
+//enable deflate / gzip
+app.use(compression());
 
 //use large body limit at root so that 100kb default doesnt propagate / block downstream
 app.use(bodyParser.json({
