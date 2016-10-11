@@ -27,7 +27,7 @@ import fs from 'fs';
 import path from 'path';
 import { testUserId } from '../../test/constants';
 import bodyParser from 'body-parser';
-import validEmail from 'valid-email';
+import EmailValidator from 'email-validator';
 import checkUserSetup from '../onboarding/userSetup';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
 import { userConfigKey } from '../user/userConstants';
@@ -132,7 +132,7 @@ const handleRegister = (req, res, next) => {
   const { email, password, firstName, lastName, data } = req.body;
 
   //basic checks, auth platform usually sends 400
-  if (!email || !validEmail(email)) {
+  if (!email || !EmailValidator.validate(email)) {
     res.status(400).json({ message: 'invalid email' });
   }
   if (!password || password.length < 6) {

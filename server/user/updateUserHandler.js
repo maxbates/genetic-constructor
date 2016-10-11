@@ -15,7 +15,7 @@
  */
 
 import fetch from 'isomorphic-fetch';
-import validEmail from 'valid-email';
+import EmailValidator from 'email-validator';
 import { INTERNAL_HOST, API_END_POINT } from '../urlConstants';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
 import { pruneUserObject, validateConfig, updateUserAll, updateUserConfig, mergeConfigToUserData } from './utils';
@@ -34,7 +34,7 @@ export function registrationHandler(req, res, next) {
   const { email, password, firstName, lastName } = user;
 
   //basic checks before we hand off to auth/register
-  if (!email || !validEmail(email)) {
+  if (!email || !EmailValidator.validate(email)) {
     return res.status(422).json({ message: 'invalid email' });
   }
   if (!password || password.length < 6) {
