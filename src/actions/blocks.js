@@ -18,7 +18,7 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import { merge } from 'lodash';
+import { values, merge } from 'lodash';
 import * as ActionTypes from '../constants/ActionTypes';
 import BlockSchema from '../schemas/Block';
 import Block from '../models/Block';
@@ -343,6 +343,8 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
     if (componentProjectId !== nextParentProjectId) {
       invariant(!componentProjectId || forceProjectId === true, 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
+      //todo - check deep + set projectId deep
+
       //there may be scenarios where we are adding to a detached block, so lets avoid the error when next parent has no project
       if (nextParentProjectId) {
         const updatedComponent = component.setProjectId(nextParentProjectId);
@@ -551,6 +553,30 @@ export const blockOptionsToggle = (blockId, ...optionIds) => {
 /***************************************
  * Metadata things
  ***************************************/
+
+/**
+ * Set the projectId of a block, and optionally all of its contents
+ * @param {UUID} blockId
+ * @param {UUID} projectId
+ * @param [shallow=false]
+ * @returns block with blockId
+ */
+export const blockSetProject = (blockId, projectId, shallow = false) => {
+  return (dispatch, getState) => {
+    const oldBlock = selectors.blockGet(blockId);
+    const contents = selectors.blockGetContentsRecursive(blockId);
+
+    const blocks = [oldBlock, ...values(contents)]
+      .map(block => block.setProjectId(projectId));
+
+    dispatch({
+      type: ActionTypes.BLOCK_SET_PROJECT,
+      blocks,
+    });
+
+    return blocks[0];
+  };
+};
 
 /**
  * Rename a block
