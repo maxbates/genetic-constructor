@@ -25,7 +25,7 @@ import * as blockActions from '../actions/blocks';
 import * as blockSelectors from '../selectors/blocks';
 import * as undoActions from '../store/undo/actions';
 import { push } from 'react-router-redux';
-import { merge } from 'lodash';
+import _, { merge } from 'lodash';
 
 import * as instanceMap from '../store/instanceMap';
 import Block from '../models/Block';
@@ -421,8 +421,9 @@ export const projectRename = (projectId, newName) => {
 export const projectAddConstruct = (projectId, constructId, forceProjectId = false) => {
   return (dispatch, getState) => {
     const oldProject = getState().projects[projectId];
-    const component = getState().blocks[constructId];
+    const project = oldProject.addComponents(constructId);
 
+    const component = getState().blocks[constructId];
     const componentProjectId = component.projectId;
 
     dispatch(pauseAction());
@@ -431,15 +432,14 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = fal
     const contents = blockSelectors.blockGetContentsRecursive(constructId);
     const contentProjectIds = _.uniq(contents.map(block => block.projectId));
 
-    if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId && (compProjId !== projectId))) {
+    if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId !== projectId)) {
       //ensure that we are forcing the project ID
       //ensure that Ids are null to ensure we are only adding clones
-      invariant(forceProjectId === true && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
+      invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
       dispatch(blockActions.blockSetProject(constructId, projectId, false));
     }
 
-    const project = oldProject.addComponents(constructId);
     dispatch({
       type: ActionTypes.PROJECT_ADD_CONSTRUCT,
       undoable: true,
