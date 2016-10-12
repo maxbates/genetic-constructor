@@ -25,7 +25,7 @@ import * as blockActions from '../actions/blocks';
 import * as blockSelectors from '../selectors/blocks';
 import * as undoActions from '../store/undo/actions';
 import { push } from 'react-router-redux';
-import _, { merge } from 'lodash';
+import _, { uniq, values, merge } from 'lodash';
 
 import * as instanceMap from '../store/instanceMap';
 import Block from '../models/Block';
@@ -33,6 +33,7 @@ import Project from '../models/Project';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 import { getLocal, setLocal } from '../utils/ui/localstorage';
+
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
 
@@ -430,7 +431,7 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = fal
     dispatch(undoActions.transact());
 
     const contents = blockSelectors.blockGetContentsRecursive(constructId);
-    const contentProjectIds = _.uniq(contents.map(block => block.projectId));
+    const contentProjectIds = uniq(values(contents).map(block => block.projectId));
 
     if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId !== projectId)) {
       //ensure that we are forcing the project ID

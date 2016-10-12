@@ -18,7 +18,7 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import { uniq, values, merge } from 'lodash';
+import { every, filter, uniq, values, merge } from 'lodash';
 import * as ActionTypes from '../constants/ActionTypes';
 import BlockSchema from '../schemas/Block';
 import Block from '../models/Block';
@@ -247,8 +247,6 @@ export const blockClone = (blockInput, parentObjectInput = {}) => {
       throw new Error('invalid input to blockClone', blockInput);
     }
 
-    invariant(typeof filter === 'function', 'filter must be a function');
-
     //get the project ID to use for parent, considering the block may be detached from a project (e.g. inventory block)
     const parentProjectId = oldBlock.projectId || null;
     //will default to null if parentProjectId is undefined
@@ -264,7 +262,7 @@ export const blockClone = (blockInput, parentObjectInput = {}) => {
     const overwriteObject = { projectId: null };
 
     //get all components + list options and clone them
-    const allChildren = dispatch(selectors.blockGetContentsRecursive(oldBlock.id));
+    const allChildren = values(dispatch(selectors.blockGetContentsRecursive(oldBlock.id)));
 
     if (allChildren.length === 0) {
       const block = oldBlock.clone(parentObject, overwriteObject);
@@ -284,6 +282,7 @@ export const blockClone = (blockInput, parentObjectInput = {}) => {
       acc[next.id] = unmappedClones[index].id;
       return acc;
     }, {});
+
     const clones = unmappedClones.map(clone => {
       if (clone.isConstruct()) {
         const newComponents = clone.components.map(componentId => cloneIdMap[componentId]);
@@ -319,7 +318,7 @@ export const blockFreeze = (blockId, recursive = true) => {
   return (dispatch, getState) => {
     const oldBlocks = [getState().blocks[blockId]];
     if (recursive === true) {
-      oldBlocks.push(...dispatch(selectors.blockGetContentsRecursive(blockId)));
+      oldBlocks.push(...values(dispatch(selectors.blockGetContentsRecursive(blockId))));
     }
 
     const blocks = oldBlocks.map(block => block.setFrozen(true));
@@ -448,7 +447,7 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
     const nextParentProjectId = oldBlock.projectId;
 
     const contents = selectors.blockGetContentsRecursive(componentId);
-    const contentProjectIds = uniq(contents.map(block => block.projectId));
+    const contentProjectIds = uniq(values(contents).map(block => block.projectId));
 
     dispatch(pauseAction());
     dispatch(undoActions.transact());
@@ -611,6 +610,28 @@ export const blockOptionsAdd = (blockId, ...optionIds) => {
   return (dispatch, getState) => {
     const oldBlock = getState().blocks[blockId];
     const block = oldBlock.addOptions(...optionIds);
+    const targetProjectId = block.projectId;
+
+    //if target block is in a project, make sure that options being added are valid
+    if (targetProjectId) {
+      const contents = optionIds
+        .map(optionId => selectors.blockGetContentsRecursive(optionId))
+        .reduce((one, two) => Object.assign(one, two), {});
+      const numberContents = Object.keys(contents).length;
+
+      if (numberContents > 1) {
+        invariant(every(contents, block => !block.projectId || block.projectId === targetProjectId), 'must pass options which have no projectId, or match match that of block with blockId');
+
+        //assign blocks without projectId
+        const relevant = filter(contents, content => content.projectId !== targetProjectId);
+        const blocksWithId = relevant.map(rel => rel.setProjectId(targetProjectId));
+
+        dispatch({
+          type: ActionTypes.BLOCK_SET_PROJECT,
+          blocks: blocksWithId,
+        });
+      }
+    }
 
     dispatch({
       type: ActionTypes.BLOCK_OPTION_ADD,
