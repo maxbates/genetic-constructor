@@ -7,7 +7,7 @@ import Block from '../../src/models/Block';
 
 describe('Actions', () => {
   describe('Block Actions', () => {
-    //todo - scaffold with projectId field - need to update mock store to have focus / projects fields
+    //todo - give this a projectId. doing so will require a full store, and adding a project to the store.
     const storeBlock = new Block();
     const grandchildA1 = new Block();
     const grandchildA2 = new Block();
@@ -36,13 +36,20 @@ describe('Actions', () => {
     });
 
     describe('Cloning', () => {
+      it('blockClone() removes the projectId', () => {
+        const clone = blockStore.dispatch(actions.blockClone(storeBlock.id));
+
+        expect(storeBlock.projectId).to.be.defined;
+        expect(clone.projectId).to.eql(null);
+      });
+
       it('blockClone() clones a block with a new id + proper parents', () => {
         const projectVersion = sha1('someProject');
         //stub project ID for now because requires reliance on focus / projects store if we put it in storeBlock directly
         const projectIdStub = 'dummy';
         const clone = blockStore.dispatch(actions.blockClone(storeBlock.id, {
           projectId: projectIdStub,
-          version: projectVersion
+          version: projectVersion,
         }));
         expect(clone.id).to.not.equal(storeBlock.id);
         expect(clone.parents).to.eql([{
@@ -55,6 +62,8 @@ describe('Actions', () => {
           id: storeBlock.id,
           parents: [],
         });
+        //hack - can't set projectId on storeBlock since can't use simpleStore. Should refactor, setting project ID and enabling the whole store.
+        delete comparable.projectId;
         expect(comparable).to.eql(storeBlock);
       });
 
@@ -65,7 +74,7 @@ describe('Actions', () => {
         const storePreClone = blockStore.getState().blocks;
         const rootClone = blockStore.dispatch(actions.blockClone(root.id, {
           projectId: projectIdStub,
-          version: projectVersion
+          version: projectVersion,
         }));
         const stateAfterClone = blockStore.getState().blocks;
 

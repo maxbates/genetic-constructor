@@ -99,11 +99,13 @@ export default class Block extends Instance {
   clone(parentInfo = {}, overwrites = {}) {
     const [ firstParent ] = this.parents;
 
+    const mergeWith = merge({projectId: null}, overwrites);
+
     //unfreeze a clone by default if it is frozen, but allow overwriting if really want to
     //don't want to add the field if unnecessary
-    const mergeWith = this.rules.frozen === true ?
-      merge({ rules: { frozen: false } }, overwrites) :
-      overwrites;
+    if (this.rules.frozen === true && (!mergeWith.rules || mergeWith.rules.frozen !== true)) {
+      merge(mergeWith, { rules: { frozen: false } });
+    }
 
     if (parentInfo === null) {
       return super.clone(parentInfo, mergeWith);
