@@ -21,6 +21,7 @@ import invariant from 'invariant';
 import * as ActionTypes from '../constants/ActionTypes';
 import { saveProject, loadProject, snapshot, listProjects, deleteProject } from '../middleware/data';
 import * as projectSelectors from '../selectors/projects';
+import * as blockSelectors from '../selectors/blocks';
 import * as undoActions from '../store/undo/actions';
 import { push } from 'react-router-redux';
 import { merge } from 'lodash';
@@ -426,18 +427,22 @@ export const projectAddConstruct = (projectId, componentId, forceProjectId = fal
     dispatch(pauseAction());
     dispatch(undoActions.transact());
 
-    if (componentProjectId !== projectId) {
-      invariant(!componentProjectId || forceProjectId === true, 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
+    const contents = blockSelectors.blockGetContentsRecursive(componentId);
+    const contentProjectIds = _.uniq(contents.map(block => block.projectId));
+
+    if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId !== projectId)) {
+      //ensure that we are forcing the project ID
+      //ensure that Ids are null to ensure we are only adding clones
+      invariant(forceProjectId === true && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
+
+      //FIXME = need to set all project IDs on all components
 
       const updatedComponent = component.setProjectId(projectId);
       dispatch({
-        type: ActionTypes.BLOCK_STASH,
+        type: ActionTypes.BLOCK_SET_PROJECT,
         block: updatedComponent,
       });
     }
-
-    //todo - should better check + force removal from previous component / project
-    //would want to check across other projects as well (but you would for constructs too)
 
     const project = oldProject.addComponents(componentId);
     dispatch({
@@ -454,7 +459,7 @@ export const projectAddConstruct = (projectId, componentId, forceProjectId = fal
 };
 
 /**
- * Removes a construct from a project.
+ * Removes a construct from a project, and unsets its project ID
  * @function
  * @param {UUID} projectId
  * @param {UUID} componentId
@@ -462,13 +467,32 @@ export const projectAddConstruct = (projectId, componentId, forceProjectId = fal
  */
 export const projectRemoveConstruct = (projectId, componentId) => {
   return (dispatch, getState) => {
-    const oldProject = getState().projects[projectId];
+    const state = getState();
+
+    const oldProject = state.projects[projectId];
     const project = oldProject.removeComponents(componentId);
+
+    const oldBlock = state.blocks[componentId];
+    const block = oldBlock.setProjectId(null);
+
+    dispatch(pauseAction());
+    dispatch(undoActions.transact());
+
+    dispatch({
+      type: ActionTypes.BLOCK_SET_PROJECT,
+      undoable: true,
+      block,
+    });
+
     dispatch({
       type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,
       undoable: true,
       project,
     });
+
+    dispatch(undoActions.commit());
+    dispatch(resumeAction());
+
     return project;
   };
 };

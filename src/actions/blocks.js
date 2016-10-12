@@ -113,10 +113,6 @@ export const blockMerge = (blockId, toMerge) => {
   };
 };
 
-// NOTE - currently, we dont clone frozen blocks by default. This is fine as long as blocks are not being shared, since they will always be owned by the same person.
-// This means the same blocks (by ID) may exist in multiple projects - but they will be identical. This is compatible with block referencing.
-const frozenFilter = (block) => !block.isFrozen();
-
 /**
  * Clone a block (and its contents - components + list options)
  * Sets projectId to null for all cloned elements. Project ID is set when added back to the project.
@@ -127,10 +123,9 @@ const frozenFilter = (block) => !block.isFrozen();
  *   projectId - same as block being cloned, or block.projectId
   *  version - that of project ID if in the store, or first parent if available and same project id
   * }
- * @param filter {function} when true, block is cloned. By default, filter out frozen blocks: `(block) => !block.isFrozen()`
  * @returns {Block} clone block (root node if has children)
  */
-export const blockClone = (blockInput, parentObjectInput = {}, filter = frozenFilter) => {
+export const blockClone = (blockInput, parentObjectInput = {}) => {
   return (dispatch, getState) => {
     let oldBlock;
     if (typeof blockInput === 'string') {
@@ -159,10 +154,8 @@ export const blockClone = (blockInput, parentObjectInput = {}, filter = frozenFi
 
     //get all components + list options and clone them
     const allChildren = dispatch(selectors.blockGetContentsRecursive(oldBlock.id));
-    //filter based on passed filter
-    const filteredChildren = _.filter(allChildren, (block, index) => filter(block, index));
 
-    if (filteredChildren.length === 0) {
+    if (allChildren.length === 0) {
       const block = oldBlock.clone(parentObject, overwriteObject);
       dispatch({
         type: ActionTypes.BLOCK_CLONE,
@@ -171,7 +164,7 @@ export const blockClone = (blockInput, parentObjectInput = {}, filter = frozenFi
       return block;
     }
 
-    const allToClone = [oldBlock, ...filteredChildren];
+    const allToClone = [oldBlock, ...allChildren];
     //all blocks must be from same project, so we can give them the same parent projectId + verion
     const unmappedClones = allToClone.map(block => block.clone(parentObject, overwriteObject));
 

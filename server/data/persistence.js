@@ -177,11 +177,11 @@ const _projectWrite = (projectId, project = {}) => {
   return fileWrite(manifestPath, project);
 };
 
-const _blocksWrite = (projectId, blockMap = {}, replace = false) => {
+const _blocksWrite = (projectId, blockMap = {}, overwrite = false) => {
   const manifestPath = filePaths.createBlockManifestPath(projectId);
   invariant(typeof blockMap === 'object', 'must pass a map of block ids to blocks');
 
-  return (replace === true) ?
+  return (overwrite === true) ?
     fileWrite(manifestPath, blockMap) :
     fileMerge(manifestPath, blockMap);
 };
@@ -331,7 +331,7 @@ export const projectCreate = (projectId, project, userId) => {
 export const projectWrite = (projectId, project = {}, userId, bypassValidation = false) => {
   const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
 
-  invariant(project, 'project is required');
+  invariant(typeof project === 'object', 'project is required');
   invariant(userId, 'user id is required to write project');
 
   //todo (future) - merge author IDs, not just assign
@@ -364,6 +364,9 @@ export const projectWrite = (projectId, project = {}, userId, bypassValidation =
 
 //overwrite all blocks
 export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
+  invariant(typeof projectId === 'string', 'projectId must be string');
+  invariant(typeof blockMap === 'object', 'block map must be object');
+
   if (bypassValidation !== true && !values(blockMap).every(block => validateBlock(block))) {
     return Promise.reject(errorInvalidModel);
   }
