@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 /**
  * @module Actions_Projects
  * @memberOf module:Actions
@@ -207,7 +207,7 @@ export const projectCreate = (initialModel) => {
     const userId = getState().user.userid;
     const defaultModel = {
       metadata: {
-        authors: [ userId ],
+        authors: [userId],
       },
     };
 
@@ -410,7 +410,7 @@ export const projectRename = (projectId, newName) => {
 
 /**
  * Adds a construct to a project. Does not create the construct. Use a Block Action.
- * The added construct should have the project ID of the current project.
+ * The added construct should have the project ID of the current project, or pass forceProjectId = true
  * @function
  * @param {UUID} projectId
  * @param {UUID} componentId
@@ -435,12 +435,12 @@ export const projectAddConstruct = (projectId, componentId, forceProjectId = fal
       //ensure that Ids are null to ensure we are only adding clones
       invariant(forceProjectId === true && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
-      //FIXME = need to set all project IDs on all components
+      //set the projectId of all blocks
+      const blocks = [component, ..._.values(contents)].map(block => block.setProjectId(projectId));
 
-      const updatedComponent = component.setProjectId(projectId);
       dispatch({
         type: ActionTypes.BLOCK_SET_PROJECT,
-        block: updatedComponent,
+        blocks,
       });
     }
 
