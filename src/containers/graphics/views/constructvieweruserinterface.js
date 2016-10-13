@@ -249,8 +249,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
       this.constructViewer.openInspector();
     } else {
       if (this.isConstructTitleNode(top)) {
-        this.constructViewer.showInlineEditor(() => {
-          alert('Committed!');
+        this.constructViewer.showInlineEditor(value => {
+          alert(value);
         });
       }
     }

@@ -14,9 +14,14 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 
 import '../../../src/styles/Modal.css';
 import '../../../src/styles/inline-editor.css';
+
+import {
+  uiInlineEditor,
+} from '../../actions/ui';
 
 /**
  * modal window with user supplied payload and user defined ( optional )
@@ -24,12 +29,18 @@ import '../../../src/styles/inline-editor.css';
  * If the modal was closed via a button the button text is supplied.
  *
  */
-export default class InlineEditor extends Component {
+class InlineEditor extends Component {
   static propTypes = {
     commit: PropTypes.func.isRequired,
     cancel: PropTypes.func,
     position: PropTypes.object.isRequired,
+    uiInlineEditor: PropTypes.func.isRequired,
   };
+
+  onCommit = () => {
+    this.props.uiInlineEditor();
+    this.props.commit('duncan meech');
+  }
 
   /*
    * render the inline editor only when the commit callback is available
@@ -39,10 +50,18 @@ export default class InlineEditor extends Component {
       return null;
     }
     return (
-      <div className="modal-blocker-visible">
+      <div className="modal-blocker-visible" onClick={this.onCommit}>
         <div className="inline-editor">
         </div>
       </div>
     );
   }
 }
+
+function mapStateToProps(state, props) {
+  return {};
+}
+
+export default connect(mapStateToProps, {
+  uiInlineEditor,
+})(InlineEditor);
