@@ -416,10 +416,10 @@ export const projectRename = (projectId, newName) => {
  * @function
  * @param {UUID} projectId
  * @param {UUID} constructId
- * @param {boolean} [forceProjectId=false]
+ * @param {boolean} [forceProjectId=true] set the projectId if not set
  * @returns {Project}
  */
-export const projectAddConstruct = (projectId, constructId, forceProjectId = false) => {
+export const projectAddConstruct = (projectId, constructId, forceProjectId = true) => {
   return (dispatch, getState) => {
     const oldProject = getState().projects[projectId];
     const project = oldProject.addComponents(constructId);
@@ -430,7 +430,7 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = fal
     dispatch(pauseAction());
     dispatch(undoActions.transact());
 
-    const contents = blockSelectors.blockGetContentsRecursive(constructId);
+    const contents = dispatch(blockSelectors.blockGetContentsRecursive(constructId));
     const contentProjectIds = uniq(values(contents).map(block => block.projectId));
 
     if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId !== projectId)) {

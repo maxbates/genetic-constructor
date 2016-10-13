@@ -37,7 +37,7 @@ const spaceFiller = 10; //eslint-disable-line no-unused-vars
  * Metadata things
  ***************************************/
 
-//todo - should not allow if in the project
+//todo - should not allow if in a project
 /**
  * Set the projectId of a block, and optionally all of its contents.
  * While the block is in the project, do not set the projectId to something other than the current project! Save errors etc. will happen.
@@ -182,7 +182,7 @@ export const blockLoad = (blockId, inputProjectId, withContents = false, skipIfC
  * @param {Object} initialModel
  * @returns {Block}
  */
-export const blockCreate = (initialModel) => {
+export const blockCreate = (initialModel = {}) => {
   return (dispatch, getState) => {
     const block = new Block(initialModel);
     dispatch({
@@ -446,7 +446,7 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
     const componentProjectId = component.projectId;
     const nextParentProjectId = oldBlock.projectId;
 
-    const contents = selectors.blockGetContentsRecursive(componentId);
+    const contents = dispatch(selectors.blockGetContentsRecursive(componentId));
     const contentProjectIds = uniq(values(contents).map(block => block.projectId));
 
     dispatch(pauseAction());
@@ -608,29 +608,41 @@ export const blockSetListBlock = (blockId, isList = true) => {
 //for authoring template
 export const blockOptionsAdd = (blockId, ...optionIds) => {
   return (dispatch, getState) => {
-    const oldBlock = getState().blocks[blockId];
+    const state = getState();
+    const oldBlock = state.blocks[blockId];
     const block = oldBlock.addOptions(...optionIds);
+    const options = optionIds.map(optionId => state.blocks[optionId]);
     const targetProjectId = block.projectId;
 
     //if target block is in a project, make sure that options being added are valid
     if (targetProjectId) {
+      //first, check the options themselves
+      invariant(every(options, block => !block.projectId || block.projectId === targetProjectId), 'must pass options which have no projectId, or match match that of block with blockId');
+
+      const relevantOptions = filter(options, option => option.projectId !== targetProjectId);
+      const optionsWithId = relevantOptions.map(rel => rel.setProjectId(targetProjectId));
+
+      //now, check the contents as well
+
       const contents = optionIds
-        .map(optionId => selectors.blockGetContentsRecursive(optionId))
+        .map(optionId => dispatch(selectors.blockGetContentsRecursive(optionId)))
         .reduce((one, two) => Object.assign(one, two), {});
       const numberContents = Object.keys(contents).length;
 
       if (numberContents > 1) {
-        invariant(every(contents, block => !block.projectId || block.projectId === targetProjectId), 'must pass options which have no projectId, or match match that of block with blockId');
+        invariant(every(contents, block => !block.projectId || block.projectId === targetProjectId), 'contents of all options must have no projectId, or match match that of block with blockId');
 
         //assign blocks without projectId
-        const relevant = filter(contents, content => content.projectId !== targetProjectId);
-        const blocksWithId = relevant.map(rel => rel.setProjectId(targetProjectId));
+        const relevantContents = filter(contents, content => content.projectId !== targetProjectId);
+        const blocksWithId = relevantContents.map(rel => rel.setProjectId(targetProjectId));
 
-        dispatch({
-          type: ActionTypes.BLOCK_SET_PROJECT,
-          blocks: blocksWithId,
-        });
+        optionsWithId.push(...blocksWithId);
       }
+
+      dispatch({
+        type: ActionTypes.BLOCK_SET_PROJECT,
+        blocks: optionsWithId,
+      });
     }
 
     dispatch({
