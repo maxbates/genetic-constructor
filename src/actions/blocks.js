@@ -18,7 +18,7 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import { every, filter, uniq, values, merge } from 'lodash';
+import { every, filter, uniq, values } from 'lodash';
 import * as ActionTypes from '../constants/ActionTypes';
 import BlockSchema from '../schemas/Block';
 import Block from '../models/Block';
@@ -284,18 +284,14 @@ export const blockClone = (blockInput, parentObjectInput = {}) => {
     }, {});
 
     const clones = unmappedClones.map(clone => {
-
-      console.log(clone);
-
       if (clone.isConstruct()) {
         const newComponents = clone.components.map(componentId => cloneIdMap[componentId]);
         return clone.mutate('components', newComponents);
       }
       if (clone.isList()) {
         const newOptions = Object.keys(clone.options).reduce((acc, oldOption) => Object.assign(acc, {
-          [cloneIdMap[oldOption]]: clone.options[oldOption]
+          [cloneIdMap[oldOption]]: clone.options[oldOption],
         }), {});
-        console.log(clone.options, newOptions);
         return clone.mutate('options', newOptions);
       }
       return clone;

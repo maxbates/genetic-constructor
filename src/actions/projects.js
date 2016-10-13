@@ -25,7 +25,7 @@ import * as blockActions from '../actions/blocks';
 import * as blockSelectors from '../selectors/blocks';
 import * as undoActions from '../store/undo/actions';
 import { push } from 'react-router-redux';
-import _, { uniq, values, merge } from 'lodash';
+import { uniq, values, merge } from 'lodash';
 
 import * as instanceMap from '../store/instanceMap';
 import Block from '../models/Block';
