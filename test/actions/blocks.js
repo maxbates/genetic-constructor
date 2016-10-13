@@ -163,7 +163,7 @@ describe('Actions', () => {
       });
 
       //todo - need to determine how to handle adding frozen blocks
-      it.skip('blockAddComponent() should not error if block is frozen', () => {
+      it('blockAddComponent() should not error if block is frozen', () => {
         expect(() => {
           store.dispatch(actions.blockAddComponent(block.id, frozenBlock.id));
         }).to.not.throw();
@@ -183,7 +183,7 @@ describe('Actions', () => {
       });
 
       //todo - need to determine how to handle adding frozen blocks
-      it.skip('blockOptionsAdd() should not error if block is frozen', () => {
+      it('blockOptionsAdd() should not error if block is frozen', () => {
         expect(() => {
           store.dispatch(actions.blockOptionsAdd(list.id, frozenBlock.id));
         }).to.not.throw();
