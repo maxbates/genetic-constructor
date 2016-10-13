@@ -16,6 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { inventoryToggleVisibility, inventorySelectTab } from '../actions/ui';
+import InventorySideGroup from '../components/Inventory/InventorySideGroup';
 import InventoryGroup from '../components/Inventory/InventoryGroup';
 import { onRegister, extensionIsActive } from '../extensions/clientRegistry';
 
@@ -31,14 +32,63 @@ export class Inventory extends Component {
     inventorySelectTab: PropTypes.func.isRequired,
   };
 
-  //hack - listen for GSL editor to show its inventory section
+  state = {
+    gslActive: false,
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.sections = [
+      {
+        title: 'Projects',
+        type: 'projects',
+        icon: 'src',
+        actions: [],
+      },
+      /*
+       //templates will be in the future, will require bunch of work on the backend to handle cloning appropriately, hosting separate from user
+       {
+       title: 'Templates',
+       type: 'template',
+       icon: 'src',
+       },
+       */
+      {
+        title: 'Sketch',
+        type: 'role',
+        icon: 'src',
+      },
+      /*
+       //public are will be coming in the future
+       {
+       title: 'Public',
+       type: 'public', //does not exist
+       icon: 'src',
+       },
+       */
+      //todo - break this up multiple sections, one for each search source, and update InventoryGroupSearchType
+      {
+        title: 'Search',
+        type: 'search',
+        icon: 'src',
+      },
+      {
+        title: 'GSL Library',
+        condition: () => this.state.gslActive,
+        type: 'gsl',
+        icon: 'src',
+      },
+    ];
+  }
 
   componentDidMount() {
+    //hack - listen for GSL editor to show its inventory section
     //listen to get relevant manifests here.
     //run on first time (key === null) in case registry is already populated.
     this.extensionsListener = onRegister((registry, key, regions) => {
       if (key === null || key === 'gslEditor') {
-        this.forceUpdate();
+        this.setState({ gslActive: extensionIsActive('gslEditor') });
       }
     });
   }
@@ -55,6 +105,9 @@ export class Inventory extends Component {
     //may be better way to pass in projectId
     const { isVisible, projectId, currentTab, inventorySelectTab } = this.props;
 
+    const currentSection = this.sections.find(section => section.title === currentTab);
+    const { title, type, icon, condition, actions, sectionProps } = currentSection;
+
     return (
       <div className={'SidePanel Inventory' +
       (isVisible ? ' visible' : '')}>
@@ -70,24 +123,32 @@ export class Inventory extends Component {
         </div>
 
         <div className="SidePanel-content no-vertical-scroll">
-          <div className="Inventory-groups">
-            <InventoryGroup title="Search"
-                            type="search"
-                            isActive={currentTab === 'search' || !currentTab}
-                            setActive={() => inventorySelectTab('search')}/>
-            <InventoryGroup title="My Projects"
-                            type="projects"
+          <div className="Inventory-sidebar">
+            {this.sections.map(section => {
+              const { title, type, icon, condition, ...rest } = section;
+              if (condition && !condition()) {
+                return null;
+              }
+              return (
+                <InventorySideGroup title={title}
+                                    key={title}
+                                    type={type}
+                                    icon={icon}
+                                    currentProject={projectId}
+                                    isActive={currentTab === title}
+                                    setActive={() => inventorySelectTab(title)}
+                                    {...rest} />
+              );
+            })}
+          </div>
+
+          <div className="Inventory-main">
+            <InventoryGroup title={currentSection.title}
+                            type={currentSection.type}
+                            actions={actions}
                             currentProject={projectId}
-                            isActive={currentTab === 'projects'}
-                            setActive={() => inventorySelectTab('projects')}/>
-            <InventoryGroup title="Sketch Library"
-                            type="role"
-                            isActive={currentTab === 'role'}
-                            setActive={() => inventorySelectTab('role')}/>
-            {extensionIsActive('gslEditor') && (<InventoryGroup title="GSL Library"
-                                                                type="gsl"
-                                                                isActive={currentTab === 'gsl'}
-                                                                setActive={() => inventorySelectTab('gsl')}/>)}
+                            isActive
+                            {...sectionProps} />
           </div>
         </div>
       </div>

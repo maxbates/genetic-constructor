@@ -214,7 +214,7 @@ export const serverConfig = merge({}, config, {
 
   externals: nodeModules,
 
-  devtool: 'source-map',
+  devtool: 'cheap-module-source-map',
 });
 
 export default [clientConfig, serverConfig];

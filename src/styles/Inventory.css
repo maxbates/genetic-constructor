@@ -5,10 +5,25 @@
     background-image: url('/images/ui/inventory_icon.svg');
   }
 
-  &-groups {
+  &-main {
+    display: flex;
+    flex-direction: row;
+  }
+
+  &-sidebar {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    width: 50px;
+
+    .InventorySideGroup {
+      height: 50px;
+    }
+  }
+
+  &-activeGroup {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    width: 100%;
   }
 }
