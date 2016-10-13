@@ -39,8 +39,18 @@ class InlineEditor extends Component {
 
   onCommit = () => {
     this.props.uiInlineEditor();
-    this.props.commit('duncan meech');
+    this.props.commit(this.refs.input.value);
   }
+
+  /**
+   * make sure the click was on the block and not the input
+   */
+  onClickBlock = (evt) => {
+    if (evt.target === this.refs.blocker) {
+      this.onCommit();
+    }
+  }
+
 
   /*
    * render the inline editor only when the commit callback is available
@@ -50,11 +60,21 @@ class InlineEditor extends Component {
       return null;
     }
     return (
-      <div className="modal-blocker-visible" onClick={this.onCommit}>
-        <div className="inline-editor">
-        </div>
+      <div ref="blocker" className="modal-blocker-visible" onClick={this.onClickBlock}>
+        <input ref="input" className="inline-editor" onBlur={this.onBlur}/>
       </div>
     );
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.doFocus = !this.props.commit && nextProps.commit;
+  }
+
+  componentDidUpdate() {
+    if (this.doFocus) {
+      this.refs.input.focus();
+      this.doFocus = false;
+    }
   }
 }
 

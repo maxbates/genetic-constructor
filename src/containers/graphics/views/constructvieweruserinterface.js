@@ -247,12 +247,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const block = this.layout.elementFromNode(top);
     if (block) {
       this.constructViewer.openInspector();
-    } else {
-      if (this.isConstructTitleNode(top)) {
-        this.constructViewer.showInlineEditor(value => {
-          alert(value);
-        });
-      }
     }
   }
 
@@ -477,6 +471,9 @@ export default class ConstructViewerUserInterface extends UserInterface {
       // if they clicked the title node then select the construct
       if (this.isConstructTitleNode(this.topNodeAt(point))) {
         this.selectConstruct();
+        this.constructViewer.showInlineEditor(value => {
+          alert(value);
+        });
       }
     }
   }
