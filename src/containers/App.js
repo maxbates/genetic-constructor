@@ -19,6 +19,7 @@ import GlobalNav from './GlobalNav';
 import AuthenticationForms from './authentication/authenticationforms';
 import AboutForm from '../components/aboutform';
 import ModalSpinner from '../components/modal/modalspinner';
+import InlineEditor from '../components/inline-editor/inline-editor';
 import ExtensionPicker from '../components/modal/ExtensionPicker';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
 import track from '../analytics/ga';
@@ -92,6 +93,11 @@ class App extends Component {
           {this.props.children}
         </div>
         <ModalSpinner spinMessage={this.props.spinMessage}/>
+        <InlineEditor
+          commit={this.props.inlineEditorCommit}
+          cancel={this.props.inlineEditorCancel}
+          position={this.props.inlineEditorPosition}
+        />
         <DevTools />
       </div>
     );
@@ -103,6 +109,9 @@ function mapStateToProps(state, ownProps) {
     currentProjectId: ownProps.params.projectId,
     user: state.user,
     spinMessage: state.ui.modals.spinMessage,
+    inlineEditorCommit: state.ui.modals.inlineEditorCommit,
+    inlineEditorCancel: state.ui.modals.inlineEditorCancel,
+    inlineEditorPosition: state.ui.modals.inlineEditorPosition,
   };
 }
 

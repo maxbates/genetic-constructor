@@ -38,6 +38,7 @@ import {
   uiToggleDetailView,
   inspectorToggleVisibility,
   uiShowOrderForm,
+  uiInlineEditor,
 } from '../../../actions/ui';
 import {
   orderCreate,
@@ -100,6 +101,7 @@ export class ConstructViewer extends Component {
     blockDetach: PropTypes.func,
     uiShowDNAImport: PropTypes.func,
     uiShowOrderForm: PropTypes.func.isRequired,
+    uiInlineEditor: PropTypes.func.isRequired,
     orderCreate: PropTypes.func.isRequired,
     orderGenerateConstructs: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
@@ -221,6 +223,16 @@ export class ConstructViewer extends Component {
         this.props.uiShowOrderForm(true, order.id);
       });
   };
+
+  /**
+   * show the inline editor
+   * @param commit
+   * @param cancel
+   * @param position
+   */
+  showInlineEditor(commit, cancel, position) {
+    this.props.uiInlineEditor(commit, cancel, position);
+  }
 
   /**
    * given a construct ID return the current viewer if there is one
@@ -718,6 +730,7 @@ export default connect(mapStateToProps, {
   inspectorToggleVisibility,
   uiShowDNAImport,
   uiShowOrderForm,
+  uiInlineEditor,
   uiToggleDetailView,
   orderCreate,
   orderGenerateConstructs,

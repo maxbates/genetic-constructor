@@ -243,9 +243,16 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * double click handler
    */
   doubleClick(evt, point) {
-    const block = this.topBlockAt(point);
+    const top = this.topNodeAt(point);
+    const block = this.layout.elementFromNode(top);
     if (block) {
       this.constructViewer.openInspector();
+    } else {
+      if (this.isConstructTitleNode(top)) {
+        this.constructViewer.showInlineEditor(() => {
+          alert('Committed!');
+        });
+      }
     }
   }
 

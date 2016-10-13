@@ -226,6 +226,18 @@ export const uiSpin = (spinMessage = '') => {
   };
 };
 
+export const uiInlineEditor = (commit, cancel, position) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: ActionTypes.UI_INLINE_EDITOR,
+      inlineEditorCommit: commit,
+      inlineEditorCancel: cancel,
+      inlineEditorPosition: position,
+    });
+    return null;
+  };
+};
+
 //cannot be dismissed
 export const uiSaveFailure = () => {
   return (dispatch, getState) => {
