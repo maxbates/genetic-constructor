@@ -48,8 +48,8 @@ const spaceFiller = 10; //eslint-disable-line no-unused-vars
  */
 export const blockSetProject = (blockId, projectId, shallow = false) => {
   return (dispatch, getState) => {
-    const oldBlock = selectors.blockGet(blockId);
-    const contents = selectors.blockGetContentsRecursive(blockId);
+    const oldBlock = dispatch(selectors.blockGet(blockId));
+    const contents = dispatch(selectors.blockGetContentsRecursive(blockId));
 
     const blocks = [oldBlock, ...values(contents)]
       .map(block => block.setProjectId(projectId));
@@ -432,10 +432,10 @@ export const blockRemoveComponent = (constructId, ...componentIds) => {
  * @param {UUID} blockId Construct
  * @param {UUID} componentId Component
  * @param {number} index to insert component
- * @param {boolean} [forceProjectId=false] Use true if the block is not from this project
+ * @param {boolean} [forceProjectId=false] set Project ID. Use true if the block is not from this project
  * @returns {Block} Updated construct
  */
-export const blockAddComponent = (blockId, componentId, index = -1, forceProjectId = false) => {
+export const blockAddComponent = (blockId, componentId, index = -1, forceProjectId = true) => {
   return (dispatch, getState) => {
     const oldParent = dispatch(selectors.blockGetParents(componentId)).shift();
     const oldBlock = getState().blocks[blockId];
@@ -488,10 +488,10 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
  * @param {UUID} blockId Construct
  * @param {Array.<UUID>} componentIds Components
  * @param {number} index to insert component
- * @param {boolean} [forceProjectId=false] Use true if the block is not from this project
+ * @param {boolean} [forceProjectId=true] Set project ID. Use true if the block is not from this project
  * @returns {Block} Updated construct
  */
-export const blockAddComponents = (blockId, componentIds, index, forceProjectId = false) => {
+export const blockAddComponents = (blockId, componentIds, index, forceProjectId = true) => {
   return (dispatch, getState) => {
     dispatch(pauseAction());
     dispatch(undoActions.transact());
