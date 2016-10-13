@@ -262,9 +262,9 @@ export const blockClone = (blockInput, parentObjectInput = {}) => {
     const overwriteObject = { projectId: null };
 
     //get all components + list options and clone them
-    const allChildren = values(dispatch(selectors.blockGetContentsRecursive(oldBlock.id)));
+    const contents = values(dispatch(selectors.blockGetContentsRecursive(oldBlock.id)));
 
-    if (allChildren.length === 0) {
+    if (contents.length === 0) {
       const block = oldBlock.clone(parentObject, overwriteObject);
       dispatch({
         type: ActionTypes.BLOCK_CLONE,
@@ -273,7 +273,7 @@ export const blockClone = (blockInput, parentObjectInput = {}) => {
       return block;
     }
 
-    const allToClone = [oldBlock, ...allChildren];
+    const allToClone = [oldBlock, ...contents];
     //all blocks must be from same project, so we can give them the same parent projectId + verion
     const unmappedClones = allToClone.map(block => block.clone(parentObject, overwriteObject));
 
@@ -284,12 +284,18 @@ export const blockClone = (blockInput, parentObjectInput = {}) => {
     }, {});
 
     const clones = unmappedClones.map(clone => {
+
+      console.log(clone);
+
       if (clone.isConstruct()) {
         const newComponents = clone.components.map(componentId => cloneIdMap[componentId]);
         return clone.mutate('components', newComponents);
       }
       if (clone.isList()) {
-        const newOptions = Object.keys(clone.options).reduce((acc, oldOption) => Object.assign(acc, { [cloneIdMap[oldOption]]: clone.options[oldOption] }), {});
+        const newOptions = Object.keys(clone.options).reduce((acc, oldOption) => Object.assign(acc, {
+          [cloneIdMap[oldOption]]: clone.options[oldOption]
+        }), {});
+        console.log(clone.options, newOptions);
         return clone.mutate('options', newOptions);
       }
       return clone;

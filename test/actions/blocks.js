@@ -130,7 +130,7 @@ describe('Actions', () => {
       });
     });
 
-    describe.only('Real Store', () => {
+    describe('Real Store', () => {
       const store = configureStore();
       const frozenBlock = store.dispatch(actions.blockCreate({
         rules: { frozen: true },
@@ -162,6 +162,13 @@ describe('Actions', () => {
         }).to.throw();
       });
 
+      //todo - need to determine how to handle adding frozen blocks
+      it.skip('blockAddComponent() should not error if block is frozen', () => {
+        expect(() => {
+          store.dispatch(actions.blockAddComponent(block.id, frozenBlock.id));
+        }).to.not.throw();
+      });
+
       it('blockOptionsAdd() should set ID', () => {
         const option = store.dispatch(actions.blockCreate());
         store.dispatch(actions.blockOptionsAdd(list.id, option.id));
@@ -175,6 +182,13 @@ describe('Actions', () => {
         }).to.throw();
       });
 
+      //todo - need to determine how to handle adding frozen blocks
+      it.skip('blockOptionsAdd() should not error if block is frozen', () => {
+        expect(() => {
+          store.dispatch(actions.blockOptionsAdd(list.id, frozenBlock.id));
+        }).to.not.throw();
+      });
+
       it('blockClone() should unset projectId in clone', () => {
         expect(store.getState().blocks[block.id].projectId).to.equal(project.id);
         const clone = store.dispatch(actions.blockClone(block.id));
@@ -183,9 +197,11 @@ describe('Actions', () => {
       });
 
       it('blockClone should clone frozen things too', () => {
-        store.dispatch(actions.blockOptionsAdd(list.id, frozenBlock.id));
+        const option = store.dispatch(actions.blockCreate());
+        store.dispatch(actions.blockOptionsAdd(list.id, option.id));
+        store.dispatch(actions.blockFreeze(option.id));
         const clone = store.dispatch(actions.blockClone(list.id));
-        assert(Object.keys(clone.options).indexOf(frozenBlock.id) < 0, 'frozen block should have cloned');
+        assert(Object.keys(clone.options).indexOf(option.id) < 0, 'frozen block should have cloned');
       });
     });
   });
