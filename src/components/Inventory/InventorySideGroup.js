@@ -24,6 +24,8 @@ import {
   role as roleDragType,
 } from '../../constants/DragTypes';
 
+import '../../styles/InventorySideGroup.css';
+
 export default class InventorySideGroup extends Component {
   static propTypes = {
     title: PropTypes.string.isRequired,

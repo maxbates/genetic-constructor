@@ -147,7 +147,6 @@ export class Inventory extends Component {
                             type={currentSection.type}
                             actions={actions}
                             currentProject={projectId}
-                            isActive
                             {...sectionProps} />
           </div>
         </div>

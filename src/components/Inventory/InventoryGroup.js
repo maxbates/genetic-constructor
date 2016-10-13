@@ -27,8 +27,6 @@ export default class InventoryGroup extends Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
-    isActive: PropTypes.bool.isRequired,
-    setActive: PropTypes.func.isRequired,
   };
 
   inventoryGroupTypeToComponent = (type, props) => {
@@ -49,16 +47,15 @@ export default class InventoryGroup extends Component {
   };
 
   render() {
-    const { title, type, isActive, setActive, ...rest } = this.props;
+    const { title, type, ...rest } = this.props;
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
 
     return (
       <div className={'InventoryGroup' + (isActive ? ' active' : '')}>
-        <div className="InventoryGroup-heading"
-             onClick={setActive}>
+        <div className="InventoryGroup-heading">
           <span className="InventoryGroup-title">{title}</span>
         </div>
-        {isActive && currentGroupComponent}
+        {currentGroupComponent}
       </div>
     );
   }
