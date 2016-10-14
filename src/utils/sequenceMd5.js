@@ -23,10 +23,11 @@ export const generatePseudoMd5 = (md5, start, end) => `${md5}[${start}:${end}]`;
 
 //start and end will only be defined if byte range is specified
 export const parsePseudoMd5 = (pseudoMd5) => {
-  const [ original, hash, /*byteRange*/, start, end ] = pseudoMd5.match(md5Regex);
+  const [ original, hash, byteRange, start, end ] = pseudoMd5.match(md5Regex);
   return {
     original,
     hash,
+    byteRange,
     start: parseInt(start, 10),
     end: parseInt(end, 10),
   };

@@ -18,7 +18,6 @@ import { chunk } from 'lodash';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import * as filePaths from '../../utils/filePaths';
 import {
-  errorInvalidRoute,
   errorDoesNotExist,
 } from '../../utils/errors';
 import {
@@ -30,27 +29,69 @@ import {
 import { validPseudoMd5, parsePseudoMd5 } from '../../../src/utils/sequenceMd5';
 import DebugTimer from '../../utils/DebugTimer';
 
+//if in production, storing in S3
+const useRemote = !!process.env.API_END_POINT;
+const platformUrl = `${process.env.API_END_POINT}/sequence/`;
+
+//todo - may need userId / projectId to address privacy concerns
+
+//todo - need to include AWS credentials to handle remote reads / writes
+
 export const sequenceExists = (md5) => {
+  invariant(validPseudoMd5(md5), 'must pass a valid md5 with optional byte range');
+  const { hash } = parsePseudoMd5(md5);
+
+  if (useRemote) {
+    return rejectingFetch(platformUrl + hash, {
+      method: 'GET',
+    })
+      .catch(err => errorDoesNotExist);
+  }
+
   const sequencePath = filePaths.createSequencePath(md5);
   return fileExists(sequencePath)
     .then(() => sequencePath);
 };
 
 export const sequenceGet = (md5) => {
+  invariant(validPseudoMd5(md5), 'must pass a valid md5 with optional byte range');
+  const { hash, start, end } = parsePseudoMd5(md5);
+
+  if (useRemote) {
+    //todo - verify correctness of header
+    const byteHeader = start >= 0 ? { Range: `${start}-${end}` } : {};
+
+    return rejectingFetch(platformUrl + hash, Object.assign({
+      method: 'GET',
+    }, byteHeader))
+      .then(resp => resp.text())
+      .catch(err => errorDoesNotExist);
+  }
+
   return sequenceExists(md5)
-    .then(path => fileRead(path, false));
+    .then(path => fileRead(path, false, { start, end }));
 };
 
-//todo - may need userId / projectId to address privacy concerns
-
 export const sequenceWrite = (md5, sequence) => {
+  invariant(validPseudoMd5(md5), 'must pass a valid md5 with optional byte range');
+  const { hash, byteRange } = parsePseudoMd5(md5);
+  invariant(!byteRange, 'should not pass md5 with byte range to sequence write');
+
   if (!sequence || !sequence.length) {
     return Promise.resolve();
   }
 
-  const sequencePath = filePaths.createSequencePath(md5);
+  if (useRemote) {
+    return rejectingFetch(platformUrl + hash, Object.assign({
+      method: 'POST',
+    }))
+      .then(resp => resp.text())
+      .catch(err => errorDoesNotExist);
+  }
 
-  //only write if it doesnt exist
+  const sequencePath = filePaths.createSequencePath(hash);
+
+  //do nothing if it already exists, only write if it doesnt
   return fileExists(sequencePath)
     .catch(() => fileWrite(sequencePath, sequence, false))
     .then(() => sequence);
@@ -83,6 +124,17 @@ export const sequenceWriteMany = (map) => {
 
 //probably dont want to let people do this, since sequence may be referenced by multiple blocks...
 export const sequenceDelete = (md5) => {
+  invariant(validPseudoMd5(md5), 'must pass a valid md5 with optional byte range');
+  const { hash, byteRange } = parsePseudoMd5(md5);
+  invariant(!byteRange, 'should not pass md5 with byte range to sequence delete');
+
+  if (useRemote) {
+    return rejectingFetch(platformUrl + hash, Object.assign({
+      method: 'DELETE',
+    }))
+      .then(resp => md5)
+  }
+
   return sequenceExists(md5)
     .then(path => fileDelete(path));
 };

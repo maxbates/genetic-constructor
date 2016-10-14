@@ -60,6 +60,8 @@ export const fileExists = (path) => {
   });
 };
 
+//todo - support reading a specific range. may need to use a buffer? or can fake it
+
 export const fileRead = (path, jsonParse = true) => {
   return new Promise((resolve, reject) => {
     fs.readFile(path, 'utf8', (err, result) => {
@@ -89,7 +91,6 @@ export const fileWrite = (path, contents, stringify = true) => {
   });
 };
 
-//todo - test
 export const fileMerge = (path, toMerge) => {
   invariant(typeof toMerge === 'object', 'must pass an object for file merge');
 
