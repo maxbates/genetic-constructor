@@ -14,9 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import {connect } from 'react-redux';
-import { inspectorToggleVisibility } from '../actions/ui';
+import {
+  inspectorToggleVisibility,
+  uiInlineEditor,
+} from '../actions/ui';
 import { focusPrioritize } from '../actions/focus';
+import { projectRename } from '../actions/projects';
 
 import '../styles/ProjectHeader.css';
 
@@ -25,12 +30,19 @@ class ProjectHeader extends Component {
     project: PropTypes.object.isRequired,
     isFocused: PropTypes.bool.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
+    uiInlineEditor: PropTypes.func.isRequired,
     focusPrioritize: PropTypes.func.isRequired,
+    projectRename: PropTypes.func.isRequired,
   };
 
   onClick = () => {
     this.props.inspectorToggleVisibility(true);
     this.props.focusPrioritize('project');
+    const bounds = ReactDOM.findDOMNode(this).getBoundingClientRect();
+    const name = this.props.project.metadata.name || 'Untitled Project'
+    this.props.uiInlineEditor(value => {
+      this.props.projectRename(this.props.project.id, value);
+    }, name, bounds);
   };
 
   render() {
@@ -59,4 +71,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   inspectorToggleVisibility,
   focusPrioritize,
+  uiInlineEditor,
+  projectRename,
 })(ProjectHeader);

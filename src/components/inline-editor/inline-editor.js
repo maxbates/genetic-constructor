@@ -93,6 +93,7 @@ class InlineEditor extends Component {
           defaultValue={this.props.value}
           className="inline-editor"
           onKeyDown={this.onKeyDown}
+          spellCheck={false}
         />
       </div>
     );
