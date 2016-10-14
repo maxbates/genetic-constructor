@@ -94,6 +94,29 @@ describe('Server', () => {
         });
 
         it('sequenceWriteMany() should take map of md5 to sequence');
+
+        it('sequenceWriteChunks() takes sequence and rangeMap, returns block to pseudoMd5', () => {
+          const sequence = 'actacgtacgtacgagcactgcgtagctgatcagctgctgactgactgatcgacgtagcagctacgtagctagc';
+          const sequenceMd5 = md5(sequence);
+          const range1 = [5, 15];
+          const range2 = [10, 30];
+
+          const rangeMap = {
+            id1: range1,
+            id2: range2,
+          };
+
+          return persistence.sequenceWriteChunks(sequence, rangeMap)
+            .then(result => {
+              expect(result.id1).to.equal(generatePseudoMd5(sequenceMd5, range1[0], range1[1]));
+              expect(result.id2).to.equal(generatePseudoMd5(sequenceMd5, range2[0], range2[1]));
+
+              return persistence.sequenceGet(result.id1)
+                .then(seqResult => {
+                  expect(seqResult).to.equal(sequence.substring(range1[0], range1[1]));
+                });
+            });
+        });
       });
     });
   });

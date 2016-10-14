@@ -126,7 +126,8 @@ export const sequenceWriteMany = (map) => {
 //returns { blockId: pseudoMd5 } where psuedoMd5 is sequnceMd5[start:end]
 export const sequenceWriteChunks = (sequence, rangeMap) => {
   invariant(sequence && sequence.length > 0, 'must pass a sequence with length');
-  invariant(every(rangeMap, (range) => Array.isArray(range) && Number.isInteger(range[0]) && Number.isInteger(range[1])));
+  invariant(typeof rangeMap === 'object', 'range map just be an object');
+  invariant(every(rangeMap, (range) => Array.isArray(range) && Number.isInteger(range[0]) && Number.isInteger(range[1])), 'every range should be an array: [start:end]');
 
   const sequenceMd5 = md5(sequence);
 
