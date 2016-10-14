@@ -32,7 +32,7 @@ import {
 class InlineEditor extends Component {
   static propTypes = {
     commit: PropTypes.func.isRequired,
-    cancel: PropTypes.func,
+    value: PropTypes.string.isRequired,
     position: PropTypes.object.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
   };
@@ -40,7 +40,11 @@ class InlineEditor extends Component {
   onCommit = () => {
     this.props.uiInlineEditor();
     this.props.commit(this.refs.input.value);
-  }
+  };
+
+  onCancel = () => {
+    this.props.uiInlineEditor();
+  };
 
   /**
    * make sure the click was on the block and not the input
@@ -49,8 +53,23 @@ class InlineEditor extends Component {
     if (evt.target === this.refs.blocker) {
       this.onCommit();
     }
-  }
+  };
 
+  /**
+   * enter key commits change
+   */
+  onKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      this.onCommit();
+    }
+    if (event.key === 'Escape') {
+      this.onCancel();
+    }
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      this.onCommit();
+    }
+  };
 
   /*
    * render the inline editor only when the commit callback is available
@@ -59,9 +78,22 @@ class InlineEditor extends Component {
     if (!this.props.commit) {
       return null;
     }
+    const styles = {
+      left: this.props.position.left + 'px',
+      top: this.props.position.top + 'px',
+      width: this.props.position.width + 'px',
+      height: this.props.position.height + 'px',
+      fontSize: this.props.position.height * 0.45 + 'px',
+    };
     return (
-      <div ref="blocker" className="modal-blocker-visible" onClick={this.onClickBlock}>
-        <input ref="input" className="inline-editor" onBlur={this.onBlur}/>
+      <div ref="blocker" className="inline-blocker" onClick={this.onClickBlock}>
+        <input
+          style={styles}
+          ref="input"
+          defaultValue={this.props.value}
+          className="inline-editor"
+          onKeyDown={this.onKeyDown}
+        />
       </div>
     );
   }

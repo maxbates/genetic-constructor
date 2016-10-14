@@ -22,6 +22,7 @@ import kT from './layoutconstants';
 import Fence from './fence';
 import { dispatch } from '../../../store/index';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
+import { blockRename } from '../../../actions/blocks';
 
 // # of pixels of mouse movement before a drag is triggered.
 const dragThreshold = 8;
@@ -472,8 +473,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
       if (this.isConstructTitleNode(this.topNodeAt(point))) {
         this.selectConstruct();
         this.constructViewer.showInlineEditor(value => {
-          alert(value);
-        });
+          this.constructViewer.renameConstruct(value);
+        }, this.construct.getName(), this.layout.titleNode.el.getBoundingClientRect());
       }
     }
   }

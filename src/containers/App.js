@@ -95,7 +95,7 @@ class App extends Component {
         <ModalSpinner spinMessage={this.props.spinMessage}/>
         <InlineEditor
           commit={this.props.inlineEditorCommit}
-          cancel={this.props.inlineEditorCancel}
+          value={this.props.inlineEditorValue}
           position={this.props.inlineEditorPosition}
         />
         <DevTools />
@@ -110,7 +110,7 @@ function mapStateToProps(state, ownProps) {
     user: state.user,
     spinMessage: state.ui.modals.spinMessage,
     inlineEditorCommit: state.ui.modals.inlineEditorCommit,
-    inlineEditorCancel: state.ui.modals.inlineEditorCancel,
+    inlineEditorValue: state.ui.modals.inlineEditorValue,
     inlineEditorPosition: state.ui.modals.inlineEditorPosition,
   };
 }

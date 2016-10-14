@@ -226,12 +226,12 @@ export const uiSpin = (spinMessage = '') => {
   };
 };
 
-export const uiInlineEditor = (commit, cancel, position) => {
+export const uiInlineEditor = (commit, value, position) => {
   return (dispatch, getState) => {
     dispatch({
       type: ActionTypes.UI_INLINE_EDITOR,
       inlineEditorCommit: commit,
-      inlineEditorCancel: cancel,
+      inlineEditorValue: value,
       inlineEditorPosition: position,
     });
     return null;

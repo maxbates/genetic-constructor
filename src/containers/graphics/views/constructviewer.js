@@ -230,8 +230,8 @@ export class ConstructViewer extends Component {
    * @param cancel
    * @param position
    */
-  showInlineEditor(commit, cancel, position) {
-    this.props.uiInlineEditor(commit, cancel, position);
+  showInlineEditor(commit, value, position) {
+    this.props.uiInlineEditor(commit, value, position);
   }
 
   /**
@@ -272,6 +272,16 @@ export class ConstructViewer extends Component {
    */
   constructSelected(id) {
     this.props.focusConstruct(id);
+  }
+
+  /**
+   * rename the current construct
+   * @param newName
+   */
+  renameConstruct(newName) {
+    if (newName !== this.props.construct.getName()) {
+      this.props.blockRename(this.props.constructId, newName);
+    }
   }
 
   /**
