@@ -464,16 +464,21 @@ export default class ConstructViewerUserInterface extends UserInterface {
         break;
       default:
         this.constructViewer.blockSelected([block]);
+        const name = this.layout.partName(block);
+        this.constructViewer.showInlineEditor(value => {
+          this.constructViewer.renameBlock(block, value);
+        }, name, this.layout.nodeFromElement(block).el.getBoundingClientRect());
         break;
       }
     } else {
       // clear block selections
       this.constructViewer.blockSelected([]);
-      // if they clicked the title node then select the construct
+      // if they clicked the title node then select the construct and initiate editing
+      // of the title of construct via an inline edit.
       if (this.isConstructTitleNode(this.topNodeAt(point))) {
         this.selectConstruct();
         this.constructViewer.showInlineEditor(value => {
-          this.constructViewer.renameConstruct(value);
+          this.constructViewer.renameBlock(this.construct.id, value);
         }, this.construct.getName(), this.layout.titleNode.el.getBoundingClientRect());
       }
     }

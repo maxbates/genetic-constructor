@@ -278,10 +278,8 @@ export class ConstructViewer extends Component {
    * rename the current construct
    * @param newName
    */
-  renameConstruct(newName) {
-    if (newName !== this.props.construct.getName()) {
-      this.props.blockRename(this.props.constructId, newName);
-    }
+  renameBlock(blockId, newName) {
+    this.props.blockRename(blockId, newName);
   }
 
   /**
