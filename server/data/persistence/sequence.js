@@ -68,7 +68,7 @@ export const sequenceGet = (md5) => {
       .catch(err => errorDoesNotExist);
   }
 
-  return sequenceExists(md5)
+  return sequenceExists(hash)
     .then(path => fileRead(path, false, { start, end }));
 };
 
