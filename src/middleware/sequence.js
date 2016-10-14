@@ -18,25 +18,14 @@ import invariant from 'invariant';
 import _ from 'lodash';
 import { headersGet, headersPost } from './utils/headers';
 import { dataApiPath } from './utils/paths';
-
-//parses md5 in form acde79489cad6a8da9cea[10:900]
-const md5Regex = /([a-z0-9]+)(\[(\d+):(\d+?)\])?/;
-
-//start and end will only be defined if byte range is specified
-const parseMd5 = (md5) => {
-  const [ initial, hash, byteRange, start, end ] = md5.match(md5Regex);
-  return {
-    hash,
-    start: parseInt(start, 10),
-    end: parseInt(end, 10),
-  };
-};
+import { generatePseudoMd5, parsePseudoMd5 } from '../utils/sequenceMd5';
 
 const getSequenceUrl = (md5, range) => {
   if (range) {
     invariant(Array.isArray(range) && range.length === 2, 'range must be an array');
     invariant(md5.indexOf('[') < 0, 'cannot have byte range in md5 if specify a range');
-    return dataApiPath(`sequence/${md5}[${range[0]}:${range[1]}]`);
+    const psuedoMd5 = generatePsuedoMd5(md5, range[0], range[1]);
+    return dataApiPath(`sequence/${psuedoMd5}]`);
   }
   return dataApiPath(`sequence/${md5}`);
 };
@@ -70,7 +59,7 @@ export const getSequence = (md5) => {
 //expects map in form { blockId: pseudoMd5 }
 export const getSequences = (blockIdsToMd5s) => {
   //generate map { blockId: { hash, start, end } }
-  const blockParsedMap = _.mapValues(blockIdsToMd5s, (acc, pseudoMd5, blockId) => parseMd5(pseudoMd5));
+  const blockParsedMap = _.mapValues(blockIdsToMd5s, (acc, pseudoMd5, blockId) => parsePseudoMd5(pseudoMd5));
 
   // dedupe to the things we want to fetch
   // reduce to map of { md5: range }
@@ -108,7 +97,7 @@ export const getSequences = (blockIdsToMd5s) => {
 
       //generate blockId: sequence, normalizing for byte range requested
       return _.mapValues(blockParsedMap, (acc, parsedMd5) => {
-        const { hash, start = 0, end } = parsedMd5;
+        const { original, hash, start = 0, end } = parsedMd5;
         const range = rangeMap[hash];
         const sequence = hashToSequence[hash]; //fetch sequence... may just be a range
 
@@ -118,7 +107,11 @@ export const getSequences = (blockIdsToMd5s) => {
         // if no end defined, set to length of sequence
         const normEnd = !end ? sequence.length : normStart + (end - start);
 
-        return sequence.slice(normStart, normEnd);
+        const normSequence = sequence.slice(normStart, normEnd);
+
+        cacheSequence(original, normSequence);
+
+        return normSequence;
       });
     });
 };
