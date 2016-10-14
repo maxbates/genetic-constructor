@@ -60,17 +60,24 @@ export const fileExists = (path) => {
   });
 };
 
-//todo - support reading a specific range. may need to use a buffer? or can fake it
+//todo - should return buffer, not read the entire sequence
+//not crucial, since will only affect local file system once move to S3 for remote storage
 
-export const fileRead = (path, jsonParse = true) => {
+export const fileRead = (path, jsonParse = true, opts = {}) => {
+  const options = Object.assign({}, opts, { encoding: 'utf8' });
   return new Promise((resolve, reject) => {
-    fs.readFile(path, 'utf8', (err, result) => {
+    fs.readFile(path, options, (err, result) => {
       if (err) {
         if (err.code === 'ENOENT') {
           return reject(errorDoesNotExist);
         }
         return reject(err);
       }
+
+      if (Number.isInteger(opts.start)) {
+        return resolve(result.substring(opts.start, opts.end));
+      }
+
       const parsed = !!jsonParse ? parser(result) : result;
       resolve(parsed);
     });

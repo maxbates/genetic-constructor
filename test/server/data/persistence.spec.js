@@ -26,7 +26,7 @@ import * as persistence from '../../../server/data/persistence';
 
 describe('Server', () => {
   describe('Data', () => {
-    describe('persistence', function persistenceTests() {
+    describe.only('persistence', function persistenceTests() {
       describe('existence + reading', () => {
         const projectName = 'persistenceProject';
         const projectData = new Project(updateProjectWithAuthor({ metadata: { name: projectName } }));
