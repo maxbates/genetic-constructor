@@ -465,9 +465,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
       default:
         this.constructViewer.blockSelected([block]);
         const name = this.layout.partName(block);
+        const box = new Box2D(this.layout.nodeFromElement(block).el.getBoundingClientRect());
+        box.height -= 1;
         this.constructViewer.showInlineEditor(value => {
           this.constructViewer.renameBlock(block, value);
-        }, name, this.layout.nodeFromElement(block).el.getBoundingClientRect(), 'inline-editor-block');
+        }, name, box, 'inline-editor-block');
         break;
       }
     } else {
