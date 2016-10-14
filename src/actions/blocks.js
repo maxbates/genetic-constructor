@@ -29,6 +29,7 @@ import * as undoActions from '../store/undo/actions';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 
 //todo - helper to wrap dispatch()'s in a paused transaction - make sure dispatch still runs when passed as arg
+//todo - helper _getBlock() which throws of block doesnt exist
 
 //hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
 const spaceFiller = 10; //eslint-disable-line no-unused-vars

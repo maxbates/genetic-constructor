@@ -712,7 +712,6 @@ export default class Block extends Instance {
       return Promise.reject('sequence has invalid characters');
     }
 
-    //todo - 'user' source should be marked as a constant and shared with sequence dialog
     const updatedSource = persistSource === true ? this.source : { source: 'user', id: null };
 
     return writeSequence(sequenceMd5, sequence, this.id)
