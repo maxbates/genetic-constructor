@@ -24,7 +24,7 @@ const getSequenceUrl = (md5, range) => {
   if (range) {
     invariant(Array.isArray(range) && range.length === 2, 'range must be an array');
     invariant(md5.indexOf('[') < 0, 'cannot have byte range in md5 if specify a range');
-    const psuedoMd5 = generatePsuedoMd5(md5, range[0], range[1]);
+    const psuedoMd5 = generatePseudoMd5(md5, range[0], range[1]);
     return dataApiPath(`sequence/${psuedoMd5}]`);
   }
   return dataApiPath(`sequence/${md5}`);
@@ -99,7 +99,7 @@ export const getSequences = (blockIdsToMd5s) => {
       return _.mapValues(blockParsedMap, (acc, parsedMd5) => {
         const { original, hash, start = 0, end } = parsedMd5;
         const range = rangeMap[hash];
-        const sequence = hashToSequence[hash]; //fetch sequence... may just be a range
+        const sequence = hashToSequence[hash]; //fetched sequence... may just be a range
 
         // calculate normalized range
         // start depending on whether whole sequence was requested, or a fragment
@@ -124,3 +124,5 @@ export const writeSequence = (md5, sequence, blockId, projectId) => {
 
   return rejectingFetch(url, headersPost(stringified));
 };
+
+//todo - function for batch writing sequences? Utils for breaking up sequence into ranges

@@ -17,11 +17,13 @@
 //parses pseudoMd5 in form acde79489cad6a8da9cea[10:900]
 const md5Regex = /([a-z0-9]+)(\[(\d+):(\d+?)\])?/;
 
-export const generatePsuedoMd5 = (md5, start, end) => `${md5}[${start}:${end}]`;
+export const validPseudoMd5 = (md5) => md5Regex.test(md5);
+
+export const generatePseudoMd5 = (md5, start, end) => `${md5}[${start}:${end}]`;
 
 //start and end will only be defined if byte range is specified
 export const parsePseudoMd5 = (pseudoMd5) => {
-  const [ original, hash, byteRange, start, end ] = pseudoMd5.match(md5Regex);
+  const [ original, hash, /*byteRange*/, start, end ] = pseudoMd5.match(md5Regex);
   return {
     original,
     hash,
