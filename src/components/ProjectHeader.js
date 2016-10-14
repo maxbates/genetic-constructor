@@ -42,7 +42,7 @@ class ProjectHeader extends Component {
     const name = this.props.project.metadata.name || 'Untitled Project'
     this.props.uiInlineEditor(value => {
       this.props.projectRename(this.props.project.id, value);
-    }, name, bounds);
+    }, name, bounds, 'inline-editor-project');
   };
 
   render() {

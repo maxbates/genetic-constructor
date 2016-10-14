@@ -467,7 +467,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         const name = this.layout.partName(block);
         this.constructViewer.showInlineEditor(value => {
           this.constructViewer.renameBlock(block, value);
-        }, name, this.layout.nodeFromElement(block).el.getBoundingClientRect());
+        }, name, this.layout.nodeFromElement(block).el.getBoundingClientRect(), 'inline-editor-block');
         break;
       }
     } else {
@@ -479,7 +479,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         this.selectConstruct();
         this.constructViewer.showInlineEditor(value => {
           this.constructViewer.renameBlock(this.construct.id, value);
-        }, this.construct.getName(), this.layout.titleNode.el.getBoundingClientRect());
+        }, this.construct.getName(), this.layout.titleNode.el.getBoundingClientRect(), 'inline-editor-construct-title');
       }
     }
   }

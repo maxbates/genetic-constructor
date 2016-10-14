@@ -80,8 +80,13 @@ export default function modals(state = initialState, action) {
     return Object.assign({}, state, { spinMessage });
 
   case ActionTypes.UI_INLINE_EDITOR:
-    const { inlineEditorCommit, inlineEditorValue, inlineEditorPosition } = action;
-    return Object.assign({}, state, { inlineEditorCommit, inlineEditorValue, inlineEditorPosition });
+    const {
+      inlineEditorCommit,
+      inlineEditorValue,
+      inlineEditorPosition,
+      inlineEditorClassName
+    } = action;
+    return Object.assign({}, state, { inlineEditorCommit, inlineEditorValue, inlineEditorPosition, inlineEditorClassName });
 
   case ActionTypes.UI_SAVE_ERROR:
     return Object.assign({}, state, { showSaveError: true });

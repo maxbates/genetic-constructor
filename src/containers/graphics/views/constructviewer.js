@@ -230,8 +230,8 @@ export class ConstructViewer extends Component {
    * @param cancel
    * @param position
    */
-  showInlineEditor(commit, value, position) {
-    this.props.uiInlineEditor(commit, value, position);
+  showInlineEditor(commit, value, position, className) {
+    this.props.uiInlineEditor(commit, value, position, className);
   }
 
   /**

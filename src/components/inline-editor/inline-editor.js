@@ -34,6 +34,7 @@ class InlineEditor extends Component {
     commit: PropTypes.func.isRequired,
     value: PropTypes.string.isRequired,
     position: PropTypes.object.isRequired,
+    extraClassName: PropTypes.string,
     uiInlineEditor: PropTypes.func.isRequired,
   };
 
@@ -83,15 +84,15 @@ class InlineEditor extends Component {
       top: this.props.position.top + 'px',
       width: this.props.position.width + 'px',
       height: this.props.position.height + 'px',
-      fontSize: this.props.position.height * 0.45 + 'px',
     };
+    const classes = `inline-editor${this.props.extraClassName ? ' ' + this.props.extraClassName : ''}`;
     return (
       <div ref="blocker" className="inline-blocker" onClick={this.onClickBlock}>
         <input
           style={styles}
           ref="input"
           defaultValue={this.props.value}
-          className="inline-editor"
+          className={classes}
           onKeyDown={this.onKeyDown}
           spellCheck={false}
         />

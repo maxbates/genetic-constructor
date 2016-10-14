@@ -97,6 +97,7 @@ class App extends Component {
           commit={this.props.inlineEditorCommit}
           value={this.props.inlineEditorValue}
           position={this.props.inlineEditorPosition}
+          extraClassName={this.props.inlineEditorClassName}
         />
         <DevTools />
       </div>
@@ -112,6 +113,7 @@ function mapStateToProps(state, ownProps) {
     inlineEditorCommit: state.ui.modals.inlineEditorCommit,
     inlineEditorValue: state.ui.modals.inlineEditorValue,
     inlineEditorPosition: state.ui.modals.inlineEditorPosition,
+    inlineEditorClassName: state.ui.modals.inlineEditorClassName,
   };
 }
 
