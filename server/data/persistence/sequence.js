@@ -14,7 +14,8 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { chunk } from 'lodash';
+import { every, mapValues, chunk } from 'lodash';
+import md5 from 'md5';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import * as filePaths from '../../utils/filePaths';
 import {
@@ -26,7 +27,7 @@ import {
   fileWrite,
   fileDelete,
 } from '../../utils/fileSystem';
-import { validPseudoMd5, parsePseudoMd5 } from '../../../src/utils/sequenceMd5';
+import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../src/utils/sequenceMd5';
 import DebugTimer from '../../utils/DebugTimer';
 
 //if in production, storing in S3
@@ -37,9 +38,9 @@ const platformUrl = `${process.env.API_END_POINT}/sequence/`;
 
 //todo - need to include AWS credentials to handle remote reads / writes
 
-export const sequenceExists = (md5) => {
-  invariant(validPseudoMd5(md5), 'must pass a valid md5 with optional byte range');
-  const { hash } = parsePseudoMd5(md5);
+export const sequenceExists = (pseudoMd5) => {
+  invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
+  const { hash } = parsePseudoMd5(pseudoMd5);
 
   if (useRemote) {
     return rejectingFetch(platformUrl + hash, {
@@ -48,14 +49,14 @@ export const sequenceExists = (md5) => {
       .catch(err => errorDoesNotExist);
   }
 
-  const sequencePath = filePaths.createSequencePath(md5);
+  const sequencePath = filePaths.createSequencePath(pseudoMd5);
   return fileExists(sequencePath)
     .then(() => sequencePath);
 };
 
-export const sequenceGet = (md5) => {
-  invariant(validPseudoMd5(md5), 'must pass a valid md5 with optional byte range');
-  const { hash, start, end } = parsePseudoMd5(md5);
+export const sequenceGet = (pseudoMd5) => {
+  invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
+  const { hash, start, end } = parsePseudoMd5(pseudoMd5);
 
   if (useRemote) {
     //todo - verify correctness of header
@@ -72,9 +73,9 @@ export const sequenceGet = (md5) => {
     .then(path => fileRead(path, false, { start, end }));
 };
 
-export const sequenceWrite = (md5, sequence) => {
-  invariant(validPseudoMd5(md5), 'must pass a valid md5 with optional byte range');
-  const { hash, byteRange } = parsePseudoMd5(md5);
+export const sequenceWrite = (realMd5, sequence) => {
+  invariant(validPseudoMd5(realMd5), 'must pass a valid md5 with optional byte range');
+  const { hash, byteRange } = parsePseudoMd5(realMd5);
   invariant(!byteRange, 'should not pass md5 with byte range to sequence write');
 
   if (!sequence || !sequence.length) {
@@ -97,8 +98,7 @@ export const sequenceWrite = (md5, sequence) => {
     .then(() => sequence);
 };
 
-//expect object, map of md5 to sequence
-//todo - could support array, and compute md5 ourselves
+//expect object, map of md5 (not pseudoMd5) to sequence
 export const sequenceWriteMany = (map) => {
   invariant(typeof map === 'object', 'must pass an object');
 
@@ -109,7 +109,7 @@ export const sequenceWriteMany = (map) => {
     //promise for each batch
     return acc.then((allWrites) => {
       //sequenceWrite for each member of batch
-      return Promise.all(batch.map(md5 => sequenceWrite(md5, map[md5])))
+      return Promise.all(batch.map(pseudoMd5 => sequenceWrite(pseudoMd5, map[pseudoMd5])))
         .then((createdBatch) => {
           timer.time('(sequenceWriteMany) made + wrote a chunk');
           return allWrites.concat(createdBatch);
@@ -122,19 +122,35 @@ export const sequenceWriteMany = (map) => {
     });
 };
 
+//expects a long sequence, and map { blockId: [start:end] }
+//returns { blockId: pseudoMd5 } where psuedoMd5 is sequnceMd5[start:end]
+export const sequenceWriteChunks = (sequence, rangeMap) => {
+  invariant(sequence && sequence.length > 0, 'must pass a sequence with length');
+  invariant(every(rangeMap, (range) => Array.isArray(range) && Number.isInteger(range[0]) && Number.isInteger(range[1])));
+
+  const sequenceMd5 = md5(sequence);
+
+  return sequenceWrite(sequenceMd5, sequence)
+    .then(() => {
+      return mapValues(rangeMap, (range, blockId) => {
+        return generatePseudoMd5(sequenceMd5, range[0], range[1]);
+      });
+    });
+};
+
 //probably dont want to let people do this, since sequence may be referenced by multiple blocks...
-export const sequenceDelete = (md5) => {
-  invariant(validPseudoMd5(md5), 'must pass a valid md5 with optional byte range');
-  const { hash, byteRange } = parsePseudoMd5(md5);
+export const sequenceDelete = (pseudoMd5) => {
+  invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
+  const { hash, byteRange } = parsePseudoMd5(pseudoMd5);
   invariant(!byteRange, 'should not pass md5 with byte range to sequence delete');
 
   if (useRemote) {
     return rejectingFetch(platformUrl + hash, Object.assign({
       method: 'DELETE',
     }))
-      .then(resp => md5)
+      .then(resp => pseudoMd5);
   }
 
-  return sequenceExists(md5)
+  return sequenceExists(pseudoMd5)
     .then(path => fileDelete(path));
 };
