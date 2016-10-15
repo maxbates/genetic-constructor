@@ -22,7 +22,6 @@ import kT from './layoutconstants';
 import Fence from './fence';
 import { dispatch } from '../../../store/index';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
-import { blockRename } from '../../../actions/blocks';
 
 // # of pixels of mouse movement before a drag is triggered.
 const dragThreshold = 8;
@@ -465,7 +464,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
       default:
         this.constructViewer.blockSelected([block]);
         const name = this.layout.partName(block);
-        const box = new Box2D(this.layout.nodeFromElement(block).el.getBoundingClientRect());
+        const box = this.getBlockEditorBounds(block);
         box.height -= 1;
         this.constructViewer.showInlineEditor(value => {
           this.constructViewer.renameBlock(block, value);
@@ -484,6 +483,16 @@ export default class ConstructViewerUserInterface extends UserInterface {
         }, this.construct.getName(), this.layout.titleNode.el.getBoundingClientRect(), 'inline-editor-construct-title');
       }
     }
+  }
+
+  /**
+   * get the bounds for the block editor for the given block id
+   * @param blockId
+   */
+  getBlockEditorBounds(blockId) {
+    const box = new Box2D(this.layout.nodeFromElement(blockId).el.getBoundingClientRect());
+    box.width -= kT.textPad * 2 + kT.roleIcon;
+    return box;
   }
 
   /**

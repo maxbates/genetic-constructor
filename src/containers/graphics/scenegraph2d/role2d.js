@@ -16,7 +16,7 @@ limitations under the License.
 import Vector2D from '../geometry/vector2d';
 import Box2D from '../geometry/box2d';
 import Node2D from './node2d';
-import kT from '../views/layoutconstants.js';
+import kT from '../views/layoutconstants';
 
 /**
  * basic rectangular node
