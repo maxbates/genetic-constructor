@@ -21,7 +21,7 @@ import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
 import md5 from 'md5';
 import color from '../utils/generators/color';
-import { dnaStrict, dnaLoose } from '../utils/dna/dna';
+import { dnaStrict, dnaLoose } from '../utils/dna';
 import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
 import { symbolMap } from '../inventory/roles';

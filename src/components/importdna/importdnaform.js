@@ -21,7 +21,7 @@ import { focusBlocks } from '../../actions/focus';
 import { uiSetGrunt } from '../../actions/ui';
 import ModalWindow from '../modal/modalwindow';
 import { blockCreate, blockAddComponent } from '../../actions/blocks';
-import { dnaLoose, dnaLooseRegexp } from '../../utils/dna/dna';
+import { dnaLoose, dnaLooseRegexp } from '../../utils/dna';
 
 import '../../../src/styles/form.css';
 import '../../../src/styles/importdnaform.css';
