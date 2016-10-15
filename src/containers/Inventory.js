@@ -101,9 +101,14 @@ export class Inventory extends Component {
     this.props.inventoryToggleVisibility(forceVal);
   };
 
+  setActive = (group) => {
+    //todo - reset search term, unless switching between two search groups
+    this.props.inventorySelectTab(group);
+  };
+
   render() {
     //may be better way to pass in projectId
-    const { isVisible, projectId, currentTab, inventorySelectTab } = this.props;
+    const { isVisible, projectId, currentTab } = this.props;
 
     const currentSection = this.sections.find(section => section.title === currentTab);
     const { title, type, icon, condition, actions, sectionProps } = currentSection;
@@ -129,6 +134,8 @@ export class Inventory extends Component {
               if (condition && !condition()) {
                 return null;
               }
+
+              //todo - need to coordinate drop target + active class across side component + group component
               return (
                 <InventorySideGroup title={title}
                                     key={title}
@@ -136,7 +143,7 @@ export class Inventory extends Component {
                                     icon={icon}
                                     currentProject={projectId}
                                     isActive={currentTab === title}
-                                    setActive={() => inventorySelectTab(title)}
+                                    setActive={() => this.setActive(title)}
                                     {...rest} />
               );
             })}
