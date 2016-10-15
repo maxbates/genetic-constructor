@@ -419,17 +419,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
       const region = this.getBlockRegion(block, globalPoint);
       switch (region.where) {
 
-      case 'dots':
-        this.constructViewer.openPopup({
-          blockPopupMenuOpen: true,
-          menuPosition: globalPoint,
-        });
-        // change replace to add if opening the menu
-        if (action === 'replace') {
-          action = 'add';
-        }
-        break;
-
       case 'triangle':
         const node = this.layout.nodeFromElement(block);
         node.showChildren = !node.showChildren;
@@ -550,11 +539,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
         }
       }
       return { where: 'none' };
-    }
-
-    // context menu area?
-    if (vpt.x >= box.right - kT.contextDotsW) {
-      return { where: 'dots' };
     }
 
     // child expander, if present
