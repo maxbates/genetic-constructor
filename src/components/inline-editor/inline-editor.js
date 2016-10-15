@@ -50,14 +50,14 @@ class InlineEditor extends Component {
   /**
    * make sure the click was on the block and not the input
    */
-  onClickBlock = (evt) => {
-    if (evt.target === this.refs.blocker) {
-      this.onCommit();
-    }
-  };
+  // onClickBlock = (evt) => {
+  //   if (evt.target === this.refs.blocker) {
+  //     this.onCommit();
+  //   }
+  // };
 
   /**
-   * enter key commits change
+   * enter key commits change, escape cancels
    */
   onKeyDown = (event) => {
     if (event.key === 'Enter') {
@@ -66,11 +66,11 @@ class InlineEditor extends Component {
     if (event.key === 'Escape') {
       this.onCancel();
     }
-    if (event.key === 'Tab') {
-      event.preventDefault();
-      this.onCommit();
-    }
   };
+
+  onBlur = () => {
+    this.onCommit();
+  }
 
   /*
    * render the inline editor only when the commit callback is available
@@ -87,13 +87,14 @@ class InlineEditor extends Component {
     };
     const classes = `inline-editor${this.props.extraClassName ? ' ' + this.props.extraClassName : ''}`;
     return (
-      <div ref="blocker" className="inline-blocker" onClick={this.onClickBlock}>
+      <div>
         <input
           style={styles}
           ref="input"
           defaultValue={this.props.value}
           className={classes}
           onKeyDown={this.onKeyDown}
+          onBlur={this.onBlur}
           spellCheck={false}
         />
       </div>
