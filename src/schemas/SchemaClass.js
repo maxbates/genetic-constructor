@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import mapValues from '../utils/object/mapValues';
+import { mapValues } from 'lodash';
 
 /**
  * Schemas are used internally for ensure data is consistent and valid, and guarantee the presence of various fields.

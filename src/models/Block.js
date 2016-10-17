@@ -21,7 +21,7 @@ import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
 import md5 from 'md5';
 import color from '../utils/generators/color';
-import { dnaStrict, dnaLoose } from '../utils/dna/dna';
+import { dnaStrict, dnaLoose } from '../utils/dna';
 import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
 import { symbolMap } from '../inventory/roles';
@@ -99,11 +99,13 @@ export default class Block extends Instance {
   clone(parentInfo = {}, overwrites = {}) {
     const [ firstParent ] = this.parents;
 
+    const mergeWith = merge({ projectId: null }, overwrites);
+
     //unfreeze a clone by default if it is frozen, but allow overwriting if really want to
     //don't want to add the field if unnecessary
-    const mergeWith = this.rules.frozen === true ?
-      merge({ rules: { frozen: false } }, overwrites) :
-      overwrites;
+    if (this.rules.frozen === true && (!mergeWith.rules || mergeWith.rules.frozen !== true)) {
+      merge(mergeWith, { rules: { frozen: false } });
+    }
 
     if (parentInfo === null) {
       return super.clone(parentInfo, mergeWith);
@@ -379,6 +381,20 @@ export default class Block extends Instance {
    */
   setProjectId(projectId) {
     invariant(idValidator(projectId) || projectId === null, 'project Id is required, or null to mark unassociated');
+    invariant(!this.projectId || (this.projectId && projectId === null), 'if project ID is set, must unset first');
+
+    if (this.projectId === projectId) {
+      return this;
+    }
+
+    //hack to accommodate adding frozen block to construct / list
+    //need to determine how to handle adding frozen blocks
+    if (this.isFrozen()) {
+      return this.clone(undefined, {
+        projectId,
+        rules: { frozen: false },
+      });
+    }
     return this.mutate('projectId', projectId);
   }
 

@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import { dispatch } from './index.js';
-import mapValues from '../utils/object/mapValues';
+import { mapValues } from 'lodash';
 
 const dispatchWrapper = (action) => (...args) => dispatch(action(...args));
 
