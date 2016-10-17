@@ -197,16 +197,24 @@ export default class ConstructViewerUserInterface extends UserInterface {
    */
   mouseEnter(event) {
     this.setBlockHover();
+    this.setTitleHover();
   }
 
   mouseLeave(event) {
     this.setBlockHover();
+    this.setTitleHover();
   }
 
   /**
    * set the given block to the hover state
    */
   setBlockHover(block) {
+
+    // bail if no change
+    if (this.hover && this.hover.block === block) {
+      return;
+    }
+
     if (this.hover) {
       this.hover.node.set({
         hover: false,
@@ -230,6 +238,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * set hover state for title node
    */
   setTitleHover(hover) {
+    // bail on no change
+    if (this.layout.titleNode.hover === hover) {
+      return;
+    }
+
     this.layout.titleNode.set({
       hover,
     });

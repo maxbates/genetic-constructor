@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import Vector2D from '../geometry/vector2d';
-import Box2D from '../geometry/box2d';
 import Node2D from './node2d';
 import kT from '../views/layoutconstants';
 

@@ -412,7 +412,35 @@ export default class Node2D {
       this.textGlyph.update();
     }
 
+    // display hover state, which is used to indicate inline editing
+    this.updateHoverGlyph();
+
     return this.el;
+  }
+
+  /**
+   * show or hide hover glyph according to state
+   */
+  updateHoverGlyph() {
+    // remove hover glyph if no longer needed
+    if (this.hoverGlyph && !this.hover) {
+      this.el.removeChild(this.hoverGlyph);
+      this.hoverGlyph = null;
+    }
+    // add hover glyph as required
+    if (this.hover && !this.hoverGlyph) {
+      this.hoverGlyph = document.createElement('div');
+      this.hoverGlyph.className = 'hoverGlyph';
+      if (this.hoverClass) {
+        this.hoverGlyph.classList.add(this.hoverClass);
+      }
+      this.hoverGlyph.innerText = 'Edit';
+      const img = document.createElement('img');
+      img.setAttribute('src', '/images/ui/inline_edit.svg');
+      img.className = 'hoverSvgImg';
+      this.hoverGlyph.appendChild(img);
+      this.el.appendChild(this.hoverGlyph);
+    }
   }
 
   /**

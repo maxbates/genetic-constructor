@@ -316,6 +316,7 @@ export default class Layout {
       const props = Object.assign({}, {
         dataAttribute: { name: 'nodetype', value: 'block' },
         sg: this.sceneGraph,
+        hoverClass: 'hoverBlock',
       }, appearance);
       props.roleName = this.isSBOL(part) ? this.blocks[part].rules.role || this.blocks[part].metadata.role : null;
       node = new Role2D(props);
@@ -487,6 +488,7 @@ export default class Layout {
         this.titleNode = new Node2D(Object.assign({
           dataAttribute: { name: 'nodetype', value: 'construct-title' },
           sg: this.sceneGraph,
+          hoverClass: 'hoverTitle',
         }, kT.titleAppearance));
         this.sceneGraph.root.appendChild(this.titleNode);
       }

@@ -164,3 +164,33 @@
   border-radius: 100%;
   background-color: #1D222D;
 }
+/*hover glyph for inline editing hint*/
+.hoverGlyph {
+  position: absolute;
+  background-color: gray;
+  color: white;
+}
+.hoverBlock {
+  left: 4px;
+  top: 4px;
+  width: 56px;
+  height: 24px;
+  line-height: 24px;
+  text-indent: 6px;
+  font-size: 12px;
+}
+.hoverTitle {
+  left: 0px;
+  top: 4px;
+  width: 64px;
+  height: 30px;
+  line-height: 30px;
+  text-indent: 6px;
+  font-size: 16px;
+}
+.hoverSvgImg {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+}
