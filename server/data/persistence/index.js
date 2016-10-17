@@ -19,12 +19,12 @@
  */
 import invariant from 'invariant';
 import path from 'path';
-import { chunk, merge, values, forEach } from 'lodash';
-import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../utils/errors';
-import { validateBlock, validateProject, validateOrder } from '../utils/validation';
-import * as filePaths from './../utils/filePaths';
-import * as versioning from './versioning';
-import * as commitMessages from './commitMessages';
+import { merge, values, forEach } from 'lodash';
+import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../../utils/errors';
+import { validateBlock, validateProject, validateOrder } from '../../utils/validation';
+import * as filePaths from '../../utils/filePaths';
+import * as versioning from '../versioning';
+import * as commitMessages from '../commitMessages';
 import {
   fileExists,
   fileRead,
@@ -34,9 +34,11 @@ import {
   directoryMake,
   directoryDelete,
   directoryMove,
-} from '../utils/fileSystem';
-import * as permissions from './permissions';
-import DebugTimer from '../utils/DebugTimer';
+} from '../../utils/fileSystem';
+import * as permissions from '../permissions';
+import DebugTimer from '../../utils/DebugTimer';
+import { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete } from './sequence';
+
 
 /*********
  Helpers
@@ -537,59 +539,6 @@ export const projectSnapshot = (projectId, userId, messageAddition) => {
   return _projectCommit(projectId, userId, message);
 };
 
-//sequence
+// SEQUENCE
 
-export const sequenceExists = (md5) => {
-  const sequencePath = filePaths.createSequencePath(md5);
-  return fileExists(sequencePath)
-    .then(() => sequencePath);
-};
-
-export const sequenceGet = (md5) => {
-  return sequenceExists(md5)
-    .then(path => fileRead(path, false));
-};
-
-export const sequenceWrite = (md5, sequence, blockId, projectId) => {
-  if (!sequence || !sequence.length) {
-    return Promise.resolve();
-  }
-
-  const sequencePath = filePaths.createSequencePath(md5);
-
-  //only write if it doesnt exist
-  return fileExists(sequencePath)
-    .catch(() => fileWrite(sequencePath, sequence, false))
-    .then(() => sequence);
-};
-
-//expect object, map of md5 to sequence
-//todo - could support array, and compute md5 ourselves
-export const sequenceWriteMany = (map) => {
-  invariant(typeof map === 'object', 'must pass an object');
-
-  const timer = new DebugTimer('sequenceWriteMany', { disabled: true });
-  const batches = chunk(Object.keys(map), 50);
-
-  return batches.reduce((acc, batch) => {
-    //promise for each batch
-    return acc.then((allWrites) => {
-      //sequenceWrite for each member of batch
-      return Promise.all(batch.map(md5 => sequenceWrite(md5, map[md5])))
-        .then((createdBatch) => {
-          timer.time('(sequenceWriteMany) made + wrote a chunk');
-          return allWrites.concat(createdBatch);
-        });
-    });
-  }, Promise.resolve([]))
-    .then((allWrites) => {
-      timer.end('all sequences written');
-      return map;
-    });
-};
-
-//probably dont want to let people do this, since sequence may be referenced by multiple blocks...
-export const sequenceDelete = (md5) => {
-  return sequenceExists(md5)
-    .then(path => fileDelete(path));
-};
+export { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete };
