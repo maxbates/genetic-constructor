@@ -54,7 +54,7 @@ export const objectGet = (bucket, Key, params = {}) => {
   return new Promise((resolve, reject) => {
     const req = Object.assign(
       {
-        responseContentType: 'text/plain',
+        ResponseContentType: 'text/plain',
       },
       params,
       { Key }
