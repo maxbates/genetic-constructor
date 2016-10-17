@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/Autodesk/genetic-constructor.svg?branch=master)](https://travis-ci.org/Autodesk/genetic-constructor)
 [![Docker Repository on Quay](https://quay.io/repository/autodesk_bionano/gctor_webapp/status "Docker Repository on Quay")](https://quay.io/repository/autodesk_bionano/genomedesigner_genome-designer)
+[![Dependency Status](https://dependencyci.com/github/autodesk-bionano/genome-designer/badge)](https://dependencyci.com/github/autodesk-bionano/genome-designer)
 
 # Genetic Constructor
 
