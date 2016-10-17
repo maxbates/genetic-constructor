@@ -21,7 +21,7 @@ import invariant from 'invariant';
 
 let AWS;
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' || (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)) {
   invariant(!!process.env.AWS_ACCESS_KEY_ID, 'expected env var AWS_ACCESS_KEY_ID');
   invariant(!!process.env.AWS_SECRET_ACCESS_KEY, 'expected env var AWS_SECRET_ACCESS_KEY');
 
@@ -29,9 +29,6 @@ if (process.env.NODE_ENV === 'production') {
 
   AWS.config.update({
     region: 'us-west-2',
-    //can skip these lines if set as these env vars
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   });
 }
 
