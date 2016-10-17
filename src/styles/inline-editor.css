@@ -17,6 +17,7 @@
 }
 .inline-editor-block {
   font-size: 12px;
-  text-indent: 8px;
+  text-indent: 7px;
+  padding-right: 7px;
 }
 
