@@ -26,6 +26,8 @@ const rowBarH = 4;
 const rowBarW = 1;
 // padding around text on blocks
 const textPad = 8;
+// min width of blocks
+const minBlockWidth = 80;
 // width of context menu 3 dots
 const contextDotsW = 10;
 const contextDotsH = 18;
@@ -84,6 +86,7 @@ export default {
   rowBarH,
   rowBarW,
   textPad,
+  minBlockWidth,
   condensedText,
   insetX,
   insetY,

@@ -47,6 +47,7 @@ export default class SBOL2D extends Node2D {
     // measure actual text plus some padding
     const roleWidth = this.roleName ? kT.roleIcon + kT.textPad : 0;
     const size = this.measureText(str).add(new Vector2D(kT.textPad * 2 + roleWidth, 0));
+    size.x = Math.max(kT.minBlockWidth, size.x);
     return size;
   }
 
