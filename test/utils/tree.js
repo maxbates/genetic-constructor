@@ -1,5 +1,5 @@
 import uuid from 'node-uuid';
-import range from '../../src/utils/array/range';
+import { range } from 'lodash';
 
 const createStubNode = (childField = 'components',
                         parent = {}) => {

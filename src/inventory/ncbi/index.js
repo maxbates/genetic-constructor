@@ -180,7 +180,7 @@ export const search = (query, options = {}) => {
   const mappedParameters = {
     retstart: parameters.start,
     retmax: parameters.entries,
-    term: query,
+    term: `${query} 1:1000000[SLEN]`,
     retmode: 'json',
     sort: 'relevance',
   };
