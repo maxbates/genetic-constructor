@@ -14,6 +14,8 @@
  limitations under the License.
  */
 
+import invariant from 'invariant';
+
 //parses pseudoMd5 in form acde79489cad6a8da9cea[10:900]
 const md5Regex = /([a-z0-9]+)(\[(\d+):(\d+?)\])?/;
 
@@ -23,6 +25,8 @@ export const generatePseudoMd5 = (md5, start, end) => `${md5}[${start}:${end}]`;
 
 //start and end will only be defined if byte range is specified
 export const parsePseudoMd5 = (pseudoMd5) => {
+  invariant(typeof pseudoMd5 === 'string', `must pass a string, got ${pseudoMd5}`);
+
   const [ original, hash, byteRange, start, end ] = pseudoMd5.match(md5Regex);
   return {
     original,
