@@ -18,10 +18,10 @@ import Project from '../models/Project';
 import Block from '../models/Block';
 import Order from '../models/Order';
 
-//NOTE - this cache is not reset when the user changes. That sucks up some memory. User should not be able to access though - this is used by middleware functoins etc., but everything in a newly signed-in user's information will have unique IDs and should not collide (until there is collaboration or something along those lines).
+//NOTE - this cache is not reset when the user changes. That sucks up some memory. So, we reload the page. User should not be able to access though - this is used by middleware functoins etc., but everything in a newly signed-in user's information will have unique IDs and should not collide (until there is collaboration or something along those lines).
 
 /*
- Tracks a map of blocks / projects which have been loaded. Only contains the latest version. Serves as a place to store blocks / projects which do not need to be in the store.
+ Tracks a map of blocks / projects which have been loaded. Only contains the latest version. Serves as a place to store blocks / projects which do not need to be in the store. Also used for checking (with reference equality) whether rollups have changed.
 
  Works in concert with the store. Autosave relies on the store, for tracking versions of each instance. Other middlewares rely on the store as well.
 

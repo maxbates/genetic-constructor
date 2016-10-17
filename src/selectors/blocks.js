@@ -22,7 +22,7 @@ import BlockSchema from '../schemas/Block';
 import { values, flatten, get as pathGet, pickBy } from 'lodash';
 import saveCombinations from '../utils/generators/orderConstructs';
 
-const assertBlockExists = (block, blockId) => invariant(block && block.metadata, 'no block exists for block ID ' + blockId);
+const assertBlockExists = (block, blockId) => invariant(block && typeof block.metadata === 'object', 'no block exists for block ID ' + blockId);
 
 /***************************************
  * Parent accessing / store knowledge-requiring
@@ -80,14 +80,16 @@ const _getOptionsShallow = (blockId, store) => { //eslint-disable-line no-unused
 
 //returns map
 const _getAllOptions = (rootId, store, includeUnselected) => {
+  const options = _getOptionsShallow(rootId, store);
   const components = _getAllComponents(rootId, store);
+  //note - only shallow. does not handle constructs in options
   //for each component (in flat list), create map of options, and assign to accumulator, return accumulator
   return components.reduce((acc, block) => {
     return Object.assign(acc,
       block.getOptions(includeUnselected)
         .map(optionId => _getBlockFromStore(optionId, store))
         .reduce((acc, option) => Object.assign(acc, { [option.id]: option }), {}));
-  }, {});
+  }, options);
 };
 
 const _getAllContents = (rootId, state) => {
