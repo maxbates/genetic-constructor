@@ -61,7 +61,7 @@ export const sequenceGet = (pseudoMd5) => {
 
   if (s3.useRemote) {
     const params = start >= 0 ? { Range: `${start}-${end}` } : {};
-    return s3.objectGet(s3bucket, hash, params)
+    return s3.stringGet(s3bucket, hash, params)
       .catch(err => errorDoesNotExist);
   }
 
@@ -80,7 +80,7 @@ export const sequenceWrite = (realMd5, sequence) => {
 
   if (s3.useRemote) {
     //this slows everything down, but dont want to write and make new versions if we dont have to
-    return s3.objectPut(s3bucket, hash, sequence);
+    return s3.stringPut(s3bucket, hash, sequence);
   }
 
   const sequencePath = filePaths.createSequencePath(hash);

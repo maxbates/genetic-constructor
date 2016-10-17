@@ -53,7 +53,7 @@ export const objectExists = (bucket, Key) => {
   });
 };
 
-export const objectGet = (bucket, Key, params = {}) => {
+export const stringGet = (bucket, Key, params = {}) => {
   return new Promise((resolve, reject) => {
     const req = Object.assign(
       {
@@ -73,8 +73,14 @@ export const objectGet = (bucket, Key, params = {}) => {
   });
 };
 
+export const objectGet = (bucket, Key, params = {}) => {
+  const objParams = Object.assign({}, params, { ContentType: 'application/json' });
+  return stringGet(bucket, Key, objParams)
+    .then(result => JSON.parse(result));
+};
+
 //todo - need to support errors when copying file - they can still return a 200 (not sure if aws-sdk handles this)
-export const objectPut = (bucket, Key, Body, params = {}) => {
+export const stringPut = (bucket, Key, Body, params = {}) => {
   return new Promise((resolve, reject) => {
     const req = Object.assign(
       {
@@ -92,6 +98,13 @@ export const objectPut = (bucket, Key, Body, params = {}) => {
       return resolve(Body);
     });
   });
+};
+
+export const objectPut = (bucket, Key, obj, params = {}) => {
+  invariant(typeof obj === 'object', 'must pass object to objectPut');
+  const Body = JSON.stringify(obj);
+  const objParams = Object.assign({}, params, { ContentType: 'application/json' });
+  return stringPut(bucket, Key, Body, objParams);
 };
 
 export const objectDelete = (bucket, Key) => {
