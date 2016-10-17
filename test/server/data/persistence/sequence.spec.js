@@ -30,7 +30,7 @@ import * as persistence from '../../../../server/data/persistence';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
-      describe.only('sequence', function persistenceTests() {
+      describe('sequence', function persistenceTests() {
         const rangeStart = 20;
         const rangeEnd = 35;
         const sequence = 'ACTAGCTAGCTAGCTGACTAGCTAGCTGATCGTAGCGATCTACTGATCAGCTACTGTACGTACGTGACTG';

@@ -15,13 +15,19 @@
  */
 import invariant from 'invariant';
 
-//todo - better error handling
+export const useRemote = process.env.NODE_ENV === 'production' || (
+    (!process.env.FORCE_LOCAL || process.env.FORCE_LOCAL !== 'true') &&
+    (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
+  );
 
-//todo - set up a logger so console not clobbered
+//todo - better error handling
 
 let AWS;
 
-if (process.env.NODE_ENV === 'production' || (!process.env.FORCE_LOCAL && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)) {
+if (process.env.NODE_ENV === 'production' || (
+    (!process.env.FORCE_LOCAL || process.env.FORCE_LOCAL !== 'true') &&
+    (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
+  )) {
   invariant(!!process.env.AWS_ACCESS_KEY_ID, 'expected env var AWS_ACCESS_KEY_ID');
   invariant(!!process.env.AWS_SECRET_ACCESS_KEY, 'expected env var AWS_SECRET_ACCESS_KEY');
 

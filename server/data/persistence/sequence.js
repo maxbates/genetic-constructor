@@ -17,7 +17,6 @@ import invariant from 'invariant';
 import { every, mapValues, chunk } from 'lodash';
 import md5 from 'md5';
 import * as s3 from './s3';
-import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import * as filePaths from '../../utils/filePaths';
 import {
   errorDoesNotExist,
@@ -35,10 +34,8 @@ import DebugTimer from '../../utils/DebugTimer';
 
 /* S3 Credentials, when in production */
 
-const useRemote = process.env.NODE_ENV === 'production';
 let s3bucket;
-
-if (useRemote) {
+if (s3.useRemote) {
   s3bucket = s3.getBucket('bionano-gctor-sequences');
 }
 
@@ -48,7 +45,7 @@ export const sequenceExists = (pseudoMd5) => {
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash } = parsePseudoMd5(pseudoMd5);
 
-  if (useRemote) {
+  if (s3.useRemote) {
     return s3.objectExists(s3bucket, hash)
       .catch(err => errorDoesNotExist);
   }
@@ -62,7 +59,7 @@ export const sequenceGet = (pseudoMd5) => {
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash, start, end } = parsePseudoMd5(pseudoMd5);
 
-  if (useRemote) {
+  if (s3.useRemote) {
     const params = start >= 0 ? { Range: `${start}-${end}` } : {};
     return s3.objectGet(s3bucket, hash, params)
       .catch(err => errorDoesNotExist);
@@ -81,7 +78,7 @@ export const sequenceWrite = (realMd5, sequence) => {
     return Promise.resolve();
   }
 
-  if (useRemote) {
+  if (s3.useRemote) {
     //this slows everything down, but dont want to write and make new versions if we dont have to
     return s3.objectPut(s3bucket, hash, sequence);
   }
@@ -141,7 +138,7 @@ export const sequenceDelete = (pseudoMd5) => {
   const { hash, byteRange } = parsePseudoMd5(pseudoMd5);
   invariant(!byteRange, 'should not pass md5 with byte range to sequence delete');
 
-  if (useRemote) {
+  if (s3.useRemote) {
     return s3.objectDelete(s3bucket, hash)
       .then(() => pseudoMd5);
   }
