@@ -351,18 +351,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
-   * run the title context menu if the point is over the title block, or only
-   * over the context menu dots if onlyDots is specified
+   * run the title context menu if the point is over the title block.
    */
-  titleContextMenu(evt, point, onlyDots) {
+  titleContextMenu(evt, point) {
     const hits = this.sg.findNodesAt(point);
     if (this.isConstructTitleNode(hits.length ? hits.pop() : null)) {
-      // over the entire block, refine test as required
-      if (onlyDots) {
-        if (point.x < this.layout.titleNodeTextWidth) {
-          return false;
-        }
-      }
       this.constructViewer.openPopup({
         constructPopupMenuOpen: true,
         menuPosition: this.mouseTrap.mouseToGlobal(evt),
@@ -401,7 +394,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     this.selectConstruct();
 
     // text expander toggle first
-    if (this.constructExpander(event, point)) {
+    if (this.constructExpander(evt, point)) {
       this.layout.setCollapsed(!this.layout.collapsed);
       if (this.collapsed) {
         this.constructViewer.blockSelected([]);
@@ -411,11 +404,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     }
     // ignore everything else if we are collapsed
     if (this.collapsed) {
-      return;
-    }
-
-    // open construct menu for title according to position
-    if (this.titleContextMenu(evt, point, true)) {
       return;
     }
 
