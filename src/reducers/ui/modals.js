@@ -84,9 +84,16 @@ export default function modals(state = initialState, action) {
       inlineEditorCommit,
       inlineEditorValue,
       inlineEditorPosition,
-      inlineEditorClassName
+      inlineEditorClassName,
+      inlineEditorTarget,
     } = action;
-    return Object.assign({}, state, { inlineEditorCommit, inlineEditorValue, inlineEditorPosition, inlineEditorClassName });
+    return Object.assign({}, state, {
+      inlineEditorCommit,
+      inlineEditorValue,
+      inlineEditorPosition,
+      inlineEditorClassName,
+      inlineEditorTarget,
+    });
 
   case ActionTypes.UI_SAVE_ERROR:
     return Object.assign({}, state, { showSaveError: true });

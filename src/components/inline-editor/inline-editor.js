@@ -15,6 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import Box2D from '../../containers/graphics/geometry/box2d';
 
 import '../../../src/styles/Modal.css';
 import '../../../src/styles/inline-editor.css';
@@ -35,6 +36,7 @@ class InlineEditor extends Component {
     value: PropTypes.string.isRequired,
     position: PropTypes.object.isRequired,
     extraClassName: PropTypes.string,
+    target: PropTypes.object.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
   };
 
@@ -76,6 +78,7 @@ class InlineEditor extends Component {
       width: this.props.position.width + 'px',
       height: this.props.position.height + 'px',
     };
+    console.log(`Target: ${this.props.target}`);
     const classes = `inline-editor${this.props.extraClassName ? ' ' + this.props.extraClassName : ''}`;
     return (
       <div>
@@ -93,7 +96,12 @@ class InlineEditor extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.doFocus = !this.props.commit && nextProps.commit;
+    if (!this.props.commit && nextProps.commit) {
+      // so we can focus after the first render
+      this.doFocus = true;
+      // get the current bounds of the target when opened, so we can determine if it changes
+      this.openingBounds = new Box2D(nextProps.target.getBoundingClientRect());
+    }
   }
 
   componentDidUpdate() {
@@ -107,14 +115,25 @@ class InlineEditor extends Component {
    * listen to window resize/scroll and cancel the change if it occurs when the editor is open
    */
   componentDidMount() {
-
+    window.addEventListener('resize', this.testTargetBounds);
+    window.addEventListener('mousewheel', this.testTargetBounds);
   }
 
   /**
    * unlisten on unmount
    */
   componentWillUnmount() {
+    window.removeEventListener('resize', this.testTargetBounds);
+    window.removeEventListener('mousewheel', this.testTargetBounds);
+  }
 
+  /**
+   * if our target element moves then cancel
+   */
+  testTargetBounds = () => {
+    if (!this.openingBounds.equals(new Box2D(this.props.target.getBoundingClientRect()))) {
+      this.onCancel();
+    }
   }
 }
 

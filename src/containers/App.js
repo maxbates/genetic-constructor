@@ -98,6 +98,7 @@ class App extends Component {
           value={this.props.inlineEditorValue}
           position={this.props.inlineEditorPosition}
           extraClassName={this.props.inlineEditorClassName}
+          target={this.props.inlineEditorTarget}
         />
         <DevTools />
       </div>
@@ -114,6 +115,7 @@ function mapStateToProps(state, ownProps) {
     inlineEditorValue: state.ui.modals.inlineEditorValue,
     inlineEditorPosition: state.ui.modals.inlineEditorPosition,
     inlineEditorClassName: state.ui.modals.inlineEditorClassName,
+    inlineEditorTarget: state.ui.modals.inlineEditorTarget,
   };
 }
 
