@@ -37,7 +37,7 @@ import clipboard from './clipboard';
 const purgingEvents = [LOCATION_CHANGE, USER_SET_USER];
 
 const undoReducerEnhancer = undoReducerEnhancerCreator({
-  debug: false,
+  debug: process.env.DEBUGMODE,
   purgeOn: (action) => purgingEvents.some(type => type === action.type),
 });
 
