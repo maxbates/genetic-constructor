@@ -24,6 +24,7 @@ import { focusPrioritize } from '../actions/focus';
 import { projectRename } from '../actions/projects';
 
 import '../styles/ProjectHeader.css';
+import '../styles/inline-editor.css';
 
 class ProjectHeader extends Component {
   static propTypes = {
@@ -33,6 +34,10 @@ class ProjectHeader extends Component {
     uiInlineEditor: PropTypes.func.isRequired,
     focusPrioritize: PropTypes.func.isRequired,
     projectRename: PropTypes.func.isRequired,
+  };
+
+  state = {
+    hover: false,
   };
 
   onClick = () => {
@@ -45,18 +50,35 @@ class ProjectHeader extends Component {
     }, name, bounds, 'inline-editor-project', ReactDOM.findDOMNode(this));
   };
 
+  onMouseEnter = () => {
+    this.setState({hover: true});
+  }
+
+  onMouseLeave = () => {
+    this.setState({hover: false});
+  }
+
   render() {
     const { project, isFocused } = this.props;
-
+    console.log('PT State:', this.state.hover);
+    const hover = this.state.hover
+      ? <div className="hoverProjectHeader">Edit
+          <img src="/images/ui/inline_edit.svg" className="hoverSvgImg"/>
+        </div>
+      : null;
     return (
       <div className={'ProjectHeader' + (isFocused ? ' focused' : '')}
-           onClick={this.onClick}>
+           onClick={this.onClick}
+           onMouseEnter={this.onMouseEnter}
+           onMouseLeave={this.onMouseLeave}
+      >
         <div className="ProjectHeader-info">
           <div className="ProjectHeader-title">{project.metadata.name || 'Untitled Project'}</div>
           <div className="ProjectHeader-description">{project.metadata.description}</div>
         </div>
 
         <div className="ProjectHeader-actions"></div>
+        {hover}
       </div>
     );
   }

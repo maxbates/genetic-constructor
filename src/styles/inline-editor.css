@@ -21,3 +21,47 @@
   padding-right: 7px;
 }
 
+/*hover glyph for inline editing hint*/
+.hoverGlyph {
+  position: absolute;
+  background-color: gray;
+  color: white;
+}
+.hoverBlock {
+  left: 9px;
+  top: 4px;
+  width: 56px;
+  height: 24px;
+  line-height: 24px;
+  text-indent: 6px;
+  font-size: 12px;
+}
+.hoverTitle {
+  left: 0px;
+  top: 4px;
+  width: 64px;
+  height: 30px;
+  line-height: 30px;
+  text-indent: 6px;
+  font-size: 16px;
+}
+.hoverSvgImg {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.hoverProjectHeader {
+  position: absolute;
+  background-color: gray;
+  color: white;
+  left: 10px;
+  top: 6px;
+  width: 64px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 16px;
+  text-ident: 4px;
+}
+
+

@@ -72,6 +72,7 @@ import {
 import RoleSvg from '../../../components/RoleSvg';
 
 import '../../../styles/constructviewer.css';
+import '../../../styles/inline-editor.css';
 
 // static hash for matching viewers to constructs
 const idToViewer = {};

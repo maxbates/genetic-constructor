@@ -131,6 +131,9 @@ class InlineEditor extends Component {
    * if our target element moves then cancel
    */
   testTargetBounds = () => {
+    if (!this.props.commit || !this.props.target) {
+      return;
+    }
     if (!this.openingBounds.equals(new Box2D(this.props.target.getBoundingClientRect()))) {
       this.onCancel();
     }
