@@ -488,12 +488,6 @@ export default class Layout {
           dataAttribute: { name: 'nodetype', value: 'construct-title' },
           sg: this.sceneGraph,
         }, kT.titleAppearance));
-        // add the context menu dots
-        this.titleNodeDots = new Node2D({
-          sg: this.sceneGraph,
-          glyph: 'dots',
-        });
-        this.titleNode.appendChild(this.titleNodeDots);
         this.sceneGraph.root.appendChild(this.titleNode);
       }
 
@@ -513,13 +507,6 @@ export default class Layout {
         color: this.baseColor,
         bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, this.sceneGraph.availableWidth - this.insetX - kT.rightPad, kT.titleH),
         dataAttribute: { name: 'construct-title', value: text },
-      });
-
-      // set dots to the right of the text
-      this.titleNodeDots.set({
-        bounds: new Box2D(this.titleNodeTextWidth, (kT.titleH - kT.contextDotsH) / 2, kT.contextDotsW, kT.contextDotsH),
-        visible: this.titleNode.hover,
-        dotColor: this.baseColor,
       });
     }
   }

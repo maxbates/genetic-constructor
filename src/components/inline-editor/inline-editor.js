@@ -107,16 +107,14 @@ class InlineEditor extends Component {
    * listen to window resize/scroll and cancel the change if it occurs when the editor is open
    */
   componentDidMount() {
-    window.addEventListener('resize', this.onCancel);
-    window.addEventListener('mousewheel', this.onCancel);
+
   }
 
   /**
    * unlisten on unmount
    */
   componentWillUnmount() {
-    window.removeEventListener('resize', this.onCancel);
-    window.removeEventListener('mousewheel', this.onCancel);
+
   }
 }
 

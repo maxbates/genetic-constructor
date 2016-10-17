@@ -23,7 +23,6 @@ import RectangleGlyph2D from './glyphs/html/rectangleglyph2d';
 import RoleGlyph2D from './glyphs/html/roleglyph2d';
 import ListItemGlyph2D from './glyphs/html/listitemglyph2d';
 import LineGlyph2D from './glyphs/html/lineglyph2d';
-import ContextDots2D from './glyphs/html/contextdots2d';
 import ConstructBanner from './glyphs/canvas/constructbanner';
 /**
  * shared DIV for measuring text,
@@ -389,6 +388,10 @@ export default class Node2D {
     //if we have additional CSS classes to apply do that
     if (this.classes) {
       this.el.className = `node ${this.classes}`;
+    }
+
+    if (this.hover) {
+      console.log('HOVER:', this.text);
     }
 
     // set width/height and transform

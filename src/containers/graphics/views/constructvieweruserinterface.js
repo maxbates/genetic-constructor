@@ -229,14 +229,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
   /**
    * set hover state for title node
    */
-  setTitleHover(bool) {
-    if (bool !== this.titleHover) {
-      this.titleHover = bool;
-      if (this.layout.titleNode) {
-        this.layout.titleNode.children[0].set({ visible: this.titleHover });
-        this.layout.titleNode.children[0].updateBranch();
-      }
-    }
+  setTitleHover(hover) {
+    this.layout.titleNode.set({
+      hover,
+    });
+    this.layout.titleNode.updateBranch();
   }
 
   /**
@@ -467,9 +464,10 @@ export default class ConstructViewerUserInterface extends UserInterface {
       // of the title of construct via an inline edit.
       if (this.isConstructTitleNode(this.topNodeAt(point))) {
         this.selectConstruct();
+        const box = this.getTitleEditorBounds();
         this.constructViewer.showInlineEditor(value => {
           this.constructViewer.renameBlock(this.construct.id, value);
-        }, this.construct.getName(), this.layout.titleNode.el.getBoundingClientRect(), 'inline-editor-construct-title');
+        }, this.construct.getName(), box, 'inline-editor-construct-title');
       }
     }
   }
@@ -481,6 +479,17 @@ export default class ConstructViewerUserInterface extends UserInterface {
   getBlockEditorBounds(blockId) {
     const box = new Box2D(this.layout.nodeFromElement(blockId).el.getBoundingClientRect());
     box.width -= kT.textPad * 2 + kT.roleIcon;
+    return box;
+  }
+
+  /**
+   * get the bounds for the construct title editor
+   * @param blockId
+   */
+  getTitleEditorBounds() {
+    const box = new Box2D(this.layout.titleNode.el.getBoundingClientRect());
+    const aabb = this.layout.getBlocksAABB();
+    box.width = Math.min(this.layout.titleNodeTextWidth, aabb.width);
     return box;
   }
 
