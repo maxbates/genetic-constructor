@@ -48,15 +48,6 @@ class InlineEditor extends Component {
   };
 
   /**
-   * make sure the click was on the block and not the input
-   */
-  // onClickBlock = (evt) => {
-  //   if (evt.target === this.refs.blocker) {
-  //     this.onCommit();
-  //   }
-  // };
-
-  /**
    * enter key commits change, escape cancels
    */
   onKeyDown = (event) => {
@@ -110,6 +101,20 @@ class InlineEditor extends Component {
       this.refs.input.focus();
       this.doFocus = false;
     }
+  }
+
+  /**
+   * listen to window resize and cancel the change if it occurs when the editor is open
+   */
+  componentDidMount() {
+    window.addEventListener('resize', this.onCancel);
+  }
+
+  /**
+   * unlisten on unmount
+   */
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onCancel);
   }
 }
 
