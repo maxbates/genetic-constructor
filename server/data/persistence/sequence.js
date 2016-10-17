@@ -60,7 +60,7 @@ export const sequenceGet = (pseudoMd5) => {
   const { hash, start, end } = parsePseudoMd5(pseudoMd5);
 
   if (s3.useRemote) {
-    const params = start >= 0 ? { Range: `${start}-${end}` } : {};
+    const params = start >= 0 ? { Range: `bytes=${start}-${end}` } : {};
     return s3.stringGet(s3bucket, hash, params)
       .catch(err => errorDoesNotExist);
   }

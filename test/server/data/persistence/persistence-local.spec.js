@@ -21,12 +21,20 @@ import Block from '../../../../src/models/Block';
 import * as filePaths from '../../../../server/utils/filePaths';
 import * as versioning from '../../../../server/data/versioning';
 import * as persistence from '../../../../server/data/persistence';
+import * as s3 from '../../../../server/data/persistence/s3';
 
 //todo - can probably de-dupe many of these setup / before() clauses, they are pretty similar
 
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', function persistenceTests() {
+      //skip test suite if using s3 for tests
+      before(() => {
+        if (s3.useRemote) {
+          this.skip();
+        }
+      });
+
       describe('existence + reading', () => {
         const projectName = 'persistenceProject';
         const projectData = new Project(updateProjectWithAuthor({ metadata: { name: projectName } }));
@@ -275,7 +283,7 @@ describe('Server', () => {
 
         it('blockMerge() accepts a partial block', () => {
           const merged = merge({}, blockData, blockPatch);
-          const mergedFileContents = { [merged.id] : merged };
+          const mergedFileContents = { [merged.id]: merged };
           //start with write to reset
           return persistence.blockWrite(projectId, blockData)
             .then(() => persistence.blockMerge(projectId, blockId, blockPatch))

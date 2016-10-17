@@ -320,7 +320,10 @@ const loadSequences = (blockMap) => {
 
       return sequencePromise
         .then((seq) => merge({}, block, { sequence: { sequence: seq } }))
-        .catch((error) => block);
+        .catch((error) => {
+          console.log('error fetching sequence ', block.sequence.md5, block.id);
+          return block;
+        });
     }));
 };
 

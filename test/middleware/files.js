@@ -13,7 +13,7 @@ describe('Middleware', () => {
       const fileContents = 'rawr';
       const storagePath = makeStoragePath(filePath);
 
-      return fileApi.writeFile(filePath, fileContents)
+      fileApi.writeFile(filePath, fileContents)
         .then((res) => {
           expect(res.status).to.equal(200);
           fs.readFile(storagePath, 'utf8', (err, file) => {
