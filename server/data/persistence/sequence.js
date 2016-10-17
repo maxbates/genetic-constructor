@@ -83,8 +83,7 @@ export const sequenceWrite = (realMd5, sequence) => {
 
   if (useRemote) {
     //this slows everything down, but dont want to write and make new versions if we dont have to
-    return sequenceExists(hash)
-      .then(() => s3.objectPut(s3bucket, hash, sequence));
+    return s3.objectPut(s3bucket, hash, sequence);
   }
 
   const sequencePath = filePaths.createSequencePath(hash);
