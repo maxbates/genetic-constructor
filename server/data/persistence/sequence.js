@@ -16,6 +16,7 @@
 import invariant from 'invariant';
 import { every, mapValues, chunk } from 'lodash';
 import md5 from 'md5';
+import * as s3 from './s3';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import * as filePaths from '../../utils/filePaths';
 import {
@@ -30,22 +31,25 @@ import {
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../src/utils/sequenceMd5';
 import DebugTimer from '../../utils/DebugTimer';
 
-//if in production, storing in S3
-const useRemote = !!process.env.API_END_POINT;
-const platformUrl = `${process.env.API_END_POINT}/sequence/`;
-
 //todo - may need userId / projectId to address privacy concerns
 
-//todo - need to include AWS credentials to handle remote reads / writes
+/* S3 Credentials, when in production */
+
+const useRemote = process.env.NODE_ENV === 'production';
+let s3bucket;
+
+if (useRemote) {
+  s3bucket = s3.getBucket('bionano-gctor-sequences');
+}
+
+/* end S3 setup */
 
 export const sequenceExists = (pseudoMd5) => {
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash } = parsePseudoMd5(pseudoMd5);
 
   if (useRemote) {
-    return rejectingFetch(platformUrl + hash, {
-      method: 'GET',
-    })
+    return s3.objectExists(s3bucket, hash)
       .catch(err => errorDoesNotExist);
   }
 
@@ -59,13 +63,8 @@ export const sequenceGet = (pseudoMd5) => {
   const { hash, start, end } = parsePseudoMd5(pseudoMd5);
 
   if (useRemote) {
-    //todo - verify correctness of header
-    const byteHeader = start >= 0 ? { Range: `${start}-${end}` } : {};
-
-    return rejectingFetch(platformUrl + hash, Object.assign({
-      method: 'GET',
-    }, byteHeader))
-      .then(resp => resp.text())
+    const params = start >= 0 ? { Range: `${start}-${end}` } : {};
+    return s3.objectGet(s3bucket, hash, params)
       .catch(err => errorDoesNotExist);
   }
 
@@ -83,11 +82,9 @@ export const sequenceWrite = (realMd5, sequence) => {
   }
 
   if (useRemote) {
-    return rejectingFetch(platformUrl + hash, Object.assign({
-      method: 'POST',
-    }))
-      .then(resp => resp.text())
-      .catch(err => errorDoesNotExist);
+    //this slows everything down, but dont want to write and make new versions if we dont have to
+    return sequenceExists(s3bucket)
+      .then(() => s3.objectPut(s3bucket, hash, sequence));
   }
 
   const sequencePath = filePaths.createSequencePath(hash);
@@ -146,10 +143,8 @@ export const sequenceDelete = (pseudoMd5) => {
   invariant(!byteRange, 'should not pass md5 with byte range to sequence delete');
 
   if (useRemote) {
-    return rejectingFetch(platformUrl + hash, Object.assign({
-      method: 'DELETE',
-    }))
-      .then(resp => pseudoMd5);
+    return s3.objectDelete(s3bucket, hash)
+      .then(() => pseudoMd5);
   }
 
   return sequenceExists(pseudoMd5)

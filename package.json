@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "ansi-to-html-umd": "^0.4.2",
+    "aws-sdk": "^2.6.9",
     "bootstrap": "^3.3.6",
     "compression": "^1.6.2",
     "cookie-parser": "^1.4.1",
