@@ -48,10 +48,12 @@ class ProjectHeader extends Component {
   onClick = () => {
     this.props.inspectorToggleVisibility(true);
     this.props.focusPrioritize('project');
-    const name = this.props.project.metadata.name || 'Untitled Project'
-    this.props.uiInlineEditor(value => {
-      this.props.projectRename(this.props.project.id, value);
-    }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this));
+    const name = this.props.project.metadata.name || 'Untitled Project';
+    if (!this.props.project.isSample) {
+      this.props.uiInlineEditor(value => {
+        this.props.projectRename(this.props.project.id, value);
+      }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this));
+    }
   };
 
   onMouseEnter = () => {
@@ -64,7 +66,7 @@ class ProjectHeader extends Component {
 
   render() {
     const { project, isFocused } = this.props;
-    const hover = this.state.hover
+    const hover = this.state.hover && !this.props.project.isSample
       ? <div className="inline-editor-hover inline-editor-hover-project">
           <span>{project.metadata.name}</span>
           <img src="/images/ui/inline_edit.svg"/>

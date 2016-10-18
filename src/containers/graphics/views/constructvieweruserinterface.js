@@ -18,7 +18,6 @@ import DnD from '../dnd/dnd';
 import Vector2D from '../geometry/vector2d';
 import Box2D from '../geometry/box2d';
 import { transact } from '../../../store/undo/actions';
-import kT from './layoutconstants';
 import Fence from './fence';
 import { dispatch } from '../../../store/index';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
@@ -265,17 +264,19 @@ export default class ConstructViewerUserInterface extends UserInterface {
    */
   mouseMove(evt, point) {
     if (!this.collapsed) {
-      const hits = this.sg.findNodesAt(point);
-      this.setTitleHover(this.isConstructTitleNode(hits.length ? hits.pop() : null));
-      let block = this.topBlockAt(point);
-      if (block) {
-        const globalPoint = this.mouseTrap.mouseToGlobal(evt);
-        const region = this.getBlockRegion(block, globalPoint);
-        if (region && region.where === 'option') {
-          block = null;
+      if (this.construct.isAuthoring() || !this.construct.isFixed()) {
+        const hits = this.sg.findNodesAt(point);
+        this.setTitleHover(this.isConstructTitleNode(hits.length ? hits.pop() : null));
+        let block = this.topBlockAt(point);
+        if (block) {
+          const globalPoint = this.mouseTrap.mouseToGlobal(evt);
+          const region = this.getBlockRegion(block, globalPoint);
+          if (region && region.where === 'option') {
+            block = null;
+          }
         }
+        this.setBlockHover(block);
       }
-      this.setBlockHover(block);
     }
   }
 
@@ -458,12 +459,14 @@ export default class ConstructViewerUserInterface extends UserInterface {
         break;
       default:
         this.constructViewer.blockSelected([block]);
-        const name = this.layout.partName(block);
-        const bat = this.getBlockEditorBoundsAndTarget(block);
-        this.constructViewer.showInlineEditor(value => {
-          this.constructViewer.renameBlock(block, value);
-        }, name, bat.bounds, 'inline-editor-block', bat.target);
-        this.layout.nodeFromElement(block).set({hover: false});
+        if (this.construct.isAuthoring() || !this.construct.isFixed()) {
+          const name = this.layout.partName(block);
+          const bat = this.getBlockEditorBoundsAndTarget(block);
+          this.constructViewer.showInlineEditor(value => {
+            this.constructViewer.renameBlock(block, value);
+          }, name, bat.bounds, 'inline-editor-block', bat.target);
+          this.layout.nodeFromElement(block).set({ hover: false });
+        }
         break;
       }
     } else {
@@ -471,14 +474,16 @@ export default class ConstructViewerUserInterface extends UserInterface {
       this.constructViewer.blockSelected([]);
       // if they clicked the title node then select the construct and initiate editing
       // of the title of construct via an inline edit.
-      const topNode = this.topNodeAt(point);
-      if (this.isConstructTitleNode(topNode)) {
-        this.selectConstruct();
-        const bat = this.getTitleEditorBoundsAndTarget();
-        this.constructViewer.showInlineEditor(value => {
-          this.constructViewer.renameBlock(this.construct.id, value);
-        }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
-        topNode.set({hover: false});
+      if (this.construct.isAuthoring() || !this.construct.isFixed()) {
+        const topNode = this.topNodeAt(point);
+        if (this.isConstructTitleNode(topNode)) {
+          this.selectConstruct();
+          const bat = this.getTitleEditorBoundsAndTarget();
+          this.constructViewer.showInlineEditor(value => {
+            this.constructViewer.renameBlock(this.construct.id, value);
+          }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
+          topNode.set({ hover: false });
+        }
       }
     }
   }
