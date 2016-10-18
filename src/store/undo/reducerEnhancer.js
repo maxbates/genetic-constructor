@@ -45,7 +45,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = manager) => {
     initTypes: ['@@redux/INIT', '@@INIT'],
     purgeOn: () => false,
     filter: () => false,
-    debug: (process && process.env && process.env.NODE_ENV === 'dev'),
+    debug: (process && process.env && process.env.DEBUGMODE),
   }, config);
 
   return (reducer, key = reducer.name) => {
@@ -95,6 +95,10 @@ export const undoReducerEnhancerCreator = (config, undoManager = manager) => {
 
       //on redux init types, reset the history
       if (params.initTypes.some(type => type === action.type)) {
+        //this is very hard to trace otherwise
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('store initializing'); //eslint-disable-line no-console
+        }
         undoManager.purge();
         undoManager.patch(key, nextState, action);
         return sectionManager.getCurrentState();

@@ -1,5 +1,5 @@
 import { expect, assert } from 'chai';
-import range from '../../src/utils/array/range';
+import { range } from 'lodash';
 import * as actions from '../../src/actions/blocks';
 import * as selectors from '../../src/selectors/blocks';
 import blocksReducer from '../../src/reducers/blocks';

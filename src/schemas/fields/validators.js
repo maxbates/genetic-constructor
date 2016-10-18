@@ -15,7 +15,7 @@
  */
 import safeValidate from './safeValidate';
 import urlRegex from 'url-regex';
-import { dnaStrictRegexp, dnaLooseRegexp } from '../../utils/dna/dna';
+import { dnaStrictRegexp, dnaLooseRegexp } from '../../utils/dna';
 import { id as idRegex } from '../../utils/regex';
 
 //any additions to this file should be tested, and everything will be exported, so only export real validators
