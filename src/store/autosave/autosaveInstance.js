@@ -45,6 +45,9 @@ const autosave = autosaveCreator({
 
   //this is pretty hack, but want to rely on action to do this (and actions have a dependency on the store, so cant import directly or create circular dependency. just need to be sure this doesnt run until after everything has been set up...
   onSave: () => {
+    if (process.env.NODE_ENV === 'test') {
+      return null;
+    }
     return window.constructor.api.projects.projectSave();
   },
 
