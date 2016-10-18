@@ -15,7 +15,7 @@
  */
 import * as validatorFunctions from './validators';
 import createFieldType from './createFieldType';
-import mapValues from '../../utils/object/mapValues';
+import { mapValues } from 'lodash';
 import uuid from 'node-uuid';
 import sha1 from 'sha1';
 

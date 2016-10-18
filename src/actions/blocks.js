@@ -18,7 +18,7 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import { merge } from 'lodash';
+import { every, filter, uniq, values } from 'lodash';
 import * as ActionTypes from '../constants/ActionTypes';
 import BlockSchema from '../schemas/Block';
 import Block from '../models/Block';
@@ -29,9 +29,121 @@ import * as undoActions from '../store/undo/actions';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 
 //todo - helper to wrap dispatch()'s in a paused transaction - make sure dispatch still runs when passed as arg
+//todo - helper _getBlock() which throws of block doesnt exist
 
 //hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
 const spaceFiller = 10; //eslint-disable-line no-unused-vars
+
+/***************************************
+ * Metadata things
+ ***************************************/
+
+//todo - should not allow if in a project
+/**
+ * Set the projectId of a block, and optionally all of its contents.
+ * While the block is in the project, do not set the projectId to something other than the current project! Save errors etc. will happen.
+ * @param {UUID} blockId
+ * @param {UUID} projectId
+ * @param [shallow=false]
+ * @returns block with blockId
+ */
+export const blockSetProject = (blockId, projectId, shallow = false) => {
+  return (dispatch, getState) => {
+    const oldBlock = dispatch(selectors.blockGet(blockId));
+    const contents = dispatch(selectors.blockGetContentsRecursive(blockId));
+
+    const blocks = [oldBlock, ...values(contents)]
+      .map(block => block.setProjectId(projectId));
+
+    dispatch({
+      type: ActionTypes.BLOCK_SET_PROJECT,
+      blocks,
+    });
+
+    return blocks[0];
+  };
+};
+
+/**
+ * Rename a block
+ * @function
+ * @param {UUID} blockId
+ * @param {string} name
+ * @returns {Block} Updated Block
+ */
+export const blockRename = (blockId, name) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+
+    if (oldBlock.metadata.name === name) {
+      return oldBlock;
+    }
+
+    const block = oldBlock.setName(name);
+    dispatch({
+      type: ActionTypes.BLOCK_RENAME,
+      undoable: true,
+      block,
+    });
+    return block;
+  };
+};
+
+/**
+ * Set block's color
+ * @function
+ * @param {UUID} blockId
+ * @param {string} color Hex color string
+ * @returns {Block} Updated Block
+ */
+export const blockSetColor = (blockId, color) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+
+    if (oldBlock.metadata.color === color) {
+      return oldBlock;
+    }
+
+    const block = oldBlock.setColor(color);
+    dispatch({
+      type: ActionTypes.BLOCK_SET_COLOR,
+      undoable: true,
+      block,
+    });
+    return block;
+  };
+};
+
+/**
+ * Set block's role
+ * @function
+ * @param {UUID} blockId
+ * @param {string} role Role as defined in {@link module:roles}
+ * @returns {Block} Updated Block
+ */
+export const blockSetRole = (blockId, role) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+    const oldRole = oldBlock.rules.role;
+
+    if (oldRole === role) {
+      return oldBlock;
+    }
+
+    const block = oldBlock.setRole(role);
+    dispatch({
+      type: ActionTypes.BLOCK_SET_ROLE,
+      undoable: true,
+      oldRole,
+      block,
+    });
+    return block;
+  };
+};
+
+/***************************************
+ * Store + Server Interaction
+ ***************************************/
 
 /**
  * Retrieves a block, and its options and components if specified
@@ -69,16 +181,11 @@ export const blockLoad = (blockId, inputProjectId, withContents = false, skipIfC
  * Create a new Block
  * @function
  * @param {Object} initialModel
- * @param {boolean} [useDefaults=true] Set e.g. current project ID automatically. Set to false if you are creating a block outside of a project (i.e. floating, not associated with project yet)
  * @returns {Block}
  */
-export const blockCreate = (initialModel, useDefaults = true) => {
+export const blockCreate = (initialModel = {}) => {
   return (dispatch, getState) => {
-    const toMerge = (useDefaults === true) ?
-    { projectId: dispatch(projectSelectors.projectGetCurrentId()) } :
-    {};
-
-    const block = new Block(merge(toMerge, initialModel));
+    const block = new Block(initialModel);
     dispatch({
       type: ActionTypes.BLOCK_CREATE,
       block,
@@ -119,7 +226,8 @@ export const blockMerge = (blockId, toMerge) => {
 };
 
 /**
- * Clone a block (and its children, by default)
+ * Clone a block (and its contents - components + list options)
+ * Sets projectId to null for all cloned elements. Project ID is set when added back to the project.
  * @function
  * @param blockInput {ID|Object} JSON of block directly, or ID. Accept both since inventory items may not be in the store, so we need to pass the block directly. Prefer to use ID.
  * @param parentObjectInput {Object} information about parent, defaults to generated:
@@ -127,10 +235,9 @@ export const blockMerge = (blockId, toMerge) => {
  *   projectId - same as block being cloned, or block.projectId
   *  version - that of project ID if in the store, or first parent if available and same project id
   * }
- * @param shallowOnly {Boolean} Does a deep clone by default, adds all child blocks to store
  * @returns {Block} clone block (root node if has children)
  */
-export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = false) => {
+export const blockClone = (blockInput, parentObjectInput = {}) => {
   return (dispatch, getState) => {
     let oldBlock;
     if (typeof blockInput === 'string') {
@@ -140,13 +247,6 @@ export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = fal
     } else {
       throw new Error('invalid input to blockClone', blockInput);
     }
-
-    //note - Block.options
-    // we dont need to do anything in cloning for block.options, since these are just copied over from project to project
-    // the assumption is that options will be fetched and stashed (not cloned) in the project as needed, but separate from cloning.
-    // this is so the option IDs remain consistent, and projects are not huge with duplicate blocks that are just options (since they are static)
-    // NB - this is reliant on the expectation that the whole project has been loaded and all the list options are in the store
-    // this assumption is valid so long as the project is loaded when browsing templates
 
     //get the project ID to use for parent, considering the block may be detached from a project (e.g. inventory block)
     const parentProjectId = oldBlock.projectId || null;
@@ -159,8 +259,14 @@ export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = fal
       version: parentProjectVersion,
     }, parentObjectInput);
 
-    if (!!shallowOnly || !oldBlock.components.length) {
-      const block = oldBlock.clone(parentObject);
+    //overwrite to set the correct projectId
+    const overwriteObject = { projectId: null };
+
+    //get all components + list options and clone them
+    const contents = values(dispatch(selectors.blockGetContentsRecursive(oldBlock.id)));
+
+    if (contents.length === 0) {
+      const block = oldBlock.clone(parentObject, overwriteObject);
       dispatch({
         type: ActionTypes.BLOCK_CLONE,
         block,
@@ -168,22 +274,28 @@ export const blockClone = (blockInput, parentObjectInput = {}, shallowOnly = fal
       return block;
     }
 
-    const allChildren = dispatch(selectors.blockGetComponentsRecursive(oldBlock.id));
-    const allToClone = [oldBlock, ...allChildren];
-    //all blocks must be from same project, and all were from given version
-    const unmappedClones = allToClone.map(block => block.clone(parentObject));
+    const allToClone = [oldBlock, ...contents];
+    //all blocks must be from same project, so we can give them the same parent projectId + verion
+    const unmappedClones = allToClone.map(block => block.clone(parentObject, overwriteObject));
 
     //update IDs in components
     const cloneIdMap = allToClone.reduce((acc, next, index) => {
       acc[next.id] = unmappedClones[index].id;
       return acc;
     }, {});
+
     const clones = unmappedClones.map(clone => {
-      if (!clone.isConstruct()) {
-        return clone;
+      if (clone.isConstruct()) {
+        const newComponents = clone.components.map(componentId => cloneIdMap[componentId]);
+        return clone.mutate('components', newComponents);
       }
-      const newComponents = clone.components.map(componentId => cloneIdMap[componentId]);
-      return clone.mutate('components', newComponents);
+      if (clone.isList()) {
+        const newOptions = Object.keys(clone.options).reduce((acc, oldOption) => Object.assign(acc, {
+          [cloneIdMap[oldOption]]: clone.options[oldOption],
+        }), {});
+        return clone.mutate('options', newOptions);
+      }
+      return clone;
     });
 
     dispatch({
@@ -209,7 +321,7 @@ export const blockFreeze = (blockId, recursive = true) => {
   return (dispatch, getState) => {
     const oldBlocks = [getState().blocks[blockId]];
     if (recursive === true) {
-      oldBlocks.push(...dispatch(selectors.blockGetContentsRecursive(blockId)));
+      oldBlocks.push(...values(dispatch(selectors.blockGetContentsRecursive(blockId))));
     }
 
     const blocks = oldBlocks.map(block => block.setFrozen(true));
@@ -323,10 +435,10 @@ export const blockRemoveComponent = (constructId, ...componentIds) => {
  * @param {UUID} blockId Construct
  * @param {UUID} componentId Component
  * @param {number} index to insert component
- * @param {boolean} [forceProjectId=false] Use true if the block is not from this project
+ * @param {boolean} [forceProjectId=false] set Project ID. Use true if the block is not from this project
  * @returns {Block} Updated construct
  */
-export const blockAddComponent = (blockId, componentId, index = -1, forceProjectId = false) => {
+export const blockAddComponent = (blockId, componentId, index = -1, forceProjectId = true) => {
   return (dispatch, getState) => {
     const oldParent = dispatch(selectors.blockGetParents(componentId)).shift();
     const oldBlock = getState().blocks[blockId];
@@ -337,20 +449,19 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
     const componentProjectId = component.projectId;
     const nextParentProjectId = oldBlock.projectId;
 
+    const contents = dispatch(selectors.blockGetContentsRecursive(componentId));
+    const contentProjectIds = uniq(values(contents).map(block => block.projectId));
+
     dispatch(pauseAction());
     dispatch(undoActions.transact());
 
     //verify projectId match, set if appropriate (forceProjectId is true, or not set in component being added)
-    if (componentProjectId !== nextParentProjectId) {
-      invariant(!componentProjectId || forceProjectId === true, 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
+    if (componentProjectId !== nextParentProjectId || contentProjectIds.some(compProjId => compProjId !== nextParentProjectId)) {
+      invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
       //there may be scenarios where we are adding to a detached block, so lets avoid the error when next parent has no project
       if (nextParentProjectId) {
-        const updatedComponent = component.setProjectId(nextParentProjectId);
-        dispatch({
-          type: ActionTypes.BLOCK_STASH,
-          block: updatedComponent,
-        });
+        dispatch(blockSetProject(componentId, nextParentProjectId, false));
       }
     }
 
@@ -380,10 +491,10 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
  * @param {UUID} blockId Construct
  * @param {Array.<UUID>} componentIds Components
  * @param {number} index to insert component
- * @param {boolean} [forceProjectId=false] Use true if the block is not from this project
+ * @param {boolean} [forceProjectId=true] Set project ID. Use true if the block is not from this project
  * @returns {Block} Updated construct
  */
-export const blockAddComponents = (blockId, componentIds, index, forceProjectId = false) => {
+export const blockAddComponents = (blockId, componentIds, index, forceProjectId = true) => {
   return (dispatch, getState) => {
     dispatch(pauseAction());
     dispatch(undoActions.transact());
@@ -500,8 +611,42 @@ export const blockSetListBlock = (blockId, isList = true) => {
 //for authoring template
 export const blockOptionsAdd = (blockId, ...optionIds) => {
   return (dispatch, getState) => {
-    const oldBlock = getState().blocks[blockId];
+    const state = getState();
+    const oldBlock = state.blocks[blockId];
     const block = oldBlock.addOptions(...optionIds);
+    const options = optionIds.map(optionId => state.blocks[optionId]);
+    const targetProjectId = block.projectId;
+
+    //if target block is in a project, make sure that options being added are valid
+    if (targetProjectId) {
+      //first, check the options themselves
+      invariant(every(options, block => !block.projectId || block.projectId === targetProjectId), 'must pass options which have no projectId, or match match that of block with blockId');
+
+      const relevantOptions = filter(options, option => option.projectId !== targetProjectId);
+      const optionsWithId = relevantOptions.map(rel => rel.setProjectId(targetProjectId));
+
+      //now, check the contents as well
+
+      const contents = optionIds
+        .map(optionId => dispatch(selectors.blockGetContentsRecursive(optionId)))
+        .reduce((one, two) => Object.assign(one, two), {});
+      const numberContents = Object.keys(contents).length;
+
+      if (numberContents > 1) {
+        invariant(every(contents, block => !block.projectId || block.projectId === targetProjectId), 'contents of all options must have no projectId, or match match that of block with blockId');
+
+        //assign blocks without projectId
+        const relevantContents = filter(contents, content => content.projectId !== targetProjectId);
+        const blocksWithId = relevantContents.map(rel => rel.setProjectId(targetProjectId));
+
+        optionsWithId.push(...blocksWithId);
+      }
+
+      dispatch({
+        type: ActionTypes.BLOCK_SET_PROJECT,
+        blocks: optionsWithId,
+      });
+    }
 
     dispatch({
       type: ActionTypes.BLOCK_OPTION_ADD,
@@ -543,87 +688,6 @@ export const blockOptionsToggle = (blockId, ...optionIds) => {
     dispatch({
       type: ActionTypes.BLOCK_OPTION_TOGGLE,
       undoable: true,
-      block,
-    });
-    return block;
-  };
-};
-
-/***************************************
- * Metadata things
- ***************************************/
-
-/**
- * Rename a block
- * @function
- * @param {UUID} blockId
- * @param {string} name
- * @returns {Block} Updated Block
- */
-export const blockRename = (blockId, name) => {
-  return (dispatch, getState) => {
-    const oldBlock = getState().blocks[blockId];
-
-    if (oldBlock.metadata.name === name) {
-      return oldBlock;
-    }
-
-    const block = oldBlock.setName(name);
-    dispatch({
-      type: ActionTypes.BLOCK_RENAME,
-      undoable: true,
-      block,
-    });
-    return block;
-  };
-};
-
-/**
- * Set block's color
- * @function
- * @param {UUID} blockId
- * @param {string} color Hex color string
- * @returns {Block} Updated Block
- */
-export const blockSetColor = (blockId, color) => {
-  return (dispatch, getState) => {
-    const oldBlock = getState().blocks[blockId];
-
-    if (oldBlock.metadata.color === color) {
-      return oldBlock;
-    }
-
-    const block = oldBlock.setColor(color);
-    dispatch({
-      type: ActionTypes.BLOCK_SET_COLOR,
-      undoable: true,
-      block,
-    });
-    return block;
-  };
-};
-
-/**
- * Set block's role
- * @function
- * @param {UUID} blockId
- * @param {string} role Role as defined in {@link module:roles}
- * @returns {Block} Updated Block
- */
-export const blockSetRole = (blockId, role) => {
-  return (dispatch, getState) => {
-    const oldBlock = getState().blocks[blockId];
-    const oldRole = oldBlock.rules.role;
-
-    if (oldRole === role) {
-      return oldBlock;
-    }
-
-    const block = oldBlock.setRole(role);
-    dispatch({
-      type: ActionTypes.BLOCK_SET_ROLE,
-      undoable: true,
-      oldRole,
       block,
     });
     return block;
