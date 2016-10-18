@@ -489,7 +489,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const target = node.el;
     const bounds = new Box2D(target.getBoundingClientRect());
     bounds.width -= kT.textPad * 2 + (node.roleName ? kT.roleIcon : 0);
-    bounds.height -= 1;
+    bounds.height += 1;
     return {target, bounds}
   }
 
