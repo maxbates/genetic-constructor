@@ -7,7 +7,8 @@ import { createFilePath } from '../../server/utils/filePaths';
 const makeStoragePath = (path) => createFilePath(path);
 
 describe('Middleware', () => {
-  describe('Files', () => {
+  //this API has been deprecated
+  describe.skip('Files', () => {
     it('writeFile() should take path and string, and write file', function writeFileBasic(done) {
       const filePath = 'test/writeMe';
       const fileContents = 'rawr';
