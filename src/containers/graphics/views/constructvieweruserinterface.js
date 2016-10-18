@@ -463,6 +463,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         this.constructViewer.showInlineEditor(value => {
           this.constructViewer.renameBlock(block, value);
         }, name, bat.bounds, 'inline-editor-block', bat.target);
+        this.layout.nodeFromElement(block).set({hover: false});
         break;
       }
     } else {
@@ -470,12 +471,14 @@ export default class ConstructViewerUserInterface extends UserInterface {
       this.constructViewer.blockSelected([]);
       // if they clicked the title node then select the construct and initiate editing
       // of the title of construct via an inline edit.
-      if (this.isConstructTitleNode(this.topNodeAt(point))) {
+      const topNode = this.topNodeAt(point);
+      if (this.isConstructTitleNode(topNode)) {
         this.selectConstruct();
         const bat = this.getTitleEditorBoundsAndTarget();
         this.constructViewer.showInlineEditor(value => {
           this.constructViewer.renameBlock(this.construct.id, value);
         }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
+        topNode.set({hover: false});
       }
     }
   }
@@ -488,8 +491,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const node = this.layout.nodeFromElement(blockId);
     const target = node.el;
     const bounds = new Box2D(target.getBoundingClientRect());
-    bounds.width -= kT.textPad * 2 + (node.roleName ? kT.roleIcon : 0);
     bounds.height += 1;
+    bounds.width += 1;
     return {target, bounds}
   }
 

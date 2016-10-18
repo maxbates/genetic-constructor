@@ -390,10 +390,6 @@ export default class Node2D {
       this.el.className = `node ${this.classes}`;
     }
 
-    if (this.hover) {
-      console.log('HOVER:', this.text);
-    }
-
     // set width/height and transform
     this.el.style.width = this.width + 'px';
     this.el.style.height = this.height + 'px';
@@ -429,17 +425,12 @@ export default class Node2D {
     }
     // add hover glyph as required
     if (this.hover && !this.hoverGlyph) {
-      this.hoverGlyph = document.createElement('div');
-      this.hoverGlyph.className = 'hoverGlyph';
-      if (this.hoverClass) {
-        this.hoverGlyph.classList.add(this.hoverClass);
-      }
-      this.hoverGlyph.innerText = 'Edit';
-      const img = document.createElement('img');
-      img.setAttribute('src', '/images/ui/inline_edit.svg');
-      img.className = 'hoverSvgImg';
-      this.hoverGlyph.appendChild(img);
-      this.el.appendChild(this.hoverGlyph);
+      this.el.insertAdjacentHTML('beforeend',
+        `<div class="inline-editor-hover ${this.hoverClass}">
+        <span>${this.text}</span>
+        <img src="/images/ui/inline_edit.svg"/>
+       </div>`);
+      this.hoverGlyph = this.el.lastChild;
     }
   }
 

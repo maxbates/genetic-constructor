@@ -25,47 +25,39 @@
 }
 
 /*hover glyph for inline editing hint*/
-.hoverGlyph {
+.inline-editor-hover {
   position: absolute;
   background-color: gray;
   color: white;
   border-radius: 3px;
+  display: flex;
+  align-items: center;
+  img {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+  span {
+    white-space: nowrap;
+  }
 }
-.hoverBlock {
-  left: 9px;
+.inline-editor-hover-block {
+  left: 6px;
   top: 4px;
-  width: 56px;
-  height: 24px;
-  line-height: 24px;
-  text-indent: 6px;
   font-size: 12px;
+  padding: 4px 0 4px 4px;
 }
-.hoverTitle {
+
+.inline-editor-hover-title {
   left: 0px;
   top: 4px;
-  width: 64px;
-  height: 30px;
-  line-height: 30px;
-  text-indent: 6px;
-  font-size: 16px;
+  font-size: 20px;
+  padding: 3px 0 4px 0px;
 }
-.hoverSvgImg {
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.hoverProjectHeader {
-  position: absolute;
-  background-color: gray;
-  color: white;
+.inline-editor-hover-project {
   left: 10px;
   top: 6px;
-  width: 64px;
-  height: 30px;
-  line-height: 30px;
   font-size: 16px;
-  text-ident: 4px;
+  padding: 4px 0 4px 0;
 }
 
 

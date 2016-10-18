@@ -25,7 +25,7 @@ const rowBarH = 4;
 // vertical bar width
 const rowBarW = 1;
 // padding around text on blocks
-const textPad = 8;
+const textPad = 10;
 // min width of blocks
 const minBlockWidth = 80;
 // width of context menu 3 dots

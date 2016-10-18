@@ -22,6 +22,7 @@ import {
 } from '../actions/ui';
 import { focusPrioritize } from '../actions/focus';
 import { projectRename } from '../actions/projects';
+import Box2D from '../containers/graphics/geometry/box2d';
 
 import '../styles/ProjectHeader.css';
 import '../styles/inline-editor.css';
@@ -40,14 +41,17 @@ class ProjectHeader extends Component {
     hover: false,
   };
 
+  titleEditorBounds() {
+    return new Box2D(ReactDOM.findDOMNode(this.refs.title).getBoundingClientRect()).inflate(0, 4);
+  }
+
   onClick = () => {
     this.props.inspectorToggleVisibility(true);
     this.props.focusPrioritize('project');
-    const bounds = ReactDOM.findDOMNode(this).getBoundingClientRect();
     const name = this.props.project.metadata.name || 'Untitled Project'
     this.props.uiInlineEditor(value => {
       this.props.projectRename(this.props.project.id, value);
-    }, name, bounds, 'inline-editor-project', ReactDOM.findDOMNode(this));
+    }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this));
   };
 
   onMouseEnter = () => {
@@ -60,10 +64,10 @@ class ProjectHeader extends Component {
 
   render() {
     const { project, isFocused } = this.props;
-    console.log('PT State:', this.state.hover);
     const hover = this.state.hover
-      ? <div className="hoverProjectHeader">Edit
-          <img src="/images/ui/inline_edit.svg" className="hoverSvgImg"/>
+      ? <div className="inline-editor-hover inline-editor-hover-project">
+          <span>{project.metadata.name}</span>
+          <img src="/images/ui/inline_edit.svg"/>
         </div>
       : null;
     return (
@@ -73,7 +77,7 @@ class ProjectHeader extends Component {
            onMouseLeave={this.onMouseLeave}
       >
         <div className="ProjectHeader-info">
-          <div className="ProjectHeader-title">{project.metadata.name || 'Untitled Project'}</div>
+          <div ref="title" className="ProjectHeader-title">{project.metadata.name || 'Untitled Project'}</div>
           <div className="ProjectHeader-description">{project.metadata.description}</div>
         </div>
 
