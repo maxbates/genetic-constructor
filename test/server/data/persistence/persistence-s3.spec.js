@@ -14,28 +14,11 @@
  limitations under the License.
  */
 import { assert, expect } from 'chai';
-import path from 'path';
 import uuid from 'node-uuid';
-import merge from 'lodash.merge';
-import { updateProjectWithAuthor } from '../../../utils/userUtils';
 import md5 from 'md5';
-import { testUserId } from '../../../constants';
-import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
-import {
-  fileExists,
-  fileRead,
-  fileWrite,
-  fileDelete,
-  directoryExists,
-  directoryMake,
-  directoryDelete
-} from '../../../../server/utils/fileSystem';
-import Project from '../../../../src/models/Project';
-import Block from '../../../../src/models/Block';
 import rejectingFetch from '../../../../src/middleware/utils/rejectingFetch';
 
-import * as filePaths from '../../../../server/utils/filePaths';
-import * as versioning from '../../../../server/data/versioning';
+import { errorDoesNotExist } from '../../../../server/utils/errors';
 import * as persistence from '../../../../server/data/persistence';
 import * as s3 from '../../../../server/data/persistence/s3';
 
@@ -54,6 +37,14 @@ describe('Server', () => {
         const hash = md5(seq);
 
         // SEQUENCE
+        it('sequenceRead() should fail on sequences that dont exist', () => {
+          return persistence.sequenceGet(uuid.v4())
+            .then(huhwhat => Promise.reject('nah uh. shuoldnt have worked'))
+            .catch((err) => {
+              expect(err).to.equal(errorDoesNotExist);
+            });
+        });
+
         it('sequenceWrite() should read a sequence from S3', () => {
           return persistence.sequenceWrite(hash, seq)
             .then(() => {

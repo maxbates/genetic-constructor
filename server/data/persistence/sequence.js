@@ -20,6 +20,7 @@ import * as s3 from './s3';
 import * as filePaths from '../../utils/filePaths';
 import {
   errorDoesNotExist,
+  s3Error,
 } from '../../utils/errors';
 import {
   fileExists,
@@ -63,8 +64,7 @@ export const sequenceGet = (pseudoMd5) => {
     //s3 is inclusive, node fs is not, javascript is not
     const correctedEnd = end - 1;
     const params = start >= 0 ? { Range: `bytes=${start}-${correctedEnd}` } : {};
-    return s3.stringGet(s3bucket, hash, params)
-      .catch(err => errorDoesNotExist);
+    return s3.stringGet(s3bucket, hash, params);
   }
 
   return sequenceExists(hash)

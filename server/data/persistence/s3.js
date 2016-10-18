@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+import { s3Error, errorDoesNotExist } from '../../utils/errors';
 
 export const useRemote = process.env.NODE_ENV === 'production' || (
     (!process.env.FORCE_LOCAL || (!!process.env.FORCE_LOCAL && process.env.FORCE_LOCAL !== 'true')) &&
@@ -68,8 +69,14 @@ export const itemGetBuffer = (bucket, Key, params = {}) => {
 
     bucket.getObject(req, (err, result) => {
       if (err) {
+        if (err.statusCode) {
+          if (err.statusCode === 404) {
+            return reject(errorDoesNotExist);
+          }
+        }
+        //unhandled error
         console.log(err, err.stack);
-        return reject(err);
+        return reject(s3Error);
       }
       return resolve(result.Body);
     });

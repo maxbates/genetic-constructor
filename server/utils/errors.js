@@ -36,3 +36,5 @@ export const errorOrderRejected = 'ORDER_REJECTED';
 export const errorInvalidPart = 'INVALID_PART';
 
 export const errorExtensionNotFound = 'EXTENSION_NOT_FOUND';
+
+export const s3Error = 'S3_ERROR';
