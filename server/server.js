@@ -125,7 +125,6 @@ app.use('/user', userRouter);
 //primary routes
 app.use('/data', dataRouter);
 app.use('/order', orderRouter);
-app.use('/file', fileRouter);
 app.use('/extensions', extensionsRouter);
 app.use('/report', reportRouter);
 

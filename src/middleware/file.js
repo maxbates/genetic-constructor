@@ -20,6 +20,10 @@ import { fileApiPath } from './utils/paths';
 
 const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
 
+// NOTE
+// THIS API HAS BEEN DEPRECATED
+// IT IS NOT IN USE AND THE FILE ROUTER HAS BEEN REMOVED
+
 //returns a fetch object, for you to parse yourself (doesnt automatically convert to json / text)
 export const readFile = (fileName) => {
   return rejectingFetch(fileApiPath(fileName), headersGet(contentTypeTextHeader));
