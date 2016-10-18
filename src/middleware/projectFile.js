@@ -29,18 +29,18 @@ const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
  * @function
  * @memberOf module:constructor.module:extensions
  * @param {UUID} projectId Project ID to which user has access
- * @param {string} extension Extension Key
+ * @param {string} namespace Namespace Key
  * @param {string} fileName Name of file
  * @returns {Promise} Fetch Response promise
  * @resolve {Response} Fetch Request. left for you to parse.
  * @reject {Error} rejects if > 400 or error
  */
-export const readProjectFile = (projectId, extension, fileName) => {
+export const readProjectFile = (projectId, namespace, fileName) => {
   invariant(projectId, 'projectId is required');
-  invariant(extension, 'extension key is required');
+  invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
 
-  return rejectingFetch(projectFilePath(projectId, extension, fileName), headersGet(contentTypeTextHeader));
+  return rejectingFetch(projectFilePath(projectId, namespace, fileName), headersGet(contentTypeTextHeader));
 };
 
 /**
@@ -52,19 +52,19 @@ export const readProjectFile = (projectId, extension, fileName) => {
  * @function
  * @memberOf module:constructor.module:extensions
  * @param {UUID} projectId Project ID to which user has access
- * @param {string} extension Extension Key
+ * @param {string} namespace Namespace Key
  * @param {string} fileName Name of file
  * @param {string|null} contents String of contents for file. if contents === null, then the file is deleted
  * @returns {Promise} Fetch Response promise
  * @resolve {string} URL if successful, or empty string if successfully deleted
  * @reject {Error} rejects if > 400 or error
  */
-export const writeProjectFile = (projectId, extension, fileName, contents) => {
+export const writeProjectFile = (projectId, namespace, fileName, contents) => {
   invariant(projectId, 'projectId is required');
-  invariant(extension, 'extension key is required');
+  invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
 
-  const filePath = projectFilePath(projectId, extension, fileName);
+  const filePath = projectFilePath(projectId, namespace, fileName);
 
   if (contents === null) {
     return rejectingFetch(filePath, headersDelete());
@@ -72,24 +72,25 @@ export const writeProjectFile = (projectId, extension, fileName, contents) => {
 
   return rejectingFetch(filePath, headersPost(contents, contentTypeTextHeader));
 };
+
 /**
  * `constructor.extensions.files.list()`
  *
- * List the files for an extension.
+ * List the files for an namespace.
  *
  * @name files_list
  * @function
  * @memberOf module:constructor.module:extensions
  * @param {UUID} projectId Project ID to which user has access
- * @param {string} extension Extension Key
+ * @param {string} namespace Namespace Key
  * @returns {Promise} Fetch Response promise
  * @resolve {string} URL if successful, or empty string if successfully deleted
  * @reject {Error} rejects if > 400 or error
  */
-export const listProjectFiles = (projectId, extension) => {
+export const listProjectFiles = (projectId, namespace) => {
   invariant(projectId, 'projectId is required');
-  invariant(extension, 'must pass an extension');
+  invariant(namespace, 'must pass an namespace');
 
-  return rejectingFetch(projectFilePath(projectId, extension, ''), headersGet())
+  return rejectingFetch(projectFilePath(projectId, namespace, ''), headersGet())
     .then(resp => resp.text());
 };

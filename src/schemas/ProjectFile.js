@@ -18,22 +18,19 @@ import fields from './fields/index';
 import Schema from './SchemaClass';
 
 const fieldDefs = {
-  id: [
-    fields.id().required,
-    `File ID, used for storage`,
-  ],
-  extension: [
+  name: [
     fields.string().required,
-    `Owner extension of the file`,
+    'Name of file',
+  ],
+  namespace: [
+    fields.string().required,
+    `Files are namespaced by type of owner (e.g. extension) of the file`,
   ],
   version: [
     fields.string(),
     `Specified file version, defaults to latest`,
   ],
-  name: [
-    fields.string(),
-    'User-defined name of file',
-  ],
+
   description: [
     fields.string(),
     'File description',

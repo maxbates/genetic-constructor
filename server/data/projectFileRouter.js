@@ -24,16 +24,19 @@ import * as fileSystem from '../utils/fileSystem';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
-router.route('/:extension/:file')
+//permission checking currently handled by data router, but need different access control for s3
+//todo - S3 access control
+
+router.route('/:namespace/:file')
   .all((req, res, next) => {
     const { projectId } = req;
-    const { extension, file } = req.params;
+    const { namespace, file } = req.params;
 
-    const folderPath = filePaths.createProjectFilesDirectoryPath(projectId, extension);
-    const filePath = filePaths.createProjectFilePath(projectId, extension, file);
+    const folderPath = filePaths.createProjectFilesDirectoryPath(projectId, namespace);
+    const filePath = filePaths.createProjectFilePath(projectId, namespace, file);
 
     Object.assign(req, {
-      extension,
+      namespace,
       filePath,
       folderPath,
     });
@@ -78,14 +81,14 @@ router.route('/:extension/:file')
       .catch(err => next(err));
   });
 
-router.route('/:extension')
+router.route('/:namespace')
   .all((req, res, next) => {
     const { projectId } = req;
-    const { extension } = req.params;
-    const folderPath = filePaths.createProjectFilesDirectoryPath(projectId, extension);
+    const { namespace } = req.params;
+    const folderPath = filePaths.createProjectFilesDirectoryPath(projectId, namespace);
 
     Object.assign(req, {
-      extension,
+      namespace,
       folderPath,
     });
     next();
