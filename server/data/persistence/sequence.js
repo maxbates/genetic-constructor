@@ -60,7 +60,9 @@ export const sequenceGet = (pseudoMd5) => {
   const { hash, start, end } = parsePseudoMd5(pseudoMd5);
 
   if (s3.useRemote) {
-    const params = start >= 0 ? { Range: `bytes=${start}-${end}` } : {};
+    //s3 is inclusive, node fs is not, javascript is not
+    const correctedEnd = end - 1;
+    const params = start >= 0 ? { Range: `bytes=${start}-${correctedEnd}` } : {};
     return s3.stringGet(s3bucket, hash, params)
       .catch(err => errorDoesNotExist);
   }
@@ -145,4 +147,16 @@ export const sequenceDelete = (pseudoMd5) => {
 
   return sequenceExists(pseudoMd5)
     .then(path => fileDelete(path));
+};
+
+//synchronous
+export const sequenceGetUrl = (pseudoMd5) => {
+  invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
+  const { hash } = parsePseudoMd5(pseudoMd5);
+
+  if (s3.useRemote) {
+    return s3.getSignedUrl(s3bucket, hash, 'getObject');
+  }
+
+  return `/data/sequence/${pseudoMd5}`;
 };

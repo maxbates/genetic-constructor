@@ -17,6 +17,7 @@ import {
 } from '../../../../server/utils/fileSystem';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
+import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../src/utils/sequenceMd5';
 
 import * as filePaths from '../../../../server/utils/filePaths';
 import * as versioning from '../../../../server/data/versioning';
@@ -28,13 +29,6 @@ import * as s3 from '../../../../server/data/persistence/s3';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', function persistenceTests() {
-      //skip test suite if using s3 for tests
-      before(() => {
-        if (s3.useRemote) {
-          this.skip();
-        }
-      });
-
       describe('existence + reading', () => {
         const projectName = 'persistenceProject';
         const projectData = new Project(updateProjectWithAuthor({ metadata: { name: projectName } }));
@@ -54,7 +48,12 @@ describe('Server', () => {
         const sequenceMd5 = md5(blockSequence);
         const sequenceFilePath = filePaths.createSequencePath(sequenceMd5);
 
-        before(() => {
+        //skip test suite if not using s3
+        before(function() {
+          if (s3.useRemote) {
+            this.skip();
+          }
+
           return directoryDelete(projectPath)
             .then(() => directoryMake(projectPath))
             .then(() => directoryMake(projectDataPath))
@@ -144,7 +143,12 @@ describe('Server', () => {
         const blockId = blockData.id;
         const blockManifestPath = filePaths.createBlockManifestPath(projectId, blockId);
 
-        before(() => {
+        //skip test suite if not using s3
+        before(function() {
+          if (s3.useRemote) {
+            this.skip();
+          }
+
           return persistence.projectCreate(projectId, projectData, userId)
             .then(() => persistence.blockWrite(projectId, blockData));
         });
@@ -192,6 +196,13 @@ describe('Server', () => {
 
         const projectPatch = { metadata: { description: 'fancy pantsy' } };
         const blockPatch = { rules: { role: 'promoter' } };
+
+        //skip test suite if not using s3
+        before(function() {
+          if (s3.useRemote) {
+            this.skip();
+          }
+        });
 
         it('projectWrite() creates repo if necessary', () => {
           return persistence.projectWrite(projectId, projectData, userId)
@@ -323,6 +334,13 @@ describe('Server', () => {
         const blockFileContents = { [blockId]: blockData };
         const blockManifestPath = filePaths.createBlockManifestPath(projectId, blockId);
 
+        //skip test suite if not using s3
+        before(function() {
+          if (s3.useRemote) {
+            this.skip();
+          }
+        });
+
         //hack(ish) - creating at beginning of each because chaining tests is hard, and beforeEach will encounter race condition
 
         it('projectDelete() moves the folder to the trash', () => {
@@ -389,7 +407,12 @@ describe('Server', () => {
         const blockSequence = 'acgcggcgcgatatatatcgcgcg';
         const sequenceMd5 = md5(blockSequence);
 
-        before(() => {
+        //skip test suite if not using s3
+        before(function () {
+          if (s3.useRemote) {
+            this.skip();
+          }
+
           return persistence.projectCreate(projectId, projectData, userId) //3
             .then(() => persistence.blockWrite(projectId, blockData))
             .then(() => persistence.projectSave(projectId, userId)) //2
@@ -466,6 +489,58 @@ describe('Server', () => {
             .then(() => versioning.log(projectRepoDataPath))
             .then(log => {
               expect(log.length).to.equal(versionLog.length);
+            });
+        });
+      });
+
+      describe('sequence', () => {
+        const rangeStart = 20;
+        const rangeEnd = 35;
+        const sequence = 'ACTAGCTAGCTAGCTGACTAGCTAGCTGATCGTAGCGATCTACTGATCAGCTACTGTACGTACGTGACTG';
+        const rangedSequence = sequence.substring(rangeStart, rangeEnd);
+
+        const realMd5 = md5(sequence);
+        const pseudoMd5 = generatePseudoMd5(realMd5, rangeStart, rangeEnd);
+
+        const filePath = filePaths.createSequencePath(realMd5);
+
+        //skip test suite if not using s3
+        before(function() {
+          if (s3.useRemote) {
+            this.skip();
+          }
+        });
+
+        it('sequenceWrite() should write a sequence', () => {
+          return persistence.sequenceWrite(realMd5, sequence)
+            .then(() => fileRead(filePath, false))
+            .then(read => {
+              expect(read).to.equal(sequence);
+            });
+        });
+
+        it('sequenceRead() should read a sequence', () => {
+          return fileRead(filePath, false)
+            .then(fileResult => {
+              assert(fileResult === sequence, 'sequence should be written already');
+
+              return persistence.sequenceGet(realMd5)
+                .then(getResult => {
+                  expect(getResult).to.equal(fileResult);
+                  expect(getResult).to.equal(sequence);
+                });
+            });
+        });
+
+        it('sequenceRead() should read a sequence when md5 is specifying a range', () => {
+          return fileRead(filePath, false)
+            .then(fileResult => {
+              assert(fileResult === sequence, 'sequence should be written already');
+
+              return persistence.sequenceGet(pseudoMd5)
+                .then(getResult => {
+                  expect(getResult).to.equal(rangedSequence);
+                });
             });
         });
       });

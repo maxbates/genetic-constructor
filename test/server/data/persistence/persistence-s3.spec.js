@@ -32,6 +32,7 @@ import {
 } from '../../../../server/utils/fileSystem';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
+import rejectingFetch from '../../../../src/middleware/utils/rejectingFetch';
 
 import * as filePaths from '../../../../server/utils/filePaths';
 import * as versioning from '../../../../server/data/versioning';
@@ -43,15 +44,44 @@ describe('Server', () => {
     describe('persistence', () => {
       describe('S3', function persistenceTestsS3() {
         //skip test suite if not using s3
-        before(() => {
-          if (s3.useRemote) {
+        before(function runCheck() {
+          if (!s3.useRemote) {
             this.skip();
           }
         });
 
+        const seq = 'actagctagctacatctagctgctagcatcgtgctgactgacggctatcgatcgactgatcgatcgatcgatc';
+        const hash = md5(seq);
 
+        // SEQUENCE
+        it('sequenceWrite() should read a sequence from S3', () => {
+          return persistence.sequenceWrite(hash, seq)
+            .then(() => {
+              const url = persistence.sequenceGetUrl(hash);
+              return rejectingFetch(url)
+                .then(resp => resp.text());
+            })
+            .then(result => {
+              expect(result).to.be.defined;
+              expect(result).to.equal(seq);
+            });
+        });
 
+        it('sequenceRead() should write a sequence to S3', () => {
+          return persistence.sequenceGet(hash)
+            .then(result => {
+              expect(result).to.equal(seq);
+            });
+        });
 
+        it('sequenceRead() can get a byte range', () => {
+          const start = 10;
+          const end = 30;
+          return persistence.sequenceGet(`${hash}[${start}:${end}]`)
+            .then(result => {
+              expect(result).to.equal(seq.substring(start, end));
+            });
+        });
       });
     });
   });

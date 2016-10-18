@@ -40,6 +40,12 @@ if (process.env.NODE_ENV === 'production' || (
 
 export const getBucket = (Bucket) => new AWS.S3({ params: { Bucket } });
 
+//synchronous
+export const getSignedUrl = (bucket, Key, operation = 'getObject', opts = {}) => {
+  const params = Object.assign({ Expires: 60 }, opts, { Key });
+  return bucket.getSignedUrl(operation, params);
+};
+
 //expects a bucket with bucket name already defined
 export const objectExists = (bucket, Key) => {
   return new Promise((resolve, reject) => {
@@ -53,12 +59,9 @@ export const objectExists = (bucket, Key) => {
   });
 };
 
-export const stringGet = (bucket, Key, params = {}) => {
+export const itemGetBuffer = (bucket, Key, params = {}) => {
   return new Promise((resolve, reject) => {
-    const req = Object.assign(
-      {
-        ResponseContentType: 'text/plain',
-      },
+    const req = Object.assign({},
       params,
       { Key }
     );
@@ -73,8 +76,16 @@ export const stringGet = (bucket, Key, params = {}) => {
   });
 };
 
+export const stringGet = (bucket, Key, params = {}) => {
+  const stringParams = Object.assign({}, params, { ResponseContentType: 'text/plain' });
+
+  return itemGetBuffer(bucket, Key, stringParams)
+    .then(result => result.toString('utf-8'));
+};
+
 export const objectGet = (bucket, Key, params = {}) => {
   const objParams = Object.assign({}, params, { ContentType: 'application/json' });
+
   return stringGet(bucket, Key, objParams)
     .then(result => JSON.parse(result));
 };
