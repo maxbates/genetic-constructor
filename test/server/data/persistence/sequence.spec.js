@@ -56,41 +56,8 @@ describe('Server', () => {
           });
         });
 
-        it('sequenceWrite() should write a sequence', () => {
-          return persistence.sequenceWrite(realMd5, sequence)
-            .then(() => fileRead(filePath, false))
-            .then(read => {
-              expect(read).to.equal(sequence);
-            });
-        });
-
         it('sequenceWrite() should not write a sequence specifying a range', () => {
           expect(() => persistence.sequenceWrite(pseudoMd5, sequence)).to.throw();
-        });
-
-        it('sequenceRead() should read a sequence', () => {
-          return fileRead(filePath, false)
-            .then(fileResult => {
-              assert(fileResult === sequence, 'sequence should be written already');
-
-              return persistence.sequenceGet(realMd5)
-                .then(getResult => {
-                  expect(getResult).to.equal(fileResult);
-                  expect(getResult).to.equal(sequence);
-                });
-            });
-        });
-
-        it('sequenceRead() should read a sequence when md5 is specifying a range', () => {
-          return fileRead(filePath, false)
-            .then(fileResult => {
-              assert(fileResult === sequence, 'sequence should be written already');
-
-              return persistence.sequenceGet(pseudoMd5)
-                .then(getResult => {
-                  expect(getResult).to.equal(rangedSequence);
-                });
-            });
         });
 
         it('sequenceWriteMany() should take map of md5 to sequence');

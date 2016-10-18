@@ -37,7 +37,7 @@ import {
 } from '../../utils/fileSystem';
 import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
-import { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete } from './sequence';
+import { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete, sequenceGetUrl } from './sequence';
 
 
 /*********
@@ -541,4 +541,4 @@ export const projectSnapshot = (projectId, userId, messageAddition) => {
 
 // SEQUENCE
 
-export { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete };
+export { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete, sequenceGetUrl };

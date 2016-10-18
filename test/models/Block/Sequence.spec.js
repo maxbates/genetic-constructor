@@ -18,8 +18,7 @@ import { writeFile } from '../../../src/middleware/data';
 import Block from '../../../src/models/Block';
 import md5 from 'md5';
 
-import * as fileSystem from '../../../server/utils/fileSystem';
-import * as filePaths from '../../../server/utils/filePaths';
+import * as persistence from '../../../server/data/persistence';
 
 describe('Model', () => {
   describe('Block', () => {
@@ -32,7 +31,6 @@ describe('Model', () => {
       const oneMd5 = md5(oneSequence);
       const twoMd5 = md5(twoSequence);
 
-      const sequenceFilePath = filePaths.createSequencePath(oneMd5);
       const withSequence = withoutSequence.merge({
         sequence: {
           md5: oneMd5,
@@ -42,14 +40,13 @@ describe('Model', () => {
       });
 
       before(() => {
-        return fileSystem.fileWrite(sequenceFilePath, oneSequence, false);
+        return persistence.sequenceWrite(oneMd5, oneSequence);
       });
 
-      it('getSequence() returns promise -> null when there is no sequence', (done) => {
+      it('getSequence() returns promise -> null when there is no sequence', () => {
         return withoutSequence.getSequence()
           .then((result) => {
             expect(result).to.eql(null);
-            done();
           });
       });
 
