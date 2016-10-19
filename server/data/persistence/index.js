@@ -39,7 +39,6 @@ import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
 import { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete, sequenceGetUrl } from './sequence';
 
-
 /*********
  Helpers
  *********/

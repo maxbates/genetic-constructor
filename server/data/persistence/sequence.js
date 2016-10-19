@@ -81,7 +81,7 @@ export const sequenceWrite = (realMd5, sequence) => {
   }
 
   if (s3.useRemote) {
-    //this slows everything down, but dont want to write and make new versions if we dont have to
+    //checking if it exists slows everything down, but ideally dont want to write and make new versions if we dont have to (s3 lacks file locking)
     return s3.stringPut(s3bucket, hash, sequence);
   }
 

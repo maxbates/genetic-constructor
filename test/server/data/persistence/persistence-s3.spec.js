@@ -33,6 +33,10 @@ describe('Server', () => {
           }
         });
 
+        //todo
+        it('should delete a file that exists');
+        it('should 404 on delete when file doesnt exist');
+
         const seq = 'actagctagctacatctagctgctagcatcgtgctgactgacggctatcgatcgactgatcgatcgatcgatc';
         const hash = md5(seq);
 

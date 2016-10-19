@@ -16,6 +16,8 @@
 import invariant from 'invariant';
 import { s3Error, errorDoesNotExist } from '../../utils/errors';
 
+//API docs: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
+
 export const useRemote = process.env.NODE_ENV === 'production' || (
     (!process.env.FORCE_LOCAL || (!!process.env.FORCE_LOCAL && process.env.FORCE_LOCAL !== 'true')) &&
     (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
@@ -57,6 +59,48 @@ export const objectExists = (bucket, Key) => {
       }
       return resolve(true);
     });
+  });
+};
+
+export const folderContents = (bucket, Prefix, params = {}) => {
+  return new Promise((resolve, reject) => {
+    const req = Object.assign({}, params, { Prefix });
+    bucket.listObjects(req, (err, results) => {
+      if (err) {
+        if (err.statusCode) {
+          if (err.statusCode === 404) {
+            return reject(errorDoesNotExist);
+          }
+        }
+        //unhandled error
+        console.log(err, err.stack);
+        return reject(s3Error);
+      }
+
+      if (results.IsTruncated) {
+        console.warn('S3 results truncated - we do not handle pagination');
+      }
+
+      //remap data to account for Prefix
+      const mapped = results.Content.map(obj => ({
+        name: obj.Key.replace(Prefix, ''),
+        LastModified: obj.LastModified,
+        Size: obj.Size,
+      }));
+
+      return resolve(mapped);
+    });
+  });
+};
+
+export const objectVersions = (bucket, Key, params = {}) => {
+  invariant(false, 'not implemented');
+
+  //todo - need to figure out how to look only for a certain key
+
+  return new Promise((resolve, reject) => {
+    const req = Object.assign({}, params, { Key });
+    bucket.listObjectVersions(req, (err, results) => {});
   });
 };
 
@@ -129,9 +173,15 @@ export const objectDelete = (bucket, Key) => {
   return new Promise((resolve, reject) => {
     bucket.deleteObject({ Key }, (err, result) => {
       if (err) {
+        if (err.statusCode === 404) {
+          return reject(errorDoesNotExist);
+        }
+
+        //unhandled
         console.log(err, err.stack);
         return reject(err);
       }
+
       return resolve(result.DeleteMarker);
     });
   });
