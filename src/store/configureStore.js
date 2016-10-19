@@ -19,7 +19,7 @@ import thunk from 'redux-thunk';
 import { routerMiddleware } from 'react-router-redux';
 import { browserHistory } from 'react-router';
 import saveLastActionMiddleware from './saveLastActionMiddleware';
-import combinedReducer from '../reducers/index';
+import combinedReducerCreator from '../reducers/index';
 import pausableStore from './pausableStore';
 
 // note that the store loads the routes, which in turn load components
@@ -54,13 +54,14 @@ if (process.env.DEBUGMODE) {
 
 // expose reducer so you can pass in only one reducer for tests
 // (probably need to compose the way reducer does, e.g. using combineReducers, so retrieving data from store is correct)
-export default function configureStore(initialState, reducer = combinedReducer) {
+export default function configureStore(initialState, reducer = combinedReducerCreator()) {
   const store = finalCreateStore(reducer, initialState);
 
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
     module.hot.accept('../reducers', () => {
-      const nextRootReducer = require('../reducers');
+      const nextRootReducerCreator = require('../reducers');
+      const nextRootReducer = nextRootReducerCreator();
       store.replaceReducer(nextRootReducer);
     });
   }
