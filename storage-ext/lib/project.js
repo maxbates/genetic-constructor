@@ -50,6 +50,12 @@ var Project = DB.define('project', schema, {
   paranoid: false,
   indexes: [
     {
+      fields: ['id'],
+    },
+    {
+      fields: ['owner'],
+    },
+    {
       fields: ['owner', 'id', 'version'],
       unique: true,
     },
