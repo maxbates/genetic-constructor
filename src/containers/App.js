@@ -35,6 +35,11 @@ class App extends Component {
       pathname: PropTypes.string.isRequired,
     }).isRequired,
     spinMessage: PropTypes.string.isRequired,
+    inlineEditorCommit: PropTypes.func.isRequired,
+    inlineEditorValue: PropTypes.string,
+    inlineEditorPosition: PropTypes.object.isRequired,
+    inlineEditorClassName: PropTypes.string,
+    inlineEditorTarget: PropTypes.object.isRequired,
   };
 
   /**

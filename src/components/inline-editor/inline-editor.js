@@ -40,6 +40,32 @@ class InlineEditor extends Component {
     uiInlineEditor: PropTypes.func.isRequired,
   };
 
+  componentDidMount() {
+    window.addEventListener('resize', this.testTargetBounds);
+    window.addEventListener('mousewheel', this.testTargetBounds);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.commit && nextProps.commit) {
+      // so we can focus after the first render
+      this.doFocus = true;
+      // get the current bounds of the target when opened, so we can determine if it changes
+      this.openingBounds = new Box2D(nextProps.target.getBoundingClientRect());
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.doFocus) {
+      this.refs.input.focus();
+      this.doFocus = false;
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.testTargetBounds);
+    window.removeEventListener('mousewheel', this.testTargetBounds);
+  }
+
   onCommit = () => {
     this.props.uiInlineEditor();
     this.props.commit(this.refs.input.value);
@@ -65,6 +91,18 @@ class InlineEditor extends Component {
     this.onCommit();
   }
 
+  /**
+   * if our target element moves then cancel
+   */
+  testTargetBounds = () => {
+    if (!this.props.commit || !this.props.target) {
+      return;
+    }
+    if (!this.openingBounds.equals(new Box2D(this.props.target.getBoundingClientRect()))) {
+      this.onCancel();
+    }
+  }
+
   /*
    * render the inline editor only when the commit callback is available
    */
@@ -78,7 +116,6 @@ class InlineEditor extends Component {
       width: this.props.position.width + 'px',
       height: this.props.position.height + 'px',
     };
-    console.log(`Target: ${this.props.target}`);
     const classes = `inline-editor${this.props.extraClassName ? ' ' + this.props.extraClassName : ''}`;
     return (
       <div>
@@ -95,49 +132,6 @@ class InlineEditor extends Component {
     );
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (!this.props.commit && nextProps.commit) {
-      // so we can focus after the first render
-      this.doFocus = true;
-      // get the current bounds of the target when opened, so we can determine if it changes
-      this.openingBounds = new Box2D(nextProps.target.getBoundingClientRect());
-    }
-  }
-
-  componentDidUpdate() {
-    if (this.doFocus) {
-      this.refs.input.focus();
-      this.doFocus = false;
-    }
-  }
-
-  /**
-   * listen to window resize/scroll and cancel the change if it occurs when the editor is open
-   */
-  componentDidMount() {
-    window.addEventListener('resize', this.testTargetBounds);
-    window.addEventListener('mousewheel', this.testTargetBounds);
-  }
-
-  /**
-   * unlisten on unmount
-   */
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.testTargetBounds);
-    window.removeEventListener('mousewheel', this.testTargetBounds);
-  }
-
-  /**
-   * if our target element moves then cancel
-   */
-  testTargetBounds = () => {
-    if (!this.props.commit || !this.props.target) {
-      return;
-    }
-    if (!this.openingBounds.equals(new Box2D(this.props.target.getBoundingClientRect()))) {
-      this.onCancel();
-    }
-  }
 }
 
 function mapStateToProps(state, props) {

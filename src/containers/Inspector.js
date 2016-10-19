@@ -66,7 +66,7 @@ export class Inspector extends Component {
                                  overrides={overrides}
                                  orders={orders}
                                  readOnly={readOnly}
-                 i                isAuthoring={isAuthoring}
+                                 isAuthoring={isAuthoring}
                                  forceIsConstruct={forceIsConstruct}/>);
       break;
     }

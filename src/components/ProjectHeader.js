@@ -41,9 +41,6 @@ class ProjectHeader extends Component {
     hover: false,
   };
 
-  titleEditorBounds() {
-    return new Box2D(ReactDOM.findDOMNode(this.refs.title).getBoundingClientRect()).inflate(0, 4);
-  }
 
   onClick = () => {
     this.props.inspectorToggleVisibility(true);
@@ -62,6 +59,10 @@ class ProjectHeader extends Component {
 
   onMouseLeave = () => {
     this.setState({hover: false});
+  }
+
+  titleEditorBounds() {
+    return new Box2D(ReactDOM.findDOMNode(this.refs.title).getBoundingClientRect()).inflate(0, 4);
   }
 
   render() {

@@ -80,9 +80,6 @@ export default class Node2D {
     case 'role':
       this.glyphObject = new RoleGlyph2D(this);
       break;
-    case 'dots':
-      this.glyphObject = new ContextDots2D(this);
-      break;
     case 'line':
       this.glyphObject = new LineGlyph2D(this);
       break;

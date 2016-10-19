@@ -208,7 +208,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * set the given block to the hover state
    */
   setBlockHover(blockId) {
-
     // bail if no change
     if (this.hover && this.hover.block === blockId) {
       return;
@@ -506,7 +505,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const bounds = new Box2D(target.getBoundingClientRect());
     bounds.height += 1;
     bounds.width += 1;
-    return {target, bounds}
+    return {target, bounds};
   }
 
   /**

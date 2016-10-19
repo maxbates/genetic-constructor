@@ -226,16 +226,6 @@ export class ConstructViewer extends Component {
   };
 
   /**
-   * show the inline editor
-   * @param commit
-   * @param cancel
-   * @param position
-   */
-  showInlineEditor(commit, value, position, className, target) {
-    this.props.uiInlineEditor(commit, value, position, className, target);
-  }
-
-  /**
    * given a construct ID return the current viewer if there is one
    */
   static getViewerForConstruct(id) {
@@ -251,6 +241,16 @@ export class ConstructViewer extends Component {
     const parents = this.props.blockGetParents(blockId);
     invariant(parents && parents.length, 'blocks are expected to have parents');
     return parents[0];
+  }
+
+  /**
+   * show the inline editor
+   * @param commit
+   * @param cancel
+   * @param position
+   */
+  showInlineEditor(commit, value, position, className, target) {
+    this.props.uiInlineEditor(commit, value, position, className, target);
   }
 
   /**
