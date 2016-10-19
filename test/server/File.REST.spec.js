@@ -6,7 +6,7 @@ import { createFilePath } from '../../server/utils/filePaths';
 const devServer = require('../../server/server');
 
 describe('Server', () => {
-  describe('Files', () => {
+  describe.skip('Files', () => {
     let server;
     beforeEach('server setup', () => {
       server = devServer.listen();
