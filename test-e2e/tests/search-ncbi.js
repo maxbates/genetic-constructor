@@ -21,7 +21,7 @@ module.exports = {
     searchFor(browser, 'NZ_JUOA01000505');
 
     // drag first result to create new construct
-    dragFromTo(browser, '.InventoryItem-item',10, 10, '.cvc-drop-target', 10, 10);
+    dragFromTo(browser, '.InventoryItem-item',10, 10, '.cvc-drop-target', 50, 40);
 
     browser
       // wait for a block to appear
