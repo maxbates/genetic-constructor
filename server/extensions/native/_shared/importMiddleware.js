@@ -39,9 +39,12 @@ const createFileUrl = (fileName) => {
   return '/' + extensionKey + '/file/' + fileName;
 };
 
+//todo - :format shouldn't be a required param. if the only types are strings / files, we can infer this if req.body is defined
 //expects :format and :projectId? on request
 export default function importMiddleware(req, res, next) {
   const { format, projectId } = req.params;
+  invariant(format, 'must specify :format in query params');
+
   const noSave = req.query.hasOwnProperty('noSave') || projectId === 'convert'; //dont save sequences or project
   const returnRoll = projectId === 'convert'; //return roll at end instead of projectId
 

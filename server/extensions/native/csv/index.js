@@ -25,6 +25,8 @@ router.param('projectId', (req, res, next, id) => {
 
 /* file route */
 
+//todo - let the upstream convert router take care of this
+
 //route to download files
 router.get('/file/:fileId', (req, res, next) => {
   const { fileId } = req.params;

@@ -45,6 +45,8 @@ router.param('projectId', (req, res, next, id) => {
 
 /***** FILES ******/
 
+//todo - let the upstream convert router take care of this
+
 //route to download genbank files
 router.get('/file/:fileId', (req, res, next) => {
   const { fileId } = req.params;
@@ -103,7 +105,7 @@ router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req
 
       return exportConstruct({ roll: partialRoll, constructId: construct.id })
         .then(resultFileName => {
-          return downloadAndDelete(res, resultFileName, roll.project.id + '.fasta');
+          return downloadAndDelete(res, resultFileName, roll.project.id + '.gb');
         });
     })
     .catch(err => {
@@ -150,6 +152,8 @@ router.all('/export/:projectId/:constructId?',
   });
 
 /***** IMPORT ******/
+
+//todo - should check for a converted one and use it if available
 
 //todo - ensure got genbank
 router.post('/import/:format/:projectId?',

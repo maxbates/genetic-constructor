@@ -21,6 +21,8 @@ const createFilePath = (fileName) => {
 //create the router
 const router = express.Router(); //eslint-disable-line new-cap
 
+//todo - let the upstream convert router take care of this
+
 //route to download files
 router.get('/file/:fileId', (req, res, next) => {
   const { fileId } = req.params;
