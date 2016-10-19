@@ -39,16 +39,18 @@ const createFileUrl = (fileName) => {
   return '/' + extensionKey + '/file/' + fileName;
 };
 
-//expects :format and :projectId? on request
+//expects :projectId (optional) on request
 export default function importMiddleware(req, res, next) {
-  const { format, projectId } = req.params;
+  const { projectId } = req.params;
   const noSave = req.query.hasOwnProperty('noSave') || projectId === 'convert'; //dont save sequences or project
   const returnRoll = projectId === 'convert'; //return roll at end instead of projectId
 
   let promise; //resolves to the files in form { name, string, hash, filePath, fileUrl }
 
   //depending on the type, set variables for file urls etc.
-  if (format === 'string') {
+
+  //if we have an object, expect a string to have been passed
+  if (typeof req.body === 'object') {
     const { name, string, ...rest } = req.body;
     const hash = md5(string);
     const filePath = createFilePath(hash);
@@ -64,7 +66,9 @@ export default function importMiddleware(req, res, next) {
         filePath,
         fileUrl,
       }]);
-  } else if (format === 'file') {
+  } else {
+    // otherwise, we are expecting a form
+
     // save incoming file then read back the string data.
     // If these files turn out to be large we could modify the import functions to take
     // file names instead but for now, in memory is fine.
@@ -108,15 +112,16 @@ export default function importMiddleware(req, res, next) {
               });
           })
         );
+      })
+      .catch((err) => {
+        res.status(404).send('error parsing import -- was expecting a file, or JSON object: { name, string }');
+        return Promise.reject(err);
       });
-  } else {
-    return res.status(404).send('unknown import format, got ' + format + ', expected string or file');
   }
 
   promise.then(files => {
     Object.assign(req, {
       files,
-      format,
       projectId,
       returnRoll,
       noSave,
