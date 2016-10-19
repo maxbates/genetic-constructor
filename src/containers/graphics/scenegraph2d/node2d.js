@@ -58,7 +58,7 @@ export default class Node2D {
       scale: 1,
       fontSize: '2rem',
       fontWeight: 'normal',
-      fontFamily: 'ArtifaktElementRegular',
+      fontFamily: 'Helvetica',
       color: 'black',
       uuid: uuid.v4(),
       glyph: 'none',

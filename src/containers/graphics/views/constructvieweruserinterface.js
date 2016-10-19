@@ -207,10 +207,10 @@ export default class ConstructViewerUserInterface extends UserInterface {
   /**
    * set the given block to the hover state
    */
-  setBlockHover(block) {
+  setBlockHover(blockId) {
 
     // bail if no change
-    if (this.hover && this.hover.block === block) {
+    if (this.hover && this.hover.block === blockId) {
       return;
     }
 
@@ -221,10 +221,10 @@ export default class ConstructViewerUserInterface extends UserInterface {
       this.hover.node.updateBranch();
       this.hover = null;
     }
-    if (block) {
+    if (blockId) {
       this.hover = {
-        block: block,
-        node: this.layout.nodeFromElement(block),
+        block: blockId,
+        node: this.layout.nodeFromElement(blockId),
       };
       this.hover.node.set({
         hover: true,
@@ -267,15 +267,19 @@ export default class ConstructViewerUserInterface extends UserInterface {
       if (this.construct.isAuthoring() || !this.construct.isFixed()) {
         const hits = this.sg.findNodesAt(point);
         this.setTitleHover(this.isConstructTitleNode(hits.length ? hits.pop() : null));
-        let block = this.topBlockAt(point);
-        if (block) {
-          const globalPoint = this.mouseTrap.mouseToGlobal(evt);
-          const region = this.getBlockRegion(block, globalPoint);
-          if (region && region.where === 'option') {
-            block = null;
+        let blockId = this.topBlockAt(point);
+        if (blockId) {
+          if (!this.blockIsFocused(blockId)) {
+            blockId = null;
+          } else {
+            const globalPoint = this.mouseTrap.mouseToGlobal(evt);
+            const region = this.getBlockRegion(blockId, globalPoint);
+            if (region && region.where === 'option') {
+              blockId = null;
+            }
           }
         }
-        this.setBlockHover(block);
+        this.setBlockHover(blockId);
       }
     }
   }
@@ -458,14 +462,16 @@ export default class ConstructViewerUserInterface extends UserInterface {
       case 'optionSelect':
         break;
       default:
-        this.constructViewer.blockSelected([block]);
-        if (this.construct.isAuthoring() || !this.construct.isFixed()) {
+        if (this.blockIsFocused(block) && (this.construct.isAuthoring() || !this.construct.isFixed())) {
           const name = this.layout.partName(block);
           const bat = this.getBlockEditorBoundsAndTarget(block);
           this.constructViewer.showInlineEditor(value => {
             this.constructViewer.renameBlock(block, value);
           }, name, bat.bounds, 'inline-editor-block', bat.target);
-          this.layout.nodeFromElement(block).set({ hover: false });
+          this.setBlockHover();
+        } else {
+          this.constructViewer.blockSelected([block]);
+          this.setBlockHover(block);
         }
         break;
       }
@@ -597,6 +603,14 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
+   * true if the given block ID is focused
+   * @param blockId
+   * @returns {boolean}
+   */
+  blockIsFocused(blockId) {
+    return this.constructViewer.props.focus.blockIds.indexOf(blockId) >= 0;
+  }
+  /**
    * move drag handler, if the user initiates a drag of a block hand over
    * to the DND manager to handle
    */
@@ -609,9 +623,9 @@ export default class ConstructViewerUserInterface extends UserInterface {
     // ignore drags until they reach a certain vector threshold
     if (distance > dragThreshold && !this.fence) {
       // start a block drag if we have one
-      const block = this.topBlockAt(startPoint);
+      const blockId = this.topBlockAt(startPoint);
       // must be dragging a selected block
-      if (block) {
+      if (blockId) {
         // cancel our own mouse operations for now
         this.mouseTrap.cancelDrag();
         // no mutation of frozen constructs
@@ -626,8 +640,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
         dispatch(transact());
         // if the block being dragging is one of the selections then single select it
         let draggables = this.selectedElements;
-        if (!(this.constructViewer.props.focus.blockIds.indexOf(block) >= 0)) {
-          draggables = [block];
+        if (!this.blockIsFocused(blockId)) {
+          draggables = [blockId];
           this.constructViewer.blockSelected(draggables);
         }
         //this.constructViewer.blockAddToSelections([block]);
