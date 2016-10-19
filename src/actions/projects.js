@@ -470,7 +470,7 @@ export const projectRemoveConstruct = (projectId, constructId) => {
     dispatch(undoActions.transact());
 
     //unset projectId of construct only
-    dispatch(blockActions.blockSetProject(constructId, projectId, true));
+    dispatch(blockActions.blockSetProject(constructId, null, true));
 
     dispatch({
       type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,
