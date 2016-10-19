@@ -68,7 +68,7 @@ class ProjectHeader extends Component {
     const { project, isFocused } = this.props;
     const hover = this.state.hover && !this.props.project.isSample
       ? <div className="inline-editor-hover inline-editor-hover-project">
-          <span>{project.metadata.name}</span>
+          <span>{project.metadata.name || 'Untitled Project'}</span>
           <img src="/images/ui/inline_edit.svg"/>
         </div>
       : null;

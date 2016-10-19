@@ -471,7 +471,9 @@ export default class ConstructViewerUserInterface extends UserInterface {
           this.setBlockHover();
         } else {
           this.constructViewer.blockSelected([block]);
-          this.setBlockHover(block);
+          if (this.construct.isAuthoring() || !this.construct.isFixed()) {
+            this.setBlockHover(block);
+          }
         }
         break;
       }
@@ -516,6 +518,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const bounds = new Box2D(target.getBoundingClientRect());
     const aabb = this.layout.getBlocksAABB();
     bounds.width = Math.min(this.layout.titleNodeTextWidth, aabb.width);
+    bounds.width = Math.max(bounds.width, this.layout.sceneGraph.availableWidth / 2);
     return {target, bounds};
   }
 
