@@ -22,7 +22,7 @@ import ListItem2D from '../scenegraph2d/listitem2d';
 import EmptyListItem2D from '../scenegraph2d/emptylistitem2d';
 import LineNode2D from '../scenegraph2d/line2d';
 import kT from './layoutconstants';
-import objectValues from '../../../utils/object/values';
+import { values as objectValues } from 'lodash';
 import invariant from 'invariant';
 import { getLocal, setLocal } from '../../../utils/ui/localstorage';
 

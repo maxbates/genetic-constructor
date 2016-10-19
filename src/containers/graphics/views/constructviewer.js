@@ -618,10 +618,10 @@ export class ConstructViewer extends Component {
     });
 
     //if the block is from the inventory, we've cloned it and dont need to worry about forcing the projectId when we add the components
-    const shouldForceProjectId = payload.source.indexOf('inventory') >= 0;
+    //const shouldForceProjectId = payload.source.indexOf('inventory') >= 0;
 
     // now insert the blocks in one go
-    return this.props.blockAddComponents(parent.id, newBlocks, index, shouldForceProjectId);
+    return this.props.blockAddComponents(parent.id, newBlocks, index, true);
   }
 
   /**
