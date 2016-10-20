@@ -50,7 +50,7 @@ export default function importMiddleware(req, res, next) {
   //depending on the type, set variables for file urls etc.
 
   //if we have an object, expect a string to have been passed
-  if (typeof req.body === 'object') {
+  if (typeof req.body === 'object' && !!req.body.string) {
     const { name, string, ...rest } = req.body;
     const hash = md5(string);
     const filePath = createFilePath(hash);
