@@ -49,10 +49,10 @@ router.get('/file/:fileId', (req, res, next) => {
 
 /* import */
 //todo - ensure valid CSV
-router.post('/import/:format/:projectId?',
+router.post('/import/:projectId?',
   importMiddleware,
   (req, res, next) => {
-    const { noSave, returnRoll, format, projectId, files } = req; //eslint-disable-line no-unused-vars
+    const { noSave, returnRoll, projectId, files } = req; //eslint-disable-line no-unused-vars
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
     const { name, string, hash, filePath, fileUrl } = files[0];

@@ -31,7 +31,7 @@ const extensionKey = 'csv';
  * @resolve with projectId on success and rejects with fetch response
  */
 export function importFile(projectId = null, ...files) {
-  const url = extensionApiPath(extensionKey, `import/file${!!projectId ? ('/' + projectId) : ''}`);
+  const url = extensionApiPath(extensionKey, `import${!!projectId ? ('/' + projectId) : ''}`);
 
   return uploadFiles(url, {}, ...files)
     .then(resp => resp.json())
@@ -55,7 +55,7 @@ function importStringBase(payload, projectId) {
   invariant(typeof payload === 'object', 'payload must be object');
   invariant(typeof payload.string === 'string', 'must pass string to import');
 
-  const url = extensionApiPath(extensionKey, `import/string${projectId ? ('/' + projectId) : ''}`);
+  const url = extensionApiPath(extensionKey, `import${projectId ? ('/' + projectId) : ''}`);
 
   return rejectingFetch(url, headersPost(JSON.stringify(payload)))
     .then(resp => resp.json());
