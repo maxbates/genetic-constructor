@@ -20,7 +20,6 @@ import UndoManager from './UndoManager';
 
 //future - support for reducerEnhancing the whole store. Key parts will be weird?
 
-//note - this creates a singleton. May want to offer ability to create multiple of these for some reason (but this is kinda anti-redux) - also so can configure things like action fields undoable and undoPurge
 const manager = new UndoManager();
 
 //hack - curently required to be last reducer (to run after enhancers have run to update undoManager, relying on key order in combineReducers)
@@ -40,7 +39,8 @@ export const undoReducer = (state = {}, action) => {
 };
 
 //passing in manager is for testing, but you may not want to use the singleton... but the reducer will not work if you pass it in (WIP)
-export const undoReducerEnhancerCreator = (config, undoManager = manager) => {
+//each creator creates a new manager, so we dont have a singleton. Tests may create multiple stores, we dont want their actions affecting each other.
+export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager()) => {
   const params = Object.assign({
     initTypes: ['@@redux/INIT', '@@INIT'],
     purgeOn: () => false,

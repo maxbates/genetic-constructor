@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import TestUtils from 'react-addons-test-utils';
 import { createStore } from 'redux';
-import rootReducer from '../../src/reducers/index';
+import rootReducerCreator from '../../src/reducers/index';
 import chai from 'chai';
 const { expect } = chai;
 import sinon from 'sinon';
@@ -18,7 +18,7 @@ chai.use(sinonChai);
 import { Inventory } from '../../src/containers/Inventory';
 
 function setup(propOverrides = {}) {
-  const store = createStore(rootReducer);
+  const store = createStore(rootReducerCreator());
 
   const props = Object.assign({
     inventorySearch: sinon.spy(),
