@@ -76,8 +76,18 @@ export class HomePage extends Component {
     this.props.uiShowUserWidget(true);
   }
 
+  isIE() {
+    const ua = window.navigator.userAgent;
+    const msie = ua.indexOf("MSIE ");
+    return msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./);
+  }
+
   signIn(evt) {
     evt.preventDefault();
+    if (this.isIE()) {
+      this.props.uiSetGrunt(`Sorry we do not currently support Internet Explorer. We recommend the Chrome browser from Google.`);
+      return;
+    }
     this.props.uiShowAuthenticationForm('signin');
   }
 
