@@ -35,11 +35,6 @@ class App extends Component {
       pathname: PropTypes.string.isRequired,
     }).isRequired,
     spinMessage: PropTypes.string.isRequired,
-    inlineEditorCommit: PropTypes.func,
-    inlineEditorValue: PropTypes.string,
-    inlineEditorPosition: PropTypes.object,
-    inlineEditorClassName: PropTypes.string,
-    inlineEditorTarget: PropTypes.object,
   };
 
   /**
@@ -98,13 +93,7 @@ class App extends Component {
           {this.props.children}
         </div>
         <ModalSpinner spinMessage={this.props.spinMessage}/>
-        <InlineEditor
-          commit={this.props.inlineEditorCommit}
-          value={this.props.inlineEditorValue}
-          position={this.props.inlineEditorPosition}
-          extraClassName={this.props.inlineEditorClassName}
-          target={this.props.inlineEditorTarget}
-        />
+        <InlineEditor/>
         <DevTools />
       </div>
     );
@@ -116,11 +105,6 @@ function mapStateToProps(state, ownProps) {
     currentProjectId: ownProps.params.projectId,
     user: state.user,
     spinMessage: state.ui.modals.spinMessage,
-    inlineEditorCommit: state.ui.modals.inlineEditorCommit,
-    inlineEditorValue: state.ui.modals.inlineEditorValue,
-    inlineEditorPosition: state.ui.modals.inlineEditorPosition,
-    inlineEditorClassName: state.ui.modals.inlineEditorClassName,
-    inlineEditorTarget: state.ui.modals.inlineEditorTarget,
   };
 }
 

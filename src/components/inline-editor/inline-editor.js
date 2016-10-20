@@ -135,7 +135,13 @@ class InlineEditor extends Component {
 }
 
 function mapStateToProps(state, props) {
-  return {};
+  return {
+    commit: state.ui.modals.inlineEditorCommit,
+    value: state.ui.modals.inlineEditorValue,
+    position: state.ui.modals.inlineEditorPosition,
+    extraClassName: state.ui.modals.inlineEditorClassName,
+    target: state.ui.modals.inlineEditorTarget,
+  };
 }
 
 export default connect(mapStateToProps, {
