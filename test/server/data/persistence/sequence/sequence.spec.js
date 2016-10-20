@@ -25,7 +25,7 @@ import {
 } from '../../../../../server/utils/fileSystem';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 import * as filePaths from '../../../../../server/utils/filePaths';
-import * as persistence from '../../../../../server/data/persistence';
+import * as sequences from '../../../../../server/data/persistence/sequence';
 
 describe('Server', () => {
   describe('Data', () => {
@@ -57,12 +57,12 @@ describe('Server', () => {
         });
 
         it('sequenceWrite() should not write a sequence specifying a range', () => {
-          expect(() => persistence.sequenceWrite(pseudoMd5, sequence)).to.throw();
+          expect(() => sequences.sequenceWrite(pseudoMd5, sequence)).to.throw();
         });
 
         it('sequenceWrite() -> sequenceGet() works', () => {
-          return persistence.sequenceWrite(pseudoMd5, sequence)
-            .then(() => persistence.sequenceGet(pseudoMd5))
+          return sequences.sequenceWrite(pseudoMd5, sequence)
+            .then(() => sequences.sequenceGet(pseudoMd5))
             .then(result => {
               assert(result === sequence, 'sequences should match');
             });
@@ -81,12 +81,12 @@ describe('Server', () => {
             id2: range2,
           };
 
-          return persistence.sequenceWriteChunks(sequence, rangeMap)
+          return sequences.sequenceWriteChunks(sequence, rangeMap)
             .then(result => {
               expect(result.id1).to.equal(generatePseudoMd5(sequenceMd5, range1[0], range1[1]));
               expect(result.id2).to.equal(generatePseudoMd5(sequenceMd5, range2[0], range2[1]));
 
-              return persistence.sequenceGet(result.id1)
+              return sequences.sequenceGet(result.id1)
                 .then(seqResult => {
                   expect(seqResult).to.equal(sequence.substring(range1[0], range1[1]));
                 });

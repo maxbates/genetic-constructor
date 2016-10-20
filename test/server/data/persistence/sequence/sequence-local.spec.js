@@ -28,7 +28,7 @@ import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 
 import * as filePaths from '../../../../../server/utils/filePaths';
-import * as persistence from '../../../../../server/data/persistence';
+import * as sequences from '../../../../../server/data/persistence/sequence';
 import * as s3 from '../../../../../server/data/persistence/s3';
 
 describe('Server', () => {
@@ -65,14 +65,14 @@ describe('Server', () => {
             const path = filePaths.createSequencePath(seqMd5);
 
             return fileWrite(path, seq)
-              .then(() => persistence.sequenceGet(seqMd5))
+              .then(() => sequences.sequenceGet(seqMd5))
               .then(retrieved => {
                 expect(retrieved).to.equal(seq);
               });
           });
 
           it('sequenceWrite() should write a sequence', () => {
-            return persistence.sequenceWrite(realMd5, sequence)
+            return sequences.sequenceWrite(realMd5, sequence)
               .then(() => fileRead(filePath, false))
               .then(read => {
                 expect(read).to.equal(sequence);
@@ -84,7 +84,7 @@ describe('Server', () => {
               .then(fileResult => {
                 assert(fileResult === sequence, 'sequence should be written already');
 
-                return persistence.sequenceGet(realMd5)
+                return sequences.sequenceGet(realMd5)
                   .then(getResult => {
                     expect(getResult).to.equal(fileResult);
                     expect(getResult).to.equal(sequence);
@@ -97,7 +97,7 @@ describe('Server', () => {
               .then(fileResult => {
                 assert(fileResult === sequence, 'sequence should be written already');
 
-                return persistence.sequenceGet(pseudoMd5)
+                return sequences.sequenceGet(pseudoMd5)
                   .then(getResult => {
                     expect(getResult).to.equal(rangedSequence);
                   });
@@ -105,17 +105,17 @@ describe('Server', () => {
           });
 
           it('sequenceExists() checks if sequence file exists', () => {
-            return persistence.sequenceExists(sequenceMd5);
+            return sequences.sequenceExists(sequenceMd5);
           });
 
           it('sequenceGet() returns the sequence as a string', () => {
-            return persistence.sequenceGet(sequenceMd5)
+            return sequences.sequenceGet(sequenceMd5)
               .then(result => expect(result).to.equal(blockSequence));
           });
 
           it('sequenceGet() rejects for md5 with no sequence', () => {
             const fakeMd5 = md5('nothingness');
-            return persistence.sequenceGet(fakeMd5)
+            return sequences.sequenceGet(fakeMd5)
               .then(result => assert(false))
               .catch(err => expect(err).to.equal(errorDoesNotExist));
           });
@@ -125,7 +125,7 @@ describe('Server', () => {
             const seqMd5 = md5(seq);
             const sequenceFilePath = filePaths.createSequencePath(seqMd5);
 
-            return persistence.sequenceWrite(seqMd5, seq)
+            return sequences.sequenceWrite(seqMd5, seq)
               .then(() => fileRead(sequenceFilePath, false))
               .then(result => expect(result).to.equal(seq));
           });
