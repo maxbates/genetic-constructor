@@ -20,7 +20,6 @@ import * as s3 from './s3';
 import * as filePaths from '../../utils/filePaths';
 import {
   errorDoesNotExist,
-  s3Error,
 } from '../../utils/errors';
 import {
   fileExists,

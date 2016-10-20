@@ -23,6 +23,7 @@ import {
 import * as filePaths from '../utils/filePaths';
 import * as fileSystem from '../utils/fileSystem';
 import * as s3 from './persistence/s3';
+import * as projectFiles from './persistence/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
@@ -38,38 +39,26 @@ if (s3.useRemote) {
 
 //todo - S3 access control ???? Necessary if all requests go through application server?
 
-router.route('/:namespace/:file')
+router.route('/:namespace/:file/:version?')
   .all((req, res, next) => {
-    const { projectId } = req;
-    const { namespace, file } = req.params;
-
-    let filePath;
-    let folderPath;
-
-    if (s3.useRemote) {
-      folderPath = `${projectId}/${namespace}`;
-      filePath = `${folderPath}/${file}`;
-    } else {
-      folderPath = filePaths.createProjectFilesDirectoryPath(projectId, namespace);
-      filePath = filePaths.createProjectFilePath(projectId, namespace, file);
-    }
+    // const { projectId } = req; //already on the request
+    const { namespace, file, version } = req.params;
 
     Object.assign(req, {
       namespace,
-      filePath,
-      folderPath,
+      file,
+      version,
     });
 
     next();
   })
   .get((req, res, next) => {
-    const { filePath } = req;
+    //todo - support for getting old versions
+    //const params = (req.version && req.version !== 'latest') ? { VersionId: req.version } : {};
 
-    const promise = s3.useRemote ?
-      s3.stringGet(s3bucket, filePath) :
-      fileSystem.fileRead(filePath, false);
+    const { projectId, namespace, file } = req;
 
-    promise
+    projectFiles.projectFileRead(projectId, namespace, file)
       .then(data => res.send(data))
       .catch(err => {
         if (err === errorDoesNotExist) {
@@ -80,72 +69,44 @@ router.route('/:namespace/:file')
       });
   })
   .post(textParser, (req, res, next) => {
-    const { folderPath, filePath } = req;
+    const { projectId, namespace, file } = req;
     const content = req.body;
 
-    //todo - should return version (especially s3) -- how to handle for local
-
-    const promise = s3.useRemote
-      ?
-      s3.stringPut(s3bucket, filePath, content)
-      :
-      fileSystem.directoryMake(folderPath)
-        .then(() => fileSystem.fileWrite(filePath, content, false));
-
-    promise
-      .then(() => res.send(req.originalUrl))
+    projectFiles.projectFileWrite(projectId, namespace, file, content)
+      .then(resp => {
+        const payload = {
+          VersionId: resp.VersionId,
+        };
+        res.send(payload);
+      })
       .catch((err) => {
         console.log('project file post err', err, err.stack);
         next(err);
       });
   })
   .delete((req, res, next) => {
-    const { filePath } = req;
+    const { projectId, namespace, file } = req;
 
-    const promise = s3.useRemote
-      ?
-      s3.objectDelete(s3bucket, filePath)
-      :
-      fileSystem.fileDelete(filePath);
-
-    promise
+    projectFiles.projectFileDelete(projectId, namespace, file)
       .then(() => res.status(200).send())
       .catch(err => next(err));
   });
 
 router.route('/:namespace')
   .all((req, res, next) => {
-    const { projectId } = req;
+    // const { projectId } = req; //already on request
     const { namespace } = req.params;
-
-    let folderPath;
-
-    if (s3.useRemote) {
-      folderPath = `${projectId}/${namespace}`;
-    } else {
-      folderPath = filePaths.createProjectFilesDirectoryPath(projectId, namespace);
-    }
 
     Object.assign(req, {
       namespace,
-      folderPath,
     });
 
     next();
   })
   .get((req, res, next) => {
-    const { folderPath } = req;
+    const { projectId, namespace } = req;
 
-    //todo - verify the contents returned are the same
-
-    const promise = s3.useRemote
-      ?
-      s3.folderContents(s3bucket, folderPath)
-        .then(files => files.map(file => file.name))
-      :
-      fileSystem.directoryContents(folderPath);
-
-    promise
+    projectFiles.projectFileList(projectId, namespace)
       .then(contents => res.json(contents))
       .catch(err => res.status(404).send(errorFileNotFound));
   });
