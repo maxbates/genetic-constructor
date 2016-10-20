@@ -77,7 +77,32 @@ describe('Server', () => {
         });
 
         it('should read a written file', () => {
+          const fileName = 'myFile';
+          const fileContents = 'some initial contents';
 
+          return projectFiles.projectFileWrite(projectId, namespace, fileName, fileContents)
+            .then(() => projectFiles.projectFileRead(projectId, namespace, fileName))
+            .then(result => {
+              expect(result).to.equal(fileContents);
+            });
+        });
+
+        it('should update the contents for second fetch', () => {
+          const fileName = 'myFile';
+          const originalContents = 'some initial contents';
+          const nextContents = 'the next contents';
+
+          return projectFiles.projectFileWrite(projectId, namespace, fileName, originalContents)
+            .then(() => projectFiles.projectFileRead(projectId, namespace, fileName))
+            .then(result => {
+              expect(result).to.equal(originalContents);
+
+              return projectFiles.projectFileWrite(projectId, namespace, fileName, nextContents);
+            })
+            .then(() => projectFiles.projectFileRead(projectId, namespace, fileName))
+            .then(result => {
+              expect(result).to.equal(nextContents);
+            });
         });
       });
     });
