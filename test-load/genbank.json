@@ -44,7 +44,7 @@
         },
         {
           "post": {
-            "url": "/extensions/api/genbank/import/file",
+            "url": "/extensions/api/genbank/import",
             "beforeRequest": "createGenbankUpload",
             "headers": {}
           }
