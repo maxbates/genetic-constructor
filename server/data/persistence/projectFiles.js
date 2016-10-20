@@ -79,7 +79,7 @@ export const projectFileDelete = (projectId, namespace, fileName, params = {}) =
 
   return s3.useRemote
     ?
-    s3.objectDelete(s3bucket, filePath)
+    s3.itemDelete(s3bucket, filePath)
     :
     fileSystem.fileDelete(filePath);
 };

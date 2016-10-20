@@ -48,7 +48,7 @@ export const sequenceExists = (pseudoMd5) => {
   const { hash } = parsePseudoMd5(pseudoMd5);
 
   if (s3.useRemote) {
-    return s3.objectExists(s3bucket, hash)
+    return s3.itemExists(s3bucket, hash)
       .catch(err => errorDoesNotExist);
   }
 
@@ -142,7 +142,7 @@ export const sequenceDelete = (pseudoMd5) => {
   invariant(!byteRange, 'should not pass md5 with byte range to sequence delete');
 
   if (s3.useRemote) {
-    return s3.objectDelete(s3bucket, hash)
+    return s3.itemDelete(s3bucket, hash)
       .then(() => pseudoMd5);
   }
 

@@ -50,7 +50,7 @@ export const getSignedUrl = (bucket, Key, operation = 'getObject', opts = {}) =>
 };
 
 //expects a bucket with bucket name already defined
-export const objectExists = (bucket, Key) => {
+export const itemExists = (bucket, Key) => {
   return new Promise((resolve, reject) => {
     bucket.headObject({ Key }, (err, result) => {
       if (err) {
@@ -93,7 +93,7 @@ export const folderContents = (bucket, Prefix, params = {}) => {
   });
 };
 
-export const objectVersions = (bucket, Key, params = {}) => {
+export const itemVersions = (bucket, Key, params = {}) => {
   invariant(false, 'not implemented');
 
   //todo - need to figure out how to look only for a certain key
@@ -103,6 +103,8 @@ export const objectVersions = (bucket, Key, params = {}) => {
     bucket.listObjectVersions(req, (err, results) => {});
   });
 };
+
+// GET
 
 export const itemGetBuffer = (bucket, Key, params = {}) => {
   return new Promise((resolve, reject) => {
@@ -122,6 +124,7 @@ export const itemGetBuffer = (bucket, Key, params = {}) => {
         console.log(err, err.stack);
         return reject(s3Error);
       }
+      //just return the file content (no need yet for file metadata)
       return resolve(result.Body);
     });
   });
@@ -141,35 +144,46 @@ export const objectGet = (bucket, Key, params = {}) => {
     .then(result => JSON.parse(result));
 };
 
+// PUT
+
 //todo - need to support errors when copying file - they can still return a 200 (not sure if aws-sdk handles this) -- check the docs for this
-export const stringPut = (bucket, Key, Body, params = {}) => {
+//Body can be a buffer, or just a string, or whatever
+export const itemPutBuffer = (bucket, Key, Body, params = {}) => {
   return new Promise((resolve, reject) => {
-    const req = Object.assign(
-      {
-        ContentType: 'text/plain',
-      },
+    const req = Object.assign({},
       params,
-      { Body, Key },
+      { Body, Key }
     );
 
     bucket.putObject(req, (err, result) => {
       if (err) {
+        //unhandled error
         console.log(err, err.stack);
-        return reject(err);
+        return reject(s3Error);
       }
-      return resolve(Body);
+      return resolve(result);
     });
   });
 };
 
+export const stringPut = (bucket, Key, string, params = {}) => {
+  invariant(typeof Body === 'string', 'must pass string');
+  const reqParams = Object.assign({ ContentType: 'text/plain' }, params);
+
+  return itemPutBuffer(bucket, Key, string, reqParams);
+};
+
 export const objectPut = (bucket, Key, obj, params = {}) => {
   invariant(typeof obj === 'object', 'must pass object to objectPut');
+
   const Body = JSON.stringify(obj);
   const objParams = Object.assign({}, params, { ContentType: 'application/json' });
   return stringPut(bucket, Key, Body, objParams);
 };
 
-export const objectDelete = (bucket, Key) => {
+// DELETE
+
+export const itemDelete = (bucket, Key) => {
   return new Promise((resolve, reject) => {
     bucket.deleteObject({ Key }, (err, result) => {
       if (err) {
