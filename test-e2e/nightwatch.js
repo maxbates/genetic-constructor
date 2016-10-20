@@ -21,7 +21,7 @@ module.exports = {
 
   test_settings: {
     local: {
-      launch_url: 'http://localhost:3001/',
+      launch_url: 'http://localhost:3000/',
       selenium_port: 4444,
       selenium_host: '127.0.0.1',
       silent: true,
@@ -37,7 +37,7 @@ module.exports = {
     },
 
     default: {
-      launch_url: 'http://localhost:3001',
+      launch_url: 'http://localhost:3000',
       selenium_port: 80,
       selenium_host: 'ondemand.saucelabs.com',
       desiredCapabilities: {

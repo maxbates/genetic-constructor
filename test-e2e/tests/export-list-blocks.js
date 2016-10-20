@@ -30,7 +30,7 @@ module.exports = {
     newProject(browser);
     openInventory(browser);
     searchFor(browser, 'Runx1');
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 10, 10);
+    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
 
     // click the my projects inventory tab and expect a project.
     browser
@@ -46,7 +46,7 @@ module.exports = {
       .pause(500)
 
     // drag the first construct into the canvas
-    dragFromTo(browser, '[data-inventory~="template"]', 10, 10, '.cvc-drop-target', 10, 10);
+    dragFromTo(browser, '[data-inventory~="template"]', 10, 10, '.cvc-drop-target', 50, 40);
     browser.pause(500);
 
     clickMainMenu(browser, 1, 1);
