@@ -23,6 +23,7 @@ import {
   fileWrite,
   fileDelete,
 } from '../../../../../server/utils/fileSystem';
+import { errorDoesNotExist } from '../../../../../server/utils/errors';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 import * as filePaths from '../../../../../server/utils/filePaths';
 import * as sequences from '../../../../../server/data/persistence/sequence';
@@ -90,6 +91,24 @@ describe('Server', () => {
                 .then(seqResult => {
                   expect(seqResult).to.equal(sequence.substring(range1[0], range1[1]));
                 });
+            });
+        });
+
+        it('should handle when sequence doesnt exist', () => {
+          const dummy = md5(uuid.v4());
+          return sequences.sequenceGet(dummy)
+            .then(() => new Error('shoulnt resolve'))
+            .catch(err => {
+              expect(err).to.eql(errorDoesNotExist);
+            });
+        });
+
+        it('should handle on delete when file doesnt exist', () => {
+          const dummy = md5(uuid.v4());
+          return sequences.sequenceDelete(dummy)
+            .then(() => new Error('shoulnt resolve'))
+            .catch(err => {
+              expect(err).to.eql(errorDoesNotExist);
             });
         });
       });

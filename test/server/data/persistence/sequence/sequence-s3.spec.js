@@ -90,24 +90,6 @@ describe('Server', () => {
           });
 
           it('should delete a file that exists');
-
-          it('should handle when sequence doesnt exist', () => {
-            const dummy = md5(uuid.v4());
-            return sequences.sequenceGet(dummy)
-              .then(() => new Error('shoulnt resolve'))
-              .catch(err => {
-                expect(err).to.eql(errorDoesNotExist);
-              });
-          });
-
-          it('should handle on delete when file doesnt exist', () => {
-            const dummy = md5(uuid.v4());
-            return sequences.sequenceDelete(dummy)
-              .then(() => new Error('shoulnt resolve'))
-              .catch(err => {
-                expect(err).to.eql(errorDoesNotExist);
-              });
-          });
         });
       });
     });

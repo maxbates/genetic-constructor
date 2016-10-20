@@ -29,6 +29,7 @@ import { ensureReqUserMiddleware } from '../user/utils';
 import { permissionsMiddleware } from './permissions';
 
 import projectFileRouter from './projectFileRouter';
+import sequenceRouter from './sequenceRouter';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json({
@@ -93,45 +94,11 @@ router.param('blockId', (req, res, next, id) => {
 /********** ROUTES ***********/
 
 /* project files */
-
 router.use('/file/:projectId', permissionsMiddleware, projectFileRouter);
 
 /* sequence */
-//expect that a well-formed md5 is sent. however, not yet checking. So you really could just call it whatever you wanted...
-
-// future - url + `?format=${format}`;
-router.route('/sequence/:md5/:blockId?')
-  .get((req, res, next) => {
-    const { md5 } = req.params;
-
-    persistence.sequenceGet(md5)
-      .then(sequence => {
-        //not entirely sure what this means... the file is empty?
-        if (!sequence) {
-          return res.status(204).send('');
-        }
-        res.status(200)
-          .set('Content-Type', 'text/plain')
-          .send(sequence);
-      })
-      .catch(err => {
-        if (err === errorDoesNotExist) {
-          return res.status(400).send(errorDoesNotExist);
-        }
-        return next(err);
-      });
-  })
-  .post((req, res, next) => {
-    const { md5 } = req.params;
-    const { sequence } = req.body;
-
-    persistence.sequenceWrite(md5, sequence)
-      .then(() => res.status(200).send())
-      .catch(err => next(err));
-  })
-  .delete((req, res) => {
-    res.status(403).send('Not allowed to delete sequence');
-  });
+//todo - deprecate blockId
+router.use('/sequence', sequenceRouter);
 
 /* info queries */
 
