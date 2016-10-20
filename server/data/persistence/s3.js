@@ -37,7 +37,7 @@ if (process.env.NODE_ENV === 'production' || (
   AWS = require('aws-sdk');
 
   AWS.config.update({
-    region: 'us-west-2',
+    region: 'us-west-1',
   });
 }
 
@@ -141,7 +141,7 @@ export const objectGet = (bucket, Key, params = {}) => {
     .then(result => JSON.parse(result));
 };
 
-//todo - need to support errors when copying file - they can still return a 200 (not sure if aws-sdk handles this)
+//todo - need to support errors when copying file - they can still return a 200 (not sure if aws-sdk handles this) -- check the docs for this
 export const stringPut = (bucket, Key, Body, params = {}) => {
   return new Promise((resolve, reject) => {
     const req = Object.assign(

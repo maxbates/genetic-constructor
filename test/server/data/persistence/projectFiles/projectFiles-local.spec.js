@@ -18,6 +18,16 @@ import uuid from 'node-uuid';
 import { errorDoesNotExist } from '../../../../../server/utils/errors';
 import Project from '../../../../../src/models/Project';
 import * as projectFiles from '../../../../../server/data/persistence/projectFiles';
+import {
+  fileExists,
+  fileRead,
+  fileWrite,
+  fileDelete,
+  directoryExists,
+  directoryMake,
+  directoryDelete
+} from '../../../../../server/utils/fileSystem';
+import * as filePaths from '../../../../../server/utils/filePaths';
 import * as s3 from '../../../../../server/data/persistence/s3';
 
 describe('Server', () => {
