@@ -14,7 +14,18 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { s3Error, errorDoesNotExist } from '../../utils/errors';
+import { errorDoesNotExist } from '../../utils/errors';
+
+/*
+ this module wraps some AWS SDK commands in promises, with minimal type handling
+
+ Terms:
+ - item =  generic
+ - string = string
+ - object = object
+
+ e.g. stringGet vs. objectPut
+ */
 
 //API docs: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
 
@@ -54,8 +65,13 @@ export const itemExists = (bucket, Key) => {
   return new Promise((resolve, reject) => {
     bucket.headObject({ Key }, (err, result) => {
       if (err) {
+        if (err.statusCode === 404) {
+          return reject(false);
+        }
+
+        //unhandled
         console.log(err, err.stack);
-        return reject(false);
+        return reject(err);
       }
       return resolve(true);
     });
@@ -74,7 +90,7 @@ export const folderContents = (bucket, Prefix, params = {}) => {
         }
         //unhandled error
         console.log(err, err.stack);
-        return reject(s3Error);
+        return reject(err);
       }
 
       if (results.IsTruncated) {
@@ -93,14 +109,31 @@ export const folderContents = (bucket, Prefix, params = {}) => {
   });
 };
 
-export const itemVersions = (bucket, Key, params = {}) => {
-  invariant(false, 'not implemented');
-
-  //todo - need to figure out how to look only for a certain key
-
+export const bucketVersioned = (bucket) => {
   return new Promise((resolve, reject) => {
-    const req = Object.assign({}, params, { Key });
-    bucket.listObjectVersions(req, (err, results) => {});
+    bucket.getBucketVersioning({}, (err, result) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(result.Status === 'Enabled');
+    });
+  });
+};
+
+export const itemVersions = (bucket, Key, params = {}) => {
+  return new Promise((resolve, reject) => {
+    const req = Object.assign({}, params, {
+      Prefix: Key,
+    });
+    bucket.listObjectVersions(req, (err, results) => {
+      if (err) {
+        console.log('got error');
+        console.log(err);
+        return reject(err);
+      }
+      //expect notable keys Key, VersionId, LastModified
+      resolve(results.Versions);
+    });
   });
 };
 
@@ -122,7 +155,7 @@ export const itemGetBuffer = (bucket, Key, params = {}) => {
         }
         //unhandled error
         console.log(err, err.stack);
-        return reject(s3Error);
+        return reject(err);
       }
       //just return the file content (no need yet for file metadata)
       return resolve(result.Body);
@@ -138,10 +171,17 @@ export const stringGet = (bucket, Key, params = {}) => {
 };
 
 export const objectGet = (bucket, Key, params = {}) => {
-  const objParams = Object.assign({}, params, { ContentType: 'application/json' });
+  const objParams = Object.assign({}, params, { ResponseContentType: 'application/json' });
 
   return stringGet(bucket, Key, objParams)
-    .then(result => JSON.parse(result));
+    .then(result => {
+      try {
+        return JSON.parse(result);
+      } catch (err) {
+        console.log('error parsing JSON in objectGet', Key, result.substring(0, 100));
+        return Promise.reject(result);
+      }
+    });
 };
 
 // PUT
@@ -159,7 +199,7 @@ export const itemPutBuffer = (bucket, Key, Body, params = {}) => {
       if (err) {
         //unhandled error
         console.log(err, err.stack);
-        return reject(s3Error);
+        return reject(err);
       }
       return resolve(result);
     });
@@ -167,7 +207,7 @@ export const itemPutBuffer = (bucket, Key, Body, params = {}) => {
 };
 
 export const stringPut = (bucket, Key, string, params = {}) => {
-  invariant(typeof Body === 'string', 'must pass string');
+  invariant(typeof string === 'string', 'must pass string');
   const reqParams = Object.assign({ ContentType: 'text/plain' }, params);
 
   return itemPutBuffer(bucket, Key, string, reqParams);

@@ -21,7 +21,7 @@ import AWS from 'aws-sdk';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
-      describe('S3', function S3Persistence() {
+      describe.only('S3', function S3Persistence() {
         //skip test suite if not using s3
         before(function () {
           if (!s3.useRemote) {
@@ -37,6 +37,17 @@ describe('Server', () => {
 
         const objectName = uuid.v4();
         const objectContents = { hey: 'there' };
+
+        it('bucketVersioned() checks if bucket is versioned', () => {
+          return s3.bucketVersioned(bucket)
+            .then(result => {
+              assert(result === true, 'Versioning should be enabled. NOTE MANY TESTS WILL FAIL IN THIS SUITE IF VERSIONING NOT ENABLED');
+            })
+            .catch(err => {
+              console.error('NOTE MANY TESTS WILL FAIL IN THIS SUITE IF VERSINOING NOT ENABLED');
+              throw new Error(err);
+            });
+        });
 
         it('getBucket() returns AWS bucket', () => {
           expect(bucket).to.be.defined;
@@ -62,27 +73,80 @@ describe('Server', () => {
         it('stringPut() puts string, returns a version', () => {
           return s3.stringPut(bucket, stringName, stringContents)
             .then(result => {
+              //todo - check actually exists
               assert(result.VersionId, 'expected VersionId');
             });
         });
 
         it('stringGet() gets string', () => {
-          return s3.stringPut(bucket, stringName)
+          return s3.stringGet(bucket, stringName)
             .then(result => {
-              expect(result).to.equal(stringContents)
+              expect(result).to.equal(stringContents);
             });
         });
 
-        it('objectGet() gets object, parses');
+        it('objectPut() puts object, gets a version', () => {
+          return s3.objectPut(bucket, objectName, objectContents)
+            .then(result => {
+              //todo - check actually exists
+              assert(result.VersionId, 'expected VersionId');
+            });
+        });
 
-        it('objectPut() puts object');
+        it('objectPut() expects an object', () => {
+          expect(() => s3.objectPut(bucket, objectName, stringContents)).to.throw();
+        });
 
-        it('itemExists() checks if exists');
+        it('objectGet() gets object, parses', () => {
+          return s3.objectGet(bucket, objectName)
+            .then(result => {
+              expect(result).to.eql(objectContents);
+            });
+        });
 
-        it('itemDelete() deletes object');
+        it('objectGet() catches when not an object, rejects with contents', (done) => {
+          s3.objectGet(bucket, stringName)
+            .then(done)
+            .catch(result => {
+              expect(result).to.equal(stringContents);
+              done();
+            });
+        });
 
-        //todo
-        it('itemVersions() gets versions of an object');
+        it('itemExists() checks if exists', () => {
+          return Promise.all([
+            s3.itemExists(bucket, stringName)
+              .then(result => {
+                assert(result === true, 'expected to exist');
+              }),
+            s3.itemExists(bucket, uuid.v4())
+              .catch(result => {
+                assert(result === false, 'expected to not exist');
+              }),
+          ]);
+        });
+
+        it('itemDelete() deletes object', () => {
+          return s3.itemDelete(bucket, stringName)
+            .then(() => s3.itemExists(bucket, stringName))
+            .catch((err) => {
+              expect(err).to.equal(false);
+            });
+        });
+
+        it('itemVersions() gets versions of an object', () => {
+          const name = uuid.v4();
+
+          return s3.objectPut(bucket, name, { value: 1 })
+            .then(() => s3.objectPut(bucket, name, { value: 2 }))
+            .then(() => s3.objectPut(bucket, name, { value: 3 }))
+            .then(() => s3.objectPut(bucket, name, { value: 4 }))
+            .then(() => s3.itemVersions(bucket, name))
+            .then(versions => {
+              expect(versions.length).to.equal(4);
+              assert(versions.every(ver => !!ver.Key && !!ver.VersionId && ver.LastModified), 'expected fields Key, VersionId, LastModified');
+            });
+        });
 
         //todo
         it('itemPutBuffer() uploads a buffer');
