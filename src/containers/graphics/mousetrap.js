@@ -98,6 +98,8 @@ export default class MouseTrap {
    * mouse down handler, invoked on our target element
    */
   onMouseDown(event) {
+    //console.log("mouse down ", Date.now());
+    //console.log(this.element.className);
     // whenever our element gets a mouse down ( any button ) ensure any inputs are unfocused
     if (document.activeElement
       && document.activeElement.tagName
@@ -172,7 +174,6 @@ export default class MouseTrap {
    *
    */
   cancelDrag() {
-    this.lastLeftClick = null;
     if (this.dragging) {
       document.body.removeEventListener('mousemove', this.mouseDrag);
       document.body.removeEventListener('mouseup', this.mouseUp);

@@ -24,7 +24,7 @@ module.exports = function (browser, srcSelector, srcX, srcY, dstSelector, dstX, 
     var leny = end.y - start.y;
 
     var pts = [];
-    for(var i = 0; i <= 1; i += (1 / (steps || 10))) {
+    for(var i = 0; i <= 1; i += (1 / (steps || 50))) {
       var xp = start.x + lenx * i;
       var yp = start.y + leny * i;
       pts.push({x:xp, y: yp});
@@ -39,5 +39,6 @@ module.exports = function (browser, srcSelector, srcX, srcY, dstSelector, dstX, 
 
   browser
     .moveToElement(dstSelector, dstX, dstY)
-    .mouseButtonUp(0);
+    .mouseButtonUp(0)
+    .pause(200);
 }

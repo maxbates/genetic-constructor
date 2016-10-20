@@ -23,7 +23,6 @@ import RectangleGlyph2D from './glyphs/html/rectangleglyph2d';
 import RoleGlyph2D from './glyphs/html/roleglyph2d';
 import ListItemGlyph2D from './glyphs/html/listitemglyph2d';
 import LineGlyph2D from './glyphs/html/lineglyph2d';
-import ContextDots2D from './glyphs/html/contextdots2d';
 import ConstructBanner from './glyphs/canvas/constructbanner';
 /**
  * shared DIV for measuring text,
@@ -59,7 +58,7 @@ export default class Node2D {
       scale: 1,
       fontSize: '2rem',
       fontWeight: 'normal',
-      fontFamily: 'Arial',
+      fontFamily: 'Helvetica',
       color: 'black',
       uuid: uuid.v4(),
       glyph: 'none',
@@ -80,9 +79,6 @@ export default class Node2D {
       break;
     case 'role':
       this.glyphObject = new RoleGlyph2D(this);
-      break;
-    case 'dots':
-      this.glyphObject = new ContextDots2D(this);
       break;
     case 'line':
       this.glyphObject = new LineGlyph2D(this);
@@ -409,7 +405,30 @@ export default class Node2D {
       this.textGlyph.update();
     }
 
+    // display hover state, which is used to indicate inline editing
+    this.updateHoverGlyph();
+
     return this.el;
+  }
+
+  /**
+   * show or hide hover glyph according to state
+   */
+  updateHoverGlyph() {
+    // remove hover glyph if no longer needed
+    if (this.hoverGlyph && !this.hover) {
+      this.el.removeChild(this.hoverGlyph);
+      this.hoverGlyph = null;
+    }
+    // add hover glyph as required
+    if (this.hover && !this.hoverGlyph) {
+      this.el.insertAdjacentHTML('beforeend',
+        `<div class="inline-editor-hover ${this.hoverClass}">
+        <span>${this.text}</span>
+        <img src="/images/ui/inline_edit.svg"/>
+       </div>`);
+      this.hoverGlyph = this.el.lastChild;
+    }
   }
 
   /**

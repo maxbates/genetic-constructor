@@ -29,6 +29,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  font-family: Helvetica, sans-serif;
 }
 /* base class for all glyphs */
 .glyph {
@@ -131,19 +132,7 @@
 .construct-viewer-menu:hover {
   opacity: 1;
 }
-/*block dot context menu items*/
-.dot-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-}
-.dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 100%;
-  background-color: black;
-}
+
 /*indicate an role glyph block has children, clicking toggle the associated*/
 /*nested construct*/
 .nw-triangle {

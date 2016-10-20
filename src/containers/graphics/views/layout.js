@@ -316,6 +316,7 @@ export default class Layout {
       const props = Object.assign({}, {
         dataAttribute: { name: 'nodetype', value: 'block' },
         sg: this.sceneGraph,
+        hoverClass: 'inline-editor-hover-block',
       }, appearance);
       props.roleName = this.isSBOL(part) ? this.blocks[part].rules.role || this.blocks[part].metadata.role : null;
       node = new Role2D(props);
@@ -487,13 +488,8 @@ export default class Layout {
         this.titleNode = new Node2D(Object.assign({
           dataAttribute: { name: 'nodetype', value: 'construct-title' },
           sg: this.sceneGraph,
+          hoverClass: 'inline-editor-hover-title',
         }, kT.titleAppearance));
-        // add the context menu dots
-        this.titleNodeDots = new Node2D({
-          sg: this.sceneGraph,
-          glyph: 'dots',
-        });
-        this.titleNode.appendChild(this.titleNodeDots);
         this.sceneGraph.root.appendChild(this.titleNode);
       }
 
@@ -513,13 +509,6 @@ export default class Layout {
         color: this.baseColor,
         bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, this.sceneGraph.availableWidth - this.insetX - kT.rightPad, kT.titleH),
         dataAttribute: { name: 'construct-title', value: text },
-      });
-
-      // set dots to the right of the text
-      this.titleNodeDots.set({
-        bounds: new Box2D(this.titleNodeTextWidth, (kT.titleH - kT.contextDotsH) / 2, kT.contextDotsW, kT.contextDotsH),
-        visible: this.titleNode.hover,
-        dotColor: this.baseColor,
       });
     }
   }
