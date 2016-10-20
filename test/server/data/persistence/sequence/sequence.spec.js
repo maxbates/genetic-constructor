@@ -22,9 +22,9 @@ import {
   fileRead,
   fileWrite,
   fileDelete,
-} from '../../../../server/utils/fileSystem';
-import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../src/utils/sequenceMd5';
-import * as filePaths from '../../../../server/utils/filePaths';
+} from '../../../../../server/utils/fileSystem';
+import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
+import * as filePaths from '../../../../../server/utils/filePaths';
 import * as persistence from '../../../../server/data/persistence';
 
 describe('Server', () => {
@@ -58,6 +58,14 @@ describe('Server', () => {
 
         it('sequenceWrite() should not write a sequence specifying a range', () => {
           expect(() => persistence.sequenceWrite(pseudoMd5, sequence)).to.throw();
+        });
+
+        it('sequenceWrite() -> sequenceGet() works', () => {
+          return persistence.sequenceWrite(pseudoMd5, sequence)
+            .then(() => persistence.sequenceGet(pseudoMd5))
+            .then(result => {
+              assert(result === sequence, 'sequences should match');
+            });
         });
 
         it('sequenceWriteMany() should take map of md5 to sequence');

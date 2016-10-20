@@ -20,20 +20,10 @@ import {
   errorDoesNotExist,
   errorFileNotFound,
 } from './../utils/errors';
-import * as filePaths from '../utils/filePaths';
-import * as fileSystem from '../utils/fileSystem';
-import * as s3 from './persistence/s3';
 import * as projectFiles from './persistence/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
-
-/* S3 Credentials, when in production */
-
-let s3bucket;
-if (s3.useRemote) {
-  s3bucket = s3.getBucket('bionano-gctor-files');
-}
 
 //permission checking currently handled by data router (user has access to project)
 
@@ -106,7 +96,7 @@ router.route('/:namespace')
   .get((req, res, next) => {
     const { projectId, namespace } = req;
 
-    projectFiles.projectFileList(projectId, namespace)
+    projectFiles.projectFilesList(projectId, namespace)
       .then(contents => res.json(contents))
       .catch(err => res.status(404).send(errorFileNotFound));
   });

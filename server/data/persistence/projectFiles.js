@@ -54,6 +54,7 @@ export const projectFileWrite = (projectId, namespace, fileName, contents, param
   invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
   invariant(contents, 'contents required');
+  invariant(typeof contents === 'string', 'contents must be a string');
 
   const filePath = getFilePath(projectId, namespace, fileName);
   const folderPath = getFolderPath(projectId, namespace);
@@ -81,7 +82,7 @@ export const projectFileDelete = (projectId, namespace, fileName, params = {}) =
     fileSystem.fileDelete(filePath);
 };
 
-export const projectFileList = (projectId, namespace, params = {}) => {
+export const projectFilesList = (projectId, namespace, params = {}) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'must pass a namespace');
 
