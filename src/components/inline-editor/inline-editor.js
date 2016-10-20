@@ -32,12 +32,12 @@ import {
  */
 class InlineEditor extends Component {
   static propTypes = {
-    commit: PropTypes.func.isRequired,
-    value: PropTypes.string.isRequired,
-    position: PropTypes.object.isRequired,
+    commit: PropTypes.func,
+    value: PropTypes.string,
+    position: PropTypes.object,
     extraClassName: PropTypes.string,
-    target: PropTypes.object.isRequired,
-    uiInlineEditor: PropTypes.func.isRequired,
+    target: PropTypes.object,
+    uiInlineEditor: PropTypes.func,
   };
 
   componentDidMount() {
