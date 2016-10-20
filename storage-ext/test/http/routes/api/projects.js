@@ -90,5 +90,52 @@ describeAppTest("http", function (app) {
         });
     });
 
+    it('should update the latest version of the project', function updateLatestVersion(done) {
+      var data = {
+        chicago: 'blackhawks',
+        championships: 6,
+      };
+
+      request(app.proxy)
+        .post('/api/projects/' + projectId0)
+        .send({
+          data: data,
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log`('update result:', res.body);
+          assert.deepEqual(res.body.data, data);
+          done();
+        });
+    });
+
+    it('should update a specific project with owner, id, and version', function updateSpecific(done) {
+      var data = {
+        chicago: 'blackhawks',
+        championships: 6,
+        biggestFan: 'DEH',
+      };
+
+      var uuidBuf = new Buffer(owner, 'utf8');
+
+      request(app.proxy)
+        .post('/api/projects/' + projectId0 + '?owner=' + urlSafeBase64.encode(uuidBuf) + '&version=0')
+        .send({
+          data: data,
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log`('update result:', res.body);
+          assert.deepEqual(res.body.data, data);
+          done();
+        });
+    });
+
   });
 });

@@ -26,9 +26,9 @@ var saveProject = function (req, res) {
   }
 
   if (! body.owner) {
-   return res.status(400).send({
-     message: '\'owner\' is required in request body',
-   }).end();
+    return res.status(400).send({
+      message: '\'owner\' is required in request body',
+    }).end();
   }
 
   if (! uuidValidate(body.owner, 1)) {
@@ -84,38 +84,98 @@ var updateProject = function (req, res) {
     }).end();
   }
 
+  var version = parseInt(req.query.version);
   // just do an update if the caller gave owner and version
-  var owner = req.headers['gctor-project-owner'];
-  var version = req.headers['gctor-project-version'];
-  if (notNullOrEmpty(owner) && notNullAndPosInt(version) && uuidValidate(owner, 1)) {
+  if (notNullOrEmpty(req.query.owner) && notNullAndPosInt(version)) {
+    req.log.info('optimized project update routine');
+    var uuidBuf = urlSafeBase64.decode(req.query.owner);
+    var owner = uuidBuf.toString('utf8');
+    if (! uuidValidate(owner, 1)) {
+      return res.status(400).send({
+        message: 'invalid owner UUID',
+      }).end();
+    }
+
+    var where = {
+      id: projectId,
+      owner: owner,
+      version: version,
+    };
+
     return Project.update({
       data: data,
     }, {
       returning: true,
       fields: ['data'],
-      where: {
-        id: projectId,
-        owner: owner,
-        version: version,
-      }
+      where: where,
     }).then(function (results) {
-      console.log(results);
-      res.status(200).send({
-        message: 'success',
-      }).end();
+      if (results[0] < 1) {
+        return res.status(404).send({
+          message: 'found no records to update',
+          params: where,
+        }).end();
+      }
+
+      if (results[0] > 1) {
+        req.log.error('unexpectedly updated more than one record for:', where);
+        return res.status(500).send({
+          message: 'unexpectedly updated more than one record',
+        }).end();
+      }
+
+      return res.status(200).send(results[1][0].get()).end();
     }).catch(function (err) {
       console.error(err);
       res.status(500).send({
-        id: 'boombastic',
+        message: err.message,
       }).end();
     });
   }
 
-  // TODO handle just a projectId and data
-  return res.status(200).send({
-    id: projectId,
-    data: data,
-  }).end();
+  return async.waterfall([
+    function (cb) {
+      Project.findAll({
+        where: {
+          id: projectId,
+        }
+      }).then(function (rows) {
+        return cb(null, max(rows, function (row) {
+          return row.get('version');
+        }));
+      }).catch(cb);
+    },
+    function (record, cb) {
+      if (! record) {
+        return cb({
+          nonDB: true,
+          statusCode: 404,
+          message: 'projectId ' + projectId + ' not found',
+        });
+      }
+
+      record.set('data', data);
+      record.save({
+        returning: true,
+      }).then(function (updated) {
+        return cb(null, updated.get());
+      }).catch(cb);
+    },
+  ], function (err, result) {
+    if (err) {
+      if (err.nonDB) {
+        return res.status(err.statusCode).send({
+          message: err.message,
+        }).end();
+      }
+
+      console.error(err);
+      return res.status(500).send({
+        message: err.message,
+      }).end();
+    }
+
+    return res.status(200).send(result).end();
+  });
 };
 
 var fetchLatestProject = function (req, res) {
@@ -171,6 +231,7 @@ var fetchProjects = function (req, res) {
       }).end();
     }
 
+    // TODO collapse versions here
     return res.status(200).send(map(results, function (row) { return row.get(); })).end();
   }).catch(function (err) {
     console.error(err);

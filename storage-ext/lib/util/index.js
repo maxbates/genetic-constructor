@@ -26,7 +26,7 @@ module.exports = {
   },
 
   notNullAndPosInt: function (testInt) {
-    if (! testInt) {
+    if (testInt == null) {
       return false;
     }
 
