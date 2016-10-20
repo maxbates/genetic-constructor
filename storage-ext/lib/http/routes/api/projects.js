@@ -189,6 +189,7 @@ var fetchLatestProject = function (req, res) {
   return Project.findAll({
     where: {
       id: projectId,
+      status: 1,
     }
   }).then(function (results) {
     if (results.length < 1) {
@@ -223,6 +224,7 @@ var fetchProjects = function (req, res) {
   return Project.findAll({
     where: {
       owner: owner,
+      status: 1,
     }
   }).then(function (results) {
     if (results.length < 1) {
@@ -241,9 +243,74 @@ var fetchProjects = function (req, res) {
   });
 };
 
+var deleteProject = function (req, res) {
+  var projectId = req.params.projectId;
+  if (! projectId) {
+    return res.status(400).send({
+      message: 'failed to parse projectId from URI',
+    }).end();
+  }
+
+  var version = parseInt(req.query.version);
+  var owner = null;
+  if (notNullOrEmpty(req.query.owner)) {
+    var uuidBuf = urlSafeBase64.decode(req.query.owner);
+    owner = uuidBuf.toString('utf8');
+    if (! uuidValidate(owner, 1)) {
+      return res.status(400).send({
+        message: 'invalid owner UUID',
+      }).end();
+    }
+  }
+
+  var where = {
+    id: projectId,
+  };
+
+  if (owner != null) {
+    where.owner = owner;
+  }
+
+  if (notNullAndPosInt(version)) {
+    where.version = version;
+  }
+
+  return Project.update({
+    status: 0,
+  }, {
+    returning: false,
+    fields: ['status'],
+    where: where,
+  }).then(function (results) {
+    if (results[0] < 1) {
+      return res.status(404).send({
+        message: 'found no records to update',
+        params: where,
+      }).end();
+    }
+
+    if ((where.version != null) && (results[0] > 1)) {
+      req.log.error('unexpectedly deleted more than one record for:', where);
+      return res.status(500).send({
+        message: 'unexpectedly deleted more than one record',
+      }).end();
+    }
+
+    return res.status(200).send({
+      numDeleted: results[0],
+    }).end();
+  }).catch(function (err) {
+    console.error(err);
+    res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
 var routes = [
   route('GET /:projectId', fetchLatestProject),
   route('POST /:projectId', updateProject),
+  route('DELETE /:projectId', deleteProject),
   route('GET /owner/:ownerId', fetchProjects),
   route('POST /', saveProject),
   route('GET /', function (req, res) {

@@ -137,5 +137,26 @@ describeAppTest("http", function (app) {
         });
     });
 
+    it('should delete a project with id', function deleteById(done) {
+      request(app.proxy)
+        .delete('/api/projects/' + projectId0)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.equal(res.body.numDeleted, 1);
+          return request(app.proxy)
+            .get('/api/projects/' + projectId0)
+            .expect(404)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.equal(res.body.message, 'projectId ' + projectId0 + ' does not exist');
+              done();
+            });
+        });
+    });
   });
 });
