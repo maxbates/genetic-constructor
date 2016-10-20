@@ -25,7 +25,7 @@ import {
 } from '../../../../../server/utils/fileSystem';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 import * as filePaths from '../../../../../server/utils/filePaths';
-import * as persistence from '../../../../server/data/persistence';
+import * as persistence from '../../../../../server/data/persistence';
 
 describe('Server', () => {
   describe('Data', () => {
