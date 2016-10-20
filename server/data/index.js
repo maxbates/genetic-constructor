@@ -97,7 +97,6 @@ router.param('blockId', (req, res, next, id) => {
 router.use('/file/:projectId', permissionsMiddleware, projectFileRouter);
 
 /* sequence */
-//todo - deprecate blockId
 router.use('/sequence', sequenceRouter);
 
 /* info queries */

@@ -8,6 +8,7 @@ import { fork } from 'child_process';
 import * as filePaths from '../../../utils/filePaths';
 import * as fileSystem from '../../../utils/fileSystem';
 import * as persistence from '../../../data/persistence';
+import * as sequences from '../../../data/persistence/sequence';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import Annotation from '../../../../src/models/Annotation';
@@ -133,7 +134,7 @@ const createAllBlocks = (outputBlocks, sourceId) => {
     return Object.assign(acc, { [sequenceMd5]: sequence });
   }, {});
 
-  return persistence.sequenceWriteMany(sequenceMap)
+  return sequences.sequenceWriteMany(sequenceMap)
     .then(() => allBlocks);
 };
 
@@ -315,7 +316,7 @@ const loadSequences = (blockMap) => {
   return Promise.all(
     blocks.map(block => {
       const sequencePromise = (block.sequence.md5 && !block.sequence.sequence) ?
-        persistence.sequenceGet(block.sequence.md5) :
+        sequences.sequenceGet(block.sequence.md5) :
         Promise.resolve();
 
       return sequencePromise

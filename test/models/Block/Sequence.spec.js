@@ -18,7 +18,7 @@ import { writeFile } from '../../../src/middleware/data';
 import Block from '../../../src/models/Block';
 import md5 from 'md5';
 
-import * as persistence from '../../../server/data/persistence';
+import * as sequences from '../../../server/data/persistence/sequence';
 
 describe('Model', () => {
   describe('Block', () => {
@@ -40,7 +40,7 @@ describe('Model', () => {
       });
 
       before(() => {
-        return persistence.sequenceWrite(oneMd5, oneSequence);
+        return sequences.sequenceWrite(oneMd5, oneSequence);
       });
 
       it('getSequence() returns promise -> null when there is no sequence', () => {

@@ -4,7 +4,7 @@ import invariant from 'invariant';
 //GC specific
 import * as fileSystem from '../../../../server/utils/fileSystem';
 import * as filePaths from '../../../../server/utils/filePaths';
-import * as persistence from '../../../../server/data/persistence';
+import * as sequences from '../../../../server/data/persistence/sequence';
 import * as rollup from '../../../../server/data/rollup';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 
@@ -60,7 +60,7 @@ router.get('/export/blocks/:projectId/:blockIdList', (req, res, next) => {
       }
 
       return Promise.all(
-        blocks.map(block => persistence.sequenceGet(block.sequence.md5))
+        blocks.map(block => sequences.sequenceGet(block.sequence.md5))
       )
         .then(sequences => {
           const fullSeq = sequences.reduce((acc, seq) => acc + seq, '');

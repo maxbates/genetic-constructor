@@ -20,6 +20,7 @@ import md5 from 'md5';
 import * as fileSystem from '../../../../server/utils/fileSystem';
 import * as filePaths from '../../../../server/utils/filePaths';
 import * as persistence from '../../../../server/data/persistence';
+import * as sequences from '../../../../server/data/persistence/sequence';
 import * as rollup from '../../../../server/data/rollup';
 import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
 
@@ -143,7 +144,7 @@ export function mergeRollupMiddleware(req, res, next) {
   //we write the sequences no matter what right now
   //todo - param to not write sequences (when do we want this?)
 
-  return persistence.sequenceWriteMany(sequences)
+  return sequences.sequenceWriteMany(sequences)
     .then(() => {
       if (!projectId || returnRoll) {
         return Promise.resolve({
