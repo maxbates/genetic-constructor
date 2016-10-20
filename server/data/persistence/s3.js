@@ -37,7 +37,7 @@ if (process.env.NODE_ENV === 'production' || (
   AWS = require('aws-sdk');
 
   AWS.config.update({
-    region: 'us-west-1',
+    region: process.env.AWS_S3_LOCATION || 'us-west-1',
   });
 }
 
