@@ -39,7 +39,7 @@ import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
 
 //todo - dont export this out of persistence
-import { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete, sequenceGetUrl } from './sequence';
+import { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete, sequenceGetRemoteUrl } from './sequence';
 
 /*********
  Helpers
@@ -543,4 +543,4 @@ export const projectSnapshot = (projectId, userId, messageAddition) => {
 // SEQUENCE
 
 //todo - dont export this out of persistence
-export { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete, sequenceGetUrl };
+export { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete, sequenceGetRemoteUrl };

@@ -34,9 +34,11 @@ import DebugTimer from '../../utils/DebugTimer';
 
 /* S3 Credentials, when in production */
 
+export const bucketName = 'bionano-gctor-sequences';
+
 let s3bucket;
 if (s3.useRemote) {
-  s3bucket = s3.getBucket('bionano-gctor-sequences');
+  s3bucket = s3.getBucket(bucketName);
 }
 
 /* end S3 setup */
@@ -149,13 +151,11 @@ export const sequenceDelete = (pseudoMd5) => {
 };
 
 //synchronous
-export const sequenceGetUrl = (pseudoMd5) => {
+//s3 only
+export const sequenceGetRemoteUrl = (pseudoMd5) => {
+  invariant(s3.useRemote, 'only can get URL when using S3 -- otherwise, in file system, and just use REST API');
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash } = parsePseudoMd5(pseudoMd5);
 
-  if (s3.useRemote) {
-    return s3.getSignedUrl(s3bucket, hash, 'getObject');
-  }
-
-  return `/data/sequence/${pseudoMd5}`;
+  return s3.getSignedUrl(s3bucket, hash, 'getObject');
 };

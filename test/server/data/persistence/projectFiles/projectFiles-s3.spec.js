@@ -32,9 +32,49 @@ describe('Server', () => {
             }
           });
 
-          it('projectFilesWrite() should write a file');
-          it('projectFilesRead() should read a file');
-          it('listProjectFiles() should list files');
+          const projectId = Project.classless().id;
+          const namespace = 'tester';
+          const s3bucket = s3.getBucket(projectFiles.bucketName);
+
+          it('projectFilesWrite() should write a file', () => {
+            const fileName = uuid.v4();
+            const fileContents = 'h e r e a r e s o m e c o n t e n t s';
+
+            return projectFiles.projectFileWrite(projectId, namespace, fileName, fileContents)
+              .then(info => {
+                return s3.stringGet(s3bucket, `${projectId}/${namespace}/${fileName}`)
+              })
+              .then(result => {
+                expect(result).to.equal(fileContents);
+              });
+          });
+
+          it('projectFilesRead() should read a file', () => {
+            const fileName = uuid.v4();
+            const fileContents = 'h e r e a r e s o m e c o n t e n t s';
+
+            return s3.stringPut(s3bucket, `${projectId}/${namespace}/${fileName}`, fileContents)
+              .then(() => {
+                return projectFiles.projectFileRead(projectId, namespace, fileName)
+              })
+              .then(result => {
+                expect(result).to.equal(fileContents);
+              });
+          });
+
+          it('listProjectFiles() should list files', () => {
+            const files = [1, 2, 3, 4].map(() => uuid.v4());
+            const contents = [1, 2, 3, 4].map(() => uuid.v4());
+
+            return Promise.all(
+              files.map((file, index) => s3.stringPut(s3bucket, `${projectId}/${namespace}/${file}`, contents[index]))
+            )
+              .then(() => projectFiles.projectFilesList(projectId, namespace))
+              .then(list => {
+                expect(list.length).to.equal(files.length);
+                expect(list.sort()).to.eql(files.sort());
+              });
+          });
         });
       });
     });

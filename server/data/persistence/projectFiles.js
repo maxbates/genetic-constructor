@@ -20,9 +20,11 @@ import * as fileSystem from '../../utils/fileSystem';
 
 /* S3 Credentials, when in production */
 
+export const bucketName = 'bionano-gctor-files';
+
 let s3bucket;
 if (s3.useRemote) {
-  s3bucket = s3.getBucket('bionano-gctor-files');
+  s3bucket = s3.getBucket(bucketName);
 }
 
 const getFilePath = (projectId, namespace, fileName) => {

@@ -43,10 +43,6 @@ describe('Server', () => {
         const blockDataPath = filePaths.createBlockDirectoryPath(projectId);
         const blockManifestPath = filePaths.createBlockManifestPath(projectId);
 
-        const blockSequence = 'acgtacgtacgatcgatcgac';
-        const sequenceMd5 = md5(blockSequence);
-        const sequenceFilePath = filePaths.createSequencePath(sequenceMd5);
-
         //skip test suite if not using s3
         before(function() {
           if (s3.useRemote) {
@@ -58,8 +54,7 @@ describe('Server', () => {
             .then(() => directoryMake(projectDataPath))
             .then(() => directoryMake(blockDataPath))
             .then(() => fileWrite(projectManifestPath, projectData))
-            .then(() => fileWrite(blockManifestPath, blockFileContents))
-            .then(() => fileWrite(sequenceFilePath, blockSequence, false));
+            .then(() => fileWrite(blockManifestPath, blockFileContents));
         });
 
         it('projectExists() rejects for non-extant project', (done) => {
@@ -111,22 +106,6 @@ describe('Server', () => {
           return persistence.blocksGet(projectId, false, blockId)
             .then(blockMap => blockMap[blockId])
             .then((result) => expect(result).to.eql(blockData));
-        });
-
-        it('sequenceExists() checks if sequence file exists', () => {
-          return persistence.sequenceExists(sequenceMd5);
-        });
-
-        it('sequenceGet() returns the sequence as a string', () => {
-          return persistence.sequenceGet(sequenceMd5)
-            .then(result => expect(result).to.equal(blockSequence));
-        });
-
-        it('sequenceGet() rejects for md5 with no sequence', () => {
-          const fakeMd5 = md5('nothingness');
-          return persistence.sequenceGet(fakeMd5)
-            .then(result => assert(false))
-            .catch(err => expect(err).to.equal(errorDoesNotExist));
         });
       });
 
@@ -188,10 +167,6 @@ describe('Server', () => {
         const blockId = blockData.id;
         const blockFileContents = { [blockId]: blockData };
         const blockManifestPath = filePaths.createBlockManifestPath(projectId);
-
-        const blockSequence = 'aaaaaccccccggggttttt';
-        const sequenceMd5 = md5(blockSequence);
-        const sequenceFilePath = filePaths.createSequencePath(sequenceMd5);
 
         const projectPatch = { metadata: { description: 'fancy pantsy' } };
         const blockPatch = { rules: { role: 'promoter' } };
@@ -308,12 +283,6 @@ describe('Server', () => {
             .then(() => assert(false))
             .catch(err => expect(err).to.equal(errorInvalidModel));
         });
-
-        it('sequenceWrite() sets the sequence string', () => {
-          return persistence.sequenceWrite(sequenceMd5, blockSequence)
-            .then(() => fileRead(sequenceFilePath, false))
-            .then(result => expect(result).to.equal(blockSequence));
-        });
       });
 
       describe('deletion', () => {
@@ -403,9 +372,6 @@ describe('Server', () => {
         const blockId = blockData.id;
         const newBlock = merge({}, blockData, { blockData: 'new data' });
 
-        const blockSequence = 'acgcggcgcgatatatatcgcgcg';
-        const sequenceMd5 = md5(blockSequence);
-
         //skip test suite if not using s3
         before(function () {
           if (s3.useRemote) {
@@ -481,14 +447,6 @@ describe('Server', () => {
           return persistence.blocksGet(projectId, false, blockId)
             .then(blockMap => blockMap[blockId])
             .then(block => expect(block).to.eql(newBlock));
-        });
-
-        it('sequenceWrite() does not create commit even if given blockId and projectId', () => {
-          return persistence.sequenceWrite(sequenceMd5, blockSequence, blockId, projectId)
-            .then(() => versioning.log(projectRepoDataPath))
-            .then(log => {
-              expect(log.length).to.equal(versionLog.length);
-            });
         });
       });
     });

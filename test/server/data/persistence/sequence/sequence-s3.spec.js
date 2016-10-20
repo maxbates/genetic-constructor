@@ -20,8 +20,8 @@ import { errorDoesNotExist } from '../../../../../server/utils/errors';
 import rejectingFetch from '../../../../../src/middleware/utils/rejectingFetch';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 
-import * as persistence from '../../../../../server/data/persistence';
 import * as s3 from '../../../../../server/data/persistence/s3';
+import * as sequences from '../../../../../server/data/persistence/sequence';
 
 describe('Server', () => {
   describe('Data', () => {
@@ -35,16 +35,17 @@ describe('Server', () => {
             }
           });
 
-          //todo
-          it('should delete a file that exists');
-          it('should 404 on delete when file doesnt exist');
-
           const seq = 'actagctagctacatctagctgctagcatcgtgctgactgacggctatcgatcgactgatcgatcgatcgatc';
           const hash = md5(seq);
 
+          const seq2 = 'CAGTCAGTCGACTAGCTAGCTGCTACGTACTACTGACTACGACTGACTAGCTAGCTAGCTAGCTAGCATCTATGCTAGC';
+          const hash2 = md5(seq2);
+
+          const s3bucket = s3.getBucket(sequences.bucketName);
+
           // SEQUENCE
           it('sequenceGet() should fail on sequences that dont exist', () => {
-            return persistence.sequenceGet(uuid.v4())
+            return sequences.sequenceGet(uuid.v4())
               .then(huhwhat => Promise.reject('nah uh. shuoldnt have worked'))
               .catch((err) => {
                 expect(err).to.equal(errorDoesNotExist);
@@ -52,9 +53,9 @@ describe('Server', () => {
           });
 
           it('sequenceWrite() should read a sequence from S3', () => {
-            return persistence.sequenceWrite(hash, seq)
+            return sequences.sequenceWrite(hash, seq)
               .then(() => {
-                const url = persistence.sequenceGetUrl(hash);
+                const url = sequences.sequenceGetRemoteUrl(hash);
                 return rejectingFetch(url)
                   .then(resp => resp.text());
               })
@@ -65,7 +66,7 @@ describe('Server', () => {
           });
 
           it('sequenceGet() should get a sequence from S3', () => {
-            return persistence.sequenceGet(hash)
+            return sequences.sequenceGet(hash)
               .then(result => {
                 expect(result).to.equal(seq);
               });
@@ -74,9 +75,37 @@ describe('Server', () => {
           it('sequenceRead() can get a byte range', () => {
             const start = 10;
             const end = 30;
-            return persistence.sequenceGet(`${hash}[${start}:${end}]`)
+            return sequences.sequenceGet(`${hash}[${start}:${end}]`)
               .then(result => {
                 expect(result).to.equal(seq.substring(start, end));
+              });
+          });
+
+          it('sequenceGet() works with basic s3 api', () => {
+            return s3.stringPut(s3bucket, hash2, seq2)
+              .then(() => sequences.sequenceGet(hash2))
+              .then(result => {
+                expect(result).to.equal(seq2);
+              });
+          });
+
+          it('should delete a file that exists');
+
+          it('should handle when sequence doesnt exist', () => {
+            const dummy = md5(uuid.v4());
+            return sequences.sequenceGet(dummy)
+              .then(() => new Error('shoulnt resolve'))
+              .catch(err => {
+                expect(err).to.eql(errorDoesNotExist);
+              });
+          });
+
+          it('should handle on delete when file doesnt exist', () => {
+            const dummy = md5(uuid.v4());
+            return sequences.sequenceDelete(dummy)
+              .then(() => new Error('shoulnt resolve'))
+              .catch(err => {
+                expect(err).to.eql(errorDoesNotExist);
               });
           });
         });

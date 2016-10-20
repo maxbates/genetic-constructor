@@ -13,7 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { assert, expect } from 'chai';
 import * as s3 from '../../../../server/data/persistence/s3';
+import AWS from 'aws-sdk';
 
 describe('Server', () => {
   describe('Data', () => {

@@ -24,6 +24,7 @@ import {
   directoryMake,
   directoryDelete
 } from '../../../../../server/utils/fileSystem';
+import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../../server/utils/errors';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 
 import * as filePaths from '../../../../../server/utils/filePaths';
@@ -45,11 +46,17 @@ describe('Server', () => {
 
           const filePath = filePaths.createSequencePath(realMd5);
 
+          //vars for second half
+          const blockSequence = 'acgtacgtacgatcgatcgac';
+          const sequenceMd5 = md5(blockSequence);
+          const sequenceFilePath = filePaths.createSequencePath(sequenceMd5);
+
           //skip test suite if not using s3
           before(function () {
             if (s3.useRemote) {
               this.skip();
             }
+            return fileWrite(sequenceFilePath, blockSequence, false);
           });
 
           it('sequenceRead() should read a sequence', () => {
@@ -95,6 +102,32 @@ describe('Server', () => {
                     expect(getResult).to.equal(rangedSequence);
                   });
               });
+          });
+
+          it('sequenceExists() checks if sequence file exists', () => {
+            return persistence.sequenceExists(sequenceMd5);
+          });
+
+          it('sequenceGet() returns the sequence as a string', () => {
+            return persistence.sequenceGet(sequenceMd5)
+              .then(result => expect(result).to.equal(blockSequence));
+          });
+
+          it('sequenceGet() rejects for md5 with no sequence', () => {
+            const fakeMd5 = md5('nothingness');
+            return persistence.sequenceGet(fakeMd5)
+              .then(result => assert(false))
+              .catch(err => expect(err).to.equal(errorDoesNotExist));
+          });
+
+          it('sequenceWrite() sets the sequence string', () => {
+            const seq = 'aaaaaccccccggggttttt';
+            const seqMd5 = md5(seq);
+            const sequenceFilePath = filePaths.createSequencePath(seqMd5);
+
+            return persistence.sequenceWrite(seqMd5, seq)
+              .then(() => fileRead(sequenceFilePath, false))
+              .then(result => expect(result).to.equal(seq));
           });
         });
       });
