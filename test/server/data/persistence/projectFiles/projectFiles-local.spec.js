@@ -42,9 +42,46 @@ describe('Server', () => {
             }
           });
 
-          it('projectFilesWrite() should write a file');
-          it('projectFilesRead() should read a file');
-          it('projectFileList() should list files');
+          const projectId = Project.classless().id;
+          const namespace = 'tester';
+
+          it('projectFilesWrite() should write a file', () => {
+            const fileName = uuid.v4();
+            const fileContents = 'h e r e a r e s o m e c o n t e n t s';
+            const filePath = filePaths.createProjectFilePath(projectId, namespace, fileName);
+
+            return projectFiles.projectFileWrite(projectId, namespace, fileName, fileContents)
+              .then(() => fileRead(filePath, false))
+              .then(result => {
+                expect(result).to.equal(fileContents);
+              });
+          });
+
+          it('projectFilesRead() should read a file', () => {
+            const fileName = uuid.v4();
+            const fileContents = 'h e r e a r e s o m e c o n t e n t s';
+            const filePath = filePaths.createProjectFilePath(projectId, namespace, fileName);
+
+            return fileWrite(filePath, fileContents, false)
+              .then(() => projectFiles.projectFileRead(projectId, namespace, fileName))
+              .then(result => {
+                expect(result).to.equal(fileContents);
+              });
+          });
+
+          it('projectFileList() should list files', () => {
+            const files = [1, 2, 3, 4].map(() => uuid.v4());
+            const contents = [1, 2, 3, 4].map(() => uuid.v4());
+
+            return Promise.all(
+              files.map((file, index) => fileWrite(filePaths.createProjectFilePath(projectId, namespace, file), contents[index]))
+            )
+              .then(() => projectFiles.projectFilesList(projectId, namespace))
+              .then(list => {
+                expect(list.length).to.equal(files.length);
+                expect(list.sort()).to.eql(files.sort());
+              });
+          });
         });
       });
     });
