@@ -19,7 +19,7 @@ const timer = new DebugTimer('Genbank', { delayed: true });
 //////////////////////////////////////////////////////////////
 // COMMON
 //////////////////////////////////////////////////////////////
-const createTempFilePath = () => `tmp/${uuid.v4()}`;
+const createTempFilePath = () => `/tmp/${uuid.v4()}`;
 
 //todo - will need to consider bundling
 //one process for each
