@@ -65,6 +65,7 @@ describe('Server', () => {
           });
 
           it('listProjectFiles() should list files', () => {
+            const namespace = uuid.v4();
             const files = [1, 2, 3, 4].map(() => uuid.v4());
             const contents = [1, 2, 3, 4].map(() => uuid.v4());
 
