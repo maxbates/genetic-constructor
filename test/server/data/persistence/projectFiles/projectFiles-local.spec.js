@@ -70,13 +70,17 @@ describe('Server', () => {
           });
 
           it('projectFileList() should list files', () => {
+            const randoNamespace = uuid.v4();
             const files = [1, 2, 3, 4].map(() => uuid.v4());
             const contents = [1, 2, 3, 4].map(() => uuid.v4());
 
-            return Promise.all(
-              files.map((file, index) => fileWrite(filePaths.createProjectFilePath(projectId, namespace, file), contents[index]))
-            )
-              .then(() => projectFiles.projectFilesList(projectId, namespace))
+            return directoryMake(filePaths.createProjectFilesDirectoryPath(projectId, randoNamespace))
+              .then(() => Promise.all(
+                files.map((file, index) => fileWrite(filePaths.createProjectFilePath(projectId, randoNamespace, file), contents[index], false))
+              ))
+              .then((paths) => {
+                return projectFiles.projectFilesList(projectId, randoNamespace);
+              })
               .then(list => {
                 expect(list.length).to.equal(files.length);
                 expect(list.sort()).to.eql(files.sort());

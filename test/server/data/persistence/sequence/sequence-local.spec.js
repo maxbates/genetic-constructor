@@ -61,7 +61,7 @@ describe('Server', () => {
 
           it('sequenceRead() should read a sequence', () => {
             const seq = 'CAGTCAGCTGACTAGCTACGATCGACTG';
-            const seqMd5 = md5(sequence);
+            const seqMd5 = md5(seq);
             const path = filePaths.createSequencePath(seqMd5);
 
             return fileWrite(path, seq)

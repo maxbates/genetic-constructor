@@ -61,7 +61,7 @@ describe('Server', () => {
             });
         });
 
-        it('listProjectFiles() lists files which exist', () => {
+        it('projectFilesList() lists files which exist', () => {
           const newNamespace = 'anotherNamespace';
           const fileNames = ['fileOne', 'fileTwo.txt', 'fileThree.json'];
           const contents = ['contents one', 'contents two', 'contents three'];

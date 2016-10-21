@@ -62,10 +62,14 @@ describe('Server', () => {
         });
 
         it('sequenceWrite() -> sequenceGet() works', () => {
-          return sequences.sequenceWrite(pseudoMd5, sequence)
-            .then(() => sequences.sequenceGet(pseudoMd5))
+          return sequences.sequenceWrite(realMd5, sequence)
+            .then(() => sequences.sequenceGet(realMd5))
             .then(result => {
               assert(result === sequence, 'sequences should match');
+            })
+            .then(() => sequences.sequenceGet(pseudoMd5))
+            .then(result => {
+              assert(result === rangedSequence, 'range of sequences should match');
             });
         });
 
@@ -111,6 +115,9 @@ describe('Server', () => {
               expect(err).to.eql(errorDoesNotExist);
             });
         });
+
+        //todo
+        it('should not allow overwriting an existing file');
       });
     });
   });
