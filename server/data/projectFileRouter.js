@@ -49,6 +49,9 @@ router.route('/:namespace/:file/:version?')
     next();
   })
   .get((req, res, next) => {
+    //todo - support for getting all versions
+    //if (req.version === 'versions') { ... }
+
     //todo - support for getting old versions
     //const params = (req.version && req.version !== 'latest') ? { VersionId: req.version } : {};
 
@@ -102,6 +105,8 @@ router.route('/:namespace')
   })
   .get((req, res, next) => {
     const { projectId, namespace } = req;
+
+    //todo - support query where namespace is optional
 
     projectFiles.projectFilesList(projectId, namespace)
       .then(contents => {

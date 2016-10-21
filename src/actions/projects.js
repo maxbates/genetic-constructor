@@ -33,6 +33,7 @@ import Project from '../models/Project';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 import { getLocal, setLocal } from '../utils/ui/localstorage';
+import * as projectFileApi from '../middleware/projectFiles';
 
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
@@ -482,5 +483,24 @@ export const projectRemoveConstruct = (projectId, constructId) => {
     dispatch(resumeAction());
 
     return project;
+  };
+};
+
+// PROJECT FILES
+
+export const projectFileWrite = (projectId, namespace, fileName, contents) => {
+  return (dispatch, getState) => {
+    const oldProject = getState().projects[projectId];
+
+    return oldProject.writeFile(namespace, fileName, contents)
+      .then(project => {
+        //should this be undoable?
+        dispatch({
+          type: ActionTypes.PROJECT_FILE_WRITE,
+          project,
+        });
+
+        return project;
+      });
   };
 };

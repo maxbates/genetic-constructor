@@ -19,6 +19,7 @@ import Instance from './Instance';
 import ProjectSchema from '../schemas/Project';
 import safeValidate from '../schemas/fields/safeValidate';
 import { id, version } from '../schemas/fields/validators';
+import { projectFileWrite, projectFileRead, projectFileList } from '../middleware/projectFiles';
 
 const idValidator = (input, required = false) => safeValidate(id(), required, input);
 const versionValidator = (ver, required = false) => safeValidate(version(), required, ver);
@@ -151,5 +152,57 @@ export default class Project extends Instance {
    */
   removeComponents(...components) {
     return this.mutate('components', [...new Set(this.components.filter(comp => components.indexOf(comp) < 0))]);
+  }
+
+  /**
+   * Add / update a Project File
+   * @param {String} namespace
+   * @param {String} name Name of file
+   * @param {String} contents
+   * @return {Promise}
+   * @resolve {Project} Updated project
+   * @reject {Error}
+   */
+  fileWrite(namespace, name, contents) {
+    return projectFileWrite(this.id, namespace, name, contents)
+      .then(result => {
+        const version = result.VersionId;
+        const fileIndex = this.files.findIndex(fileObj => fileObj.namespace === namespace && fileObj.name === name);
+
+        const fileInfo = {
+          name,
+          namespace,
+          version,
+        };
+
+        //update version
+        if (fileIndex >= 0) {
+          return this.mutate(`files[${fileIndex}]`, fileInfo);
+        } else {
+          return this.mutate('files', [...this.files, fileInfo]);
+        }
+      });
+  }
+
+  /**
+   * Retrieve a project file
+   * @param {String} namespace
+   * @param {String} name Name of file
+   * @param {String} [format='text'] Options are 'text', 'buffer', 'json'... default is text, but all other values will simply return fetch response without any parsing
+   * @param {String} [version] [not yet supported]
+   * @returns {Promise}
+   * @resolve {string} File contents, as string
+   * @reject error
+   */
+  fileRead(namespace, name, format = 'text', version) {
+    return projectFileRead(this.id, namespace, name)
+      .then(resp => {
+        if (format === 'text') {
+          return resp.text();
+        } else if (format === 'json') {
+          return resp.json();
+        }
+        return resp;
+      });
   }
 }

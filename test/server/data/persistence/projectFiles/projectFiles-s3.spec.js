@@ -57,7 +57,7 @@ describe('Server', () => {
 
             return s3.stringPut(s3bucket, `${projectId}/${namespace}/${fileName}`, fileContents)
               .then(() => {
-                return projectFiles.projectFileRead(projectId, namespace, fileName)
+                return projectFiles.projectFileRead(projectId, namespace, fileName);
               })
               .then(result => {
                 expect(result).to.equal(fileContents);
