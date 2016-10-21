@@ -152,10 +152,10 @@ router.all('/export/:projectId/:constructId?',
 /***** IMPORT ******/
 
 //todo - ensure got genbank
-router.post('/import/:format/:projectId?',
+router.post('/import/:projectId?',
   importMiddleware,
   (req, res, next) => {
-    const { noSave, returnRoll, format, projectId, files } = req; //eslint-disable-line no-unused-vars
+    const { noSave, returnRoll, projectId, files } = req; //eslint-disable-line no-unused-vars
     const { constructsOnly } = req.body;
 
     const timer = new DebugTimer(`Genbank Import (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
