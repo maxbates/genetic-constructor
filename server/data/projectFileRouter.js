@@ -26,6 +26,7 @@ import * as projectFiles from './persistence/projectFiles';
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
 
+//todo - verify this HOST_URL is correct when outward facing (i.e. in production)
 const makeProjectFileLink = (projectId, namespace, file) => {
   return `${HOST_URL}/data/file/${projectId}/${namespace}/${file}`;
 };
