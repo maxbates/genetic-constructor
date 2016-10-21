@@ -18,10 +18,7 @@ module.exports = function (browser, srcSelector, blockIndex) {
 
     browser
       .moveToElement('body', b.left + b.width - 8, b.top + 15)
-      .pause(250)
-      .mouseButtonDown(0)
-      .pause(250)
-      .mouseButtonUp(0)
+      .mouseButtonClick('right')
       .waitForElementPresent('.menu-popup-blocker-visible .menu-popup-container', 5000, 'expected an open menu')
   });
 }

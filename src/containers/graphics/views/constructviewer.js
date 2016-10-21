@@ -38,6 +38,7 @@ import {
   uiToggleDetailView,
   inspectorToggleVisibility,
   uiShowOrderForm,
+  uiInlineEditor,
 } from '../../../actions/ui';
 import {
   orderCreate,
@@ -71,6 +72,7 @@ import {
 import RoleSvg from '../../../components/RoleSvg';
 
 import '../../../styles/constructviewer.css';
+import '../../../styles/inline-editor.css';
 
 // static hash for matching viewers to constructs
 const idToViewer = {};
@@ -100,6 +102,7 @@ export class ConstructViewer extends Component {
     blockDetach: PropTypes.func,
     uiShowDNAImport: PropTypes.func,
     uiShowOrderForm: PropTypes.func.isRequired,
+    uiInlineEditor: PropTypes.func.isRequired,
     orderCreate: PropTypes.func.isRequired,
     orderGenerateConstructs: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
@@ -241,6 +244,16 @@ export class ConstructViewer extends Component {
   }
 
   /**
+   * show the inline editor
+   * @param commit
+   * @param cancel
+   * @param position
+   */
+  showInlineEditor(commit, value, position, className, target) {
+    this.props.uiInlineEditor(commit, value, position, className, target);
+  }
+
+  /**
    * remove the given block, which we assume if part of our construct and
    * return the scenegraph node that was representing it.
    */
@@ -260,6 +273,14 @@ export class ConstructViewer extends Component {
    */
   constructSelected(id) {
     this.props.focusConstruct(id);
+  }
+
+  /**
+   * rename the current construct
+   * @param newName
+   */
+  renameBlock(blockId, newName) {
+    this.props.blockRename(blockId, newName);
   }
 
   /**
@@ -718,6 +739,7 @@ export default connect(mapStateToProps, {
   inspectorToggleVisibility,
   uiShowDNAImport,
   uiShowOrderForm,
+  uiInlineEditor,
   uiToggleDetailView,
   orderCreate,
   orderGenerateConstructs,

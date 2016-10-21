@@ -21,10 +21,12 @@ module.exports = {
       .click('.InventoryGroup:nth-of-type(3) .InventoryGroup-heading');
 
     // create a new construct with a single block
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.cvc-drop-target', 10, 10);
+    dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.cvc-drop-target', 50, 40);
 
     // and again
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.cvc-drop-target', 10, 10);
+    dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.cvc-drop-target', 50, 40);
+
+    //browser.pause(1000000);
 
     browser
       // expect three construct views, two with one block each
@@ -52,7 +54,7 @@ module.exports = {
       .assert.countelements('[data-inventory~="construct"]', 2)
 
     // drag the first construct into the canvas
-    dragFromTo(browser, '[data-inventory~="construct"]', 10, 10, '.cvc-drop-target', 10, 10);
+    dragFromTo(browser, '[data-inventory~="construct"]', 10, 10, '.cvc-drop-target', 50, 40);
 
     // should have a new construct with a corresponding increase in numbers of blocks/role glyphs
     browser
@@ -62,7 +64,7 @@ module.exports = {
       .assert.countelements('[data-nodetype="block"]', 3)
 
     //drag a single block to create a new construct
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 10, 10);
+    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
 
     // should have a new construct with a corresponding increase in numbers of blocks/role glyphs
     browser

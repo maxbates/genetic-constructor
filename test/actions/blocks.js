@@ -130,7 +130,7 @@ describe('Actions', () => {
       });
     });
 
-    describe.skip('Real Store', () => {
+    describe('Real Store', () => {
       let store;
       let frozenBlock;
       let block;
