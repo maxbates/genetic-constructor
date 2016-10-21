@@ -50,6 +50,16 @@
   padding: 4px 0 4px 4px;
 }
 
+.inline-editor-hover-block-noimage {
+  left: 6px;
+  top: 4px;
+  font-size: 12px;
+  padding: 4px 4px 4px 4px;
+  img {
+    display: none;
+  }
+}
+
 .inline-editor-hover-title {
   left: 0px;
   top: 5px;
