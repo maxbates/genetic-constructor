@@ -15,7 +15,9 @@
  */
 
 import chai from 'chai';
+import Project from '../../src/models/Project';
 import * as api from '../../src/middleware/projectFile';
+import * as s3 from '../../server/data/persistence/s3';
 
 const { assert, expect } = chai;
 
@@ -23,10 +25,31 @@ const { assert, expect } = chai;
 
 describe('Middleware', () => {
   describe('Project Files', () => {
-    it('writeProjectFile() requires projectId, namespace, filename, and contents');
-    it('writeProjectFile() should write a file');
+    const projectId = Project.classless().id;
+    const namespace = 'someNamespace';
+    const fileName = 'myFile';
+    const fileContents = 'some initial contents';
+
+    it('projectFileWrite() requires projectId, namespace, filename, and contents string', () => {
+      expect(() => api.projectFileWrite()).to.throw();
+      expect(() => api.projectFileWrite(projectId)).to.throw();
+      expect(() => api.projectFileWrite(projectId, namespace)).to.throw();
+      expect(() => api.projectFileWrite(projectId, namespace, fileName)).to.throw();
+
+      //check string
+      expect(() => api.projectFileWrite(projectId, namespace, fileName, {})).to.throw();
+    });
+
+    it('projectFileWrite() should write a file');
+
+    it('projectFileWrite() should return the latest version, or "latest" in local');
+
     it('readProjectFile() should read a file which exists');
+
+    it('projectFileWrite() should write a file, projectFileRead() should get it');
+
     it('readProjectFile() should 404 when file doesnt exist');
+
     it('listProjectFiles() should give list of files made');
   });
 });

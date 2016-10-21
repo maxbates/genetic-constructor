@@ -86,6 +86,7 @@ export const projectFileDelete = (projectId, namespace, fileName, params = {}) =
 
 export const projectFilesList = (projectId, namespace, params = {}) => {
   invariant(projectId, 'projectId is required');
+  //todo - suport skipping namespace. need to change format or results (will have slashes)
   invariant(namespace, 'must pass a namespace');
 
   const folderPath = getFolderPath(projectId, namespace);

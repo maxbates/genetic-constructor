@@ -35,7 +35,7 @@ const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
  * @resolve {Response} Fetch Request. left for you to parse.
  * @reject {Error} rejects if > 400 or error
  */
-export const readProjectFile = (projectId, namespace, fileName) => {
+export const projectFileRead = (projectId, namespace, fileName) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
@@ -59,7 +59,7 @@ export const readProjectFile = (projectId, namespace, fileName) => {
  * @resolve {string} URL if successful, or empty string if successfully deleted
  * @reject {Error} rejects if > 400 or error
  */
-export const writeProjectFile = (projectId, namespace, fileName, contents) => {
+export const projectFileWrite = (projectId, namespace, fileName, contents) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
@@ -87,7 +87,7 @@ export const writeProjectFile = (projectId, namespace, fileName, contents) => {
  * @resolve {string} URL if successful, or empty string if successfully deleted
  * @reject {Error} rejects if > 400 or error
  */
-export const listProjectFiles = (projectId, namespace) => {
+export const projectFileList = (projectId, namespace) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'must pass an namespace');
 
