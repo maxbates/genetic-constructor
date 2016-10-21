@@ -18,7 +18,7 @@ import chai from 'chai';
 import uuid from 'node-uuid';
 import fetch from 'isomorphic-fetch';
 import Project from '../../src/models/Project';
-import * as api from '../../src/middleware/projectFile';
+import * as api from '../../src/middleware/projectFiles';
 import * as s3 from '../../server/data/persistence/s3';
 
 const { assert, expect } = chai;
