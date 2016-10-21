@@ -70,7 +70,8 @@ router.post('/import/:projectId?',
 
         const roll = { sequences };
 
-        //hack - if we are doing a convert, then dont wrap with constructs
+        //todo - reconcile automatic wrapping in constructs with Genbank conversions
+        //if we are doing a convert, then dont wrap with constructs
         if (projectId === 'convert') {
           Object.assign(roll, {
             project: Project.classless({ components: blockIds }),

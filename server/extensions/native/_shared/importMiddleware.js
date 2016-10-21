@@ -20,7 +20,7 @@ import md5 from 'md5';
 import * as fileSystem from '../../../../server/utils/fileSystem';
 import * as filePaths from '../../../../server/utils/filePaths';
 import * as persistence from '../../../../server/data/persistence';
-import * as sequences from '../../../../server/data/persistence/sequence';
+import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import * as rollup from '../../../../server/data/rollup';
 import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
 
@@ -40,6 +40,7 @@ const createFileUrl = (fileName) => {
   return '/' + extensionKey + '/file/' + fileName;
 };
 
+//todo - check permissions on projectId
 //expects :projectId (optional) on request
 export default function importMiddleware(req, res, next) {
   const { projectId } = req.params;
@@ -139,9 +140,26 @@ export default function importMiddleware(req, res, next) {
     });
 }
 
-//expects on req: roll, noSave, returnRoll, :projectId?
-//roll can contain project { project } , blocks {blockId : block} , sequences {md5 : seq}  and will be merged / written appropriately
-//todo - check permissions on projectId
+/**
+ * expects on req: roll, noSave, returnRoll, :projectId?
+ *
+ * roll can contain project { project } , blocks {blockId : block} , sequences and will be merged / written appropriately
+ *
+ * sequences can take two forms:
+ *
+ * POTENTIALLY GOING TO BE DEPRECATED
+ * object: assumes blocks already defined properly
+ * { md5: sequence }
+ *
+ * PREFERRED:
+ * array: will compute md5 and assign block.sequence.md5, accounting for range
+ * [{
+ *  sequence: '',
+ *  blocks: {
+ *    blockId: [start, end] OR null
+ *  }
+ * }]
+ */
 export function mergeRollupMiddleware(req, res, next) {
   const { projectId, roll, noSave, returnRoll } = req;
   const { project, blocks, sequences = {} } = roll;
@@ -149,7 +167,20 @@ export function mergeRollupMiddleware(req, res, next) {
   //we write the sequences no matter what right now
   //todo - param to not write sequences (when do we want this?)
 
-  return sequences.sequenceWriteMany(sequences)
+  const writeSequencesPromise = Array.isArray(sequences)
+    ?
+    Promise.all(
+      sequences.map((seqObj) => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks))
+    )
+      .then(blockMd5s => {
+        _.forEach(blockMd5s, (pseudoMd5, blockId) => {
+          _.merge(blocks[blockId], { sequence: { md5: pseudoMd5 } });
+        });
+      })
+    :
+    seqPersistence.sequenceWriteMany(sequences);
+
+  return writeSequencesPromise
     .then(() => {
       if (!projectId || returnRoll) {
         return Promise.resolve({

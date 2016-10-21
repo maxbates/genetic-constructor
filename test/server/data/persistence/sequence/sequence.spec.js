@@ -75,25 +75,32 @@ describe('Server', () => {
 
         it('sequenceWriteMany() should take map of md5 to sequence');
 
-        it('sequenceWriteChunks() takes sequence and rangeMap, returns block to pseudoMd5', () => {
+        it('sequenceWriteChunks() takes sequence and rangeMap, returns block to pseudoMd5, and works with null as range', () => {
           const sequence = 'actacgtacgtacgagcactgcgtagctgatcagctgctgactgactgatcgacgtagcagctacgtagctagc';
           const sequenceMd5 = md5(sequence);
           const range1 = [5, 15];
           const range2 = [10, 30];
+          const range3 = null;
 
           const rangeMap = {
             id1: range1,
             id2: range2,
+            id3: range3,
           };
 
           return sequences.sequenceWriteChunks(sequence, rangeMap)
             .then(result => {
               expect(result.id1).to.equal(generatePseudoMd5(sequenceMd5, range1[0], range1[1]));
               expect(result.id2).to.equal(generatePseudoMd5(sequenceMd5, range2[0], range2[1]));
+              expect(result.id3).to.equal(sequenceMd5);
 
               return sequences.sequenceGet(result.id1)
                 .then(seqResult => {
                   expect(seqResult).to.equal(sequence.substring(range1[0], range1[1]));
+                })
+                .then(() => sequences.sequenceGet(result.id3))
+                .then(seqResult => {
+                  expect(seqResult).to.equal(sequence);
                 });
             });
         });
