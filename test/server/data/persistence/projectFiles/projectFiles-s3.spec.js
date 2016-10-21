@@ -25,16 +25,18 @@ describe('Server', () => {
     describe('persistence', () => {
       describe('Project Files', () => {
         describe('S3', function projectFilesS3Tests() {
+          let s3bucket;
+
           //skip test suite if not using s3
           before(function () {
             if (!s3.useRemote) {
               this.skip();
             }
+            s3bucket = s3.getBucket(projectFiles.bucketName);
           });
 
           const projectId = Project.classless().id;
           const namespace = 'tester';
-          const s3bucket = s3.getBucket(projectFiles.bucketName);
 
           it('projectFilesWrite() should write a file', () => {
             const fileName = uuid.v4();
@@ -42,7 +44,7 @@ describe('Server', () => {
 
             return projectFiles.projectFileWrite(projectId, namespace, fileName, fileContents)
               .then(info => {
-                return s3.stringGet(s3bucket, `${projectId}/${namespace}/${fileName}`)
+                return s3.stringGet(s3bucket, `${projectId}/${namespace}/${fileName}`);
               })
               .then(result => {
                 expect(result).to.equal(fileContents);

@@ -28,11 +28,15 @@ describe('Server', () => {
     describe('persistence', () => {
       describe('sequence', () => {
         describe('S3', () => {
+          let s3bucket;
+          
           //skip test suite if not using s3
           before(function runCheck() {
             if (!s3.useRemote) {
               this.skip();
             }
+
+            s3bucket = s3.getBucket(sequences.bucketName);
           });
 
           const seq = 'actagctagctacatctagctgctagcatcgtgctgactgacggctatcgatcgactgatcgatcgatcgatc';
@@ -40,8 +44,6 @@ describe('Server', () => {
 
           const seq2 = 'CAGTCAGTCGACTAGCTAGCTGCTACGTACTACTGACTACGACTGACTAGCTAGCTAGCTAGCTAGCATCTATGCTAGC';
           const hash2 = md5(seq2);
-
-          const s3bucket = s3.getBucket(sequences.bucketName);
 
           // SEQUENCE
           it('sequenceGet() should fail on sequences that dont exist', () => {

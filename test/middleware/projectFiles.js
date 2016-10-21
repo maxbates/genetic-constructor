@@ -15,6 +15,8 @@
  */
 
 import chai from 'chai';
+import uuid from 'node-uuid';
+import fetch from 'isomorphic-fetch';
 import Project from '../../src/models/Project';
 import * as api from '../../src/middleware/projectFile';
 import * as s3 from '../../server/data/persistence/s3';
@@ -27,29 +29,79 @@ describe('Middleware', () => {
   describe('Project Files', () => {
     const projectId = Project.classless().id;
     const namespace = 'someNamespace';
-    const fileName = 'myFile';
+
+    const fileNameRoundtrip = uuid.v4();
+    const fileNameAtomic = uuid.v4();
     const fileContents = 'some initial contents';
 
     it('projectFileWrite() requires projectId, namespace, filename, and contents string', () => {
       expect(() => api.projectFileWrite()).to.throw();
       expect(() => api.projectFileWrite(projectId)).to.throw();
       expect(() => api.projectFileWrite(projectId, namespace)).to.throw();
-      expect(() => api.projectFileWrite(projectId, namespace, fileName)).to.throw();
+      expect(() => api.projectFileWrite(projectId, namespace, fileNameRoundtrip)).to.throw();
 
       //check string
-      expect(() => api.projectFileWrite(projectId, namespace, fileName, {})).to.throw();
+      expect(() => api.projectFileWrite(projectId, namespace, fileNameRoundtrip, {})).to.throw();
     });
 
-    it('projectFileWrite() should write a file');
+    it('projectFileWrite() should write a file, projectFileRead() should get it', () => {
+      return api.projectFileWrite(projectId, namespace, fileNameRoundtrip, fileContents)
+        .then(() => api.projectFileRead(projectId, namespace, fileNameRoundtrip))
+        .then(resp => resp.text())
+        .then(contents => {
+          expect(contents).to.equal(fileContents);
+        });
+    });
 
-    it('projectFileWrite() should return the latest version, or "latest" in local');
+    it('projectFileWrite() should return the latest version, or "latest" in local, and a url', () => {
+      return api.projectFileWrite(projectId, namespace, fileNameRoundtrip, fileContents)
+        .then(response => {
+          assert(!!response.VersionId, 'expected some VersionId');
+          assert(!!response.url, 'expected a URL');
 
-    it('readProjectFile() should read a file which exists');
+          if (s3.useRemote) {
+            expect(typeof response.VersionId).to.equal('string');
+          } else {
+            //pending real versioning...
+            expect(response.VersionId).to.equal('latest');
+          }
+        });
+    });
 
-    it('projectFileWrite() should write a file, projectFileRead() should get it');
+    it('projectFileWrite() should write a file', () => {
+      return api.projectFileWrite(projectId, namespace, fileNameAtomic, fileContents)
+        .then(resp => fetch(resp.url))
+        .then(resp => resp.text())
+        .then(result => {
+          expect(result).to.equal(fileContents);
+        });
+    });
 
-    it('readProjectFile() should 404 when file doesnt exist');
+    //todo
+    it('projectFileWrite() with no contents should delete');
 
-    it('listProjectFiles() should give list of files made');
+    it('readProjectFile() should read a file which exists', () => {
+      return api.projectFileRead(projectId, namespace, fileNameAtomic)
+        .then(resp => resp.text())
+        .then(result => {
+          expect(result).to.equal(fileContents);
+        });
+    });
+
+    it('readProjectFile() should 404 when file doesnt exist', (done) => {
+      api.projectFileRead(projectId, namespace, uuid.v4())
+        .then(() => done(new Error('shouldnt resolve when doesnt exist')))
+        .catch(err => done());
+    });
+
+    it('listProjectFiles() should give list of files made', () => {
+      return api.projectFileList(projectId, namespace)
+        .then(listing => {
+          assert(Array.isArray(listing), 'expected listing to be an array');
+          assert(listing.every(item => {
+            return typeof item === 'object' && typeof item.name === 'string' && typeof item.url === 'string';
+          }), 'expect objects { name, url }');
+        });
+    });
   });
 });

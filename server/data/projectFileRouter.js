@@ -20,10 +20,15 @@ import {
   errorDoesNotExist,
   errorFileNotFound,
 } from './../utils/errors';
+import { HOST_URL } from '../urlConstants';
 import * as projectFiles from './persistence/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
+
+const makeProjectFileLink = (projectId, namespace, file) => {
+  return `${HOST_URL}/data/file/${projectId}/${namespace}/${file}`;
+};
 
 //permission checking currently handled by data router (user has access to project)
 
@@ -65,6 +70,7 @@ router.route('/:namespace/:file/:version?')
     projectFiles.projectFileWrite(projectId, namespace, file, content)
       .then(resp => {
         const payload = {
+          url: makeProjectFileLink(projectId, namespace, file),
           VersionId: resp.VersionId,
         };
         res.send(payload);
@@ -97,7 +103,13 @@ router.route('/:namespace')
     const { projectId, namespace } = req;
 
     projectFiles.projectFilesList(projectId, namespace)
-      .then(contents => res.json(contents))
+      .then(contents => {
+        const mapped = contents.map(filename => ({
+          name: filename,
+          url: makeProjectFileLink(projectId, namespace, filename),
+        }));
+        res.json(mapped);
+      })
       .catch(err => res.status(404).send(errorFileNotFound));
   });
 

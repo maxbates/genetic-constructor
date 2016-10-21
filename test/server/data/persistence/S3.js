@@ -21,16 +21,17 @@ import AWS from 'aws-sdk';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
-      describe.only('S3', function S3Persistence() {
+      describe('S3', function S3Persistence() {
+        const bucketName = 'bionano-gctor-files';
+        let bucket;
+
         //skip test suite if not using s3
         before(function () {
           if (!s3.useRemote) {
             this.skip();
           }
+          bucket = s3.getBucket(bucketName);
         });
-
-        const bucketName = 'bionano-gctor-files';
-        const bucket = s3.getBucket(bucketName);
 
         const stringName = uuid.v4();
         const stringContents = 'something';

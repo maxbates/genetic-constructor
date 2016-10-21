@@ -32,15 +32,22 @@ const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
  * @param {string} namespace Namespace Key
  * @param {string} fileName Name of file
  * @returns {Promise} Fetch Response promise
- * @resolve {Response} Fetch Request. left for you to parse.
+ * @resolve {Response} Fetch Request. left for you to parse. (you may wish to parse as a buffer, or text, or json)
  * @reject {Error} rejects if > 400 or error
+ *
+ * @example
+
+ files.read(projectId, namespace, fileName)
+ .then(resp => resp.text())
+ .then(stringContents => { ... })
+
  */
 export const projectFileRead = (projectId, namespace, fileName) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
 
-  return rejectingFetch(projectFilePath(projectId, namespace, fileName), headersGet(contentTypeTextHeader));
+  return rejectingFetch(projectFilePath(projectId, namespace, fileName), headersGet(contentTypeTextHeader))
 };
 
 /**
@@ -56,21 +63,29 @@ export const projectFileRead = (projectId, namespace, fileName) => {
  * @param {string} fileName Name of file
  * @param {string|null} contents String of contents for file. if contents === null, then the file is deleted
  * @returns {Promise} Fetch Response promise
- * @resolve {string} URL if successful, or empty string if successfully deleted
+ * @resolve {object} {name, url} Name + URL if successful, or empty string if successfully deleted
  * @reject {Error} rejects if > 400 or error
+ *
+ * @example
+
+ files.write(projectId, namespace, fileName, contents)
+ .then(result
  */
 export const projectFileWrite = (projectId, namespace, fileName, contents) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
+  invariant(contents === null || (contents && typeof contents === 'string'), 'must pass contents as string');
 
   const filePath = projectFilePath(projectId, namespace, fileName);
 
   if (contents === null) {
-    return rejectingFetch(filePath, headersDelete());
+    return rejectingFetch(filePath, headersDelete())
+      .then(resp => '');
   }
 
-  return rejectingFetch(filePath, headersPost(contents, contentTypeTextHeader));
+  return rejectingFetch(filePath, headersPost(contents, contentTypeTextHeader))
+    .then(resp => resp.json());
 };
 
 /**
@@ -92,5 +107,5 @@ export const projectFileList = (projectId, namespace) => {
   invariant(namespace, 'must pass an namespace');
 
   return rejectingFetch(projectFilePath(projectId, namespace, ''), headersGet())
-    .then(resp => resp.text());
+    .then(resp => resp.json());
 };
