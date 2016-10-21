@@ -47,7 +47,7 @@ export const projectFileRead = (projectId, namespace, fileName) => {
   invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
 
-  return rejectingFetch(projectFilePath(projectId, namespace, fileName), headersGet(contentTypeTextHeader))
+  return rejectingFetch(projectFilePath(projectId, namespace, fileName), headersGet(contentTypeTextHeader));
 };
 
 /**

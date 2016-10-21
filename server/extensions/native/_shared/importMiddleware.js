@@ -16,6 +16,7 @@
 import formidable from 'formidable';
 import invariant from 'invariant';
 import md5 from 'md5';
+import _ from 'lodash';
 
 import * as fileSystem from '../../../../server/utils/fileSystem';
 import * as filePaths from '../../../../server/utils/filePaths';
