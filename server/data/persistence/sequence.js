@@ -133,6 +133,9 @@ export const sequenceWriteChunks = (sequence, rangeMap) => {
         if (range === null) {
           return sequenceMd5;
         }
+        if (range[0] === 0 && range[1] === sequence.length - 1) {
+          return sequenceMd5;
+        }
         return generatePseudoMd5(sequenceMd5, range[0], range[1]);
       });
     });
