@@ -18,17 +18,21 @@ import {
   errorDoesNotExist,
 } from './../utils/errors';
 import * as sequences from './persistence/sequence';
+import * as sequenceUtils from '../../src/utils/sequenceMd5';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
 //todo - throttling... dont let them fetch too many at once
 
 //expect that a well-formed md5 is sent. however, not yet checking. So you really could just call it whatever you wanted...
-//todo - deprecate use of blockId in route
 // future - url + `?format=${format}`;
-router.route('/:md5/:blockId?')
+router.route('/:md5')
   .get((req, res, next) => {
     const { md5 } = req.params;
+
+    if (!sequenceUtils.validPseudoMd5(md5)) {
+      return res.status(422).send('invalid md5');
+    }
 
     sequences.sequenceGet(md5)
       .then(sequence => {
@@ -51,6 +55,10 @@ router.route('/:md5/:blockId?')
   .post((req, res, next) => {
     const { md5 } = req.params;
     const { sequence } = req.body;
+
+    if (!sequenceUtils.validRealMd5(md5)) {
+      return res.status(422).send('invalid md5');
+    }
 
     sequences.sequenceWrite(md5, sequence)
       .then(() => res.status(200).send())

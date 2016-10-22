@@ -23,7 +23,6 @@ import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
 import dataRouter from './data/index';
 import orderRouter from './order/index';
-import fileRouter from './file/index';
 import extensionsRouter from './extensions/index';
 import reportRouter from './report/index';
 import bodyParser from 'body-parser';

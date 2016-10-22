@@ -121,7 +121,7 @@ describe('Server', () => {
                 assert(result === true, 'expected to exist');
               }),
             s3.itemExists(bucket, uuid.v4())
-              .catch(result => {
+              .then(result => {
                 assert(result === false, 'expected to not exist');
               }),
           ]);
@@ -130,8 +130,8 @@ describe('Server', () => {
         it('itemDelete() deletes object', () => {
           return s3.itemDelete(bucket, stringName)
             .then(() => s3.itemExists(bucket, stringName))
-            .catch((err) => {
-              expect(err).to.equal(false);
+            .then((exists) => {
+              expect(exists).to.equal(false);
             });
         });
 

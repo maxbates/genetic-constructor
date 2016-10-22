@@ -5,9 +5,7 @@ import _, { merge, cloneDeep } from 'lodash';
 import uuid from 'node-uuid';
 import { fork } from 'child_process';
 
-import * as filePaths from '../../../utils/filePaths';
 import * as fileSystem from '../../../utils/fileSystem';
-import * as persistence from '../../../data/persistence';
 import * as sequences from '../../../data/persistence/sequence';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';

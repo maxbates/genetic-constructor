@@ -31,6 +31,7 @@ const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
  * @param {UUID} projectId Project ID to which user has access
  * @param {string} namespace Namespace Key
  * @param {string} fileName Name of file
+ * @param {string} version Specific version of the file (not relevant for local development)
  * @returns {Promise} Fetch Response promise
  * @resolve {Response} Fetch Request. left for you to parse. (you may wish to parse as a buffer, or text, or json)
  * @reject {Error} rejects if > 400 or error
@@ -42,12 +43,13 @@ const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
  .then(stringContents => { ... })
 
  */
-export const projectFileRead = (projectId, namespace, fileName) => {
-  invariant(projectId, 'projectId is required');
-  invariant(namespace, 'namespace key is required');
-  invariant(fileName, 'file name is required');
+export const projectFileRead = (projectId, namespace, fileName, version) => {
+  invariant(!!projectId && typeof projectId === 'string', 'projectId is required');
+  invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
+  invariant(!!fileName && typeof fileName === 'string', 'file name is required');
+  invariant(!version || typeof version === 'string', 'version must be string if specified');
 
-  return rejectingFetch(projectFilePath(projectId, namespace, fileName), headersGet(contentTypeTextHeader))
+  return rejectingFetch(projectFilePath(projectId, namespace, fileName, version), headersGet(contentTypeTextHeader));
 };
 
 /**
@@ -72,10 +74,10 @@ export const projectFileRead = (projectId, namespace, fileName) => {
  .then(result
  */
 export const projectFileWrite = (projectId, namespace, fileName, contents) => {
-  invariant(projectId, 'projectId is required');
-  invariant(namespace, 'namespace key is required');
-  invariant(fileName, 'file name is required');
-  invariant(contents === null || (contents && typeof contents === 'string'), 'must pass contents as string');
+  invariant(!!projectId && typeof projectId === 'string', 'projectId is required');
+  invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
+  invariant(!!fileName && typeof fileName === 'string', 'file name is required');
+  invariant(contents === null || typeof contents === 'string', 'must pass contents as string, or null to delete');
 
   const filePath = projectFilePath(projectId, namespace, fileName);
 
@@ -103,9 +105,23 @@ export const projectFileWrite = (projectId, namespace, fileName, contents) => {
  * @reject {Error} rejects if > 400 or error
  */
 export const projectFileList = (projectId, namespace) => {
-  invariant(projectId, 'projectId is required');
-  invariant(namespace, 'must pass an namespace');
+  invariant(!!projectId && typeof projectId === 'string', 'projectId is required');
+
+  //todo = don't require namespace. will need to update router
+  invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
 
   return rejectingFetch(projectFilePath(projectId, namespace, ''), headersGet())
+    .then(resp => resp.json());
+};
+
+//not yet exposed / well tested
+export const projectFileVersions = (projectId, namespace, fileName) => {
+  invariant(!!projectId && typeof projectId === 'string', 'projectId is required');
+  invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
+  invariant(!!fileName && typeof fileName === 'string', 'file name is required');
+
+  invariant(false, 'not yet implemented');
+
+  return rejectingFetch(projectFilePath(projectId, namespace, fileName, 'versions'), headersGet())
     .then(resp => resp.json());
 };

@@ -16,6 +16,7 @@
 import formidable from 'formidable';
 import invariant from 'invariant';
 import md5 from 'md5';
+import _ from 'lodash';
 
 import * as fileSystem from '../../../../server/utils/fileSystem';
 import * as filePaths from '../../../../server/utils/filePaths';
@@ -147,6 +148,7 @@ export default function importMiddleware(req, res, next) {
  *
  * sequences can take two forms:
  *
+ * todo - deprecate this first format. If anything, should pass in the form { blockId: sequence } and we'll set the md5 etc. extensions should not have to do this hashing
  * POTENTIALLY GOING TO BE DEPRECATED
  * object: assumes blocks already defined properly
  * { md5: sequence }
@@ -156,7 +158,7 @@ export default function importMiddleware(req, res, next) {
  * [{
  *  sequence: '',
  *  blocks: {
- *    blockId: [start, end] OR null
+ *    blockId: [start, end] OR true
  *  }
  * }]
  */

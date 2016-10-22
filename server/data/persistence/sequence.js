@@ -58,6 +58,10 @@ export const sequenceExists = (pseudoMd5) => {
 };
 
 export const sequenceGet = (pseudoMd5) => {
+  if (!pseudoMd5) {
+    return Promise.resolve(null);
+  }
+
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash, start, end } = parsePseudoMd5(pseudoMd5);
 
@@ -119,18 +123,18 @@ export const sequenceWriteMany = (map) => {
 };
 
 //expects a long sequence, and map { blockId: [start:end] }
-//returns { blockId: pseudoMd5 } where psuedoMd5 is sequnceMd5[start:end] or null (for whole sequence)
+//returns { blockId: pseudoMd5 } where psuedoMd5 is sequnceMd5[start:end] or true (for whole sequence)
 export const sequenceWriteChunks = (sequence, rangeMap) => {
   invariant(sequence && sequence.length > 0, 'must pass a sequence with length');
   invariant(typeof rangeMap === 'object', 'range map just be an object');
-  invariant(every(rangeMap, (range) => range === null || (Array.isArray(range) && Number.isInteger(range[0]) && Number.isInteger(range[1]))), 'every range should be null (for whole thing), an array: [start:end]');
+  invariant(every(rangeMap, (range) => range === true || (Array.isArray(range) && Number.isInteger(range[0]) && Number.isInteger(range[1]))), 'every range should be null (for whole thing), an array: [start:end]');
 
   const sequenceMd5 = md5(sequence);
 
   return sequenceWrite(sequenceMd5, sequence)
     .then(() => {
       return mapValues(rangeMap, (range, blockId) => {
-        if (range === null) {
+        if (range === true) {
           return sequenceMd5;
         }
         if (range[0] === 0 && range[1] === sequence.length - 1) {

@@ -43,8 +43,15 @@ describe('Server', () => {
           server.close();
         });
 
-        it('GET errors with 400 when sequence doesnt exist', (done) => {
+        it('GET errors with 422 for invalid md5', (done) => {
           const url = `/data/sequence/notReal`;
+          request(server)
+            .get(url)
+            .expect(422, done);
+        });
+
+        it('GET errors with 400 when sequence doesnt exist', (done) => {
+          const url = `/data/sequence/${md5(uuid.v4())}`;
           request(server)
             .get(url)
             .expect(400, done);

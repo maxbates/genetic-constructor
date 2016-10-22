@@ -17,7 +17,9 @@ import invariant from 'invariant';
 import { errorDoesNotExist } from '../../utils/errors';
 
 /*
- this module wraps some AWS SDK commands in promises, with minimal type handling
+ this module wraps some AWS SDK commands in promises, with minimal type handling.
+
+ All the functions expect a bucket where the param Bucket is already bound
 
  Terms:
  - item =  generic
@@ -60,13 +62,12 @@ export const getSignedUrl = (bucket, Key, operation = 'getObject', opts = {}) =>
   return bucket.getSignedUrl(operation, params);
 };
 
-//expects a bucket with bucket name already defined
 export const itemExists = (bucket, Key) => {
   return new Promise((resolve, reject) => {
     bucket.headObject({ Key }, (err, result) => {
       if (err) {
         if (err.statusCode === 404) {
-          return reject(false);
+          return resolve(false);
         }
 
         //unhandled
@@ -97,9 +98,13 @@ export const folderContents = (bucket, Prefix, params = {}) => {
         console.warn('S3 results truncated - we do not handle pagination');
       }
 
+      if (!results.Contents) {
+        return resolve([]);
+      }
+
       //remap data to account for Prefix
-      const mapped = results.Content.map(obj => ({
-        name: obj.Key.replace(Prefix, ''),
+      const mapped = results.Contents.map(obj => ({
+        name: obj.Key.replace(Prefix + '/', ''), //get rid of folder slash preceding file name
         LastModified: obj.LastModified,
         Size: obj.Size,
       }));

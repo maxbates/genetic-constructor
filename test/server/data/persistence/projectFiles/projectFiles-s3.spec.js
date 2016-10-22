@@ -57,7 +57,7 @@ describe('Server', () => {
 
             return s3.stringPut(s3bucket, `${projectId}/${namespace}/${fileName}`, fileContents)
               .then(() => {
-                return projectFiles.projectFileRead(projectId, namespace, fileName)
+                return projectFiles.projectFileRead(projectId, namespace, fileName);
               })
               .then(result => {
                 expect(result).to.equal(fileContents);
@@ -65,6 +65,7 @@ describe('Server', () => {
           });
 
           it('listProjectFiles() should list files', () => {
+            const namespace = uuid.v4();
             const files = [1, 2, 3, 4].map(() => uuid.v4());
             const contents = [1, 2, 3, 4].map(() => uuid.v4());
 
