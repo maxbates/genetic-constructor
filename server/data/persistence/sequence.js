@@ -58,6 +58,10 @@ export const sequenceExists = (pseudoMd5) => {
 };
 
 export const sequenceGet = (pseudoMd5) => {
+  if (!pseudoMd5) {
+    return Promise.resolve(null);
+  }
+
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash, start, end } = parsePseudoMd5(pseudoMd5);
 
