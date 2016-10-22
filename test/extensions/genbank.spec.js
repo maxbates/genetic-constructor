@@ -13,7 +13,7 @@ const getBlock = (allBlocks, blockId) => {
 };
 
 describe('Extensions', () => {
-  describe('Genbank', () => {
+  describe.only('Genbank', () => {
     it('should import Genbank file with contiguous entries as a project', function importGB(done) {
       importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
         .then(output => {

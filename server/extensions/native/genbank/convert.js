@@ -81,9 +81,6 @@ const createBlockStructure = (block, sourceId) => {
   // but a bit more light weight and easier to work with (models are frozen so you cannot edit them)
   const fileName = /[^/]*$/.exec(sourceId)[0];
 
-  //get the sequence md5
-  const sequenceMd5 = block.sequence.sequence ? md5(block.sequence.sequence) : '';
-
   // Remap annotations
   let allAnnotations = [];
   if (block.sequence.annotations) {
@@ -96,7 +93,6 @@ const createBlockStructure = (block, sourceId) => {
   const toMerge = {
     metadata: block.metadata,
     sequence: {
-      md5: sequenceMd5,
       length: block.sequence.length,
       annotations: allAnnotations,
     },
@@ -113,7 +109,6 @@ const createBlockStructure = (block, sourceId) => {
   //return promise which will resolve with block once done
   return {
     block: outputBlock,
-    sequence: block.sequence.sequence,
     id: outputBlock.id,
     oldId: block.id,
     children: block.components,
@@ -123,19 +118,7 @@ const createBlockStructure = (block, sourceId) => {
 // Creates a structure of GD blocks given the structure coming from Python
 //and save sequences
 const createAllBlocks = (outputBlocks, sourceId) => {
-  const allBlocks = _.map(outputBlocks, (block) => createBlockStructure(block, sourceId));
-
-  const sequenceMap = allBlocks.reduce((acc, structure) => {
-    const sequence = structure.sequence;
-    const sequenceMd5 = structure.block.sequence.md5;
-    if (!sequenceMd5) {
-      return acc;
-    }
-    return Object.assign(acc, { [sequenceMd5]: sequence });
-  }, {});
-
-  return sequences.sequenceWriteMany(sequenceMap)
-    .then(() => allBlocks);
+  return _.map(outputBlocks, (block) => createBlockStructure(block, sourceId));
 };
 
 // Takes a block structure and sets up the hierarchy through GD ids.
@@ -203,23 +186,25 @@ const handleBlocks = (inputFilePath) => {
 
       if (result && result.project && result.blocks &&
         result.project.components && result.project.components.length > 0) {
-        return createAllBlocks(result.blocks, inputFilePath)
-          .then(blocksWithOldIds => {
-            timer.time('blocks created');
+        const blocksWithOldIds = createAllBlocks(result.blocks, inputFilePath);
+        timer.time('blocks created');
 
-            const idMap = _.zipObject(
-              _.map(blocksWithOldIds, 'oldId'),
-              _.map(blocksWithOldIds, 'id')
-            );
+        const idMap = _.zipObject(
+          _.map(blocksWithOldIds, 'oldId'),
+          _.map(blocksWithOldIds, 'id')
+        );
 
-            const remappedBlocksArray = remapHierarchy(blocksWithOldIds, idMap);
-            const newRootBlocks = result.project.components.map((oldBlockId) => idMap[oldBlockId]);
-            const blockMap = remappedBlocksArray.reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+        const remappedBlocksArray = remapHierarchy(blocksWithOldIds, idMap);
+        const newRootBlocks = result.project.components.map((oldBlockId) => idMap[oldBlockId]);
+        const blockMap = remappedBlocksArray.reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+        const new_sequences = result.sequences.map((sequence) => ({
+              sequence: sequence.sequence,
+              blocks: _.mapKeys(sequence.blocks, (value, oldId) => idMap[oldId]),
+          }));
 
-            timer.time('blocks remapped');
+        timer.time('blocks remapped');
 
-            return { project: result.project, rootBlocks: newRootBlocks, blocks: blockMap };
-          });
+        return { project: result.project, rootBlocks: newRootBlocks, blocks: blockMap, sequences: new_sequences };
       }
       return 'Invalid Genbank format.';
     });
@@ -244,7 +229,7 @@ export const importProject = (inputFilePath) => {
 
       //const outputFile = filePaths.createStorageUrl('imported_from_genbank.json');
       //fileSystem.fileWrite(outputFile, {project: resProject, blocks: result.blocks});
-      return { project: resProject, blocks: result.blocks };
+      return { project: resProject, blocks: result.blocks, sequences: result.sequences };
     });
 };
 
@@ -256,7 +241,7 @@ export const importConstruct = (inputFilePath) => {
       if (_.isString(rawProjectRootsAndBlocks)) {
         return rawProjectRootsAndBlocks;
       }
-      return { roots: rawProjectRootsAndBlocks.rootBlocks, blocks: rawProjectRootsAndBlocks.blocks };
+      return { roots: rawProjectRootsAndBlocks.rootBlocks, blocks: rawProjectRootsAndBlocks.blocks, sequences: rawProjectRootsAndBlocks.sequences };
     });
 };
 
