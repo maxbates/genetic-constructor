@@ -28,4 +28,4 @@ export const extensionsPath = (id) => serverRoot + 'extensions/' + id;
 export const fileApiPath = (path) => serverRoot + 'file/' + path; //DEPRECATED
 export const reportApiPath = (path) => serverRoot + 'report/' + path;
 export const extensionApiPath = (extension, path) => serverRoot + `extensions/api/${extension}/${path}`;
-export const projectFilePath = (projectId, namespace, fileName, version) => dataApiPath(`file/${projectId}/${namespace}${fileName.length ? ('/' + fileName) : ''}${version.length ? ('/' + version) : ''}`);
+export const projectFilePath = (projectId, namespace, fileName, version) => dataApiPath(`file/${projectId}/${namespace}${!!fileName ? ('/' + fileName) : ''}${!!version ? ('/' + version) : ''}`);

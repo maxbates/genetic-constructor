@@ -75,12 +75,12 @@ describe('Server', () => {
 
         it('sequenceWriteMany() should take map of md5 to sequence');
 
-        it('sequenceWriteChunks() takes sequence and rangeMap, returns block to pseudoMd5, and works with null as range', () => {
+        it('sequenceWriteChunks() takes sequence and rangeMap, returns block to pseudoMd5, and works with true as range', () => {
           const sequence = 'actacgtacgtacgagcactgcgtagctgatcagctgctgactgactgatcgacgtagcagctacgtagctagc';
           const sequenceMd5 = md5(sequence);
           const range1 = [5, 15];
           const range2 = [10, 30];
-          const range3 = null;
+          const range3 = true;
 
           const rangeMap = {
             id1: range1,
