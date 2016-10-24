@@ -22,7 +22,7 @@ export const run = (data, args, projectId) => {
 
   const stringified = JSON.stringify(payload);
 
-  return fetch('/extensions/api/' + config.name + '/gslc', {
+  return fetch('/extensions/api/' + config.name + '/gslcExternal', {
     method: 'POST',
     credentials: 'same-origin',
     headers: {

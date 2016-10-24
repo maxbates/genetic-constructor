@@ -25,6 +25,46 @@ const jsonParser = bodyParser.json({
   strict: false,
 });
 
+router.post('/gslcExternal', jsonParser, (req, res, next) => {
+  // forward the request as it is to the GSL server.
+  const input = req.body;
+  const payload = {
+    'code': input.code,
+    'projectId': input.projectId,
+    'extension': input.extension,
+    'args': input.args,
+  };
+
+  fetch(argConfig.externalServer + '/gslc', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify(payload),
+  })
+  .then((resp) => {
+    return resp.json();
+  })
+  .then((data) => {
+    const result = {
+      'result': data.result,
+      'contents': data.contents,
+      'status': data.status,
+    };
+    res.status(200).json(result);
+  })
+  .catch((err) => {
+    const result = {
+      'result': err.stack,
+      'contents': [],
+      'status': -1,
+    };
+    console.log('Encountered an error:');
+    console.log(err.stack);
+    res.status(422).json(result);
+  });
+});
+
 /**
  * Route for running GSL programs on the server
  */
