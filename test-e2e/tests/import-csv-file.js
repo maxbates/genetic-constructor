@@ -52,7 +52,7 @@ module.exports = {
       .pause(3000)
       // click submit button to start the upload of fake data
       .submitForm('.genbank-import-form')
-      .waitForElementPresent('.construct-viewer', 5000, 'expected a construvt viewer')
+      .waitForElementPresent('.construct-viewer', 60000, 'expected a construct viewer')
       .assert.countelements('.construct-viewer', 4)
       .saveScreenshot('./test-e2e/current-screenshots/import-csv-file.png')
       .end();
