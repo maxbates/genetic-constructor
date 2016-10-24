@@ -1,4 +1,3 @@
-const TRAVIS_JOB_NUMBER = process.env.TRAVIS_JOB_NUMBER;
 
 module.exports = {
   src_folders: ['test-e2e/tests'],
@@ -21,8 +20,8 @@ module.exports = {
 
   test_settings: {
     local: {
-      //launch_url: 'http://localhost:3000/',
-      launch_url: 'https://geneticconstructor.bionano.autodesk.com',
+      launch_url: 'http://localhost:3001',
+      //launch_url: 'https://geneticconstructor.dev.bionano.autodesk.com',
       selenium_port: 4444,
       selenium_host: '127.0.0.1',
       silent: true,
@@ -37,45 +36,26 @@ module.exports = {
       },
     },
 
-    default: {
-      launch_url: 'http://localhost:3000',
+    saucelabs: {
+      launch_url: 'https://geneticconstructor.dev.bionano.autodesk.com',
       selenium_port: 80,
       selenium_host: 'ondemand.saucelabs.com',
       desiredCapabilities: {
-        build: `build-${TRAVIS_JOB_NUMBER}`,
-        'tunnel-identifier': TRAVIS_JOB_NUMBER,
+        browserName: 'chrome',
+        platform: 'OS X 10.11',
+        version: '47',
+        javascriptEnabled: true,
+        acceptSslCerts: true,
+        screenResolution: '2048x1536',
+        build: `build-${process.env.TRAVIS_JOB_NUMBER}`,
+        'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER,
       },
       silent: true,
-      username: 'autodesk-bionano',
+      username: 'dmeech',
       access_key: process.env.SAUCE_ACCESS_KEY,
       screenshots: {
         enabled: false,
         path: '',
-      },
-      globals: {
-        waitForConditionTimeout: 10000,
-      },
-    },
-
-    chrome: {
-      desiredCapabilities: {
-        browserName: 'chrome',
-        javascriptEnabled: true,
-        acceptSslCerts: true,
-        chromeOptions: {
-          args: ['incognito'],
-        },
-      },
-    },
-
-    ie11: {
-      desiredCapabilities: {
-        browserName: 'internet explorer',
-        platform: 'Windows 10',
-        version: '11.0',
-        javascriptEnabled: true,
-        acceptSslCerts: true,
-        'ie.ensureCleanSession': true,
       },
     },
   },
