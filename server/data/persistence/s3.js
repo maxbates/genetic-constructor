@@ -16,6 +16,7 @@
 import invariant from 'invariant';
 import { errorDoesNotExist } from '../../utils/errors';
 
+//API docs: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
 /*
  this module wraps some AWS SDK commands in promises, with minimal type handling.
 
@@ -29,7 +30,14 @@ import { errorDoesNotExist } from '../../utils/errors';
  e.g. stringGet vs. objectPut
  */
 
-//API docs: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
+//in test environment, prefix everything so easier to clean up
+const testPrefix = 'TEST/';
+const setupKey = (prefix) => {
+  if (process.env.NODE_ENV === 'test') {
+    return testPrefix + prefix;
+  }
+  return prefix;
+};
 
 export const useRemote = process.env.NODE_ENV === 'production' || (
     (!process.env.FORCE_LOCAL || (!!process.env.FORCE_LOCAL && process.env.FORCE_LOCAL !== 'true')) &&
@@ -57,12 +65,16 @@ if (process.env.NODE_ENV === 'production' || (
 export const getBucket = (Bucket) => new AWS.S3({ params: { Bucket } });
 
 //synchronous
-export const getSignedUrl = (bucket, Key, operation = 'getObject', opts = {}) => {
+export const getSignedUrl = (bucket, key, operation = 'getObject', opts = {}) => {
+  const Key = setupKey(key);
   const params = Object.assign({ Expires: 60 }, opts, { Key });
+
   return bucket.getSignedUrl(operation, params);
 };
 
-export const itemExists = (bucket, Key) => {
+export const itemExists = (bucket, key) => {
+  const Key = setupKey(key);
+
   return new Promise((resolve, reject) => {
     bucket.headObject({ Key }, (err, result) => {
       if (err) {
@@ -79,7 +91,9 @@ export const itemExists = (bucket, Key) => {
   });
 };
 
-export const folderContents = (bucket, Prefix, params = {}) => {
+export const folderContents = (bucket, prefix, params = {}) => {
+  const Prefix = setupKey(prefix);
+
   return new Promise((resolve, reject) => {
     const req = Object.assign({}, params, { Prefix });
     bucket.listObjects(req, (err, results) => {
@@ -126,9 +140,12 @@ export const bucketVersioned = (bucket) => {
 };
 
 export const itemVersions = (bucket, Key, params = {}) => {
+  //use key as the prefix so only get its versions
+  const Prefix = setupKey(Key);
+
   return new Promise((resolve, reject) => {
     const req = Object.assign({}, params, {
-      Prefix: Key,
+      Prefix,
     });
     bucket.listObjectVersions(req, (err, results) => {
       if (err) {
@@ -144,7 +161,9 @@ export const itemVersions = (bucket, Key, params = {}) => {
 
 // GET
 
-export const itemGetBuffer = (bucket, Key, params = {}) => {
+export const itemGetBuffer = (bucket, key, params = {}) => {
+  const Key = setupKey(key);
+
   return new Promise((resolve, reject) => {
     const req = Object.assign({},
       params,
@@ -193,7 +212,9 @@ export const objectGet = (bucket, Key, params = {}) => {
 
 //todo - need to support errors when copying file - they can still return a 200 (not sure if aws-sdk handles this) -- check the docs for this
 //Body can be a buffer, or just a string, or whatever
-export const itemPutBuffer = (bucket, Key, Body, params = {}) => {
+export const itemPutBuffer = (bucket, key, Body, params = {}) => {
+  const Key = setupKey(key);
+
   return new Promise((resolve, reject) => {
     const req = Object.assign({},
       params,
@@ -228,7 +249,9 @@ export const objectPut = (bucket, Key, obj, params = {}) => {
 
 // DELETE
 
-export const itemDelete = (bucket, Key) => {
+export const itemDelete = (bucket, key) => {
+  const Key = setupKey(key);
+
   return new Promise((resolve, reject) => {
     bucket.deleteObject({ Key }, (err, result) => {
       if (err) {

@@ -33,7 +33,7 @@ const makeProjectFileLink = (projectId, namespace, file) => {
 
 //permission checking currently handled by data router (user has access to project)
 
-//todo - S3 access control ???? Necessary if all requests go through application server?
+//todo - S3 access control ???? Necessary if all requests go through application server (checks projectId this way)
 
 router.route('/:namespace/:file/:version?')
   .all((req, res, next) => {
@@ -69,7 +69,8 @@ router.route('/:namespace/:file/:version?')
   })
   .post(textParser, (req, res, next) => {
     const { projectId, namespace, file } = req;
-    const content = req.body;
+    //check if JSON was passed, parse to string if so
+    const content = typeof req.body === 'object' ? JSON.stringify(req.body) : (req.body || '');
 
     projectFiles.projectFileWrite(projectId, namespace, file, content)
       .then(resp => {
@@ -106,7 +107,7 @@ router.route('/:namespace')
   .get((req, res, next) => {
     const { projectId, namespace } = req;
 
-    //todo - support query where namespace is optional
+    //todo - support query where namespace is optional (need to update s3 suport as well)
 
     projectFiles.projectFilesList(projectId, namespace)
       .then(contents => {
