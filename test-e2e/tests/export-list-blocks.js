@@ -34,11 +34,12 @@ module.exports = {
 
     // click the my projects inventory tab and expect a project.
     browser
+      .waitForElementPresent('.InventoryGroup:nth-of-type(2) .InventoryGroup-heading', 10000, 'expected project header')
       .click('.InventoryGroup:nth-of-type(2) .InventoryGroup-heading')
       // expect one project
       .waitForElementPresent('.InventoryListGroup-heading', 5000, 'expect a list of projects to appear')
       // click to expand
-      .pause(500)
+      .waitForElementPresent('[data-inventory~="project"]', 30000, 'expected projects to appear')
       // expect to see 3 projects
       .assert.countelements('[data-inventory~="project"]', 3)
     // expand the 3rd project

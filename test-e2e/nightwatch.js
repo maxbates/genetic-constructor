@@ -43,7 +43,7 @@ module.exports = {
       desiredCapabilities: {
         browserName: 'chrome',
         platform: 'OS X 10.11',
-        version: '47',
+        version: '52',
         javascriptEnabled: true,
         acceptSslCerts: true,
         screenResolution: '2048x1536',

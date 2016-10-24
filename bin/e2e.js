@@ -23,7 +23,7 @@ fs.readdir('./test-e2e/tests', (err, files) => {
       rl.close();
       const number = parseFloat(answer);
       if (number >= 0 && number < files.length) {
-        exec(`node ./node_modules/nightwatch/bin/nightwatch --config ./test-e2e/nightwatch.js --env local --test ./test-e2e/tests/${files[number]}`, (error, stdout, stderr) => {
+        exec(`node ./node_modules/nightwatch/bin/nightwatch --config ./test-e2e/nightwatch.js --env saucelabs --test ./test-e2e/tests/${files[number]}`, (error, stdout, stderr) => {
           console.log(`stdout: ${stdout}`);
           console.log(`stderr: ${stderr}`);
           if (error !== null) {
