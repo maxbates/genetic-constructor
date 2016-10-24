@@ -23,6 +23,7 @@
  * This user is used in unit testing.
  */
 import express from 'express';
+import uuid from 'node-uuid';
 import fs from 'fs';
 import path from 'path';
 import { testUserId } from '../../test/constants';
@@ -43,8 +44,13 @@ let currentCookie = generateMockCookieValue();
 export const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json();
 
-const defaultUserForcedFields = {
-  uuid: testUserId,
+const defaultUserForcedFields = () => {
+  //for test environment, allow forcing of a new ID so can start with a clean slate
+  //note - this will not support logging out and back in, you will get a new ID on each log in
+  if (process.env.LOCAL_AUTH_NEW_USERS) {
+    return { uuid: uuid.v4() };
+  }
+  return { uuid: testUserId };
 };
 
 const configForDefaultUser = Object.assign({}, userConfigDefaults);
@@ -69,7 +75,7 @@ export const defaultUser = Object.assign(
   },
   { data: userData },
   loadedUser,
-  defaultUserForcedFields
+  defaultUserForcedFields()
 );
 
 // @ req.user.data[userConfigKey]
@@ -118,7 +124,12 @@ const handleUpdate = (req, res, next) => {
   const mappedUser = mergeConfigToUserData(userInput, inputConfig);
 
   //assign to the default user
-  Object.assign(defaultUser, mappedUser, defaultUserForcedFields);
+  Object.assign(defaultUser, mappedUser);
+
+  //force ID unless minting new ones across all signins
+  if (!process.env.LOCAL_AUTH_NEW_USERS) {
+    Object.assign(defaultUser, defaultUserForcedFields());
+  }
 
   console.log('[Local Auth - User Update]');
   fs.writeFileSync(userConfigTempPath, JSON.stringify(defaultUser, null, 2), 'utf8');
@@ -139,7 +150,7 @@ const handleRegister = (req, res, next) => {
     res.status(400).json({ message: 'invalid password' });
   }
 
-  Object.assign(defaultUser, { email, firstName, lastName }, defaultUserForcedFields);
+  Object.assign(defaultUser, { email, firstName, lastName }, defaultUserForcedFields());
   if (data) {
     Object.assign(defaultUser, { data });
   }
