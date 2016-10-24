@@ -31,7 +31,7 @@ import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../src/
 import DebugTimer from '../../utils/DebugTimer';
 
 //if in production, storing in S3
-const useRemote = !!process.env.API_END_POINT;
+const useRemote = false && !!process.env.API_END_POINT;
 const platformUrl = `${process.env.API_END_POINT}/sequence/`;
 
 //todo - may need userId / projectId to address privacy concerns
