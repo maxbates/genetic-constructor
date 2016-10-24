@@ -33,7 +33,8 @@
     "start-docker": "docker build -t genome-designer . && docker run --privileged -v /var/run/docker.sock:/run/docker.sock -i -p 3000:3000 -t genome-designer",
     "auth": "./bin/local-auth.sh",
     "auth-testing": "NODE_ENV=test PORT=3001 npm run auth",
-    "server-auth": "EMAIL=1 COMMAND='npm run start-instance -- --release' ./bin/server-auth.sh"
+    "server-auth": "EMAIL=1 COMMAND='npm run start-instance -- --release' ./bin/server-auth.sh",
+    "storage-db": "docker build -t gctorstorage_db ./storage-ext/postgres/; docker run -p 5432:5432 -l \"gctorstorage_db\" --rm -t -i gctorstorage_db"
   },
   "repository": {
     "type": "git",

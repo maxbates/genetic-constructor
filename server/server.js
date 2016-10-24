@@ -137,6 +137,12 @@ app.use(express.static(pathPublic));
 app.use('/images', express.static(pathImages));
 app.use('/help/docs', express.static(pathDocs));
 
+// by default load the storage server routes into the application
+// in deployed environment this API may be available on a different hosts
+if (! process.env.STORAGE_API) {
+  app.use('/api', require('../storage-ext/').routes);
+}
+
 app.get('/version', (req, res) => {
   try {
     //this is only relevant when the server builds, so can assume always at same path relative to __dirname
@@ -201,7 +207,10 @@ const startServer = () => app.listen(HOST_PORT, HOST_NAME, (err) => {
   console.log(`Server listening at http://${HOST_NAME}:${HOST_PORT}/`);
 });
 
+// initialize the DB connection if we're not using an external storage API
+const init = (! process.env.STORAGE_API) ? require('../storage-ext').init : (cb) => { return cb(); };
+
 //start the server by default, if port is not taken
-isPortFree(HOST_PORT, (err, free) => free && startServer());
+isPortFree(HOST_PORT, (err, free) => free && init(startServer));
 
 export default app;

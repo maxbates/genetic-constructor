@@ -1,5 +1,8 @@
 "use strict";
 
+var dbInit = require('./lib/db-init');
+
 module.exports = {
-  // TODO export functionality here to expose API inside another express application
+  routes: require('./lib/http/routes/api'),
+  init: dbInit,
 };
