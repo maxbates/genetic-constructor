@@ -17,7 +17,6 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { inventoryToggleVisibility, inventorySelectTab } from '../actions/ui';
 import InventoryGroup from '../components/Inventory/InventoryGroup';
-import { onRegister, extensionIsActive } from '../extensions/clientRegistry';
 
 import '../styles/Inventory.css';
 import '../styles/SidePanel.css';
@@ -30,22 +29,6 @@ export class Inventory extends Component {
     inventoryToggleVisibility: PropTypes.func.isRequired,
     inventorySelectTab: PropTypes.func.isRequired,
   };
-
-  //hack - listen for GSL editor to show its inventory section
-
-  componentDidMount() {
-    //listen to get relevant manifests here.
-    //run on first time (key === null) in case registry is already populated.
-    this.extensionsListener = onRegister((registry, key, regions) => {
-      if (key === null || key === 'gslEditor') {
-        this.forceUpdate();
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    this.extensionsListener();
-  }
 
   toggle = (forceVal) => {
     this.props.inventoryToggleVisibility(forceVal);
@@ -84,10 +67,6 @@ export class Inventory extends Component {
                             type="role"
                             isActive={currentTab === 'role'}
                             setActive={() => inventorySelectTab('role')}/>
-            {extensionIsActive('gslEditor') && (<InventoryGroup title="GSL Library"
-                                                                type="gsl"
-                                                                isActive={currentTab === 'gsl'}
-                                                                setActive={() => inventorySelectTab('gsl')}/>)}
           </div>
         </div>
       </div>
