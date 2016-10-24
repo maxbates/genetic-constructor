@@ -75,7 +75,7 @@ router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req
 
   console.log(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
 
-  rollup.getProjectRollup(projectId)
+  rollup.getProjectRollup(projectId, true)
     .then(roll => {
       const blocks = blockIds.map(blockId => roll.blocks[blockId]);
       invariant(blocks.every(block => block.sequence.md5), 'some blocks dont have md5');
@@ -103,22 +103,10 @@ router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req
         }),
       };
 
-      return Promise.all(
-        blocks.map(block => sequencePersistence.sequenceGet(block.sequence.md5))
-      ).then(sequences => {
-        // some will be null
-        const blockIdToSequence = _.zipObject(
-          blocks.map(block => block.id),
-          sequences,
-        );
-
-        Object.assign(partialRoll, { sequences: blockIdToSequence });
-
-        return exportConstruct({ roll: partialRoll, constructId: construct.id })
-          .then(resultFileName => {
-            return downloadAndDelete(res, resultFileName, roll.project.id + '.fasta');
-          });
-      });
+      return exportConstruct({ roll: partialRoll, constructId: construct.id })
+        .then(resultFileName => {
+          return downloadAndDelete(res, resultFileName, roll.project.id + '.fasta');
+        });
     })
     .catch(err => {
       console.log('Error!', err);

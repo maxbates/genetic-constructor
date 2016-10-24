@@ -31,11 +31,14 @@ import { errorInvalidModel, errorDoesNotExist } from '../utils/errors';
 import * as persistence from './persistence';
 import { validateBlock, validateProject } from '../utils/validation';
 import { getAllBlocksInProject } from './querying';
+import * as sequencePersistence from './persistence/sequence';
 import { values } from 'lodash';
 import DebugTimer from '../utils/DebugTimer';
 
-export const getProjectRollup = (projectId) => {
-  //dont use Promise.all so we can handle errors of project not existing better
+// if withSequences === true, adds field `sequences` to roll
+// e.g. { project: {}, blocks: {}, sequences: { blockId: 'ACAGTCGACTGAC } }
+export const getProjectRollup = (projectId, withSequences = false) => {
+  //get project explicitly first so can handle errors of project not more granularly
   return persistence.projectGet(projectId)
     .then(project => {
       if (!project) {
@@ -49,6 +52,27 @@ export const getProjectRollup = (projectId) => {
             blocks,
           };
         });
+    })
+    .then(roll => {
+      if (withSequences !== true) {
+        return roll;
+      }
+
+      const blocks = _.values(roll.blocks);
+
+      return Promise.all(
+        blocks.map(block => sequencePersistence.sequenceGet(block.sequence.md5))
+      ).then(sequences => {
+        // some will be null
+        const blockIdToSequence = _.zipObject(
+          blocks.map(block => block.id),
+          sequences,
+        );
+
+        Object.assign(roll, { sequences: blockIdToSequence });
+
+        return roll;
+      });
     });
 };
 
