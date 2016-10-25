@@ -24,6 +24,15 @@ module.exports = {
       .waitForElementPresent(".scenegraph-userinterface-selection", 5000, 'expected a selection block')
       .assert.countelements(".scenegraph-userinterface-selection", 1);
 
+    // open then close the inline editor
+    clickNthBlock(browser, '.sceneGraph', 0);
+    browser.pause(1000);
+    clickNthBlock(browser, '.sceneGraph', 0);
+
+    browser.waitForElementPresent('.inline-editor', 5000, 'expected inline editor to appear');
+    clickNthBlock(browser, '.sceneGraph', 1);
+    browser.waitForElementNotPresent('.inline-editor', 5000, 'expected inline editor to go away');
+
     browser
       .pause(3000)
       .keys([browser.Keys.SHIFT]);

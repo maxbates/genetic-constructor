@@ -85,12 +85,26 @@ $ npm run start-instance
 
 ##### Additional Options
 
+There are a mix of environment varaibles and flags that can be set (these could be better unified..)
+
+Env Var             | Description
+------------------- | -----------------
+DEBUG               | Enable Debug Timer class, for timing debugging (can set to 'realtime' to log as tasks are completed, instead of at end of a task)
+FORCE_LOCAL         | Force local file system, instead of S3 even when AWS credentials supplied (where applicable)
+
 Flag                                           | Description
 ---------------------------------------------- | --------------------------------------------------
 `--PLATFORM_PATH=/path/to/bio-user-platform/`  | Define path to bio-user-platform, defaults to sibling with project root
-`--DEBUG`                                      | Log all output
+`--DEBUG`                                      | log more output
+
 
 ##### Examples
+
+Enable DebugTimer class (where used and enabled):
+
+```sh
+DEBUG=realtime npm run start
+```
 
 Run using babel-node directly, and pass in a flag
 

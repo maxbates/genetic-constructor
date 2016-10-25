@@ -16,10 +16,12 @@
 import formidable from 'formidable';
 import invariant from 'invariant';
 import md5 from 'md5';
+import _ from 'lodash';
 
 import * as fileSystem from '../../../../server/utils/fileSystem';
 import * as filePaths from '../../../../server/utils/filePaths';
 import * as persistence from '../../../../server/data/persistence';
+import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import * as rollup from '../../../../server/data/rollup';
 import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
 
@@ -39,16 +41,19 @@ const createFileUrl = (fileName) => {
   return '/' + extensionKey + '/file/' + fileName;
 };
 
-//expects :format and :projectId? on request
+//todo - check permissions on projectId
+//expects :projectId (optional) on request
 export default function importMiddleware(req, res, next) {
-  const { format, projectId } = req.params;
+  const { projectId } = req.params;
   const noSave = req.query.hasOwnProperty('noSave') || projectId === 'convert'; //dont save sequences or project
   const returnRoll = projectId === 'convert'; //return roll at end instead of projectId
 
   let promise; //resolves to the files in form { name, string, hash, filePath, fileUrl }
 
   //depending on the type, set variables for file urls etc.
-  if (format === 'string') {
+
+  //if we have an object, expect a string to have been passed
+  if (typeof req.body === 'object' && !!req.body.string) {
     const { name, string, ...rest } = req.body;
     const hash = md5(string);
     const filePath = createFilePath(hash);
@@ -64,7 +69,9 @@ export default function importMiddleware(req, res, next) {
         filePath,
         fileUrl,
       }]);
-  } else if (format === 'file') {
+  } else {
+    // otherwise, we are expecting a form
+
     // save incoming file then read back the string data.
     // If these files turn out to be large we could modify the import functions to take
     // file names instead but for now, in memory is fine.
@@ -108,15 +115,16 @@ export default function importMiddleware(req, res, next) {
               });
           })
         );
+      })
+      .catch((err) => {
+        res.status(404).send('error parsing import -- was expecting a file, or JSON object: { name, string }');
+        return Promise.reject(err);
       });
-  } else {
-    return res.status(404).send('unknown import format, got ' + format + ', expected string or file');
   }
 
   promise.then(files => {
     Object.assign(req, {
       files,
-      format,
       projectId,
       returnRoll,
       noSave,
@@ -133,9 +141,27 @@ export default function importMiddleware(req, res, next) {
     });
 }
 
-//expects on req: roll, noSave, returnRoll, :projectId?
-//roll can contain project { project } , blocks {blockId : block} , sequences {md5 : seq}  and will be merged / written appropriately
-//todo - check permissions on projectId
+/**
+ * expects on req: roll, noSave, returnRoll, :projectId?
+ *
+ * roll can contain project { project } , blocks {blockId : block} , sequences and will be merged / written appropriately
+ *
+ * sequences can take two forms:
+ *
+ * todo - deprecate this first format. If anything, should pass in the form { blockId: sequence } and we'll set the md5 etc. extensions should not have to do this hashing
+ * POTENTIALLY GOING TO BE DEPRECATED
+ * object: assumes blocks already defined properly
+ * { md5: sequence }
+ *
+ * PREFERRED:
+ * array: will compute md5 and assign block.sequence.md5, accounting for range
+ * [{
+ *  sequence: '',
+ *  blocks: {
+ *    blockId: [start, end] OR true
+ *  }
+ * }]
+ */
 export function mergeRollupMiddleware(req, res, next) {
   const { projectId, roll, noSave, returnRoll } = req;
   const { project, blocks, sequences = {} } = roll;
@@ -143,7 +169,20 @@ export function mergeRollupMiddleware(req, res, next) {
   //we write the sequences no matter what right now
   //todo - param to not write sequences (when do we want this?)
 
-  return persistence.sequenceWriteMany(sequences)
+  const writeSequencesPromise = Array.isArray(sequences)
+    ?
+    Promise.all(
+      sequences.map((seqObj) => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks))
+    )
+      .then(blockMd5s => {
+        _.forEach(blockMd5s, (pseudoMd5, blockId) => {
+          _.merge(blocks[blockId], { sequence: { md5: pseudoMd5 } });
+        });
+      })
+    :
+    seqPersistence.sequenceWriteMany(sequences);
+
+  return writeSequencesPromise
     .then(() => {
       if (!projectId || returnRoll) {
         return Promise.resolve({

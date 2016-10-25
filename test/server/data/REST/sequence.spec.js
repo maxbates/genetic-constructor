@@ -6,6 +6,7 @@ import uuid from 'node-uuid';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import * as persistence from '../../../../server/data/persistence';
+import * as sequences from '../../../../server/data/persistence/sequence';
 import devServer from '../../../../server/server';
 
 describe('Server', () => {
@@ -32,7 +33,7 @@ describe('Server', () => {
         before(() => {
           return persistence.projectCreate(projectId, projectData, userId)
             .then(() => persistence.blockWrite(projectId, blockData))
-            .then(() => persistence.sequenceWrite(sequenceMd5, sequence));
+            .then(() => sequences.sequenceWrite(sequenceMd5, sequence));
         });
 
         beforeEach('server setup', () => {
@@ -42,8 +43,15 @@ describe('Server', () => {
           server.close();
         });
 
-        it('GET errors with 400 when sequence doesnt exist', (done) => {
+        it('GET errors with 422 for invalid md5', (done) => {
           const url = `/data/sequence/notReal`;
+          request(server)
+            .get(url)
+            .expect(422, done);
+        });
+
+        it('GET errors with 400 when sequence doesnt exist', (done) => {
+          const url = `/data/sequence/${md5(uuid.v4())}`;
           request(server)
             .get(url)
             .expect(400, done);
@@ -76,7 +84,7 @@ describe('Server', () => {
                 return;
               }
 
-              persistence.sequenceGet(newMd5)
+              sequences.sequenceGet(newMd5)
                 .then(seq => {
                   expect(seq).to.equal(newSequence);
                   done();
@@ -99,7 +107,7 @@ describe('Server', () => {
                 return;
               }
 
-              persistence.sequenceGet(sequenceMd5)
+              sequences.sequenceGet(sequenceMd5)
                 .then((seq) => {
                   assert(seq === sequence, 'should be the same...');
                   done();

@@ -15,6 +15,7 @@ limitations under the License.
 */
 import fields from './fields/index';
 import * as validators from './fields/validators';
+import ProjectFileSchema from './ProjectFile';
 import { InstanceSchemaClass } from './Instance';
 
 /**
@@ -49,6 +50,11 @@ const projectFields = {
   settings: [
     fields.object().required,
     `Settings associated with this project`,
+  ],
+
+  files: [
+    fields.arrayOf(ProjectFileSchema.validate.bind(ProjectFileSchema)).required,
+    `Files associated with the project`,
   ],
 };
 

@@ -7,13 +7,14 @@ import { createFilePath } from '../../server/utils/filePaths';
 const makeStoragePath = (path) => createFilePath(path);
 
 describe('Middleware', () => {
-  describe('Files', () => {
+  //this API has been deprecated
+  describe.skip('Files', () => {
     it('writeFile() should take path and string, and write file', function writeFileBasic(done) {
       const filePath = 'test/writeMe';
       const fileContents = 'rawr';
       const storagePath = makeStoragePath(filePath);
 
-      return fileApi.writeFile(filePath, fileContents)
+      fileApi.writeFile(filePath, fileContents)
         .then((res) => {
           expect(res.status).to.equal(200);
           fs.readFile(storagePath, 'utf8', (err, file) => {

@@ -201,7 +201,7 @@ export const projectSnapshot = (projectId, message, withRollup = true) => {
 /**
  * Create a project
  * @function
- * @param {Object} initialModel Data to merge onto scaffold
+ * @param {Object} [initialModel={}] Data to merge onto scaffold
  * @returns {Project} New project
  */
 export const projectCreate = (initialModel) => {
@@ -470,7 +470,7 @@ export const projectRemoveConstruct = (projectId, constructId) => {
     dispatch(undoActions.transact());
 
     //unset projectId of construct only
-    dispatch(blockActions.blockSetProject(constructId, projectId, true));
+    dispatch(blockActions.blockSetProject(constructId, null, true));
 
     dispatch({
       type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,
@@ -482,5 +482,24 @@ export const projectRemoveConstruct = (projectId, constructId) => {
     dispatch(resumeAction());
 
     return project;
+  };
+};
+
+// PROJECT FILES
+
+export const projectFileWrite = (projectId, namespace, fileName, contents) => {
+  return (dispatch, getState) => {
+    const oldProject = getState().projects[projectId];
+
+    return oldProject.fileWrite(namespace, fileName, contents)
+      .then(project => {
+        //should this be undoable?
+        dispatch({
+          type: ActionTypes.PROJECT_FILE_WRITE,
+          project,
+        });
+
+        return project;
+      });
   };
 };

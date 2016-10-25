@@ -22,10 +22,11 @@ import {
   fileRead,
   fileWrite,
   fileDelete,
-} from '../../../../server/utils/fileSystem';
-import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../src/utils/sequenceMd5';
-import * as filePaths from '../../../../server/utils/filePaths';
-import * as persistence from '../../../../server/data/persistence';
+} from '../../../../../server/utils/fileSystem';
+import { errorDoesNotExist } from '../../../../../server/utils/errors';
+import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
+import * as filePaths from '../../../../../server/utils/filePaths';
+import * as sequences from '../../../../../server/data/persistence/sequence';
 
 describe('Server', () => {
   describe('Data', () => {
@@ -56,67 +57,74 @@ describe('Server', () => {
           });
         });
 
-        it('sequenceWrite() should write a sequence', () => {
-          return persistence.sequenceWrite(realMd5, sequence)
-            .then(() => fileRead(filePath, false))
-            .then(read => {
-              expect(read).to.equal(sequence);
-            });
-        });
-
         it('sequenceWrite() should not write a sequence specifying a range', () => {
-          expect(() => persistence.sequenceWrite(pseudoMd5, sequence)).to.throw();
+          expect(() => sequences.sequenceWrite(pseudoMd5, sequence)).to.throw();
         });
 
-        it('sequenceRead() should read a sequence', () => {
-          return fileRead(filePath, false)
-            .then(fileResult => {
-              assert(fileResult === sequence, 'sequence should be written already');
-
-              return persistence.sequenceGet(realMd5)
-                .then(getResult => {
-                  expect(getResult).to.equal(fileResult);
-                  expect(getResult).to.equal(sequence);
-                });
-            });
-        });
-
-        it('sequenceRead() should read a sequence when md5 is specifying a range', () => {
-          return fileRead(filePath, false)
-            .then(fileResult => {
-              assert(fileResult === sequence, 'sequence should be written already');
-
-              return persistence.sequenceGet(pseudoMd5)
-                .then(getResult => {
-                  expect(getResult).to.equal(rangedSequence);
-                });
+        it('sequenceWrite() -> sequenceGet() works', () => {
+          return sequences.sequenceWrite(realMd5, sequence)
+            .then(() => sequences.sequenceGet(realMd5))
+            .then(result => {
+              assert(result === sequence, 'sequences should match');
+            })
+            .then(() => sequences.sequenceGet(pseudoMd5))
+            .then(result => {
+              assert(result === rangedSequence, 'range of sequences should match');
             });
         });
 
         it('sequenceWriteMany() should take map of md5 to sequence');
 
-        it('sequenceWriteChunks() takes sequence and rangeMap, returns block to pseudoMd5', () => {
+        it('sequenceWriteChunks() takes sequence and rangeMap, returns block to pseudoMd5, and works with true as range', () => {
           const sequence = 'actacgtacgtacgagcactgcgtagctgatcagctgctgactgactgatcgacgtagcagctacgtagctagc';
           const sequenceMd5 = md5(sequence);
           const range1 = [5, 15];
           const range2 = [10, 30];
+          const range3 = true;
 
           const rangeMap = {
             id1: range1,
             id2: range2,
+            id3: range3,
           };
 
-          return persistence.sequenceWriteChunks(sequence, rangeMap)
+          return sequences.sequenceWriteChunks(sequence, rangeMap)
             .then(result => {
               expect(result.id1).to.equal(generatePseudoMd5(sequenceMd5, range1[0], range1[1]));
               expect(result.id2).to.equal(generatePseudoMd5(sequenceMd5, range2[0], range2[1]));
+              expect(result.id3).to.equal(sequenceMd5);
 
-              return persistence.sequenceGet(result.id1)
+              return sequences.sequenceGet(result.id1)
                 .then(seqResult => {
                   expect(seqResult).to.equal(sequence.substring(range1[0], range1[1]));
+                })
+                .then(() => sequences.sequenceGet(result.id3))
+                .then(seqResult => {
+                  expect(seqResult).to.equal(sequence);
                 });
             });
         });
+
+        it('should handle when sequence doesnt exist', () => {
+          const dummy = md5(uuid.v4());
+          return sequences.sequenceGet(dummy)
+            .then(() => new Error('shoulnt resolve'))
+            .catch(err => {
+              expect(err).to.eql(errorDoesNotExist);
+            });
+        });
+
+        it('should handle on delete when file doesnt exist', () => {
+          const dummy = md5(uuid.v4());
+          return sequences.sequenceDelete(dummy)
+            .then(() => new Error('shoulnt resolve'))
+            .catch(err => {
+              expect(err).to.eql(errorDoesNotExist);
+            });
+        });
+
+        //todo
+        it('should not allow overwriting an existing file');
       });
     });
   });

@@ -34,6 +34,7 @@ export const Project = {
   },
   components: [],
   settings: {},
+  files: [],
 };
 
 export const Annotation = {

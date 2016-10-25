@@ -123,7 +123,7 @@ export const createProjectFilesDirectoryPath = (projectId, ...rest) => {
   return createProjectDataPath(projectId, projectFilesPath, ...rest);
 };
 
-export const createProjectFilePath = (projectId, extension, fileName) => {
-  invariant(extension, 'must pass a directory name (extension key)');
-  return createProjectFilesDirectoryPath(projectId, extension, fileName);
+export const createProjectFilePath = (projectId, namespace, fileName) => {
+  invariant(namespace, 'must pass a directory name (extension key)');
+  return createProjectFilesDirectoryPath(projectId, namespace, fileName);
 };

@@ -95,7 +95,7 @@ describe('Server', () => {
         const badRoll = createExampleRollup();
         Object.assign(badRoll.blocks, { [badBlock.id]: badBlock });
 
-        return rollup.writeProjectRollup(projectId, badRoll, userId)
+        rollup.writeProjectRollup(projectId, badRoll, userId)
           .catch(err => {
             done();
           });
@@ -106,7 +106,7 @@ describe('Server', () => {
         const badRoll = createExampleRollup();
         badRoll.project = badProject;
 
-        return rollup.writeProjectRollup(projectId, badRoll, userId)
+        rollup.writeProjectRollup(projectId, badRoll, userId)
           .catch(err => {
             done();
           });

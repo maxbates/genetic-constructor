@@ -17,7 +17,11 @@ async function start() {
   await run(clean);
   await run(setup);
   await run(copy.bind(undefined, { watch: true }));
+
+  console.log('bundling...');
+
   //await run(bundleServer);
+
   await new Promise(resolve => {
     // Patch the client-side bundle configurations
     // to enable Hot Module Replacement (HMR) and React Transform

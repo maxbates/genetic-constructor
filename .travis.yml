@@ -5,7 +5,11 @@ node_js:
 python:
 - '2.7'
 env:
-- CXX=g++-4.8
+  global:
+    - CXX=g++-4.8
+  matrix:
+    - FORCE_LOCAL=false
+    - FORCE_LOCAL=true
 addons:
   apt:
     sources:

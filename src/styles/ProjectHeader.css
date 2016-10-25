@@ -28,6 +28,7 @@
     max-height: 4.25em;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-top: 4px;
   }
 
   /* right side */

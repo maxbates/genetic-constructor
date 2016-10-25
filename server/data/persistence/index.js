@@ -37,8 +37,6 @@ import {
 } from '../../utils/fileSystem';
 import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
-import { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete } from './sequence';
-
 
 /*********
  Helpers
@@ -538,7 +536,3 @@ export const projectSnapshot = (projectId, userId, messageAddition) => {
   const message = commitMessages.messageSnapshot(projectId, messageAddition);
   return _projectCommit(projectId, userId, message);
 };
-
-// SEQUENCE
-
-export { sequenceExists, sequenceGet, sequenceWrite, sequenceWriteMany, sequenceWriteChunks, sequenceDelete };

@@ -14,35 +14,49 @@
  limitations under the License.
  */
 import express from 'express';
+import bodyParser from 'body-parser';
 import {
   errorInvalidRoute,
   errorDoesNotExist,
   errorFileNotFound,
 } from './../utils/errors';
-import * as filePaths from '../utils/filePaths';
-import * as fileSystem from '../utils/fileSystem';
+import * as projectFiles from './persistence/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap
+const textParser = bodyParser.text();
 
-router.route('/:extension/:file')
+const makeProjectFileLink = (req, projectId, namespace, file) => {
+  const base = req.protocol + '://' + req.hostname + ':' + req.port;
+  return `${base}/data/file/${projectId}/${namespace}/${file}`;
+};
+
+//permission checking currently handled by data router (user has access to project)
+
+//todo - S3 access control ???? Necessary if all requests go through application server (checks projectId this way)
+
+router.route('/:namespace/:file/:version?')
   .all((req, res, next) => {
-    const { projectId } = req;
-    const { extension, file } = req.params;
-
-    const folderPath = filePaths.createProjectFilesDirectoryPath(projectId, extension);
-    const filePath = filePaths.createProjectFilePath(projectId, extension, file);
+    // const { projectId } = req; //already on the request
+    const { namespace, file, version } = req.params;
 
     Object.assign(req, {
-      extension,
-      filePath,
-      folderPath,
+      namespace,
+      file,
+      version,
     });
+
     next();
   })
   .get((req, res, next) => {
-    const { filePath } = req;
+    //todo - support for getting all versions
+    //if (req.version === 'versions') { ... }
 
-    fileSystem.fileRead(filePath, false)
+    //todo - support for getting old versions
+    //const params = (req.version && req.version !== 'latest') ? { VersionId: req.version } : {};
+
+    const { projectId, namespace, file } = req;
+
+    projectFiles.projectFileRead(projectId, namespace, file)
       .then(data => res.send(data))
       .catch(err => {
         if (err === errorDoesNotExist) {
@@ -52,49 +66,56 @@ router.route('/:extension/:file')
         next(err);
       });
   })
-  .post((req, res, next) => {
-    const { folderPath, filePath } = req;
+  .post(textParser, (req, res, next) => {
+    const { projectId, namespace, file } = req;
+    //check if JSON was passed, parse to string if so
+    const content = typeof req.body === 'object' ? JSON.stringify(req.body) : (req.body || '');
 
-    //assuming contents to be string
-    let buffer = '';
-    req.on('data', data => {
-      buffer += data;
-    });
-    req.on('end', () => {
-      fileSystem.directoryMake(folderPath)
-        .then(() => fileSystem.fileWrite(filePath, buffer, false))
-        .then(() => res.send(req.originalUrl))
-        .catch((err) => {
-          console.log('project file post err', err, err.stack);
-          next(err);
-        });
-    });
+    projectFiles.projectFileWrite(projectId, namespace, file, content)
+      .then(resp => {
+        const payload = {
+          url: makeProjectFileLink(req, projectId, namespace, file),
+          VersionId: resp.VersionId,
+        };
+        res.send(payload);
+      })
+      .catch((err) => {
+        console.log('project file post err', err, err.stack);
+        next(err);
+      });
   })
   .delete((req, res, next) => {
-    const { filePath } = req;
+    const { projectId, namespace, file } = req;
 
-    fileSystem.fileDelete(filePath)
+    projectFiles.projectFileDelete(projectId, namespace, file)
       .then(() => res.status(200).send())
       .catch(err => next(err));
   });
 
-router.route('/:extension')
+router.route('/:namespace')
   .all((req, res, next) => {
-    const { projectId } = req;
-    const { extension } = req.params;
-    const folderPath = filePaths.createProjectFilesDirectoryPath(projectId, extension);
+    // const { projectId } = req; //already on request
+    const { namespace } = req.params;
 
     Object.assign(req, {
-      extension,
-      folderPath,
+      namespace,
     });
+
     next();
   })
   .get((req, res, next) => {
-    const { folderPath } = req;
+    const { projectId, namespace } = req;
 
-    fileSystem.directoryContents(folderPath)
-      .then(contents => res.json(contents))
+    //todo - support query where namespace is optional (need to update s3 support as well)
+
+    projectFiles.projectFilesList(projectId, namespace)
+      .then(contents => {
+        const mapped = contents.map(filename => ({
+          name: filename,
+          url: makeProjectFileLink(req, projectId, namespace, filename),
+        }));
+        res.json(mapped);
+      })
       .catch(err => res.status(404).send(errorFileNotFound));
   });
 

@@ -14,9 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import Vector2D from '../geometry/vector2d';
-import Box2D from '../geometry/box2d';
 import Node2D from './node2d';
-import kT from '../views/layoutconstants.js';
+import kT from '../views/layoutconstants';
 
 /**
  * basic rectangular node
@@ -31,11 +30,6 @@ export default class SBOL2D extends Node2D {
       color: '#1D222D',
       showChildren: true,
     }));
-    this.dots = new Node2D({
-      sg: this.sg,
-      glyph: 'dots',
-    });
-    this.appendChild(this.dots);
   }
   /**
    * mostly for debugging
@@ -52,23 +46,9 @@ export default class SBOL2D extends Node2D {
   getPreferredSize(str) {
     // measure actual text plus some padding
     const roleWidth = this.roleName ? kT.roleIcon + kT.textPad : 0;
-    const size = this.measureText(str).add(new Vector2D(kT.textPad * 2 + roleWidth + kT.contextDotsW, 0));
+    const size = this.measureText(str).add(new Vector2D(kT.textPad * 2 + roleWidth, 0));
+    size.x = Math.max(kT.minBlockWidth, size.x);
     return size;
   }
 
-  update() {
-    // base class
-    const el = Node2D.prototype.update.call(this);
-    // context dots, shown only in hover state
-    this.dots.set({
-      bounds: new Box2D(
-        this.width - kT.contextDotsW,
-        (this.height - kT.contextDotsH) / 2,
-        kT.contextDotsW,
-        kT.contextDotsH),
-      visible: this.hover,
-    });
-    // return as per base class
-    return el;
-  }
 }

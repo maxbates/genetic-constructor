@@ -21,6 +21,7 @@ import Block from '../../../../src/models/Block';
 import * as filePaths from '../../../../server/utils/filePaths';
 import * as versioning from '../../../../server/data/versioning';
 import * as persistence from '../../../../server/data/persistence';
+import * as s3 from '../../../../server/data/persistence/s3';
 
 //todo - can probably de-dupe many of these setup / before() clauses, they are pretty similar
 
@@ -42,18 +43,18 @@ describe('Server', () => {
         const blockDataPath = filePaths.createBlockDirectoryPath(projectId);
         const blockManifestPath = filePaths.createBlockManifestPath(projectId);
 
-        const blockSequence = 'acgtacgtacgatcgatcgac';
-        const sequenceMd5 = md5(blockSequence);
-        const sequenceFilePath = filePaths.createSequencePath(sequenceMd5);
+        //skip test suite if not using s3
+        before(function() {
+          if (s3.useRemote) {
+            this.skip();
+          }
 
-        before(() => {
           return directoryDelete(projectPath)
             .then(() => directoryMake(projectPath))
             .then(() => directoryMake(projectDataPath))
             .then(() => directoryMake(blockDataPath))
             .then(() => fileWrite(projectManifestPath, projectData))
-            .then(() => fileWrite(blockManifestPath, blockFileContents))
-            .then(() => fileWrite(sequenceFilePath, blockSequence, false));
+            .then(() => fileWrite(blockManifestPath, blockFileContents));
         });
 
         it('projectExists() rejects for non-extant project', (done) => {
@@ -106,22 +107,6 @@ describe('Server', () => {
             .then(blockMap => blockMap[blockId])
             .then((result) => expect(result).to.eql(blockData));
         });
-
-        it('sequenceExists() checks if sequence file exists', () => {
-          return persistence.sequenceExists(sequenceMd5);
-        });
-
-        it('sequenceGet() returns the sequence as a string', () => {
-          return persistence.sequenceGet(sequenceMd5)
-            .then(result => expect(result).to.equal(blockSequence));
-        });
-
-        it('sequenceGet() rejects for md5 with no sequence', () => {
-          const fakeMd5 = md5('nothingness');
-          return persistence.sequenceGet(fakeMd5)
-            .then(result => assert(false))
-            .catch(err => expect(err).to.equal(errorDoesNotExist));
-        });
       });
 
       describe('creation', () => {
@@ -136,7 +121,12 @@ describe('Server', () => {
         const blockId = blockData.id;
         const blockManifestPath = filePaths.createBlockManifestPath(projectId, blockId);
 
-        before(() => {
+        //skip test suite if not using s3
+        before(function() {
+          if (s3.useRemote) {
+            this.skip();
+          }
+
           return persistence.projectCreate(projectId, projectData, userId)
             .then(() => persistence.blockWrite(projectId, blockData));
         });
@@ -178,12 +168,15 @@ describe('Server', () => {
         const blockFileContents = { [blockId]: blockData };
         const blockManifestPath = filePaths.createBlockManifestPath(projectId);
 
-        const blockSequence = 'aaaaaccccccggggttttt';
-        const sequenceMd5 = md5(blockSequence);
-        const sequenceFilePath = filePaths.createSequencePath(sequenceMd5);
-
         const projectPatch = { metadata: { description: 'fancy pantsy' } };
         const blockPatch = { rules: { role: 'promoter' } };
+
+        //skip test suite if not using s3
+        before(function() {
+          if (s3.useRemote) {
+            this.skip();
+          }
+        });
 
         it('projectWrite() creates repo if necessary', () => {
           return persistence.projectWrite(projectId, projectData, userId)
@@ -275,7 +268,7 @@ describe('Server', () => {
 
         it('blockMerge() accepts a partial block', () => {
           const merged = merge({}, blockData, blockPatch);
-          const mergedFileContents = { [merged.id] : merged };
+          const mergedFileContents = { [merged.id]: merged };
           //start with write to reset
           return persistence.blockWrite(projectId, blockData)
             .then(() => persistence.blockMerge(projectId, blockId, blockPatch))
@@ -289,12 +282,6 @@ describe('Server', () => {
           return persistence.blockMerge(projectId, blockId, invalidData)
             .then(() => assert(false))
             .catch(err => expect(err).to.equal(errorInvalidModel));
-        });
-
-        it('sequenceWrite() sets the sequence string', () => {
-          return persistence.sequenceWrite(sequenceMd5, blockSequence)
-            .then(() => fileRead(sequenceFilePath, false))
-            .then(result => expect(result).to.equal(blockSequence));
         });
       });
 
@@ -314,6 +301,13 @@ describe('Server', () => {
         const blockId = blockData.id;
         const blockFileContents = { [blockId]: blockData };
         const blockManifestPath = filePaths.createBlockManifestPath(projectId, blockId);
+
+        //skip test suite if not using s3
+        before(function() {
+          if (s3.useRemote) {
+            this.skip();
+          }
+        });
 
         //hack(ish) - creating at beginning of each because chaining tests is hard, and beforeEach will encounter race condition
 
@@ -359,105 +353,6 @@ describe('Server', () => {
                       expect(secondResults.length).to.equal(firstResults.length);
                     });
                 });
-            });
-        });
-      });
-
-      describe('versioning', () => {
-        const userId = testUserId;
-
-        let versionLog;
-        let versions;
-        const nonExistentSHA = '795c5751c8e0b0c9b5993ec81928cd89f7eefd27';
-        const projectData = new Project(updateProjectWithAuthor());
-        const projectId = projectData.id;
-        const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
-        const newProject = projectData.merge({ projectData: 'new stuff' });
-
-        const blockData = Block.classless({ projectId });
-        const blockId = blockData.id;
-        const newBlock = merge({}, blockData, { blockData: 'new data' });
-
-        const blockSequence = 'acgcggcgcgatatatatcgcgcg';
-        const sequenceMd5 = md5(blockSequence);
-
-        before(() => {
-          return persistence.projectCreate(projectId, projectData, userId) //3
-            .then(() => persistence.blockWrite(projectId, blockData))
-            .then(() => persistence.projectSave(projectId, userId)) //2
-            .then(() => persistence.projectWrite(projectId, newProject, userId))
-            .then(() => persistence.projectSave(projectId, userId)) //1
-            .then(() => persistence.blockWrite(projectId, newBlock))
-            .then(() => persistence.projectSave(projectId, userId)) //0
-            .then(() => versioning.log(projectRepoDataPath))
-            .then(log => {
-              versionLog = log;
-              versions = versionLog.map(commit => commit.sha);
-            });
-        });
-
-        it('projectExists() rejects if invalid version', () => {
-          return persistence.projectExists(projectId, 'invalidSHA')
-            .then(result => assert(false, 'should not resolve'))
-            .catch(err => assert(err === errorDoesNotExist, 'wrong error type -> function errored...'));
-        });
-
-        it('projectExists() rejects if version does not exist', () => {
-          return persistence.projectExists(projectId, nonExistentSHA)
-            .then(result => assert(false, 'should not resolve'))
-            .catch(err => assert(err === errorDoesNotExist, 'wrong error type -> function errored...'));
-        });
-
-        it('projectExists() resolves if version exists', () => {
-          return persistence.projectExists(projectId, versions[1]);
-        });
-
-        it('projectGet() rejects on if given invalid version', () => {
-          return persistence.projectGet(projectId, nonExistentSHA)
-            .then(result => assert(false, 'should not resolve'))
-            .catch(err => assert(err === errorDoesNotExist, 'wrong error type -> function errored...'));
-        });
-
-        it('projectGet() resolves to correct file when given version', () => {
-          return persistence.projectGet(projectId, versions[2])
-            .then(project => expect(project).to.eql(projectData));
-        });
-
-        it('projectGet() defaults to latest version', () => {
-          return persistence.projectGet(projectId)
-            .then(project => expect(project).to.eql(Object.assign({}, newProject, {
-              version: versions[0],
-              lastSaved: versionLog[0].time
-            })));
-        });
-
-        it('blockExists() rejects on invalid version', () => {
-          return persistence.blocksExist(projectId, nonExistentSHA, blockId)
-            .then(result => assert(false, 'should not resolve'))
-            .catch(err => assert(err === errorDoesNotExist, 'wrong error type -> function errored...'));
-        });
-
-        it('blockExists() accepts a version', () => {
-          return persistence.blocksExist(projectId, versions[2], blockId);
-        });
-
-        it('blockGet() accepts a version, gets version at that time', () => {
-          return persistence.blocksGet(projectId, versions[2], blockId)
-            .then(blockMap => blockMap[blockId])
-            .then(block => expect(block).to.eql(blockData));
-        });
-
-        it('blockGet() defaults to latest version', () => {
-          return persistence.blocksGet(projectId, false, blockId)
-            .then(blockMap => blockMap[blockId])
-            .then(block => expect(block).to.eql(newBlock));
-        });
-
-        it('sequenceWrite() does not create commit even if given blockId and projectId', () => {
-          return persistence.sequenceWrite(sequenceMd5, blockSequence, blockId, projectId)
-            .then(() => versioning.log(projectRepoDataPath))
-            .then(log => {
-              expect(log.length).to.equal(versionLog.length);
             });
         });
       });

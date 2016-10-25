@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import invariant from 'invariant';
+import _ from 'lodash';
 
 //GC specific
 import Project from '../../../../src/models/Project';
@@ -11,6 +12,7 @@ import * as rollup from '../../../../server/data/rollup';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 import { filter } from 'lodash';
 import { permissionsMiddleware } from '../../../data/permissions';
+import * as sequencePersistence from '../../../data/persistence/sequence';
 import DebugTimer from '../../../utils/DebugTimer';
 
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
@@ -73,7 +75,7 @@ router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req
 
   console.log(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
 
-  rollup.getProjectRollup(projectId)
+  rollup.getProjectRollup(projectId, true)
     .then(roll => {
       const blocks = blockIds.map(blockId => roll.blocks[blockId]);
       invariant(blocks.every(block => block.sequence.md5), 'some blocks dont have md5');
@@ -126,21 +128,35 @@ router.all('/export/:projectId/:constructId?',
 
     rollup.getProjectRollup(projectId)
       .then(roll => {
-        const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
+        const blocks = Object.keys(roll.blocks).map(blockId => roll.blocks[blockId]);
 
-        const promise = !!constructId ?
-          exportConstruct({ roll, constructId }) :
-          exportProject(roll);
+        return Promise.all(
+          blocks.map(block => sequencePersistence.sequenceGet(block.sequence.md5))
+        ).then(sequences => {
+          // some will be null
+          const blockIdToSequence = _.zipObject(
+            blocks.map(block => block.id),
+            sequences,
+          );
 
-        return promise
-          .then((resultFileName) => {
-            return fileSystem.fileRead(resultFileName, false)
-              .then(fileOutput => {
-                // We have to disambiguate between zip files and gb files!
-                const fileExtension = (fileOutput.substring(0, 5) !== 'LOCUS') ? '.zip' : '.gb';
-                return downloadAndDelete(res, resultFileName, name + fileExtension);
-              });
-          });
+          Object.assign(roll, { sequences: blockIdToSequence });
+
+          const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
+
+          const promise = !!constructId ?
+            exportConstruct({ roll, constructId }) :
+            exportProject(roll);
+
+          return promise
+            .then((resultFileName) => {
+              return fileSystem.fileRead(resultFileName, false)
+                .then(fileOutput => {
+                  // We have to disambiguate between zip files and gb files!
+                  const fileExtension = (fileOutput.substring(0, 5) !== 'LOCUS') ? '.zip' : '.gb';
+                  return downloadAndDelete(res, resultFileName, name + fileExtension);
+                });
+            });
+        });
       })
       .catch(err => {
         console.log('Error!', err);
@@ -152,10 +168,10 @@ router.all('/export/:projectId/:constructId?',
 /***** IMPORT ******/
 
 //todo - ensure got genbank
-router.post('/import/:format/:projectId?',
+router.post('/import/:projectId?',
   importMiddleware,
   (req, res, next) => {
-    const { noSave, returnRoll, format, projectId, files } = req; //eslint-disable-line no-unused-vars
+    const { noSave, returnRoll, projectId, files } = req; //eslint-disable-line no-unused-vars
     const { constructsOnly } = req.body;
 
     const timer = new DebugTimer(`Genbank Import (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);

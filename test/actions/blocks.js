@@ -5,13 +5,11 @@ import * as projectActions from '../../src/actions/projects';
 import blocksReducer from '../../src/reducers/blocks';
 import { simpleStore } from '../store/mocks';
 import configureStore from '../../src/store/configureStore';
-//need to import this so global store is already setup and the actions we trigger only affect our tests. avoid the @@INIT event
-import store from '../../src/store/index'; //eslint-disable-line
 import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
 
 describe('Actions', () => {
-  describe('Block Actions', () => {
+  describe('Blocks', () => {
     //simple store focuses on block actions exclusively. setting projectId on block would require project store.
     describe('Simple Store', () => {
       const storeBlock = new Block();
@@ -130,7 +128,7 @@ describe('Actions', () => {
       });
     });
 
-    describe.skip('Real Store', () => {
+    describe('Real Store', () => {
       let store;
       let frozenBlock;
       let block;
