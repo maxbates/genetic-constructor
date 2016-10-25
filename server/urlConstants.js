@@ -24,3 +24,5 @@ export const HOST_URL = process.env.HOST_URL || INTERNAL_HOST;
 
 //platform API (e.g. auth), default for running locally
 export const API_END_POINT = process.env.API_END_POINT || 'http://localhost:8080/api';
+
+export const STORAGE_URL = process.env.STORAGE_API || (INTERNAL_HOST + '/api/');
