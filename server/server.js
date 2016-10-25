@@ -79,6 +79,8 @@ app.set('view engine', 'pug');
 // Register API middleware
 // ----------------------------------------------------
 
+// AUTH
+
 const onLoginHandler = (req, res, next) => {
   return checkUserSetup(req.user)
     .then((projectId) => {
@@ -121,7 +123,17 @@ if (process.env.BIO_NANO_AUTH) {
 app.post('/register', registrationHandler);
 app.use('/user', userRouter);
 
-//primary routes
+// STORAGE
+
+// routes / mini-app for interacting with postgres DB
+// expose this route for local development, production will call `process.env.STORAGE_API` directly
+// in deployed environment this API will be available on a different host, and not at this route endpoint
+if (!process.env.STORAGE_API) {
+  app.use('/api', require('../storage-ext/').routes);
+}
+
+// PRIMARY ROUTES
+
 app.use('/data', dataRouter);
 app.use('/order', orderRouter);
 app.use('/extensions', extensionsRouter);
@@ -134,12 +146,6 @@ app.use('/report', reportRouter);
 app.use(express.static(pathPublic));
 app.use('/images', express.static(pathImages));
 app.use('/help/docs', express.static(pathDocs));
-
-// by default load the storage server routes into the application
-// in deployed environment this API may be available on a different hosts
-if (! process.env.STORAGE_API) {
-  app.use('/api', require('../storage-ext/').routes);
-}
 
 app.get('/version', (req, res) => {
   try {
@@ -205,10 +211,19 @@ const startServer = () => app.listen(HOST_PORT, HOST_NAME, (err) => {
   console.log(`Server listening at http://${HOST_NAME}:${HOST_PORT}/`);
 });
 
-// initialize the DB connection if we're not using an external storage API
-const init = (! process.env.STORAGE_API) ? require('../storage-ext').init : (cb) => { return cb(); };
-
 //start the server by default, if port is not taken
-isPortFree(HOST_PORT, (err, free) => free && init(startServer));
+isPortFree(HOST_PORT, (err, free) => {
+  if (!free) {
+    throw new Error(`Port ${HOST_PORT} already in use!`);
+  }
+
+  // initialize the DB connection if we're not using an external storage API
+  // note - requires running `npm run storage-db`
+  const init = (!process.env.STORAGE_API) ?
+    require('../storage-ext').init :
+    (cb) => { return cb(); };
+
+  init(startServer);
+});
 
 export default app;
