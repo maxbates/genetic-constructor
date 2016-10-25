@@ -15,7 +15,7 @@
  */
 import invariant from 'invariant';
 import merge from 'lodash.merge';
-import { errorDoesNotExist, errorFileSystem } from './../utils/errors';
+import { errorDoesNotExist, errorFileSystem } from '../../utils/errors';
 import mkpath from 'mkpath';
 import rimraf from 'rimraf';
 import fs from 'fs';

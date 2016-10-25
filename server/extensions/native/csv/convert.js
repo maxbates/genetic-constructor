@@ -1,4 +1,4 @@
-import * as fileSystem from '../../../../server/utils/fileSystem';
+import * as fileSystem from '../../../data/middleware/fileSystem';
 import invariant from 'invariant';
 import Block from '../../../../src/models/Block';
 import parse from 'csv-parse';

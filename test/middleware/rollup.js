@@ -10,11 +10,11 @@ import {
   directoryExists,
   directoryMake,
   directoryDelete
-} from '../../server/utils/fileSystem';
+} from '../../server/data/middleware/fileSystem';
 import Block from '../../src/models/Block';
 
 import * as commitMessages from '../../server/data/git-deprecated/commitMessages';
-import * as filePaths from '../../server/utils/filePaths';
+import * as filePaths from '../../server/data/middleware/filePaths';
 import * as rollup from '../../server/data/rollup';
 import * as versioning from '../../server/data/git-deprecated/git';
 import * as persistence from '../../server/data/persistence';

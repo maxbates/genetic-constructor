@@ -14,11 +14,11 @@ import {
   directoryExists,
   directoryMake,
   directoryDelete
-} from '../../../../server/utils/fileSystem';
+} from '../../../../server/data/middleware/fileSystem';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 
-import * as filePaths from '../../../../server/utils/filePaths';
+import * as filePaths from '../../../../server/data/middleware/filePaths';
 import * as versioning from '../../../../server/data/git-deprecated/git';
 import * as persistence from '../../../../server/data/persistence';
 import * as s3 from '../../../../server/data/middleware/s3';

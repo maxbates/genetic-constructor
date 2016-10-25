@@ -5,8 +5,8 @@ import { testUserId } from '../../../constants';
 import { updateProjectWithAuthor } from '../../../utils/userUtils';
 import Project from '../../../../src/models/Project';
 import * as persistence from '../../../../server/data/persistence';
-import * as fileSystem from '../../../../server/utils/fileSystem';
-import * as filePaths from '../../../../server/utils/filePaths';
+import * as fileSystem from '../../../../server/data/middleware/fileSystem';
+import * as filePaths from '../../../../server/data/middleware/filePaths';
 import devServer from '../../../../server/server';
 
 describe('Server', () => {

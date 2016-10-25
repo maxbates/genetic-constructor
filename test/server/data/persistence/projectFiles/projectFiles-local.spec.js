@@ -26,8 +26,8 @@ import {
   directoryExists,
   directoryMake,
   directoryDelete
-} from '../../../../../server/utils/fileSystem';
-import * as filePaths from '../../../../../server/utils/filePaths';
+} from '../../../../../server/data/middleware/fileSystem';
+import * as filePaths from '../../../../../server/data/middleware/filePaths';
 import * as s3 from '../../../../../server/data/middleware/s3';
 
 describe('Server', () => {

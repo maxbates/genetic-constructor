@@ -17,8 +17,8 @@ limitations under the License.
  * Utilities for querying the user information, wrapping file system queries etc.
  * @module querying
  */
-import * as fileSystem from '../utils/fileSystem';
-import * as filePaths from '../utils/filePaths';
+import * as fileSystem from './middleware/fileSystem';
+import * as filePaths from './middleware/filePaths';
 import * as persistence from './persistence';
 import * as versioning from './git-deprecated/git';
 import invariant from 'invariant';

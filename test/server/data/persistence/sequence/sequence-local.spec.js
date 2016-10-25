@@ -23,11 +23,11 @@ import {
   directoryExists,
   directoryMake,
   directoryDelete
-} from '../../../../../server/utils/fileSystem';
+} from '../../../../../server/data/middleware/fileSystem';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../../server/utils/errors';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 
-import * as filePaths from '../../../../../server/utils/filePaths';
+import * as filePaths from '../../../../../server/data/middleware/filePaths';
 import * as sequences from '../../../../../server/data/persistence/sequence';
 import * as s3 from '../../../../../server/data/middleware/s3';
 

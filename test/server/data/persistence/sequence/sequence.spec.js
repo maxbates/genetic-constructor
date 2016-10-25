@@ -22,10 +22,10 @@ import {
   fileRead,
   fileWrite,
   fileDelete,
-} from '../../../../../server/utils/fileSystem';
+} from '../../../../../server/data/middleware/fileSystem';
 import { errorDoesNotExist } from '../../../../../server/utils/errors';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
-import * as filePaths from '../../../../../server/utils/filePaths';
+import * as filePaths from '../../../../../server/data/middleware/filePaths';
 import * as sequences from '../../../../../server/data/persistence/sequence';
 
 describe('Server', () => {

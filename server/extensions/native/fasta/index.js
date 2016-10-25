@@ -2,8 +2,8 @@ import express from 'express';
 import invariant from 'invariant';
 
 //GC specific
-import * as fileSystem from '../../../../server/utils/fileSystem';
-import * as filePaths from '../../../../server/utils/filePaths';
+import * as fileSystem from '../../../data/middleware/fileSystem';
+import * as filePaths from '../../../data/middleware/filePaths';
 import * as sequences from '../../../../server/data/persistence/sequence';
 import * as rollup from '../../../../server/data/rollup';
 import { errorDoesNotExist } from '../../../../server/utils/errors';

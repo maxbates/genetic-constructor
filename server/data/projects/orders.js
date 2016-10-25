@@ -21,6 +21,10 @@ import { validateBlock, validateProject, validateOrder } from '../../utils/valid
 import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
 
+/*********
+ Helpers
+ *********/
+
 const _orderExists = (orderId, projectId) => {
   //todo
 };
@@ -29,19 +33,48 @@ const _orderRead = (orderId, projectId) => {
   //todo
 };
 
-const _orderSetup = (orderId, projectId) => {
-  //unnecessary?
-};
-
 const _orderWrite = (orderId, order = {}, projectId) => {
   //todo - write the order, mae sure have a version (should run after save)
 };
 
+/*********
+ API
+ *********/
+
+export const orderExists = (orderId, projectId) => {
+  return _orderExists(orderId, projectId);
+};
+
+export const orderGet = (orderId, projectId) => {
+  return _orderRead(orderId, projectId)
+    .catch(err => {
+      if (err === errorDoesNotExist) {
+        return Promise.resolve(null);
+      }
+      return Promise.reject(err);
+    });
+};
+
+export const orderWrite = (orderId, order, projectId, roll) => {
+  const idedOrder = Object.assign({}, order, {
+    projectId,
+    id: orderId,
+  });
+
+  if (!validateOrder(idedOrder)) {
+    return Promise.reject(errorInvalidModel);
+  }
+
+  //todo - get rollup and write with order
+
+  return Promise.all([
+      _orderWrite(orderId, idedOrder, projectId),
+      _orderRollupWrite(orderId, roll, projectId),
+    ])
+    .then(() => idedOrder);
+};
 
 //not sure why you would do this...
 export const orderDelete = (orderId, projectId) => {
-  const orderPath = filePaths.createOrderManifestPath(orderId, projectId);
-  return orderId(orderId, projectId)
-    .then(() => fileDelete(orderPath))
-    .then(() => orderId);
+  invariant(false, 'you cannot delete an order');
 };

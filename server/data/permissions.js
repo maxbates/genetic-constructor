@@ -20,8 +20,8 @@
  *
  * @module permissions
  */
-import * as filePaths from '../utils/filePaths';
-import * as fileSystem from '../utils/fileSystem';
+import * as filePaths from './middleware/filePaths';
+import * as fileSystem from './middleware/fileSystem';
 import { errorInvalidId, errorNoIdProvided, errorNoPermission, errorDoesNotExist } from '../utils/errors';
 import { id as idRegex } from '../../src/utils/regex';
 import { dbGet, dbPruneResult } from './middleware/db';

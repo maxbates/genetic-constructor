@@ -22,7 +22,7 @@ import path from 'path';
 import { merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../../utils/errors';
 import { validateBlock, validateProject, validateOrder } from '../../utils/validation';
-import * as filePaths from '../../utils/filePaths';
+import * as filePaths from '../middleware/filePaths';
 import * as versioning from '../git-deprecated/git';
 import * as commitMessages from '../git-deprecated/commitMessages';
 import {
@@ -34,7 +34,7 @@ import {
   directoryMake,
   directoryDelete,
   directoryMove,
-} from '../../utils/fileSystem';
+} from '../middleware/fileSystem';
 import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
 

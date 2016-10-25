@@ -17,13 +17,13 @@ import invariant from 'invariant';
 import { every, mapValues, chunk } from 'lodash';
 import md5 from 'md5';
 import * as s3 from '../middleware/s3';
-import * as filePaths from '../../utils/filePaths';
+import * as filePaths from '../middleware/filePaths';
 import {
   fileExists,
   fileRead,
   fileWrite,
   fileDelete,
-} from '../../utils/fileSystem';
+} from '../middleware/fileSystem';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../src/utils/sequenceMd5';
 import DebugTimer from '../../utils/DebugTimer';
 

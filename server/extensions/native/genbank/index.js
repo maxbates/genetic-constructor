@@ -6,8 +6,8 @@ import _ from 'lodash';
 //GC specific
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
-import * as fileSystem from '../../../../server/utils/fileSystem';
-import * as filePaths from '../../../../server/utils/filePaths';
+import * as fileSystem from '../../../data/middleware/fileSystem';
+import * as filePaths from '../../../data/middleware/filePaths';
 import * as rollup from '../../../../server/data/rollup';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 import { filter } from 'lodash';

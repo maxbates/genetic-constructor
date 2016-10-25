@@ -18,8 +18,8 @@ import invariant from 'invariant';
 import md5 from 'md5';
 import _ from 'lodash';
 
-import * as fileSystem from '../../../../server/utils/fileSystem';
-import * as filePaths from '../../../../server/utils/filePaths';
+import * as fileSystem from '../../../data/middleware/fileSystem';
+import * as filePaths from '../../../data/middleware/filePaths';
 import * as persistence from '../../../../server/data/persistence';
 import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import * as rollup from '../../../../server/data/rollup';

@@ -1,5 +1,5 @@
-import * as filePaths from '../../server/utils/filePaths';
-import * as fileSystem from '../../server/utils/fileSystem';
+import * as filePaths from '../../server/data/middleware/filePaths';
+import * as fileSystem from '../../server/data/middleware/fileSystem';
 
 import parts from './parts';
 

@@ -1,5 +1,5 @@
-import { directoryMake } from '../server/utils/fileSystem';
-import { createStorageUrl } from '../server/utils/filePaths';
+import { directoryMake } from '../server/data/middleware/fileSystem';
+import { createStorageUrl } from '../server/data/middleware/filePaths';
 
 import copyToStorage from '../data/egf_parts/copySequencesToStorage';
 

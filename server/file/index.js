@@ -19,10 +19,10 @@
  * Extensions may want to use this for persistence on the constructor server
  */
 import express from 'express';
-import { fileRead, fileWrite, directoryMake, fileDelete } from '../utils/fileSystem';
+import { fileRead, fileWrite, directoryMake, fileDelete } from '../data/middleware/fileSystem';
 import errorHandlingMiddleware from '../utils/errorHandlingMiddleware';
 
-import { createFilePath } from './../utils/filePaths';
+import { createFilePath } from '../data/middleware/filePaths';
 
 const router = express.Router(); //eslint-disable-line new-cap
 

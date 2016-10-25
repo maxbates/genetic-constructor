@@ -8,7 +8,7 @@ import {
   importString as importGenbankString,
 } from '../../src/middleware/genbank';
 import { createExampleProject } from '../fixtures/rollup';
-import * as fileSystem from '../../server/utils/fileSystem';
+import * as fileSystem from '../../server/data/middleware/fileSystem';
 
 describe('Extensions', () => {
   describe('Genbank', () => {

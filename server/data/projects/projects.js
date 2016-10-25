@@ -21,151 +21,46 @@ import invariant from 'invariant';
 import { merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../../utils/errors';
 import { validateBlock, validateProject, validateOrder } from '../../utils/validation';
-import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
 
 /*********
  Helpers
  *********/
 
-// EXISTENCE
-
-const _projectExists = (projectId, sha) => {
-  const manifestPath = filePaths.createProjectManifestPath(projectId);
-  const projectDataPath = filePaths.createProjectDataPath(projectId);
-
-  if (!sha) {
-    return fileExists(manifestPath);
-  }
-  return versioning.versionExists(projectDataPath, sha);
+const _projectExists = (projectId, version) => {
+  //todo
 };
 
+//resolve if all blockIds exist, rejects if not
 //this is kinda expensive, so shouldnt just call it all the time all willy-nilly
-const _blocksExist = (projectId, sha = false, ...blockIds) => {
+const _blocksExist = (projectId, version = false, ...blockIds) => {
   invariant(blockIds.length > 0, 'must pass block ids');
-
-  const manifestPath = filePaths.createBlockManifestPath(projectId);
-  const projectDataPath = filePaths.createProjectDataPath(projectId);
-  const relativePath = path.relative(projectDataPath, manifestPath);
-
-  if (!sha) {
-    return fileRead(manifestPath)
-      .then(blocks => {
-        if (blockIds.every(blockId => !!blocks[blockId])) {
-          return Promise.resolve(true);
-        }
-        return Promise.reject(errorDoesNotExist);
-      });
-  }
-
-  return versioning.checkout(projectDataPath, relativePath, sha)
-    .then(string => JSON.parse(string))
-    .then(blocks => blockIds.every(blockId => !!blocks[blockId]));
+  //todo
 };
 
-// READING
-
-const _projectRead = (projectId, sha) => {
-  const manifestPath = filePaths.createProjectManifestPath(projectId);
-  const projectDataPath = filePaths.createProjectDataPath(projectId);
-  const relativePath = path.relative(projectDataPath, manifestPath);
-
-  if (!sha) {
-    return fileRead(manifestPath);
-  }
-
-  //todo - should forcibly assign sha version to the project
-  return versioning.checkout(projectDataPath, relativePath, sha)
-    .then(string => JSON.parse(string));
+const _projectRead = (projectId, version) => {
+  //todo
 };
 
 //if any block doesnt exist, then it just comes as undefined in the map
-const _blocksRead = (projectId, sha = false, ...blockIds) => {
-  const manifestPath = filePaths.createBlockManifestPath(projectId);
-  const projectDataPath = filePaths.createProjectDataPath(projectId);
-  const relativePath = path.relative(projectDataPath, manifestPath);
-
-  if (!sha) {
-    return fileRead(manifestPath)
-      .then(blocks => {
-        return blockIds.length ?
-          blockIds.reduce((acc, blockId) => Object.assign(acc, { [blockId]: blocks[blockId] }), {}) :
-          blocks;
-      });
-  }
-
-  //untested
-  console.warn('untested - getting blocks with a sha');
-  return versioning.checkout(projectDataPath, relativePath, sha)
-    .then(string => JSON.parse(string))
-    .then(blocks => {
-      return blockIds.length ?
-        blockIds.reduce((acc, blockId) => Object.assign(acc, { [blockId]: blocks[blockId] }), {}) :
-        blocks;
-    });
+const _blocksRead = (projectId, version = false, ...blockIds) => {
+  //todo
 };
-
-// SETUP
-
-const _projectSetup = (projectId, userId) => {
-  const timer = new DebugTimer('projectSetup ' + projectId, { disabled: true });
-
-  const projectPath = filePaths.createProjectPath(projectId);
-  const projectDataPath = filePaths.createProjectDataPath(projectId);
-  const orderDirectory = filePaths.createOrderDirectoryPath(projectId);
-  const blockDirectory = filePaths.createBlockDirectoryPath(projectId);
-  const blockManifestPath = filePaths.createBlockManifestPath(projectId);
-  const fileDirectory = filePaths.createProjectFilesDirectoryPath(projectId);
-
-  return directoryMake(projectPath)
-    .then(() => Promise.all([
-      directoryMake(projectDataPath),
-      directoryMake(orderDirectory),
-      directoryMake(blockDirectory),
-      directoryMake(fileDirectory),
-    ]))
-    .then(() => {
-      timer.time('directories made');
-      return Promise.all([
-        fileWrite(blockManifestPath, {}), //write an empty file in case try to merge with it
-        permissions.createProjectPermissions(projectId, userId),
-      ]);
-    })
-    .then(() => {
-      timer.time('initial files written');
-      return versioning.initialize(projectDataPath, userId);
-    })
-    .then((path) => {
-      timer.end('versioned');
-      return path;
-    });
-};
-
-// WRITING
 
 const _projectWrite = (projectId, project = {}) => {
-  const manifestPath = filePaths.createProjectManifestPath(projectId);
-  return fileWrite(manifestPath, project);
+  //todo
 };
 
 const _blocksWrite = (projectId, blockMap = {}, overwrite = false) => {
-  const manifestPath = filePaths.createBlockManifestPath(projectId);
-  invariant(typeof blockMap === 'object', 'must pass a map of block ids to blocks');
-
-  return (overwrite === true) ?
-    fileWrite(manifestPath, blockMap) :
-    fileMerge(manifestPath, blockMap);
+  //todo
 };
 
+const _projectSetup = (projectId, userId) => {
+  //todo
+};
 
-// COMMITS
-
-//expects a well-formed commit message from commitMessages.js
-const _projectCommit = (projectId, userId, message) => {
-  const projectDataPath = filePaths.createProjectDataPath(projectId);
-  const commitMessage = !message ? commitMessages.messageProject(projectId) : message;
-  return versioning.commit(projectDataPath, commitMessage, userId)
-    .then(sha => versioning.getCommit(projectDataPath, sha));
+const _projectDelete = (projectId, userId) => {
+  //todo
 };
 
 /*********
@@ -183,40 +78,13 @@ export const blocksExist = (projectId, sha = false, ...blockIds) => {
   return _blocksExist(projectId, sha, ...blockIds);
 };
 
-export const orderExists = (orderId, projectId) => {
-  return _orderExists(orderId, projectId);
-};
-
+//todo - update use, so can see if exists, and setup if not
 const projectAssertNew = (projectId) => {
   return projectExists(projectId)
     .then(() => Promise.reject(errorAlreadyExists))
     .catch((err) => {
       if (err === errorDoesNotExist) {
         return Promise.resolve(projectId);
-      }
-      return Promise.reject(err);
-    });
-};
-
-/*
- const blockAssertNew = (blockId, projectId) => {
- return blocksExist(projectId, false, blockId)
- .then(() => Promise.reject(errorAlreadyExists))
- .catch((err) => {
- if (err === errorDoesNotExist) {
- return Promise.resolve(blockId);
- }
- return Promise.reject(err);
- });
- };
- */
-
-const orderAssertNew = (orderId, projectId) => {
-  return orderExists(orderId, projectId)
-    .then(() => Promise.reject(errorAlreadyExists))
-    .catch((err) => {
-      if (err === errorDoesNotExist) {
-        return Promise.resolve(orderId);
       }
       return Promise.reject(err);
     });
@@ -261,16 +129,6 @@ export const blockGet = (projectId, sha = false, blockId) => {
     });
 };
 
-export const orderGet = (orderId, projectId) => {
-  return _orderRead(orderId, projectId)
-    .catch(err => {
-      if (err === errorDoesNotExist) {
-        return Promise.resolve(null);
-      }
-      return Promise.reject(err);
-    });
-};
-
 //CREATE
 
 export const projectCreate = (projectId, project, userId) => {
@@ -282,9 +140,6 @@ export const projectCreate = (projectId, project, userId) => {
   return projectAssertNew(projectId)
     .then(() => _projectSetup(projectId, userId))
     .then(() => _projectWrite(projectId, project))
-    //MAY keep this initial commit message, even when not auto-commiting for all atomic operations
-    //since create is a different operation than just called projectWrite / projectMerge
-    //.then(() => _projectCommit(projectId, userId, commitMessages.messageCreateProject(projectId)))
     .then(() => project);
 };
 
@@ -373,6 +228,7 @@ export const blockMerge = (projectId, blockId, patch) => {
     .then(blockMap => blockMap[blockId]);
 };
 
+//deprecate
 //write/overwrite a single block
 //prefer blocksWrite / blocksMerge, but for atomic operations this is ok (or when want to just write on block)
 export const blockWrite = (projectId, block) => {
@@ -389,34 +245,12 @@ export const blockWrite = (projectId, block) => {
     .then(blockMap => blockMap[block.id]);
 };
 
-export const orderWrite = (orderId, order, projectId, roll) => {
-  const idedOrder = Object.assign({}, order, {
-    projectId,
-    id: orderId,
-  });
-
-  if (!validateOrder(idedOrder)) {
-    return Promise.reject(errorInvalidModel);
-  }
-
-  return orderAssertNew(orderId, projectId)
-    .then(() => _orderSetup(orderId, projectId))
-    .then(() => Promise.all([
-      _orderWrite(orderId, idedOrder, projectId),
-      _orderRollupWrite(orderId, roll, projectId),
-    ]))
-    .then(() => idedOrder);
-};
-
 //DELETE
 
+//todo - change signature to require UserId (update all usages)
 export const projectDelete = (projectId, forceDelete = false) => {
-  const projectPath = filePaths.createProjectPath(projectId);
-  const trashPath = filePaths.createTrashPath(projectId);
-
   if (forceDelete === true) {
-    return directoryDelete(projectPath)
-      .then(() => projectId);
+    //todo - return projectId
   }
 
   return projectExists(projectId)
@@ -427,31 +261,14 @@ export const projectDelete = (projectId, forceDelete = false) => {
       }
     })
     .then(() => {
-      // DEPRECATED - ACTUALLY DELETE
-      //const projectPath = filePaths.createProjectPath(projectId);
-      //return directoryDelete(projectPath);
-
-      /*
-       //DEPRECATED - CHANGE PERMISSIONS FILE
-       //dont want to actually delete it.. just delete the permissions (move to a new file)
-       const projectPermissionsPath = filePaths.createProjectPermissionsPath(projectId);
-       const deletedOwnerPath = filePaths.createProjectPath(projectId, filePaths.permissionsDeletedFileName);
-       return fileRead(projectPermissionsPath)
-       .then(contents => {
-       return fileWrite(projectPermissionsPath, [])
-       //but also should track somewhere who used to own it...
-       .then(() => fileWrite(deletedOwnerPath, contents));
-       });
-       */
-
-      //MOVE TO TRASH FOLDER
-      return directoryDelete(trashPath)
-        .then(() => directoryMove(projectPath, trashPath));
+      //todo - pass userId
+      _projectDelete(projectId);
     })
     //no need to commit... its deleted (and permissions out of scope of data folder)
     .then(() => projectId);
 };
 
+//deprecate
 export const blocksDelete = (projectId, ...blockIds) => {
   return blocksGet(projectId)
     .then(blockMap => {
@@ -463,15 +280,8 @@ export const blocksDelete = (projectId, ...blockIds) => {
     .then(() => blockIds);
 };
 
-//not sure why you would do this...
-export const orderDelete = (orderId, projectId) => {
-  const orderPath = filePaths.createOrderManifestPath(orderId, projectId);
-  return orderId(orderId, projectId)
-    .then(() => fileDelete(orderPath))
-    .then(() => orderId);
-};
-
 //SAVE
+//todo - should this stuff go into versioning? what are the dependencies?
 
 //e.g. autosave
 export const projectSave = (projectId, userId, messageAddition) => {
@@ -498,19 +308,3 @@ export const projectSnapshot = (projectId, userId, messageAddition) => {
   const message = commitMessages.messageSnapshot(projectId, messageAddition);
   return _projectCommit(projectId, userId, message);
 };
-/*
- Copyright 2016 Autodesk,Inc.
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- */
- 

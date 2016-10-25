@@ -1,7 +1,7 @@
 import chai from 'chai';
 import * as api from '../../src/middleware/data';
 const { assert, expect } = chai;
-import { createFilePath } from '../../server/utils/filePaths';
+import { createFilePath } from '../../server/data/middleware/filePaths';
 
 const makeStoragePath = (path) => createFilePath(path);
 

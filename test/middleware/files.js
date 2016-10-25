@@ -2,7 +2,7 @@ import chai from 'chai';
 import fs from 'fs';
 import * as fileApi from '../../src/middleware/file';
 const { assert, expect } = chai;
-import { createFilePath } from '../../server/utils/filePaths';
+import { createFilePath } from '../../server/data/middleware/filePaths';
 
 const makeStoragePath = (path) => createFilePath(path);
 
