@@ -33,7 +33,6 @@ import Project from '../models/Project';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 import { getLocal, setLocal } from '../utils/ui/localstorage';
-import * as projectFileApi from '../middleware/projectFiles';
 
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';

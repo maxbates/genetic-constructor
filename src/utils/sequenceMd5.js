@@ -108,7 +108,7 @@ const remapDedupedBlocks = (fetchedMd5ToSequence, dedupedRangeMap, blockIdsToMd5
 
   //generate blockId: sequence, normalizing for byte range requested
   return _.mapValues(blockParsedMap, (acc, parsedMd5) => {
-    const { original, hash, start = 0, end } = parsedMd5;
+    const { hash, start = 0, end } = parsedMd5;
     const range = dedupedRangeMap[hash];
     const sequence = fetchedMd5ToSequence[hash]; //fetched sequence... may just be a range
 

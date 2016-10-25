@@ -32,9 +32,21 @@ import * as persistence from './persistence';
 import { validateBlock, validateProject } from '../utils/validation';
 import { getAllBlocksInProject } from './querying';
 import * as sequencePersistence from './persistence/sequence';
-import { values } from 'lodash';
+import { mapValues, values } from 'lodash';
 import DebugTimer from '../utils/DebugTimer';
 import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
+
+/**
+ * Given a rollup, get all the sequences for blocks in the form: { blockId : sequence }
+ * @param rollup
+ * @returns rollup, with sequence map: { project: {}, blocks: {}, sequences: { <blockId>: 'ACAGTCGACTGAC' } }
+ */
+export const getSequencesGivenRollup = (rollup) => {
+  const blockIdsToMd5s = mapValues(rollup.blocks, (block, blockId) => block.sequence.md5);
+
+  return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => sequencePersistence.sequenceGet(seqMd5))
+    .then(sequences => Object.assign(rollup, { sequences }));
+};
 
 // if withSequences === true, adds field `sequences` to roll
 // e.g. { project: {}, blocks: {}, sequences: { blockId: 'ACAGTCGACTGAC } }
@@ -185,17 +197,4 @@ export const getComponents = (rootId, projectId) => {
 export const getOptions = (rootId, projectId) => {
   return getContents(rootId, projectId)
     .then(({ options }) => options);
-};
-
-/**
- * Given a rollup, get all the sequences for blocks in the form: { blockId : sequence }
- * @param rollup
- */
-export const getSequencesGivenRollup = (rollup) => {
-  const blockIdsToMd5s = _.mapValues(roll.blocks, (block, blockId) => block.sequence.md5);
-
-  return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => sequencePersistence.sequenceGet(seqMd5))
-    .then(sequences => {
-      return Object.assign(rollup, { sequences });
-    });
 };
