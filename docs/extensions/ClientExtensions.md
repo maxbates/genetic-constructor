@@ -28,7 +28,7 @@ There are several examples in `/extensions/`. Here is a simple one:
     "type": "Background Script",
     "client": [
       {
-        "file": ""index.js",
+        "file": "index.js",
         "region": null
       }
     ]
