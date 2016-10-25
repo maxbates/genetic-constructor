@@ -26,7 +26,7 @@ const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
 
 const makeProjectFileLink = (req, projectId, namespace, file) => {
-  const base = req.protocol + '://' + req.hostname;
+  const base = req.protocol + '://' + req.hostname + ':' + req.port;
   return `${base}/data/file/${projectId}/${namespace}/${file}`;
 };
 
