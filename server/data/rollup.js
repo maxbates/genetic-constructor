@@ -34,6 +34,7 @@ import { getAllBlocksInProject } from './querying';
 import * as sequencePersistence from './persistence/sequence';
 import { values } from 'lodash';
 import DebugTimer from '../utils/DebugTimer';
+import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
 
 // if withSequences === true, adds field `sequences` to roll
 // e.g. { project: {}, blocks: {}, sequences: { blockId: 'ACAGTCGACTGAC } }
@@ -58,21 +59,7 @@ export const getProjectRollup = (projectId, withSequences = false) => {
         return roll;
       }
 
-      const blocks = _.values(roll.blocks);
-
-      return Promise.all(
-        blocks.map(block => sequencePersistence.sequenceGet(block.sequence.md5))
-      ).then(sequences => {
-        // some will be null
-        const blockIdToSequence = _.zipObject(
-          blocks.map(block => block.id),
-          sequences,
-        );
-
-        Object.assign(roll, { sequences: blockIdToSequence });
-
-        return roll;
-      });
+      return getSequencesGivenRollup(roll);
     });
 };
 
@@ -200,4 +187,15 @@ export const getOptions = (rootId, projectId) => {
     .then(({ options }) => options);
 };
 
-//future - function which only returns the components of a project, not the list options? not sure what use case is though....
+/**
+ * Given a rollup, get all the sequences for blocks in the form: { blockId : sequence }
+ * @param rollup
+ */
+export const getSequencesGivenRollup = (rollup) => {
+  const blockIdsToMd5s = _.mapValues(roll.blocks, (block, blockId) => block.sequence.md5);
+
+  return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => sequencePersistence.sequenceGet(seqMd5))
+    .then(sequences => {
+      return Object.assign(rollup, { sequences });
+    });
+};

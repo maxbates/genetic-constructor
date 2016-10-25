@@ -14,16 +14,12 @@
  limitations under the License.
  */
 import rejectingFetch from './utils/rejectingFetch';
-import invariant from 'invariant';
-import _ from 'lodash';
 import { headersGet, headersPost } from './utils/headers';
 import { dataApiPath } from './utils/paths';
-import { validRealMd5, generatePseudoMd5, dedupeBlocksToMd5s, remapDedupedBlocks } from '../utils/sequenceMd5';
+import { generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
 
 const getSequenceUrl = (md5, range) => {
   if (range) {
-    invariant(Array.isArray(range) && range.length === 2, 'range must be an array');
-    invariant(validRealMd5(md5), 'cannot have byte range in md5 if specify a range');
     const psuedoMd5 = generatePseudoMd5(md5, range);
     return dataApiPath(`sequence/${psuedoMd5}]`);
   }
@@ -58,21 +54,7 @@ export const getSequence = (md5, range) => {
 
 //expects map in form { blockId: pseudoMd5 }
 export const getSequences = (blockIdsToMd5s) => {
-  //generates map { realMd5: range }
-  const rangeMap = dedupeBlocksToMd5s(blockIdsToMd5s);
-
-  //calc ahead to perserve order in case of object key issues, since promise.all works on arrays
-  const hashes = Object.keys(rangeMap);
-
-  return Promise.all(
-    hashes.map(hash => getSequence(hash, rangeMap[hash]))
-  )
-    .then(sequences => {
-      // { realMd5: sequenceDedupedRange }
-      const hashToSequence = _.zip(hashes, sequences);
-
-      return remapDedupedBlocks(hashToSequence, rangeMap, blockIdsToMd5s);
-    });
+  return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => getSequence(seqMd5));
 };
 
 export const writeSequence = (md5, sequence, blockId, projectId) => {

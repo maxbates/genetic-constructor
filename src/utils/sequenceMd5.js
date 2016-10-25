@@ -34,10 +34,18 @@ export const validRealMd5 = (realMd5) => realMd5Regex.test(realMd5);
 
 export const validPseudoMd5 = (pseudoMd5) => pseudoMd5Regex.test(pseudoMd5);
 
+//accepts array or start and end separately
 export const generatePseudoMd5 = (realMd5, start, end) => {
+  if (!start && !end) {
+    return realMd5;
+  }
+  invariant(validRealMd5(realMd5), 'cannot have byte range in md5 if specify a range');
   if (Array.isArray(start)) {
+    invariant(start.length === 2, 'range must be an array of length 2');
+    invariant(Number.isInteger(start[0]) && Number.isInteger(start[1]) && start[0] < start[1], 'must pass numbers, where start < end');
     return `${realMd5}[${start[0]}:${start[1]}]`;
   }
+  invariant(Number.isInteger(start) && Number.isInteger(end) && start < end, 'must pass numbers, where start < end');
   return `${realMd5}[${start}:${end}]`;
 };
 
@@ -63,7 +71,7 @@ const parseBlockToMd5Map = (blockIdsToMd5s) => _.mapValues(blockIdsToMd5s, (acc,
 // expects { blockId: pseudoMd5 }
 // returns map of { realMd5: range }
 // where range may be `true` to fetch the whole thing, or [earliest, latest]
-export const dedupeBlocksToMd5s = (blockIdsToMd5s) => {
+const dedupeBlocksToMd5s = (blockIdsToMd5s) => {
   const blockParsedMap = parseBlockToMd5Map(blockIdsToMd5s);
 
   // dedupe to the things we want to fetch
@@ -95,7 +103,7 @@ export const dedupeBlocksToMd5s = (blockIdsToMd5s) => {
 // dedupedRangeMap - result of dedupeBlocksToMd5s
 // blockIdsToMd5s - { blockId: [start, end] OR true }
 // returns
-export const remapDedupedBlocks = (fetchedMd5ToSequence, dedupedRangeMap, blockIdsToMd5s) => {
+const remapDedupedBlocks = (fetchedMd5ToSequence, dedupedRangeMap, blockIdsToMd5s) => {
   const blockParsedMap = parseBlockToMd5Map(blockIdsToMd5s);
 
   //generate blockId: sequence, normalizing for byte range requested
@@ -119,4 +127,26 @@ export const remapDedupedBlocks = (fetchedMd5ToSequence, dedupedRangeMap, blockI
 
     return normSequence;
   });
+};
+
+//expects object in form { blockId: pseudoMd5 } and retrieval function, passed (pseudoMd5), which must return promise
+//returns object in form { blockId: sequence }
+export const getSequencesFromMap = (blockIdsToMd5s, retrievalFn) => {
+  invariant(typeof retrievalFn === 'function', 'must pass retrieval function');
+
+  //generates map { realMd5: range }
+  const rangeMap = dedupeBlocksToMd5s(blockIdsToMd5s);
+
+  //calc ahead to perserve order in case of object key issues, since promise.all works on arrays
+  const hashes = Object.keys(rangeMap);
+
+  return Promise.all(
+    hashes.map(hash => retrievalFn(hash, rangeMap[hash]))
+  )
+    .then(sequences => {
+      // { realMd5: sequenceDedupedRange }
+      const hashToSequence = _.zip(hashes, sequences);
+
+      return remapDedupedBlocks(hashToSequence, rangeMap, blockIdsToMd5s);
+    });
 };
