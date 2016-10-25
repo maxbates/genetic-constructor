@@ -17,7 +17,7 @@
 import invariant from 'invariant';
 import { merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../../utils/errors';
-import { validateBlock, validateProject, validateOrder } from '../../utils/validation';
+import { validateOrder } from '../../utils/validation';
 import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
 

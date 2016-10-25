@@ -256,9 +256,9 @@ router.route('/:projectId/:blockId')
       return res.status(400).send(errorInvalidModel);
     }
 
-    persistence.blockWrite(projectId, block)
+    persistence.blocksWrite(projectId, { [blockId]: block })
       .then(result => {
-        res.json(result);
+        res.json(result[blockId]);
       })
       .catch(err => {
         if (err === errorInvalidModel) {
@@ -275,9 +275,9 @@ router.route('/:projectId/:blockId')
       return res.status(400).send(errorInvalidModel);
     }
 
-    persistence.blockMerge(projectId, blockId, block)
+    persistence.blocksMerge(projectId, { [blockId]: block })
       .then(result => {
-        res.json(result);
+        res.json(result[blockId]);
       })
       .catch(err => {
         if (err === errorInvalidModel) {

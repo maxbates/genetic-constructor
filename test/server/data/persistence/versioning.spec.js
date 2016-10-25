@@ -63,11 +63,11 @@ describe('Server', () => {
           }
 
           return persistence.projectCreate(projectId, projectData, userId) //3
-            .then(() => persistence.blockWrite(projectId, blockData))
+            .then(() => persistence.blocksWrite(projectId, { [blockId]: blockData }))
             .then(() => persistence.projectSave(projectId, userId)) //2
             .then(() => persistence.projectWrite(projectId, newProject, userId))
             .then(() => persistence.projectSave(projectId, userId)) //1
-            .then(() => persistence.blockWrite(projectId, newBlock))
+            .then(() => persistence.blocksWrite(projectId, { [blockId]: newBlock }))
             .then(() => persistence.projectSave(projectId, userId)) //0
             .then(() => versioning.log(projectRepoDataPath))
             .then(log => {

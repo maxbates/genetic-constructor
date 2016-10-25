@@ -44,7 +44,7 @@ describe('Server', () => {
         const blockManifestPath = filePaths.createBlockManifestPath(projectId);
 
         //skip test suite if not using s3
-        before(function() {
+        before(function () {
           if (s3.useRemote) {
             this.skip();
           }
@@ -122,13 +122,13 @@ describe('Server', () => {
         const blockManifestPath = filePaths.createBlockManifestPath(projectId, blockId);
 
         //skip test suite if not using s3
-        before(function() {
+        before(function () {
           if (s3.useRemote) {
             this.skip();
           }
 
           return persistence.projectCreate(projectId, projectData, userId)
-            .then(() => persistence.blockWrite(projectId, blockData));
+            .then(() => persistence.blocksWrite(projectId, { [blockId]: blockData }));
         });
 
         it('projectCreate() creates a git repo for the project', () => {
@@ -172,7 +172,7 @@ describe('Server', () => {
         const blockPatch = { rules: { role: 'promoter' } };
 
         //skip test suite if not using s3
-        before(function() {
+        before(function () {
           if (s3.useRemote) {
             this.skip();
           }
@@ -229,15 +229,15 @@ describe('Server', () => {
         });
 
         it('blockWrite() creates block if necessary', () => {
-          return persistence.blockWrite(projectId, blockData)
+          return persistence.blocksWrite(projectId, { [blockId]: blockData })
             .then(result => assert(result));
         });
 
         it('blockWrite() validates the block', () => {
           const invalidData = { my: 'data' };
           //start with write to reset
-          return persistence.blockWrite(projectId, blockData)
-            .then(() => persistence.blockWrite(blockId, invalidData, projectId))
+          return persistence.blocksWrite(projectId, { [blockId]: blockData })
+            .then(() => persistence.blocksWrite(projectId, { [blockId]: invalidData }))
             .then(() => assert(false, 'should not have written successfully'))
             .catch(err => {
               console.log(err);
@@ -250,7 +250,7 @@ describe('Server', () => {
         it('blockWrite() ovewrwrites the block', () => {
           const overwrite = merge({}, blockData, blockPatch);
           const overwriteFileContents = { [blockId]: overwrite };
-          return persistence.blockWrite(projectId, overwrite)
+          return persistence.blocksWrite(projectId, { [blockId]: overwrite })
             .then(() => fileRead(blockManifestPath))
             .then(result => expect(result).to.eql(overwriteFileContents));
         });
@@ -258,7 +258,7 @@ describe('Server', () => {
         it('blockWrite() does not make the project commit', () => {
           return versioning.log(projectRepoDataPath).then(firstResults => {
             const overwrite = merge({}, blockData, blockPatch);
-            return persistence.blockWrite(projectId, overwrite)
+            return persistence.blocksWrite(projectId, { [blockId]: overwrite })
               .then(() => versioning.log(projectRepoDataPath))
               .then((secondResults) => {
                 expect(secondResults.length).to.equal(firstResults.length);
@@ -270,16 +270,16 @@ describe('Server', () => {
           const merged = merge({}, blockData, blockPatch);
           const mergedFileContents = { [merged.id]: merged };
           //start with write to reset
-          return persistence.blockWrite(projectId, blockData)
-            .then(() => persistence.blockMerge(projectId, blockId, blockPatch))
-            .then(result => expect(result).to.eql(merged))
+          return persistence.blocksWrite(projectId, { [blockId]: blockData })
+            .then(() => persistence.blocksMerge(projectId, { [blockId]: blockPatch }))
+            .then(result => expect(result[blockId]).to.eql(merged))
             .then(() => fileRead(blockManifestPath))
             .then(result => expect(result).to.eql(mergedFileContents));
         });
 
         it('blockMerge() validates the block', () => {
           const invalidData = { metadata: 'impossible' };
-          return persistence.blockMerge(projectId, blockId, invalidData)
+          return persistence.blocksMerge(projectId, { [blockId]: invalidData })
             .then(() => assert(false))
             .catch(err => expect(err).to.equal(errorInvalidModel));
         });
@@ -303,7 +303,7 @@ describe('Server', () => {
         const blockManifestPath = filePaths.createBlockManifestPath(projectId, blockId);
 
         //skip test suite if not using s3
-        before(function() {
+        before(function () {
           if (s3.useRemote) {
             this.skip();
           }
@@ -332,7 +332,7 @@ describe('Server', () => {
 
         it('blockDelete() deletes block', () => {
           return persistence.projectWrite(projectId, projectData, userId)
-            .then(() => persistence.blockWrite(projectId, blockData))
+            .then(() => persistence.blocksWrite(projectId, { [blockId]: blockData }))
             .then(() => fileRead(blockManifestPath))
             .then(result => expect(result).to.eql(blockFileContents))
             .then(() => persistence.blocksDelete(projectId, blockId))
@@ -343,7 +343,7 @@ describe('Server', () => {
 
         it('blockDelete() does not create a commit', () => {
           return persistence.projectWrite(projectId, projectData, userId)
-            .then(() => persistence.blockWrite(projectId, blockData))
+            .then(() => persistence.blocksWrite(projectId, { [blockId]: blockData }))
             .then(() => {
               return versioning.log(projectRepoDataPath)
                 .then(firstResults => {

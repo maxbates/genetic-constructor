@@ -20,7 +20,7 @@
 import invariant from 'invariant';
 import { merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../../utils/errors';
-import { validateBlock, validateProject, validateOrder } from '../../utils/validation';
+import { validateBlock, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
 
 /*********
@@ -105,6 +105,12 @@ export const projectGet = (projectId, sha) => {
     });
 };
 
+//todo - use this in router
+export const projectGetManifest = (projectId, sha) => {
+  return projectGet(projectId, sha)
+    .then(result => result.project);
+};
+
 //returns map, where blockMap.blockId === undefined if was missing
 export const blocksGet = (projectId, sha = false, ...blockIds) => {
   return _blocksRead(projectId, sha, ...blockIds)
@@ -179,6 +185,11 @@ export const projectWrite = (projectId, project = {}, userId, bypassValidation =
     });
 };
 
+//todo - use this, instead of projectWrite
+export const projectWriteManifest = (projectId, manifest = {}, userId, bypassValidation = false) => {
+
+};
+
 //overwrite all blocks
 export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
   invariant(typeof projectId === 'string', 'projectId must be string');
@@ -206,43 +217,6 @@ export const projectMerge = (projectId, project, userId) => {
 //merge all blocks
 export const blocksMerge = (projectId, blockMap) => {
   return blocksWrite(projectId, blockMap, false);
-};
-
-//merge a single block
-//to write a single block... but in general you should write many at once using blocksMerge / blocksWrite
-export const blockMerge = (projectId, blockId, patch) => {
-  return blocksGet(projectId, false, blockId)
-    .then(blockMap => {
-      const oldBlock = blockMap[blockId];
-      const merged = merge({}, oldBlock, patch, {
-        projectId,
-        id: blockId,
-      });
-
-      if (!validateBlock(merged)) {
-        return Promise.reject(errorInvalidModel);
-      }
-
-      return blocksMerge(projectId, { [merged.id]: merged });
-    })
-    .then(blockMap => blockMap[blockId]);
-};
-
-//deprecate
-//write/overwrite a single block
-//prefer blocksWrite / blocksMerge, but for atomic operations this is ok (or when want to just write on block)
-export const blockWrite = (projectId, block) => {
-  if (!validateBlock(block)) {
-    return Promise.reject(errorInvalidModel);
-  }
-
-  return blocksGet(projectId)
-    .then(blockMap => {
-      //get the whole map, and overwrite the one we're interested in
-      Object.assign(blockMap, { [block.id]: block });
-      return blocksWrite(projectId, blockMap);
-    })
-    .then(blockMap => blockMap[block.id]);
 };
 
 //DELETE
