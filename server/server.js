@@ -21,7 +21,7 @@ import compression from 'compression';
 
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
-import dataRouter from './data/index';
+import dataRouter from './data/router';
 import orderRouter from './order/index';
 import extensionsRouter from './extensions/index';
 import reportRouter from './report/index';

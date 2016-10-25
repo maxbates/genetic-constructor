@@ -18,7 +18,7 @@ import uuid from 'node-uuid';
 import Project from '../../../../../src/models/Project';
 import { errorDoesNotExist } from '../../../../../server/utils/errors';
 import * as projectFiles from '../../../../../server/data/persistence/projectFiles';
-import * as s3 from '../../../../../server/data/persistence/s3';
+import * as s3 from '../../../../../server/data/middleware/s3';
 
 describe('Server', () => {
   describe('Data', () => {

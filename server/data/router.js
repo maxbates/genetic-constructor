@@ -28,8 +28,8 @@ import * as rollup from './rollup';
 import { ensureReqUserMiddleware } from '../user/utils';
 import { permissionsMiddleware } from './permissions';
 
-import projectFileRouter from './projectFileRouter';
-import sequenceRouter from './sequenceRouter';
+import projectFileRouter from './routerProjectFiles';
+import sequenceRouter from './routerSequences';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json({
@@ -197,6 +197,7 @@ router.route('/:projectId/commit/:sha?')
         .then(project => res.status(200).json(project))
         .catch(err => next(err));
     } else {
+      //todo - this should move to the versioning module, not querying
       querying.getProjectVersions(projectId)
         .then(log => res.status(200).json(log))
         .catch(err => next(err));

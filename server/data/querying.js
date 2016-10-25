@@ -20,7 +20,7 @@ limitations under the License.
 import * as fileSystem from '../utils/fileSystem';
 import * as filePaths from '../utils/filePaths';
 import * as persistence from './persistence';
-import * as versioning from './versioning';
+import * as versioning from './git-deprecated/git';
 import invariant from 'invariant';
 import { spawn } from 'child_process';
 import { merge, filter, values } from 'lodash';
@@ -123,6 +123,7 @@ export const getAllProjectManifests = (userId) => {
     });
 };
 
+//todo - should go in versioning file, not a query
 export const getProjectVersions = (projectId) => {
   const projectDataPath = filePaths.createProjectDataPath(projectId);
   return versioning.log(projectDataPath);

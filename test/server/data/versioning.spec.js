@@ -4,7 +4,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import { exec } from 'child_process'; //todo - promise version
 import { createStorageUrl } from '../../../server/utils/filePaths';
-import * as versioning from '../../../server/data/versioning';
+import * as versioning from '../../../server/data/git-deprecated/git';
 import { fileExists, fileRead, fileWrite, fileDelete, directoryMake, directoryDelete } from '../../../server/utils/fileSystem';
 import { errorDoesNotExist } from '../../../server/utils/errors';
 

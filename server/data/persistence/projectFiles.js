@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import * as s3 from './s3';
+import * as s3 from '../middleware/s3';
 import * as filePaths from '../../utils/filePaths';
 import * as fileSystem from '../../utils/fileSystem';
 

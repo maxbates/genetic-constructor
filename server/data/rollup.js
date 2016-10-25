@@ -35,6 +35,7 @@ import * as sequencePersistence from './persistence/sequence';
 import { mapValues, values } from 'lodash';
 import DebugTimer from '../utils/DebugTimer';
 import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
+import { dbGet, dbPruneResult } from './middleware/db';
 
 /**
  * Given a rollup, get all the sequences for blocks in the form: { blockId : sequence }
@@ -51,6 +52,7 @@ export const getSequencesGivenRollup = (rollup) => {
 // if withSequences === true, adds field `sequences` to roll
 // e.g. { project: {}, blocks: {}, sequences: { blockId: 'ACAGTCGACTGAC } }
 export const getProjectRollup = (projectId, withSequences = false) => {
+  //todo - need to update this to expect rollup, not just the manifest
   //get project explicitly first so can handle errors of project not more granularly
   return persistence.projectGet(projectId)
     .then(project => {
@@ -122,6 +124,9 @@ export const writeProjectRollup = (projectId, rollup, userId, bypassValidation =
     });
 };
 
+////// HELPERS ///////
+//todo - move to a rollup class
+
 //helper
 const getBlockInRollById = (id, roll) => roll.blocks[id];
 
@@ -172,6 +177,12 @@ export const getContentsRecursivelyGivenRollup = (rootId, rollup) => {
   };
 };
 
+/**
+ * @description Recursively get contents (components + children) of a block (and returns block itself)
+ * @param rootId {ID} root to get components of
+ * @param projectId {ID=} Id of project, internal use (or force one)
+ * @returns {object} { components: {}, options: {} }
+ */
 export const getContents = (rootId, projectId) => {
   return getProjectRollup(projectId)
     .then(rollup => getContentsRecursivelyGivenRollup(rootId, rollup));

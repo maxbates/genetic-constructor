@@ -13,10 +13,10 @@ import {
 } from '../../server/utils/fileSystem';
 import Block from '../../src/models/Block';
 
-import * as commitMessages from '../../server/data/commitMessages';
+import * as commitMessages from '../../server/data/git-deprecated/commitMessages';
 import * as filePaths from '../../server/utils/filePaths';
 import * as rollup from '../../server/data/rollup';
-import * as versioning from '../../server/data/versioning';
+import * as versioning from '../../server/data/git-deprecated/git';
 import * as persistence from '../../server/data/persistence';
 import { createExampleRollup } from '../utils/rollup';
 

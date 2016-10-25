@@ -4,7 +4,7 @@ import { testUserId } from '../../../constants';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import * as filePaths from '../../../../server/utils/filePaths';
-import * as versioning from '../../../../server/data/versioning';
+import * as versioning from '../../../../server/data/git-deprecated/git';
 import * as persistence from '../../../../server/data/persistence';
 import devServer from '../../../../server/server';
 import { merge } from 'lodash';

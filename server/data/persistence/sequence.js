@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 import { every, mapValues, chunk } from 'lodash';
 import md5 from 'md5';
-import * as s3 from './s3';
+import * as s3 from '../middleware/s3';
 import * as filePaths from '../../utils/filePaths';
 import {
   fileExists,

@@ -15,7 +15,7 @@
  */
 import { assert, expect } from 'chai';
 import uuid from 'node-uuid';
-import * as s3 from '../../../../server/data/persistence/s3';
+import * as s3 from '../../../../server/data/middleware/s3';
 import AWS from 'aws-sdk';
 
 describe('Server', () => {

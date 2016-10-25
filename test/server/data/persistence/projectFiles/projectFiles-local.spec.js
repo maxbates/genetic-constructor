@@ -28,7 +28,7 @@ import {
   directoryDelete
 } from '../../../../../server/utils/fileSystem';
 import * as filePaths from '../../../../../server/utils/filePaths';
-import * as s3 from '../../../../../server/data/persistence/s3';
+import * as s3 from '../../../../../server/data/middleware/s3';
 
 describe('Server', () => {
   describe('Data', () => {

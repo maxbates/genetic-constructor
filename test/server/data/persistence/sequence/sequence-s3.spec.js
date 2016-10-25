@@ -20,7 +20,7 @@ import { errorDoesNotExist } from '../../../../../server/utils/errors';
 import rejectingFetch from '../../../../../src/middleware/utils/rejectingFetch';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 
-import * as s3 from '../../../../../server/data/persistence/s3';
+import * as s3 from '../../../../../server/data/middleware/s3';
 import * as sequences from '../../../../../server/data/persistence/sequence';
 
 describe('Server', () => {

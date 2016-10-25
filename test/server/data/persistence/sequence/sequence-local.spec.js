@@ -29,7 +29,7 @@ import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../.
 
 import * as filePaths from '../../../../../server/utils/filePaths';
 import * as sequences from '../../../../../server/data/persistence/sequence';
-import * as s3 from '../../../../../server/data/persistence/s3';
+import * as s3 from '../../../../../server/data/middleware/s3';
 
 describe('Server', () => {
   describe('Data', () => {

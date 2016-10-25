@@ -13,9 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { STORAGE_URL } from '../urlConstants';
-import rejectingFetch from '../../src/middleware/utils/rejectingFetch';
-import * as headers from '../../src/middleware/utils/headers';
+import { STORAGE_URL } from '../../urlConstants';
+import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
+import * as headers from '../../../src/middleware/utils/headers';
 
 const makePath = path => STORAGE_URL + path;
 
