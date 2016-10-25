@@ -31,11 +31,27 @@ import { errorInvalidModel, errorDoesNotExist } from '../utils/errors';
 import * as persistence from './persistence';
 import { validateBlock, validateProject } from '../utils/validation';
 import { getAllBlocksInProject } from './querying';
-import { values } from 'lodash';
+import * as sequencePersistence from './persistence/sequence';
+import { mapValues, values } from 'lodash';
 import DebugTimer from '../utils/DebugTimer';
+import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
 
-export const getProjectRollup = (projectId) => {
-  //dont use Promise.all so we can handle errors of project not existing better
+/**
+ * Given a rollup, get all the sequences for blocks in the form: { blockId : sequence }
+ * @param rollup
+ * @returns rollup, with sequence map: { project: {}, blocks: {}, sequences: { <blockId>: 'ACAGTCGACTGAC' } }
+ */
+export const getSequencesGivenRollup = (rollup) => {
+  const blockIdsToMd5s = mapValues(rollup.blocks, (block, blockId) => block.sequence.md5);
+
+  return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => sequencePersistence.sequenceGet(seqMd5))
+    .then(sequences => Object.assign(rollup, { sequences }));
+};
+
+// if withSequences === true, adds field `sequences` to roll
+// e.g. { project: {}, blocks: {}, sequences: { blockId: 'ACAGTCGACTGAC } }
+export const getProjectRollup = (projectId, withSequences = false) => {
+  //get project explicitly first so can handle errors of project not more granularly
   return persistence.projectGet(projectId)
     .then(project => {
       if (!project) {
@@ -49,6 +65,13 @@ export const getProjectRollup = (projectId) => {
             blocks,
           };
         });
+    })
+    .then(roll => {
+      if (withSequences !== true) {
+        return roll;
+      }
+
+      return getSequencesGivenRollup(roll);
     });
 };
 
@@ -175,5 +198,3 @@ export const getOptions = (rootId, projectId) => {
   return getContents(rootId, projectId)
     .then(({ options }) => options);
 };
-
-//future - function which only returns the components of a project, not the list options? not sure what use case is though....

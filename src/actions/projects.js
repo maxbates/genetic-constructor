@@ -33,7 +33,6 @@ import Project from '../models/Project';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 import { getLocal, setLocal } from '../utils/ui/localstorage';
-import * as projectFileApi from '../middleware/projectFiles';
 
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
@@ -202,7 +201,7 @@ export const projectSnapshot = (projectId, message, withRollup = true) => {
 /**
  * Create a project
  * @function
- * @param {Object} initialModel Data to merge onto scaffold
+ * @param {Object} [initialModel={}] Data to merge onto scaffold
  * @returns {Project} New project
  */
 export const projectCreate = (initialModel) => {
@@ -492,7 +491,7 @@ export const projectFileWrite = (projectId, namespace, fileName, contents) => {
   return (dispatch, getState) => {
     const oldProject = getState().projects[projectId];
 
-    return oldProject.writeFile(namespace, fileName, contents)
+    return oldProject.fileWrite(namespace, fileName, contents)
       .then(project => {
         //should this be undoable?
         dispatch({

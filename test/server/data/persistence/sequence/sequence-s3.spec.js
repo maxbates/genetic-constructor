@@ -29,7 +29,7 @@ describe('Server', () => {
       describe('sequence', () => {
         describe('S3', () => {
           let s3bucket;
-          
+
           //skip test suite if not using s3
           before(function runCheck() {
             if (!s3.useRemote) {
@@ -46,8 +46,12 @@ describe('Server', () => {
           const hash2 = md5(seq2);
 
           // SEQUENCE
+          it('sequenceGet() should throw on invalid md5', () => {
+            expect(() => sequences.sequenceGet(uuid.v4())).to.throw();
+          });
+
           it('sequenceGet() should fail on sequences that dont exist', () => {
-            return sequences.sequenceGet(uuid.v4())
+            return sequences.sequenceGet(md5(uuid.v4()))
               .then(huhwhat => Promise.reject('nah uh. shuoldnt have worked'))
               .catch((err) => {
                 expect(err).to.equal(errorDoesNotExist);

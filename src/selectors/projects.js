@@ -205,7 +205,7 @@ export const projectFileRead = (projectId, namespace, fileName, format, version)
   return (dispatch, getState) => {
     const oldProject = getState().projects[projectId];
 
-    return oldProject.readFile(namespace, fileName, format, version);
+    return oldProject.fileRead(namespace, fileName, format, version);
   };
 };
 

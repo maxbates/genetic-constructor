@@ -19,9 +19,6 @@ import md5 from 'md5';
 import * as s3 from './s3';
 import * as filePaths from '../../utils/filePaths';
 import {
-  errorDoesNotExist,
-} from '../../utils/errors';
-import {
   fileExists,
   fileRead,
   fileWrite,
@@ -48,8 +45,7 @@ export const sequenceExists = (pseudoMd5) => {
   const { hash } = parsePseudoMd5(pseudoMd5);
 
   if (s3.useRemote) {
-    return s3.itemExists(s3bucket, hash)
-      .catch(err => errorDoesNotExist);
+    return s3.itemExists(s3bucket, hash);
   }
 
   const sequencePath = filePaths.createSequencePath(pseudoMd5);

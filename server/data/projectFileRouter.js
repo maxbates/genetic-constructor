@@ -20,20 +20,20 @@ import {
   errorDoesNotExist,
   errorFileNotFound,
 } from './../utils/errors';
-import { HOST_URL } from '../urlConstants';
 import * as projectFiles from './persistence/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
 
-//todo - verify this HOST_URL is correct when outward facing (i.e. in production)
-const makeProjectFileLink = (projectId, namespace, file) => {
-  return `${HOST_URL}/data/file/${projectId}/${namespace}/${file}`;
+const makeProjectFileLink = (req, projectId, namespace, file) => {
+  //req.get('host') should include the port, but it doesn't always...
+  const base = req.protocol + '://' + req.get('host');
+  return `${base}/data/file/${projectId}/${namespace}/${file}`;
 };
 
 //permission checking currently handled by data router (user has access to project)
 
-//todo - S3 access control ???? Necessary if all requests go through application server?
+//todo - S3 access control ???? Necessary if all requests go through application server (checks projectId this way)
 
 router.route('/:namespace/:file/:version?')
   .all((req, res, next) => {
@@ -69,12 +69,13 @@ router.route('/:namespace/:file/:version?')
   })
   .post(textParser, (req, res, next) => {
     const { projectId, namespace, file } = req;
-    const content = req.body;
+    //check if JSON was passed, parse to string if so
+    const content = typeof req.body === 'object' ? JSON.stringify(req.body) : (req.body || '');
 
     projectFiles.projectFileWrite(projectId, namespace, file, content)
       .then(resp => {
         const payload = {
-          url: makeProjectFileLink(projectId, namespace, file),
+          url: makeProjectFileLink(req, projectId, namespace, file),
           VersionId: resp.VersionId,
         };
         res.send(payload);
@@ -106,13 +107,13 @@ router.route('/:namespace')
   .get((req, res, next) => {
     const { projectId, namespace } = req;
 
-    //todo - support query where namespace is optional
+    //todo - support query where namespace is optional (need to update s3 support as well)
 
     projectFiles.projectFilesList(projectId, namespace)
       .then(contents => {
         const mapped = contents.map(filename => ({
           name: filename,
-          url: makeProjectFileLink(projectId, namespace, filename),
+          url: makeProjectFileLink(req, projectId, namespace, filename),
         }));
         res.json(mapped);
       })
