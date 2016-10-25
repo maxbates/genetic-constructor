@@ -20,15 +20,14 @@ import {
   errorDoesNotExist,
   errorFileNotFound,
 } from './../utils/errors';
-import { HOST_URL } from '../urlConstants';
 import * as projectFiles from './persistence/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
 
-//todo - verify this HOST_URL is correct when outward facing (i.e. in production)
-const makeProjectFileLink = (projectId, namespace, file) => {
-  return `${HOST_URL}/data/file/${projectId}/${namespace}/${file}`;
+const makeProjectFileLink = (req, projectId, namespace, file) => {
+  const base = req.protocol + '://' + req.hostname;
+  return `${base}/data/file/${projectId}/${namespace}/${file}`;
 };
 
 //permission checking currently handled by data router (user has access to project)
@@ -75,7 +74,7 @@ router.route('/:namespace/:file/:version?')
     projectFiles.projectFileWrite(projectId, namespace, file, content)
       .then(resp => {
         const payload = {
-          url: makeProjectFileLink(projectId, namespace, file),
+          url: makeProjectFileLink(req, projectId, namespace, file),
           VersionId: resp.VersionId,
         };
         res.send(payload);
@@ -107,13 +106,13 @@ router.route('/:namespace')
   .get((req, res, next) => {
     const { projectId, namespace } = req;
 
-    //todo - support query where namespace is optional (need to update s3 suport as well)
+    //todo - support query where namespace is optional (need to update s3 support as well)
 
     projectFiles.projectFilesList(projectId, namespace)
       .then(contents => {
         const mapped = contents.map(filename => ({
           name: filename,
-          url: makeProjectFileLink(projectId, namespace, filename),
+          url: makeProjectFileLink(req, projectId, namespace, filename),
         }));
         res.json(mapped);
       })
