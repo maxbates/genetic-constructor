@@ -26,7 +26,8 @@ const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
 
 const makeProjectFileLink = (req, projectId, namespace, file) => {
-  const base = req.protocol + '://' + req.hostname + ':' + req.port;
+  //req.get('host') should include the port, but it doesn't always...
+  const base = req.protocol + '://' + req.get('host');
   return `${base}/data/file/${projectId}/${namespace}/${file}`;
 };
 
