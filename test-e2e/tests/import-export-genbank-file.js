@@ -41,28 +41,40 @@ module.exports = {
 
     var gbFile = path.resolve(__dirname + '/../fixtures/test.gb');
 
+    browser.uploadFileToSeleniumServer(gbFile, function (result) {
+
+      if (result.status === -1) {
+        throw new Error(result);
+      }
+
+      // Extract the new remote path of the file
+      var remotePath = result.value || "";
+
+
       // send file name to hidden input[file]
-    browser
-      .setValue('.genbank-import-form input[type="file"]', gbFile)
+      browser
+      .setValue('.genbank-import-form input[type="file"]', remotePath)
       .pause(3000)
       // click submit button to start the upload of fake data
       .submitForm('.genbank-import-form')
       // wait for a construct viewer to become visible
-      .waitForElementPresent('.construct-viewer', 5000, 'expected a construct viewer to appear')
+      .waitForElementPresent('.construct-viewer', 60000, 'expected a construct viewer to appear')
       .pause(1000);
 
-    // we can't actually download the file but we can ensure the correct header is present at the expected url
-    browser.url(function (response) {
-      // save original project url
-      var projectURL = response.value;
-      var projectId = response.value.split('/').pop();
-      var uri = browser.launchUrl + '/extensions/api/genbank/export/' + projectId;
-      browser
+      // we can't actually download the file but we can ensure the correct header is present at the expected url
+      browser.url(function (response) {
+        // save original project url
+        var projectURL = response.value;
+        var projectId = response.value.split('/').pop();
+        var uri = browser.launchUrl + '/extensions/api/genbank/export/' + projectId;
+        browser
         .url(uri)
         .pause(5000)
         .assert.urlContains(projectURL)
         .saveScreenshot('./test-e2e/current-screenshots/import-export-genbank-file.png')
         .end();
+      });
+
     });
   }
 };
