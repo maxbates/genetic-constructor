@@ -155,6 +155,7 @@ router.all('/export/:projectId/:constructId?',
 
           const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
 
+          console.log(JSON.stringify(roll));
           const promise = !!constructId ?
             exportConstruct({ roll, constructId }) :
             exportProject(roll);
