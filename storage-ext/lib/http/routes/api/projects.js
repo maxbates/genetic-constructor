@@ -307,11 +307,61 @@ var deleteProject = function (req, res) {
   });
 };
 
+var fetchProjectsWithBlock = function (req, res) {
+  var blockId = req.params.blockId;
+  if (! blockId) {
+    return res.status(400).send({
+      message: 'failed to parse blockId from URI',
+    }).end();
+  }
+
+  var where = {
+    data: {
+      '$contains': { components: [ blockId ]},
+    },
+  };
+
+  if (notNullOrEmpty(req.query.owner)) {
+    var uuidBuf = urlSafeBase64.decode(req.query.owner);
+    var owner = uuidBuf.toString('utf8');
+    if (!uuidValidate(owner, 1)) {
+      return res.status(400).send({
+        message: 'invalid owner UUID',
+      }).end();
+    }
+
+    where.owner = owner;
+  }
+
+  return Project.findAll({
+    where: where,
+  }).then(function (results) {
+    if (results.length < 1) {
+      var msg = 'no projects found with blockId: ' + blockId;
+      if (where.owner != null) {
+        msg = msg + ' and ownerId: ' + where.owner;
+      }
+      return res.status(404).send({
+        message: msg,
+      }).end();
+    }
+
+    // TODO collapse versions here
+    return res.status(200).send(map(results, function (row) { return row.get(); })).end();
+  }).catch(function (err) {
+    console.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
 var routes = [
   route('GET /:projectId', fetchLatestProject),
   route('POST /:projectId', updateProject),
   route('DELETE /:projectId', deleteProject),
   route('GET /owner/:ownerId', fetchProjects),
+  route('GET /block/:blockId', fetchProjectsWithBlock),
   route('POST /', saveProject),
   route('GET /', function (req, res) {
     res.statusCode = 200;

@@ -40,7 +40,7 @@ var schema = {
     }
   },
   data: {
-    type: Sequelize.JSON,
+    type: Sequelize.JSONB,
     allowNull: false,
     defaultValue: {},
   },
@@ -51,6 +51,7 @@ var Project = DB.define('project', schema, {
   indexes: [
     {
       fields: ['id'],
+      unique: true,
     },
     {
       fields: ['owner'],
