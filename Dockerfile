@@ -15,8 +15,8 @@ RUN apt-get update -y
 RUN apt-get install -y curl gcc-4.9 g++-4.9 libstdc++-4.9-dev
 
 RUN apt-get install -y python python-dev python-pip git build-essential wget && \
-	curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash - && \
-	sudo apt-get -y install nodejs && \
+	curl -sL https://deb.nodesource.com/setup_4.x | bash - && \
+	apt-get -y install nodejs && \
 	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 #everything needed by extensions
