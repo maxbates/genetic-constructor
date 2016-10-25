@@ -109,7 +109,7 @@ export const snapshot = (projectId, message = 'Project Snapshot', rollup = {}) =
 export const deleteProject = (projectId) => {
   invariant(projectId, 'Project ID required to delete');
 
-  const url = dataApiPath(`${projectId}`);
+  const url = dataApiPath(`projects/${projectId}`);
 
   return rejectingFetch(url, headersDelete())
     .then(resp => resp.json());

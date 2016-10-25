@@ -393,42 +393,6 @@ export const blocksMerge = (projectId, blockMap) => {
   return blocksWrite(projectId, blockMap, false);
 };
 
-//merge a single block
-//to write a single block... but in general you should write many at once using blocksMerge / blocksWrite
-export const blockMerge = (projectId, blockId, patch) => {
-  return blocksGet(projectId, false, blockId)
-    .then(blockMap => {
-      const oldBlock = blockMap[blockId];
-      const merged = merge({}, oldBlock, patch, {
-        projectId,
-        id: blockId,
-      });
-
-      if (!validateBlock(merged)) {
-        return Promise.reject(errorInvalidModel);
-      }
-
-      return blocksMerge(projectId, { [merged.id]: merged });
-    })
-    .then(blockMap => blockMap[blockId]);
-};
-
-//write/overwrite a single block
-//prefer blocksWrite / blocksMerge, but for atomic operations this is ok (or when want to just write on block)
-export const blockWrite = (projectId, block) => {
-  if (!validateBlock(block)) {
-    return Promise.reject(errorInvalidModel);
-  }
-
-  return blocksGet(projectId)
-    .then(blockMap => {
-      //get the whole map, and overwrite the one we're interested in
-      Object.assign(blockMap, { [block.id]: block });
-      return blocksWrite(projectId, blockMap);
-    })
-    .then(blockMap => blockMap[block.id]);
-};
-
 export const orderWrite = (orderId, order, projectId, roll) => {
   const idedOrder = Object.assign({}, order, {
     projectId,

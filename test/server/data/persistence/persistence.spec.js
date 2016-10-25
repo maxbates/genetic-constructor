@@ -230,7 +230,7 @@ describe('Server', () => {
 
         it('blockWrite() creates block if necessary', () => {
           return persistence.blocksWrite(projectId, { [blockId]: blockData })
-            .then(result => assert(result));
+            .then(result => assert(result && result[blockId]));
         });
 
         it('blockWrite() validates the block', () => {

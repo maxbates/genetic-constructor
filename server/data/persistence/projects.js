@@ -105,7 +105,6 @@ export const projectGet = (projectId, sha) => {
     });
 };
 
-//todo - use this in router
 export const projectGetManifest = (projectId, sha) => {
   return projectGet(projectId, sha)
     .then(result => result.project);
@@ -185,9 +184,8 @@ export const projectWrite = (projectId, project = {}, userId, bypassValidation =
     });
 };
 
-//todo - use this, instead of projectWrite
-export const projectWriteManifest = (projectId, manifest = {}, userId, bypassValidation = false) => {
-
+export const projectWriteManifest = (projectId, manifest = {}, overwrite = true, bypassValidation = false) => {
+  //todo - get the project and merge manifest and write
 };
 
 //overwrite all blocks
@@ -214,6 +212,10 @@ export const projectMerge = (projectId, project, userId) => {
     });
 };
 
+export const projectMergeManifest = (projectId, manifest) => {
+  return projectWriteManifest(projectId, manifest, false);
+};
+
 //merge all blocks
 export const blocksMerge = (projectId, blockMap) => {
   return blocksWrite(projectId, blockMap, false);
@@ -221,8 +223,7 @@ export const blocksMerge = (projectId, blockMap) => {
 
 //DELETE
 
-//todo - change signature to require UserId (update all usages)
-export const projectDelete = (projectId, forceDelete = false) => {
+export const projectDelete = (projectId, userId, forceDelete = false) => {
   if (forceDelete === true) {
     //todo - return projectId
   }
@@ -235,14 +236,12 @@ export const projectDelete = (projectId, forceDelete = false) => {
       }
     })
     .then(() => {
-      //todo - pass userId
-      _projectDelete(projectId);
+      _projectDelete(projectId, userId);
     })
     //no need to commit... its deleted (and permissions out of scope of data folder)
     .then(() => projectId);
 };
 
-//deprecate
 export const blocksDelete = (projectId, ...blockIds) => {
   return blocksGet(projectId)
     .then(blockMap => {

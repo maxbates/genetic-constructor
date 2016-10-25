@@ -28,7 +28,7 @@ describe('Server', () => {
 
         before(() => {
           return persistence.projectCreate(projectId, projectData, userId)
-            .then(() => persistence.blocksWrite(projectId,  { [blockId]: blockData}));
+            .then(() => persistence.blocksWrite(projectId, { [blockId]: blockData }));
         });
 
         beforeEach('server setup', () => {

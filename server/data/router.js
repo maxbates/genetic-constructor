@@ -21,12 +21,14 @@ import {
   errorDoesNotExist,
   errorVersioningSystem,
   errorNoUser,
+  errorNoPermission,
 } from '../utils/errors';
 import * as querying from './querying';
 import * as persistence from './persistence';
 import * as rollup from './rollup';
 import { ensureReqUserMiddleware } from '../user/utils';
 import { permissionsMiddleware } from './permissions';
+import * as projectPersistence from './persistence/projects';
 
 import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
@@ -167,6 +169,19 @@ router.route('/projects/:projectId')
       .then(() => persistence.projectSave(projectId, user.uuid))
       .then(commit => res.status(200).json(commit))
       .catch(err => next(err));
+  })
+  .delete((req, res, next) => {
+    const { projectId, user } = req;
+    const forceDelete = !!req.query.force;
+
+    projectPersistence.projectDelete(projectId, user.uuid, forceDelete)
+      .then(() => res.status(200).json({ projectId }))
+      .catch(err => {
+        if (err === errorDoesNotExist) {
+          return res.status(404).send(errorDoesNotExist);
+        }
+        return next(err);
+      });
   });
 
 router.route('/projects')
@@ -287,11 +302,7 @@ router.route('/:projectId/:blockId')
       });
   })
   .delete((req, res, next) => {
-    const { blockId, projectId } = req;
-
-    persistence.blocksDelete(projectId, blockId)
-      .then(() => res.status(200).send(blockId))
-      .catch(err => next(err));
+    return res.status(403).send();
   });
 
 router.route('/:projectId')
@@ -300,7 +311,7 @@ router.route('/:projectId')
     const { projectId } = req;
     //const { depth } = req.query; //future
 
-    persistence.projectGet(projectId)
+    projectPersistence.projectGetManifest(projectId)
       .then(result => {
         if (!result) {
           return res.status(204).json(null);
@@ -313,7 +324,7 @@ router.route('/:projectId')
     const { projectId, user } = req;
     const project = req.body;
 
-    persistence.projectWrite(projectId, project, user.uuid)
+    projectPersistence.projectWriteManifest(projectId, project, user.uuid)
       .then(result => res.json(result))
       .catch(err => {
         if (err === errorInvalidModel) {
@@ -330,26 +341,13 @@ router.route('/:projectId')
       return res.status(400).send(errorInvalidModel);
     }
 
-    persistence.projectMerge(projectId, project, user.uuid)
+    projectPersistence.projectMergeManifest(projectId, project, user.uuid)
       .then(merged => res.status(200).send(merged))
       .catch(err => {
         if (err === errorInvalidModel) {
           return res.status(400).send(errorInvalidModel);
         }
         next(err);
-      });
-  })
-  .delete((req, res, next) => {
-    const { projectId } = req;
-    const forceDelete = !!req.query.force;
-
-    persistence.projectDelete(projectId, forceDelete)
-      .then(() => res.status(200).json({ projectId }))
-      .catch(err => {
-        if (err === errorDoesNotExist) {
-          return res.status(404).send(errorDoesNotExist);
-        }
-        return next(err);
       });
   });
 
