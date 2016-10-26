@@ -25,6 +25,7 @@ script:
 - npm run lint
 - npm run test
 - npm run start-auth-stack-testing -- --DEBUG --PLATFORM-PATH=/tmp/bio-user-platform
+- sleep 120
 - npm run nightwatch-saucelabs
 - pkill node
 cache:
