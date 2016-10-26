@@ -2,7 +2,6 @@
 
 var assert = require("assert");
 var async = require("async");
-var urlSafeBase64 = require("urlsafe-base64");
 var request = require("supertest");
 var describeAppTest = require("../../../api-app");
 
@@ -75,10 +74,36 @@ describeAppTest("http", function (app) {
         });
     });
 
-    it('should fetch projects by \'ownerId\'', function fetchProjectsByOwnerId(done) {
-      var buffer = new Buffer(owner, 'utf8');
+
+    it('should return a valid project for the correct owner', function fetchWithOwner(done) {
       request(app.proxy)
-        .get('/api/projects/owner/' + urlSafeBase64.encode(buffer))
+        .get('/api/projects/' + projectId0 + '?owner=' + owner)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log('fetch by project id result:', res.body);
+          done();
+        });
+    });
+
+    it('should not return a valid project for the wrong owner', function fetchWithBadOwner(done) {
+      request(app.proxy)
+        .get('/api/projects/' + projectId0 + '?owner=fe5b5340-8991-11e6-b86a-b5fa2a5eb9ca')
+        .expect(404)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log('fetch by project id result:', res.body);
+          done();
+        });
+    });
+
+    it('should fetch projects by \'ownerId\'', function fetchProjectsByOwnerId(done) {
+      request(app.proxy)
+        .get('/api/projects/owner/' + owner)
         .expect(200)
         .end(function (err, res) {
           assert.ifError(err);
@@ -119,10 +144,8 @@ describeAppTest("http", function (app) {
         biggestFan: 'DEH',
       };
 
-      var uuidBuf = new Buffer(owner, 'utf8');
-
       request(app.proxy)
-        .post('/api/projects/' + projectId0 + '?owner=' + urlSafeBase64.encode(uuidBuf) + '&version=0')
+        .post('/api/projects/' + projectId0 + '?owner=' + owner + '&version=0')
         .send({
           data: data,
         })

@@ -6,7 +6,6 @@ var isEmpty = require('underscore').isEmpty;
 var map = require('underscore').map;
 var max = require('underscore').max;
 
-var urlSafeBase64 = require("urlsafe-base64");
 var uuidValidate = require("uuid-validate");
 
 var route = require("http-route");
@@ -88,9 +87,7 @@ var updateProject = function (req, res) {
   // just do an update if the caller gave owner and version
   if (notNullOrEmpty(req.query.owner) && notNullAndPosInt(version)) {
     req.log.info('optimized project update routine');
-    var uuidBuf = urlSafeBase64.decode(req.query.owner);
-    var owner = uuidBuf.toString('utf8');
-    if (! uuidValidate(owner, 1)) {
+    if (! uuidValidate(req.query.owner, 1)) {
       return res.status(400).send({
         message: 'invalid owner UUID',
       }).end();
@@ -98,7 +95,7 @@ var updateProject = function (req, res) {
 
     var where = {
       id: projectId,
-      owner: owner,
+      owner: req.query.owner,
       version: version,
     };
 
@@ -186,11 +183,23 @@ var fetchLatestProject = function (req, res) {
     }).end();
   }
 
-  return Project.findAll({
-    where: {
-      id: projectId,
-      status: 1,
+  var where = {
+    id: projectId,
+    status: 1,
+  };
+
+  if (notNullOrEmpty(req.query.owner)) {
+    if (!uuidValidate(req.query.owner, 1)) {
+      return res.status(400).send({
+        message: 'invalid owner UUID',
+      }).end();
     }
+
+    where.owner = req.query.owner;
+  }
+
+  return Project.findAll({
+    where: where,
   }).then(function (results) {
     if (results.length < 1) {
       return res.status(404).send({
@@ -218,18 +227,15 @@ var fetchProjects = function (req, res) {
     }).end();
   }
 
-  var uuidBuf = urlSafeBase64.decode(ownerUUID);
-  var owner = uuidBuf.toString('utf8');
-
   return Project.findAll({
     where: {
-      owner: owner,
+      owner: ownerUUID,
       status: 1,
     }
   }).then(function (results) {
     if (results.length < 1) {
       return res.status(404).send({
-        message: 'no projects found for owner: ' + owner,
+        message: 'no projects found for owner: ' + ownerUUID,
       }).end();
     }
 
@@ -254,13 +260,12 @@ var deleteProject = function (req, res) {
   var version = parseInt(req.query.version);
   var owner = null;
   if (notNullOrEmpty(req.query.owner)) {
-    var uuidBuf = urlSafeBase64.decode(req.query.owner);
-    owner = uuidBuf.toString('utf8');
-    if (! uuidValidate(owner, 1)) {
+    if (! uuidValidate(req.query.owner, 1)) {
       return res.status(400).send({
         message: 'invalid owner UUID',
       }).end();
     }
+    owner = req.query.owner;
   }
 
   var where = {
@@ -322,15 +327,13 @@ var fetchProjectsWithBlock = function (req, res) {
   };
 
   if (notNullOrEmpty(req.query.owner)) {
-    var uuidBuf = urlSafeBase64.decode(req.query.owner);
-    var owner = uuidBuf.toString('utf8');
-    if (!uuidValidate(owner, 1)) {
+    if (!uuidValidate(req.query.owner, 1)) {
       return res.status(400).send({
         message: 'invalid owner UUID',
       }).end();
     }
 
-    where.owner = owner;
+    where.owner = req.query.owner;
   }
 
   return Project.findAll({
