@@ -101,21 +101,7 @@ describeAppTest("http", function (app) {
         });
     });
 
-    it('should fetch projects by \'ownerId\'', function fetchProjectsByOwnerId(done) {
-      request(app.proxy)
-        .get('/api/projects/owner/' + owner)
-        .expect(200)
-        .end(function (err, res) {
-          assert.ifError(err);
-          assert.notEqual(res, null);
-          assert.notEqual(res.body, null);
-          // console.log('fetch by owner result:', res.body);
-          assert(Array.isArray(res.body));
-          done();
-        });
-    });
-
-    it('should update the latest version of the project', function updateLatestVersion(done) {
+    it('should create a new version with update of the project', function updateLatestVersion(done) {
       var data = {
         chicago: 'blackhawks',
         championships: 6,
@@ -131,8 +117,9 @@ describeAppTest("http", function (app) {
           assert.ifError(err);
           assert.notEqual(res, null);
           assert.notEqual(res.body, null);
-          // console.log`('update result:', res.body);
+          // console.log('update result:', res.body);
           assert.deepEqual(res.body.data, data);
+          assert.equal(res.body.version, 1);
           done();
         });
     });
@@ -154,8 +141,24 @@ describeAppTest("http", function (app) {
           assert.ifError(err);
           assert.notEqual(res, null);
           assert.notEqual(res.body, null);
-          // console.log`('update result:', res.body);
+          // console.log('update result:', res.body);
           assert.deepEqual(res.body.data, data);
+          done();
+        });
+    });
+
+    it('should fetch projects by \'ownerId\'', function fetchProjectsByOwnerId(done) {
+      request(app.proxy)
+        .get('/api/projects/owner/' + owner)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log('fetch by owner result:', res.body);
+          assert(Array.isArray(res.body));
+          assert.equal(res.body.length, 1);
+          assert.equal(res.body[0].version, 1);
           done();
         });
     });
@@ -168,7 +171,7 @@ describeAppTest("http", function (app) {
           assert.ifError(err);
           assert.notEqual(res, null);
           assert.notEqual(res.body, null);
-          assert.equal(res.body.numDeleted, 1);
+          assert.equal(res.body.numDeleted, 2);
           return request(app.proxy)
             .get('/api/projects/' + projectId0)
             .expect(404)

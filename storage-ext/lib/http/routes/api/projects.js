@@ -2,9 +2,11 @@
 
 var async = require('async');
 
+var groupBy = require('underscore').groupBy;
 var isEmpty = require('underscore').isEmpty;
 var map = require('underscore').map;
 var max = require('underscore').max;
+var pairs = require('underscore').pairs;
 
 var uuidValidate = require("uuid-validate");
 
@@ -15,6 +17,20 @@ var notNullAndPosInt = require('../../../util').notNullAndPosInt;
 
 
 var Project = require('../../../project');
+
+function collapseProjects(projectsArray) {
+  var groupedProjects = groupBy(map(projectsArray, function (row) {
+    return row.get();
+  }), function (project) {
+    return project.id;
+  });
+
+  return map(pairs(groupedProjects), function (pair) {
+    return max(pair[1], function (projObj) {
+      return projObj.version;
+    });
+  });
+}
 
 var saveProject = function (req, res) {
   var body = req.body;
@@ -64,40 +80,42 @@ var saveProject = function (req, res) {
 
 var updateProject = function (req, res) {
   var projectId = req.params.projectId;
-  if (! projectId) {
+  if (!projectId) {
     return res.status(400).send({
       message: 'failed to parse projectId from URI',
     }).end();
   }
 
-  if (! req.body) {
+  if (!req.body) {
     return res.status(400).send({
       message: 'no request body for updating project',
     }).end();
   }
 
   var data = req.body.data;
-  if (! data) {
+  if (!data) {
     return res.status(400).send({
       message: 'no data in request body for updating project',
     }).end();
   }
 
-  var version = parseInt(req.query.version);
-  // just do an update if the caller gave owner and version
-  if (notNullOrEmpty(req.query.owner) && notNullAndPosInt(version)) {
-    req.log.info('optimized project update routine');
-    if (! uuidValidate(req.query.owner, 1)) {
+  var where = {
+    id: projectId,
+  };
+
+  if (notNullOrEmpty(req.query.owner)) {
+    if (!uuidValidate(req.query.owner, 1)) {
       return res.status(400).send({
         message: 'invalid owner UUID',
       }).end();
     }
+    where.owner = req.query.owner;
+  }
 
-    var where = {
-      id: projectId,
-      owner: req.query.owner,
-      version: version,
-    };
+  var version = parseInt(req.query.version);
+  if (notNullAndPosInt(version)) {
+    where.version = version;
+    req.log.info('update specific project version');
 
     return Project.update({
       data: data,
@@ -129,12 +147,15 @@ var updateProject = function (req, res) {
     });
   }
 
+  var overwrite = false;
+  if ((req.query.overwrite != null) && (req.query.overwrite === "true")) {
+    overwrite = true;
+  }
+
   return async.waterfall([
     function (cb) {
       Project.findAll({
-        where: {
-          id: projectId,
-        }
+        where: where,
       }).then(function (rows) {
         return cb(null, max(rows, function (row) {
           return row.get('version');
@@ -150,12 +171,28 @@ var updateProject = function (req, res) {
         });
       }
 
-      record.set('data', data);
-      record.save({
-        returning: true,
-      }).then(function (updated) {
-        return cb(null, updated.get());
-      }).catch(cb);
+      if (overwrite) {
+        record.set('data', data);
+        return record.save({
+          returning: true,
+        }).then(function (updated) {
+          return cb(null, updated.get());
+        }).catch(cb);
+      } else {
+        return Project.create({
+          owner: record.get('owner'),
+          id: record.get('id'),
+          data: data,
+          version: (record.get('version') + 1),
+        }).then(function (newProject) {
+          return res.status(200).send(newProject.get()).end();
+        }).catch(function (err) {
+          console.log(err);
+          return res.status(500).send({
+            message: err.message,
+          }).end();
+        });
+      }
     },
   ], function (err, result) {
     if (err) {
@@ -239,8 +276,7 @@ var fetchProjects = function (req, res) {
       }).end();
     }
 
-    // TODO collapse versions here
-    return res.status(200).send(map(results, function (row) { return row.get(); })).end();
+    return res.status(200).send(collapseProjects(results)).end();
   }).catch(function (err) {
     console.error(err);
     return res.status(500).send({
@@ -349,8 +385,7 @@ var fetchProjectsWithBlock = function (req, res) {
       }).end();
     }
 
-    // TODO collapse versions here
-    return res.status(200).send(map(results, function (row) { return row.get(); })).end();
+    return res.status(200).send(collapseProjects(results)).end();
   }).catch(function (err) {
     console.error(err);
     return res.status(500).send({
