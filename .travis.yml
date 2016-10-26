@@ -23,7 +23,7 @@ script:
 # - npm run test #only need to run coverage report - will run tests + report coverage
 - npm run test-coverage-report
 # e2e tests
-- npm run start-testing; npm run nightwatch-saucelabs; pkill node
+#- npm run start-testing; npm run nightwatch-saucelabs; pkill node
 cache:
   directories:
   - node_modules
