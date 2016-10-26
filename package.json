@@ -68,6 +68,7 @@
     "file-loader": "^0.8.5",
     "formidable": "^1.0.17",
     "fs-extra": "^0.30.0",
+    "gctor-storage": "file:storage-ext",
     "history": "^1.17.0",
     "invariant": "^2.2.0",
     "isomorphic-fetch": "^2.1.1",
