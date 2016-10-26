@@ -32,7 +32,7 @@ import { dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
  *********/
 //maybe can deprecate these helpers, and just use the exported functions
 
-//todo - a HEAD command might be useful here
+//todo - a HEAD point might be useful here - get lastModified, version, etc.
 const _projectExists = (projectId, version) => {
   if (!!version) {
     //todo
@@ -72,18 +72,6 @@ const _projectDelete = (projectId, userId) => {
 
 export const projectExists = (projectId, sha) => {
   return _projectExists(projectId, sha);
-};
-
-//todo - update use, so can see if exists, and setup if not
-const projectAssertNew = (projectId) => {
-  return projectExists(projectId)
-    .then(() => Promise.reject(errorAlreadyExists))
-    .catch((err) => {
-      if (err === errorDoesNotExist) {
-        return Promise.resolve(projectId);
-      }
-      return Promise.reject(err);
-    });
 };
 
 //GET

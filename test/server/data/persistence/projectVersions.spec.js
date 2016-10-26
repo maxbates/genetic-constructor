@@ -13,14 +13,4 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
-import { testUserId } from '../constants';
-import { merge } from 'lodash';
-
-export const updateProjectWithTestAuthor = (project = {}, userId = testUserId) => {
-  return merge({}, project, {
-    metadata: {
-      authors: [ userId ],
-    },
-  });
-};
+ 

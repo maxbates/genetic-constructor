@@ -2,7 +2,7 @@ import { assert, expect } from 'chai';
 import path from 'path';
 import uuid from 'node-uuid';
 import merge from 'lodash.merge';
-import { updateProjectWithAuthor } from '../../../utils/userUtils';
+import { updateProjectWithTestAuthor } from '../../../utils/userUtils';
 import md5 from 'md5';
 import { testUserId } from '../../../constants';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
@@ -25,12 +25,14 @@ import * as s3 from '../../../../server/data/middleware/s3';
 
 //todo - can probably de-dupe many of these setup / before() clauses, they are pretty similar
 
+console.log('todo - deprecate me!!!!! old persistence spec');
+
 describe('Server', () => {
   describe('Data', () => {
-    describe('persistence', function persistenceTests() {
+    describe.skip('persistence', function persistenceTests() {
       describe('existence + reading', () => {
         const projectName = 'persistenceProject';
-        const projectData = new Project(updateProjectWithAuthor({ metadata: { name: projectName } }));
+        const projectData = new Project(updateProjectWithTestAuthor({ metadata: { name: projectName } }));
         const projectId = projectData.id;
         const projectPath = filePaths.createProjectPath(projectId);
         const projectDataPath = filePaths.createProjectDataPath(projectId);
@@ -43,12 +45,7 @@ describe('Server', () => {
         const blockDataPath = filePaths.createBlockDirectoryPath(projectId);
         const blockManifestPath = filePaths.createBlockManifestPath(projectId);
 
-        //skip test suite if not using s3
         before(function () {
-          if (s3.useRemote) {
-            this.skip();
-          }
-
           return directoryDelete(projectPath)
             .then(() => directoryMake(projectPath))
             .then(() => directoryMake(projectDataPath))
@@ -108,7 +105,7 @@ describe('Server', () => {
       describe('creation', () => {
         const userId = testUserId;
 
-        const projectData = new Project(updateProjectWithAuthor());
+        const projectData = new Project(updateProjectWithTestAuthor());
         const projectId = projectData.id;
         const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const projectManifestPath = filePaths.createProjectManifestPath(projectId);
@@ -154,7 +151,7 @@ describe('Server', () => {
       describe('write + merge', () => {
         const userId = testUserId;
 
-        const projectData = new Project(updateProjectWithAuthor());
+        const projectData = new Project(updateProjectWithTestAuthor());
         const projectId = projectData.id;
         const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const projectManifestPath = filePaths.createProjectManifestPath(projectId);
@@ -284,7 +281,7 @@ describe('Server', () => {
       describe('deletion', () => {
         const userId = testUserId;
 
-        const projectData = new Project(updateProjectWithAuthor());
+        const projectData = new Project(updateProjectWithTestAuthor());
         const projectId = projectData.id;
         const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const projectManifestPath = filePaths.createProjectManifestPath(projectId);

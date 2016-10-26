@@ -51,6 +51,8 @@ export const checkProjectAccess = (projectId, userId, projectMustExist = false) 
           if (!projectMustExist) {
             return true;
           }
+
+          console.error(err);
           return Promise.reject(errorDoesNotExist);
         });
     });

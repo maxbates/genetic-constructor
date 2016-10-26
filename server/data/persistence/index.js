@@ -38,7 +38,7 @@ import {
 import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
 
-//todo - deprecate this file, in favor of /projects folder
+//todo - deprecate this file, in favor of projects.js and orders.js etc.
 
 /*********
  Helpers

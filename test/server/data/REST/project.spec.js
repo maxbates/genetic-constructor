@@ -2,7 +2,7 @@ import { expect, assert } from 'chai';
 import uuid from 'node-uuid';
 import request from 'supertest';
 import { testUserId } from '../../../constants';
-import { updateProjectWithAuthor } from '../../../utils/userUtils';
+import { updateProjectWithTestAuthor } from '../../../utils/userUtils';
 import Project from '../../../../src/models/Project';
 import * as persistence from '../../../../server/data/persistence';
 import * as fileSystem from '../../../../server/data/middleware/fileSystem';
@@ -16,7 +16,7 @@ describe('Server', () => {
         let server;
         const userId = testUserId; //for test environment
         const initialFields = { initial: 'value' };
-        const projectData = new Project(updateProjectWithAuthor(initialFields));
+        const projectData = new Project(updateProjectWithTestAuthor(initialFields));
         const projectId = projectData.id;
 
         const invalidIdProject = Object.assign({}, projectData, { id: 'invalid' });
@@ -136,7 +136,7 @@ describe('Server', () => {
 
         it('PUT replaces the project', (done) => {
           const url = `/data/${projectId}`;
-          const newProject = new Project(updateProjectWithAuthor({
+          const newProject = new Project(updateProjectWithTestAuthor({
             id: projectId,
             notes: { field: 'value' },
           }));
@@ -164,7 +164,7 @@ describe('Server', () => {
 
         it('PUT forces the project ID', (done) => {
           const url = `/data/${projectId}`;
-          const newProject = new Project(updateProjectWithAuthor({
+          const newProject = new Project(updateProjectWithTestAuthor({
             id: 'randomId',
             notes: { field: 'value' },
           }));

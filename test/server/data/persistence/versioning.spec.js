@@ -17,7 +17,7 @@ import { assert, expect } from 'chai';
 import path from 'path';
 import uuid from 'node-uuid';
 import merge from 'lodash.merge';
-import { updateProjectWithAuthor } from '../../../utils/userUtils';
+import { updateProjectWithTestAuthor } from '../../../utils/userUtils';
 import md5 from 'md5';
 import { testUserId } from '../../../constants';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
@@ -41,13 +41,13 @@ import * as s3 from '../../../../server/data/middleware/s3';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', function persistenceTests() {
-      describe('versioning', () => {
+      describe.skip('versioning', () => {
         const userId = testUserId;
 
         let versionLog;
         let versions;
         const nonExistentSHA = '795c5751c8e0b0c9b5993ec81928cd89f7eefd27';
-        const projectData = new Project(updateProjectWithAuthor());
+        const projectData = new Project(updateProjectWithTestAuthor());
         const projectId = projectData.id;
         const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const newProject = projectData.merge({ projectData: 'new stuff' });
