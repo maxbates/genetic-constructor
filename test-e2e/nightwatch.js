@@ -37,7 +37,7 @@ module.exports = {
     },
 
     saucelabs: {
-      launch_url: 'https://geneticconstructor.dev.bionano.autodesk.com',
+      launch_url: 'http://localhost:3000',
       selenium_port: 80,
       selenium_host: 'ondemand.saucelabs.com',
       desiredCapabilities: {
