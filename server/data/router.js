@@ -20,8 +20,6 @@ import {
   errorInvalidRoute,
   errorDoesNotExist,
   errorVersioningSystem,
-  errorNoUser,
-  errorNoPermission,
 } from '../utils/errors';
 import * as querying from './querying';
 import * as persistence from './persistence';
@@ -39,47 +37,12 @@ const jsonParser = bodyParser.json({
   limit: 20 * 1024 * 1024,
 });
 
-/***************************
- Middleware
- ****************************/
+/******** MIDDLEWARE ***********/
 
 router.use(jsonParser);
 
+//ensure req.user is set, send 401 otherwise
 router.use(ensureReqUserMiddleware);
-
-/*
- //deprecated - blocks should have a projectId on them, and this is expensive
- // allow the route /block/<blockId> and find the projectId
- // not recommended e.g. for POST
- // dependent on param middleware below to assign IDs to req directly
- // does not know about SHA, but shouldn't be an issue, as blocks change IDs moving across projects
- const blockDeterminatorMiddleware = (req, res, next) => {
- const { projectId, blockId } = req;
-
- if (projectId === 'block' && blockId) {
- querying.findProjectFromBlock(blockId)
- .then(projectId => {
- Object.assign(req, { projectId });
- next();
- })
- .catch(err => {
- if (err === errorCouldntFindProjectId) {
- return res.status(404).send('Could not find project ID automatically for block ID ' + blockId);
- }
- return next(err);
- });
- } else if (projectId === 'block' && !blockId) {
- // tried to access route /block without a block ID
- res.status(404).send('Block ID required');
- } else {
- next();
- }
- };
- */
-
-/***************************
- REST
- ***************************/
 
 /******** PARAMS ***********/
 
@@ -99,12 +62,12 @@ router.param('blockId', (req, res, next, id) => {
 router.use('/file/:projectId', permissionsMiddleware, projectFileRouter);
 
 /* sequence */
+//todo - throttle? enforce user present on req?
 router.use('/sequence', sequenceRouter);
 
 /* info queries */
 
 router.route('/info/:type/:detail?/:additional?')
-  .all(jsonParser)
   .get((req, res, next) => {
     const { user } = req;
     const { type, detail, additional } = req.params;
@@ -149,10 +112,11 @@ router.route('/info/:type/:detail?/:additional?')
 // e.g. used in autosave, loading / saving whole project
 
 router.route('/projects/:projectId')
-  .all(jsonParser, permissionsMiddleware)
+  .all(permissionsMiddleware)
   .get((req, res, next) => {
-    const { projectId } = req;
-    rollup.getProjectRollup(projectId)
+    const { projectId, user } = req;
+
+    projectPersistence.projectGet(projectId)
       .then(roll => res.status(200).json(roll))
       .catch(err => {
         if (err === errorDoesNotExist) {
@@ -165,8 +129,7 @@ router.route('/projects/:projectId')
     const { projectId, user } = req;
     const roll = req.body;
 
-    rollup.writeProjectRollup(projectId, roll, user.uuid)
-      .then(() => persistence.projectSave(projectId, user.uuid))
+    projectPersistence.projectWrite(projectId, roll, user.uuid)
       .then(commit => res.status(200).json(commit))
       .catch(err => next(err));
   })
@@ -185,20 +148,17 @@ router.route('/projects/:projectId')
   });
 
 router.route('/projects')
-  .all(jsonParser)
   .get((req, res, next) => {
     const { user } = req;
 
-    if (!user || !user.uuid) {
-      return res.status(401).send(errorNoUser);
-    }
-
     querying.getAllProjectManifests(user.uuid)
-      .then(metadatas => res.status(200).json(metadatas))
+      .then(manifests => res.status(200).json(manifests))
       .catch(err => next(err));
   });
 
 /* versioning */
+//todo - move to an explicit versioning router at /versions/ when tackle versioning
+//these functions are basically like totally wrong
 
 router.route('/:projectId/commit/:sha?')
   .all(permissionsMiddleware)
@@ -254,7 +214,7 @@ router.route('/:projectId/:blockId')
   .get((req, res, next) => {
     const { projectId, blockId } = req;
 
-    persistence.blockGet(projectId, false, blockId)
+    projectPersistence.blockGet(projectId, false, blockId)
       .then(result => {
         if (!result) {
           return res.status(204).json(null);
@@ -271,7 +231,7 @@ router.route('/:projectId/:blockId')
       return res.status(400).send(errorInvalidModel);
     }
 
-    persistence.blocksWrite(projectId, { [blockId]: block })
+    projectPersistence.blocksWrite(projectId, { [blockId]: block })
       .then(result => {
         res.json(result[blockId]);
       })
@@ -286,11 +246,12 @@ router.route('/:projectId/:blockId')
     const { projectId, blockId } = req;
     const block = req.body;
 
+    //deprecate - this check is unnecessary
     if (!!block.id && block.id !== blockId) {
       return res.status(400).send(errorInvalidModel);
     }
 
-    persistence.blocksMerge(projectId, { [blockId]: block })
+    projectPersistence.blocksMerge(projectId, { [blockId]: block })
       .then(result => {
         res.json(result[blockId]);
       })
@@ -349,6 +310,9 @@ router.route('/:projectId')
         }
         next(err);
       });
+  })
+  .delete((req, res, next) => {
+    return res.status(403).send('use DELETE /projects/:id');
   });
 
 //default catch

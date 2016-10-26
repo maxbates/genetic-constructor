@@ -111,16 +111,6 @@ describe('Server', () => {
             })));
         });
 
-        it('blockExists() rejects on invalid version', () => {
-          return persistence.blocksExist(projectId, nonExistentSHA, blockId)
-            .then(result => assert(false, 'should not resolve'))
-            .catch(err => assert(err === errorDoesNotExist, 'wrong error type -> function errored...'));
-        });
-
-        it('blockExists() accepts a version', () => {
-          return persistence.blocksExist(projectId, versions[2], blockId);
-        });
-
         it('blockGet() accepts a version, gets version at that time', () => {
           return persistence.blocksGet(projectId, versions[2], blockId)
             .then(blockMap => blockMap[blockId])

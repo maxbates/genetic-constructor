@@ -18,49 +18,50 @@
  * @module persistence
  */
 import invariant from 'invariant';
-import { merge, values, forEach } from 'lodash';
+import { pick, merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../../utils/errors';
 import { validateBlock, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
+import { dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+
+//TODO - CONSISTENT NAMING. MANY OF THESE OPERATIONS ARE REALLY ROLLUPS
+//we have classes for blocks and projects, and this persistence module conflates the two. lets use rollup to be consistent. rename after this stuff is working...
 
 /*********
  Helpers
  *********/
+//maybe can deprecate these helpers, and just use the exported functions
 
+//todo - a HEAD command might be useful here
 const _projectExists = (projectId, version) => {
-  //todo
+  if (!!version) {
+    //todo
+  }
+
+  return dbGet(`projects/${projectId}`)
+    .then(() => true)
+    .catch(() => Promise.reject(errorDoesNotExist));
 };
 
-//resolve if all blockIds exist, rejects if not
-//this is kinda expensive, so shouldnt just call it all the time all willy-nilly
-const _blocksExist = (projectId, version = false, ...blockIds) => {
-  invariant(blockIds.length > 0, 'must pass block ids');
-  //todo
+const _projectCreate = (projectId, userId, project = {}) => {
+  return dbPost(`projects/`, userId, project, {}, { id: projectId });
 };
 
 const _projectRead = (projectId, version) => {
-  //todo
+  if (!!version) {
+    //todo
+  }
+
+  return dbGet(`projects/${projectId}`)
+    .then(dbPruneResult);
 };
 
-//if any block doesnt exist, then it just comes as undefined in the map
-const _blocksRead = (projectId, version = false, ...blockIds) => {
-  //todo
-};
-
-const _projectWrite = (projectId, project = {}) => {
-  //todo
-};
-
-const _blocksWrite = (projectId, blockMap = {}, overwrite = false) => {
-  //todo
-};
-
-const _projectSetup = (projectId, userId) => {
-  //todo
+const _projectWrite = (projectId, userId, project = {}) => {
+  return dbPost(`projects/${projectId}`, userId, project);
 };
 
 const _projectDelete = (projectId, userId) => {
-  //todo
+  return dbDelete(`projects/${projectId}`);
 };
 
 /*********
@@ -71,11 +72,6 @@ const _projectDelete = (projectId, userId) => {
 
 export const projectExists = (projectId, sha) => {
   return _projectExists(projectId, sha);
-};
-
-//resolve if all blockIds exist, rejects if not
-export const blocksExist = (projectId, sha = false, ...blockIds) => {
-  return _blocksExist(projectId, sha, ...blockIds);
 };
 
 //todo - update use, so can see if exists, and setup if not
@@ -105,28 +101,20 @@ export const projectGet = (projectId, sha) => {
     });
 };
 
-export const projectGetManifest = (projectId, sha) => {
-  return projectGet(projectId, sha)
-    .then(result => result.project);
-};
-
 //returns map, where blockMap.blockId === undefined if was missing
 export const blocksGet = (projectId, sha = false, ...blockIds) => {
-  return _blocksRead(projectId, sha, ...blockIds)
-    .catch(err => {
-      if (err === errorDoesNotExist) {
-        return Promise.resolve(null);
-      }
-      return Promise.reject(err);
+  return projectGet(projectId, sha)
+    .then(roll => {
+      return pick(roll.blocks, blockIds);
     });
 };
 
 //prefer blocksGet, this is for atomic checks
 //rejects if the block is not present, and does not return a map (just the block), or null if doesnt exist
 export const blockGet = (projectId, sha = false, blockId) => {
-  return _blocksRead(projectId, sha, blockId)
-    .then(blockMap => {
-      const block = blockMap[blockId];
+  return projectGet(projectId, sha)
+    .then(roll => {
+      const block = roll.blocks[blockId];
       if (!block) {
         return Promise.resolve(null);
       }
@@ -134,74 +122,82 @@ export const blockGet = (projectId, sha = false, blockId) => {
     });
 };
 
-//CREATE
-
-export const projectCreate = (projectId, project, userId) => {
-  invariant(typeof userId !== 'undefined', 'user id is required');
-
-  //force the user as author of the project
-  merge(project, { metadata: { authors: [userId] } });
-
-  return projectAssertNew(projectId)
-    .then(() => _projectSetup(projectId, userId))
-    .then(() => _projectWrite(projectId, project))
-    .then(() => project);
-};
-
 //SET (WRITE + MERGE)
 
-export const projectWrite = (projectId, project = {}, userId, bypassValidation = false) => {
+//should return commit-like information (not just the project)
+//todo - expect rollup. This effectively is rollup.writeProjectRollup() v2
+export const projectWrite = (projectId, roll = {}, userId, bypassValidation = false) => {
   const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
 
-  invariant(typeof project === 'object', 'project is required');
-  invariant(userId, 'user id is required to write project');
+  invariant(typeof roll === 'object', 'project is required');
+  invariant(typeof roll.project === 'object' && typeof roll.blocks === 'object', 'must pass rollup with project and blocks');
 
-  //todo (future) - merge author IDs, not just assign
-  const authors = [userId];
+  //do we want to require userId? if so, need to update all block writing etc. to include userId in call, since block writing goes through this function
+  //invariant(userId, 'user id is required to write project');
 
-  const idedProject = merge({}, project, {
+  //todo - when do we not want to overwrite project / blocks? verify not corrupting e.g. EGF project or tests
+
+  merge(roll.project, {
     id: projectId,
     metadata: {
-      authors,
+      authors: [userId], // (future) - merge author IDs, not just assign
     },
   });
 
-  if (bypassValidation !== true && !validateProject(idedProject)) {
-    return Promise.reject(errorInvalidModel);
+  //force projectId, and ensure block Id matches block data
+  forEach(roll.blocks, (block, blockId) => Object.assign(block, { id: blockId, projectId }));
+
+  timer.time('models updated');
+
+  if (process.env.NODE_ENV !== 'dev' && bypassValidation !== true) {
+    const projectValid = validateProject(roll.project);
+    const blocksValid = values(roll.blocks).every(block => validateBlock(block));
+    if (!projectValid || !blocksValid) {
+      return Promise.reject(errorInvalidModel);
+    }
+    timer.time('validated');
   }
 
-  //create directory etc. if doesn't exist
+  //todo - should automatically create a version, dont need to commit
+
+  //if it doesn't exist, setup the project (what does this entail? is this check needed?)
   return projectExists(projectId)
-    .catch(() => _projectSetup(projectId, userId))
     .then(() => {
-      timer.time('setup');
-      return _projectWrite(projectId, idedProject);
+      return _projectWrite(projectId, userId, roll);
     })
-    //.then(() => _projectCommit(projectId, userId))
+    .catch((err) => {
+      if (err === errorDoesNotExist) {
+        return _projectCreate(projectId, userId, roll);
+      }
+    })
     .then(() => {
-      timer.end('writing complete');
-      return idedProject;
+      timer.end('project written');
+
+      //!!!!!!!!!!!!!!!!!!
+      //todo - need to pass back versioning information
+
+      return roll;
     });
 };
 
-export const projectWriteManifest = (projectId, manifest = {}, overwrite = true, bypassValidation = false) => {
-  //todo - get the project and merge manifest and write
-};
-
 //overwrite all blocks
+//todo - require UserId, pass to projectWrite
 export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
   invariant(typeof projectId === 'string', 'projectId must be string');
   invariant(typeof blockMap === 'object', 'block map must be object');
 
-  if (bypassValidation !== true && !values(blockMap).every(block => validateBlock(block))) {
-    return Promise.reject(errorInvalidModel);
-  }
-
-  //force projectid
-  forEach(blockMap, (block, blockId) => Object.assign(block, { projectId }));
-
-  return _blocksWrite(projectId, blockMap, overwrite)
-    .then(() => blockMap);
+  return projectGet(projectId)
+    .then(roll => {
+      if (overwrite === true) {
+        return Object.assign({}, roll, { blocks: blockMap });
+      }
+      return merge({}, roll, { blocks: blockMap });
+    }).then(roll => {
+      //todo - need userId
+      return projectWrite(projectId, roll)
+      //todo - what is returned here? includes version. want the roll.
+        .then(() => roll);
+    });
 };
 
 export const projectMerge = (projectId, project, userId) => {
@@ -210,10 +206,6 @@ export const projectMerge = (projectId, project, userId) => {
       const merged = merge({}, oldProject, project, { id: projectId });
       return projectWrite(projectId, merged, userId);
     });
-};
-
-export const projectMergeManifest = (projectId, manifest) => {
-  return projectWriteManifest(projectId, manifest, false);
 };
 
 //merge all blocks
@@ -225,7 +217,8 @@ export const blocksMerge = (projectId, blockMap) => {
 
 export const projectDelete = (projectId, userId, forceDelete = false) => {
   if (forceDelete === true) {
-    //todo - return projectId
+    return _projectDelete(projectId, userId)
+      .then(() => projectId);
   }
 
   return projectExists(projectId)
@@ -236,12 +229,13 @@ export const projectDelete = (projectId, userId, forceDelete = false) => {
       }
     })
     .then(() => {
-      _projectDelete(projectId, userId);
+      return _projectDelete(projectId, userId);
     })
     //no need to commit... its deleted (and permissions out of scope of data folder)
     .then(() => projectId);
 };
 
+//should not be exposed on router... easy to get into a bad state
 export const blocksDelete = (projectId, ...blockIds) => {
   return blocksGet(projectId)
     .then(blockMap => {
@@ -253,31 +247,34 @@ export const blocksDelete = (projectId, ...blockIds) => {
     .then(() => blockIds);
 };
 
-//SAVE
-//todo - should this stuff go into versioning? what are the dependencies?
+// PROJECT MANIFEST
 
-//e.g. autosave
-export const projectSave = (projectId, userId, messageAddition) => {
-  const timer = new DebugTimer('projectSave ' + projectId, { disabled: true });
-  const message = commitMessages.messageSave(projectId, messageAddition);
-  return _projectCommit(projectId, userId, message)
-    .then(commit => {
-      //not only create the commit, but then save the project so that is has the right commit (but dont commit again)
-      //but still return the commit
-      timer.time('committed');
-      return projectMerge(projectId, {
-        version: commit.sha,
-        lastSaved: commit.time,
-      }, userId)
-        .then(() => {
-          timer.end('merged');
-          return commit;
-        });
+export const projectGetManifest = (projectId, sha) => {
+  return projectGet(projectId, sha)
+    .then(result => result.project);
+};
+
+export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite = true, bypassValidation = false) => {
+  invariant(projectId, 'must pass valid projectId');
+  invariant(typeof manifest === 'object', 'project manifest must be object');
+  invariant(typeof userId === 'string', 'must pass userId to write project manifest');
+
+  return projectGet(projectId)
+    .then(roll => {
+      const updated = (overwrite === true) ?
+        merge({}, roll, { project: manifest }) :
+        Object.assign({}, roll, { project: manifest });
+
+      Object.assign(updated.project, { id: projectId });
+
+      invariant(validateProject(updated.project), 'project must be valid before writing it');
+
+      //projectWrite will return version etc., want to pass manifest
+      return projectWrite(updated)
+        .then(() => updated.project);
     });
 };
 
-//explicit save aka 'snapshot'
-export const projectSnapshot = (projectId, userId, messageAddition) => {
-  const message = commitMessages.messageSnapshot(projectId, messageAddition);
-  return _projectCommit(projectId, userId, message);
+export const projectMergeManifest = (projectId, manifest, userId) => {
+  return projectWriteManifest(projectId, manifest, userId, false);
 };

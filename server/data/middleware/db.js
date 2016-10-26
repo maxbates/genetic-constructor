@@ -19,16 +19,14 @@ import * as headers from '../../../src/middleware/utils/headers';
 
 const makePath = path => STORAGE_URL + path;
 
-const getUserId = (req) => req.user.uuid;
-
-export const dbGet = (req, path, params = {}) => {
+export const dbGet = (path, params = {}) => {
   return rejectingFetch(makePath(path), headers.headersGet(params))
     .then(resp => resp.json);
 };
 
-export const dbPost = (req, path, data, params = {}, bodyParams = {}) => {
+export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => {
   const body = Object.assign({}, bodyParams, {
-    owner: getUserId(req),
+    owner: userId,
     data,
   });
 
@@ -36,7 +34,7 @@ export const dbPost = (req, path, data, params = {}, bodyParams = {}) => {
     .then(resp => resp.json);
 };
 
-export const dbDelete = (req, path, params) => {
+export const dbDelete = (path, params) => {
   return rejectingFetch(makePath(path), headers.headersDelete(params))
     .then(resp => resp.json);
 };

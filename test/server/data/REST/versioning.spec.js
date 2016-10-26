@@ -12,7 +12,7 @@ import { merge } from 'lodash';
 describe('Server', () => {
   describe('Data', () => {
     describe('REST', () => {
-      describe('Versioning', () => {
+      describe.skip('Versioning', () => {
         let server;
         let versionLog;
         let versions;

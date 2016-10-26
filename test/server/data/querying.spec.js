@@ -6,7 +6,6 @@ import ProjectSchema from '../../../src/schemas/Project';
 import * as fileSystem from '../../../server/data/middleware/fileSystem';
 import * as filePaths from '../../../server/data/middleware/filePaths';
 import * as rollup from '../../../server/data/rollup';
-import * as persistence from '../../../server/data/persistence';
 import * as querying from '../../../server/data/querying';
 import { merge, values } from 'lodash';
 

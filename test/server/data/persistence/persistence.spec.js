@@ -67,10 +67,6 @@ describe('Server', () => {
           return persistence.projectExists(projectId);
         });
 
-        it('blockExists() resolves if block exists', () => {
-          return persistence.blocksExist(projectId, false, blockId);
-        });
-
         it('projectGet() returns null if doesnt exist', () => {
           return persistence.projectGet('notRealId')
             .then((result) => assert(result === null));

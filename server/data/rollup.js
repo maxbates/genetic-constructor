@@ -30,12 +30,10 @@ import invariant from 'invariant';
 import { errorInvalidModel, errorDoesNotExist } from '../utils/errors';
 import * as persistence from './persistence';
 import { validateBlock, validateProject } from '../utils/validation';
-import { getAllBlocksInProject } from './querying';
 import * as sequencePersistence from './persistence/sequence';
 import { mapValues, values } from 'lodash';
 import DebugTimer from '../utils/DebugTimer';
 import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
-import { dbGet, dbPruneResult } from './middleware/db';
 
 /**
  * Given a rollup, get all the sequences for blocks in the form: { blockId : sequence }
@@ -49,34 +47,21 @@ export const getSequencesGivenRollup = (rollup) => {
     .then(sequences => Object.assign(rollup, { sequences }));
 };
 
+//todo - deprecate - just use the above function to get sequences if you want them
 // if withSequences === true, adds field `sequences` to roll
 // e.g. { project: {}, blocks: {}, sequences: { blockId: 'ACAGTCGACTGAC } }
 export const getProjectRollup = (projectId, withSequences = false) => {
-  //todo - need to update this to expect rollup, not just the manifest
-  //get project explicitly first so can handle errors of project not more granularly
   return persistence.projectGet(projectId)
-    .then(project => {
-      if (!project) {
-        return Promise.reject(errorDoesNotExist);
-      }
-
-      return getAllBlocksInProject(projectId)
-        .then(blocks => {
-          return {
-            project,
-            blocks,
-          };
-        });
-    })
     .then(roll => {
       if (withSequences !== true) {
         return roll;
-      }
+      }/**/
 
       return getSequencesGivenRollup(roll);
     });
 };
 
+//todo - deprecate - this should be the default behavior, in projectWrite()
 export const writeProjectRollup = (projectId, rollup, userId, bypassValidation = false) => {
   const timer = new DebugTimer(`rollup.write ${projectId} (${userId})`, { disabled: true });
 

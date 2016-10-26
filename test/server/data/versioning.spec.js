@@ -10,7 +10,7 @@ import { errorDoesNotExist } from '../../../server/utils/errors';
 
 describe('Server', () => {
   describe('Data', () => {
-    describe('versioning', function gitTests() {
+    describe.skip('versioning', function gitTests() {
       this.timeout(10000);
       const pathRepo = createStorageUrl('testrepo');
       before(() => directoryMake(pathRepo));

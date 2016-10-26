@@ -42,7 +42,7 @@ const _orderWrite = (orderId, order = {}, projectId) => {
  *********/
 
 export const orderList = (projectId) => {
-
+  //todo
 };
 
 export const orderExists = (orderId, projectId) => {
@@ -59,6 +59,7 @@ export const orderGet = (orderId, projectId) => {
     });
 };
 
+//todo - require projectVersion as arg
 export const orderWrite = (orderId, order, projectId, roll) => {
   const idedOrder = Object.assign({}, order, {
     projectId,
@@ -69,12 +70,12 @@ export const orderWrite = (orderId, order, projectId, roll) => {
     return Promise.reject(errorInvalidModel);
   }
 
-  //todo - get rollup and write with order
+  //todo - get rollup and write with order --- or just the project id and version?
 
   return Promise.all([
-      _orderWrite(orderId, idedOrder, projectId),
-      _orderRollupWrite(orderId, roll, projectId),
-    ])
+    _orderWrite(orderId, idedOrder, projectId),
+    //_orderRollupWrite(orderId, roll, projectId),
+  ])
     .then(() => idedOrder);
 };
 
@@ -82,3 +83,6 @@ export const orderWrite = (orderId, order, projectId, roll) => {
 export const orderDelete = (orderId, projectId) => {
   invariant(false, 'you cannot delete an order');
 };
+
+
+//todo - once this module is done, remove some stuff from querying.js

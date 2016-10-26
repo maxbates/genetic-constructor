@@ -26,6 +26,7 @@ import { errorInvalidId, errorNoIdProvided, errorNoPermission, errorDoesNotExist
 import { id as idRegex } from '../../src/utils/regex';
 import { dbGet, dbPruneResult } from './middleware/db';
 
+//deprecate (only used in old persistence module)
 export const createProjectPermissions = (projectId, userId) => {
   const projectPermissionsPath = filePaths.createProjectPermissionsPath(projectId);
   const contents = [userId];
@@ -53,39 +54,25 @@ export const checkProjectAccess = (projectId, userId, projectMustExist = false) 
           return Promise.reject(errorDoesNotExist);
         });
     });
-
-  /*
-  const projectPermissionsPath = filePaths.createProjectPermissionsPath(projectId);
-  return fileSystem.fileRead(projectPermissionsPath)
-    .then(contents => {
-      if (contents.indexOf(userId) < 0) {
-        return Promise.reject(errorNoPermission);
-      }
-      return true;
-    })
-    .catch(err => {
-      if (err === errorDoesNotExist && !projectMustExist) {
-        return Promise.resolve(true);
-      }
-      return Promise.reject(err);
-    });
-  */
 };
 
 export const permissionsMiddleware = (req, res, next) => {
   const { projectId, user } = req;
 
+  //should be caught by preceding middleware but just in case...
   if (!user) {
     console.error('no user attached by auth middleware @', req.url);
     next('[permissionsMiddleware] user not attached to request by middleware');
     return;
   }
 
+  //should be caught by preceding middleware but just in case...
   if (!user.uuid) {
     res.status(401);
     next('[permissionsMiddleware] no user.uuid present on request object');
     return;
   }
+
   if (!projectId) {
     res.status(400).send(errorNoIdProvided);
     next('[permissionsMiddleware] projectId not found on route request');

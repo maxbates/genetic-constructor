@@ -167,20 +167,11 @@ describe('Server', () => {
             .expect(400, done);
         });
 
-        it('DELETE deletes the block and returns ID', (done) => {
+        it('DELETE is 403', (done) => {
           const url = `/data/${projectId}/${blockId}`;
           request(server)
             .delete(url)
-            .expect(200)
-            .end((err, result) => {
-              if (err) {
-                done(err);
-              }
-
-              persistence.blocksExist(projectId, false, blockId)
-                .then(() => done(new Error('shouldnt exist')))
-                .catch(() => done());
-            });
+            .expect(403, done);
         });
       });
     });

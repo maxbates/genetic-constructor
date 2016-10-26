@@ -21,6 +21,7 @@ import { merge } from 'lodash';
 import * as querying from './../data/querying';
 import * as persistence from './../data/persistence';
 import * as rollup from './../data/rollup';
+import { ensureReqUserMiddleware } from '../user/utils';
 import { permissionsMiddleware } from './../data/permissions';
 
 import Order from '../../src/models/Order';
@@ -28,6 +29,9 @@ import { submit } from './egf';
 import saveCombinations from '../../src/utils/generators/orderConstructs';
 
 const router = express.Router(); //eslint-disable-line new-cap
+
+//ensure req.user is set, send 401 otherwise
+router.use(ensureReqUserMiddleware);
 
 //in theory, we could get rid of this part of the route, and just assign the projectID basic on the project that is posted
 router.param('projectId', (req, res, next, id) => {
