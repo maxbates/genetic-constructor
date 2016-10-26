@@ -51,7 +51,7 @@ module.exports = {
         'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER,
       },
       silent: true,
-      username: process.env.SAUCE_USERNAME,
+      username: 'bionano',
       access_key: process.env.SAUCE_ACCESS_KEY,
       screenshots: {
         enabled: false,
