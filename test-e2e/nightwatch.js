@@ -53,6 +53,7 @@ module.exports = {
       silent: true,
       username: 'bionano',
       access_key: process.env.SAUCE_ACCESS_KEY,
+      startConnect: false,
       screenshots: {
         enabled: false,
         path: '',
