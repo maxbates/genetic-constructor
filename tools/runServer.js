@@ -38,7 +38,7 @@ function runServer(cb) {
     server.kill('SIGTERM');
   }
 
-  server = cp.spawn('node', ['--max_old_space_size=4096', '--trace-gc', serverPath], {
+  server = cp.spawn('node', ['--max_old_space_size=4096', serverPath], {
     env: Object.assign({ NODE_ENV: 'dev' }, process.env),
     silent: false,
   });
