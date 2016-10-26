@@ -155,7 +155,7 @@ const handleRegister = (req, res, next) => {
       res.send(defaultUser);
     })
     .catch(err => {
-      console.error(err);
+      console.error(err, err.stack);
       res.status(500).send(err);
     });
 };
@@ -191,7 +191,10 @@ export const mockUser = (req, res, next) => {
     //stub the initial user setup here as well
     checkUserSetup(defaultUser)
       .then(() => next())
-      .catch(err => next(err));
+      .catch(err => {
+        console.log('error checking user setup in mockUser', err, err.stack);
+        next(err);
+      });
   } else {
     next();
   }

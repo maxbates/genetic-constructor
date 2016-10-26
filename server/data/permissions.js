@@ -55,7 +55,8 @@ export const checkProjectAccess = (projectId, userId, projectMustExist = false) 
           console.error(err);
           return Promise.reject(errorDoesNotExist);
         });
-    });
+    })
+    .catch(err => { console.error(err); throw err; });
 };
 
 export const permissionsMiddleware = (req, res, next) => {

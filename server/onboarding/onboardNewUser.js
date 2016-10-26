@@ -19,7 +19,7 @@
  NOTE - create instances using Block.classless and Project.classless - the server is expect JSON blobs that it can assign to, and instances of classes are frozen.
  */
 import invariant from 'invariant';
-import * as rollup from '../data/rollup';
+import * as projectPersistence from '../data/persistence/projects';
 import { getConfigFromUser } from '../user/utils';
 import DebugTimer from '../utils/DebugTimer';
 
@@ -71,7 +71,7 @@ export default function onboardNewUser(user) {
       restRollGens.map(generator => {
         const roll = generator();
         timer.time('non-primary rolls generated');
-        return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true);
+        return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true);
       })
     ))
     .then((restRolls) => {
@@ -79,7 +79,7 @@ export default function onboardNewUser(user) {
       const roll = firstRollGen();
       timer.time('second roll generated');
 
-      return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true)
+      return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
         .then(firstRoll => {
           timer.end('onboarding complete');
           return [firstRoll, ...restRolls];

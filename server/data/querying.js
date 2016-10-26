@@ -45,10 +45,15 @@ export const getAllBlockIdsInProject = (projectId) => {
 
 //search each permissions.json by user ID to find projects they have access to
 export const listProjectsWithAccess = (userId) => {
-
   return dbGet(`projects/owner/${userId}`)
     .then(dbPruneResult)
-    .then(rolls => rolls.map(roll => roll.project.id));
+    .then(rolls => rolls.map(roll => roll.project.id))
+    .catch(err => {
+      //todo - how do we catch this best?
+      console.log('error checking for initial acccess');
+      console.log(err, err.stack);
+      return [];
+    });
 };
 
 export const getAllProjectManifests = (userId) => {
