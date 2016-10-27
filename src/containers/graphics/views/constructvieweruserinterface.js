@@ -518,6 +518,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const aabb = this.layout.getBlocksAABB();
     bounds.width = Math.min(this.layout.titleNodeTextWidth, aabb.width);
     bounds.width = Math.max(bounds.width, this.layout.sceneGraph.availableWidth / 2);
+    bounds.top += 4;
+    bounds.height -= 8;
     return {target, bounds};
   }
 

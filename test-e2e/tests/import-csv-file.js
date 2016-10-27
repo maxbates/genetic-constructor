@@ -16,7 +16,7 @@ module.exports = {
 
     size(browser);
     // register via fixture
-    var credentials = homepageRegister(browser);
+    homepageRegister(browser);
 
     // now we can go to the project page
     browser
@@ -46,15 +46,25 @@ module.exports = {
 
     var csvFile = path.resolve(__dirname + '/../fixtures/test.csv');
 
-    // send file name to hidden input[file]
-    browser
-      .setValue('.genbank-import-form input[type="file"]', csvFile)
-      .pause(3000)
-      // click submit button to start the upload of fake data
-      .submitForm('.genbank-import-form')
-      .waitForElementPresent('.construct-viewer', 5000, 'expected a construvt viewer')
-      .assert.countelements('.construct-viewer', 4)
-      .saveScreenshot('./test-e2e/current-screenshots/import-csv-file.png')
-      .end();
+    browser.uploadFileToSeleniumServer(csvFile, function (result) {
+
+      if (result.status === -1) {
+        throw new Error(result);
+      }
+
+      // Extract the new remote path of the file
+      var remotePath = result.value || "";
+
+      browser
+        .setValue('.genbank-import-form input[type="file"]', remotePath)
+        .pause(3000)
+        // click submit button to start the upload of fake data
+        .submitForm('.genbank-import-form')
+        .waitForElementPresent('.construct-viewer', 60000, 'expected a construct viewer')
+        .assert.countelements('.construct-viewer', 4)
+        .saveScreenshot('./test-e2e/current-screenshots/import-csv-file.png')
+        .end();
+
+    });
   }
 };
