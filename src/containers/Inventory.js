@@ -110,7 +110,7 @@ export class Inventory extends Component {
     //may be better way to pass in projectId
     const { isVisible, projectId, currentTab } = this.props;
 
-    const currentSection = this.sections.find(section => section.title === currentTab);
+    const currentSection = this.sections.find(section => section.title === currentTab) || this.sections[0];
     const { title, type, icon, condition, actions, sectionProps } = currentSection;
 
     return (
