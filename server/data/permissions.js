@@ -59,32 +59,32 @@ export const checkProjectAccess = (projectId, userId, projectMustExist = false) 
     .catch(err => { console.error(err); throw err; });
 };
 
-export const permissionsMiddleware = (req, res, next) => {
+export const projectPermissionMiddleware = (req, res, next) => {
   const { projectId, user } = req;
 
   //should be caught by preceding middleware but just in case...
   if (!user) {
     console.error('no user attached by auth middleware @', req.url);
-    next('[permissionsMiddleware] user not attached to request by middleware');
+    next('[projectPermissionMiddleware] user not attached to request by middleware');
     return;
   }
 
   //should be caught by preceding middleware but just in case...
   if (!user.uuid) {
     res.status(401);
-    next('[permissionsMiddleware] no user.uuid present on request object');
+    next('[projectPermissionMiddleware] no user.uuid present on request object');
     return;
   }
 
   if (!projectId) {
     res.status(400).send(errorNoIdProvided);
-    next('[permissionsMiddleware] projectId not found on route request');
+    next('[projectPermissionMiddleware] projectId not found on route request');
     return;
   }
   if (!idRegex().test(projectId)) {
     //todo - status text is not being sent to the client. probably need to pass to error handler, which uses error as status text (this is going as body)
     res.status(400).send(errorInvalidId);
-    next('[permissionsMiddleware] projectId is not valid, got ' + projectId);
+    next('[projectPermissionMiddleware] projectId is not valid, got ' + projectId);
     return;
   }
 

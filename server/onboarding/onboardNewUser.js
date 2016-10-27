@@ -71,7 +71,7 @@ export default function onboardNewUser(user) {
         const roll = generator();
         timer.time('non-primary rolls generated');
         return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
-          .then(info => info.data)
+          .then(info => info.data);
       })
     )
     .then((restRolls) => {

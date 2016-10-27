@@ -19,7 +19,7 @@
  */
 import invariant from 'invariant';
 import { pick, merge, values, forEach } from 'lodash';
-import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../../utils/errors';
+import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateBlock, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
 import { dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';

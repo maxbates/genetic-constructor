@@ -24,7 +24,7 @@ import * as versioning from './git-deprecated/git';
 import invariant from 'invariant';
 import { merge, filter, values } from 'lodash';
 import { errorDoesNotExist } from '../utils/errors';
-import { dbGet, dbPruneResult } from './middleware/db';
+import { dbGet } from './middleware/db';
 
 // key for no role rule
 const untypedKey = 'none';

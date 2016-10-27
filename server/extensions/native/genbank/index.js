@@ -11,7 +11,7 @@ import * as filePaths from '../../../data/middleware/filePaths';
 import * as rollup from '../../../../server/data/rollup';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 import { filter } from 'lodash';
-import { permissionsMiddleware } from '../../../data/permissions';
+import { projectPermissionMiddleware } from '../../../data/permissions';
 import * as sequencePersistence from '../../../data/persistence/sequence';
 import DebugTimer from '../../../utils/DebugTimer';
 
@@ -69,7 +69,7 @@ router.get('/file/:fileId', (req, res, next) => {
 
 /***** EXPORT ******/
 
-router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req, res, next) => {
+router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware, (req, res, next) => {
   const { projectId, blockIdList } = req.params;
   const blockIds = blockIdList.split(',');
 
@@ -115,7 +115,7 @@ router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req
 });
 
 router.all('/export/:projectId/:constructId?',
-  permissionsMiddleware,
+  projectPermissionMiddleware,
   formParser,
   (req, res, next) => {
     const { projectId, constructId } = req.params;

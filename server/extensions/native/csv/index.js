@@ -9,7 +9,7 @@ import Block from '../../../../src/models/Block';
 import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
-import { permissionsMiddleware } from '../../../data/permissions';
+import { projectPermissionMiddleware } from '../../../data/permissions';
 
 const extensionKey = 'csv'; //eslint-disable-line no-unused-vars
 
@@ -115,7 +115,7 @@ router.post('/import/:projectId?',
 );
 
 //todo
-router.get('export/:projectId', permissionsMiddleware, (req, res, next) => {
+router.get('export/:projectId', projectPermissionMiddleware, (req, res, next) => {
   res.status(501).send();
 });
 

@@ -22,7 +22,7 @@ import * as querying from './../data/querying';
 import * as persistence from './../data/persistence';
 import * as rollup from './../data/rollup';
 import { ensureReqUserMiddleware } from '../user/utils';
-import { permissionsMiddleware } from './../data/permissions';
+import { projectPermissionMiddleware } from './../data/permissions';
 
 import Order from '../../src/models/Order';
 import { submit } from './egf';
@@ -40,7 +40,7 @@ router.param('projectId', (req, res, next, id) => {
 });
 
 router.route('/:projectId/:orderId?')
-  .all(permissionsMiddleware)
+  .all(projectPermissionMiddleware)
   .get((req, res, next) => {
     const { user, projectId } = req; //eslint-disable-line no-unused-vars
     const { orderId } = req.params;

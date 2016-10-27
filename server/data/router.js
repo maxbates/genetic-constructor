@@ -25,7 +25,7 @@ import * as querying from './querying';
 import * as persistence from './persistence';
 import * as rollup from './rollup';
 import { ensureReqUserMiddleware } from '../user/utils';
-import { permissionsMiddleware } from './permissions';
+import { projectPermissionMiddleware } from './permissions';
 import * as projectPersistence from './persistence/projects';
 
 import projectFileRouter from './routerProjectFiles';
@@ -59,7 +59,7 @@ router.param('blockId', (req, res, next, id) => {
 /********** ROUTES ***********/
 
 /* project files */
-router.use('/file/:projectId', permissionsMiddleware, projectFileRouter);
+router.use('/file/:projectId', projectPermissionMiddleware, projectFileRouter);
 
 /* sequence */
 //todo - throttle? enforce user present on req?
@@ -112,7 +112,7 @@ router.route('/info/:type/:detail?/:additional?')
 // e.g. used in autosave, loading / saving whole project
 
 router.route('/projects/:projectId')
-  .all(permissionsMiddleware)
+  .all(projectPermissionMiddleware)
   .get((req, res, next) => {
     const { projectId } = req;
 
@@ -165,7 +165,7 @@ router.route('/projects')
 //these functions are basically like totally wrong
 
 router.route('/:projectId/commit/:sha?')
-  .all(permissionsMiddleware)
+  .all(projectPermissionMiddleware)
   .get((req, res, next) => {
     //pass the SHA you want, otherwise send commit log
     const { projectId } = req;
@@ -214,7 +214,7 @@ router.route('/:projectId/commit/:sha?')
  */
 
 router.route('/:projectId/:blockId')
-  .all(permissionsMiddleware)
+  .all(projectPermissionMiddleware)
   .get((req, res, next) => {
     const { projectId, blockId } = req;
 
@@ -271,7 +271,7 @@ router.route('/:projectId/:blockId')
   });
 
 router.route('/:projectId')
-  .all(permissionsMiddleware)
+  .all(projectPermissionMiddleware)
   .get((req, res, next) => {
     const { projectId } = req;
     //const { depth } = req.query; //future
