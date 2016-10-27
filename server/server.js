@@ -114,6 +114,7 @@ if (process.env.BIO_NANO_AUTH) {
 } else {
   app.use(require('cookie-parser')());
   // import the mocked auth routes
+  //todo - clarify this usage - requires that users are always signed in to hit API. what about extensions?
   app.use(require('./auth/local').mockUser);
   const authRouter = require('./auth/local').router;
   app.use('/auth', authRouter);

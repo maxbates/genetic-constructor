@@ -191,9 +191,14 @@ export const mockUser = (req, res, next) => {
     //stub the initial user setup here as well
     checkUserSetup(defaultUser)
       .then(() => next())
-      .catch(err => {
-        console.log('error checking user setup in mockUser', err, err.stack);
-        next(err);
+      .catch(resp => {
+        console.log('error checking user setup in mockUser', resp);
+
+        resp.text().then(text => {
+          console.log(`${text}`);
+          res.status(500).send(text);
+        });
+        //next(resp);
       });
   } else {
     next();

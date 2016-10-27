@@ -46,12 +46,14 @@ export const getAllBlockIdsInProject = (projectId) => {
 //search each permissions.json by user ID to find projects they have access to
 export const listProjectsWithAccess = (userId) => {
   return dbGet(`projects/owner/${userId}`)
-    .then(dbPruneResult)
-    .then(rolls => rolls.map(roll => roll.project.id))
-    .catch(err => {
-      //todo - how do we catch this best?
-      console.log('error checking for initial acccess');
-      console.log(err, err.stack);
+    .then(projectInfos => projectInfos.map(info => info.id))
+    .catch(resp => {
+      if (resp.status === 404) {
+        return [];
+      }
+
+      console.error(new Error('error checking for initial acccess'));
+      console.log(resp);
       return [];
     });
 };
@@ -60,7 +62,7 @@ export const getAllProjectManifests = (userId) => {
   invariant(userId, 'user id is required to get list of manifests');
 
   return dbGet(`projects/owner/${userId}`)
-    .then(dbPruneResult)
+    .then(projectInfos => projectInfos.map(info => info.data))
     .then(rolls => rolls.map(roll => roll.project));
 };
 
@@ -73,7 +75,7 @@ export const getProjectVersions = (projectId) => {
 //returns blockmap
 export const getAllBlocks = (userId) => {
   return dbGet(`projects/owner/${userId}`)
-    .then(dbPruneResult)
+    .then(projectInfos => projectInfos.map(info => info.data))
     .then(rolls => rolls.map(roll => roll.blocks))
     .then(projectBlockMaps => merge({}, ...projectBlockMaps));
 };

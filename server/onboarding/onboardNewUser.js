@@ -66,14 +66,13 @@ export default function onboardNewUser(user) {
   timer.time('made generators');
 
   //generate the firstRoll last, so that it has the most recent timestamp, and is opened first
-  return Promise.resolve()
-    .then(() => Promise.all(
+  return Promise.all(
       restRollGens.map(generator => {
         const roll = generator();
         timer.time('non-primary rolls generated');
         return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true);
       })
-    ))
+    )
     .then((restRolls) => {
       timer.time('non-primary rolls wrote');
       const roll = firstRollGen();

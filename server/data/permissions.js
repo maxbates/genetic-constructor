@@ -39,15 +39,15 @@ export const checkProjectAccess = (projectId, userId, projectMustExist = false) 
   //todo - need to be able to check a user's access to a particular project
 
   return dbGet(`projects/owner/${userId}`)
-    .then(dbPruneResult)
-    .then((projects) => {
-      if (projects.indexOf(projectId) >= 0) {
+    .then((projectInfos) => {
+      if (projectInfos.some(projectInfo => projectInfo.id === projectId) >= 0) {
         return true;
       }
 
       return dbGet(`projects/${projectId}`)
         .then(project => Promise.reject(errorNoPermission))
         .catch(err => {
+          //todo - check status code
           if (!projectMustExist) {
             return true;
           }

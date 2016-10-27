@@ -15,14 +15,13 @@
  */
 export default function generalErrorHandler(err, req, res, next) {
   if (err) {
-    console.log('unhandled server error');
-    console.error(err);
-    console.error(err.stack);
+    console.log('unhandled server error', req.originalUrl);
+    console.error(err, err.stack);
 
     if (res.headersSent) {
       return next(err);
     }
-    res.status(500).send(err);
+    return res.status(500).send(err);
   }
   return next();
 }

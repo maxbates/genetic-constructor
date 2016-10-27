@@ -267,13 +267,15 @@ const orderAssertNew = (orderId, projectId) => {
 
 export const projectGet = (projectId, sha) => {
   return _projectRead(projectId, sha)
-    .catch(err => {
-      console.log('(persistence.projectGet) error reading project ' + projectId, err);
-      if (err === errorDoesNotExist && !sha) {
+    .catch(resp => {
+      console.log('(persistence.projectGet) error reading project ' + projectId, resp.status);
+      if (resp.status === 404 && !sha) {
         return Promise.resolve(null);
       }
+
+      //todo - handle versioning error. need to differentiate?
       //let the versioning error fall through, or uncaught error
-      return Promise.reject(err);
+      return Promise.reject(resp);
     });
 };
 

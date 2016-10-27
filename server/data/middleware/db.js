@@ -19,24 +19,36 @@ import * as headers from '../../../src/middleware/utils/headers';
 
 const makePath = path => STORAGE_URL + path;
 
+const defaultHeaders = {
+  Accept: 'application/json',
+};
+
 export const dbGet = (path, params = {}) => {
-  return rejectingFetch(makePath(path), headers.headersGet(params))
-    .then(resp => resp.json);
+  const fetchParams = Object.assign({}, defaultHeaders, params);
+  return rejectingFetch(makePath(path), headers.headersGet(fetchParams))
+    .then(resp => resp.json());
 };
 
 export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => {
-  const body = Object.assign({}, bodyParams, {
+  const body = JSON.stringify(Object.assign({}, bodyParams, {
     owner: userId,
     data,
-  });
+  }));
 
-  return rejectingFetch(makePath(path), headers.headersPost(body, params))
-    .then(resp => resp.json);
+  const fetchParams = Object.assign({}, defaultHeaders, params);
+  return rejectingFetch(makePath(path), headers.headersPost(body, fetchParams))
+    .then(resp => resp.json())
+    .catch(err => {
+      console.log('got error posting', err);
+
+      return Promise.reject(err);
+    });
 };
 
-export const dbDelete = (path, params) => {
-  return rejectingFetch(makePath(path), headers.headersDelete(params))
-    .then(resp => resp.json);
+export const dbDelete = (path, params = {}) => {
+  const fetchParams = Object.assign({}, defaultHeaders, params);
+  return rejectingFetch(makePath(path), headers.headersDelete(fetchParams))
+    .then(resp => resp.json());
 };
 
 export const dbPruneResult = (json) => json.data;

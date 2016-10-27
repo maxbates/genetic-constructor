@@ -1,5 +1,5 @@
 import { defaultUser } from '../server/auth/local';
-import setupUserData from '../server/onboarding/userSetup';
+import checkUserSetup from '../server/onboarding/userSetup';
 
 /*
 When developing locally, set up a project for the default user.
@@ -8,7 +8,7 @@ Only need to run this once.
  */
 
 async function setupUser() {
-  await setupUserData(defaultUser);
+  await checkUserSetup(defaultUser);
 }
 
 export default setupUser;

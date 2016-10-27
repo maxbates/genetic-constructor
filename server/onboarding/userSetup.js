@@ -19,14 +19,14 @@ import onboardNewUser from './onboardNewUser';
 import DebugTimer from '../utils/DebugTimer';
 
 //if user has been setup, then return true
-const ensureUserSetup = (user) => {
+const checkUserSetup = (user) => {
   /*
    if (user && user.data && user.data.constructor === true) {
    return Promise.resolve(true);
    }
    */
 
-  const timer = new DebugTimer('ensureUserSetup ' + user.uuid, { disabled: true });
+  const timer = new DebugTimer('checkUserSetup ' + user.uuid, { disabled: true });
 
   return querying.listProjectsWithAccess(user.uuid)
     .then(projects => {
@@ -52,4 +52,4 @@ ${rolls.map(roll => `${roll.project.metadata.name || 'Unnamed'} @ ${roll.project
     });
 };
 
-export default ensureUserSetup;
+export default checkUserSetup;
