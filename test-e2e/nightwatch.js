@@ -37,7 +37,7 @@ module.exports = {
     },
 
     saucelabs: {
-      launch_url: 'http://localhost:3000',
+      launch_url: 'http://localhost:3001',
       selenium_port: 80,
       selenium_host: 'ondemand.saucelabs.com',
       desiredCapabilities: {
@@ -56,6 +56,9 @@ module.exports = {
       screenshots: {
         enabled: false,
         path: '',
+      },
+      globals: {
+        waitForConditionTimeout: 10000,
       },
     },
   },

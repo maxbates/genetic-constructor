@@ -18,16 +18,16 @@ addons:
   sauce_connect:
     username: bionano
     access_key:
-      secure:  whqMX30KvEBfWxJma8JIEXRtFt7TSFKPyKtnrN5l8xf2lr1LXiQdl8UFX98CuSls/05Ibr4WYWvPqJPVT8QSnSaByoQR2MKWIqm2hor4b0TiwCW7E4B8YQjzBH97ahhKc5ZuxjSolbIE7+YwYDMMLbmhRUmyhmPZceV93FJoytOTPYL+ENLuNSjxm23/9X5HW0B77ydnGBe3TRUvS4t5hku+GT5JGxqrKthbXzX9+wFIOmz0/hbTLLItcyOO04scjgmEv91DzIghy4j9uvRJpG/7JGRXYf84TOOFQLUY2wxrJlTG9nUP2XUecx58eo+cPOOcD57n9XSXFjL1mQMrsXSjDWGugorgWWp+/qT5NvQnuh+lBVHa39eO8HTW9lxovuo+Q5sVo0lrpZpd+VnZstuTyi8ixB0YJV7qllcj8TNp5M0PFiWyjv6mPuLFHY0BdvaDa6jUdI8tGbOTEEzFzL3J2NemDFwaywM4oj9IPggJLe/d2MlR3qOgV/2IuzZTTfvmgL8Uc3rYDAfRg14gaNA4PK+v5vKZe7XHegdHDty+3I94fe+KDiIiw63XR4QhJI2nBFUwrLzjok74iYNztu0auMjWddgA/iKZOZNVO3o9YGPLVvKGoX7zZeMIbjCMPBUObQ/v1sSbfwzTW9KtgLjjlccvhdyqv1eRMAo0AQo=
-
+      secure: Wu6FXPOd3MbsfPzJQHr4hr7afS6r7vncyPyGJ/+bgR0U03oqqi3SxPFzd2vYqLc/ue6XIAmTEkb6Jn5OhN6GdmetF2jBjXwu5m8l2TfllM+hCEKwTc6i9QuZDVcwA6eVAH0Cwo/8aAIRKBaZI5LScepvg/V70gr3b5eWOHyhN4lvhaC4+NW4veMMXA3o/xuIN4rAr1Y0evR+qZbDRPROzo3XIYFQct9Xgl/46p/DYq4C+8ARUeIbjCAnTozf45tvuDyFqV7UiJnmcRYMmJlEK/QKNgB0URbhroC2dLO13jw2y09cDfKNjEV/fiyjvyCxy+7wVcDf5PheU3BTaVgE2DM3Tmixo/6AqTZZepGdF+MPf/R9sS4AMI/HZ8aQkaj9wGNv8CcaGktN+x8xhKlWEm+u5BMMObwI/hqRt6MHIiOdyBiAEG5hMUjR4DFfzyTd/GjY9Pr7mcfzSdhehH2taqlQobybxZ+vcap+RPDgnXoDLjA7Ohkzd8iasRnLb48U2pUPh3Km8DvLEgY+WXwxgnL7AIn46IXA5T2eSe24y+4GnpaMrITNk5X+4y4Zb2NpuGAlKZgMCUSWWP3ERxcwCnKewoOXI5n1IdjuAB83ftdsnu9CBVI8aocSibqDJNz2N2mlq2OMOePi2zWE7Wh/r+IBSxPbPU3l6W4/OjPA5gA=
 install:
 - npm install
 script:
 - npm run lint
 - npm run test
-- npm run start-auth-stack-testing -- --DEBUG --PLATFORM-PATH=/tmp/bio-user-platform
-- npm run nightwatch-saucelabs
-- pkill node
+#- npm run start-testing &
+#- sleep 120
+#- npm run nightwatch-saucelabs
+#- pkill node
 cache:
   directories:
   - node_modules
