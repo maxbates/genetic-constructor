@@ -79,6 +79,16 @@ app.set('view engine', 'pug');
 // Register API middleware
 // ----------------------------------------------------
 
+// STORAGE
+
+// routes / mini-app for interacting with postgres DB
+// expose this route for local development, production will call `process.env.STORAGE_API` directly
+// in deployed environment this API will be available on a different host, and not at this route endpoint
+//note - should come before local auth setup, so that mockUser setup can call storage without middleware in place
+if (!process.env.STORAGE_API) {
+  app.use('/api', require('gctor-storage').routes);
+}
+
 // AUTH
 
 const onLoginHandler = (req, res, next) => {
@@ -113,9 +123,12 @@ if (process.env.BIO_NANO_AUTH) {
   app.use(initAuthMiddleware(authConfig));
 } else {
   app.use(require('cookie-parser')());
+
   // import the mocked auth routes
   //todo - clarify this usage - requires that users are always signed in to hit API. what about extensions?
+  //note that internal fetches will also go through this (e.g. storage), unless defined first - so ensure user can be setup by time hits this
   app.use(require('./auth/local').mockUser);
+
   const authRouter = require('./auth/local').router;
   app.use('/auth', authRouter);
 }
@@ -123,15 +136,6 @@ if (process.env.BIO_NANO_AUTH) {
 //expose our own register route to handle custom onboarding
 app.post('/register', registrationHandler);
 app.use('/user', userRouter);
-
-// STORAGE
-
-// routes / mini-app for interacting with postgres DB
-// expose this route for local development, production will call `process.env.STORAGE_API` directly
-// in deployed environment this API will be available on a different host, and not at this route endpoint
-if (!process.env.STORAGE_API) {
-  app.use('/api', require('gctor-storage').routes);
-}
 
 // PRIMARY ROUTES
 
