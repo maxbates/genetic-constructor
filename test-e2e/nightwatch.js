@@ -42,7 +42,7 @@ module.exports = {
       selenium_host: 'ondemand.saucelabs.com',
       desiredCapabilities: {
         browserName: 'chrome',
-        platform: 'Windows 7',
+        platform: 'OS X 10.11',
         version: '52',
         javascriptEnabled: true,
         acceptSslCerts: true,
