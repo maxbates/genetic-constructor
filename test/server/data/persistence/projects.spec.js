@@ -14,16 +14,17 @@
  limitations under the License.
  */
 import { assert, expect } from 'chai';
-import path from 'path';
 import uuid from 'node-uuid';
-import merge from 'lodash.merge';
+import _ from 'lodash';
 import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
-import md5 from 'md5';
 import { testUserId } from '../../../constants';
 import rollupFromArray from '../../../../src/utils/rollup/rollupFromArray';
+import { createExampleRollup } from '../../../_utils/rollup';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
+
+//todo - prefer rollup creation utils instead of manually creating
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 
@@ -31,42 +32,55 @@ describe('Server', () => {
   describe('Data', () => {
     describe('persistence', function persistenceTests() {
       describe.only('projects', () => {
-        const projectName = 'persistenceProject';
-        const projectData = Project.classless(updateProjectWithTestAuthor({ metadata: { name: projectName } }));
-        const projectId = projectData.id;
+        const roll = createExampleRollup();
+        const projectId = roll.project.id;
 
-        const blockName = 'blockA';
-        const blockData = Block.classless({ projectId, metadata: { name: blockName } });
-        const blockId = blockData.id;
-
-        const roll = rollupFromArray(projectData, blockData);
-
-        const blockName2 = 'new name';
-        const blockData2 = Block.classless({ projectId, metadata: { name: blockName2 } });
-        const blockId2 = blockData2.id;
-
-        const roll2 = rollupFromArray(projectData, blockData2);
+        //hack - patch for tests, author is forced when written
+        roll.project.metadata.authors = [testUserId];
 
         it('projectWrite() -> projectGet() works', () => {
-          const project = Project.classless(updateProjectWithTestAuthor({ metadata: { name: 'some name' } }));
-          const block = Block.classless({ projectId, metadata: { name: blockName } });
-          const roll = rollupFromArray(project, block);
+          const roll = createExampleRollup();
 
-          return projectPersistence.projectWrite(project.id, roll, testUserId)
-            .then(() => projectPersistence.projectGet(project.id))
+          return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+            .then(() => projectPersistence.projectGet(roll.project.id))
             .then(result => {
               expect(result).to.eql(roll);
             });
         });
 
-        it('projectExists() rejects if doesnt exist', (done) => {
-          projectPersistence.projectExists(Project.classless().id)
-            .then(() => done(new Error('shouldnt resolve')))
-            .catch(() => done());
+        it('projectExists() rejects if doesnt exist', () => {
+          return projectPersistence.projectExists(Project.classless().id)
+            .then(() => new Error('shouldnt resolve'))
+            .catch((err) => {
+              expect(err).to.equal(errorDoesNotExist);
+            });
         });
 
         it('projectWrite() creates a project if needed', () => {
           return projectPersistence.projectWrite(projectId, roll, testUserId);
+        });
+
+        it('projectWrite() receives version + roll', () => {
+          const roll = createExampleRollup();
+
+          return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+            .then(result => {
+              expect(result.version).to.equal(0);
+              expect(result.id).to.equal(roll.project.id);
+              expect(result.data).to.eql(roll);
+              expect(result.owner).to.equal(testUserId);
+            });
+        });
+
+        it('projectWrite() throws if you dont provide project + blocks', () => {
+          return expect(() => projectPersistence.projectWrite(projectId, { project: 'data' }, testUserId))
+            .to.throw();
+        });
+
+        it('projectWrite() validates the project', () => {
+          return projectPersistence.projectWrite(projectId, { project: {}, blocks: {} }, testUserId)
+            .then(() => assert(false, 'shouldnt happen'))
+            .catch(err => expect(err).to.equal(errorInvalidModel));
         });
 
         it('projectExists() resolves if it does exist', () => {
@@ -87,9 +101,36 @@ describe('Server', () => {
           return projectPersistence.projectWrite(projectId, roll, testUserId);
         });
 
-        it('projectWrite() receives version + roll');
+        it('projectMerge() forces the ID', () => {
+          const roll = createExampleRollup();
+          roll.project.metadata.authors = [testUserId]; //hack - patch for tests, author is forced when written
+          const overwrite = { project: { id: uuid.v4(), some: 'field ' } };
+          const merged = _.merge({}, roll, overwrite, { project: { id: roll.project.id } });
 
-        //todo - so many more...
+          return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+            .then(() => projectPersistence.projectGet(roll.project.id))
+            .then(result => expect(result).to.eql(roll))
+            .then(() => projectPersistence.projectMerge(roll.project.id, overwrite, testUserId))
+            .then(() => projectPersistence.projectGet(roll.project.id))
+            .then(result => expect(result).to.eql(merged));
+        });
+
+        it('projectDelete() deletes a project');
+
+        describe('manifest', () => {
+          it('projectGetManifest() gets manifest');
+          it('projectWriteManifest() writes manifest');
+          it('projectMergeManifest() merges manifest');
+        });
+
+        describe('blocks', () => {
+          it('blocksWrite() validates the block');
+          it('blocksWrite() forces projectId');
+          it('blocksWrite() adds blocks to roll');
+          it('blocksWrite() overwrites blocks');
+          it('blocksMerge() merges blocks');
+          it('blockDelete() deletes a block');
+        });
       });
     });
   });

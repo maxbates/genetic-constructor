@@ -52,6 +52,8 @@ describe('Server', () => {
         it('projectVersionGet() should get a specific version');
         it('projectVersionList() should list versions');
         it('projectVersionList() should differentiate between major and minor versions');
+
+        it('projectDelete() deletes all versions');
       });
     });
   });

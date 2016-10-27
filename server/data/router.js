@@ -130,7 +130,10 @@ router.route('/projects/:projectId')
     const roll = req.body;
 
     projectPersistence.projectWrite(projectId, roll, user.uuid)
-      .then(commit => res.status(200).json(commit))
+      .then(info => res.status(200).json({
+        version: info.version,
+        id: info.id,
+      }))
       .catch(err => next(err));
   })
   .delete((req, res, next) => {
@@ -141,6 +144,7 @@ router.route('/projects/:projectId')
       .then(() => res.status(200).json({ projectId }))
       .catch(err => {
         if (err === errorDoesNotExist) {
+          //unclear why this would ever happen with project access middleware...
           return res.status(404).send(errorDoesNotExist);
         }
         return next(err);

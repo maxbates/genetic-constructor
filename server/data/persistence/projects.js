@@ -32,6 +32,7 @@ import { dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
  *********/
 //maybe can deprecate these helpers, and just use the exported functions
 
+//todo - this should resolve to false... need to update usages
 //todo - a HEAD point might be useful here - get lastModified, version, etc.
 const _projectExists = (projectId, version) => {
   if (!!version) {
@@ -40,11 +41,17 @@ const _projectExists = (projectId, version) => {
 
   return dbGet(`projects/${projectId}`)
     .then(() => true)
-    .catch(() => Promise.reject(errorDoesNotExist));
+    .catch(err => (err === errorDoesNotExist) ? Promise.reject(errorDoesNotExist) : Promise.reject(err));
 };
 
 const _projectCreate = (projectId, userId, project = {}) => {
+  //is there any other setup we want to do on creation?
+
   return dbPost(`projects/`, userId, project, {}, { id: projectId });
+};
+
+const _projectWrite = (projectId, userId, project = {}) => {
+  return dbPost(`projects/${projectId}`, userId, project);
 };
 
 const _projectRead = (projectId, version) => {
@@ -53,21 +60,11 @@ const _projectRead = (projectId, version) => {
   }
 
   return dbGet(`projects/${projectId}`)
-    .then(dbPruneResult)
-};
-
-const _projectWrite = (projectId, userId, project = {}) => {
-  return dbPost(`projects/${projectId}`, userId, project);
+    .then(dbPruneResult);
 };
 
 const _projectDelete = (projectId, userId) => {
-  return dbDelete(`projects/${projectId}`)
-    .catch(resp => {
-      if (resp.status === 404) {
-        return Promise.reject(errorDoesNotExist);
-      }
-      return Promise.reject(resp);
-    });
+  return dbDelete(`projects/${projectId}`);
 };
 
 /*********
@@ -156,9 +153,7 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
     timer.time('validated');
   }
 
-  //todo - should automatically create a version, dont need to commit
-
-  //if it doesn't exist, setup the project (what does this entail? is this check needed?)
+  //if it doesn't exist, create the project
   return projectExists(projectId)
     .then(() => {
       return _projectWrite(projectId, userId, roll);
@@ -167,19 +162,17 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
       if (err === errorDoesNotExist) {
         return _projectCreate(projectId, userId, roll);
       }
+      return Promise.reject(err);
     })
-    .then(() => {
+    //receieves { data, version, id, owner, updatedAt, createdAt }
+    .then(data => {
       timer.end('project written');
-
-      //!!!!!!!!!!!!!!!!!!
-      //todo - need to pass back versioning information
-
-      return roll;
+      return data;
     });
 };
 
 //overwrite all blocks
-//todo - require UserId, pass to projectWrite
+//todo - require UserId, pass to projectWrite ---- update usages
 export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
   invariant(typeof projectId === 'string', 'projectId must be string');
   invariant(typeof blockMap === 'object', 'block map must be object');
@@ -193,15 +186,15 @@ export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidat
     }).then(roll => {
       //todo - need userId
       return projectWrite(projectId, roll)
-      //todo - what is returned here? includes version. want the roll.
-        .then(() => roll);
+      //return the roll
+        .then(info => info.data);
     });
 };
 
 export const projectMerge = (projectId, project, userId) => {
   return projectGet(projectId)
     .then(oldProject => {
-      const merged = merge({}, oldProject, project, { id: projectId });
+      const merged = merge({}, oldProject, project, { project: { id: projectId } });
       return projectWrite(projectId, merged, userId);
     });
 };
@@ -269,7 +262,7 @@ export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite
 
       //projectWrite will return version etc., want to pass manifest
       return projectWrite(updated)
-        .then(() => updated.project);
+        .then(info => info.data.project);
     });
 };
 

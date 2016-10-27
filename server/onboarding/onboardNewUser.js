@@ -70,7 +70,8 @@ export default function onboardNewUser(user) {
       restRollGens.map(generator => {
         const roll = generator();
         timer.time('non-primary rolls generated');
-        return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true);
+        return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
+          .then(info => info.data)
       })
     )
     .then((restRolls) => {
@@ -79,6 +80,7 @@ export default function onboardNewUser(user) {
       timer.time('second roll generated');
 
       return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
+        .then(info => info.data)
         .then(firstRoll => {
           timer.end('onboarding complete');
           return [firstRoll, ...restRolls];

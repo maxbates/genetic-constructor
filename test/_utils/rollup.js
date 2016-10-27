@@ -3,7 +3,7 @@ import { range } from 'lodash';
 import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
 import rollupFromArray from '../../src/utils/rollup/rollupFromArray';
-import { generateRandomSequence } from './/sequence';
+import { generateRandomSequence } from './sequence';
 
 export const numberBlocksInRollup = 7;
 

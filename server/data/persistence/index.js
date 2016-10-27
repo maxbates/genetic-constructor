@@ -359,7 +359,7 @@ export const projectWrite = (projectId, project = {}, userId, bypassValidation =
       timer.time('setup');
       return _projectWrite(projectId, idedProject);
     })
-    //.then(() => _projectCommit(projectId, userId))
+    .then(() => _projectCommit(projectId, userId))
     .then(() => {
       timer.end('writing complete');
       return idedProject;

@@ -86,6 +86,7 @@ app.set('view engine', 'pug');
 // in deployed environment this API will be available on a different host, and not at this route endpoint
 //note - should come before local auth setup, so that mockUser setup can call storage without middleware in place
 if (!process.env.STORAGE_API) {
+  console.log('Using local storage API, at /api/');
   app.use('/api', require('gctor-storage').routes);
 }
 
