@@ -53,7 +53,14 @@ const _projectRead = (projectId, version) => {
   }
 
   return dbGet(`projects/${projectId}`)
-    .then(dbPruneResult);
+    .then(dbPruneResult)
+    .catch(resp => {
+      if (resp.status === 404) {
+        return Promise.reject(errorDoesNotExist);
+      }
+
+      return Promise.reject(resp);
+    });
 };
 
 const _projectWrite = (projectId, userId, project = {}) => {
@@ -61,7 +68,13 @@ const _projectWrite = (projectId, userId, project = {}) => {
 };
 
 const _projectDelete = (projectId, userId) => {
-  return dbDelete(`projects/${projectId}`);
+  return dbDelete(`projects/${projectId}`)
+    .catch(resp => {
+      if (resp.status === 404) {
+        return Promise.reject(errorDoesNotExist);
+      }
+      return Promise.reject(resp);
+    });
 };
 
 /*********
@@ -80,11 +93,15 @@ export const projectExists = (projectId, sha) => {
 export const projectGet = (projectId, sha) => {
   return _projectRead(projectId, sha)
     .catch(err => {
-      console.log('(persistence.projectGet) error reading project ' + projectId, err);
-      if (err === errorDoesNotExist && !sha) {
+      //todo - how to handle versioning error?
+      if (err.status === 404 && !sha) {
+        //todo - this should reject with appropriate error
+        //return Promise.reject(errorDoesNotExist);
         return Promise.resolve(null);
       }
-      //let the versioning error fall through, or uncaught error
+
+      //let the error fall through, or uncaught error
+      console.log('(persistence.projectGet) error reading project ' + projectId, err);
       return Promise.reject(err);
     });
 };

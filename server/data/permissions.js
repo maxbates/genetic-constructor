@@ -36,7 +36,7 @@ export const createProjectPermissions = (projectId, userId) => {
 //check access to a particular project
 export const checkProjectAccess = (projectId, userId, projectMustExist = false) => {
   //todo - there is probably a faster way to check?
-  //todo - need to be able to check a user's access to a particular project
+  //todo - need to be able to check a user's access to a particular project, and differentiate 403 from 404
 
   return dbGet(`projects/owner/${userId}`)
     .then((projectInfos) => {

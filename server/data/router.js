@@ -114,7 +114,7 @@ router.route('/info/:type/:detail?/:additional?')
 router.route('/projects/:projectId')
   .all(permissionsMiddleware)
   .get((req, res, next) => {
-    const { projectId, user } = req;
+    const { projectId } = req;
 
     projectPersistence.projectGet(projectId)
       .then(roll => res.status(200).json(roll))

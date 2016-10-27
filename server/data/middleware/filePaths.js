@@ -23,7 +23,7 @@ const makePath = (...paths) => {
     return path.resolve(__dirname, '../storage/', ...paths);
   }
 
-  return path.resolve(__dirname, '../../storage/', ...paths);
+  return path.resolve(__dirname, '../../../storage/', ...paths);
 };
 
 export const trashPath = 'trash';
