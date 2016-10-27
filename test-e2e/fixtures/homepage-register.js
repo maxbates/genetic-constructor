@@ -9,18 +9,20 @@ var registerViaHomepage = function(browser) {
     // wait for it to be present
     .waitForElementPresent('#auth-signin', 5000, 'Expected form to become visible')
     // ensure it is the sign in dialog
+    .pause(1000)
     .getText('#auth-signin .title', function(result) {
       browser.assert.equal(result.value, "Sign In")
     })
     // click the a tag that switches to registration
     .click('#auth-signin a:nth-of-type(1)')
     // wait for registration dialog to appear
+    .pause(2000)
     .waitForElementPresent('#auth-register', 5000, 'Expected form to become visible')
-    // // submit with no values to ensure errors appear
-    // .submitForm('#auth-register')
-    // .pause(1000)
-    // // expect 6 errors to appear ( name error, two email errors, two password erros TOS error )
-    // .assert.countelements('.error.visible', 6);
+    // submit with no values to ensure errors appear
+    .submitForm('#auth-register')
+    .pause(1000)
+    // expect 6 errors to appear ( name error, two email errors, two password erros TOS error )
+    .assert.countelements('.error.visible', 6);
     // create fields with viable values including a random email
   var email = 'User' + new Date().getTime() + 'blah@hotmail.com';
   var password = '123456';
