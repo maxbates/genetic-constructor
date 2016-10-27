@@ -23,7 +23,7 @@ export default class InspectorRole extends Component {
   static propTypes = {
     roleId: (props, propName) => {
       if (!symbolMap[props[propName]]) {
-        return new Error('must pass a valid GSL Operator');
+        return new Error('must pass a valid Role Operator');
       }
     },
     readOnly: PropTypes.bool.isRequired,
@@ -34,7 +34,7 @@ export default class InspectorRole extends Component {
     const instance = symbols.find(symbol => symbol.id === roleId);
 
     return (
-      <div className="InspectorContent InspectorContentGsl">
+      <div className="InspectorContent InspectorContentRole">
 
         <InspectorRow heading="Role Name">
           <InputSimple readOnly={readOnly}
