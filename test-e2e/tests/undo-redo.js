@@ -1,9 +1,4 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
-var dragFromTo = require('../fixtures/dragfromto');
-var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
 var testProject = require('../fixtures/testproject');
 var size = require('../fixtures/size');
 
@@ -13,11 +8,10 @@ module.exports = {
     size(browser);
 
     // register via fixture
-    var credentials = homepageRegister(browser);
+    homepageRegister(browser);
 
-    // now we can go to the project page
+    // now we go to the project page
     browser
-      .url('http://localhost:3001/')
       // wait for inventory and inspector to be present
       .waitForElementPresent('.SidePanel.Inventory', 5000, 'Expected Inventory Groups')
       .waitForElementPresent('.SidePanel.Inspector', 5000, 'Expected Inspector');

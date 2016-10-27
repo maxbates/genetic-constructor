@@ -31,16 +31,28 @@ module.exports = {
 
     var gbFile = path.resolve(__dirname + '/../fixtures/phiX174_1f_redep.gb');
 
+    browser.uploadFileToSeleniumServer(gbFile, function (result) {
+
+      if (result.status === -1) {
+        throw new Error(result);
+      }
+
+      // Extract the new remote path of the file
+      var remotePath = result.value || "";
+
       // send file name to hidden input[file]
-    browser
-      .setValue('.genbank-import-form input[type="file"]', gbFile)
+      browser
+      .setValue('.genbank-import-form input[type="file"]', remotePath)
       .pause(3000)
       // click submit button to start the upload of fake data
       .submitForm('.genbank-import-form')
       // wait for blocks to become visible
-      .waitForElementPresent('[data-nodetype="block"]', 1000, 'expected a construct viewer to appear')
+      .waitForElementPresent('[data-nodetype="block"]', 60000, 'expected a construct viewer to appear')
       .assert.countelements('[data-nodetype="block"]', 39, 'expected 39 blocks for phi-x')
       .saveScreenshot('./test-e2e/current-screenshots/phix.png')
       .end();
+
+    });
+
   }
 };

@@ -1,10 +1,11 @@
 var clickMainMenu = require('./click-main-menu');
 
 var newproject = function(browser) {
-  browser.pause(2000)
+  browser
+    .waitForElementNotPresent('.ribbongrunt')
   clickMainMenu(browser, 1, 5);
   browser
-    .pause(3000)
+    .waitForElementNotPresent('.ribbongrunt')
     .waitForElementPresent('.construct-viewer', 5000, 'expect a construct for the new project')
     .assert.countelements('.construct-viewer', 1);
 };

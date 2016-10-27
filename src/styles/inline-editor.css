@@ -15,7 +15,7 @@
 }
 .inline-editor-construct-title {
   font-size: 20px;
-  text-indent: 4px;
+  text-indent: 0px;
   border-radius: 5px;
   padding-right: 4px;
   font-family: Helvetica;
@@ -44,10 +44,20 @@
   }
 }
 .inline-editor-hover-block {
-  left: 6px;
+  left: 10px;
   top: 4px;
   font-size: 12px;
   padding: 4px 0 4px 4px;
+}
+
+.inline-editor-hover-block-noimage {
+  left: 10px;
+  top: 4px;
+  font-size: 12px;
+  padding: 4px 4px 4px 4px;
+  img {
+    display: none;
+  }
 }
 
 .inline-editor-hover-title {
