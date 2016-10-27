@@ -2,7 +2,7 @@ import { expect, assert } from 'chai';
 import uuid from 'node-uuid';
 import request from 'supertest';
 import { testUserId } from '../../../constants';
-import { updateProjectWithTestAuthor } from '../../../utils/userUtils';
+import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
 import Project from '../../../../src/models/Project';
 import * as persistence from '../../../../server/data/persistence';
 import * as fileSystem from '../../../../server/data/middleware/fileSystem';

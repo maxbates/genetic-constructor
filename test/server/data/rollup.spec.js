@@ -7,7 +7,7 @@ import * as rollup from '../../../server/data/rollup';
 import * as persistence from '../../../server/data/persistence';
 import * as querying from '../../../server/data/querying';
 
-import { numberBlocksInRollup, createExampleRollup } from '../../utils/rollup';
+import { numberBlocksInRollup, createExampleRollup } from '../../_utils/rollup';
 
 describe('Server', () => {
   describe('Data', () => {

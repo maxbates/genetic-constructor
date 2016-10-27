@@ -17,7 +17,7 @@ import { assert, expect } from 'chai';
 import path from 'path';
 import uuid from 'node-uuid';
 import merge from 'lodash.merge';
-import { updateProjectWithTestAuthor } from '../../../utils/userUtils';
+import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
 import md5 from 'md5';
 import { testUserId } from '../../../constants';
 import rollupFromArray from '../../../../src/utils/rollup/rollupFromArray';

@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
 import * as sequences from '../../server/data/persistence/sequence';
 import { callExtensionApi } from '../../src/middleware/extensions';
-import createExampleProject from '../fixtures/rollup';
+import createExampleProject from '../_fixtures/rollup';
 
 const extensionKey = 'fasta';
 

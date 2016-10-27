@@ -6,7 +6,7 @@ import { importProject, exportProject, exportConstruct } from '../../server/exte
 import BlockSchema from '../../src/schemas/Block';
 import ProjectSchema from '../../src/schemas/Project';
 import * as fileSystem from '../../server/data/middleware/fileSystem';
-import { createExampleProject } from '../fixtures/rollup';
+import { createExampleProject } from '../_fixtures/rollup';
 
 const getBlock = (allBlocks, blockId) => {
   return allBlocks[blockId];

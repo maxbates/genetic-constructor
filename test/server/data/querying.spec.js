@@ -9,7 +9,7 @@ import * as rollup from '../../../server/data/rollup';
 import * as querying from '../../../server/data/querying';
 import { merge, values } from 'lodash';
 
-import { createExampleRollup } from '../../utils/rollup';
+import { createExampleRollup } from '../../_utils/rollup';
 
 describe('Server', () => {
   describe('Data', () => {

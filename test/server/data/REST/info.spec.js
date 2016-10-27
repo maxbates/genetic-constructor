@@ -4,7 +4,7 @@ import { testUserId } from '../../../constants';
 import Block from '../../../../src/models/Block';
 import * as rollup from '../../../../server/data/rollup';
 import devServer from '../../../../server/server';
-import { numberBlocksInRollup, createExampleRollup } from '../../../utils/rollup';
+import { numberBlocksInRollup, createExampleRollup } from '../../../_utils/rollup';
 import { range, merge } from 'lodash';
 
 describe('Server', () => {

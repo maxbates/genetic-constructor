@@ -6,7 +6,7 @@ import Project from '../../src/models/Project';
 import * as rollup from '../../server/data/rollup';
 import * as persistence from '../../server/data/persistence';
 import * as sequences from '../../server/data/persistence/sequence';
-import { createExampleRollup, createSequencedRollup, createListRollup } from '../utils/rollup';
+import { createExampleRollup, createSequencedRollup, createListRollup } from '../_utils/rollup';
 
 /**
  * only for testing... all created with test user account
