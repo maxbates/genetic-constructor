@@ -8,6 +8,8 @@ import * as versioning from '../../../server/data/git-deprecated/git';
 import { fileExists, fileRead, fileWrite, fileDelete, directoryMake, directoryDelete } from '../../../server/data/middleware/fileSystem';
 import { errorDoesNotExist } from '../../../server/utils/errors';
 
+console.log('todo - deprecate versioning test suite');
+
 describe('Server', () => {
   describe('Data', () => {
     describe.skip('versioning', function gitTests() {

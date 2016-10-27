@@ -9,6 +9,8 @@ import * as persistence from '../../../../server/data/persistence';
 import devServer from '../../../../server/server';
 import { merge } from 'lodash';
 
+console.log('todo - update versioning REST tests for new format');
+
 describe('Server', () => {
   describe('Data', () => {
     describe('REST', () => {

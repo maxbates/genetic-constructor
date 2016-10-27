@@ -38,6 +38,8 @@ import * as versioning from '../../../../server/data/git-deprecated/git';
 import * as persistence from '../../../../server/data/persistence';
 import * as s3 from '../../../../server/data/middleware/s3';
 
+console.log('todo - deprecate old versioning tests');
+
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', function persistenceTests() {

@@ -21,6 +21,10 @@ const dummyVersionPayload = () => ({
   version: -1,
 });
 
+export const projectVersionExists = () => {
+  //todo - check if a version exists
+};
+
 export const projectVersionGet = () => {
   //todo - get a version from the database
 };
@@ -40,8 +44,4 @@ export const projectVersionSnapshot = () => {
 
 export const projectVersionList = () => {
   //todo  - should work similarly to git.log()
-};
-
-export const projectVersionExists = () => {
-  //todo - check if a version exists
 };

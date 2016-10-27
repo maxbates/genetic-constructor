@@ -41,9 +41,27 @@ describe('Server', () => {
 
         const roll = rollupFromArray(projectData, blockData);
 
+        const blockName2 = 'new name';
+        const blockData2 = Block.classless({ projectId, metadata: { name: blockName2 } });
+        const blockId2 = blockData2.id;
+
+        const roll2 = rollupFromArray(projectData, blockData2);
+
+        it('projectWrite() -> projectGet() works', () => {
+          const project = Project.classless(updateProjectWithTestAuthor({ metadata: { name: 'some name' } }));
+          const block = Block.classless({ projectId, metadata: { name: blockName } });
+          const roll = rollupFromArray(project, block);
+
+          return projectPersistence.projectWrite(project.id, roll, testUserId)
+            .then(() => projectPersistence.projectGet(project.id))
+            .then(result => {
+              expect(result).to.eql(roll);
+            });
+        });
+
         it('projectExists() rejects if doesnt exist', (done) => {
           projectPersistence.projectExists(Project.classless().id)
-            .then(done)
+            .then(() => done(new Error('shouldnt resolve')))
             .catch(() => done());
         });
 
@@ -58,9 +76,16 @@ describe('Server', () => {
             });
         });
 
-        it('projectGet() retrieves the project');
+        it('projectGet() retrieves the project', () => {
+          return projectPersistence.projectGet(projectId)
+            .then(res => {
+              expect(res).to.eql(roll);
+            });
+        });
 
-        it('projectWrite() updates a project');
+        it('projectWrite() updates a project', () => {
+          return projectPersistence.projectWrite(projectId, roll, testUserId);
+        });
 
         it('projectWrite() receives version + roll');
 

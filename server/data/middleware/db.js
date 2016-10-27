@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import { STORAGE_URL } from '../../urlConstants';
+import { errorDoesNotExist, errorNoPermission } from '../../utils/errors';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import * as headers from '../../../src/middleware/utils/headers';
 
@@ -23,10 +24,25 @@ const defaultHeaders = {
   Accept: 'application/json',
 };
 
+const defaultErrorHandling = (resp) => {
+  if (resp.status === 404) {
+    return Promise.reject(errorDoesNotExist);
+  }
+
+  if (resp.status === 403) {
+    return Promise.reject(errorNoPermission);
+  }
+
+  console.log('got unhandled error: ', resp.originalUrl);
+  console.log(resp);
+  return Promise.reject(resp);
+};
+
 export const dbGet = (path, params = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
   return rejectingFetch(makePath(path), headers.headersGet(fetchParams))
-    .then(resp => resp.json());
+    .then(resp => resp.json())
+    .catch(defaultErrorHandling);
 };
 
 export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => {
@@ -38,17 +54,15 @@ export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
   return rejectingFetch(makePath(path), headers.headersPost(body, fetchParams))
     .then(resp => resp.json())
-    .catch(err => {
-      console.log('got error posting', err);
-
-      return Promise.reject(err);
-    });
+    .catch(defaultErrorHandling);
 };
 
 export const dbDelete = (path, params = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
   return rejectingFetch(makePath(path), headers.headersDelete(fetchParams))
-    .then(resp => resp.json());
+    .then(resp => resp.json())
+    .catch(defaultErrorHandling);
 };
 
+//dont strip the other fields that may be there - most basic CRUD operations include information other than just the data
 export const dbPruneResult = (json) => json.data;

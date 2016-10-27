@@ -54,13 +54,6 @@ const _projectRead = (projectId, version) => {
 
   return dbGet(`projects/${projectId}`)
     .then(dbPruneResult)
-    .catch(resp => {
-      if (resp.status === 404) {
-        return Promise.reject(errorDoesNotExist);
-      }
-
-      return Promise.reject(resp);
-    });
 };
 
 const _projectWrite = (projectId, userId, project = {}) => {
