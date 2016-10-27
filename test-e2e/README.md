@@ -21,6 +21,10 @@ There is a PR for this on the nightwatch repo but it seems inactive and has not 
 
 https://github.com/nightwatchjs/nightwatch/pull/1193
 
-We can revert to nightwatch master when it is merged.
+We can revert to nightwatch master when it is merged i.e. change this:
+
+    "nightwatch": "https://github.com/duncanmeech/nightwatch/tarball/master",
+    
+in package.json
 
 
