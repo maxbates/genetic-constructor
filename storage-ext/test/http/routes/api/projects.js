@@ -72,6 +72,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res, null);
           assert.notEqual(res.body, null);
           // console.log('fetch by project id result:', res.body);
+          assert.equal(res.body.version, 0);
           done();
         });
     });
@@ -144,6 +145,34 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body, null);
           // console.log('update result:', res.body);
           assert.deepEqual(res.body.data, data);
+          done();
+        });
+    });
+
+    it('should fetch the latest project version by \'id\'', function fetchLatestProjectVersion(done) {
+      request(app.proxy)
+        .get('/api/projects/' + projectId0)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log('fetch by project id result:', res.body);
+          assert.equal(res.body.version, 1);
+          done();
+        });
+    });
+
+    it('should fetch latest project optimally', function optimizedFetchLatestProjectVersion(done) {
+      request(app.proxy)
+        .get('/api/projects/fast/project/' + projectId0)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log('fetch by project id result:', res.body);
+          assert.equal(res.body.version, 1);
           done();
         });
     });

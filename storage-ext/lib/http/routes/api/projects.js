@@ -15,7 +15,7 @@ var combiner = require('../../combiner');
 var notNullOrEmpty = require('../../../util').notNullOrEmpty;
 var notNullAndPosInt = require('../../../util').notNullAndPosInt;
 
-
+var Sequelize = require('sequelize');
 var Project = require('../../../project');
 
 function collapseProjects(projectsArray) {
@@ -256,6 +256,50 @@ var fetchLatestProject = function (req, res) {
   });
 };
 
+var optimizedFetchLatestProjectVersion = function (req, res) {
+  var projectId = req.params.projectId;
+  if (! projectId) {
+    return res.status(400).send({
+      message: 'failed to parse projectId from URI',
+    }).end();
+  }
+
+  var where = {
+    id: projectId,
+    status: 1,
+  };
+
+  if (notNullOrEmpty(req.query.owner)) {
+    if (!uuidValidate(req.query.owner, 1)) {
+      return res.status(400).send({
+        message: 'invalid owner UUID',
+      }).end();
+    }
+
+    where.owner = req.query.owner;
+  }
+
+  return Project.findOne({
+    where: where,
+    order: [
+      ['version', 'DESC'],
+    ],
+  }).then(function (result) {
+    if (! result) {
+      return res.status(404).send({
+        message: 'projectId ' + projectId + ' does not exist',
+      }).end();
+    }
+
+    return res.status(200).send(result.get()).end();
+  }).catch(function (err) {
+    console.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
 var fetchProjects = function (req, res) {
   var ownerUUID = req.params.ownerId;
   if (! ownerUUID) {
@@ -283,6 +327,17 @@ var fetchProjects = function (req, res) {
       message: err.message,
     }).end();
   });
+};
+
+var optimizedFetchProjects = function (req, res) {
+  var ownerUUID = req.params.ownerId;
+  if (! ownerUUID) {
+    return res.status(400).send({
+      message: 'failed to parse ownerId from URI',
+    }).end();
+  }
+
+  return res.status(501).send('coming soon').end();
 };
 
 var deleteProject = function (req, res) {
@@ -400,6 +455,8 @@ var routes = [
   route('DELETE /:projectId', deleteProject),
   route('GET /owner/:ownerId', fetchProjects),
   route('GET /block/:blockId', fetchProjectsWithBlock),
+  route('GET /fast/project/:projectId', optimizedFetchLatestProjectVersion),
+  route('GET /fast/owner/:ownerId', optimizedFetchProjects),
   route('POST /', saveProject),
   route('GET /', function (req, res) {
     res.statusCode = 200;
