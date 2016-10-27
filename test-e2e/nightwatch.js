@@ -46,7 +46,7 @@ module.exports = {
         version: '52',
         javascriptEnabled: true,
         acceptSslCerts: true,
-        screenResolution: '2560x1600',
+        screenResolution: '2048x1536',
         build: `build-${process.env.TRAVIS_JOB_NUMBER}`,
         'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER,
       },
