@@ -26,7 +26,7 @@
     "artillery": "chmod u+x test-load/test-load.sh && test-load/test-load.sh",
     "test:watch": "npm test -- --watch",
     "nightwatch": "node ./node_modules/nightwatch/bin/nightwatch --retries 3 --config ./test-e2e/nightwatch.js --env local",
-    "nightwatch-saucelabs": "node ./node_modules/nightwatch/bin/nightwatch --retries 3 --config ./test-e2e/nightwatch.js --env saucelabs",
+    "nightwatch-saucelabs": "node ./node_modules/nightwatch/bin/nightwatch --config ./test-e2e/nightwatch.js --env saucelabs",
     "e2e": "NODE_ENV=test node ./bin/e2e.js",
     "imagediff": "node ./bin/imagediff/imagediff.js --truth ./test-e2e/cannonical-screenshots/ --hypothesis ./test-e2e/current-screenshots/",
     "selenium": "node ./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.1 --drivers.chrome.version=2.24",

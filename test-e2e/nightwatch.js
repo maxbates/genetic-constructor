@@ -42,11 +42,11 @@ module.exports = {
       selenium_host: 'ondemand.saucelabs.com',
       desiredCapabilities: {
         browserName: 'chrome',
-        platform: 'OS X 10.11',
+        platform: 'Windows 7',
         version: '52',
         javascriptEnabled: true,
         acceptSslCerts: true,
-        screenResolution: '2048x1536',
+        screenResolution: '2560x1600',
         build: `build-${process.env.TRAVIS_JOB_NUMBER}`,
         'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER,
       },
