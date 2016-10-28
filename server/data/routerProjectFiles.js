@@ -15,7 +15,6 @@
  */
 import express from 'express';
 import bodyParser from 'body-parser';
-import { HOST_URL } from '../urlConstants';
 import {
   errorInvalidRoute,
   errorDoesNotExist,

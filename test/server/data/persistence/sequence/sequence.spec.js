@@ -52,6 +52,7 @@ describe('Server', () => {
             original: pseudoMd5,
             hash: realMd5,
             byteRange: `[${rangeStart}:${rangeEnd}]`,
+            hasRange: true,
             start: rangeStart,
             end: rangeEnd,
           });
