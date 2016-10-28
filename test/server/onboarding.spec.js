@@ -21,7 +21,7 @@ import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
 describe('Server', () => {
   describe('Onboarding', () => {
-    const makeUser = (userId = uuid.v4(), nameStub) => ({
+    const makeUser = (userId = uuid.v1(), nameStub) => ({
       uuid: userId,
       email: `test${nameStub}@tester.com`,
       firstName: 'Dev',

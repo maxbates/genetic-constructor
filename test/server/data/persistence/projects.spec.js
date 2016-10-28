@@ -259,6 +259,7 @@ describe('Server', () => {
                 return projectPersistence.blocksPatch(projectId, testUserId, patch);
               })
               .then(blocks => {
+                assert(Object.keys(blocks).length > 1, 'should not replace all the other blocks');
                 expect(blocks[blockId].newField).to.equal('field');
                 expect(blocks[blockId].some).to.be.undefined;
               });

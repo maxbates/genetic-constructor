@@ -97,7 +97,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
       if (params.initTypes.some(type => type === action.type)) {
         //this is very hard to trace otherwise
         if (process.env.NODE_ENV !== 'production') {
-          console.log('store initializing'); //eslint-disable-line no-console
+          console.log('store init event (undo reducer enhancer resetting)'); //eslint-disable-line no-console
         }
         undoManager.purge();
         undoManager.patch(key, nextState, action);

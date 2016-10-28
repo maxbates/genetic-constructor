@@ -31,7 +31,7 @@ const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
  * @param {UUID} projectId Project ID to which user has access
  * @param {string} namespace Namespace Key
  * @param {string} fileName Name of file
- * @param {string} version Specific version of the file (not relevant for local development)
+ * @param {string} [version] Specific version of the file (not relevant for local development)
  * @returns {Promise} Fetch Response promise
  * @resolve {Response} Fetch Request. left for you to parse. (you may wish to parse as a buffer, or text, or json)
  * @reject {Error} rejects if > 400 or error
@@ -83,7 +83,7 @@ export const projectFileWrite = (projectId, namespace, fileName, contents) => {
 
   if (contents === null) {
     return rejectingFetch(filePath, headersDelete())
-      .then(resp => '');
+      .then(resp => filePath);
   }
 
   return rejectingFetch(filePath, headersPost(contents, contentTypeTextHeader))

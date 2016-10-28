@@ -5,9 +5,6 @@ import { testUserId } from '../../../constants';
 import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
 import Project from '../../../../src/models/Project';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
-import { errorDoesNotExist } from '../../../../server/utils/errors';
-import * as fileSystem from '../../../../server/data/middleware/fileSystem';
-import * as filePaths from '../../../../server/data/middleware/filePaths';
 import devServer from '../../../../server/server';
 
 describe('Server', () => {
@@ -20,7 +17,6 @@ describe('Server', () => {
         const projectData = new Project(updateProjectWithTestAuthor(initialFields));
         const projectId = projectData.id;
 
-        const invalidIdProject = Object.assign({}, projectData, { id: 'invalid' });
         const invalidDataProject = Object.assign({}, projectData, { metadata: 'blah' });
 
         const projectPatch = { some: 'field' };
@@ -58,15 +54,11 @@ describe('Server', () => {
             .end(done);
         });
 
-        it('GET a not real project returns {} and a 204', (done) => {
+        it('GET a not real project returns 404', (done) => {
           const url = `/data/${uuid.v4()}`;
           request(server)
             .get(url)
-            .expect(204)
-            .expect(result => {
-              expect(result.body).to.be.empty;
-            })
-            .end(done);
+            .expect(404, done);
         });
 
         it('GET an existing project returns the project', (done) => {
@@ -84,7 +76,7 @@ describe('Server', () => {
         //future
         //it('GET supports a depth query parameter');
 
-        it('POST merges a project returns it', (done) => {
+        it('POST updates a project returns it', (done) => {
           const url = `/data/${projectId}`;
           request(server)
             .post(url)
@@ -97,131 +89,49 @@ describe('Server', () => {
               }
               expect(result.body).to.eql(projectData);
 
-              persistence.projectGet(projectId)
+              projectPersistence.projectGet(projectId)
                 .then((result) => {
-                  expect(result).to.eql(projectData);
+                  expect(result.project).to.eql(projectData);
                   done();
                 })
                 .catch(done);
             });
         });
 
-        it('POST allows for delta merges', (done) => {
+        it('POST validates the project', (done) => {
           const url = `/data/${projectId}`;
+
           request(server)
             .post(url)
-            .send(projectPatch)
-            .expect(200)
-            .expect('Content-Type', /json/)
-            .end((err, result) => {
-              if (err) {
-                done(err);
-              }
-              expect(result.body).to.eql(patchedProject);
-              expect(result.body).to.not.eql(projectData);
-
-              persistence.projectGet(projectId)
-                .then((result) => {
-                  expect(result).to.eql(patchedProject);
-                  done();
-                })
-                .catch(done);
-            });
-        });
-
-        it('POST doesnt allow data with the wrong ID', (done) => {
-          const url = `/data/${projectId}`;
-          request(server)
-            .post(url)
-            .send(invalidIdProject)
-            .expect(400, done);
-        });
-
-        it('PUT replaces the project', (done) => {
-          const url = `/data/${projectId}`;
-          const newProject = new Project(updateProjectWithTestAuthor({
-            id: projectId,
-            notes: { field: 'value' },
-          }));
-
-          request(server)
-            .put(url)
-            .send(newProject)
-            .expect(200)
-            .expect('Content-Type', /json/)
-            .end((err, result) => {
-              if (err) {
-                done(err);
-              }
-              expect(result.body).to.eql(newProject);
-              expect(result.body).to.not.eql(projectData);
-
-              projectPersistence.projectGetManifest(projectId)
-                .then((result) => {
-                  expect(result).to.eql(newProject);
-                  done();
-                })
-                .catch(done);
-            });
-        });
-
-        it('PUT forces the project ID', (done) => {
-          const url = `/data/${projectId}`;
-          const newProject = new Project(updateProjectWithTestAuthor({
-            id: 'randomId',
-            notes: { field: 'value' },
-          }));
-          const validator = Object.assign({}, newProject, { id: projectId });
-
-          request(server)
-            .put(url)
-            .send(newProject)
-            .expect(200)
-            .expect('Content-Type', /json/)
-            .end((err, result) => {
-              if (err) {
-                done(err);
-              }
-              expect(result.body).to.eql(validator);
-              expect(result.body).to.not.eql(newProject);
-              expect(result.body).to.not.eql(projectData);
-
-              projectPersistence.projectGetManifest(projectId)
-                .then((result) => {
-                  expect(result).to.eql(validator);
-                  done();
-                })
-                .catch(done);
-            });
-        });
-
-        it('PUT validates the project', (done) => {
-          const url = `/data/${projectId}`;
-          request(server)
-            .put(url)
             .send(invalidDataProject)
+            .expect(422, done);
+        });
+
+        it('POST with wrong ID gives 400', (done) => {
+          const url = `/data/${projectId}`;
+          const newProject = new Project({
+            id: 'randomId',
+          });
+
+          request(server)
+            .post(url)
+            .send(newProject)
             .expect(400, done);
         });
 
-        it('DELETE deletes the project', (done) => {
+        it('PUT is not allowed', (done) => {
+          const url = `/data/${projectId}`;
+          request(server)
+            .put(url)
+            .send({})
+            .expect(405, done);
+        });
+
+        it('DELETE is not allowed', (done) => {
           const url = `/data/${projectId}`;
           request(server)
             .delete(url)
-            .expect(200)
-            .end((err, result) => {
-              if (err) {
-                done(err);
-              }
-
-              projectPersistence.projectExists(projectId)
-                .then(() => assert(false, 'shouldnt exist here any more...'))
-                .catch(err => {
-                  if (err === errorDoesNotExist) {
-                    return done();
-                  }
-                  done(err);
-                });
-            });
+            .expect(405, done);
         });
       });
     });

@@ -89,7 +89,10 @@ router.route('/:namespace/:file/:version?')
 
     projectFiles.projectFileDelete(projectId, namespace, file)
       .then(() => res.status(200).send())
-      .catch(err => next(err));
+      .catch(err => {
+        console.log('project file delete err', err, err.stack);
+        next(err);
+      });
   });
 
 router.route('/:namespace')

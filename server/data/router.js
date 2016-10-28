@@ -134,7 +134,12 @@ router.route('/projects/:projectId')
         version: info.version,
         id: info.id,
       }))
-      .catch(err => next(err));
+      .catch(err => {
+        if (err === errorInvalidModel) {
+          return res.status(422).send(errorInvalidModel);
+        }
+        next(err);
+      });
   })
   .delete((req, res, next) => {
     const { projectId, user } = req;
@@ -242,7 +247,7 @@ router.route('/:projectId/:blockId')
       })
       .catch(err => {
         if (err === errorInvalidModel) {
-          return res.status(400).send(errorInvalidModel);
+          return res.status(422).send(errorInvalidModel);
         }
         next(err);
       });
@@ -253,7 +258,7 @@ router.route('/:projectId/:blockId')
 
     //will be forced downstream, but worth alerting requester
     if (!!block.id && block.id !== blockId) {
-      return res.status(400).send(errorInvalidModel);
+      return res.status(400).send('IDs do not match');
     }
 
     projectPersistence.blocksMerge(projectId, user.uuid, { [blockId]: block })
@@ -265,7 +270,7 @@ router.route('/:projectId/:blockId')
           return res.status(404).send('project does not exist');
         }
         if (err === errorInvalidModel) {
-          return res.status(400).send(errorInvalidModel);
+          return res.status(422).send(errorInvalidModel);
         }
         next(err);
       });
@@ -282,38 +287,40 @@ router.route('/:projectId')
 
     projectPersistence.projectGetManifest(projectId)
       .then(result => {
-        if (!result) {
-          return res.status(204).json(null);
-        }
         res.json(result);
       })
-      .catch(err => next(err));
+      .catch(err => {
+        if (err === errorDoesNotExist) {
+          return res.status(404).send('project does not exist');
+        }
+        next(err);
+      });
   })
   .put((req, res, next) => {
-    res.status(401).send('cannot PUT project manifest, only post to update existing');
+    res.status(405).send('cannot PUT project manifest, only post to update existing');
   })
   .post((req, res, next) => {
     const { projectId, user } = req;
     const project = req.body;
 
     if (!!project.id && project.id !== projectId) {
-      return res.status(400).send(errorInvalidModel);
+      return res.status(400).send('IDs do not match');
     }
 
-    projectPersistence.projectMergeManifest(projectId, project, user.uuid)
+    projectPersistence.projectWriteManifest(projectId, project, user.uuid)
       .then(merged => res.status(200).send(merged))
       .catch(err => {
         if (err === errorDoesNotExist) {
           return res.status(404).send('project does not exist');
         }
         if (err === errorInvalidModel) {
-          return res.status(400).send(errorInvalidModel);
+          return res.status(422).send(errorInvalidModel);
         }
         next(err);
       });
   })
   .delete((req, res, next) => {
-    return res.status(403).send('use DELETE /projects/:id');
+    return res.status(405).send('use DELETE /projects/:id');
   });
 
 //default catch

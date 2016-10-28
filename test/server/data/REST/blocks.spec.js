@@ -74,7 +74,7 @@ describe('Server', () => {
               }
               expect(result.body).to.eql(blockData);
 
-              persistence.blocksGet(projectId, false, blockId)
+              projectPersistence.blocksGet(projectId, false, blockId)
                 .then(blockMap => {
                   const result = blockMap[blockId];
                   expect(result).to.eql(blockData);
@@ -98,7 +98,7 @@ describe('Server', () => {
               expect(result.body).to.eql(patchedBlock);
               expect(result.body).to.not.eql(blockData);
 
-              persistence.blocksGet(projectId, false, blockId)
+              projectPersistence.blocksGet(projectId, false, blockId)
                 .then((blockMap) => {
                   const result = blockMap[blockId];
                   expect(result).to.eql(patchedBlock);
@@ -136,9 +136,8 @@ describe('Server', () => {
               expect(result.body).to.eql(newBlock);
               expect(result.body).to.not.eql(blockData);
 
-              persistence.blocksGet(projectId, false)
+              projectPersistence.blocksGet(projectId, false)
                 .then((blockMap) => {
-                  assert(Object.keys(blockMap).length > 1, 'should not replace all the blocks, should be more than one');
                   const result = blockMap[blockId];
                   expect(result).to.eql(newBlock);
                   done();

@@ -20,7 +20,6 @@ import fetch from 'isomorphic-fetch';
 import Project from '../../src/models/Project';
 import * as api from '../../src/middleware/projectFiles';
 import * as s3 from '../../server/data/middleware/s3';
-import { errorDoesNotExist } from '../../server/utils/errors';
 
 const { assert, expect } = chai;
 
@@ -78,13 +77,6 @@ describe('Middleware', () => {
         });
     });
 
-    it('projectFileWrite() with null contents should delete', (done) => {
-      return api.projectFileWrite(projectId, namespace, fileNameAtomic, null)
-        .then(() => api.projectFileRead(projectId, namespace, fileNameRoundtrip))
-        .then(result => done(result))
-        .catch(err => expect(err).to.equal(errorDoesNotExist));
-    });
-
     it('readProjectFile() should read a file which exists', () => {
       return api.projectFileRead(projectId, namespace, fileNameAtomic)
         .then(resp => resp.text())
@@ -96,7 +88,20 @@ describe('Middleware', () => {
     it('readProjectFile() should 404 when file doesnt exist', (done) => {
       api.projectFileRead(projectId, namespace, uuid.v4())
         .then(() => done(new Error('shouldnt resolve when doesnt exist')))
-        .catch(err => done());
+        .catch(resp => {
+          expect(resp.status).to.equal(404);
+          done();
+        });
+    });
+
+    it('projectFileWrite() with null contents should delete', (done) => {
+      api.projectFileWrite(projectId, namespace, fileNameAtomic, null)
+        .then(() => api.projectFileRead(projectId, namespace, fileNameAtomic))
+        .then(result => done(result))
+        .catch(resp => {
+          expect(resp.status).to.equal(404);
+          done();
+        });
     });
 
     it('listProjectFiles() should give list of files made', () => {

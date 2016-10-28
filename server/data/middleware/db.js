@@ -34,8 +34,14 @@ const defaultErrorHandling = (resp) => {
   }
 
   console.log('got unhandled error: ', resp.url);
-  console.log(resp);
-  return Promise.reject(resp);
+
+  return resp.json().then(json => {
+    console.log(json);
+    return Promise.reject(json);
+  });
+
+  //console.log(resp);
+  //return Promise.reject(json);
 };
 
 export const dbGet = (path, params = {}) => {

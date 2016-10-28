@@ -220,14 +220,14 @@ export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
 
   return projectGet(projectId)
     .then(roll => {
-      //special case, to overwrite the blocks passed, but not the whole blockMap / project
-      if (overwrite === 'block') {
-        return Object.assign({}, roll, { blocks: Object.assign(roll.blocks, blockMap) });
+      //to overwrite the blocks passed, but not the whole blockMap / project
+      if (overwrite === 'patch') {
+        return Object.assign(roll, { blocks: Object.assign(roll.blocks, blockMap) });
       }
       if (overwrite === true) {
-        return Object.assign({}, roll, { blocks: blockMap });
+        return Object.assign(roll, { blocks: blockMap });
       }
-      return merge({}, roll, { blocks: blockMap });
+      return merge(roll, { blocks: blockMap });
     }).then(roll => {
       return projectWrite(projectId, roll, userId)
       //return the roll
@@ -241,7 +241,7 @@ export const blocksMerge = (projectId, userId, blockMap) => {
 };
 
 export const blocksPatch = (projectId, userId, blockMap) => {
-  return blocksWrite(projectId, userId, blockMap, 'block');
+  return blocksWrite(projectId, userId, blockMap, 'patch');
 };
 
 //DELETE
@@ -290,15 +290,24 @@ export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite
   invariant(typeof manifest === 'object', 'project manifest must be object');
   invariant(typeof userId === 'string', 'must pass userId to write project manifest');
 
+  //force project ID on whatever we're writing
+  Object.assign(manifest, { id: projectId });
+
+  //check valid before projectGet if we're overwriting
+  if (overwrite && !validateProject(manifest)) {
+    return Promise.reject(errorInvalidModel);
+  }
+
   return projectGet(projectId)
     .then(roll => {
       const updated = (overwrite !== true) ?
         merge({}, roll, { project: manifest }) :
         Object.assign({}, roll, { project: manifest });
 
-      Object.assign(updated.project, { id: projectId });
-
-      invariant(validateProject(updated.project), 'project must be valid before writing it');
+      //now, check if we merged
+      if (!overwrite && !validateProject(updated.project)) {
+        return Promise.reject(errorInvalidModel);
+      }
 
       //projectWrite will return version etc., want to pass manifest
       return projectWrite(projectId, updated, userId)

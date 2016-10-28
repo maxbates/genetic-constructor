@@ -35,15 +35,15 @@ describe('Server', () => {
       };
       const numberBlocksInCustomRollup = Object.keys(createCustomRollup().blocks).length;
 
-      const myUserId = uuid.v4();
+      const myUserId = uuid.v1();
       const myRolls = [1, 2, 3, 4].map(createCustomRollup);
       const myRollIds = myRolls.map(roll => roll.project.id);
 
-      const otherUserId = uuid.v4();
+      const otherUserId = uuid.v1();
       const otherRolls = [1, 2, 3].map(createCustomRollup);
       const otherRollIds = otherRolls.map(roll => roll.project.id);
 
-      const randomUserId = uuid.v4();
+      const randomUserId = uuid.v1();
 
       before(() => {
         return Promise.all([
