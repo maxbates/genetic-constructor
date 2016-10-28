@@ -21,7 +21,7 @@ import invariant from 'invariant';
 import path from 'path';
 import { merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorAlreadyExists, errorInvalidModel } from '../../utils/errors';
-import { validateBlock, validateProject, validateOrder } from '../../utils/validation';
+import { validateBlock, validateProject } from '../../utils/validation';
 import * as filePaths from '../middleware/filePaths';
 import * as versioning from '../git-deprecated/git';
 import * as commitMessages from '../git-deprecated/commitMessages';
@@ -84,10 +84,6 @@ const _blocksExist = (projectId, sha = false, ...blockIds) => {
     .then(blocks => blockIds.every(blockId => !!blocks[blockId]));
 };
 
-const _orderExists = (orderId, projectId) => {
-  const manifestPath = filePaths.createOrderManifestPath(orderId, projectId);
-  return fileExists(manifestPath);
-};
 
 // READING
 
@@ -131,10 +127,6 @@ const _blocksRead = (projectId, sha = false, ...blockIds) => {
     });
 };
 
-const _orderRead = (orderId, projectId) => {
-  const manifestPath = filePaths.createOrderManifestPath(orderId, projectId);
-  return fileRead(manifestPath);
-};
 
 // SETUP
 
@@ -172,11 +164,6 @@ const _projectSetup = (projectId, userId) => {
     });
 };
 
-const _orderSetup = (orderId, projectId) => {
-  const orderDirectory = filePaths.createOrderPath(orderId, projectId);
-  return directoryMake(orderDirectory);
-};
-
 // WRITING
 
 const _projectWrite = (projectId, project = {}) => {
@@ -191,16 +178,6 @@ const _blocksWrite = (projectId, blockMap = {}, overwrite = false) => {
   return (overwrite === true) ?
     fileWrite(manifestPath, blockMap) :
     fileMerge(manifestPath, blockMap);
-};
-
-const _orderWrite = (orderId, order = {}, projectId) => {
-  const manifestPath = filePaths.createOrderManifestPath(orderId, projectId);
-  return fileWrite(manifestPath, order);
-};
-
-const _orderRollupWrite = (orderId, rollup, projectId) => {
-  const orderPath = filePaths.createOrderProjectManifestPath(orderId, projectId);
-  return fileWrite(orderPath, rollup);
 };
 
 // COMMITS
@@ -228,40 +205,12 @@ export const blocksExist = (projectId, sha = false, ...blockIds) => {
   return _blocksExist(projectId, sha, ...blockIds);
 };
 
-export const orderExists = (orderId, projectId) => {
-  return _orderExists(orderId, projectId);
-};
-
 const projectAssertNew = (projectId) => {
   return projectExists(projectId)
     .then(() => Promise.reject(errorAlreadyExists))
     .catch((err) => {
       if (err === errorDoesNotExist) {
         return Promise.resolve(projectId);
-      }
-      return Promise.reject(err);
-    });
-};
-
-/*
- const blockAssertNew = (blockId, projectId) => {
- return blocksExist(projectId, false, blockId)
- .then(() => Promise.reject(errorAlreadyExists))
- .catch((err) => {
- if (err === errorDoesNotExist) {
- return Promise.resolve(blockId);
- }
- return Promise.reject(err);
- });
- };
- */
-
-const orderAssertNew = (orderId, projectId) => {
-  return orderExists(orderId, projectId)
-    .then(() => Promise.reject(errorAlreadyExists))
-    .catch((err) => {
-      if (err === errorDoesNotExist) {
-        return Promise.resolve(orderId);
       }
       return Promise.reject(err);
     });
@@ -308,15 +257,6 @@ export const blockGet = (projectId, sha = false, blockId) => {
     });
 };
 
-export const orderGet = (orderId, projectId) => {
-  return _orderRead(orderId, projectId)
-    .catch(err => {
-      if (err === errorDoesNotExist) {
-        return Promise.resolve(null);
-      }
-      return Promise.reject(err);
-    });
-};
 
 //CREATE
 
@@ -400,25 +340,6 @@ export const blocksMerge = (projectId, blockMap) => {
   return blocksWrite(projectId, blockMap, false);
 };
 
-export const orderWrite = (orderId, order, projectId, roll) => {
-  const idedOrder = Object.assign({}, order, {
-    projectId,
-    id: orderId,
-  });
-
-  if (!validateOrder(idedOrder)) {
-    return Promise.reject(errorInvalidModel);
-  }
-
-  return orderAssertNew(orderId, projectId)
-    .then(() => _orderSetup(orderId, projectId))
-    .then(() => Promise.all([
-      _orderWrite(orderId, idedOrder, projectId),
-      _orderRollupWrite(orderId, roll, projectId),
-    ]))
-    .then(() => idedOrder);
-};
-
 //DELETE
 
 export const projectDelete = (projectId, forceDelete = false) => {
@@ -474,13 +395,6 @@ export const blocksDelete = (projectId, ...blockIds) => {
     .then(() => blockIds);
 };
 
-//not sure why you would do this...
-export const orderDelete = (orderId, projectId) => {
-  const orderPath = filePaths.createOrderManifestPath(orderId, projectId);
-  return orderId(orderId, projectId)
-    .then(() => fileDelete(orderPath))
-    .then(() => orderId);
-};
 
 //SAVE
 

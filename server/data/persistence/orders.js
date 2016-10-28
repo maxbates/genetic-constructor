@@ -23,14 +23,6 @@ import { validateOrder } from '../../utils/validation';
  Helpers
  *********/
 
-const _orderExists = (orderId, projectId) => {
-  //todo
-};
-
-const _orderRead = (orderId, projectId) => {
-  //todo
-};
-
 const _orderWrite = (orderId, order = {}, projectId) => {
   //todo - write the order, mae sure have a version (should run after save)
 };
@@ -44,7 +36,11 @@ export const orderList = (projectId) => {
 };
 
 export const orderExists = (orderId, projectId) => {
-  return _orderExists(orderId, projectId);
+  //todo
+};
+
+export const orderRead = (orderId, projectId) => {
+
 };
 
 export const orderGet = (orderId, projectId) => {

@@ -117,22 +117,3 @@ export const getAllBlockRoles = (userId) => {
       return obj;
     });
 };
-
-//todo - deprecate, use order persistence module isntead
-export const getOrderIds = (projectId) => {
-  const directory = filePaths.createOrderDirectoryPath(projectId);
-  return persistence.projectExists(projectId)
-    .then(() => fileSystem.directoryContents(directory));
-};
-
-//todo - deprecate, use order persistence module isntead
-export const getOrders = (projectId) => {
-  return getOrderIds(projectId)
-    .then(orderIds => Promise.all(orderIds.map(orderId => persistence.orderGet(orderId, projectId))))
-    .catch(err => {
-      if (err === errorDoesNotExist) {
-        return [];
-      }
-      return Promise.reject(err);
-    });
-};

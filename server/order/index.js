@@ -18,8 +18,6 @@ import {
   errorInvalidModel,
 } from './../utils/errors';
 import { merge } from 'lodash';
-import * as querying from './../data/querying';
-import * as persistence from './../data/persistence';
 import * as projectPersistence from './../data/persistence/projects';
 import * as orderPersistence from './../data/persistence/orders';
 import * as projectVersions from './../data/persistence/projectVersions';
@@ -49,12 +47,12 @@ router.route('/:projectId/:orderId?')
     const { orderId } = req.params;
 
     if (!!orderId) {
-      return persistence.orderGet(orderId, projectId)
+      return orderPersistence.orderGet(orderId, projectId)
         .then(order => res.status(200).json(order))
         .catch(err => next(err));
     }
 
-    return querying.getOrders(projectId)
+    return orderPersistence.orderList(projectId)
       .then(orders => res.status(200).json(orders))
       .catch(err => next(err));
   })
