@@ -492,6 +492,7 @@ export default class Layout {
           dataAttribute: { name: 'nodetype', value: 'construct-title' },
           sg: this.sceneGraph,
           hoverClass: 'inline-editor-hover-title',
+          textIndent: 4,
         }, kT.titleAppearance));
         this.sceneGraph.root.appendChild(this.titleNode);
       }
