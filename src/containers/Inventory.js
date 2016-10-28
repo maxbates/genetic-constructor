@@ -99,48 +99,14 @@ export class Inventory extends Component {
     const { title, type, icon, condition, actions, sectionProps } = currentSection;
 
     return (
-      <div className={'SidePanel Inventory' +
-      (isVisible ? ' visible' : '')}>
-        <div className="SidePanel-heading">
-          <span className="SidePanel-heading-trigger Inventory-trigger"
-                onClick={() => this.toggle()}/>
-          <div className="SidePanel-heading-content">
-            <span className="SidePanel-heading-title">Inventory</span>
-            <a className="SidePanel-heading-close"
-               ref="close"
-               onClick={() => this.toggle(false)}/>
-          </div>
-        </div>
-
-        <div className="SidePanel-content no-vertical-scroll">
-          <div className="Inventory-sidebar">
-            {this.sections.map(section => {
-              const { title, type, icon, condition, ...rest } = section;
-              if (condition && !condition()) {
-                return null;
-              }
-
-              //todo - need to coordinate drop target + active class across side component + group component
-              return (
-                <InventorySideGroup title={title}
-                                    key={title}
-                                    type={type}
-                                    icon={icon}
-                                    currentProject={projectId}
-                                    isActive={currentTab === title}
-                                    setActive={() => this.setActive(title)}
-                                    {...rest} />
-              );
-            })}
-          </div>
-
-          <div className="Inventory-main">
-            <InventoryGroup title={currentSection.title}
-                            type={currentSection.type}
-                            actions={actions}
-                            currentProject={projectId}
-                            {...sectionProps} />
-          </div>
+      <div className={'SidePanel Inventory' + (isVisible ? ' visible' : '')}
+        onClick={() => {
+          this.toggle(!isVisible);
+        }}
+      >
+        <div className="container">
+          <div className="vertical-menu"></div>
+          <div className="content"></div>
         </div>
       </div>
     );

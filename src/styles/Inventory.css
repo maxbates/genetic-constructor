@@ -1,25 +1,24 @@
 @import 'variables.css';
 
 .Inventory {
-  &-trigger {
-    background-image: url('/images/ui/inventory_icon.svg');
+
+  .container {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
   }
 
-  &-main {
-    display: flex;
-    flex-direction: row;
-  }
-
-  &-sidebar {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 0;
+  .vertical-menu {
+    position: absolute;
     width: 50px;
+    height: 100%;
+    background-color: red;
   }
-
-  &-activeGroup {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
+  .content {
+    position: absolute;
+    left: 50px;
+    width: 250px;
+    height: 100%;
+    background-color: blue;
   }
 }
