@@ -20,15 +20,14 @@ import {
   errorDoesNotExist,
   errorFileNotFound,
 } from './../utils/errors';
+import { HOST_URL } from '../urlConstants';
 import * as projectFiles from './persistence/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
 
 const makeProjectFileLink = (req, projectId, namespace, file) => {
-  //req.get('host') should include the port, but it doesn't always...
-  const base = req.protocol + '://' + req.get('host');
-  return `${base}/data/file/${projectId}/${namespace}/${file}`;
+  return `${HOST_URL}/data/file/${projectId}/${namespace}/${file}`;
 };
 
 //permission checking currently handled by data router (user has access to project)
