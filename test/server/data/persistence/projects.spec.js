@@ -155,12 +155,97 @@ describe('Server', () => {
         });
 
         describe('blocks', () => {
-          it('blocksWrite() validates the block');
-          it('blocksWrite() forces projectId');
-          it('blocksWrite() adds blocks to roll');
-          it('blocksWrite() overwrites blocks');
-          it('blocksMerge() merges blocks');
-          it('blockDelete() deletes a block');
+          const roll = createExampleRollup();
+          const projectId = roll.project.id;
+
+          const newBlock = Block.classless({
+            projectId,
+          });
+          const mergedMap = Object.assign({ [newBlock.id]: newBlock }, roll.blocks);
+
+          before(() => {
+            return projectPersistence.projectWrite(projectId, roll, testUserId);
+          });
+
+          it('blocksGet() gets the blocks', () => {
+            return projectPersistence.blocksGet(projectId)
+              .then(blocks => {
+                expect(blocks).to.eql(roll.blocks);
+              });
+          });
+
+          it('blocksGet() can get specific blocks', () => {
+            const keys = Object.keys(roll.blocks).slice(1, 3);
+            return projectPersistence.blocksGet(projectId, false, ...keys)
+              .then(blocks => {
+                expect(Object.keys(blocks).length).to.equal(keys.length);
+                expect(blocks[keys[0]]).to.eql(roll.blocks[keys[0]]);
+              });
+          });
+
+          it('blocksWrite() validates the block', (done) => {
+            projectPersistence.blocksWrite(projectId, { some: 'invlalid' })
+              .then(() => done(new Error('shouldnt pass')))
+              .catch(err => { done(); });
+          });
+
+          it('blocksWrite() forces projectId', () => {
+            return projectPersistence.blocksWrite(projectId, mergedMap)
+              .then(roll => {
+                assert(_.every(roll.blocks, (block) => block.projectId === projectId), 'should force projectId');
+              });
+          });
+
+          it('blocksWrite() overwrites blocks', () => {
+            return projectPersistence.blocksGet(projectId)
+              .then(blocks => {
+                const newMap = Object.assign({}, blocks);
+                const toKill = Object.keys(newMap)[0];
+
+                delete newMap[toKill];
+
+                return projectPersistence.blocksWrite(projectId, newMap)
+                  .then(roll => {
+                    expect(roll.blocks[toKill]).to.be.undefined;
+                    expect(Object.keys(newMap).sort()).to.eql(Object.keys(roll.blocks).sort());
+                  });
+              });
+
+          });
+
+          it('blocksMerge() merges blocks', () => {
+            return projectPersistence.blocksGet(projectId)
+              .then(blocks => {
+                const newBlock = Block.classless({
+                  projectId,
+                });
+                const nextMap = Object.assign({}, blocks, { [newBlock.id]: newBlock });
+
+                return projectPersistence.blocksMerge(projectId, { [newBlock.id]: newBlock })
+                  .then(roll => {
+                    expect(roll.blocks).to.eql(nextMap);
+                  });
+              });
+          });
+
+          it('blockDelete() deletes a block', () => {
+            let toKill;
+            return projectPersistence.blocksGet(projectId)
+              .then(blocks => {
+                toKill = Object.keys(blocks)[0];
+
+                return projectPersistence.blocksDelete(projectId, toKill)
+                  .then(() => projectPersistence.projectGet(projectId))
+                  .then(result => {
+                    expect(result.blocks[toKill]).to.not.be.defined;
+
+                    const duplicated = Object.assign({}, blocks);
+                    delete duplicated[toKill];
+
+                    expect(result.blocks).to.eql(duplicated);
+                  });
+              });
+          });
         });
       });
     });

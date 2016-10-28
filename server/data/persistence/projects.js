@@ -35,7 +35,7 @@ import { dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
 //todo - this should resolve to false... need to update usages
 //todo - a HEAD point might be useful here - get lastModified, version, etc.
 const _projectExists = (projectId, version) => {
-  if (!!version) {
+  if (Number.isInteger(version)) {
     //todo
   }
 
@@ -55,7 +55,7 @@ const _projectWrite = (projectId, userId, project = {}) => {
 };
 
 const _projectRead = (projectId, version) => {
-  if (!!version) {
+  if (Number.isInteger(version)) {
     //todo
   }
 
@@ -120,6 +120,9 @@ export const projectGet = (projectId, sha) => {
 export const blocksGet = (projectId, sha = false, ...blockIds) => {
   return projectGet(projectId, sha)
     .then(roll => {
+      if (!blockIds.length) {
+        return roll.blocks;
+      }
       return pick(roll.blocks, blockIds);
     });
 };
