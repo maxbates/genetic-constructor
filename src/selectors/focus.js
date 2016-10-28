@@ -28,16 +28,8 @@ const _getCurrentProjectId = () => {
 
 //todo - this should not be exposed as part of 3rd party API... exported so inspector can share
 export const _getFocused = (state, defaultToConstruct = true, defaultProjectId = null) => {
-  const { level, forceProject, forceBlocks, constructId, blockIds, gslId, roleId, options } = state.focus;
+  const { level, forceProject, forceBlocks, constructId, blockIds, roleId, options } = state.focus;
   const projectId = _getCurrentProjectId();
-
-  if (level === 'gsl') {
-    return {
-      type: 'gsl',
-      readOnly: true,
-      focused: gslId,
-    };
-  }
 
   if (level === 'role') {
     return {
