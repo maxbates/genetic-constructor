@@ -22,7 +22,7 @@ module.exports = {
       // submit button ( its not really a form )
       .click('.ExtensionPicker.gd-form button[type="submit"]')
       // form should go away
-      .waitForElementNotPresent('.ExtensionPicker.gd-form')
+      .waitForElementNotPresent('.ExtensionPicker.gd-form', 5000, 'expected for to go away')
       // viewer should go away
       .waitForElementNotPresent('.viewer', 5000, 'expected viewer to be removed')
 
@@ -35,13 +35,13 @@ module.exports = {
       // submit button ( its not really a form )
       .click('.ExtensionPicker.gd-form button[type="submit"]')
       // form should go away
-      .waitForElementNotPresent('.ExtensionPicker.gd-form')
+      .waitForElementNotPresent('.ExtensionPicker.gd-form', 5000, 'expected form to go away')
       // viewer should be available again
-      .waitForElementPresent('.ProjectDetail-heading-extension');
+      .waitForElementPresent('.ProjectDetail-heading-extension', 5000, 'expected form to be visible again');
       
     clickText(browser, "Sequence Viewer", '.ProjectDetail-heading-extension');
     browser
-      .waitForElementPresent('.viewer', 5000, 'expected viewer to be')
+      .waitForElementPresent('.viewer', 5000, 'expected viewer to be present')
       .end();
   }
 };

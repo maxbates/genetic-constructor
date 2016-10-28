@@ -21,7 +21,6 @@ import RoleSvg from '../RoleSvg';
 import BasePairCount from '../ui/BasePairCount';
 import {
   block as blockDragType,
-  gsl as gslDragType,
   role as roleDragType,
 } from '../../constants/DragTypes';
 
@@ -30,7 +29,7 @@ import {
   uiSetGrunt,
   uiSpin,
 } from '../../actions/ui';
-import { focusForceBlocks, focusGsl, focusRole } from '../../actions/focus';
+import { focusForceBlocks, focusRole } from '../../actions/focus';
 
 import '../../styles/InventoryItem.css';
 
@@ -58,7 +57,6 @@ export class InventoryItem extends Component {
     forceBlocks: PropTypes.array.isRequired,
     focusBlocks: PropTypes.array.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
-    focusGsl: PropTypes.func.isRequired,
     focusRole: PropTypes.func.isRequired,
     focusForceBlocks: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
@@ -173,8 +171,6 @@ export class InventoryItem extends Component {
         //todo - this shouldnt be responsibility of this generic component. move into specific components.
         if (inventoryType === blockDragType) {
           focusForceBlocks([result]);
-        } else if (inventoryType === gslDragType) {
-          focusGsl(result.id);
         } else if (inventoryType === roleDragType) {
           focusRole(result.id);
         }
@@ -233,7 +229,6 @@ export default connect((state) => {
   };
 }, {
   focusForceBlocks,
-  focusGsl,
   focusRole,
   inspectorToggleVisibility,
   uiSetGrunt,

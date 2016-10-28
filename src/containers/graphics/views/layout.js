@@ -316,12 +316,15 @@ export default class Layout {
       const props = Object.assign({}, {
         dataAttribute: { name: 'nodetype', value: 'block' },
         sg: this.sceneGraph,
-        hoverClass: 'inline-editor-hover-block',
       }, appearance);
       props.roleName = this.isSBOL(part) ? this.blocks[part].rules.role || this.blocks[part].metadata.role : null;
       node = new Role2D(props);
       this.sceneGraph.root.appendChild(node);
       this.map(part, node);
+      // set correct hover class
+      node.set({
+        hoverClass: props.roleName ? 'inline-editor-hover-block' : 'inline-editor-hover-block-noimage',
+      });
     }
     // hide/show child expand/collapse glyph
     node.set({
@@ -489,6 +492,7 @@ export default class Layout {
           dataAttribute: { name: 'nodetype', value: 'construct-title' },
           sg: this.sceneGraph,
           hoverClass: 'inline-editor-hover-title',
+          textIndent: 4,
         }, kT.titleAppearance));
         this.sceneGraph.root.appendChild(this.titleNode);
       }

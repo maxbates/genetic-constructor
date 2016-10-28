@@ -7,8 +7,7 @@
   flex-direction: row;
   justify-content: space-between;
   color: var(--colors-blueGreyLighter);
-  cursor: default;
-  transition: background-color var(--timing-fast) ease-out;
+  cursor: pointer;
 
   /* left side */
   &-info {
@@ -20,6 +19,7 @@
 
   &-title {
     font-size: 16px;
+    text-indent: 10px;
   }
 
   &-description {
@@ -29,6 +29,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin-top: 4px;
+    text-indent: 10px;
   }
 
   /* right side */
@@ -39,9 +40,5 @@
   &-detailToggle {
     padding: 1em;
     cursor: pointer;
-  }
-
-  &.focused {
-    background-color: var(--colors-grey);
   }
 }

@@ -195,42 +195,13 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * mouse enter/leave are used to ensure no block is in the hover state
    */
   mouseEnter(event) {
-    this.setBlockHover();
     this.setTitleHover();
   }
 
   mouseLeave(event) {
-    this.setBlockHover();
     this.setTitleHover();
   }
 
-  /**
-   * set the given block to the hover state
-   */
-  setBlockHover(blockId) {
-    // bail if no change
-    if (this.hover && this.hover.block === blockId) {
-      return;
-    }
-
-    if (this.hover) {
-      this.hover.node.set({
-        hover: false,
-      });
-      this.hover.node.updateBranch();
-      this.hover = null;
-    }
-    if (blockId) {
-      this.hover = {
-        block: blockId,
-        node: this.layout.nodeFromElement(blockId),
-      };
-      this.hover.node.set({
-        hover: true,
-      });
-      this.hover.node.updateBranch();
-    }
-  }
 
   /**
    * set hover state for title node
@@ -262,25 +233,27 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * mouse move handler ( note, not the same as drag which is with a button held down )
    */
   mouseMove(evt, point) {
+    let clickable = false;
     if (!this.collapsed) {
+      const hits = this.sg.findNodesAt(point);
+      const isTitle = this.isConstructTitleNode(hits.length ? hits.pop() : null);
+      const isBlock = this.topBlockAt(point);
       if (this.construct.isAuthoring() || !this.construct.isFixed()) {
-        const hits = this.sg.findNodesAt(point);
-        this.setTitleHover(this.isConstructTitleNode(hits.length ? hits.pop() : null));
-        let blockId = this.topBlockAt(point);
-        if (blockId) {
-          if (!this.blockIsFocused(blockId)) {
-            blockId = null;
-          } else {
-            const globalPoint = this.mouseTrap.mouseToGlobal(evt);
-            const region = this.getBlockRegion(blockId, globalPoint);
-            if (region && region.where === 'option') {
-              blockId = null;
-            }
-          }
-        }
-        this.setBlockHover(blockId);
+        this.setTitleHover(isTitle);
       }
+      clickable = isTitle || isBlock;
     }
+    this.setCursor(clickable ? 'pointer' : 'default');
+  }
+
+  /**
+   * set the default cursor or change the cursor to the given style
+   * https://developer.mozilla.org/en-US/docs/Web/CSS/cursor
+   * @param show
+   * @param style
+   */
+  setCursor(style = 'default') {
+    this.el.style.cursor = style;
   }
 
   /**
@@ -467,12 +440,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
           this.constructViewer.showInlineEditor(value => {
             this.constructViewer.renameBlock(block, value);
           }, name, bat.bounds, 'inline-editor-block', bat.target);
-          this.setBlockHover();
         } else {
           this.constructViewer.blockSelected([block]);
-          if (this.construct.isAuthoring() || !this.construct.isFixed()) {
-            this.setBlockHover(block);
-          }
         }
         break;
       }
@@ -503,8 +472,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const node = this.layout.nodeFromElement(blockId);
     const target = node.el;
     const bounds = new Box2D(target.getBoundingClientRect());
-    bounds.height += 1;
-    bounds.width += 1;
     return {target, bounds};
   }
 
@@ -518,6 +485,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const aabb = this.layout.getBlocksAABB();
     bounds.width = Math.min(this.layout.titleNodeTextWidth, aabb.width);
     bounds.width = Math.max(bounds.width, this.layout.sceneGraph.availableWidth / 2);
+    bounds.top += 6;
+    bounds.height -= 12;
     return {target, bounds};
   }
 
