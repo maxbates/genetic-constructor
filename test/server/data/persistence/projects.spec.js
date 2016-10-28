@@ -32,12 +32,6 @@ describe('Server', () => {
   describe('Data', () => {
     describe('persistence', function persistenceTests() {
       describe.only('projects', () => {
-        const roll = createExampleRollup();
-        const projectId = roll.project.id;
-
-        //hack - patch for tests, author is forced when written
-        roll.project.metadata.authors = [testUserId];
-
         it('projectWrite() -> projectGet() works', () => {
           const roll = createExampleRollup();
 
@@ -56,10 +50,6 @@ describe('Server', () => {
             });
         });
 
-        it('projectWrite() creates a project if needed', () => {
-          return projectPersistence.projectWrite(projectId, roll, testUserId);
-        });
-
         it('projectWrite() receives version + roll', () => {
           const roll = createExampleRollup();
 
@@ -73,37 +63,18 @@ describe('Server', () => {
         });
 
         it('projectWrite() throws if you dont provide project + blocks', () => {
-          return expect(() => projectPersistence.projectWrite(projectId, { project: 'data' }, testUserId))
+          return expect(() => projectPersistence.projectWrite(Project.classless().id, { project: 'data' }, testUserId))
             .to.throw();
         });
 
         it('projectWrite() validates the project', () => {
-          return projectPersistence.projectWrite(projectId, { project: {}, blocks: {} }, testUserId)
+          return projectPersistence.projectWrite(Project.classless().id, { project: {}, blocks: {} }, testUserId)
             .then(() => assert(false, 'shouldnt happen'))
             .catch(err => expect(err).to.equal(errorInvalidModel));
         });
 
-        it('projectExists() resolves if it does exist', () => {
-          return projectPersistence.projectExists(projectId)
-            .then(res => {
-              expect(res).to.equal(true);
-            });
-        });
-
-        it('projectGet() retrieves the project', () => {
-          return projectPersistence.projectGet(projectId)
-            .then(res => {
-              expect(res).to.eql(roll);
-            });
-        });
-
-        it('projectWrite() updates a project', () => {
-          return projectPersistence.projectWrite(projectId, roll, testUserId);
-        });
-
         it('projectMerge() forces the ID', () => {
           const roll = createExampleRollup();
-          roll.project.metadata.authors = [testUserId]; //hack - patch for tests, author is forced when written
           const overwrite = { project: { id: uuid.v4(), some: 'field ' } };
           const merged = _.merge({}, roll, overwrite, { project: { id: roll.project.id } });
 
@@ -115,12 +86,72 @@ describe('Server', () => {
             .then(result => expect(result).to.eql(merged));
         });
 
-        it('projectDelete() deletes a project');
+        describe('[series]', () => {
+          const roll = createExampleRollup();
+          const projectId = roll.project.id;
+
+          before(() => {
+            return projectPersistence.projectWrite(projectId, roll, testUserId)
+          });
+
+          it('projectExists() resolves if it does exist', () => {
+            return projectPersistence.projectExists(projectId)
+              .then(res => {
+                expect(res).to.equal(true);
+              });
+          });
+
+          it('projectGet() retrieves the project', () => {
+            return projectPersistence.projectGet(projectId)
+              .then(res => {
+                expect(res).to.eql(roll);
+              });
+          });
+
+          it('projectWrite() updates a project', () => {
+            return projectPersistence.projectWrite(projectId, roll, testUserId)
+              .then(info => {
+                expect(info.version).to.equal(1);
+              });
+          });
+
+          it('projectDelete() deletes a project', () => {
+            return projectPersistence.projectDelete(projectId, testUserId)
+              .then(() => projectPersistence.projectGet(projectId))
+              .then(() => new Error('should not exist'))
+              .catch(err => expect(err).to.equal(errorDoesNotExist));
+          });
+        });
 
         describe('manifest', () => {
-          it('projectGetManifest() gets manifest');
-          it('projectWriteManifest() writes manifest');
-          it('projectMergeManifest() merges manifest');
+          const roll = createExampleRollup();
+          const projectId = roll.project.id;
+
+          const nextManifest = _.merge({}, roll.project, { some: 'addition' });
+
+          before(() => {
+            return projectPersistence.projectWrite(projectId, roll, testUserId);
+          });
+
+          it('projectGetManifest() gets manifest', () => {
+            return projectPersistence.projectGetManifest(projectId)
+              .then(manifest => expect(manifest).to.eql(roll.project));
+          });
+
+          it('projectWriteManifest() writes manifest', () => {
+            return projectPersistence.projectWriteManifest(projectId, nextManifest, testUserId)
+              .then(() => projectPersistence.projectGetManifest(projectId))
+              .then(manifest => expect(manifest).to.eql(nextManifest));
+          });
+
+          it('projectMergeManifest() merges manifest with a patch', () => {
+            const patch = { another: 'change' };
+            const merged = _.merge({}, nextManifest, patch);
+
+            return projectPersistence.projectMergeManifest(projectId, patch, testUserId)
+              .then(() => projectPersistence.projectGetManifest(projectId))
+              .then(manifest => expect(manifest).to.eql(merged));
+          });
         });
 
         describe('blocks', () => {

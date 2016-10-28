@@ -27,7 +27,7 @@ import { getUserProjectIds, projectGet } from './persistence/projects';
 //todo - use new api to check this
 //check access to a particular project
 export const checkProjectAccess = (projectId, userId, projectMustExist = false) => {
-  return getUserProjectIds()
+  return getUserProjectIds(userId)
     .then((projectIds) => {
       if (projectIds.indexOf(projectId) >= 0) {
         return true;

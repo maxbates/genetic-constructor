@@ -4,6 +4,7 @@ import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
 import rollupFromArray from '../../src/utils/rollup/rollupFromArray';
 import { generateRandomSequence } from './sequence';
+import { testUserId } from '../constants';
 
 export const numberBlocksInRollup = 7;
 
@@ -36,7 +37,9 @@ export const createExampleRollup = () => {
   const blockP = Block.classless({
     components: [blockA.id, blockB.id, blockF.id],
   });
+  //hack - add author for testing environment to simplify tests comparing before / after writing (auto-assigned)
   const project = Project.classless({
+    metadata: { authors: [ testUserId ] },
     components: [blockP.id],
   });
 
@@ -76,6 +79,7 @@ export const createSequencedRollup = () => {
   });
 
   const project = Project.classless({
+    metadata: { authors: [ testUserId ] },
     components: [construct.id],
   });
 
@@ -123,6 +127,7 @@ export const createListRollup = () => {
   });
 
   const project = Project.classless({
+    metadata: { authors: [ testUserId ] },
     components: listBlocks.map(block => block.id),
   });
 

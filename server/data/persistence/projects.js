@@ -73,9 +73,24 @@ const _projectDelete = (projectId, userId) => {
 
 //LIST
 
+// returns { data, id, ... }
+export const getUserProjects = (userId) => {
+  return dbGet(`projects/owner/${userId}`);
+};
+
 export const getUserProjectIds = (userId) => {
-  return dbGet(`projects/owner/${userId}`)
-    .then((projectInfos) => projectInfos.map(info => info.id));
+  invariant(userId, 'user id required for getting project Ids');
+
+  return getUserProjects(userId)
+    .then((projectInfos) => projectInfos.map(info => info.id))
+    .catch(err => {
+      if (err === errorDoesNotExist) {
+        return [];
+      }
+
+      console.log('unexpected error getting users project IDs');
+      return Promise.reject(err);
+    });
 };
 
 //EXISTS
@@ -91,10 +106,8 @@ export const projectGet = (projectId, sha) => {
   return _projectRead(projectId, sha)
     .catch(err => {
       //todo - how to handle versioning error?
-      if (err.status === 404 && !sha) {
-        //todo - this should reject with appropriate error
-        //return Promise.reject(errorDoesNotExist);
-        return Promise.resolve(null);
+      if (err === errorDoesNotExist && !sha) {
+        return Promise.reject(errorDoesNotExist);
       }
 
       //let the error fall through, or uncaught error
@@ -252,14 +265,14 @@ export const projectGetManifest = (projectId, sha) => {
     .then(result => result.project);
 };
 
-export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite = true, bypassValidation = false) => {
+export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite = true) => {
   invariant(projectId, 'must pass valid projectId');
   invariant(typeof manifest === 'object', 'project manifest must be object');
   invariant(typeof userId === 'string', 'must pass userId to write project manifest');
 
   return projectGet(projectId)
     .then(roll => {
-      const updated = (overwrite === true) ?
+      const updated = (overwrite !== true) ?
         merge({}, roll, { project: manifest }) :
         Object.assign({}, roll, { project: manifest });
 
@@ -268,7 +281,7 @@ export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite
       invariant(validateProject(updated.project), 'project must be valid before writing it');
 
       //projectWrite will return version etc., want to pass manifest
-      return projectWrite(updated)
+      return projectWrite(projectId, updated, userId)
         .then(info => info.data.project);
     });
 };
