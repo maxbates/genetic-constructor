@@ -5,7 +5,7 @@ import md5 from 'md5';
 import uuid from 'node-uuid';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
-import * as persistence from '../../../../server/data/persistence';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as sequences from '../../../../server/data/persistence/sequence';
 import devServer from '../../../../server/server';
 
@@ -30,9 +30,10 @@ describe('Server', () => {
         });
         const blockId = blockData.id;
 
+        const roll = { project: projectData, blocks: { [blockId]: blockData } };
+
         before(() => {
-          return persistence.projectCreate(projectId, projectData, userId)
-            .then(() => persistence.blocksWrite(projectId,  { [blockId]: blockData}))
+          return projectPersistence.projectWrite(projectId, roll, userId)
             .then(() => sequences.sequenceWrite(sequenceMd5, sequence));
         });
 

@@ -44,9 +44,10 @@ const _projectExists = (projectId, version) => {
     .catch(err => (err === errorDoesNotExist) ? Promise.reject(errorDoesNotExist) : Promise.reject(err));
 };
 
+//this only called when the project doesn't exist in projectWrite()
 const _projectCreate = (projectId, userId, project = {}) => {
   //is there any other setup we want to do on creation?
-
+  //todo - check if it exists, handle if it does
   return dbPost(`projects/`, userId, project, {}, { id: projectId });
 };
 
@@ -54,6 +55,7 @@ const _projectWrite = (projectId, userId, project = {}) => {
   return dbPost(`projects/${projectId}`, userId, project);
 };
 
+//todo - should check metadata and force version + lastSaved onto project
 const _projectRead = (projectId, version) => {
   if (Number.isInteger(version)) {
     //todo
@@ -156,6 +158,11 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
   //invariant(userId, 'user id is required to write project');
 
   //todo - when do we not want to overwrite project / blocks? verify not corrupting e.g. EGF project or tests
+
+  //todo - assign fields version + lastSaved to match old projectSave()
+  //can optimistically set them, and then make sure the version is the same after save, and overwrite if necessary
+  //need to make sure dont write the wrong version
+  //may want to force overwrite when we do projectGet() in case something wrong was in the DB
 
   merge(roll.project, {
     id: projectId,

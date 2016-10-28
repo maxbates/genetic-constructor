@@ -17,31 +17,16 @@
  * Utilities for querying the user information, wrapping file system queries etc.
  * @module querying
  */
-import * as fileSystem from './middleware/fileSystem';
 import * as filePaths from './middleware/filePaths';
-import * as persistence from './persistence';
 import * as versioning from './git-deprecated/git';
 import invariant from 'invariant';
 import { merge, filter, values } from 'lodash';
-import { errorDoesNotExist } from '../utils/errors';
 import { getUserProjects, getUserProjectIds } from './persistence/projects';
 
 // key for no role rule
 const untypedKey = 'none';
 
-//returns map
-export const getAllBlocksInProject = (projectId) => {
-  return persistence.blocksGet(projectId);
-};
-
-//todo - many of thsese can move into project persistence, some are just helpers, not really querying
-
-//returns array
-//note - expects the project to already exist.
-export const getAllBlockIdsInProject = (projectId) => {
-  return getAllBlocksInProject(projectId)
-    .then(blockMap => Object.keys(blockMap));
-};
+//todo - remove many of these functions - they are just persistence things, not really queries / migrate to new APIs
 
 //search each permissions.json by user ID to find projects they have access to
 export const listProjectsWithAccess = (userId) => {

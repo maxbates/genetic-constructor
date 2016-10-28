@@ -3,7 +3,7 @@ import request from 'supertest';
 import { testUserId } from '../../../constants';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
-import * as persistence from '../../../../server/data/persistence';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
 import devServer from '../../../../server/server';
 import { merge } from 'lodash';
 
@@ -26,9 +26,10 @@ describe('Server', () => {
         const blockPatch = { some: 'field' };
         const patchedBlock = merge({}, blockData, blockPatch);
 
+        const roll = { project: projectData, blocks: { [blockId]: blockData } };
+
         before(() => {
-          return persistence.projectCreate(projectId, projectData, userId)
-            .then(() => persistence.blocksWrite(projectId, { [blockId]: blockData }));
+          return projectPersistence.projectWrite(projectId, roll, userId);
         });
 
         beforeEach('server setup', () => {

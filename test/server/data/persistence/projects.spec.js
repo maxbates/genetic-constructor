@@ -86,6 +86,8 @@ describe('Server', () => {
             .then(result => expect(result).to.eql(merged));
         });
 
+        it('projectDelete() only marks the project deleted in the database');
+
         describe('[series]', () => {
           const roll = createExampleRollup();
           const projectId = roll.project.id;
@@ -133,6 +135,8 @@ describe('Server', () => {
             return projectPersistence.projectWrite(projectId, roll, testUserId);
           });
 
+          it('projectWriteManifest() rejects if the project doesnt exist');
+
           it('projectGetManifest() gets manifest', () => {
             return projectPersistence.projectGetManifest(projectId)
               .then(manifest => expect(manifest).to.eql(roll.project));
@@ -170,7 +174,17 @@ describe('Server', () => {
           it('blocksGet() gets the blocks', () => {
             return projectPersistence.blocksGet(projectId)
               .then(blocks => {
+                assert(typeof blocks === 'object', 'expect an object');
                 expect(blocks).to.eql(roll.blocks);
+              });
+          });
+
+          it('blocksGet() returns map without key if value undefined', () => {
+            const fakeId = 'notRealId';
+            return projectPersistence.blocksGet(projectId, false, fakeId)
+              .then(blockMap => {
+                assert(typeof blockMap === 'object', 'should return a map');
+                assert(!blockMap[fakeId], 'value should not be defined, or null');
               });
           });
 

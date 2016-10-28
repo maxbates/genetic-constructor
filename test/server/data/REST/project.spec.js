@@ -4,7 +4,8 @@ import request from 'supertest';
 import { testUserId } from '../../../constants';
 import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
 import Project from '../../../../src/models/Project';
-import * as persistence from '../../../../server/data/persistence';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
+import { errorDoesNotExist } from '../../../../server/utils/errors';
 import * as fileSystem from '../../../../server/data/middleware/fileSystem';
 import * as filePaths from '../../../../server/data/middleware/filePaths';
 import devServer from '../../../../server/server';
@@ -25,8 +26,10 @@ describe('Server', () => {
         const projectPatch = { some: 'field' };
         const patchedProject = projectData.merge(projectPatch);
 
+        const roll = { project: projectData, blocks: {} };
+
         before(() => {
-          return persistence.projectCreate(projectId, projectData, userId);
+          return projectPersistence.projectWrite(projectId, roll, userId);
         });
 
         beforeEach('server setup', () => {
@@ -153,7 +156,7 @@ describe('Server', () => {
               expect(result.body).to.eql(newProject);
               expect(result.body).to.not.eql(projectData);
 
-              persistence.projectGet(projectId)
+              projectPersistence.projectGetManifest(projectId)
                 .then((result) => {
                   expect(result).to.eql(newProject);
                   done();
@@ -183,7 +186,7 @@ describe('Server', () => {
               expect(result.body).to.not.eql(newProject);
               expect(result.body).to.not.eql(projectData);
 
-              persistence.projectGet(projectId)
+              projectPersistence.projectGetManifest(projectId)
                 .then((result) => {
                   expect(result).to.eql(validator);
                   done();
@@ -200,7 +203,7 @@ describe('Server', () => {
             .expect(400, done);
         });
 
-        it('DELETE moves the project to the trash folder', (done) => {
+        it('DELETE deletes the project', (done) => {
           const url = `/data/${projectId}`;
           request(server)
             .delete(url)
@@ -210,24 +213,13 @@ describe('Server', () => {
                 done(err);
               }
 
-              const trashPath = filePaths.createTrashPath(projectId);
-
-              persistence.projectExists(projectId)
+              projectPersistence.projectExists(projectId)
                 .then(() => assert(false, 'shouldnt exist here any more...'))
-                .catch(() => fileSystem.directoryExists(trashPath))
-                .catch(() => assert(false, 'directory should exist'))
-                .then(() => {
-                  const manifestPath = filePaths.createTrashPath(projectId, filePaths.projectDataPath, filePaths.manifestFilename);
-                  const permissionsPath = filePaths.createTrashPath(projectId, filePaths.permissionsFilename);
-
-                  return Promise.all([
-                    fileSystem.fileExists(manifestPath).catch(err => done(err)),
-                    fileSystem.fileExists(permissionsPath).catch(err => done(err)),
-                    fileSystem.fileRead(permissionsPath)
-                      .then(result => assert(result.indexOf(testUserId) >= 0, 'should still list user ID')),
-                  ])
-                  .then(() => done())
-                  .catch(err => done(err));
+                .catch(err => {
+                  if (err === errorDoesNotExist) {
+                    return done();
+                  }
+                  done(err);
                 });
             });
         });

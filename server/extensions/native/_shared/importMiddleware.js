@@ -20,10 +20,8 @@ import _ from 'lodash';
 
 import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
-import * as persistence from '../../../../server/data/persistence';
 import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
-import * as rollup from '../../../../server/data/rollup';
 import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
 
 const extensionKey = 'import';

@@ -17,7 +17,6 @@ import * as commitMessages from '../../server/data/git-deprecated/commitMessages
 import * as filePaths from '../../server/data/middleware/filePaths';
 import * as versioning from '../../server/data/git-deprecated/git';
 import * as projectPersistence from '../../server/data/persistence/projects';
-import * as persistence from '../../server/data/persistence';
 import { createExampleRollup } from '../_utils/rollup';
 
 const { assert, expect } = chai;
@@ -62,9 +61,9 @@ describe('Middleware', () => {
       return api.saveProject(projectId, roll)
         .then((commit) => Promise
           .all([
-            persistence.projectGet(projectId),
-            persistence.blocksGet(projectId, false, block1.id).then(map => map[block1.id]),
-            persistence.blocksGet(projectId, false, block2.id).then(map => map[block2.id]),
+            projectPersistence.projectGetManifest(projectId),
+            projectPersistence.blocksGet(projectId, false, block1.id).then(map => map[block1.id]),
+            projectPersistence.blocksGet(projectId, false, block2.id).then(map => map[block2.id]),
           ])
           .then(([gotProject, got1, got2]) => {
             expect(gotProject).to.eql(merge({}, project, {
