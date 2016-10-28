@@ -173,9 +173,17 @@ export function mergeRollupMiddleware(req, res, next) {
     Promise.all(
       sequences.map((seqObj) => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks))
     )
-      .then(blockMd5s => {
+      .then(blockMd5Maps => {
+        //make simgle object with all blockId : md5 map
+        const blockMd5s = Object.assign({}, ...blockMd5Maps);
+
+        //todo - should also assign sequence length here etc.
         _.forEach(blockMd5s, (pseudoMd5, blockId) => {
-          _.merge(blocks[blockId], { sequence: { md5: pseudoMd5 } });
+          //const { hash, hasRange, start, end } = parsePseudoMd5(pseudoMd5);
+          _.merge(blocks[blockId], { sequence: {
+            md5: pseudoMd5,
+            //length: hasRange ? end - start : (GET_FULL_LENGTH)
+          } });
         });
       })
     :

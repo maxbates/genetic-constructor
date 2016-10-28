@@ -24,7 +24,7 @@ import {
   fileWrite,
   fileDelete,
 } from '../middleware/fileSystem';
-import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../src/utils/sequenceMd5';
+import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5, getSequencesFromMap } from '../../../src/utils/sequenceMd5';
 import DebugTimer from '../../utils/DebugTimer';
 
 //todo - may need userId / projectId to address privacy concerns
@@ -59,17 +59,23 @@ export const sequenceGet = (pseudoMd5) => {
   }
 
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
-  const { hash, start, end } = parsePseudoMd5(pseudoMd5);
+  const { hash, hasRange, start, end } = parsePseudoMd5(pseudoMd5);
 
   if (s3.useRemote) {
     //s3 is inclusive, node fs is not, javascript is not
     const correctedEnd = end - 1;
-    const params = start >= 0 ? { Range: `bytes=${start}-${correctedEnd}` } : {};
+    const params = hasRange ? { Range: `bytes=${start}-${correctedEnd}` } : {};
     return s3.stringGet(s3bucket, hash, params);
   }
 
   return sequenceExists(hash)
-    .then(path => fileRead(path, false, { start, end }));
+    .then(path => fileRead(path, false, hasRange ? { start, end } : {}));
+};
+
+//expects map { blockId: pseudoMd5 }
+//returns map { blockId: sequence }
+export const sequenceGetMany = (blockIdToMd5Map) => {
+  return getSequencesFromMap(blockIdToMd5Map, (seqMd5) => sequenceGet(seqMd5));
 };
 
 export const sequenceWrite = (realMd5, sequence) => {
@@ -122,7 +128,7 @@ export const sequenceWriteMany = (map) => {
 //returns { blockId: pseudoMd5 } where psuedoMd5 is sequnceMd5[start:end] or true (for whole sequence)
 export const sequenceWriteChunks = (sequence, rangeMap) => {
   invariant(sequence && sequence.length > 0, 'must pass a sequence with length');
-  invariant(typeof rangeMap === 'object', 'range map just be an object');
+  invariant(typeof rangeMap === 'object', 'range map must be an object');
   invariant(every(rangeMap, (range) => range === true || (Array.isArray(range) && Number.isInteger(range[0]) && Number.isInteger(range[1]))), 'every range should be null (for whole thing), an array: [start:end]');
 
   const sequenceMd5 = md5(sequence);

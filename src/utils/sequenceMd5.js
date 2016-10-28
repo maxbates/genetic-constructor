@@ -53,11 +53,17 @@ export const generatePseudoMd5 = (realMd5, start, end) => {
 export const parsePseudoMd5 = (pseudoMd5) => {
   invariant(typeof pseudoMd5 === 'string', `must pass a string, got ${pseudoMd5}`);
 
-  const [ original, hash, byteRange, start, end ] = pseudoMd5.match(pseudoMd5Regex);
+  const match = pseudoMd5.match(pseudoMd5Regex);
+  if (!match) {
+    //todo - should return null. need to update all usages expecting object to destructure
+    return {};
+  }
+  const [ original, hash, byteRange, start, end ] = match;
   return {
     original,
     hash,
     byteRange,
+    hasRange: !!byteRange,
     start: parseInt(start, 10),
     end: parseInt(end, 10),
   };
@@ -65,7 +71,7 @@ export const parsePseudoMd5 = (pseudoMd5) => {
 
 // expects { blockId: pseudoMd5 }
 // returns map { blockId: { hash, start, end } }
-const parseBlockToMd5Map = (blockIdsToMd5s) => _.mapValues(blockIdsToMd5s, (acc, pseudoMd5, blockId) => parsePseudoMd5(pseudoMd5));
+const parseBlockToMd5Map = (blockIdsToMd5s) => _.mapValues(blockIdsToMd5s, (pseudoMd5, blockId) => parsePseudoMd5(pseudoMd5));
 
 // reduce a whole bunch of blocks with pseudoMd5s to fetch inclusive ranges of each file, rather than each range separately
 // expects { blockId: pseudoMd5 }
@@ -75,8 +81,13 @@ const dedupeBlocksToMd5s = (blockIdsToMd5s) => {
   const blockParsedMap = parseBlockToMd5Map(blockIdsToMd5s);
 
   // dedupe to the things we want to fetch
-  return blockParsedMap.reduce((acc, parsedMd5) => {
+  return _.reduce(blockParsedMap, (acc, parsedMd5) => {
     const { hash, start, end } = parsedMd5;
+
+    //got an empty match
+    if (!hash) {
+      return acc;
+    }
 
     //if no byte range, or already getting the whole thing, then get the whole thing
     if ((!start && !end) || acc[hash] === true) {
@@ -90,10 +101,7 @@ const dedupeBlocksToMd5s = (blockIdsToMd5s) => {
 
     //if we're here, have a range, and already exists, so need to expand range
     const [oldStart, oldEnd] = acc[hash];
-    const nextBounds = [
-      start < oldStart ? start : oldStart,
-      end > oldEnd ? end : oldEnd,
-    ];
+    const nextBounds = [Math.min(start, oldStart), Math.max(end, oldEnd)];
     return Object.assign(acc, { [hash]: nextBounds });
   }, {});
 };
@@ -107,10 +115,15 @@ const remapDedupedBlocks = (fetchedMd5ToSequence, dedupedRangeMap, blockIdsToMd5
   const blockParsedMap = parseBlockToMd5Map(blockIdsToMd5s);
 
   //generate blockId: sequence, normalizing for byte range requested
-  return _.mapValues(blockParsedMap, (acc, parsedMd5) => {
+  return _.mapValues(blockParsedMap, (parsedMd5) => {
     const { hash, start = 0, end } = parsedMd5;
     const range = dedupedRangeMap[hash];
     const sequence = fetchedMd5ToSequence[hash]; //fetched sequence... may just be a range
+
+    //if wasn't in the rangeMap, then no seq to worry about
+    if (!range) {
+      return null;
+    }
 
     //if range is true, we got the whole thing
     if (range === true) {
@@ -145,7 +158,7 @@ export const getSequencesFromMap = (blockIdsToMd5s, retrievalFn) => {
   )
     .then(sequences => {
       // { realMd5: sequenceDedupedRange }
-      const hashToSequence = _.zip(hashes, sequences);
+      const hashToSequence = _.zipObject(hashes, sequences);
 
       return remapDedupedBlocks(hashToSequence, rangeMap, blockIdsToMd5s);
     });

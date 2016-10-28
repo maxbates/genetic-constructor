@@ -123,11 +123,11 @@ router.all('/export/:projectId/:constructId?',
   (req, res, next) => {
     const { projectId, constructId } = req.params;
 
-    //todo - use this for genbank
-    const options = req.body;
+    //todo - use this for genbank, to export specific blocks
+    //const options = req.body;
 
     console.log(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
-    console.log(options);
+    //console.log(options);
 
     projectPesistence.projectGet(projectId)
       .then(roll => rollup.getSequencesGivenRollup(roll))
