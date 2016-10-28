@@ -1,11 +1,13 @@
 import { assert, expect } from 'chai';
 import path from 'path';
 import fs from 'fs';
+import _ from 'lodash';
 import JSZip from 'jszip';
 import { importProject, exportProject, exportConstruct } from '../../server/extensions/native/genbank/convert';
 import BlockSchema from '../../src/schemas/Block';
 import ProjectSchema from '../../src/schemas/Project';
 import * as fileSystem from '../../server/utils/fileSystem';
+import { sequenceWriteChunks } from '../../server/data/persistence/sequence';
 import { createExampleProject } from '../fixtures/rollup';
 
 const getBlock = (allBlocks, blockId) => {
@@ -13,7 +15,7 @@ const getBlock = (allBlocks, blockId) => {
 };
 
 describe('Extensions', () => {
-  describe('Genbank', () => {
+  describe.only('Genbank', () => {
     it('should import Genbank file with contiguous entries as a project', function importGB(done) {
       importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
         .then(output => {
@@ -130,10 +132,22 @@ describe('Extensions', () => {
           expect(ProjectSchema.validate(output.project)).to.equal(true);
           expect(output.project.metadata.name).to.equal('EU912544');
           expect(output.project.metadata.description).to.equal('Cloning vector pDM313, complete sequence.');
-          return exportProject(output)
+
+          //usually middleware writes the sequences, so we need to do this ourselves
+          return Promise.all(
+            output.sequences.map(({ sequence, blocks }) => {
+              return sequenceWriteChunks(sequence, blocks)
+                .then((blocksToMd5s) => {
+                  _.forEach(blocksToMd5s, (pseudoMd5, blockId) => {
+                    _.merge(output.blocks[blockId], { sequence: { md5: pseudoMd5 } });
+                  });
+                });
+            })
+          )
+            .then(() => exportProject(output));
         })
         .then(resultFileName => {
-          return fileSystem.fileRead(resultFileName, false)
+          return fileSystem.fileRead(resultFileName, false);
         })
         .then(result => {
           expect(result).to.contain('LOCUS       EU912544                 120 bp    DNA');
@@ -163,10 +177,21 @@ describe('Extensions', () => {
           expect(output.project.metadata.name).to.equal('EU912544');
           expect(output.project.metadata.description).to.equal('Cloning vector pDM313, complete sequence.');
 
-          return exportConstruct({ roll: output, constructId: output.project.components[0] })
+          //usually middleware writes the sequences, so we need to do this ourselves
+          return Promise.all(
+            output.sequences.map(({ sequence, blocks }) => {
+              return sequenceWriteChunks(sequence, blocks)
+                .then((blocksToMd5s) => {
+                  _.forEach(blocksToMd5s, (pseudoMd5, blockId) => {
+                    _.merge(output.blocks[blockId], { sequence: { md5: pseudoMd5 } });
+                  });
+                });
+            })
+          )
+            .then(() => exportConstruct({ roll: output, constructId: output.project.components[0] }));
         })
         .then(resultFileName => {
-          return fileSystem.fileRead(resultFileName, false)
+          return fileSystem.fileRead(resultFileName, false);
         })
         .then(result => {
           expect(result).to.contain('LOCUS       EU912544                 120 bp    DNA');

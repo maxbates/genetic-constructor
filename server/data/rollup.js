@@ -41,6 +41,7 @@ import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
  * @param rollup
  * @returns rollup, with sequence map: { project: {}, blocks: {}, sequences: { <blockId>: 'ACAGTCGACTGAC' } }
  */
+//todo - prefer sequence
 export const getSequencesGivenRollup = (rollup) => {
   const blockIdsToMd5s = mapValues(rollup.blocks, (block, blockId) => block.sequence.md5);
 

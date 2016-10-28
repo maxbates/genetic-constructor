@@ -180,7 +180,11 @@ export function mergeRollupMiddleware(req, res, next) {
 
         //todo - should also assign sequence length here etc.
         _.forEach(blockMd5s, (pseudoMd5, blockId) => {
-          _.merge(blocks[blockId], { sequence: { md5: pseudoMd5 } });
+          //const { hash, hasRange, start, end } = parsePseudoMd5(pseudoMd5);
+          _.merge(blocks[blockId], { sequence: {
+            md5: pseudoMd5,
+            //length: hasRange ? end - start : (GET_FULL_LENGTH)
+          } });
         });
       })
     :

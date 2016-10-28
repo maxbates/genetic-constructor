@@ -55,7 +55,7 @@ export const parsePseudoMd5 = (pseudoMd5) => {
 
   const match = pseudoMd5.match(pseudoMd5Regex);
   if (!match) {
-    //todo - error handle better
+    //todo - should return null. need to update all usages expecting object to destructure
     return {};
   }
   const [ original, hash, byteRange, start, end ] = match;
@@ -63,6 +63,7 @@ export const parsePseudoMd5 = (pseudoMd5) => {
     original,
     hash,
     byteRange,
+    hasRange: !!byteRange,
     start: parseInt(start, 10),
     end: parseInt(end, 10),
   };
@@ -100,10 +101,7 @@ const dedupeBlocksToMd5s = (blockIdsToMd5s) => {
 
     //if we're here, have a range, and already exists, so need to expand range
     const [oldStart, oldEnd] = acc[hash];
-    const nextBounds = [
-      start < oldStart ? start : oldStart,
-      end > oldEnd ? end : oldEnd,
-    ];
+    const nextBounds = [Math.min(start, oldStart), Math.max(end, oldEnd)];
     return Object.assign(acc, { [hash]: nextBounds });
   }, {});
 };
@@ -121,6 +119,11 @@ const remapDedupedBlocks = (fetchedMd5ToSequence, dedupedRangeMap, blockIdsToMd5
     const { hash, start = 0, end } = parsedMd5;
     const range = dedupedRangeMap[hash];
     const sequence = fetchedMd5ToSequence[hash]; //fetched sequence... may just be a range
+
+    //if wasn't in the rangeMap, then no seq to worry about
+    if (!range) {
+      return null;
+    }
 
     //if range is true, we got the whole thing
     if (range === true) {

@@ -118,8 +118,8 @@ router.all('/export/:projectId/:constructId?',
   (req, res, next) => {
     const { projectId, constructId } = req.params;
 
-    //todo - use this for genbank
-    const options = req.body;
+    //todo - use this for genbank, to export specific blocks
+    //const options = req.body;
 
     rollup.getProjectRollup(projectId, true)
       .then(roll => {
