@@ -35,7 +35,6 @@ import {
   directoryDelete,
   directoryMove,
 } from '../middleware/fileSystem';
-import * as permissions from '../permissions';
 import DebugTimer from '../../utils/DebugTimer';
 
 //todo - deprecate this file, in favor of projects.js and orders.js etc.
@@ -43,6 +42,12 @@ import DebugTimer from '../../utils/DebugTimer';
 /*********
  Helpers
  *********/
+
+const createProjectPermissions = (projectId, userId) => {
+  const projectPermissionsPath = filePaths.createProjectPermissionsPath(projectId);
+  const contents = [userId];
+  return fileWrite(projectPermissionsPath, contents);
+};
 
 // EXISTENCE
 
@@ -154,7 +159,7 @@ const _projectSetup = (projectId, userId) => {
       timer.time('directories made');
       return Promise.all([
         fileWrite(blockManifestPath, {}), //write an empty file in case try to merge with it
-        permissions.createProjectPermissions(projectId, userId),
+        createProjectPermissions(projectId, userId),
       ]);
     })
     .then(() => {

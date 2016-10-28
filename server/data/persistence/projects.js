@@ -71,6 +71,13 @@ const _projectDelete = (projectId, userId) => {
  API
  *********/
 
+//LIST
+
+export const getUserProjectIds = (userId) => {
+  return dbGet(`projects/owner/${userId}`)
+    .then((projectInfos) => projectInfos.map(info => info.id));
+};
+
 //EXISTS
 
 export const projectExists = (projectId, sha) => {

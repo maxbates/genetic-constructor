@@ -20,43 +20,35 @@
  *
  * @module permissions
  */
-import * as filePaths from './middleware/filePaths';
-import * as fileSystem from './middleware/fileSystem';
 import { errorInvalidId, errorNoIdProvided, errorNoPermission, errorDoesNotExist } from '../utils/errors';
 import { id as idRegex } from '../../src/utils/regex';
-import { dbGet, dbPruneResult } from './middleware/db';
+import { getUserProjectIds, projectGet } from './persistence/projects';
 
-//deprecate (only used in old persistence module)
-export const createProjectPermissions = (projectId, userId) => {
-  const projectPermissionsPath = filePaths.createProjectPermissionsPath(projectId);
-  const contents = [userId];
-  return fileSystem.fileWrite(projectPermissionsPath, contents);
-};
-
+//todo - use new api to check this
 //check access to a particular project
 export const checkProjectAccess = (projectId, userId, projectMustExist = false) => {
-  //todo - there is probably a faster way to check?
-  //todo - need to be able to check a user's access to a particular project, and differentiate 403 from 404
-
-  return dbGet(`projects/owner/${userId}`)
-    .then((projectInfos) => {
-      if (projectInfos.some(projectInfo => projectInfo.id === projectId) >= 0) {
+  return getUserProjectIds()
+    .then((projectIds) => {
+      if (projectIds.indexOf(projectId) >= 0) {
         return true;
       }
 
-      return dbGet(`projects/${projectId}`)
+      return projectGet(projectId)
         .then(project => Promise.reject(errorNoPermission))
         .catch(err => {
-          //todo - check status code
-          if (!projectMustExist) {
+          if (err === errorDoesNotExist && !projectMustExist) {
             return true;
           }
 
+          console.log('unexpected error checking project access');
           console.error(err);
           return Promise.reject(errorDoesNotExist);
         });
     })
-    .catch(err => { console.error(err); throw err; });
+    .catch(err => {
+      console.error(err);
+      throw err;
+    });
 };
 
 export const projectPermissionMiddleware = (req, res, next) => {
