@@ -165,14 +165,14 @@ describe('Server', () => {
           request(server)
             .put(url)
             .send(invalidDataBlock)
-            .expect(400, done);
+            .expect(422, done);
         });
 
-        it('DELETE is 403', (done) => {
+        it('DELETE is 405', (done) => {
           const url = `/data/${projectId}/${blockId}`;
           request(server)
             .delete(url)
-            .expect(403, done);
+            .expect(405, done);
         });
       });
     });

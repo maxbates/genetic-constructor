@@ -57,11 +57,11 @@ describe('Server', () => {
       });
 
       it('before() should have written properly', () => {
-        const directory = filePaths.createProjectsDirectoryPath();
-        return fileSystem.directoryContents(directory)
-          .then(contents => {
-            assert(myRollIds.every(id => contents.indexOf(id) >= 0), 'my rolls not all written');
-            assert(otherRollIds.every(id => contents.indexOf(id) >= 0), 'other rolls not all written');
+        return Promise.all(
+          [...myRollIds, ...otherRollIds].map(id => projectPersistence.projectExists(id))
+        )
+          .then(results => {
+            assert(results.every(result => result === true), 'should have all been written');
           });
       });
 

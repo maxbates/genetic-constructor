@@ -251,14 +251,14 @@ describe('Server', () => {
                 blockOriginal = blocks[blockId];
                 //add a primitive field so can easily check patch happened
                 const patch = Object.assign({}, blockOriginal, { some: 'field' });
-                return projectPersistence.blocksMerge(projectId, testUserId, patch);
+                return projectPersistence.blocksMerge(projectId, testUserId, { [patch.id]: patch });
               })
-              .then(blocks => {
+              .then(({ blocks }) => {
                 expect(blocks[blockId].some).to.equal('field');
                 const patch = Object.assign({}, blockOriginal, { newField: 'field' });
-                return projectPersistence.blocksPatch(projectId, testUserId, patch);
+                return projectPersistence.blocksPatch(projectId, testUserId, { [patch.id]: patch });
               })
-              .then(blocks => {
+              .then(({ blocks }) => {
                 assert(Object.keys(blocks).length > 1, 'should not replace all the other blocks');
                 expect(blocks[blockId].newField).to.equal('field');
                 expect(blocks[blockId].some).to.be.undefined;

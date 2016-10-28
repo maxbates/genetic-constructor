@@ -276,7 +276,7 @@ router.route('/:projectId/:blockId')
       });
   })
   .delete((req, res, next) => {
-    return res.status(403).send();
+    return res.status(405).send();
   });
 
 router.route('/:projectId')
