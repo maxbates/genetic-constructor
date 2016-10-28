@@ -14,7 +14,7 @@ module.exports = {
     myProjects(browser);
     openTemplates(browser);
     newProject(browser);
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 10, 10);
+    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
     browser
       .click('.order-button')
       .waitForElementPresent('.order-form .page1', 10000, 'expected order dialog to appear')

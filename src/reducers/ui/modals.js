@@ -26,6 +26,9 @@ export const initialState = {
   showGenBankImport: false,
   userWidgetVisible: true,
   spinMessage: '',
+  inlineEditorCommit: null,
+  inlineEditorCancel: null,
+  inlineEditorPosition: null,
   showSaveError: false,
   showOrderForm: false,
   showReportError: false,
@@ -75,6 +78,22 @@ export default function modals(state = initialState, action) {
   case ActionTypes.UI_SPIN:
     const { spinMessage } = action;
     return Object.assign({}, state, { spinMessage });
+
+  case ActionTypes.UI_INLINE_EDITOR:
+    const {
+      inlineEditorCommit,
+      inlineEditorValue,
+      inlineEditorPosition,
+      inlineEditorClassName,
+      inlineEditorTarget,
+    } = action;
+    return Object.assign({}, state, {
+      inlineEditorCommit,
+      inlineEditorValue,
+      inlineEditorPosition,
+      inlineEditorClassName,
+      inlineEditorTarget,
+    });
 
   case ActionTypes.UI_SAVE_ERROR:
     return Object.assign({}, state, { showSaveError: true });

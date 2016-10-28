@@ -18,7 +18,6 @@ import DnD from '../dnd/dnd';
 import Vector2D from '../geometry/vector2d';
 import Box2D from '../geometry/box2d';
 import { transact } from '../../../store/undo/actions';
-import kT from './layoutconstants';
 import Fence from './fence';
 import { dispatch } from '../../../store/index';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
@@ -196,54 +195,35 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * mouse enter/leave are used to ensure no block is in the hover state
    */
   mouseEnter(event) {
-    this.setBlockHover();
+    this.setTitleHover();
   }
 
   mouseLeave(event) {
-    this.setBlockHover();
+    this.setTitleHover();
   }
 
-  /**
-   * set the given block to the hover state
-   */
-  setBlockHover(block) {
-    if (this.hover) {
-      this.hover.node.set({
-        hover: false,
-      });
-      this.hover.node.updateBranch();
-      this.hover = null;
-    }
-    if (block) {
-      this.hover = {
-        block: block,
-        node: this.layout.nodeFromElement(block),
-      };
-      this.hover.node.set({
-        hover: true,
-      });
-      this.hover.node.updateBranch();
-    }
-  }
 
   /**
    * set hover state for title node
    */
-  setTitleHover(bool) {
-    if (bool !== this.titleHover) {
-      this.titleHover = bool;
-      if (this.layout.titleNode) {
-        this.layout.titleNode.children[0].set({ visible: this.titleHover });
-        this.layout.titleNode.children[0].updateBranch();
-      }
+  setTitleHover(hover) {
+    // bail on no change
+    if (this.layout.titleNode.hover === hover) {
+      return;
     }
+
+    this.layout.titleNode.set({
+      hover,
+    });
+    this.layout.titleNode.updateBranch();
   }
 
   /**
    * double click handler
    */
   doubleClick(evt, point) {
-    const block = this.topBlockAt(point);
+    const top = this.topNodeAt(point);
+    const block = this.layout.elementFromNode(top);
     if (block) {
       this.constructViewer.openInspector();
     }
@@ -253,11 +233,27 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * mouse move handler ( note, not the same as drag which is with a button held down )
    */
   mouseMove(evt, point) {
+    let clickable = false;
     if (!this.collapsed) {
       const hits = this.sg.findNodesAt(point);
-      this.setTitleHover(this.isConstructTitleNode(hits.length ? hits.pop() : null));
-      this.setBlockHover(this.topBlockAt(point));
+      const isTitle = this.isConstructTitleNode(hits.length ? hits.pop() : null);
+      const isBlock = this.topBlockAt(point);
+      if (this.construct.isAuthoring() || !this.construct.isFixed()) {
+        this.setTitleHover(isTitle);
+      }
+      clickable = isTitle || isBlock;
     }
+    this.setCursor(clickable ? 'pointer' : 'default');
+  }
+
+  /**
+   * set the default cursor or change the cursor to the given style
+   * https://developer.mozilla.org/en-US/docs/Web/CSS/cursor
+   * @param show
+   * @param style
+   */
+  setCursor(style = 'default') {
+    this.el.style.cursor = style;
   }
 
   /**
@@ -332,18 +328,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
-   * run the title context menu if the point is over the title block, or only
-   * over the context menu dots if onlyDots is specified
+   * run the title context menu if the point is over the title block.
    */
-  titleContextMenu(evt, point, onlyDots) {
+  titleContextMenu(evt, point) {
     const hits = this.sg.findNodesAt(point);
     if (this.isConstructTitleNode(hits.length ? hits.pop() : null)) {
-      // over the entire block, refine test as required
-      if (onlyDots) {
-        if (point.x < this.layout.titleNodeTextWidth) {
-          return false;
-        }
-      }
       this.constructViewer.openPopup({
         constructPopupMenuOpen: true,
         menuPosition: this.mouseTrap.mouseToGlobal(evt),
@@ -378,11 +367,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
    */
   mouseSelect(evt, point) {
     evt.preventDefault();
-    // select construct whenever a selection occcurs regardless of blocks hit etc
+    // select construct whenever a selection occurs regardless of blocks hit etc
     this.selectConstruct();
 
     // text expander toggle first
-    if (this.constructExpander(event, point)) {
+    if (this.constructExpander(evt, point)) {
       this.layout.setCollapsed(!this.layout.collapsed);
       if (this.collapsed) {
         this.constructViewer.blockSelected([]);
@@ -392,11 +381,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     }
     // ignore everything else if we are collapsed
     if (this.collapsed) {
-      return;
-    }
-
-    // open construct menu for title according to position
-    if (this.titleContextMenu(evt, point, true)) {
       return;
     }
 
@@ -417,17 +401,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
       const globalPoint = this.mouseTrap.mouseToGlobal(evt);
       const region = this.getBlockRegion(block, globalPoint);
       switch (region.where) {
-
-      case 'dots':
-        this.constructViewer.openPopup({
-          blockPopupMenuOpen: true,
-          menuPosition: globalPoint,
-        });
-        // change replace to add if opening the menu
-        if (action === 'replace') {
-          action = 'add';
-        }
-        break;
 
       case 'triangle':
         const node = this.layout.nodeFromElement(block);
@@ -461,17 +434,60 @@ export default class ConstructViewerUserInterface extends UserInterface {
       case 'optionSelect':
         break;
       default:
-        this.constructViewer.blockSelected([block]);
+        if (this.blockIsFocused(block) && (this.construct.isAuthoring() || !this.construct.isFixed())) {
+          const name = this.layout.partName(block);
+          const bat = this.getBlockEditorBoundsAndTarget(block);
+          this.constructViewer.showInlineEditor(value => {
+            this.constructViewer.renameBlock(block, value);
+          }, name, bat.bounds, 'inline-editor-block', bat.target);
+        } else {
+          this.constructViewer.blockSelected([block]);
+        }
         break;
       }
     } else {
       // clear block selections
       this.constructViewer.blockSelected([]);
-      // if they clicked the title node then select the construct
-      if (this.isConstructTitleNode(this.topNodeAt(point))) {
-        this.selectConstruct();
+      // if they clicked the title node then select the construct and initiate editing
+      // of the title of construct via an inline edit.
+      if (this.construct.isAuthoring() || !this.construct.isFixed()) {
+        const topNode = this.topNodeAt(point);
+        if (this.isConstructTitleNode(topNode)) {
+          this.selectConstruct();
+          const bat = this.getTitleEditorBoundsAndTarget();
+          this.constructViewer.showInlineEditor(value => {
+            this.constructViewer.renameBlock(this.construct.id, value);
+          }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
+          topNode.set({ hover: false });
+        }
       }
     }
+  }
+
+  /**
+   * get the bounds for the block editor for the given block id
+   * @param blockId
+   */
+  getBlockEditorBoundsAndTarget(blockId) {
+    const node = this.layout.nodeFromElement(blockId);
+    const target = node.el;
+    const bounds = new Box2D(target.getBoundingClientRect());
+    return {target, bounds};
+  }
+
+  /**
+   * get the bounds for the construct title editor
+   * @param blockId
+   */
+  getTitleEditorBoundsAndTarget() {
+    const target = this.layout.titleNode.el;
+    const bounds = new Box2D(target.getBoundingClientRect());
+    const aabb = this.layout.getBlocksAABB();
+    bounds.width = Math.min(this.layout.titleNodeTextWidth, aabb.width);
+    bounds.width = Math.max(bounds.width, this.layout.sceneGraph.availableWidth / 2);
+    bounds.top += 6;
+    bounds.height -= 12;
+    return {target, bounds};
   }
 
   /**
@@ -531,11 +547,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
       return { where: 'none' };
     }
 
-    // context menu area?
-    if (vpt.x >= box.right - kT.contextDotsW) {
-      return { where: 'dots' };
-    }
-
     // child expander, if present
     if (node.hasChildren) {
       const triSize = 18;     // width / height equilateral triangle, slightly larger than css but makes for a better feel
@@ -563,6 +574,14 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
+   * true if the given block ID is focused
+   * @param blockId
+   * @returns {boolean}
+   */
+  blockIsFocused(blockId) {
+    return this.constructViewer.props.focus.blockIds.indexOf(blockId) >= 0;
+  }
+  /**
    * move drag handler, if the user initiates a drag of a block hand over
    * to the DND manager to handle
    */
@@ -575,9 +594,9 @@ export default class ConstructViewerUserInterface extends UserInterface {
     // ignore drags until they reach a certain vector threshold
     if (distance > dragThreshold && !this.fence) {
       // start a block drag if we have one
-      const block = this.topBlockAt(startPoint);
+      const blockId = this.topBlockAt(startPoint);
       // must be dragging a selected block
-      if (block) {
+      if (blockId) {
         // cancel our own mouse operations for now
         this.mouseTrap.cancelDrag();
         // no mutation of frozen constructs
@@ -592,8 +611,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
         dispatch(transact());
         // if the block being dragging is one of the selections then single select it
         let draggables = this.selectedElements;
-        if (!(this.constructViewer.props.focus.blockIds.indexOf(block) >= 0)) {
-          draggables = [block];
+        if (!this.blockIsFocused(blockId)) {
+          draggables = [blockId];
           this.constructViewer.blockSelected(draggables);
         }
         //this.constructViewer.blockAddToSelections([block]);

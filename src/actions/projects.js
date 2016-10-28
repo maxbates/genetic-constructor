@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 /**
  * @module Actions_Projects
  * @memberOf module:Actions
@@ -21,9 +21,11 @@ import invariant from 'invariant';
 import * as ActionTypes from '../constants/ActionTypes';
 import { saveProject, loadProject, snapshot, listProjects, deleteProject } from '../middleware/data';
 import * as projectSelectors from '../selectors/projects';
+import * as blockActions from '../actions/blocks';
+import * as blockSelectors from '../selectors/blocks';
 import * as undoActions from '../store/undo/actions';
 import { push } from 'react-router-redux';
-import { merge } from 'lodash';
+import { uniq, values, merge } from 'lodash';
 
 import * as instanceMap from '../store/instanceMap';
 import Block from '../models/Block';
@@ -31,6 +33,7 @@ import Project from '../models/Project';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 import { getLocal, setLocal } from '../utils/ui/localstorage';
+
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
 
@@ -206,7 +209,7 @@ export const projectCreate = (initialModel) => {
     const userId = getState().user.userid;
     const defaultModel = {
       metadata: {
-        authors: [ userId ],
+        authors: [userId],
       },
     };
 
@@ -409,37 +412,35 @@ export const projectRename = (projectId, newName) => {
 
 /**
  * Adds a construct to a project. Does not create the construct. Use a Block Action.
- * The added construct should have the project ID of the current project.
+ * The added construct should have the project ID of the current project, or pass forceProjectId = true
  * @function
  * @param {UUID} projectId
- * @param {UUID} componentId
- * @param {boolean} [forceProjectId=false]
+ * @param {UUID} constructId
+ * @param {boolean} [forceProjectId=true] set the projectId if not set
  * @returns {Project}
  */
-export const projectAddConstruct = (projectId, componentId, forceProjectId = false) => {
+export const projectAddConstruct = (projectId, constructId, forceProjectId = true) => {
   return (dispatch, getState) => {
     const oldProject = getState().projects[projectId];
-    const component = getState().blocks[componentId];
+    const project = oldProject.addComponents(constructId);
 
+    const component = getState().blocks[constructId];
     const componentProjectId = component.projectId;
 
     dispatch(pauseAction());
     dispatch(undoActions.transact());
 
-    if (componentProjectId !== projectId) {
-      invariant(!componentProjectId || forceProjectId === true, 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
+    const contents = dispatch(blockSelectors.blockGetContentsRecursive(constructId));
+    const contentProjectIds = uniq(values(contents).map(block => block.projectId));
 
-      const updatedComponent = component.setProjectId(projectId);
-      dispatch({
-        type: ActionTypes.BLOCK_STASH,
-        block: updatedComponent,
-      });
+    if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId !== projectId)) {
+      //ensure that we are forcing the project ID
+      //ensure that Ids are null to ensure we are only adding clones
+      invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
+
+      dispatch(blockActions.blockSetProject(constructId, projectId, false));
     }
 
-    //todo - should better check + force removal from previous component / project
-    //would want to check across other projects as well (but you would for constructs too)
-
-    const project = oldProject.addComponents(componentId);
     dispatch({
       type: ActionTypes.PROJECT_ADD_CONSTRUCT,
       undoable: true,
@@ -454,21 +455,32 @@ export const projectAddConstruct = (projectId, componentId, forceProjectId = fal
 };
 
 /**
- * Removes a construct from a project.
+ * Removes a construct from a project, and unsets its project ID
  * @function
  * @param {UUID} projectId
- * @param {UUID} componentId
+ * @param {UUID} constructId
  * @returns {Project}
  */
-export const projectRemoveConstruct = (projectId, componentId) => {
+export const projectRemoveConstruct = (projectId, constructId) => {
   return (dispatch, getState) => {
     const oldProject = getState().projects[projectId];
-    const project = oldProject.removeComponents(componentId);
+    const project = oldProject.removeComponents(constructId);
+
+    dispatch(pauseAction());
+    dispatch(undoActions.transact());
+
+    //unset projectId of construct only
+    dispatch(blockActions.blockSetProject(constructId, null, true));
+
     dispatch({
       type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,
       undoable: true,
       project,
     });
+
+    dispatch(undoActions.commit());
+    dispatch(resumeAction());
+
     return project;
   };
 };

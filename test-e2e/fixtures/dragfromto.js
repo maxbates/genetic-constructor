@@ -39,5 +39,6 @@ module.exports = function (browser, srcSelector, srcX, srcY, dstSelector, dstX, 
 
   browser
     .moveToElement(dstSelector, dstX, dstY)
-    .mouseButtonUp(0);
+    .mouseButtonUp(0)
+    .pause(200);
 }

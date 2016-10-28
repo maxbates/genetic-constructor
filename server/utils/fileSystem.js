@@ -60,15 +60,24 @@ export const fileExists = (path) => {
   });
 };
 
-export const fileRead = (path, jsonParse = true) => {
+//todo - should return buffer, not read the entire sequence
+//not crucial, since will only affect local file system once move to S3 for remote storage
+
+export const fileRead = (path, jsonParse = true, opts = {}) => {
+  const options = Object.assign({}, opts, { encoding: 'utf8' });
   return new Promise((resolve, reject) => {
-    fs.readFile(path, 'utf8', (err, result) => {
+    fs.readFile(path, options, (err, result) => {
       if (err) {
         if (err.code === 'ENOENT') {
           return reject(errorDoesNotExist);
         }
         return reject(err);
       }
+
+      if (Number.isInteger(opts.start)) {
+        return resolve(result.substring(opts.start, opts.end));
+      }
+
       const parsed = !!jsonParse ? parser(result) : result;
       resolve(parsed);
     });
@@ -89,7 +98,6 @@ export const fileWrite = (path, contents, stringify = true) => {
   });
 };
 
-//todo - test
 export const fileMerge = (path, toMerge) => {
   invariant(typeof toMerge === 'object', 'must pass an object for file merge');
 

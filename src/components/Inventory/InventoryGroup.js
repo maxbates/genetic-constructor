@@ -19,7 +19,6 @@ import InventoryGroupRole from './InventoryGroupRole';
 import InventoryGroupBlocks from './InventoryGroupBlocks';
 import InventoryGroupSearch from './InventoryGroupSearch';
 import InventoryGroupProjects from './InventoryGroupProjects';
-import InventoryGroupGsl from './InventoryGroupGsl';
 
 import '../../styles/InventoryGroup.css';
 
@@ -40,8 +39,6 @@ export default class InventoryGroup extends Component {
       return (<InventoryGroupProjects {...props} />);
     case 'block':
       return (<InventoryGroupBlocks {...props} />);
-    case 'gsl' :
-      return (<InventoryGroupGsl {...props} />);
     default:
       throw new Error(`Type ${type} is not registered in InventoryGroup`);
     }

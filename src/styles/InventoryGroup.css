@@ -42,6 +42,7 @@
     flex-direction: column;
     padding: 0 0 0.75em;
     position: relative;
+    overflow: hidden;
 
     &Inner {
       overflow-y: scroll;

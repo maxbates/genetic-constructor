@@ -22,7 +22,7 @@ import ListItem2D from '../scenegraph2d/listitem2d';
 import EmptyListItem2D from '../scenegraph2d/emptylistitem2d';
 import LineNode2D from '../scenegraph2d/line2d';
 import kT from './layoutconstants';
-import objectValues from '../../../utils/object/values';
+import { values as objectValues } from 'lodash';
 import invariant from 'invariant';
 import { getLocal, setLocal } from '../../../utils/ui/localstorage';
 
@@ -321,6 +321,10 @@ export default class Layout {
       node = new Role2D(props);
       this.sceneGraph.root.appendChild(node);
       this.map(part, node);
+      // set correct hover class
+      node.set({
+        hoverClass: props.roleName ? 'inline-editor-hover-block' : 'inline-editor-hover-block-noimage',
+      });
     }
     // hide/show child expand/collapse glyph
     node.set({
@@ -487,13 +491,9 @@ export default class Layout {
         this.titleNode = new Node2D(Object.assign({
           dataAttribute: { name: 'nodetype', value: 'construct-title' },
           sg: this.sceneGraph,
+          hoverClass: 'inline-editor-hover-title',
+          textIndent: 4,
         }, kT.titleAppearance));
-        // add the context menu dots
-        this.titleNodeDots = new Node2D({
-          sg: this.sceneGraph,
-          glyph: 'dots',
-        });
-        this.titleNode.appendChild(this.titleNodeDots);
         this.sceneGraph.root.appendChild(this.titleNode);
       }
 
@@ -513,13 +513,6 @@ export default class Layout {
         color: this.baseColor,
         bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, this.sceneGraph.availableWidth - this.insetX - kT.rightPad, kT.titleH),
         dataAttribute: { name: 'construct-title', value: text },
-      });
-
-      // set dots to the right of the text
-      this.titleNodeDots.set({
-        bounds: new Box2D(this.titleNodeTextWidth, (kT.titleH - kT.contextDotsH) / 2, kT.contextDotsW, kT.contextDotsH),
-        visible: this.titleNode.hover,
-        dotColor: this.baseColor,
       });
     }
   }

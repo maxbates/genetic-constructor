@@ -2,10 +2,10 @@ import { assert, expect } from 'chai';
 import path from 'path';
 import uuid from 'node-uuid';
 import merge from 'lodash.merge';
-import { updateProjectWithAuthor } from '../../utils/userUtils';
+import { updateProjectWithAuthor } from '../../../utils/userUtils';
 import md5 from 'md5';
-import { testUserId } from '../../constants';
-import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../server/utils/errors';
+import { testUserId } from '../../../constants';
+import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
 import {
   fileExists,
   fileRead,
@@ -14,13 +14,13 @@ import {
   directoryExists,
   directoryMake,
   directoryDelete
-} from '../../../server/utils/fileSystem';
-import Project from '../../../src/models/Project';
-import Block from '../../../src/models/Block';
+} from '../../../../server/utils/fileSystem';
+import Project from '../../../../src/models/Project';
+import Block from '../../../../src/models/Block';
 
-import * as filePaths from '../../../server/utils/filePaths';
-import * as versioning from '../../../server/data/versioning';
-import * as persistence from '../../../server/data/persistence';
+import * as filePaths from '../../../../server/utils/filePaths';
+import * as versioning from '../../../../server/data/versioning';
+import * as persistence from '../../../../server/data/persistence';
 
 //todo - can probably de-dupe many of these setup / before() clauses, they are pretty similar
 
