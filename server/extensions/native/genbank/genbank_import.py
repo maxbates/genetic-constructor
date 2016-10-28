@@ -102,8 +102,8 @@ def relationship(block1, block2):
         return "equal"
     if block1["sequence"]["length"] > block2["sequence"]["length"] and block1["metadata"]["start"] <= block2["metadata"]["start"] and block1["metadata"]["end"] >= block2["metadata"]["end"]:
         return "parent"
-    if (block1["metadata"]["start"] <= block2["metadata"]["start"] and block1["metadata"]["end"] >= block2["metadata"]["start"]) or \
-        (block1["metadata"]["start"] <= block2["metadata"]["end"] and block1["metadata"]["end"] >= block2["metadata"]["end"]):
+    if (block1["metadata"]["start"] <= block2["metadata"]["start"] and block1["metadata"]["end"] > block2["metadata"]["start"]) or \
+        (block1["metadata"]["start"] < block2["metadata"]["end"] and block1["metadata"]["end"] >= block2["metadata"]["end"]):
         return "partial"
     if block1["metadata"]["end"]-1 < block2["metadata"]["start"]:
         return "before"
@@ -165,7 +165,7 @@ def create_root_block_from_genbank(gb, sequence):
     root_block["metadata"]["genbank"]["name"] = gb.name
 
     root_block["metadata"]["start"] = 0
-    root_block["metadata"]["end"] = full_length - 1
+    root_block["metadata"]["end"] = full_length
     sequence["blocks"][root_id] = [root_block["metadata"]["start"], root_block["metadata"]["end"]]
 
     root_block["metadata"]["genbank"]["id"] = gb.id
@@ -263,10 +263,10 @@ def create_child_block_from_feature(f, all_blocks, root_block, sequence):
                 pass
 
         child_block["metadata"]["start"] = start
-        child_block["metadata"]["end"] = end - 1
+        child_block["metadata"]["end"] = end
         sequence["blocks"][block_id] = [child_block["metadata"]["start"], child_block["metadata"]["end"]]
 
-        child_block["sequence"]["length"] = child_block["metadata"]["end"] - child_block["metadata"]["start"] + 1
+        child_block["sequence"]["length"] = child_block["metadata"]["end"] - child_block["metadata"]["start"]
         child_block["metadata"]["strand"] = strand
         child_block["metadata"]["genbank"]["type"] = f.type
 
@@ -400,16 +400,16 @@ def create_filler_blocks_for_holes(all_blocks, sequence):
                 filler_block["metadata"]["color"] = None
 
                 filler_block["metadata"]["start"] = current_position
-                filler_block["metadata"]["end"] = child["metadata"]["start"] - 1
+                filler_block["metadata"]["end"] = child["metadata"]["start"]
                 sequence["blocks"][block_id] = [filler_block["metadata"]["start"], filler_block["metadata"]["end"]]
 
-                filler_block["sequence"]["length"] = filler_block["metadata"]["end"] - filler_block["metadata"]["start"] + 1
+                filler_block["sequence"]["length"] = filler_block["metadata"]["end"] - filler_block["metadata"]["start"]
 
                 filler_block["metadata"]["initialBases"] = sequence["sequence"][filler_block["metadata"]["start"]:filler_block["metadata"]["start"]+3] + "..."
 
                 all_blocks[block_id] = filler_block
                 block["components"].insert(i, block_id)
-            current_position = child["metadata"]["end"] + 1
+            current_position = child["metadata"]["end"]
         # If the last block doesn't end at the end of the parent, create a filler too!
         if child and current_position < block["metadata"]["end"]:
             block_id = str(uuid.uuid4())
@@ -420,7 +420,7 @@ def create_filler_blocks_for_holes(all_blocks, sequence):
             filler_block["metadata"]["end"] = block["metadata"]["end"]
             sequence["blocks"][block_id] = [filler_block["metadata"]["start"], filler_block["metadata"]["end"]]
 
-            filler_block["sequence"]["length"] = filler_block["metadata"]["end"] - filler_block["metadata"]["start"] + 1
+            filler_block["sequence"]["length"] = filler_block["metadata"]["end"] - filler_block["metadata"]["start"]
 
             filler_block["metadata"]["initialBases"] = sequence["sequence"][filler_block["metadata"]["start"]:filler_block["metadata"]["start"]+3] + "..."
 

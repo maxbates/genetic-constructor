@@ -73,8 +73,6 @@ router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req
   const { projectId, blockIdList } = req.params;
   const blockIds = blockIdList.split(',');
 
-  console.log(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
-
   rollup.getProjectRollup(projectId, true)
     .then(roll => {
       const blocks = blockIds.map(blockId => roll.blocks[blockId]);
@@ -123,10 +121,7 @@ router.all('/export/:projectId/:constructId?',
     //todo - use this for genbank
     const options = req.body;
 
-    console.log(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
-    console.log(options);
-
-    rollup.getProjectRollup(projectId)
+    rollup.getProjectRollup(projectId, true)
       .then(roll => {
         const blocks = Object.keys(roll.blocks).map(blockId => roll.blocks[blockId]);
 
@@ -143,7 +138,6 @@ router.all('/export/:projectId/:constructId?',
 
           const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
 
-          console.log(JSON.stringify(roll));
           const promise = !!constructId ?
             exportConstruct({ roll, constructId }) :
             exportProject(roll);
