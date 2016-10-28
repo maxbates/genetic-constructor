@@ -2,7 +2,7 @@ import { assert, expect } from 'chai';
 import request from 'supertest';
 import { testUserId } from '../../../constants';
 import Block from '../../../../src/models/Block';
-import * as rollup from '../../../../server/data/rollup';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
 import devServer from '../../../../server/server';
 import { numberBlocksInRollup, createExampleRollup } from '../../../_utils/rollup';
 import { range, merge } from 'lodash';
@@ -36,7 +36,7 @@ describe('Server', () => {
         merge(roll.blocks, blocks);
 
         before(() => {
-          return rollup.writeProjectRollup(projectId, roll, userId);
+          return projectPersistence.projectWrite(projectId, roll, userId);
         });
 
         beforeEach('server setup', () => {

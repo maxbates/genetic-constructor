@@ -4,8 +4,9 @@ import invariant from 'invariant';
 //GC specific
 import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
-import * as sequences from '../../../../server/data/persistence/sequence';
 import * as rollup from '../../../../server/data/rollup';
+import * as sequences from '../../../../server/data/persistence/sequence';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 
 const extensionKey = 'fasta';
@@ -51,7 +52,7 @@ router.get('/export/blocks/:projectId/:blockIdList', (req, res, next) => {
   const { projectId, blockIdList } = req.params;
   const blockIds = blockIdList.split(',');
 
-  rollup.getProjectRollup(projectId)
+  projectPersistence.projectGet(projectId)
     .then(roll => {
       const blocks = blockIds.map(blockId => roll.blocks[blockId]);
       if (!blocks.every(block => block.sequence.md5)) {

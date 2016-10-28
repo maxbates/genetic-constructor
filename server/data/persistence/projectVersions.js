@@ -15,7 +15,7 @@
  */
 
 //todo - consistent messaging + message types, user tags, timestamps
-//todo - update middleware on client, expecting commmit SHA, to expect version
+//todo - update middleware on client, expecting commit SHA, to expect version
 
 const dummyVersionPayload = () => ({
   version: -1,
@@ -36,8 +36,13 @@ export const projectVersionGet = () => {
 //};
 
 //this creates a *major* version and should include some metadata
-export const projectVersionSnapshot = () => {
-  //todo - ensure it returns a commit-like response w/ version (check previous usages of git.snapshot())
+export const projectVersionSnapshot = (projectId, userId, message, inputTags = {}) => {
+  //todo - define more
+  const tags = Object.assign({
+    time: Date.now(),
+  }, inputTags);
+
+  //todo - ensure it returns a commit-like response w/ version (check previous usages of git.snapshot()) - time, version, etc.
 
   return dummyVersionPayload();
 };

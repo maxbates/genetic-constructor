@@ -20,6 +20,7 @@ import fetch from 'isomorphic-fetch';
 import Project from '../../src/models/Project';
 import * as api from '../../src/middleware/projectFiles';
 import * as s3 from '../../server/data/middleware/s3';
+import { errorDoesNotExist } from '../../server/utils/errors';
 
 const { assert, expect } = chai;
 
@@ -77,8 +78,12 @@ describe('Middleware', () => {
         });
     });
 
-    //todo
-    it('projectFileWrite() with no contents should delete');
+    it('projectFileWrite() with null contents should delete', (done) => {
+      return api.projectFileWrite(projectId, namespace, fileNameAtomic, null)
+        .then(() => api.projectFileRead(projectId, namespace, fileNameRoundtrip))
+        .then(result => done(result))
+        .catch(err => expect(err).to.equal(errorDoesNotExist));
+    });
 
     it('readProjectFile() should read a file which exists', () => {
       return api.projectFileRead(projectId, namespace, fileNameAtomic)

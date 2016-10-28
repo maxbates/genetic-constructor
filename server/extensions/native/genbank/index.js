@@ -13,6 +13,7 @@ import { errorDoesNotExist } from '../../../../server/utils/errors';
 import { filter } from 'lodash';
 import { projectPermissionMiddleware } from '../../../data/permissions';
 import * as sequencePersistence from '../../../data/persistence/sequence';
+import * as projectPesistence from '../../../data/persistence/projects';
 import DebugTimer from '../../../utils/DebugTimer';
 
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
@@ -75,7 +76,8 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
 
   console.log(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
 
-  rollup.getProjectRollup(projectId, true)
+  projectPesistence.projectGet(projectId)
+    .then(roll => rollup.getSequencesGivenRollup(roll))
     .then(roll => {
       const blocks = blockIds.map(blockId => roll.blocks[blockId]);
       invariant(blocks.every(block => block.sequence.md5), 'some blocks dont have md5');
@@ -92,6 +94,7 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
         components: [construct.id],
       }));
 
+      //todo - need to merge with flo's stuff to pass in sequence properly
       const partialRoll = {
         project,
         blocks: blocks.reduce((acc, block) => {
@@ -126,37 +129,24 @@ router.all('/export/:projectId/:constructId?',
     console.log(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
     console.log(options);
 
-    rollup.getProjectRollup(projectId)
+    projectPesistence.projectGet(projectId)
+      .then(roll => rollup.getSequencesGivenRollup(roll))
       .then(roll => {
-        const blocks = Object.keys(roll.blocks).map(blockId => roll.blocks[blockId]);
+        const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
 
-        return Promise.all(
-          blocks.map(block => sequencePersistence.sequenceGet(block.sequence.md5))
-        ).then(sequences => {
-          // some will be null
-          const blockIdToSequence = _.zipObject(
-            blocks.map(block => block.id),
-            sequences,
-          );
+        const promise = !!constructId ?
+          exportConstruct({ roll, constructId }) :
+          exportProject(roll);
 
-          Object.assign(roll, { sequences: blockIdToSequence });
-
-          const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
-
-          const promise = !!constructId ?
-            exportConstruct({ roll, constructId }) :
-            exportProject(roll);
-
-          return promise
-            .then((resultFileName) => {
-              return fileSystem.fileRead(resultFileName, false)
-                .then(fileOutput => {
-                  // We have to disambiguate between zip files and gb files!
-                  const fileExtension = (fileOutput.substring(0, 5) !== 'LOCUS') ? '.zip' : '.gb';
-                  return downloadAndDelete(res, resultFileName, name + fileExtension);
-                });
-            });
-        });
+        return promise
+          .then((resultFileName) => {
+            return fileSystem.fileRead(resultFileName, false)
+              .then(fileOutput => {
+                // We have to disambiguate between zip files and gb files!
+                const fileExtension = (fileOutput.substring(0, 5) !== 'LOCUS') ? '.zip' : '.gb';
+                return downloadAndDelete(res, resultFileName, name + fileExtension);
+              });
+          });
       })
       .catch(err => {
         console.log('Error!', err);

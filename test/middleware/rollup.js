@@ -15,8 +15,8 @@ import Block from '../../src/models/Block';
 
 import * as commitMessages from '../../server/data/git-deprecated/commitMessages';
 import * as filePaths from '../../server/data/middleware/filePaths';
-import * as rollup from '../../server/data/rollup';
 import * as versioning from '../../server/data/git-deprecated/git';
+import * as projectPersistence from '../../server/data/persistence/projects';
 import * as persistence from '../../server/data/persistence';
 import { createExampleRollup } from '../_utils/rollup';
 
@@ -30,7 +30,7 @@ describe('Middleware', () => {
     const project = roll.project;
     const projectId = project.id;
 
-    before(() => rollup.writeProjectRollup(projectId, roll, userId));
+    before(() => projectPersistence.projectWrite(projectId, roll, userId));
 
     it('listProjects() lists available projects', () => {
       return api.listProjects()

@@ -20,6 +20,9 @@ import {
 import { merge } from 'lodash';
 import * as querying from './../data/querying';
 import * as persistence from './../data/persistence';
+import * as projectPersistence from './../data/persistence/projects';
+import * as orderPersistence from './../data/persistence/orders';
+import * as projectVersions from './../data/persistence/projectVersions';
 import * as rollup from './../data/rollup';
 import { ensureReqUserMiddleware } from '../user/utils';
 import { projectPermissionMiddleware } from './../data/permissions';
@@ -90,7 +93,7 @@ User ${user.uuid}
     const constructNames = [];
 
     //NOTE - in future, need to do this based on the project version. For now, assume that only interested in the current state of the project.
-    rollup.getProjectRollup(order.projectId)
+    projectPersistence.projectGet(order.projectId)
       .then(projectRollup => {
         //block on sample project
         if (projectRollup.project.isSample) {
@@ -130,13 +133,14 @@ User ${user.uuid}
               .map(block => merge(block, { rules: { frozen: true } }))
               .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 
-            return persistence.blocksMerge(projectId, frozenBlockMap)
+            return projectPersistence.blocksMerge(projectId, frozenBlockMap)
               .then(() => response);
           });
       })
       .then(response => {
         //snapshot, return the order to the client
-        return persistence.projectSnapshot(projectId, user.uuid, `ORDER`)
+        //todo - update signature
+        return projectVersions.projectVersionSnapshot(projectId, user.uuid, `ORDER`)
           .then(({ sha, time }) => {
             merge(order, {
               metadata: {
@@ -152,10 +156,10 @@ User ${user.uuid}
               },
             });
 
-            return rollup.getProjectRollup(projectId)
+            return projectPersistence.projectGet(projectId)
               .then(roll => {
                 //console.log(roll);
-                return persistence.orderWrite(order.id, order, projectId, roll);
+                return orderPersistence.orderWrite(order.id, order, projectId, sha, roll);
               });
           });
       })

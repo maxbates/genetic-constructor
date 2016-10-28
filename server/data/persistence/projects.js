@@ -143,12 +143,14 @@ export const blockGet = (projectId, sha = false, blockId) => {
 //SET (WRITE + MERGE)
 
 //should return commit-like information (not just the project)
-//todo - expect rollup. This effectively is rollup.writeProjectRollup() v2
+//todo - validate ID
 export const projectWrite = (projectId, roll = {}, userId, bypassValidation = false) => {
   const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
 
+  invariant(projectId, 'must pass a projectId to write project');
   invariant(typeof roll === 'object', 'project is required');
   invariant(typeof roll.project === 'object' && typeof roll.blocks === 'object', 'must pass rollup with project and blocks');
+  invariant(!!userId, 'userID is necessary write project');
 
   //do we want to require userId? if so, need to update all block writing etc. to include userId in call, since block writing goes through this function
   //invariant(userId, 'user id is required to write project');

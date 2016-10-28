@@ -5,7 +5,7 @@ import BlockSchema from '../../../src/schemas/Block';
 import ProjectSchema from '../../../src/schemas/Project';
 import * as fileSystem from '../../../server/data/middleware/fileSystem';
 import * as filePaths from '../../../server/data/middleware/filePaths';
-import * as rollup from '../../../server/data/rollup';
+import * as projectPersistence from '../../../server/data/persistence/projects';
 import * as querying from '../../../server/data/querying';
 import { merge, values } from 'lodash';
 
@@ -48,10 +48,10 @@ describe('Server', () => {
       before(() => {
         return Promise.all([
           ...myRollIds.map((projectId, index) => {
-            return rollup.writeProjectRollup(projectId, myRolls[index], myUserId);
+            return projectPersistence.projectWrite(projectId, myRolls[index], myUserId);
           }),
           ...otherRollIds.map((projectId, index) => {
-            return rollup.writeProjectRollup(projectId, otherRolls[index], otherUserId);
+            return projectPersistence.projectWrite(projectId, otherRolls[index], otherUserId);
           }),
         ]);
       });

@@ -22,11 +22,11 @@ import {
   errorVersioningSystem,
 } from '../utils/errors';
 import * as querying from './querying';
-import * as persistence from './persistence';
 import * as rollup from './rollup';
 import { ensureReqUserMiddleware } from '../user/utils';
 import { projectPermissionMiddleware } from './permissions';
 import * as projectPersistence from './persistence/projects';
+import * as projectVersions from './persistence/projectVersions';
 
 import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
@@ -151,6 +151,7 @@ router.route('/projects/:projectId')
       });
   });
 
+//separate route because dont use project permission middleware
 router.route('/projects')
   .get((req, res, next) => {
     const { user } = req;
@@ -172,7 +173,7 @@ router.route('/:projectId/commit/:sha?')
     const { sha } = req.params;
 
     if (sha) {
-      persistence.projectGet(projectId, sha)
+      projectPersistence.projectGet(projectId, sha)
         .then(project => res.status(200).json(project))
         .catch(err => next(err));
     } else {
@@ -191,11 +192,11 @@ router.route('/:projectId/commit/:sha?')
     const rollupDefined = roll && roll.project && roll.blocks;
 
     const writePromise = rollupDefined ?
-      rollup.writeProjectRollup(projectId, roll, user.uuid) :
+      projectPersistence.projectWrite(projectId, roll, user.uuid) :
       Promise.resolve();
 
     writePromise
-      .then(() => persistence.projectSnapshot(projectId, user.uuid, message))
+      .then(() => projectVersions.projectVersionSnapshot(projectId, user.uuid, message))
       .then(commit => res.status(200).json(commit))
       //may want better error handling here
       .catch(err => {
@@ -260,6 +261,9 @@ router.route('/:projectId/:blockId')
         res.json(result[blockId]);
       })
       .catch(err => {
+        if (err === errorDoesNotExist) {
+          return res.status(404).send('project does not exist');
+        }
         if (err === errorInvalidModel) {
           return res.status(400).send(errorInvalidModel);
         }
@@ -286,17 +290,7 @@ router.route('/:projectId')
       .catch(err => next(err));
   })
   .put((req, res, next) => {
-    const { projectId, user } = req;
-    const project = req.body;
-
-    projectPersistence.projectWriteManifest(projectId, project, user.uuid)
-      .then(result => res.json(result))
-      .catch(err => {
-        if (err === errorInvalidModel) {
-          return res.status(400).send(errorInvalidModel);
-        }
-        next(err);
-      });
+    res.status(401).send('cannot PUT project manifest, only post to update existing');
   })
   .post((req, res, next) => {
     const { projectId, user } = req;
@@ -309,6 +303,9 @@ router.route('/:projectId')
     projectPersistence.projectMergeManifest(projectId, project, user.uuid)
       .then(merged => res.status(200).send(merged))
       .catch(err => {
+        if (err === errorDoesNotExist) {
+          return res.status(404).send('project does not exist');
+        }
         if (err === errorInvalidModel) {
           return res.status(400).send(errorInvalidModel);
         }

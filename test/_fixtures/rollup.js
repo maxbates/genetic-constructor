@@ -3,8 +3,7 @@ import { merge } from 'lodash';
 import { testUserId } from '../constants';
 import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
-import * as rollup from '../../server/data/rollup';
-import * as persistence from '../../server/data/persistence';
+import * as projectPersistence from '../../server/data/persistence/projects';
 import * as sequences from '../../server/data/persistence/sequence';
 import { createExampleRollup, createSequencedRollup, createListRollup } from '../_utils/rollup';
 
@@ -63,7 +62,7 @@ export const createExampleProject = () => {
 
   //write everything
   return Promise.all([
-    rollup.writeProjectRollup(roll.project.id, roll, testUserId),
+    projectPersistence.projectWrite(roll.project.id, roll, testUserId),
     ...Object.keys(sequenceRoll.sequences).map(seqMd5 => sequences.sequenceWrite(seqMd5, sequenceRoll.sequences[seqMd5])),
     ...Object.keys(listRoll.sequences).map(seqMd5 => sequences.sequenceWrite(seqMd5, listRoll.sequences[seqMd5])),
   ])

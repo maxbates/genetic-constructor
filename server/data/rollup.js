@@ -26,13 +26,10 @@
  * }
  * @module rollup
  */
-import invariant from 'invariant';
-import { errorInvalidModel, errorDoesNotExist } from '../utils/errors';
-import * as persistence from './persistence';
-import { validateBlock, validateProject } from '../utils/validation';
+import { errorDoesNotExist } from '../utils/errors';
 import * as sequencePersistence from './persistence/sequence';
+import * as projectPersistence from './persistence/projects';
 import { mapValues, values } from 'lodash';
-import DebugTimer from '../utils/DebugTimer';
 import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
 
 /**
@@ -40,73 +37,12 @@ import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
  * @param rollup
  * @returns rollup, with sequence map: { project: {}, blocks: {}, sequences: { <blockId>: 'ACAGTCGACTGAC' } }
  */
+//todo - would be nice to just make this an option in projectGet directly?
 export const getSequencesGivenRollup = (rollup) => {
   const blockIdsToMd5s = mapValues(rollup.blocks, (block, blockId) => block.sequence.md5);
 
   return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => sequencePersistence.sequenceGet(seqMd5))
     .then(sequences => Object.assign(rollup, { sequences }));
-};
-
-//todo - deprecate - just use the above function to get sequences if you want them
-// if withSequences === true, adds field `sequences` to roll
-// e.g. { project: {}, blocks: {}, sequences: { blockId: 'ACAGTCGACTGAC } }
-export const getProjectRollup = (projectId, withSequences = false) => {
-  return persistence.projectGet(projectId)
-    .then(roll => {
-      if (withSequences !== true) {
-        return roll;
-      }/**/
-
-      return getSequencesGivenRollup(roll);
-    });
-};
-
-//todo - deprecate - this should be the default behavior, in projectWrite()
-export const writeProjectRollup = (projectId, rollup, userId, bypassValidation = false) => {
-  const timer = new DebugTimer(`rollup.write ${projectId} (${userId})`, { disabled: true });
-
-  invariant(projectId, 'must pass a projectId');
-  invariant(rollup && rollup.project && rollup.blocks, 'rollup must not be empty');
-  invariant(typeof rollup.blocks === 'object', 'rollup expects blocks to be an object');
-  invariant(typeof userId !== 'undefined', 'userID is necessary to create a project from rollup');
-
-  const { project, blocks } = rollup;
-
-  if (projectId !== project.id) {
-    return Promise.reject('rollup project ID does not match');
-  }
-
-  //need to check existence + create here, avoid race of project setup vs. block write
-  return persistence.projectExists(projectId)
-    .catch(err => {
-      timer.time('init project creation');
-      //if the project doesn't exist, let's make it
-      if (err === errorDoesNotExist) {
-        return persistence.projectCreate(projectId, project, userId);
-      }
-      return Promise.reject(err);
-    })
-    .then(() => {
-      timer.time('project setup');
-      //validate all the blocks and project before we save, unless forcibly bypass
-      if (process.env.NODE_ENV !== 'dev' && bypassValidation !== true) {
-        const projectValid = validateProject(project);
-        const blocksValid = values(blocks).every(block => validateBlock(block));
-        if (!projectValid || !blocksValid) {
-          return Promise.reject(errorInvalidModel);
-        }
-        timer.time('validated');
-      }
-    })
-    //bypass validation on writes, since checking above anyway
-    .then(() => Promise.all([
-      persistence.projectWrite(projectId, project, userId, true),
-      persistence.blocksWrite(projectId, blocks, true, true),
-    ]))
-    .then(() => {
-      timer.end('files written');
-      return rollup;
-    });
 };
 
 ////// HELPERS ///////
@@ -169,7 +105,7 @@ export const getContentsRecursivelyGivenRollup = (rootId, rollup) => {
  * @returns {object} { components: {}, options: {} }
  */
 export const getContents = (rootId, projectId) => {
-  return getProjectRollup(projectId)
+  return projectPersistence.projectGet(projectId)
     .then(rollup => getContentsRecursivelyGivenRollup(rootId, rollup));
 };
 

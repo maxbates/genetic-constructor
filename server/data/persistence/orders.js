@@ -58,10 +58,11 @@ export const orderGet = (orderId, projectId) => {
 };
 
 //todo - require projectVersion as arg
-export const orderWrite = (orderId, order, projectId, roll) => {
+export const orderWrite = (orderId, order, projectId, projectVersion, roll) => {
   const idedOrder = Object.assign({}, order, {
-    projectId,
     id: orderId,
+    projectId,
+    projectVersion,
   });
 
   if (!validateOrder(idedOrder)) {

@@ -22,6 +22,7 @@ import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as persistence from '../../../../server/data/persistence';
 import * as seqPersistence from '../../../../server/data/persistence/sequence';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as rollup from '../../../../server/data/rollup';
 import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
 
@@ -190,7 +191,7 @@ export function mergeRollupMiddleware(req, res, next) {
           blocks,
         });
       }
-      return rollup.getProjectRollup(projectId)
+      return projectPersistence.projectGet(projectId)
         .then((existingRoll) => {
           existingRoll.project.components = existingRoll.project.components.concat(project.components);
           Object.assign(existingRoll.blocks, blocks);
@@ -202,8 +203,7 @@ export function mergeRollupMiddleware(req, res, next) {
         return Promise.resolve(roll);
       }
 
-      return rollup.writeProjectRollup(roll.project.id, roll, req.user.uuid)
-        .then(() => persistence.projectSave(roll.project.id, req.user.uuid))
+      return projectPersistence.projectWrite(roll.project.id, roll, req.user.uuid)
         .then(() => roll);
     })
     .then((roll) => {

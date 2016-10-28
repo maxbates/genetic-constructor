@@ -31,7 +31,7 @@ import * as projectPersistence from '../../../../server/data/persistence/project
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', function persistenceTests() {
-      describe.only('projects', () => {
+      describe('projects', () => {
         it('projectWrite() -> projectGet() works', () => {
           const roll = createExampleRollup();
 
@@ -210,7 +210,6 @@ describe('Server', () => {
                     expect(Object.keys(newMap).sort()).to.eql(Object.keys(roll.blocks).sort());
                   });
               });
-
           });
 
           it('blocksMerge() merges blocks', () => {
