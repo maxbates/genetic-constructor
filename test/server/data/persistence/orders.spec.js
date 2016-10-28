@@ -13,4 +13,37 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
- 
+
+import { assert, expect } from 'chai';
+import uuid from 'node-uuid';
+import _ from 'lodash';
+import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
+import { testUserId } from '../../../constants';
+import rollupFromArray from '../../../../src/utils/rollup/rollupFromArray';
+import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
+import Project from '../../../../src/models/Project';
+import Block from '../../../../src/models/Block';
+
+import * as projectPersistence from '../../../../server/data/persistence/projects';
+import * as orderPersistence from '../../../../server/data/persistence/orders';
+
+describe('Server', () => {
+  describe('Data', () => {
+    describe('persistence', () => {
+      describe('orders', () => {
+
+        it('orderWrite() write makes an order');
+
+        it('orderGet() gets an order');
+
+        it('orderList() lists orders which exist for a project');
+        it('orderList() lists orders only for given project');
+
+        it('orderExists() resolves for order which exists');
+        it('orderExists() rejects on non existent order');
+
+        it('orderDelete() is impossible');
+      });
+    });
+  });
+});

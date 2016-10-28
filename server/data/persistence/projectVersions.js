@@ -38,9 +38,10 @@ export const projectVersionGet = () => {
 //this creates a *major* version and should include some metadata
 export const projectVersionSnapshot = (projectId, userId, message, inputTags = {}) => {
   //todo - define more
-  const tags = Object.assign({
+  const tags = Object.assign({}, inputTags, {
     time: Date.now(),
-  }, inputTags);
+    message,
+  });
 
   //todo - ensure it returns a commit-like response w/ version (check previous usages of git.snapshot()) - time, version, etc.
 

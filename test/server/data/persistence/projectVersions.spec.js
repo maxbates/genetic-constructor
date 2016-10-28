@@ -15,11 +15,9 @@
  */
 
 import { assert, expect } from 'chai';
-import path from 'path';
 import uuid from 'node-uuid';
-import merge from 'lodash.merge';
+import _ from 'lodash';
 import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
-import md5 from 'md5';
 import { testUserId } from '../../../constants';
 import rollupFromArray from '../../../../src/utils/rollup/rollupFromArray';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
@@ -27,6 +25,7 @@ import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
+import * as projectVersions from '../../../../server/data/persistence/projectVersions';
 
 describe('Server', () => {
   describe('Data', () => {

@@ -17,14 +17,16 @@
 import invariant from 'invariant';
 import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateOrder } from '../../utils/validation';
-//import * as permissions from '../permissions';
+import { dbGet, dbPost, dbPruneResult } from '../middleware/db';
+
 
 /*********
  Helpers
  *********/
 
 const _orderWrite = (orderId, order = {}, projectId) => {
-  //todo - write the order, mae sure have a version (should run after save)
+  //todo - write the order, mae sure have a version (should run after saving the project)
+  return dbPost(`orders/${projectId}/${orderId}`);
 };
 
 /*********
@@ -32,19 +34,18 @@ const _orderWrite = (orderId, order = {}, projectId) => {
  *********/
 
 export const orderList = (projectId) => {
-  //todo
+  return dbGet(`orders/${projectId}`);
 };
 
 export const orderExists = (orderId, projectId) => {
-  //todo
-};
-
-export const orderRead = (orderId, projectId) => {
-
+  return dbGet(`orders/${projectId}/${orderId}`)
+    .then(() => true)
+    .catch(err => (err === errorDoesNotExist) ? Promise.reject(errorDoesNotExist) : Promise.reject(err));
 };
 
 export const orderGet = (orderId, projectId) => {
-  return _orderRead(orderId, projectId)
+  return dbGet(`orders/${projectId}/${orderId}`)
+    .then(dbPruneResult)
     .catch(err => {
       if (err === errorDoesNotExist) {
         return Promise.resolve(null);
@@ -53,8 +54,11 @@ export const orderGet = (orderId, projectId) => {
     });
 };
 
+//todo - require userId as arg + update usages
 //todo - require projectVersion as arg
-export const orderWrite = (orderId, order, projectId, projectVersion, roll) => {
+export const orderWrite = (userId, orderId, order, projectId, projectVersion, roll) => {
+  //todo - invariant checks on inputs
+
   const idedOrder = Object.assign({}, order, {
     id: orderId,
     projectId,
