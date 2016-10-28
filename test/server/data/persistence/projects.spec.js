@@ -241,6 +241,29 @@ describe('Server', () => {
               });
           });
 
+          it('blocksPatch() overwrites the blocks passed, but not the whole map', () => {
+            let blockId;
+            let blockOriginal;
+
+            return projectPersistence.blocksGet(projectId)
+              .then(blocks => {
+                blockId = Object.keys(blocks)[0];
+                blockOriginal = blocks[blockId];
+                //add a primitive field so can easily check patch happened
+                const patch = Object.assign({}, blockOriginal, { some: 'field' });
+                return projectPersistence.blocksMerge(projectId, testUserId, patch);
+              })
+              .then(blocks => {
+                expect(blocks[blockId].some).to.equal('field');
+                const patch = Object.assign({}, blockOriginal, { newField: 'field' });
+                return projectPersistence.blocksPatch(projectId, testUserId, patch);
+              })
+              .then(blocks => {
+                expect(blocks[blockId].newField).to.equal('field');
+                expect(blocks[blockId].some).to.be.undefined;
+              });
+          });
+
           it('blockDelete() deletes a block', () => {
             let toKill;
             return projectPersistence.blocksGet(projectId)

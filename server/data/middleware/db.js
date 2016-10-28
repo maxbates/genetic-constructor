@@ -33,7 +33,7 @@ const defaultErrorHandling = (resp) => {
     return Promise.reject(errorNoPermission);
   }
 
-  console.log('got unhandled error: ', resp.originalUrl);
+  console.log('got unhandled error: ', resp.url);
   console.log(resp);
   return Promise.reject(resp);
 };

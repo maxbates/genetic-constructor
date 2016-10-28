@@ -136,8 +136,9 @@ describe('Server', () => {
               expect(result.body).to.eql(newBlock);
               expect(result.body).to.not.eql(blockData);
 
-              persistence.blocksGet(projectId, false, blockId)
+              persistence.blocksGet(projectId, false)
                 .then((blockMap) => {
+                  assert(Object.keys(blockMap).length > 1, 'should not replace all the blocks, should be more than one');
                   const result = blockMap[blockId];
                   expect(result).to.eql(newBlock);
                   done();

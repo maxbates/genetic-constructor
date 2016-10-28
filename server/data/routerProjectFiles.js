@@ -15,6 +15,7 @@
  */
 import express from 'express';
 import bodyParser from 'body-parser';
+import { HOST_URL } from '../urlConstants';
 import {
   errorInvalidRoute,
   errorDoesNotExist,
@@ -26,8 +27,7 @@ const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
 
 const makeProjectFileLink = (req, projectId, namespace, file) => {
-  const base = req.protocol + '://' + req.hostname + ':' + req.port;
-  return `${base}/data/file/${projectId}/${namespace}/${file}`;
+  return `${HOST_URL}/data/file/${projectId}/${namespace}/${file}`;
 };
 
 //permission checking currently handled by data router (user has access to project)

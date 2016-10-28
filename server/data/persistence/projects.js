@@ -220,6 +220,10 @@ export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
 
   return projectGet(projectId)
     .then(roll => {
+      //special case, to overwrite the blocks passed, but not the whole blockMap / project
+      if (overwrite === 'block') {
+        return Object.assign({}, roll, { blocks: Object.assign(roll.blocks, blockMap) });
+      }
       if (overwrite === true) {
         return Object.assign({}, roll, { blocks: blockMap });
       }
@@ -234,6 +238,10 @@ export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
 //merge all blocks
 export const blocksMerge = (projectId, userId, blockMap) => {
   return blocksWrite(projectId, userId, blockMap, false);
+};
+
+export const blocksPatch = (projectId, userId, blockMap) => {
+  return blocksWrite(projectId, userId, blockMap, 'block');
 };
 
 //DELETE
