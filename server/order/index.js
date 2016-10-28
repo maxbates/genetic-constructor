@@ -131,7 +131,7 @@ User ${user.uuid}
               .map(block => merge(block, { rules: { frozen: true } }))
               .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 
-            return projectPersistence.blocksMerge(projectId, frozenBlockMap)
+            return projectPersistence.blocksMerge(projectId, user.uuid, frozenBlockMap)
               .then(() => response);
           });
       })

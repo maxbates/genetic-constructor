@@ -203,10 +203,19 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
     });
 };
 
+//merge a rollup
+export const projectMerge = (projectId, project, userId) => {
+  return projectGet(projectId)
+    .then(oldProject => {
+      const merged = merge({}, oldProject, project, { project: { id: projectId } });
+      return projectWrite(projectId, merged, userId);
+    });
+};
+
 //overwrite all blocks
-//todo - require UserId, pass to projectWrite ---- update usages
-export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidation = false) => {
+export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
   invariant(typeof projectId === 'string', 'projectId must be string');
+  invariant(typeof userId === 'string', 'userId must be a string');
   invariant(typeof blockMap === 'object', 'block map must be object');
 
   return projectGet(projectId)
@@ -216,24 +225,15 @@ export const blocksWrite = (projectId, blockMap, overwrite = true, bypassValidat
       }
       return merge({}, roll, { blocks: blockMap });
     }).then(roll => {
-      //todo - need userId
-      return projectWrite(projectId, roll)
+      return projectWrite(projectId, roll, userId)
       //return the roll
         .then(info => info.data);
     });
 };
 
-export const projectMerge = (projectId, project, userId) => {
-  return projectGet(projectId)
-    .then(oldProject => {
-      const merged = merge({}, oldProject, project, { project: { id: projectId } });
-      return projectWrite(projectId, merged, userId);
-    });
-};
-
 //merge all blocks
-export const blocksMerge = (projectId, blockMap) => {
-  return blocksWrite(projectId, blockMap, false);
+export const blocksMerge = (projectId, userId, blockMap) => {
+  return blocksWrite(projectId, userId, blockMap, false);
 };
 
 //DELETE
@@ -259,13 +259,13 @@ export const projectDelete = (projectId, userId, forceDelete = false) => {
 };
 
 //should not be exposed on router... easy to get into a bad state
-export const blocksDelete = (projectId, ...blockIds) => {
+export const blocksDelete = (projectId, userId, ...blockIds) => {
   return blocksGet(projectId)
     .then(blockMap => {
       blockIds.forEach(blockId => {
         delete blockMap[blockId];
       });
-      return blocksWrite(projectId, blockMap);
+      return blocksWrite(projectId, userId, blockMap);
     })
     .then(() => blockIds);
 };

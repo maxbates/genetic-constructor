@@ -229,14 +229,14 @@ router.route('/:projectId/:blockId')
       .catch(err => next(err));
   })
   .put((req, res, next) => {
-    const { projectId, blockId } = req;
+    const { user, projectId, blockId } = req;
     const block = req.body;
 
     if (!!block.id && block.id !== blockId) {
       return res.status(400).send(errorInvalidModel);
     }
 
-    projectPersistence.blocksWrite(projectId, { [blockId]: block })
+    projectPersistence.blocksWrite(projectId, user.uuid, { [blockId]: block })
       .then(result => {
         res.json(result[blockId]);
       })
@@ -248,15 +248,15 @@ router.route('/:projectId/:blockId')
       });
   })
   .post((req, res, next) => {
-    const { projectId, blockId } = req;
+    const { user, projectId, blockId } = req;
     const block = req.body;
 
-    //deprecate - this check is unnecessary
+    //will be forced downstream, but worth alerting requester
     if (!!block.id && block.id !== blockId) {
       return res.status(400).send(errorInvalidModel);
     }
 
-    projectPersistence.blocksMerge(projectId, { [blockId]: block })
+    projectPersistence.blocksMerge(projectId, user.uuid, { [blockId]: block })
       .then(result => {
         res.json(result[blockId]);
       })

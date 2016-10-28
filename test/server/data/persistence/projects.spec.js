@@ -198,13 +198,13 @@ describe('Server', () => {
           });
 
           it('blocksWrite() validates the block', (done) => {
-            projectPersistence.blocksWrite(projectId, { some: 'invlalid' })
+            projectPersistence.blocksWrite(projectId, testUserId, { some: 'invlalid' })
               .then(() => done(new Error('shouldnt pass')))
               .catch(err => { done(); });
           });
 
           it('blocksWrite() forces projectId', () => {
-            return projectPersistence.blocksWrite(projectId, mergedMap)
+            return projectPersistence.blocksWrite(projectId, testUserId, mergedMap)
               .then(roll => {
                 assert(_.every(roll.blocks, (block) => block.projectId === projectId), 'should force projectId');
               });
@@ -218,7 +218,7 @@ describe('Server', () => {
 
                 delete newMap[toKill];
 
-                return projectPersistence.blocksWrite(projectId, newMap)
+                return projectPersistence.blocksWrite(projectId, testUserId, newMap)
                   .then(roll => {
                     expect(roll.blocks[toKill]).to.be.undefined;
                     expect(Object.keys(newMap).sort()).to.eql(Object.keys(roll.blocks).sort());
@@ -234,7 +234,7 @@ describe('Server', () => {
                 });
                 const nextMap = Object.assign({}, blocks, { [newBlock.id]: newBlock });
 
-                return projectPersistence.blocksMerge(projectId, { [newBlock.id]: newBlock })
+                return projectPersistence.blocksMerge(projectId, testUserId, { [newBlock.id]: newBlock })
                   .then(roll => {
                     expect(roll.blocks).to.eql(nextMap);
                   });
@@ -247,7 +247,7 @@ describe('Server', () => {
               .then(blocks => {
                 toKill = Object.keys(blocks)[0];
 
-                return projectPersistence.blocksDelete(projectId, toKill)
+                return projectPersistence.blocksDelete(projectId, testUserId, toKill)
                   .then(() => projectPersistence.projectGet(projectId))
                   .then(result => {
                     expect(result.blocks[toKill]).to.not.be.defined;
