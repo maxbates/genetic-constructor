@@ -92,19 +92,6 @@ if (!process.env.STORAGE_API) {
 
 // AUTH
 
-const onLoginHandler = (req, res, next) => {
-  return checkUserSetup(req.user)
-    .then((projectId) => {
-      //note this expects an abnormal return of req and res to the next function
-      return next(req, res);
-    })
-    .catch(err => {
-      console.log(err);
-      console.log(err.stack);
-      res.status(500).end();
-    });
-};
-
 // insert some form of user authentication
 // the auth routes are currently called from the client and expect JSON responses
 if (process.env.BIO_NANO_AUTH) {
@@ -117,7 +104,18 @@ if (process.env.BIO_NANO_AUTH) {
     loginFailure: false,
     resetForm: '/homepage/reset',
     apiEndPoint: API_END_POINT,
-    onLogin: onLoginHandler,
+    onLogin: (req, res, next) => {
+      return checkUserSetup(req.user)
+        .then((projectId) => {
+          //note this expects an abnormal return of req and res to the next function
+          return next(req, res);
+        })
+        .catch(err => {
+          console.log(err);
+          console.log(err.stack);
+          res.status(500).end();
+        });
+    },
     //onLogin: (req, res, next) => next(req, res), //mock
     registerRedirect: false,
   };
@@ -125,13 +123,17 @@ if (process.env.BIO_NANO_AUTH) {
 } else {
   app.use(require('cookie-parser')());
 
-  // import the mocked auth routes
-  //todo - clarify this usage - requires that users are always signed in to hit API. what about extensions?
-  //note that internal fetches will also go through this (e.g. storage), unless defined first - so ensure user can be setup by time hits this
-  app.use(require('./auth/local').mockUser);
+  const localAuth = require('./auth/local');
 
-  const authRouter = require('./auth/local').router;
-  app.use('/auth', authRouter);
+  //force default user on all requests
+  //todo - clarify this usage - requires / enforces that users are always signed in to hit API, even for non-client originating requests. what about extensions?
+  app.use(localAuth.mockUser);
+
+  //mount the mock authentication routes
+  app.use('/auth', localAuth.router);
+
+  //do an initial setup of the user's projects on server start
+  localAuth.prepareUserSetup();
 }
 
 //expose our own register route to handle custom onboarding

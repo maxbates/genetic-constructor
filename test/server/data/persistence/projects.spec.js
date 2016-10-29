@@ -93,7 +93,7 @@ describe('Server', () => {
           const projectId = roll.project.id;
 
           before(() => {
-            return projectPersistence.projectWrite(projectId, roll, testUserId)
+            return projectPersistence.projectWrite(projectId, roll, testUserId);
           });
 
           it('projectExists() resolves if it does exist', () => {

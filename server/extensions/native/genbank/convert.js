@@ -300,7 +300,6 @@ const loadSequences = (blockMap) => {
 
   return sequences.sequenceGetMany(_.mapValues(blockMap, block => block.sequence.md5))
     .then(sequences => {
-      console.log(sequences);
       _.forEach(sequences, (sequence, blockId) => {
         blockMap[blockId].sequence.sequence = sequence;
       });

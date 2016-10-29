@@ -33,15 +33,17 @@ const defaultErrorHandling = (resp) => {
     return Promise.reject(errorNoPermission);
   }
 
-  console.log('got unhandled error: ', resp.url);
+  if (!resp.url) {
+    //if we got a fetch error, not > 400 error...
+    return Promise.reject(resp);
+  }
+
+  console.log('unhandled DB error @ ', resp.url || resp);
 
   return resp.json().then(json => {
     console.log(json);
     return Promise.reject(json);
   });
-
-  //console.log(resp);
-  //return Promise.reject(json);
 };
 
 export const dbGet = (path, params = {}) => {

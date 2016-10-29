@@ -78,6 +78,19 @@ export const defaultUser = Object.assign(
   defaultUserForcedFields()
 );
 
+//initial user setup for the default user
+export const ensureUserSetup = () => {
+  return checkUserSetup(defaultUser)
+    .catch(resp => {
+      console.log('error checking user setup in ensureUserSetup', resp);
+
+      return resp.text().then(text => {
+        console.log(`${text}`);
+        return Promise.reject(text);
+      });
+    });
+};
+
 // @ req.user.data[userConfigKey]
 
 //basic auth routes
@@ -194,24 +207,28 @@ router.get('/cookies', (req, res) => {
 
 //todo - mock forgot-password and reset-password
 
+const listeners = [];
+
 //assign the user to the request, including their config
 export const mockUser = (req, res, next) => {
   if (requireLogin !== true || req.cookies.sess === currentCookie) {
     Object.assign(req, { user: defaultUser });
 
-    //stub the initial user setup here as well
-    checkUserSetup(defaultUser)
-      .then(() => next())
-      .catch(resp => {
-        console.log('error checking user setup in mockUser', resp);
-
-        resp.text().then(text => {
-          console.log(`${text}`);
-          res.status(500).send(text);
+    if (listeners.length > 0) {
+      return Promise.all(listeners.map(listener => listener()))
+        .then(() => {
+          listeners.length = 0;
+          next();
         });
-        //next(resp);
-      });
+    }
+
+    next();
   } else {
     next();
   }
+};
+
+//can't call userSetup immediately, need to wait until server has started, so cue it for first request
+export const prepareUserSetup = () => {
+  listeners.push(ensureUserSetup);
 };

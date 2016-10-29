@@ -32,7 +32,7 @@ const untypedKey = 'none';
 export const listProjectsWithAccess = (userId) => {
   return getUserProjectIds(userId)
     .catch(resp => {
-      console.error(new Error('error checking for initial acccess'));
+      console.error('error checking for initial acccess');
       console.log(resp);
       return [];
     });
