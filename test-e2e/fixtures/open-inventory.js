@@ -9,8 +9,8 @@ var openinventory = function(browser) {
   }, [], function(result) {
     if (!result.value) {
       browser
-        .click('.Inventory-trigger')
-        .pause(500);
+        .click('.InventorySectionIcon')
+        .waitForElementPresent('.SidePanel.Inventory.visible', 5000, 'expected inventory to be open now');
     }
   });
 };
