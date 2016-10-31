@@ -16,6 +16,8 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { inventoryToggleVisibility, inventorySelectTab } from '../actions/ui';
+import InventorySectionIcon from './InventorySectionIcon';
+
 import InventorySideGroup from '../components/Inventory/InventorySideGroup';
 import InventoryGroup from '../components/Inventory/InventoryGroup';
 
@@ -94,7 +96,13 @@ export class Inventory extends Component {
   render() {
     //may be better way to pass in projectId
     const { isVisible, projectId, currentTab } = this.props;
-
+    // classes for content area
+    const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
+    // classes for vertical menu
+    const menuClasses = `vertical-menu${isVisible ? ' open' : ''}`;
+    // classes for icons
+    const iconClasses = isVisible ? 'open' : '';
+    
     const currentSection = this.sections.find(section => section.title === currentTab) || this.sections[0];
     const { title, type, icon, condition, actions, sectionProps } = currentSection;
 
@@ -105,8 +113,23 @@ export class Inventory extends Component {
         }}
       >
         <div className="container">
-          <div className="vertical-menu"></div>
-          <div className="content"></div>
+          <div className={menuClasses}>
+            <InventorySectionIcon open={isVisible} section="templates"/>
+            <InventorySectionIcon open={isVisible} section="sketch"/>
+            <InventorySectionIcon open={isVisible} section="commons"/>
+            <InventorySectionIcon open={isVisible} section="projects"/>
+            <InventorySectionIcon open={isVisible} section="ncbi"/>
+            <InventorySectionIcon open={isVisible} section="igem"/>
+            <InventorySectionIcon open={isVisible} section="egf"/>
+          </div>
+          <div className={contentClasses}>
+            <ul>
+              <li>Duncan</li>
+              <li>Anthony</li>
+              <li>Meech</li>
+              <li>Sr</li>
+            </ul>
+          </div>
         </div>
       </div>
     );

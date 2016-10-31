@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" version="1.1" viewBox="600 300 50 50" width="50pt" height="50pt" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata> Produced by OmniGraffle 7.0.3 
+    <dc:date>2016-10-28 20:35:32 +0000</dc:date>
+  </metadata>
+  <defs/>
+  <g stroke="none" stroke-opacity="1" stroke-dasharray="none" fill="none" fill-opacity="1">
+    <title>icons</title>
+    <g>
+      <title>icons</title>
+      <path d="M 626 313 C 619.3733 313 614 318.37333 614 325 L 610 325 L 615.1867 330.18667 L 615.28 330.37333 L 620.6667 325 L 616.6667 325 C 616.6667 319.84 620.84 315.66667 626 315.66667 C 631.16 315.66667 635.3333 319.84 635.3333 325 C 635.3333 330.16 631.16 334.33333 626 334.33333 C 623.4267 334.33333 621.0933 333.28 619.4133 331.58667 L 617.52 333.48 C 619.6933 335.65333 622.68 337 626 337 C 632.6267 337 638 331.62667 638 325 C 638 318.37333 632.6267 313 626 313 Z M 624.6667 319.66667 L 624.6667 326.33333 L 630.3733 329.72 L 631.3333 328.10667 L 626.6667 325.33333 L 626.6667 319.66667 L 624.6667 319.66667 Z" fill="#1d222d"/>
+    </g>
+  </g>
+</svg>

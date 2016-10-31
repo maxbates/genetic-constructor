@@ -1,0 +1,12 @@
+@import 'variables.css';
+
+.InventorySectionIcon {
+  img {
+    width: var(--width-SidePanel-closed);
+    height: var(--width-SidePanel-closed);
+    transition: filter var(--timing-fast);
+  }
+  img.open {
+    filter: brightness(1000%);
+  }
+}

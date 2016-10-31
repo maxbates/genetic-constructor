@@ -1,7 +1,6 @@
 @import 'variables.css';
 
 .Inventory {
-
   .container {
     position: relative;
     height: 100%;
@@ -10,15 +9,29 @@
 
   .vertical-menu {
     position: absolute;
-    width: 50px;
+    width: var(--width-SidePanel-closed);
     height: 100%;
-    background-color: red;
+    background-color: white;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    transition: background-color var(--timing-fast);
   }
+  .vertical-menu.open {
+    background-color: var(--colors-blueBlack);
+  }
+
   .content {
     position: absolute;
     left: 50px;
-    width: 250px;
+    width: calc(var(--width-SidePanel-open) - var(--width-SidePanel-closed));
     height: 100%;
-    background-color: blue;
+    background-color: white;
+    color: var(--colors-blueBlack);
+    transform: translateX(0);
+    transition: transform var(--timing-fast);
+  }
+  .content-closed {
+    transform: translateX(-250px);
   }
 }
