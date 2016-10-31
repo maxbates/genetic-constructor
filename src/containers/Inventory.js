@@ -35,17 +35,16 @@ export class Inventory extends Component {
 
   state = {
     gslActive: false,
-    section: 'templates',
   };
 
   sections = [
-    'templates',
-    'sketch',
-    'commons',
-    'projects',
-    'ncbi',
-    'igem',
-    'egf',
+    'Templates',
+    'Sketch',
+    'Commons',
+    'Projects',
+    'Ncbi',
+    'Igem',
+    'Egf',
   ];
 
   constructor(props) {
@@ -71,32 +70,27 @@ export class Inventory extends Component {
     // map sections to icons
     const icons = this.sections.map(sectionName => {
       return <InventorySectionIcon
+          key={sectionName}
           open={isVisible}
-          onSelect={section => this.setState({section})}
+          onSelect={this.setActive}
           onToggle={() => this.toggle(!isVisible)}
-          selected={this.state.section === sectionName}
+          selected={this.props.currentTab === sectionName}
           section={sectionName}
         >
       </InventorySectionIcon>;
     });
 
     return (
-      <div className={'SidePanel Inventory' + (isVisible ? ' visible' : '')}
-           onClick={() => {
-             this.toggle(!isVisible);
-           }}
-      >
+      <div className={'SidePanel Inventory' + (isVisible ? ' visible' : '')}>
         <div className="container">
           <div className={menuClasses}>
             {icons}
           </div>
           <div className={contentClasses}>
-            <ul>
-              <li>Duncan</li>
-              <li>Anthony</li>
-              <li>Meech</li>
-              <li>Sr</li>
-            </ul>
+            <InventoryGroup
+              title="Hello World"
+              type="projects"
+            />
           </div>
         </div>
       </div>

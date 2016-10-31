@@ -19,13 +19,13 @@ import '../styles/InventorySectionIcon.css';
 
 // map section names to SVG URI
 const sectionNameToSVG = {
-  templates: '/images/ui/inventory_templates.svg',
-  sketch : '/images/ui/inventory_sketch.svg',
-  commons : '/images/ui/inventory_commons.svg',
-  projects: '/images/ui/inventory_projects.svg',
-  ncbi: '/images/ui/inventory_search_plugin_ncbi.svg',
-  igem: '/images/ui/inventory_search_plugin_igem.svg',
-  egf: '/images/ui/inventory_search_plugin_egf.svg',
+  Templates: '/images/ui/inventory_templates.svg',
+  Sketch : '/images/ui/inventory_sketch.svg',
+  Commons : '/images/ui/inventory_commons.svg',
+  Projects: '/images/ui/inventory_projects.svg',
+  Ncbi: '/images/ui/inventory_search_plugin_ncbi.svg',
+  Igem: '/images/ui/inventory_search_plugin_igem.svg',
+  Egf: '/images/ui/inventory_search_plugin_egf.svg',
 };
 
 export default class InventorySectionIcon extends Component {

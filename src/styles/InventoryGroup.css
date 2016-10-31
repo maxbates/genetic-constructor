@@ -6,19 +6,12 @@
 
   .InventoryGroup-heading {
     height: 2.5em;
-    padding: 0.5em 1em;
-    margin: 0 -var(--SidePanel-width-padding-content);
+    line-height: 2.5em;
+    text-indent: var(--SidePanel-width-padding-content);
     font-size: var(--font-size-sectionLabel);
     font-weight: 100;
-    background-color: var(--colors-blueGreyMed);
-    flex-shrink: 0;
-    cursor: pointer;
     user-select: none;
-    border-top: 1px solid var(--colors-grey);
-
-    &:hover {
-      background-color: var(--colors-blueGreyDark);
-    }
+    cursor: default;
   }
 
   &.active {
