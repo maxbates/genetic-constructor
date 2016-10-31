@@ -15,5 +15,6 @@ module.exports = {
       .waitForElementPresent('.InventorySectionIcon[data-section="ncbi"]', 5000, 'expected a section icon')
       .waitForElementPresent('.InventorySectionIcon[data-section="igem"]', 5000, 'expected a section icon')
       .waitForElementPresent('.InventorySectionIcon[data-section="egf"]', 5000, 'expected a section icon')
+      .end();
   }
 }
