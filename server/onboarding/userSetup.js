@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-import * as querying from '../data/querying';
+import * as projectPersistence from '../data/persistence/projects';
 import onboardNewUser from './onboardNewUser';
 import DebugTimer from '../utils/DebugTimer';
 
@@ -28,11 +28,11 @@ const checkUserSetup = (user) => {
 
   const timer = new DebugTimer('checkUserSetup ' + user.uuid, { disabled: true });
 
-  return querying.listProjectsWithAccess(user.uuid)
-    .then(projects => {
+  return projectPersistence.getUserProjectIds(user.uuid)
+    .then(projectIds => {
       timer.time('query complete');
 
-      if (!projects.length) {
+      if (!projectIds.length) {
         return onboardNewUser(user)
           .then(rolls => {
             console.log(`[User Setup] Generated ${rolls.length} projects for user ${user.uuid} (${user.email}):
@@ -48,7 +48,7 @@ ${rolls.map(roll => `${roll.project.metadata.name || 'Unnamed'} @ ${roll.project
       }
 
       timer.end();
-      return projects[0].id;
+      return projectIds[0];
     });
 };
 

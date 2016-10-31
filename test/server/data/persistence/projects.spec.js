@@ -16,7 +16,7 @@
 import { assert, expect } from 'chai';
 import uuid from 'node-uuid';
 import _ from 'lodash';
-import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
+import ProjectSchema from '../../../../src/schemas/Project';
 import { testUserId } from '../../../constants';
 import rollupFromArray from '../../../../src/utils/rollup/rollupFromArray';
 import { createExampleRollup } from '../../../_utils/rollup';
@@ -122,6 +122,65 @@ describe('Server', () => {
               .then(() => projectPersistence.projectGet(projectId))
               .then(() => new Error('should not exist'))
               .catch(err => expect(err).to.equal(errorDoesNotExist));
+          });
+        });
+
+        describe('list', () => {
+          const myUserId = uuid.v1();
+          const myRolls = [1, 2, 3, 4].map(createCustomRollup);
+          const myRollIds = myRolls.map(roll => roll.project.id);
+
+          const otherUserId = uuid.v1();
+          const otherRolls = [1, 2, 3].map(createCustomRollup);
+          const otherRollIds = otherRolls.map(roll => roll.project.id);
+
+          const randomUserId = uuid.v1();
+
+          before(() => {
+            return Promise.all([
+              ...myRollIds.map((projectId, index) => {
+                return projectPersistence.projectWrite(projectId, myRolls[index], myUserId);
+              }),
+              ...otherRollIds.map((projectId, index) => {
+                return projectPersistence.projectWrite(projectId, otherRolls[index], otherUserId);
+              }),
+            ]);
+          });
+
+          it('before() should have written properly', () => {
+            return Promise.all(
+              [...myRollIds, ...otherRollIds].map(id => projectPersistence.projectExists(id))
+            )
+              .then(results => {
+                assert(results.every(result => result === true), 'should have all been written');
+              });
+          });
+
+          it('getUserProjectIds() limits by user ID', () => {
+            return projectPersistence.getUserProjectIds(myUserId)
+              .then(projects => {
+                expect(projects.length).to.equal(myRollIds.length);
+                assert(projects.every(projectId => myRollIds.indexOf(projectId) >= 0), 'wrong project was returned..');
+              });
+          });
+
+          it('getUserProjectIds() doesnt fail when user has no projects', () => {
+            return projectPersistence.getUserProjectIds(uuid.v1())
+              .then(projects => {
+                expect(projects.length).to.equal(0);
+              });
+          });
+
+          it('getUserProjectIds() returns project manifests user can access', () => {
+            return projectPersistence.getUserProjectIds(myUserId)
+              .then(accessibleProjects => {
+                return projectPersistence.getUserProjects(myUserId)
+                  .then(rolls => rolls.map(roll => roll.project))
+                  .then(manifests => {
+                    expect(manifests.length).to.equal(accessibleProjects.length);
+                    assert(manifests.every(manifest => ProjectSchema.validate(manifest, true)), 'manifests not in valid format');
+                  });
+              });
           });
         });
 

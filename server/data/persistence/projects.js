@@ -75,16 +75,17 @@ const _projectDelete = (projectId, userId) => {
 
 //LIST
 
-// returns { data, id, ... }
 export const getUserProjects = (userId) => {
-  return dbGet(`projects/owner/${userId}`);
+  //dbGet returns { data, id, ... }
+  return dbGet(`projects/owner/${userId}`)
+    .then((projectInfos) => projectInfos.map(info => info.data));
 };
 
 export const getUserProjectIds = (userId) => {
   invariant(userId, 'user id required for getting project Ids');
 
   return getUserProjects(userId)
-    .then((projectInfos) => projectInfos.map(info => info.id))
+    .then(projects => projects.map(project => project.id))
     .catch(err => {
       if (err === errorDoesNotExist) {
         return [];

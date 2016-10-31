@@ -3,8 +3,6 @@ import uuid from 'node-uuid';
 import Block from '../../../src/models/Block';
 import BlockSchema from '../../../src/schemas/Block';
 import ProjectSchema from '../../../src/schemas/Project';
-import * as fileSystem from '../../../server/data/middleware/fileSystem';
-import * as filePaths from '../../../server/data/middleware/filePaths';
 import * as projectPersistence from '../../../server/data/persistence/projects';
 import * as querying from '../../../server/data/querying';
 import { merge, values } from 'lodash';
@@ -62,32 +60,6 @@ describe('Server', () => {
         )
           .then(results => {
             assert(results.every(result => result === true), 'should have all been written');
-          });
-      });
-
-      it('listProjectsWithAccess() limits by user ID', () => {
-        return querying.listProjectsWithAccess(myUserId)
-          .then(projects => {
-            expect(projects.length).to.equal(myRollIds.length);
-            assert(projects.every(projectId => myRollIds.indexOf(projectId) >= 0), 'wrong project was returned..');
-          });
-      });
-
-      it('listProjectsWithAccess() doesnt fail when user has no projects', () => {
-        return querying.listProjectsWithAccess(randomUserId)
-          .then(projects => {
-            expect(projects.length).to.equal(0);
-          });
-      });
-
-      it('getAllProjectManifests() returns project manifests user can access', () => {
-        return querying.listProjectsWithAccess(myUserId)
-          .then(accessibleProjects => {
-            return querying.getAllProjectManifests(myUserId)
-              .then(manifests => {
-                expect(manifests.length).to.equal(accessibleProjects.length);
-                assert(manifests.every(manifest => ProjectSchema.validate(manifest, true)), 'manifests not in valid format');
-              });
           });
       });
 

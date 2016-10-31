@@ -161,7 +161,10 @@ router.route('/projects')
   .get((req, res, next) => {
     const { user } = req;
 
-    querying.getAllProjectManifests(user.uuid)
+    //todo - use dedicated route to get user manifests
+
+    return projectPersistence.getUserProjects(user.uuid)
+      .then(rolls => rolls.map(roll => roll.project))
       .then(manifests => res.status(200).json(manifests))
       .catch(err => next(err));
   });
@@ -182,8 +185,7 @@ router.route('/:projectId/commit/:sha?')
         .then(project => res.status(200).json(project))
         .catch(err => next(err));
     } else {
-      //todo - this should move to the versioning module, not querying
-      querying.getProjectVersions(projectId)
+      projectVersions.projectVersionList(projectId)
         .then(log => res.status(200).json(log))
         .catch(err => next(err));
     }

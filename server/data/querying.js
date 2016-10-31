@@ -17,46 +17,17 @@
  * Utilities for querying the user information, wrapping file system queries etc.
  * @module querying
  */
-import * as filePaths from './middleware/filePaths';
-import * as versioning from './git-deprecated/git';
-import invariant from 'invariant';
 import { merge, filter, values } from 'lodash';
-import { getUserProjects, getUserProjectIds } from './persistence/projects';
+import { getUserProjects } from './persistence/projects';
 
 // key for no role rule
 const untypedKey = 'none';
 
 //todo - remove many of these functions - they are just persistence things, not really queries / migrate to new APIs
 
-//search each permissions.json by user ID to find projects they have access to
-export const listProjectsWithAccess = (userId) => {
-  return getUserProjectIds(userId)
-    .catch(resp => {
-      console.error('error checking for initial acccess');
-      console.log(resp);
-      return [];
-    });
-};
-
-export const getAllProjectManifests = (userId) => {
-  invariant(userId, 'user id is required to get list of manifests');
-
-  return getUserProjects(userId)
-    .then(projectInfos => projectInfos.map(info => info.data))
-    .then(rolls => rolls.map(roll => roll.project));
-};
-
-//todo - update to new API
-//todo - should go in versioning file, not a query
-export const getProjectVersions = (projectId) => {
-  const projectDataPath = filePaths.createProjectDataPath(projectId);
-  return versioning.log(projectDataPath);
-};
-
 //returns blockmap
 export const getAllBlocks = (userId) => {
   return getUserProjects(userId)
-    .then(projectInfos => projectInfos.map(info => info.data))
     .then(rolls => rolls.map(roll => roll.blocks))
     .then(projectBlockMaps => merge({}, ...projectBlockMaps));
 };
