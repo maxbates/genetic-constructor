@@ -14,21 +14,6 @@
     cursor: default;
   }
 
-  &.active {
-    flex-grow: 1;
-    flex-basis: 0;
-
-    .InventoryGroup-heading {
-      background-color: transparent;
-      border-top-color: transparent;
-    }
-  }
-
-  &.active + & .InventoryGroup-heading,
-  &:first-child .InventoryGroup-heading {
-    border-color: transparent;
-  }
-
   &-content {
     flex-grow: 1;
     display: flex;
