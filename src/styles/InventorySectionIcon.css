@@ -1,6 +1,9 @@
 @import 'variables.css';
 
 .InventorySectionIcon {
+  background-color: white;
+  transition: background-color var(--timing-fast);
+  cursor: pointer;
   img {
     width: var(--width-SidePanel-closed);
     height: var(--width-SidePanel-closed);
@@ -9,4 +12,7 @@
   img.open {
     filter: brightness(1000%);
   }
+}
+.InventorySectionIcon.open {
+  background-color: var(--colors-blueBlack);
 }

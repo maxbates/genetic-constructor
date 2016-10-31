@@ -33,14 +33,58 @@ export default class InventorySectionIcon extends Component {
     section: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
     selected: PropTypes.bool.isRequired,
+    onSelect: PropTypes.func.isRequired,
+    onToggle: PropTypes.func.isRequired,
   };
 
+  state = {
+    hover: false,
+  };
+
+  /**
+   * a click either selects the section if unselected or toggle the parent
+   * if already selected
+   * @param event
+   */
+  onClick = (event) => {
+    event.stopPropagation();
+    if (this.props.open) {
+      // when open clicking the selected tab collapses.
+      if (this.props.selected) {
+        this.props.onToggle(false);
+      } else {
+        this.props.onSelect(this.props.section);
+      }
+    } else {
+      // when closed always select section and open
+      this.props.onSelect(this.props.section);
+      this.props.onToggle(true);
+    }
+  }
+
   render() {
-    const imgClass = this.props.open ? 'open' : '';
+    // display in open or closed state ( reversed when hovered ).
+    let open = this.state.hover ? !this.props.open : this.props.open;
+    // if this is the selected icon then always show closed
+    open = this.props.selected ? !this.props.open : open;
+
+    const containerClass = open ? 'InventorySectionIcon open' : 'InventorySectionIcon';
+    const imgClass = open ? 'open' : '';
     return (
-      <div className="InventorySectionIcon">
+      <div
+        data-section={this.props.section}
+        className={containerClass}
+        onMouseEnter={this.onEnter}
+        onMouseLeave={this.onLeave}
+        onClick={this.onClick}>
         <img className={imgClass} src={sectionNameToSVG[this.props.section]}/>
       </div>
     );
+  }
+  onEnter = () => {
+    this.setState({hover: true});
+  }
+  onLeave = () => {
+    this.setState({hover: false});
   }
 }
