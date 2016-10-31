@@ -36,7 +36,7 @@ import { dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
 //todo - a HEAD point might be useful here - get lastModified, version, etc.
 const _projectExists = (projectId, version) => {
   if (Number.isInteger(version)) {
-    //todo
+    //todo - should use projectVersions module instead
   }
 
   return dbGet(`projects/${projectId}`)
@@ -58,7 +58,7 @@ const _projectWrite = (projectId, userId, project = {}) => {
 //todo - should check metadata and force version + lastSaved onto project
 const _projectRead = (projectId, version) => {
   if (Number.isInteger(version)) {
-    //todo
+    //todo - should use projectVersions module instead
   }
 
   return dbGet(`projects/${projectId}`)

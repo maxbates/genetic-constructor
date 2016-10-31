@@ -19,13 +19,14 @@
 
 const dummyVersionPayload = () => ({
   version: -1,
+  time: Date.now(),
 });
 
-export const projectVersionExists = () => {
+export const projectVersionExists = (projectId, version) => {
   //todo - check if a version exists
 };
 
-export const projectVersionGet = () => {
+export const projectVersionGet = (projectId, version) => {
   //todo - get a version from the database
 };
 

@@ -30,6 +30,7 @@ import * as projectVersions from './persistence/projectVersions';
 
 import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
+import versionRouter from './routerVersions';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json({
@@ -161,7 +162,7 @@ router.route('/projects')
   .get((req, res, next) => {
     const { user } = req;
 
-    //todo - use dedicated route to get user manifests
+    //todo - use dedicated function to get user manifests
 
     return projectPersistence.getUserProjects(user.uuid)
       .then(rolls => rolls.map(roll => roll.project))
@@ -170,9 +171,11 @@ router.route('/projects')
   });
 
 /* versioning */
+
+router.use('/version/:projectId', projectPermissionMiddleware, versionRouter);
+
 //todo - move to an explicit versioning router at /versions/ when tackle versioning
 //these functions are basically like totally wrong
-
 router.route('/:projectId/commit/:sha?')
   .all(projectPermissionMiddleware)
   .get((req, res, next) => {
@@ -313,7 +316,7 @@ router.route('/:projectId')
       .then(merged => res.status(200).send(merged))
       .catch(err => {
         if (err === errorDoesNotExist) {
-          return res.status(404).send('project does not exist');
+          return res.status(404).send(errorDoesNotExist);
         }
         if (err === errorInvalidModel) {
           return res.status(422).send(errorInvalidModel);
