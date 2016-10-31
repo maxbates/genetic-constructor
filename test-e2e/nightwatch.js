@@ -21,13 +21,19 @@ module.exports = {
   test_settings: {
     local: {
       launch_url: 'http://localhost:3001',
-      //launch_url: 'https://geneticconstructor.dev.bionano.autodesk.com',
       selenium_port: 4444,
       selenium_host: '127.0.0.1',
       silent: true,
       screenshots: {
         enabled: true,
         path: './test-e2e/screenshots',
+      },
+      globals: {
+        waitForConditionTimeout: 10000,
+      },
+      test_workers: {
+        "enabled": true,
+        "workers": 2
       },
       desiredCapabilities: {
         browserName: 'chrome',
@@ -56,6 +62,10 @@ module.exports = {
       screenshots: {
         enabled: false,
         path: '',
+      },
+      test_workers: {
+        "enabled": true,
+        "workers": 2
       },
       globals: {
         waitForConditionTimeout: 10000,
