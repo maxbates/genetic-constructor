@@ -19,7 +19,7 @@ const repoName = 'GSL';
 const gslDir = path.resolve(__dirname, process.env.EXTENSION_DEPLOY_DIR ? process.env.EXTENSION_DEPLOY_DIR : '', repoName);
 const gslBinary = path.resolve(gslDir, 'bin/gslc/gslc.exe');
 const libArg = `--lib ${gslDir}/data/lib`;
-
+var http = require('http');
 const router = express.Router();
 const jsonParser = bodyParser.json({
   strict: false,
@@ -74,13 +74,42 @@ router.get('/download*', (req, res, next) => {
   if (argConfig.downloadableFileTypes.hasOwnProperty(req.query.type)) {
     const fileName = argConfig.downloadableFileTypes[req.query.type].fileName;
     const filePath = createProjectFilePath(req.query.projectId, req.query.extension, fileName);
+    const useLocalStorage = false;
     fs.exists(filePath, (exists) => {
-      if (exists) {
+      if (exists && useLocalStorage) {
         res.header('Content-Type', argConfig.downloadableFileTypes[req.query.type].contentType);
         res.download(filePath, fileName);
       } else {
-        res.send(`No file of type ${req.query.type} generated yet`);
-        res.status(404);
+        var params = {
+          projectId: req.query.projectId,
+          extension: 'gslEditor',
+          type: req.query.type,
+        };
+
+        var query = Object.keys(params)
+          .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+          .join('&');
+
+        const baseUrl = '/download?' 
+
+        var download = function(url, dest) {
+          var file = fs.createWriteStream(dest);
+          var request = http.get(url, function(response) {
+            response.pipe(file);
+            file.on('finish', function() {
+              res.header('Content-Type', argConfig.downloadableFileTypes[req.query.type].contentType);
+              res.download(filePath, fileName);
+              file.close();
+            });
+          }).on('error', function(err) {
+            //fs.unlink(dest);
+            console.log('An error occured while downloading');
+            console.log(err.stack);
+            res.send(`No file of type ${req.query.type} generated yet`);
+            res.status(404);
+          });
+        };
+        download(argConfig.externalServer + baseUrl + query, filePath );
       }
     });
   } else {
@@ -89,24 +118,29 @@ router.get('/download*', (req, res, next) => {
   }
 });
 
+
 /**
  * Route to list the available file downloads.
  */
 router.post('/listDownloads', (req, res, next) => {
-  // list the available downloads.
+
   const input = req.body;
-  const fileStatus = {};
-  const projectFileDir = createProjectFilesDirectoryPath(input.projectId, input.extension);
-  Object.keys(argConfig.downloadableFileTypes).forEach((key) => {
-    const filePath = projectFileDir + '/' + argConfig.downloadableFileTypes[key].fileName;
-    try {
-      fs.accessSync(filePath);
-      fileStatus[key] = true;
-    } catch (err) {
-      fileStatus[key] = false;
-    }
+  const payload = {
+    'projectId': input.projectId,
+    'extension': input.extension,
+  };
+  const stringified = JSON.stringify(payload);
+  fetch(argConfig.externalServer + '/listDownloads', {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+    },
+    body: stringified,
+  })
+  .then(resp => resp.json())
+  .then((data) => {
+    res.status(200).json(data);
   });
-  res.status(200).json(fileStatus);
 });
 
 
