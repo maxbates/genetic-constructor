@@ -32,6 +32,17 @@ describeAppTest("http", function (app) {
       });
     });
 
+    it('should confirm user has no projects', function testNoProjects(done) {
+      request(app.proxy)
+        .head('/api/projects/owner/' + owner)
+        .expect(404)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          done();
+        });
+    });
+
     it('should confirm project does not exist', function testProjectExistsNot(done) {
       request(app.proxy)
         .head('/api/projects/'+ projectId0 + '?owner=' + owner)
@@ -321,6 +332,19 @@ describeAppTest("http", function (app) {
         assert.deepEqual(results[0], results[1][0]);
         return done();
       });
+    });
+
+    it('should check existence of projects for an owner', function checkProjects(done) {
+      request(app.proxy)
+        .head('/api/projects/owner/' + owner)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          var latestProject = res.get('Last-Project');
+          assert.equal(latestProject, "project-364d0c6a-6f08-4fff-a292-425ca3eb91cc");
+          done();
+        });
     });
 
     it('should fetch projects by \'ownerId\' (two projects, one w/ 2 versions)', function fetchProjectsByOwnerId(done) {

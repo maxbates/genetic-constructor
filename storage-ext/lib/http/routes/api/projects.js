@@ -242,6 +242,15 @@ var checkLatestProject = function (req, res) {
 
   return Project.findAll({
     where: where,
+    attributes: [
+      'uuid',
+      'id',
+      'owner',
+      'createdAt',
+      'updatedAt',
+      'version',
+      'status',
+    ],
   }).then(function (results) {
     if (results.length < 1) {
       return res.status(404).send().end();
@@ -377,6 +386,45 @@ var fetchProjects = function (req, res) {
     return res.status(500).send({
       message: err.message,
     }).end();
+  });
+};
+
+var checkProjects = function (req, res) {
+  var ownerUUID = req.params.ownerId;
+  if (! ownerUUID) {
+    return res.status(400).send({
+      message: 'failed to parse ownerId from URI',
+    }).end();
+  }
+
+  return Project.findAll({
+    where: {
+      owner: ownerUUID,
+      status: 1,
+    },
+    attributes: [
+      'uuid',
+      'id',
+      'owner',
+      'createdAt',
+      'updatedAt',
+      'version',
+      'status',
+    ],
+  }).then(function (results) {
+    if (results.length < 1) {
+      return res.status(404).send().end();
+    }
+
+    var latest = max(results, function (result) {
+      return new Date(result.get('updatedAt'));
+    });
+
+    res.set('Last-Project', latest.get('id'));
+    return res.status(200).send().end();
+  }).catch(function (err) {
+    console.error(err);
+    return res.status(500).send().end();
   });
 };
 
@@ -556,6 +604,7 @@ var routes = [
   route('POST /:projectId', updateProject),
   route('DELETE /:projectId', deleteProject),
   route('GET /owner/:ownerId', fetchProjects),
+  route('HEAD /owner/:ownerId', checkProjects),
   route('GET /block/:blockId', fetchProjectsWithBlock),
   route('GET /fast/project/:projectId', optimizedFetchLatestProjectVersion),
   route('GET /fast/owner/:ownerId', optimizedFetchProjects),
