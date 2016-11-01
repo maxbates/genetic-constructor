@@ -46,14 +46,13 @@ export default class InventoryGroup extends Component {
 
   render() {
     const { title, type, actions, ...rest } = this.props;
-    const isHovered = false; //todo - this is a stub, need to handle on drag hover (and coordinate with sidebar component - state should be in inventory itself)
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
 
     //todo - define object model (from inventory.sections) + show these
     const actionButtons = !actions ? null : actions.map((action, index) => <div key={index}></div>);
 
     return (
-      <div className={'InventoryGroup' + (isHovered ? ' active' : '')}>
+      <div className={'InventoryGroup'}>
         <div className="InventoryGroup-heading">
           <span className="InventoryGroup-title">{title}</span>
           <div className="InventoryGroup-actions">

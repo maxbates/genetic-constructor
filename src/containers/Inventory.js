@@ -88,7 +88,7 @@ export class Inventory extends Component {
           </div>
           <div className={contentClasses}>
             <InventoryGroup
-              title="Hello World"
+              title="Projects"
               type="projects"
             />
           </div>

@@ -68,6 +68,7 @@ export default class RoleSvg extends Component {
           setAttribute(svg, 'stroke-width', this.props.stroke, true);
         }
         this.markup = serializer.serializeToString(svg);
+
       } else {
         // add a placeholder element
         const div = document.createElement('div');

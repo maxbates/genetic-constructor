@@ -97,6 +97,7 @@
   &:hover {
     transition: 0s;
     background-color: var(--listItem-backgroundHover);
+    color: var(--colors-white);
     animation: none;
   }
 }

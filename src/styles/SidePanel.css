@@ -14,7 +14,7 @@
   color: var(--colors-greyLight);
   transition-property: width, opacity;
   transition-duration: var(--timing-fast);
-  will-change: width;
+  transition-timing: var(--SidePanel-ease);
 
   &.visible {
     width: var(--width-SidePanel-open);

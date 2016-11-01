@@ -52,7 +52,7 @@ export default class InventoryItemBlock extends Component {
           inventoryType={blockDragType}
           defaultName={defaultName || block.getName()}
           svg={isFrozen ? 'lock' : null}
-          svgProps={{width: '0.75em', height: '100%', fill: 'rgba(255,255,255,0.75)'}}
+          svgProps={{width: '0.75em', height: '100%', fill: '#1D222D'}}
           item={block}
           itemDetail={isTemplate ? 'Template' : null}/>
       </div>
