@@ -18,7 +18,6 @@ import uuid from 'node-uuid';
 import fs from 'fs';
 import * as filePaths from '../../../server/data/middleware/filePaths';
 import * as fileSystem from '../../../server/data/middleware/fileSystem';
-import { assertValidId } from '../../../server/utils/validation';
 
 const { expect, assert } = chai;
 

@@ -206,7 +206,7 @@ router.route('/:projectId/commit/:sha?')
       Promise.resolve();
 
     writePromise
-      .then(() => projectVersions.projectVersionSnapshot(projectId, user.uuid, 'USER', message))
+      .then(() => projectVersions.projectSnapshot(projectId, user.uuid, 'USER', message))
       .then(commit => res.status(200).json(commit))
       //may want better error handling here
       .catch(err => {

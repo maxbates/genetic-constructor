@@ -28,6 +28,8 @@ import Block from '../../../../src/models/Block';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as projectVersions from '../../../../server/data/persistence/projectVersions';
 
+console.log('todo - snapshotting tests');
+
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
@@ -42,6 +44,8 @@ describe('Server', () => {
         it('snapshot() the current version by default');
 
         it('snapshot() returns type, message, tags, time, version');
+
+        it('snapshotList() returns all the snapshots');
 
         it('projectDelete() deletes all snapshots');
       });

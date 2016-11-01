@@ -20,7 +20,7 @@
 import invariant from 'invariant';
 import { pick, merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../utils/errors';
-import { validateBlock, validateProject } from '../../utils/validation';
+import { validateId, validateBlock, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
 import { dbHeadRaw, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
 
@@ -88,7 +88,14 @@ const _projectDelete = (projectId, userId) => {
 export const getUserProjects = (userId) => {
   //dbGet returns { data, id, ... }
   return dbGet(`projects/owner/${userId}`)
-    .then((projectInfos) => projectInfos.map(info => info.data));
+    .then((projectInfos) => projectInfos.map(info => info.data))
+    .catch(err => {
+      if (err === errorDoesNotExist) {
+        return [];
+      }
+      console.log('unexpected error getting users projects');
+      return Promise.reject(err);
+    });
 };
 
 export const getUserProjectIds = (userId) => {
@@ -97,14 +104,6 @@ export const getUserProjectIds = (userId) => {
   return getUserProjects(userId)
     .then(projects => {
       return projects.map(project => project.project.id);
-    })
-    .catch(err => {
-      if (err === errorDoesNotExist) {
-        return [];
-      }
-
-      console.log('unexpected error getting users project IDs');
-      return Promise.reject(err);
     });
 };
 
@@ -126,18 +125,23 @@ export const userOwnsProject = (userId, projectId, projectMustExist = false) => 
       return projectExists(projectId)
         .then(project => Promise.reject(errorNoPermission))
         .catch(err => {
+          //re-handle this from .then() above
+          if (err === errorNoPermission) {
+            return Promise.reject(errorNoPermission);
+          }
+
           if (err === errorDoesNotExist && !projectMustExist) {
             return true;
+          }
+
+          if (err === errorDoesNotExist && projectMustExist) {
+            return Promise.reject(errorDoesNotExist);
           }
 
           console.log('unexpected error checking project access');
           console.error(err);
           return Promise.reject(errorDoesNotExist);
         });
-    })
-    .catch(err => {
-      console.error('uncaught error getting user project Ids', err);
-      throw err;
     });
 };
 
@@ -187,11 +191,10 @@ export const blockGet = (projectId, version = false, blockId) => {
 //SET (WRITE + MERGE)
 
 //should return commit-like information (not just the project)
-//todo - validate ID
 export const projectWrite = (projectId, roll = {}, userId, bypassValidation = false) => {
   const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
 
-  invariant(projectId, 'must pass a projectId to write project');
+  invariant(projectId && validateId(projectId), 'must pass a projectId to write project');
   invariant(typeof roll === 'object', 'project is required');
   invariant(typeof roll.project === 'object' && typeof roll.blocks === 'object', 'must pass rollup with project and blocks');
   invariant(!!userId, 'userID is necessary write project');
@@ -230,12 +233,10 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
   //if it doesn't exist, create the project
   return projectExists(projectId)
     .then(() => {
-      console.log('writing project', projectId);
       return _projectWrite(projectId, userId, roll);
     })
     .catch((err) => {
       if (err === errorDoesNotExist) {
-        console.log('creating project ', projectId);
         return _projectCreate(projectId, userId, roll);
       }
       return Promise.reject(err);
@@ -258,7 +259,7 @@ export const projectMerge = (projectId, project, userId) => {
 
 //overwrite all blocks
 export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
-  invariant(typeof projectId === 'string', 'projectId must be string');
+  invariant(typeof projectId === 'string' && validateId(projectId), 'projectId must be string');
   invariant(typeof userId === 'string', 'userId must be a string');
   invariant(typeof blockMap === 'object', 'block map must be object');
 
@@ -330,7 +331,7 @@ export const projectGetManifest = (projectId, sha) => {
 };
 
 export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite = true) => {
-  invariant(projectId, 'must pass valid projectId');
+  invariant(projectId && validateId(projectId), 'must pass valid projectId');
   invariant(typeof manifest === 'object', 'project manifest must be object');
   invariant(typeof userId === 'string', 'must pass userId to write project manifest');
 

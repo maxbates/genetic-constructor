@@ -18,9 +18,13 @@ import uuid from 'node-uuid';
 import _ from 'lodash';
 import ProjectSchema from '../../../../src/schemas/Project';
 import { testUserId } from '../../../constants';
-import rollupFromArray from '../../../../src/utils/rollup/rollupFromArray';
 import { createExampleRollup } from '../../../_utils/rollup';
-import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
+import {
+  errorNoPermission,
+  errorInvalidModel,
+  errorAlreadyExists,
+  errorDoesNotExist
+} from '../../../../server/utils/errors';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 
@@ -50,7 +54,7 @@ describe('Server', () => {
             });
         });
 
-        it('projectWrite() receives version + roll on updates', () => {
+        it('projectWrite() receives version + roll on create', () => {
           const roll = createExampleRollup();
 
           return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
@@ -62,8 +66,18 @@ describe('Server', () => {
             });
         });
 
-//todo
-        it('projectWrite() receives version + roll on create');
+        it('projectWrite() receives version + roll on update', () => {
+          const roll = createExampleRollup();
+
+          return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+            .then(() => projectPersistence.projectWrite(roll.project.id, roll, testUserId))
+            .then(result => {
+              expect(result.version).to.equal(1);
+              expect(result.id).to.equal(roll.project.id);
+              expect(result.data).to.eql(roll);
+              expect(result.owner).to.equal(testUserId);
+            });
+        });
 
         it('projectWrite() throws if you dont provide project + blocks', () => {
           return expect(() => projectPersistence.projectWrite(Project.classless().id, { project: 'data' }, testUserId))
@@ -90,6 +104,46 @@ describe('Server', () => {
         });
 
         it('projectDelete() only marks the project deleted in the database');
+
+        describe('ownership', () => {
+          it('userOwnsProject() resolves if user owns the project', () => {
+            const roll = createExampleRollup();
+
+            return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+              .then(() => projectPersistence.userOwnsProject(testUserId, roll.project.id))
+              .then(result => {
+                expect(result).to.equal(true);
+              });
+          });
+
+          it('userOwnsProject() rejects with errorNoPermission if someone else owns it', (done) => {
+            const roll = createExampleRollup();
+
+            projectPersistence.projectWrite(roll.project.id, roll, uuid.v1())
+              .then(() => projectPersistence.userOwnsProject(testUserId, roll.project.id))
+              .then(result => done('shouldnt resolve'))
+              .catch(err => {
+                expect(err).to.equal(errorNoPermission);
+                done();
+              });
+          });
+
+          it('userOwnsProject() resolves if no project and projectMustExist=false', () => {
+            return projectPersistence.userOwnsProject(testUserId, Project.classless().id, false)
+              .then(result => {
+                expect(result).to.equal(true);
+              });
+          });
+
+          it('userOwnsProject() rejects if no project and projectMustExist=true', (done) => {
+            projectPersistence.userOwnsProject(testUserId, Project.classless().id, true)
+              .then(result => done('shouldnt resolve'))
+              .catch(err => {
+                expect(err).to.equal(errorDoesNotExist);
+                done();
+              });
+          });
+        });
 
         describe('[series]', () => {
           const roll = createExampleRollup();
@@ -129,18 +183,15 @@ describe('Server', () => {
         });
 
         describe('list', () => {
-
-          throw new Error('need to include the right rollup utility');
+          //todo - should clear these from the database somehow
 
           const myUserId = uuid.v1();
-          const myRolls = [1, 2, 3, 4].map(createCustomRollup);
+          const myRolls = [1, 2, 3, 4].map(createExampleRollup);
           const myRollIds = myRolls.map(roll => roll.project.id);
 
           const otherUserId = uuid.v1();
-          const otherRolls = [1, 2, 3].map(createCustomRollup);
+          const otherRolls = [1, 2, 3].map(createExampleRollup);
           const otherRollIds = otherRolls.map(roll => roll.project.id);
-
-          const randomUserId = uuid.v1();
 
           before(() => {
             return Promise.all([
@@ -186,6 +237,23 @@ describe('Server', () => {
                     expect(manifests.length).to.equal(accessibleProjects.length);
                     assert(manifests.every(manifest => ProjectSchema.validate(manifest, true)), 'manifests not in valid format');
                   });
+              });
+          });
+
+          it('getUserProjects() returns rollups of each', () => {
+            return projectPersistence.getUserProjects(myUserId)
+              .then(rolls => {
+                assert(rolls.every(roll => {
+                  return typeof roll.blocks === 'object' && typeof roll.project === 'object';
+                }));
+                expect(rolls.map(roll => roll.project.id).sort()).to.eql(myRollIds.sort());
+              });
+          });
+
+          it('getUserProjects() returns empty array for new user', () => {
+            return projectPersistence.getUserProjects(uuid.v1())
+              .then(result => {
+                expect(result).to.eql([]);
               });
           });
         });

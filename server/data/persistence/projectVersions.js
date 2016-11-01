@@ -54,10 +54,19 @@ export const projectVersionList = (projectId) => {
     .then(results => results.map(transformDbVersion));
 };
 
+// SNAPSHOTS
+
 //this creates a *major* version and should include some metadata
-export const projectVersionSnapshot = (projectId, userId, type = 'USER', message = '', tags = {}) => {
+export const projectSnapshot = (projectId, userId, type = 'USER', message = '', tags = {}) => {
   //todo - write this, once it exists
   return dbPost(`projects/snapshot/${projectId}`);
+
+  //todo - ensure it returns a commit-like response w/ version (check previous usages of git.snapshot()) - time, version, etc.
+};
+
+export const projectSnapshotList = (projectId, userId) => {
+  //todo - write this
+  return dbGet(`projects/snapshot/${projectId}`);
 
   //todo - ensure it returns a commit-like response w/ version (check previous usages of git.snapshot()) - time, version, etc.
 };

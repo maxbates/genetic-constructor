@@ -140,7 +140,7 @@ User ${user.uuid}
         //todo - update signature
         //todo - need to write and make a version before snapshot
         //todo - create snapshot after order is completed
-        return projectVersions.projectVersionSnapshot(projectId, user.uuid, `ORDER`, `Order @ ${foundry}: ${constructNames.join(' ')}`, {
+        return projectVersions.projectSnapshot(projectId, user.uuid, `ORDER`, `Order @ ${foundry}: ${constructNames.join(' ')}`, {
           foundry,
           constructIds: order.constructIds,
           remoteId: response.jobId,

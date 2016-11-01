@@ -1,13 +1,38 @@
 import chai from 'chai';
-import * as api from '../../src/middleware/data';
+import * as api from '../../src/middleware/sequence';
+import md5 from 'md5';
 const { assert, expect } = chai;
-import { createFilePath } from '../../server/data/middleware/filePaths';
-
-const makeStoragePath = (path) => createFilePath(path);
+import { generatePseudoMd5 } from '../../src/utils/sequenceMd5';
 
 describe('Middleware', () => {
-describe('Sequence', () => {
-  it('getSequence() accepts an md5');
-  it('writeSequence() writes a sequence');
+  describe('Sequence', () => {
+    const seq = 'ACTCGACTGACTAGCTACGTACGTACTGACTACTACGCATACGTACTACTGACGTCA';
+    const hash = md5(seq);
+    const range = [10, 20];
+    const pseudoMd5 = generatePseudoMd5(hash, range);
+
+    it('writeSequence() rejects on psuedoMd5', () => {
+      expect(() => api.writeSequence(pseudoMd5, seq)).to.throw();
+    });
+
+    it('writeSequence() writes a sequence and resolves', () => {
+      return api.writeSequence(hash, seq);
+    });
+
+    it('getSequence() accepts an md5', () => {
+      return api.getSequence(hash)
+        .then(result => {
+          expect(result).to.equal(seq);
+        });
+    });
+
+    it('getSequence() accepts a pseudoMd5', () => {
+      return api.getSequence(pseudoMd5)
+        .then(result => {
+          expect(result).to.equal(seq.substring(range[0], range[1]));
+        });
+    });
+
+    it('getSequences() dedupes a bunch of sequences');
   });
 });

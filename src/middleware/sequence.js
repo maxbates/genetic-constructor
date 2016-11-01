@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 import rejectingFetch from './utils/rejectingFetch';
 import { headersGet, headersPost } from './utils/headers';
 import { dataApiPath } from './utils/paths';
-import { generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
+import { validRealMd5, generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
 
 const getSequenceUrl = (md5, range) => {
   if (range) {
@@ -58,6 +59,8 @@ export const getSequences = (blockIdsToMd5s) => {
 };
 
 export const writeSequence = (md5, sequence, blockId, projectId) => {
+  invariant(validRealMd5(md5), 'must pass a valid md5, without a range');
+
   const url = getSequenceUrl(md5, null, blockId, projectId);
   const stringified = JSON.stringify({ sequence });
 

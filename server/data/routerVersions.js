@@ -58,7 +58,7 @@ router.route('/:version?')
     //todo - use constants for 'USER'
 
     writePromise
-      .then(() => projectVersions.projectVersionSnapshot(projectId, user.uuid, 'USER', message, tags))
+      .then(() => projectVersions.projectSnapshot(projectId, user.uuid, 'USER', message, tags))
       .then(commit => res.status(200).json(commit))
       //may want better error handling here
       .catch(err => {
