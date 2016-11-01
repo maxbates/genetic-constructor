@@ -72,11 +72,11 @@ export class InventoryGroupSearch extends Component {
                          disabled={sourcesToggling}
                          onSearchChange={(value) => this.handleSearchChange(value)}/>
 
-        <InventorySources registry={registry}
-                          sourceList={sourceList}
-                          toggling={sourcesToggling}
-                          onToggleVisible={(nextState) => inventoryShowSourcesToggling(nextState)}
-                          onSourceToggle={(source) => this.onSourceToggle(source)}/>
+        {/*<InventorySources registry={registry}*/}
+                          {/*sourceList={sourceList}*/}
+                          {/*toggling={sourcesToggling}*/}
+                          {/*onToggleVisible={(nextState) => inventoryShowSourcesToggling(nextState)}*/}
+                          {/*onSourceToggle={(source) => this.onSourceToggle(source)}/>*/}
 
         {!sourcesToggling && (
           <InventorySearchResults searchTerm={searchTerm}

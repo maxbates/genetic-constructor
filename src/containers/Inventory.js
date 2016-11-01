@@ -83,7 +83,8 @@ export class Inventory extends Component {
     switch (this.props.currentTab) {
     case 'Sketch': tab = <InventoryGroup title="Sketch Library" type="role"/>; break;
     case 'Projects': tab = <InventoryGroup title="Projects" type="projects"/>; break;
-    default: tab = <InventoryGroup title="Templates" type="templates"/>; break;
+    case 'Templates': tab = <InventoryGroup title="Templates" type="templates"/>; break;
+    default: tab = <InventoryGroup title="NCBI" type="search" />
     }
 
     return (
@@ -100,23 +101,6 @@ export class Inventory extends Component {
     );
   }
 }
-/*
-    return (
-      <div className={'SidePanel Inventory' + (isVisible ? ' visible' : '')}>
-        <div className="container">
-          <div className={menuClasses}>
-            {icons}
-          </div>
-          <div className={contentClasses}>
-            <InventoryGroup
-              title="Projects"
-              type="projects"
-            />
-          </div>
-        </div>
-      </div>
-    );
- */
 
 function mapStateToProps(state, props) {
   const { isVisible, currentTab } = state.ui.inventory;
