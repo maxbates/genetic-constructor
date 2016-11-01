@@ -5,8 +5,8 @@
   flex-direction: column;
 
   .InventoryGroup-heading {
-    height: 2.5em;
-    line-height: 2.5em;
+    height: var(--width-SidePanel-closed);
+    line-height: var(--width-SidePanel-closed);
     text-indent: var(--SidePanel-width-padding-content);
     font-size: var(--font-size-sectionLabel);
     font-weight: 100;

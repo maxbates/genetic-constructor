@@ -37,15 +37,15 @@ export class Inventory extends Component {
     gslActive: false,
   };
 
-  sections = [
-    'Templates',
-    'Sketch',
-    'Commons',
-    'Projects',
-    'Ncbi',
-    'Igem',
-    'Egf',
-  ];
+  sections = {
+    Projects: {},
+    Templates: {},
+    Sketch: {},
+    Commons: {},
+    Ncbi: {},
+    Igem: {},
+    Egf: {},
+  }
 
   constructor(props) {
     super(props);
@@ -68,7 +68,7 @@ export class Inventory extends Component {
     // classes for vertical menu
     const menuClasses = `vertical-menu${isVisible ? ' open' : ''}`;
     // map sections to icons
-    const icons = this.sections.map(sectionName => {
+    const icons = Object.keys(this.sections).map(sectionName => {
       return <InventorySectionIcon
           key={sectionName}
           open={isVisible}
@@ -82,7 +82,8 @@ export class Inventory extends Component {
     let tab;
     switch (this.props.currentTab) {
     case 'Sketch': tab = <InventoryGroup title="Sketch Library" type="role"/>; break;
-    default: tab = <InventoryGroup title="Projects" type="projects"/>;
+    case 'Projects': tab = <InventoryGroup title="Projects" type="projects"/>; break;
+    default: tab = <InventoryGroup title="Templates" type="templates"/>; break;
     }
 
     return (

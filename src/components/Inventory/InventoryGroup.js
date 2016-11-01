@@ -36,7 +36,9 @@ export default class InventoryGroup extends Component {
     case 'search' :
       return (<InventoryGroupSearch {...props} />);
     case 'projects':
-      return (<InventoryGroupProjects {...props} />);
+      return (<InventoryGroupProjects {...props} templates={false} />);
+    case 'templates':
+      return (<InventoryGroupProjects {...props} templates={true} />);
     case 'block':
       return (<InventoryGroupBlocks {...props} />);
     default:

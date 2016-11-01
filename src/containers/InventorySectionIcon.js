@@ -77,7 +77,7 @@ export default class InventorySectionIcon extends Component {
         onMouseEnter={this.onEnter}
         onMouseLeave={this.onLeave}
         onClick={this.onClick}>
-        <img className={imgClass} src={sectionNameToSVG[this.props.section]}/>
+        <img className={imgClass} title={this.props.section} src={sectionNameToSVG[this.props.section]}/>
       </div>
     );
   }

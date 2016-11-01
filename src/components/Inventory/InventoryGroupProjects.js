@@ -49,7 +49,7 @@ export default class InventoryGroupProjects extends Component {
       ?
       <InventoryRoleMap />
       :
-      <InventoryProjectList currentProject={currentProject}/>;
+      <InventoryProjectList currentProject={currentProject} templates={this.props.templates}/>;
 
     return (
       <div className="InventoryGroup-content InventoryGroupProjects">

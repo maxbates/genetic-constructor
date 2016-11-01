@@ -46,14 +46,21 @@ export class InventoryProjectList extends Component {
     if (isLoading) {
       return <Spinner />;
     }
+    // filter on isSample to separate templates from projects
+    const filtered = {};
+    Object.keys(projects).forEach(projectId => {
+      if (this.props.templates === !!projects[projectId].isSample) {
+        filtered[projectId] = projects[projectId];
+      }
+    });
 
-    return (!Object.keys(projects).length)
+    return (!Object.keys(filtered).length)
       ?
-      (<p>no projects</p>)
+      (<p style={{textAlign:'center',margin: '1rem'}}>no projects</p>)
       :
       <div className="InventoryProjectList">
-        {Object.keys(projects)
-          .map(projectId => projects[projectId])
+        {Object.keys(filtered)
+          .map(projectId => filtered[projectId])
           .sort((one, two) => two.metadata.created - one.metadata.created)
           .map(project => {
             const projectId = project.id;
