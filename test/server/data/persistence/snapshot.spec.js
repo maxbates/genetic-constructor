@@ -19,7 +19,8 @@ import uuid from 'node-uuid';
 import _ from 'lodash';
 import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
 import { testUserId } from '../../../constants';
-import rollupFromArray from '../../../../src/utils/rollup/rollupFromArray';
+import { createExampleRollup } from '../../../_utils/rollup';
+
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
@@ -30,28 +31,19 @@ import * as projectVersions from '../../../../server/data/persistence/projectVer
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
-      describe('projectsVersions', () => {
-        const projectName = 'persistenceProject';
-        const projectData = Project.classless(updateProjectWithTestAuthor({ metadata: { name: projectName } }));
-        const projectId = projectData.id;
+      describe('snapshot', () => {
+        const roll = createExampleRollup();
+        const roll2 = createExampleRollup();
 
-        const blockName = 'blockA';
-        const blockData = Block.classless({ projectId, metadata: { name: blockName } });
-        const blockId = blockData.id;
+        it('snapshot() takes a type, message, tags');
 
-        const roll = rollupFromArray(projectData, blockData);
+        it('snapshot() any version');
 
-        it('projectWrite() should create a version');
+        it('snapshot() the current version by default');
 
-        it('projectWrite() should return version');
+        it('snapshot() returns type, message, tags, time, version');
 
-        it('projectGet() should get latest by default'); //compare to latest version
-
-        it('projectVersionGet() should get a specific version');
-
-        it('projectVersionList() should list versions');
-
-        it('projectDelete() deletes all versions');
+        it('projectDelete() deletes all snapshots');
       });
     });
   });
