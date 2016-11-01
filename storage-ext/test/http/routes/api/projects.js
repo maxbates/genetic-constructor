@@ -32,6 +32,27 @@ describeAppTest("http", function (app) {
       });
     });
 
+    it('should confirm user has no projects', function testNoProjects(done) {
+      request(app.proxy)
+        .head('/api/projects/owner/' + owner)
+        .expect(404)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          done();
+        });
+    });
+
+    it('should confirm project does not exist', function testProjectExistsNot(done) {
+      request(app.proxy)
+        .head('/api/projects/'+ projectId0 + '?owner=' + owner)
+        .expect(404)
+        .end(function (err, res) {
+          assert.ifError(err);
+          done();
+        });
+    });
+
     it('should save a new project', function saveNewProject(done) {
 
       var data = {
@@ -59,6 +80,19 @@ describeAppTest("http", function (app) {
           assert.deepEqual(res.body.data, data);
           assert.notEqual(res.body.createdAt, null);
           assert.notEqual(res.body.updatedAt, null);
+          done();
+        });
+    });
+
+    it('should confirm project exists', function testProjectExists(done) {
+      request(app.proxy)
+        .head('/api/projects/'+ projectId0 + '?owner=' + owner)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          var latestVersion = res.get('Latest-Version');
+          assert.equal(latestVersion, 0);
           done();
         });
     });
@@ -126,6 +160,19 @@ describeAppTest("http", function (app) {
         });
     });
 
+    it('should confirm project exists with \`Lastest-Version\` in headers', function testProjectExistsWithVersion(done) {
+      request(app.proxy)
+        .head('/api/projects/'+ projectId0 + '?owner=' + owner)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          var latestVersion = res.get('Latest-Version');
+          assert.equal(latestVersion, 1);
+          done();
+        });
+    });
+
     it('should update a specific project with owner, id, and version', function updateSpecific(done) {
       var data = {
         chicago: 'blackhawks',
@@ -159,6 +206,20 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body, null);
           // console.log('fetch by project id result:', res.body);
           assert.equal(res.body.version, 1);
+          done();
+        });
+    });
+
+    it('should fetch the previous project version', function fetchVersion(done) {
+      request(app.proxy)
+        .get('/api/projects/' + projectId0 + '?version=0')
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log('fetch by project id result:', res.body);
+          assert.equal(res.body.version, 0);
           done();
         });
     });
@@ -273,6 +334,19 @@ describeAppTest("http", function (app) {
       });
     });
 
+    it('should check existence of projects for an owner', function checkProjects(done) {
+      request(app.proxy)
+        .head('/api/projects/owner/' + owner)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          var latestProject = res.get('Last-Project');
+          assert.equal(latestProject, "project-364d0c6a-6f08-4fff-a292-425ca3eb91cc");
+          done();
+        });
+    });
+
     it('should fetch projects by \'ownerId\' (two projects, one w/ 2 versions)', function fetchProjectsByOwnerId(done) {
       request(app.proxy)
         .get('/api/projects/owner/' + owner)
@@ -284,13 +358,45 @@ describeAppTest("http", function (app) {
           // console.log('fetch by owner result:', res.body);
           assert(Array.isArray(res.body));
           assert.equal(res.body.length, 2);
-          each(res.body.length, function (project) {
+          each(res.body, function (project) {
             if (project.id === projectId0) {
               assert.equal(project.version, 1);
             } else if (project.id === projectId1) {
               assert.equal(project.version, 0);
             }
           });
+          done();
+        });
+    });
+
+    it('should fetch multiple versions of a project', function fetchProjectVersions(done) {
+      request(app.proxy)
+        .get('/api/projects/versions/' + projectId0)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert(Array.isArray(res.body));
+          assert.equal(res.body.length, 2);
+          each(res.body, function (project) {
+            assert.equal(project.id, projectId0);
+            assert.equal(project.owner, owner);
+            assert.notEqual(project.createdAt, null);
+            assert.notEqual(project.updatedAt, null);
+            assert.notEqual(project.version, null);
+            assert.notEqual(project.status, null);
+          });
+          done();
+        });
+    });
+
+    it('should get 404 for when no versions exist for a project', function fetchProjectNoVersions(done) {
+      request(app.proxy)
+        .get('/api/projects/versions/blah')
+        .expect(404)
+        .end(function (err) {
+          assert.ifError(err);
           done();
         });
     });

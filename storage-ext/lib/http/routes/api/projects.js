@@ -212,6 +212,61 @@ var updateProject = function (req, res) {
   });
 };
 
+var checkLatestProject = function (req, res) {
+  var projectId = req.params.projectId;
+  if (! projectId) {
+    return res.status(400).send({
+      message: 'failed to parse projectId from URI',
+    }).end();
+  }
+
+  var where = {
+    id: projectId,
+    status: 1,
+  };
+
+  if (notNullOrEmpty(req.query.owner)) {
+    if (!uuidValidate(req.query.owner, 1)) {
+      return res.status(400).send({
+        message: 'invalid owner UUID',
+      }).end();
+    }
+
+    where.owner = req.query.owner;
+  }
+
+  var version = parseInt(req.query.version);
+  if (notNullAndPosInt(version)) {
+    where.version = version;
+  }
+
+  return Project.findAll({
+    where: where,
+    attributes: [
+      'uuid',
+      'id',
+      'owner',
+      'createdAt',
+      'updatedAt',
+      'version',
+      'status',
+    ],
+  }).then(function (results) {
+    if (results.length < 1) {
+      return res.status(404).send().end();
+    }
+
+    var latest = max(results, function (row) {
+      return row.get('version');
+    });
+    res.set('Latest-Version', latest.get('version'));
+    return res.status(200).send().end();
+  }).catch(function (err) {
+    console.error(err);
+    return res.status(500).send().end();
+  });
+};
+
 var fetchLatestProject = function (req, res) {
   var projectId = req.params.projectId;
   if (! projectId) {
@@ -233,6 +288,11 @@ var fetchLatestProject = function (req, res) {
     }
 
     where.owner = req.query.owner;
+  }
+
+  var version = parseInt(req.query.version);
+  if (notNullAndPosInt(version)) {
+    where.version = version;
   }
 
   return Project.findAll({
@@ -329,6 +389,45 @@ var fetchProjects = function (req, res) {
   });
 };
 
+var checkProjects = function (req, res) {
+  var ownerUUID = req.params.ownerId;
+  if (! ownerUUID) {
+    return res.status(400).send({
+      message: 'failed to parse ownerId from URI',
+    }).end();
+  }
+
+  return Project.findAll({
+    where: {
+      owner: ownerUUID,
+      status: 1,
+    },
+    attributes: [
+      'uuid',
+      'id',
+      'owner',
+      'createdAt',
+      'updatedAt',
+      'version',
+      'status',
+    ],
+  }).then(function (results) {
+    if (results.length < 1) {
+      return res.status(404).send().end();
+    }
+
+    var latest = max(results, function (result) {
+      return new Date(result.get('updatedAt'));
+    });
+
+    res.set('Last-Project', latest.get('id'));
+    return res.status(200).send().end();
+  }).catch(function (err) {
+    console.error(err);
+    return res.status(500).send().end();
+  });
+};
+
 var optimizedFetchProjects = function (req, res) {
   var ownerUUID = req.params.ownerId;
   if (! ownerUUID) {
@@ -338,6 +437,56 @@ var optimizedFetchProjects = function (req, res) {
   }
 
   return res.status(501).send('coming soon').end();
+};
+
+var fetchProjectVersions = function (req, res) {
+  var projectId = req.params.projectId;
+  if (!projectId) {
+    return res.status(400).send({
+      message: 'failed to parse projectId from URI',
+    }).end();
+  }
+
+  var where = {
+    id: projectId,
+    status: 1,
+  };
+
+  if (notNullOrEmpty(req.query.owner)) {
+    if (!uuidValidate(req.query.owner, 1)) {
+      return res.status(400).send({
+        message: 'invalid owner UUID',
+      }).end();
+    }
+
+    where.owner = req.query.owner;
+  }
+
+  return Project.findAll({
+    where: where,
+    attributes: [
+      'uuid',
+      'id',
+      'owner',
+      'createdAt',
+      'updatedAt',
+      'version',
+      'status',
+    ],
+  }).then(function (results) {
+    if (results.length < 1) {
+      return res.status(404).send({
+        message: 'no versions found for projectId: ' + projectId,
+      }).end();
+    }
+
+    return res.status(200).send(map(results, function (result) { return result.get(); })).end();
+  }).catch(function (err) {
+    console.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
 };
 
 var deleteProject = function (req, res) {
@@ -451,12 +600,15 @@ var fetchProjectsWithBlock = function (req, res) {
 
 var routes = [
   route('GET /:projectId', fetchLatestProject),
+  route('HEAD /:projectId', checkLatestProject),
   route('POST /:projectId', updateProject),
   route('DELETE /:projectId', deleteProject),
   route('GET /owner/:ownerId', fetchProjects),
+  route('HEAD /owner/:ownerId', checkProjects),
   route('GET /block/:blockId', fetchProjectsWithBlock),
   route('GET /fast/project/:projectId', optimizedFetchLatestProjectVersion),
   route('GET /fast/owner/:ownerId', optimizedFetchProjects),
+  route('GET /versions/:projectId', fetchProjectVersions),
   route('POST /', saveProject),
   route('GET /', function (req, res) {
     res.statusCode = 200;
