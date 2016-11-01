@@ -57,8 +57,10 @@ router.route('/:version?')
       projectPersistence.projectWrite(projectId, roll, user.uuid) :
       Promise.resolve();
 
+    //todo - use constants for 'USER'
+
     writePromise
-      .then(() => projectVersions.projectVersionSnapshot(projectId, user.uuid, message, tags))
+      .then(() => projectVersions.projectVersionSnapshot(projectId, user.uuid, 'USER', message, tags))
       .then(commit => res.status(200).json(commit))
       //may want better error handling here
       .catch(err => {

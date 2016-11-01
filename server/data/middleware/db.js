@@ -46,21 +46,34 @@ const defaultErrorHandling = (resp) => {
   });
 };
 
-export const dbGet = (path, params = {}) => {
+export const dbHeadRaw = (path, params = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
-  return rejectingFetch(makePath(path), headers.headersGet(fetchParams))
+  return rejectingFetch(makePath(path), headers.headersHead(fetchParams));
+};
+
+export const dbGetRaw = (path, params = {}) => {
+  const fetchParams = Object.assign({}, defaultHeaders, params);
+  return rejectingFetch(makePath(path), headers.headersGet(fetchParams));
+};
+
+export const dbGet = (path, params = {}) => {
+  return dbGetRaw(path, params)
     .then(resp => resp.json())
     .catch(defaultErrorHandling);
 };
 
-export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => {
+export const dbPostRaw = (path, userId, data, params = {}, bodyParams = {}) => {
   const body = JSON.stringify(Object.assign({}, bodyParams, {
     owner: userId,
     data,
   }));
 
   const fetchParams = Object.assign({}, defaultHeaders, params);
-  return rejectingFetch(makePath(path), headers.headersPost(body, fetchParams))
+  return rejectingFetch(makePath(path), headers.headersPost(body, fetchParams));
+};
+
+export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => {
+  return dbPostRaw(path, userId, data, params, bodyParams)
     .then(resp => resp.json())
     .catch(defaultErrorHandling);
 };

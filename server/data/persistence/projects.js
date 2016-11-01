@@ -22,7 +22,7 @@ import { pick, merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateBlock, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
-import { dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+import { dbHeadRaw, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
 
 //TODO - CONSISTENT NAMING. MANY OF THESE OPERATIONS ARE REALLY ROLLUPS
 //we have classes for blocks and projects, and this persistence module conflates the two. lets use rollup to be consistent. rename after this stuff is working...
@@ -33,21 +33,23 @@ import { dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
 //maybe can deprecate these helpers, and just use the exported functions
 
 //todo - this should resolve to false... need to update usages
-//todo - a HEAD point might be useful here - get lastModified, version, etc.
 const _projectExists = (projectId, version) => {
   if (Number.isInteger(version)) {
     //todo - should use projectVersions module instead
   }
 
-  return dbGet(`projects/${projectId}`)
-    .then(() => true)
-    .catch(err => (err === errorDoesNotExist) ? Promise.reject(errorDoesNotExist) : Promise.reject(err));
+  return dbHeadRaw(`projects/${projectId}`)
+    .then(resp => {
+      //const latest = resp.headers.get('Latest-Version');
+      return resp.status === 200;
+    })
+    .catch(resp => (resp.status === 404) ? Promise.reject(errorDoesNotExist) : Promise.reject(resp));
 };
 
 //this only called when the project doesn't exist in projectWrite()
+//should not be called if the project already exists
 const _projectCreate = (projectId, userId, project = {}) => {
   //is there any other setup we want to do on creation?
-  //todo - check if it exists, handle if it does
   return dbPost(`projects/`, userId, project, {}, { id: projectId });
 };
 

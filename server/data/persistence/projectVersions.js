@@ -13,42 +13,53 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import uuid from 'node-uuid';
+import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
+import { dbHeadRaw, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+
+// note that versions are already generated on project writing
+// Snapshotting is special information about a version.
 
 //todo - consistent messaging + message types, user tags, timestamps
 //todo - update middleware on client, expecting commit SHA, to expect version
 
 const dummyVersionPayload = () => ({
-  version: -1,
-  time: Date.now(),
+  type: 'whatever',             // SNAPSHOT ONLY (from user)
+  tags: {},                     // SNAPSHOT ONLY (from user)
+  version: -1,                  // version
+  owner: uuid.v1(),             // owner
+  time: Date.now(),             // createdAt
 });
 
+const transformDbVersion = (result) => ({
+  version: result.version,
+  time: result.createdAt,
+  owner: result.owner,
+});
+
+//todo - should resolve to false if it doesnt exist (match projectExists() signature)
 export const projectVersionExists = (projectId, version) => {
-  //todo - check if a version exists
+  //todo - should use HEAD
+  return dbGet(`/projects/versions/${projectId}?version=${version}`)
+    .then(() => true);
 };
 
 export const projectVersionGet = (projectId, version) => {
-  //todo - get a version from the database
+  //todo - transform response
+  return dbGet(`/projects/versions/${projectId}?version=${version}`);
 };
 
-//is this necessary? Versioning should just happen.
-//export const projectVersionSave = () => {
-//  //todo - ensure it returns a commit-like response w/ version (check previous usages of git.commit())
-//  return dummyVersionPayload();
-//};
+export const projectVersionList = (projectId) => {
+  return dbGet(`/projects/versions/${projectId}`)
+    .then(results => results.map(transformDbVersion));
+};
 
 //this creates a *major* version and should include some metadata
-export const projectVersionSnapshot = (projectId, userId, message, inputTags = {}) => {
-  //todo - define more
-  const tags = Object.assign({}, inputTags, {
-    time: Date.now(),
-    message,
-  });
+export const projectVersionSnapshot = (projectId, userId, type = 'USER', message = '', tags = {}) => {
+  //todo - write this, once it exists
+  return dbPost(`/projects/snapshot/${projectId}`);
+
 
   //todo - ensure it returns a commit-like response w/ version (check previous usages of git.snapshot()) - time, version, etc.
-
-  return dummyVersionPayload();
 };
 
-export const projectVersionList = () => {
-  //todo  - should work similarly to git.log()
-};

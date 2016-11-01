@@ -138,7 +138,13 @@ User ${user.uuid}
       .then(response => {
         //snapshot, return the order to the client
         //todo - update signature
-        return projectVersions.projectVersionSnapshot(projectId, user.uuid, `ORDER`)
+        //todo - need to write and make a version before snapshot
+        //todo - create snapshot after order is completed
+        return projectVersions.projectVersionSnapshot(projectId, user.uuid, `ORDER`, `Order @ ${foundry}: ${constructNames.join(' ')}`, {
+          foundry,
+          constructIds: order.constructIds,
+          remoteId: response.jobId,
+        })
           .then(({ sha, time }) => {
             merge(order, {
               metadata: {
