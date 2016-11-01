@@ -19,7 +19,7 @@
  */
 import invariant from 'invariant';
 import { pick, merge, values, forEach } from 'lodash';
-import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
+import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../utils/errors';
 import { validateBlock, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
 import { dbHeadRaw, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
@@ -43,7 +43,14 @@ const _projectExists = (projectId, version) => {
       //const latest = resp.headers.get('Latest-Version');
       return resp.status === 200;
     })
-    .catch(resp => (resp.status === 404) ? Promise.reject(errorDoesNotExist) : Promise.reject(resp));
+    .catch(resp => {
+      if (resp.status === 404) {
+        return Promise.reject(errorDoesNotExist);
+      }
+
+      console.log('error retrieving project HEAD');
+      return Promise.reject(resp);
+    });
 };
 
 //this only called when the project doesn't exist in projectWrite()
@@ -77,6 +84,7 @@ const _projectDelete = (projectId, userId) => {
 
 //LIST
 
+//actually gets rollups
 export const getUserProjects = (userId) => {
   //dbGet returns { data, id, ... }
   return dbGet(`projects/owner/${userId}`)
@@ -87,7 +95,9 @@ export const getUserProjectIds = (userId) => {
   invariant(userId, 'user id required for getting project Ids');
 
   return getUserProjects(userId)
-    .then(projects => projects.map(project => project.id))
+    .then(projects => {
+      return projects.map(project => project.project.id);
+    })
     .catch(err => {
       if (err === errorDoesNotExist) {
         return [];
@@ -100,18 +110,47 @@ export const getUserProjectIds = (userId) => {
 
 //EXISTS
 
-export const projectExists = (projectId, sha) => {
-  return _projectExists(projectId, sha);
+export const projectExists = (projectId, version) => {
+  return _projectExists(projectId, version);
+};
+
+//check access to a particular project
+//ideally, would return a 403 on one call, rather than chaining two together
+export const userOwnsProject = (userId, projectId, projectMustExist = false) => {
+  return getUserProjectIds(userId)
+    .then((projectIds) => {
+      if (projectIds.indexOf(projectId) >= 0) {
+        return true;
+      }
+
+      return projectExists(projectId)
+        .then(project => Promise.reject(errorNoPermission))
+        .catch(err => {
+          if (err === errorDoesNotExist && !projectMustExist) {
+            return true;
+          }
+
+          console.log('unexpected error checking project access');
+          console.error(err);
+          return Promise.reject(errorDoesNotExist);
+        });
+    })
+    .catch(err => {
+      console.error('uncaught error getting user project Ids', err);
+      throw err;
+    });
 };
 
 //GET
 //resolve with null if does not exist
 
-export const projectGet = (projectId, sha) => {
-  return _projectRead(projectId, sha)
+export const projectGet = (projectId, version) => {
+  return _projectRead(projectId, version)
     .catch(err => {
+      console.log('got error reading');
+
       //todo - how to handle versioning error?
-      if (err === errorDoesNotExist && !sha) {
+      if (err === errorDoesNotExist && !version) {
         return Promise.reject(errorDoesNotExist);
       }
 
@@ -122,8 +161,8 @@ export const projectGet = (projectId, sha) => {
 };
 
 //returns map, where blockMap.blockId === undefined if was missing
-export const blocksGet = (projectId, sha = false, ...blockIds) => {
-  return projectGet(projectId, sha)
+export const blocksGet = (projectId, version = false, ...blockIds) => {
+  return projectGet(projectId, version)
     .then(roll => {
       if (!blockIds.length) {
         return roll.blocks;
@@ -134,8 +173,8 @@ export const blocksGet = (projectId, sha = false, ...blockIds) => {
 
 //prefer blocksGet, this is for atomic checks
 //rejects if the block is not present, and does not return a map (just the block), or null if doesnt exist
-export const blockGet = (projectId, sha = false, blockId) => {
-  return projectGet(projectId, sha)
+export const blockGet = (projectId, version = false, blockId) => {
+  return projectGet(projectId, version)
     .then(roll => {
       const block = roll.blocks[blockId];
       if (!block) {
@@ -191,10 +230,12 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
   //if it doesn't exist, create the project
   return projectExists(projectId)
     .then(() => {
+      console.log('writing project', projectId);
       return _projectWrite(projectId, userId, roll);
     })
     .catch((err) => {
       if (err === errorDoesNotExist) {
+        console.log('creating project ', projectId);
         return _projectCreate(projectId, userId, roll);
       }
       return Promise.reject(err);

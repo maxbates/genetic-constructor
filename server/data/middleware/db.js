@@ -35,6 +35,7 @@ const defaultErrorHandling = (resp) => {
 
   if (!resp.url) {
     //if we got a fetch error, not > 400 error...
+    console.log('DB error - fetch() did not work');
     return Promise.reject(resp);
   }
 

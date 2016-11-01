@@ -37,28 +37,27 @@ const transformDbVersion = (result) => ({
   owner: result.owner,
 });
 
-//todo - should resolve to false if it doesnt exist (match projectExists() signature)
+//todo - resolve to false if it doesnt exist -- match projectExists() signature
 export const projectVersionExists = (projectId, version) => {
-  //todo - should use HEAD
-  return dbGet(`/projects/versions/${projectId}?version=${version}`)
+  //todo - use HEAD
+  return dbGet(`projects/versions/${projectId}?version=${version}`)
     .then(() => true);
 };
 
 export const projectVersionGet = (projectId, version) => {
-  //todo - transform response
-  return dbGet(`/projects/versions/${projectId}?version=${version}`);
+  //todo - transform response (need to inspect)
+  return dbGet(`projects/versions/${projectId}?version=${version}`);
 };
 
 export const projectVersionList = (projectId) => {
-  return dbGet(`/projects/versions/${projectId}`)
+  return dbGet(`projects/versions/${projectId}`)
     .then(results => results.map(transformDbVersion));
 };
 
 //this creates a *major* version and should include some metadata
 export const projectVersionSnapshot = (projectId, userId, type = 'USER', message = '', tags = {}) => {
   //todo - write this, once it exists
-  return dbPost(`/projects/snapshot/${projectId}`);
-
+  return dbPost(`projects/snapshot/${projectId}`);
 
   //todo - ensure it returns a commit-like response w/ version (check previous usages of git.snapshot()) - time, version, etc.
 };

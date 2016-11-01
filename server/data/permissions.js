@@ -22,33 +22,14 @@
  */
 import { errorInvalidId, errorNoIdProvided, errorNoPermission, errorDoesNotExist } from '../utils/errors';
 import { id as idRegex } from '../../src/utils/regex';
-import { getUserProjectIds, projectGet } from './persistence/projects';
+import { userOwnsProject } from './persistence/projects';
 
-//todo - use new api to check this
-//check access to a particular project
+//todo - trace this -- its called a lot. should speed up, or avoid when unnecessary
 export const checkProjectAccess = (projectId, userId, projectMustExist = false) => {
-  return getUserProjectIds(userId)
-    .then((projectIds) => {
-      if (projectIds.indexOf(projectId) >= 0) {
-        return true;
-      }
+  //debugging....
+  console.log('checking project access: ', projectId);
 
-      return projectGet(projectId)
-        .then(project => Promise.reject(errorNoPermission))
-        .catch(err => {
-          if (err === errorDoesNotExist && !projectMustExist) {
-            return true;
-          }
-
-          console.log('unexpected error checking project access');
-          console.error(err);
-          return Promise.reject(errorDoesNotExist);
-        });
-    })
-    .catch(err => {
-      console.error(err);
-      throw err;
-    });
+  return userOwnsProject(userId, projectId, projectMustExist);
 };
 
 export const projectPermissionMiddleware = (req, res, next) => {
@@ -83,6 +64,10 @@ export const projectPermissionMiddleware = (req, res, next) => {
   checkProjectAccess(projectId, user.uuid)
     .then(() => next())
     .catch((err) => {
+      //todo - are there scenarios where this should be ok?
+      if (err === errorDoesNotExist) {
+        return res.status(404).send(`Project does not exist`);
+      }
       if (err === errorNoPermission) {
         return res.status(403).send(`User ${user.email} does not have access to project ${projectId}`);
       }

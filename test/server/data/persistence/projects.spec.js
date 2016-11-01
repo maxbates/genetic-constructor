@@ -50,7 +50,7 @@ describe('Server', () => {
             });
         });
 
-        it('projectWrite() receives version + roll', () => {
+        it('projectWrite() receives version + roll on updates', () => {
           const roll = createExampleRollup();
 
           return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
@@ -61,6 +61,9 @@ describe('Server', () => {
               expect(result.owner).to.equal(testUserId);
             });
         });
+
+//todo
+        it('projectWrite() receives version + roll on create');
 
         it('projectWrite() throws if you dont provide project + blocks', () => {
           return expect(() => projectPersistence.projectWrite(Project.classless().id, { project: 'data' }, testUserId))
@@ -126,6 +129,9 @@ describe('Server', () => {
         });
 
         describe('list', () => {
+
+          throw new Error('need to include the right rollup utility');
+
           const myUserId = uuid.v1();
           const myRolls = [1, 2, 3, 4].map(createCustomRollup);
           const myRollIds = myRolls.map(roll => roll.project.id);

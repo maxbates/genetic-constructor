@@ -34,13 +34,25 @@ const _orderWrite = (orderId, order = {}, projectId) => {
  *********/
 
 export const orderList = (projectId) => {
-  return dbGet(`orders/${projectId}`);
+  return dbGet(`orders/${projectId}`)
+    .catch(err => {
+      if (err === errorDoesNotExist) {
+        return [];
+      }
+      return Promise.reject(err);
+    });
 };
 
+//todo - this should resolve to false... need to update usages (match project persistence existence check)
 export const orderExists = (orderId, projectId) => {
   return dbGet(`orders/${projectId}/${orderId}`)
     .then(() => true)
-    .catch(err => (err === errorDoesNotExist) ? Promise.reject(errorDoesNotExist) : Promise.reject(err));
+    .catch(err => {
+      if (err === errorDoesNotExist) {
+        return Promise.reject(errorDoesNotExist);
+      }
+      return Promise.reject(err);
+    });
 };
 
 export const orderGet = (orderId, projectId) => {
@@ -71,10 +83,7 @@ export const orderWrite = (userId, orderId, order, projectId, projectVersion, ro
 
   //todo - get rollup and write with order --- or just the project id and version?
 
-  return Promise.all([
-    _orderWrite(orderId, idedOrder, projectId),
-    //_orderRollupWrite(orderId, roll, projectId),
-  ])
+  return _orderWrite(orderId, idedOrder, projectId)
     .then(() => idedOrder);
 };
 

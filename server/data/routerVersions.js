@@ -17,10 +17,8 @@
 import express from 'express';
 import {
   errorVersioningSystem,
-  errorInvalidRoute,
   errorInvalidModel,
   errorDoesNotExist,
-  errorFileNotFound,
 } from './../utils/errors';
 import * as projectPersistence from './persistence/projects';
 import * as projectVersions from './persistence/projectVersions';
@@ -73,3 +71,5 @@ router.route('/:version?')
         return next(err);
       });
   });
+
+export default router;
