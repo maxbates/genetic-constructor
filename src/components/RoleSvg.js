@@ -64,8 +64,8 @@ export default class RoleSvg extends Component {
           svg.setAttribute('height', this.props.height);
         }
         // if the owner wants to modify the stroke width apply
-        if (this.props.stroke) {
-          setAttribute(svg, 'stroke-width', this.props.stroke, true);
+        if (this.props.strokeWidth) {
+          setAttribute(svg, 'stroke-width', this.props.strokeWidth, true);
         }
         this.markup = serializer.serializeToString(svg);
 
