@@ -15,8 +15,10 @@
  */
 import safeValidate from './safeValidate';
 import urlRegex from 'url-regex';
+import _ from 'lodash';
 import { dnaStrictRegexp, dnaLooseRegexp } from '../../utils/dna';
 import { id as idRegex } from '../../utils/regex';
+import { validRealMd5, validPseudoMd5 } from '../../utils/sequenceMd5';
 
 //any additions to this file should be tested, and everything will be exported, so only export real validators
 
@@ -44,7 +46,7 @@ export const id = params => input => {
   }
 };
 
-export const string = ({ max, min } = {}) => input => {
+export const string = ({ regex, max, min } = {}) => input => {
   if (!isString(input)) {
     return new Error(`${input} is not a string`);
   }
@@ -118,6 +120,20 @@ export const sequence = (params = {}) => input => {
   if (sequenceRegex.test(input) !== true) {
     console.log('got error validating sequence', input); //eslint-disable-line no-console
     return new Error(`${input} is not a valid sequence`);
+  }
+};
+
+export const sequenceMd5 = ({ real = false } = {}) => input => {
+  if (!isString(input)) {
+    return new Error(`${input} is not a string`);
+  }
+
+  if (!validPseudoMd5(input)) {
+    return new Error(`${input} is not a valid pseudoMd5 (md5[start:end])`);
+  }
+
+  if (real === true && !validRealMd5(input)) {
+    return new Error(`${input} is not a simple md5`);
   }
 };
 
@@ -237,6 +253,24 @@ export const arrayOf = (validator, { required = false } = {}) => input => {
 
   if (!input.every(item => safeValidate(validator, required, item))) {
     return new Error(`input ${input} passed to arrayOf did not pass validation`);
+  }
+};
+
+export const objectOf = (validator, { required = false } = {}) => input => {
+  if (!isFunction(validator)) {
+    return new Error(`validator ${validator} passed to arrayOf is not a function`);
+  }
+
+  if (!isRealObject(input)) {
+    return new Error(`input ${input} passed to object is not a plain object, or is an array`);
+  }
+
+  if (required && !Object.keys(input).length) {
+    return new Error(`this objectOf requires values, but got an empty object: ${input}`);
+  }
+
+  if (!_.every(input, (value, key) => safeValidate(validator, required, value, key))) {
+    return new Error(`input ${input} passed to objectOf did not pass validation`);
   }
 };
 

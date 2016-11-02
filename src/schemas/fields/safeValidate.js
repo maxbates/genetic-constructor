@@ -25,23 +25,28 @@ const noop = () => {};
  * 2) throws an error for invalid, and returns anything but false otherwise
  * @param required {Boolean=} pass `true` if required, otherwise undefined / null will validate
  * @param input {*} The input value to validate
+ * @param args {...*} More args to validator
  * @return {Boolean} true if validation did not return an Error or false
  */
-export default function safeValidate(validator = noop, required = false, input) {
+export default function safeValidate(validator = noop, required = false, input, ...args) {
   if (required === false && (input === undefined || input === null)) {
     return true;
   }
 
   try {
-    const valid = validator(input);
+    const valid = validator(input, ...args);
 
     if (isError(valid) && process.env.NODE_ENV !== 'production') {
       /* eslint no-console: [0] */
-      console.error(valid, input);
+      console.error(valid, input, ...args);
     }
 
     return !isError(valid) && valid !== false;
   } catch (err) {
+    if (process.env.NODE_ENV !== 'production') {
+      /* eslint no-console: [0] */
+      console.error(err, input, ...args);
+    }
     return false;
   }
 }
