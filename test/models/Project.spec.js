@@ -44,7 +44,7 @@ describe('Model', () => {
     });
 
     //todo - deprecate this test? will the client know what version it wants the projec to be?
-    it.only('Project.compare() does equality check, ignoring version + updated', () => {
+    it('Project.compare() does equality check, ignoring version + updated', () => {
       const v1 = sha('one');
       const v2 = sha('two');
 
