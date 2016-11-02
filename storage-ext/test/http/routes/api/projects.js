@@ -162,7 +162,8 @@ describeAppTest("http", function (app) {
 
     it('should confirm project exists with \`Lastest-Version\` in headers', function testProjectExistsWithVersion(done) {
       request(app.proxy)
-        .head('/api/projects/'+ projectId0 + '?owner=' + owner)
+        // .head('/api/projects/'+ projectId0 + '?owner=' + owner)
+        .head('/api/projects/'+ projectId0)
         .expect(200)
         .end(function (err, res) {
           assert.ifError(err);
