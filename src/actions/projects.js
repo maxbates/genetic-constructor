@@ -264,7 +264,7 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
           .filter(manifest => !(ignores.indexOf(manifest.id) >= 0))
           //first sort descending by created date (i.e. if never saved) then descending by saved date (so it takes precedence)
           .sort((one, two) => two.metadata.created - one.metadata.created)
-          .sort((one, two) => two.lastSaved - one.lastSaved)
+          .sort((one, two) => two.metadata.updated - one.metadata.updated)
         )
         .then(manifests => {
           if (manifests.length) {

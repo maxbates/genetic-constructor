@@ -37,11 +37,6 @@ const projectFields = {
     { avoidScaffold: true },
   ],
 
-  lastSaved: [
-    fields.number(),
-    'POSIX time (ms since 1970) when last saved',
-  ],
-
   components: [
     fields.arrayOf(validators.id()).required,
     `Constructs associated with this project`,

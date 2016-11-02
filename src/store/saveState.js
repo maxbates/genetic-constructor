@@ -23,7 +23,7 @@ export const noteSave = (projectId, sha = null) => {
   const lastState = saveState.get(projectId) || {};
 
   saveState.set(projectId, Object.assign(lastState, {
-    lastSaved: +Date.now(),
+    updated: +Date.now(),
     sha,
   }));
 };
@@ -45,15 +45,15 @@ export const noteFailure = (projectId, err) => {
 export const getProjectSaveState = (projectId) => {
   invariant(projectId, 'must pass project ID');
   const state = saveState.get(projectId) || {};
-  const { lastSaved = 0, lastFailed = 0, sha = null, lastErr = null, lastErrOffline = false } = state;
+  const { updated = 0, lastFailed = 0, sha = null, lastErr = null, lastErrOffline = false } = state;
 
   return {
-    lastSaved,
+    updated,
     sha,
     lastFailed,
     lastErr,
     lastErrOffline,
-    saveDelta: +Date.now() - lastSaved,
-    saveSuccessful: lastFailed <= lastSaved,
+    saveDelta: +Date.now() - updated,
+    saveSuccessful: lastFailed <= updated,
   };
 };

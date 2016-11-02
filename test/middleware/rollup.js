@@ -43,7 +43,7 @@ describe('Middleware', () => {
         });
     });
 
-    it('saveProject() saves a project and blocks, can be loaded by persistence, adds version, lastSaved, authors', () => {
+    it('saveProject() saves a project and blocks, can be loaded by persistence, adds version, updated, authors', () => {
       const roll = createExampleRollup();
       const project = roll.project;
       const projectId = project.id;
@@ -61,8 +61,8 @@ describe('Middleware', () => {
           .then(([gotProject, got1, got2]) => {
             expect(gotProject).to.eql(merge({}, project, {
               version: commit.sha,
-              lastSaved: commit.time,
               metadata: {
+                updated: commit.time,
                 authors: [testUserId],
               },
             }));

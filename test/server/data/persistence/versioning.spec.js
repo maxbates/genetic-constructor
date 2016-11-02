@@ -108,9 +108,9 @@ describe('Server', () => {
 
         it('projectGet() defaults to latest version', () => {
           return persistence.projectGet(projectId)
-            .then(project => expect(project).to.eql(Object.assign({}, newProject, {
+            .then(project => expect(project).to.eql(merge({}, newProject, {
               version: versions[0],
-              lastSaved: versionLog[0].time
+              metadata: { updated: versionLog[0].time },
             })));
         });
 

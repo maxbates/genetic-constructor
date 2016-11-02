@@ -87,7 +87,9 @@ export default class Project extends Instance {
     //massage two into a temp object with fields from one that we dont want to compare
     const massaged = two.merge({
       version: one.version,
-      lastSaved: one.lastSaved,
+      metadata: {
+        updated: one.metadata.updated,
+      },
     });
 
     return isEqual(one, massaged);
@@ -122,13 +124,13 @@ export default class Project extends Instance {
    * @method updateVersion
    * @memberOf Project
    * @param {string} version Must be a valid SHA
-   * @param {number} [lastSaved=Date.now()] POSIX time
+   * @param {number} [updated=Date.now()] POSIX time
    * @returns {Project}
    */
-  updateVersion(version, lastSaved = Date.now()) {
+  updateVersion(version, updated = Date.now()) {
     invariant(versionValidator(version), 'must pass valid SHA to update version');
-    invariant(Number.isInteger(lastSaved), 'must pass valid time to update version');
-    return this.merge({ version, lastSaved });
+    invariant(Number.isInteger(updated), 'must pass valid time to update version');
+    return this.merge({ version, metadata: { updated } });
   }
 
   /**

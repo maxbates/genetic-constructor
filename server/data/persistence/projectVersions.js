@@ -20,7 +20,6 @@ import { dbHeadRaw, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware
 // note that versions are already generated on project writing
 // Snapshotting is special information about a version.
 
-//todo - consistent messaging + message types, user tags, timestamps
 //todo - update middleware on client, expecting commit SHA, to expect version
 
 const dummyVersionPayload = () => ({

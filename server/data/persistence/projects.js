@@ -64,7 +64,7 @@ const _projectWrite = (projectId, userId, project = {}) => {
   return dbPost(`projects/${projectId}`, userId, project);
 };
 
-//todo - should check metadata and force version + lastSaved onto project
+//todo - should check metadata and force version + updated onto project
 const _projectRead = (projectId, version) => {
   if (Number.isInteger(version)) {
     //todo - should use projectVersions module instead

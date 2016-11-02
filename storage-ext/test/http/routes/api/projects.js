@@ -267,7 +267,6 @@ describeAppTest("http", function (app) {
           "created": 1477335218195,
           "tags": {}
         },
-        "lastSaved": 0,
         "components": [
           "block-0c0f7b43-7f1f-4b6b-a34e-f8a3cf78f5ab",
           "block-9918e893-9211-4b18-9c3e-3a7d63bc5186",
