@@ -26,7 +26,6 @@ export default class InventoryGroupRole extends Component {
 
   state = {
     filter: InventoryGroupRole.filter || '',
-    inside: false,
   };
 
   static filter = '';
@@ -49,6 +48,7 @@ export default class InventoryGroupRole extends Component {
             }).map(item => (
               <InventoryItemRole key={item.id}
                                  role={item}
+                                 hover={'white'}
               />
             ))
           }

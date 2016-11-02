@@ -198,6 +198,7 @@ export class InventoryItem extends Component {
     const itemName = item.metadata.name || defaultName || 'Unnamed';
     const dataAttr = !!dataAttribute ? dataAttribute : `${inventoryType} ${item.id}`;
 
+
     return (
       <div className={'InventoryItem' +
       ((!!image || !!svg) ? ' hasImage' : '') +
