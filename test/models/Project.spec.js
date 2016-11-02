@@ -26,7 +26,6 @@ describe('Model', () => {
         rules: { someRule: 'yep' },
       });
 
-      console.log(instance);
       expect(instance.id).to.be.defined;
       expect(instance.rules.someRule === 'yep');
       expect(instance.merge).to.be.undefined;
