@@ -38,14 +38,53 @@ export class Inventory extends Component {
   };
 
   sections = {
-    Projects: {},
-    Templates: {},
-    Sketch: {},
-    Commons: {},
-    Ncbi: {},
-    Igem: {},
-    Egf: {},
-  }
+    Projects: {
+      type: 'projects',
+      title: 'Projects',
+      search: {
+        placeholder: 'Filter projects'
+      }
+    },
+    Templates: {
+      type: 'templates',
+      title: 'Templates',
+      search: {
+        placeholder: 'Filter templates'
+      }
+    },
+    Sketch: {
+      type: 'role',
+      title: 'Sketch Blocks',
+      search: {
+        placeholder: 'Filter sketch blocks'
+      }
+    },
+    Commons: null,
+    Ncbi: {
+      type: 'search-ncbi',
+      title: 'NCBI Search',
+      search: {
+        source: 'ncbi',
+        placeholder: 'Keyword, biological function'
+      }
+    },
+    Igem: {
+      type: 'search-igem',
+      title: 'IGEM Search',
+      search: {
+        source: 'igem',
+        placeholder: 'Keyword, biological function'
+      }
+    },
+    Egf: {
+      type: 'search-egf',
+      title: 'EGF Search',
+      search: {
+        source: 'egf',
+        placeholder: 'Part Name'
+      }
+    },
+  };
 
   constructor(props) {
     super(props);
@@ -76,15 +115,13 @@ export class Inventory extends Component {
           onToggle={() => this.toggle(!isVisible)}
           selected={this.props.currentTab === sectionName}
           section={sectionName}
-        >
-      </InventorySectionIcon>;
+        />;
     });
+    // setup content area
+    const tabInfo = this.sections[this.props.currentTab];
     let tab;
-    switch (this.props.currentTab) {
-    case 'Sketch': tab = <InventoryGroup title="Sketch Library" type="role"/>; break;
-    case 'Projects': tab = <InventoryGroup title="Projects" type="projects"/>; break;
-    case 'Templates': tab = <InventoryGroup title="Templates" type="templates"/>; break;
-    default: tab = <InventoryGroup title="NCBI" type="search" />
+    if (tabInfo) {
+      tab = <InventoryGroup tabInfo={tabInfo} />;
     }
 
     return (

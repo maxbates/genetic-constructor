@@ -129,9 +129,9 @@ export default class Schema {
           throw Error(errorMessage);
         } else if (process.env.NODE_ENV !== 'production') {
           console.error(errorMessage); //eslint-disable-line
+          console.log(JSON.stringify(instance,null, 2)); //eslint-disable-line no-console
         }
       }
-
       return isValid;
     });
   }

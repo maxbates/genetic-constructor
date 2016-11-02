@@ -71,7 +71,7 @@ export default function onboardNewUser(user) {
       restRollGens.map(generator => {
         const roll = generator();
         timer.time('non-primary rolls generated');
-        return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true);
+        return rollup.writeProjectRollup(roll.project.id, roll, user.uuid);
       })
     ))
     .then((restRolls) => {
@@ -79,7 +79,7 @@ export default function onboardNewUser(user) {
       const roll = firstRollGen();
       timer.time('second roll generated');
 
-      return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true)
+      return rollup.writeProjectRollup(roll.project.id, roll, user.uuid)
         .then(firstRoll => {
           timer.end('onboarding complete');
           return [firstRoll, ...restRolls];

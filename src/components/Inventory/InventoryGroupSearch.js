@@ -65,6 +65,7 @@ export class InventoryGroupSearch extends Component {
   render() {
     const { searchTerm, sourcesToggling, searching, sourceList, searchResults, sourcesVisible, inventoryShowSourcesToggling } = this.props;
 
+    console.log('Sources List:\n' + JSON.stringify(sourceList, null, 2));
     return (
       <div className={'InventoryGroup-content InventoryGroupSearch'}>
         <InventorySearch searchTerm={searchTerm}

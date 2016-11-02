@@ -19,6 +19,7 @@ import InventoryGroupRole from './InventoryGroupRole';
 import InventoryGroupBlocks from './InventoryGroupBlocks';
 import InventoryGroupSearch from './InventoryGroupSearch';
 import InventoryGroupProjects from './InventoryGroupProjects';
+import InventorySearch from './InventorySearch';
 
 import '../../styles/InventoryGroup.css';
 
@@ -27,14 +28,19 @@ export default class InventoryGroup extends Component {
     title: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     actions: PropTypes.array,
+    tabInfo: PropTypes.object.isRequired,
   };
 
   inventoryGroupTypeToComponent = (type, props) => {
     switch (type) {
     case 'role' :
       return (<InventoryGroupRole {...props} />);
-    case 'search' :
-      return (<InventoryGroupSearch {...props} />);
+    case 'search-ncbi' :
+      return (<InventoryGroupSearch {...props}/>);
+    case 'search-igem' :
+      return (<InventoryGroupSearch {...props}/>);
+    case 'search-egf' :
+      return (<InventoryGroupSearch {...props}/>);
     case 'projects':
       return (<InventoryGroupProjects {...props} templates={false} />);
     case 'templates':
@@ -47,7 +53,8 @@ export default class InventoryGroup extends Component {
   };
 
   render() {
-    const { title, type, actions, ...rest } = this.props;
+    const { actions, ...rest } = this.props;
+    const { title, type, search } = this.props.tabInfo;
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
 
     //todo - define object model (from inventory.sections) + show these

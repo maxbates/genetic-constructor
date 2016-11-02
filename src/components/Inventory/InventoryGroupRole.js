@@ -15,24 +15,41 @@
  */
 import React, { Component } from 'react';
 import inventoryRoles from '../../inventory/roles';
-
+import InventorySearch from './InventorySearch';
 import InventoryItemRole from './InventoryItemRole';
 
 export default class InventoryGroupRole extends Component {
   constructor(props) {
     super(props);
-
     this.roleSymbols = inventoryRoles;
   }
+
+  state = {
+    filter: InventoryGroupRole.filter || ''
+  };
+
+  static filter = '';
+
+  handleFilterChange = (filter) => {
+    InventoryGroupRole.filter = filter;
+    this.setState({filter});
+  };
 
   render() {
     return (
       <div className="InventoryGroup-content InventoryGroupRole">
+        <InventorySearch searchTerm={this.state.filter}
+                         disabled={false}
+                         placeholder="Filter sketch blocks"
+                         onSearchChange={this.handleFilterChange}/>
         <div className="InventoryGroup-contentInner no-vertical-scroll">
-          {this.roleSymbols.map(item => (
-            <InventoryItemRole key={item.id}
-                               role={item}/>
-          ))}
+          {this.roleSymbols.filter(item => {
+              return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0;
+            }).map(item => (
+              <InventoryItemRole key={item.id}
+                                 role={item}/>
+            ))
+          }
         </div>
       </div>
     );

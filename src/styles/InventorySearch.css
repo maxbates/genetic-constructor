@@ -6,11 +6,11 @@
 
   input,
   input:focus {
-    width: 100%;
+    width: calc(100% - (var(--SidePanel-width-padding-content) * 2));
+    margin: 0 0 1.5rem var(--SidePanel-width-padding-content);
     outline: 0;
-    border: 0;
+    border: 1px solid lightgray;
     border-radius: 2px;
-    margin: 0 0 0.5em;
     padding: 0.5em 2em 0.5em 0.4em;
     background: white;
     color: var(--colors-text);
@@ -18,33 +18,9 @@
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center right;
-    transition: background-color var(--timing-fast) ease-out;
 
     &[disabled] {
-      background-color: var(--colors-greyMedLight);
       cursor: not-allowed;
-    }
-  }
-
-  &-progress {
-    opacity: 0;
-    position: absolute;
-    bottom: 0.5em;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background-image: url('/images/ui/progress.png');
-    background-position: left bottom;
-    background-repeat: repeat-x;
-    background-size: 560px 4px;
-    transition: opacity var(--timing-fast) ease-out;
-
-    animation: scrollingBackground 2s linear infinite;
-  }
-
-  &.searching {
-    .InventorySearch-progress {
-      opacity: 1;
     }
   }
 }

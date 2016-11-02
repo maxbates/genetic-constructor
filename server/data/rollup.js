@@ -83,6 +83,7 @@ export const writeProjectRollup = (projectId, rollup, userId, bypassValidation =
         const projectValid = validateProject(project);
         const blocksValid = values(blocks).every(block => validateBlock(block));
         if (!projectValid || !blocksValid) {
+          console.log('rollup invalid!', projectId);
           return Promise.reject(errorInvalidModel);
         }
         timer.time('validated');
