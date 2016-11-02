@@ -24,6 +24,7 @@ export default class InventoryItemRole extends Component {
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
     }).isRequired,
+    svgProps: PropTypes.object,
   };
 
   constructor(props) {
@@ -54,11 +55,11 @@ export default class InventoryItemRole extends Component {
           inventoryType={roleDragType}
           svg={role.id}
           item={this.roleBlock}
-          svgProps={{
+          svgProps={Object.assign({}, {
             fill: 'transparent',
             color: '#1D222D',
             strokeWidth: 1,
-          }}
+          }, this.props.svgProps)}
           dataAttribute={`sbol ${role.id}`}/>
       </div>
     );

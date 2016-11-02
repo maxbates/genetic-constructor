@@ -25,7 +25,8 @@ export default class InventoryGroupRole extends Component {
   }
 
   state = {
-    filter: InventoryGroupRole.filter || ''
+    filter: InventoryGroupRole.filter || '',
+    inside: false,
   };
 
   static filter = '';
@@ -47,7 +48,8 @@ export default class InventoryGroupRole extends Component {
               return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0;
             }).map(item => (
               <InventoryItemRole key={item.id}
-                                 role={item}/>
+                                 role={item}
+              />
             ))
           }
         </div>
