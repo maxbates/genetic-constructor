@@ -27,27 +27,119 @@ import Block from '../../../../src/models/Block';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as projectVersions from '../../../../server/data/persistence/projectVersions';
+import * as snapshots from '../../../../server/data/persistence/snapshots';
 
-console.log('todo - snapshotting tests');
+//todo - need to update all saving routes etc. to differentiate between versioning an dsnapshots --- update middleware specifically, and the appropriate tests
 
 describe('Server', () => {
+  //todo - temporary, waiting for server to start
+  before(() => {
+    return new Promise(resolve => setTimeout(resolve, 2000));
+  });
   describe('Data', () => {
     describe('persistence', () => {
-      describe('snapshot', () => {
+      describe.only('snapshot', () => {
         const roll = createExampleRollup();
-        const roll2 = createExampleRollup();
+        const updated = _.merge({}, roll, { project: { another: 'field' } });
+        const latest = _.merge({}, updated, { project: { different: 'value' } });
 
-        it('snapshot() takes a type, message, tags');
+        const exampleTag = { some: ' tag' };
 
-        it('snapshot() any version');
+        before(() => {
+          return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+            .then(() => projectPersistence.projectWrite(roll.project.id, updated, testUserId))
+            .then(() => projectPersistence.projectWrite(roll.project.id, latest, testUserId));
+        });
 
-        it('snapshot() the current version by default');
+        it('snapshotList() should return empty array when no snapshots', () => {
+          return snapshots.snapshotList(roll.project.id, testUserId)
+            .then(results => {
+              assert(Array.isArray(results) && results.length === 0, 'should get empty array');
+            });
+        });
 
-        it('snapshot() returns type, message, tags, time, version');
+        it('snapshotWrite() works on version 0, returns type, message, tags, time, version', () => {
+          return snapshots.snapshotWrite(roll.project.id, testUserId, 0)
+            .then(result => {
+              expect(result.version).to.equal(0);
+              expect(result.projectId).to.equal(roll.project.id);
+              expect(result.message).to.equal(snapshots.defaultMessage);
+              expect(result.tags).to.eql({});
+              expect(result.owner).to.equal(testUserId);
+            });
+        });
 
-        it('snapshotList() returns all the snapshots');
+        it('snapshotGet() should be able to get a specific snapshot', () => {
+          return snapshots.snapshotGet(roll.project.id, testUserId, 0)
+            .then(result => {
+              expect(result.version).to.equal(0);
+              expect(result.projectId).to.equal(roll.project.id);
+              expect(result.message).to.equal(snapshots.defaultMessage);
+              expect(result.tags).to.eql({});
+              expect(result.owner).to.equal(testUserId);
+            });
+        });
 
-        it('projectDelete() deletes all snapshots');
+        it('snapshotWrite() can take any version, takes a message, tags, type', () => {
+          const message = 'my snapshot message';
+          const type = 'SOME TYPE';
+          const version = 1;
+
+          return snapshots.snapshotWrite(roll.project.id, testUserId, version, message, exampleTag, type)
+            .then(result => {
+              expect(result.version).to.equal(version);
+              expect(result.projectId).to.equal(roll.project.id);
+              expect(result.message).to.equal(message);
+              expect(result.tags).to.eql(exampleTag);
+              expect(result.owner).to.equal(testUserId);
+              //todo - enable once support types
+              //expect(result.type).to.equal(type);
+            });
+        });
+
+        it('snapshotWrite() the current version by default', () => {
+          return snapshots.snapshotWrite(roll.project.id, testUserId)
+            .then(result => {
+              expect(result.version).to.equal(2);
+            });
+        });
+
+        it('snapshotList() returns all the snapshots', () => {
+          return snapshots.snapshotList(roll.project.id, testUserId)
+            .then(results => {
+              assert(results.length === 3, 'should have 3 snapshots');
+              assert(results.every(result => {
+                return Number.isInteger(result.version) && Number.isInteger(result.time) && !!result.message;
+              }));
+            });
+        });
+
+        it('snapshotList() can limit to tags', () => {
+          return snapshots.snapshotList(roll.project.id, testUserId, exampleTag)
+            .then(results => {
+              console.log(results);
+
+              assert(results.length === 1, 'should have 1 snapshot with tag');
+              expect(results[0].version).to.equal(1);
+            });
+        });
+
+        it('snapshotDelete() removes a snapshot');
+
+        it('snapshotDelete() only removes user snapshots');
+
+        it('projectDelete() deletes all snapshots', (done) => {
+          projectPersistence.projectDelete(roll.project.id, testUserId)
+            .then(() => snapshots.snapshotList(roll.project.id, testUserId))
+            .then(results => {
+              console.log(results);
+              done(new Error('project shouldnt exist'));
+            })
+            .catch(err => {
+              console.log(err);
+              done();
+            });
+        });
       });
     });
   });

@@ -22,14 +22,18 @@ import {
 } from './../utils/errors';
 import * as projectPersistence from './persistence/projects';
 import * as projectVersions from './persistence/projectVersions';
+import * as snapshots from './persistence/snapshots';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
 router.route('/:version?')
   .get((req, res, next) => {
     //pass the version you want, otherwise send commit log
-    const { projectId } = req;
+    const { user, projectId } = req;
     const { version } = req.params;
+    const { tags } = req.query;
+
+    //todo - parse tags
 
     if (version) {
       projectVersions.projectVersionGet(projectId, version)
@@ -37,7 +41,7 @@ router.route('/:version?')
         .catch(err => next(err));
     } else {
       //todo - update log format + tests + client middleware expectations
-      projectVersions.projectVersionList(projectId)
+      snapshots.snapshotList(projectId, user.uuid, tags)
         .then(log => res.status(200).json(log))
         .catch(err => next(err));
     }
@@ -47,18 +51,25 @@ router.route('/:version?')
     //can also post a field 'rollup' for save a new rollup for the commit
     //receive the version
     const { user, projectId } = req;
+    const { version } = req.params;
     const { message, rollup: roll, tags } = req.body;
 
+    if (version && roll) {
+      return res.status(422).send('cannot send version and roll');
+    }
+
+    //todo - proper validation using schema
     const rollupDefined = roll && roll.project && roll.blocks;
 
-    const writePromise = rollupDefined ?
-      projectPersistence.projectWrite(projectId, roll, user.uuid) :
-      Promise.resolve();
-
-    //todo - use constants for 'USER'
+    const writePromise = rollupDefined
+      ?
+      projectPersistence.projectWrite(projectId, roll, user.uuid)
+        .then(({ version }) => version)
+      :
+      Promise.resolve(version);
 
     writePromise
-      .then(() => projectVersions.projectSnapshot(projectId, user.uuid, 'USER', message, tags))
+      .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, message, tags))
       .then(commit => res.status(200).json(commit))
       //may want better error handling here
       .catch(err => {

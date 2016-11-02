@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import express from 'express';
 import {
   errorInvalidModel,
@@ -20,7 +20,7 @@ import {
 import { merge } from 'lodash';
 import * as projectPersistence from './../data/persistence/projects';
 import * as orderPersistence from './../data/persistence/orders';
-import * as projectVersions from './../data/persistence/projectVersions';
+import * as snapshots from './../data/persistence/snapshots';
 import * as rollup from './../data/rollup';
 import { ensureReqUserMiddleware } from '../user/utils';
 import { projectPermissionMiddleware } from './../data/permissions';
@@ -140,11 +140,13 @@ User ${user.uuid}
         //todo - update signature
         //todo - need to write and make a version before snapshot
         //todo - create snapshot after order is completed
-        return projectVersions.projectSnapshot(projectId, user.uuid, `ORDER`, `Order @ ${foundry}: ${constructNames.join(' ')}`, {
+        const tags = {
           foundry,
           constructIds: order.constructIds,
           remoteId: response.jobId,
-        })
+        };
+
+        return snapshots.snapshotWrite(projectId, user.uuid, `Order @ ${foundry}: ${constructNames.join(' ')}`, tags, snapshots.SNAPSHOT_TYPE_ORDER)
           .then(({ sha, time }) => {
             merge(order, {
               metadata: {

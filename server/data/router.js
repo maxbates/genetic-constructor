@@ -30,7 +30,7 @@ import * as projectVersions from './persistence/projectVersions';
 
 import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
-import versionRouter from './routerVersions';
+import snapshotRouter from './routerSnapshots';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json({
@@ -65,6 +65,29 @@ router.use('/file/:projectId', projectPermissionMiddleware, projectFileRouter);
 /* sequence */
 //todo - throttle? enforce user present on req?
 router.use('/sequence', sequenceRouter);
+
+/* versioning */
+
+router.route('/versions/:projectId/:version?')
+  .all(projectPermissionMiddleware)
+  .get((req, res, next) => {
+    //pass the version you want, otherwise send version history
+    const { projectId } = req;
+    const { version } = req.params;
+
+    if (version) {
+      projectVersions.projectVersionGet(projectId, version)
+        .then(project => res.status(200).json(project))
+        .catch(err => next(err));
+    } else {
+      //todo - update log format + tests + client middleware expectations
+      projectVersions.projectVersionList(projectId)
+        .then(log => res.status(200).json(log))
+        .catch(err => next(err));
+    }
+  });
+
+router.use('/snapshots/:projectId', projectPermissionMiddleware, snapshotRouter);
 
 /* info queries */
 
@@ -108,6 +131,7 @@ router.route('/info/:type/:detail?/:additional?')
   });
 
 /* rollups */
+
 // routes for non-atomic operations
 // response/request with data in rollup format {project: {}, blocks: {}, ...}
 // e.g. used in autosave, loading / saving whole project
@@ -168,53 +192,6 @@ router.route('/projects')
       .then(rolls => rolls.map(roll => roll.project))
       .then(manifests => res.status(200).json(manifests))
       .catch(err => next(err));
-  });
-
-/* versioning */
-
-router.use('/version/:projectId', projectPermissionMiddleware, versionRouter);
-
-//todo - move to an explicit versioning router at /versions/ when tackle versioning
-//these functions are basically like totally wrong
-router.route('/:projectId/commit/:sha?')
-  .all(projectPermissionMiddleware)
-  .get((req, res, next) => {
-    //pass the SHA you want, otherwise send commit log
-    const { projectId } = req;
-    const { sha } = req.params;
-
-    if (sha) {
-      projectPersistence.projectGet(projectId, sha)
-        .then(project => res.status(200).json(project))
-        .catch(err => next(err));
-    } else {
-      projectVersions.projectVersionList(projectId)
-        .then(log => res.status(200).json(log))
-        .catch(err => next(err));
-    }
-  })
-  .post((req, res, next) => {
-    //you can POST a field 'message' for the commit, receive the SHA
-    //can also post a field 'rollup' for save a new rollup for the commit
-    const { user, projectId } = req;
-    const { message, rollup: roll } = req.body;
-
-    const rollupDefined = roll && roll.project && roll.blocks;
-
-    const writePromise = rollupDefined ?
-      projectPersistence.projectWrite(projectId, roll, user.uuid) :
-      Promise.resolve();
-
-    writePromise
-      .then(() => projectVersions.projectSnapshot(projectId, user.uuid, 'USER', message))
-      .then(commit => res.status(200).json(commit))
-      //may want better error handling here
-      .catch(err => {
-        if (err === errorVersioningSystem) {
-          return res.status(500).send(err);
-        }
-        return next(err);
-      });
   });
 
 /*
