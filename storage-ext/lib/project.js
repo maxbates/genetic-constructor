@@ -2,10 +2,8 @@
 
 var assert = require("assert");
 var async = require("async");
-var keys = require("underscore").keys;
 var Sequelize = require("sequelize");
 
-var config = require('./config');
 var DB = require('./db');
 
 var schema = {

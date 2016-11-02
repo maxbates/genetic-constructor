@@ -7,8 +7,9 @@ var combiner = require('../../combiner');
 
 var routes = [
   route('/projects', require('./projects')),
+  route('/snapshots', require('./snapshots')),
   route('*', function (req, res) {
-    return res.status(404).send('/api' + req.url + ' not found').end();
+    return res.status(501).send('/api' + req.url + ' not found').end();
   }),
 ];
 

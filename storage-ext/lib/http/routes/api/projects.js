@@ -242,7 +242,7 @@ var checkLatestProject = function (req, res) {
 
   return Project.findAll({
     where: where,
-    attributes: [
+    attributes: [ // TODO not all of these are actually needed
       'uuid',
       'id',
       'owner',
