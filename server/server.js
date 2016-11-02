@@ -186,52 +186,72 @@ app.get('*', (req, res) => {
 
 /*** running ***/
 
-//i have no idea why, but sometimes the server tries to build when the port is already in use, so lets just check if port is in use and if it is, then dont try to listen on it.
-const isPortFree = (port, cb) => {
+//check if the port is in use -- e.g. tests are running, or some other reason
+function checkPortFree(port) {
   const net = require('net');
-  const tester = net.createServer()
-    .once('error', (err) => {
-      if (err.code !== 'EADDRINUSE') {
-        return cb(err, false);
-      }
-      cb(null, false);
-    })
-    .once('listening', () => {
-      tester.once('close', () => {
-        cb(null, true);
+  return new Promise((resolve, reject) => {
+    const tester = net.createServer()
+      .once('error', (err) => {
+        if (err.code !== 'EADDRINUSE') {
+          return reject(false);
+        }
+        reject(err);
       })
-        .close();
-    })
-    .listen({
-      port,
-      host: HOST_NAME,
-      exclusive: true,
+      .once('listening', () => {
+        tester.once('close', () => {
+          resolve(true);
+        }).close();
+      })
+      .listen({
+        port,
+        host: HOST_NAME,
+        exclusive: true,
+      });
+  });
+}
+
+function startServer() {
+  return new Promise((resolve, reject) => {
+    app.listen(HOST_PORT, HOST_NAME, (err) => {
+      if (err) {
+        console.log('Error starting server', err.stack);
+        return reject(err);
+      }
+
+      /* eslint-disable no-console */
+      const path = `http://${HOST_NAME}:${HOST_PORT}/`;
+      console.log(`Server listening at ${path}`);
+      resolve(path);
     });
+  });
+}
+
+// initialize the DB connection if we're not using an external storage API
+// note - requires running `npm run storage-db`
+function initDb() {
+  return new Promise((resolve, reject) => {
+    const init = (!process.env.STORAGE_API) ?
+      require('gctor-storage').init :
+      (cb) => { return cb(); };
+
+    init(resolve);
+  });
+}
+
+//check if the port is taken, and init the db, and star the server
+//returns a promise, so you can listen and wait until it resolves
+export const listenSafely = () => {
+  return checkPortFree(HOST_PORT)
+    .catch(() => { throw new Error(`Port ${HOST_PORT} already in use!`); })
+    .then(initDb)
+    .then(startServer);
 };
 
-const startServer = () => app.listen(HOST_PORT, HOST_NAME, (err) => {
-  if (err) {
-    console.log('error listening!', err.stack);
-    return;
-  }
-
-  /* eslint-disable no-console */
-  console.log(`Server listening at http://${HOST_NAME}:${HOST_PORT}/`);
-});
-
-//start the server by default, if port is not taken
-isPortFree(HOST_PORT, (err, free) => {
-  if (!free) {
-    throw new Error(`Port ${HOST_PORT} already in use!`);
-  }
-
-  // initialize the DB connection if we're not using an external storage API
-  // note - requires running `npm run storage-db`
-  const init = (!process.env.STORAGE_API) ?
-    require('gctor-storage').init :
-    (cb) => { return cb(); };
-
-  init(startServer);
-});
+//attempt start the server by default
+if (process.env.SERVER_MANUAL !== 'true') {
+  listenSafely();
+} else {
+  console.log('\nserver will be started manually...\n');
+}
 
 export default app;
