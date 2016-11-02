@@ -2,6 +2,9 @@
 
 var async = require('async');
 
+var map = require('underscore').map;
+var max = require('underscore').max;
+
 var uuidValidate = require("uuid-validate");
 
 var route = require("http-route");
@@ -47,9 +50,88 @@ var fetchSnapshotByUUID = function (req, res) {
   });
 };
 
-var fetchSnapshots = function (req, res) {};
+var fetchSnapshots = function (req, res) {
+  var projectId = req.params.projectId;
+  if (! projectId) {
+    return res.status(400).send({
+      message: 'failed to parse \'projectId\' for Snapshot from URI',
+    }).end();
+  }
 
-var checkSnapshots = function (req, res) {};
+  var where = {
+    projectId: projectId,
+  };
+
+  var version = parseInt(req.query.version);
+  if (notNullAndPosInt(version)) {
+    where.projectVersion = version;
+  }
+
+  return Snapshot.findAll({
+    where: where,
+  }).then(function (results) {
+    if (results.length < 1) {
+      var errMessage = 'no Snapshots matching projectId: ' + where.projectId;
+      if (where.projectVersion != null) {
+        errMessage += ' and version: ' + where.projectVersion;
+      }
+      return res.status(404).send({
+        message: errMessage,
+      }).end();
+    }
+
+    return res.status(200).send(map(results, function (result) { return result.get(); })).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
+var checkSnapshots = function (req, res) {
+  var projectId = req.params.projectId;
+  if (! projectId) {
+    return res.status(400).send({
+      message: 'failed to parse \'projectId\' for Snapshot from URI',
+    }).end();
+  }
+
+  var where = {
+    projectId: projectId,
+  };
+
+  var version = parseInt(req.query.version);
+  if (notNullAndPosInt(version)) {
+    where.projectVersion = version;
+  }
+
+  return Snapshot.findAll({
+    where: where,
+    attributes: [ // TODO some left here for easier debugging
+      'uuid',
+      'projectId',
+      'projectVersion',
+      'updatedAt'
+    ],
+  }).then(function (results) {
+    if (results.length < 1) {
+      return res.status(404).send().end();
+    }
+
+    var latest = max(results, function(result) {
+      return new Date(result.get('updatedAt'));
+    });
+
+    res.set('Latest-Snapshot', latest.uuid);
+    return res.status(200).send(map(results, function (result) { return result.get(); })).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
 
 var saveSnapshot = function (req, res) {
   var body = req.body;
@@ -59,7 +141,7 @@ var saveSnapshot = function (req, res) {
     }).end();
   }
 
-  console.log(req.body);
+  // console.log(req.body);
   if (! body.owner) {
     return res.status(400).send({
       message: '\'owner\' is required in request body',
