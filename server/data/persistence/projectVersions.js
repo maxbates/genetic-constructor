@@ -68,4 +68,3 @@ export const projectSnapshotList = (projectId, userId) => {
 
   //todo - ensure it returns a commit-like response w/ version (check previous usages of git.snapshot()) - time, version, etc.
 };
-

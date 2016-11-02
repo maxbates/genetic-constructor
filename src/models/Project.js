@@ -84,15 +84,15 @@ export default class Project extends Instance {
     if (!one || !two) return false;
     if (one === two) return true;
 
-    //massage two into a temp object with fields from one that we dont want to compare
-    const massaged = two.merge({
-      version: one.version,
+    //massage fields from two we dont want to compare into a temp object (in case one is missing those fields)
+    const massaged = one.merge({
+      version: two.version,
       metadata: {
-        updated: one.metadata.updated,
+        updated: two.metadata.updated,
       },
     });
 
-    return isEqual(one, massaged);
+    return isEqual(two, massaged);
   }
 
   /**
