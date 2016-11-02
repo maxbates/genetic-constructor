@@ -9,6 +9,9 @@ import { merge, values } from 'lodash';
 
 import { createExampleRollup } from '../../_utils/rollup';
 
+//todo
+console.log('todo - rewrite the querying test module');
+
 describe('Server', () => {
   describe('Data', () => {
     describe('Querying', () => {
@@ -59,7 +62,7 @@ describe('Server', () => {
           [...myRollIds, ...otherRollIds].map(id => projectPersistence.projectExists(id))
         )
           .then(results => {
-            assert(results.every(result => result === true), 'should have all been written');
+            assert(results.every(result => Number.isInteger(result)), 'should have all been written');
           });
       });
 

@@ -1,6 +1,5 @@
 import { jsdom } from 'jsdom';
 import rimraf from 'rimraf';
-//import { login } from '../src/middleware/api';
 
 //FILE SYSTEM SETUP
 
@@ -24,10 +23,3 @@ global.localStorage = global.sessionStorage = window.localStorage = window.sessi
     this[key] = value;
   },
 };
-
-// setup authentication
-// used for middleware functions, which store the sessionKey manually
-
-//file must be required (not imported), so that it runs here and is not part of the static build, as the middleware relies on the window being present, which is set up above
-//const api = require('../src/middleware/api');
-//api.login('', '');

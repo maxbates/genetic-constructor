@@ -33,6 +33,7 @@ import { dbHeadRaw, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware
 //maybe can deprecate these helpers, and just use the exported functions
 
 //todo - this should resolve to false... need to update usages
+//resolves to latest version
 const _projectExists = (projectId, version) => {
   if (Number.isInteger(version)) {
     //todo - should use projectVersions module instead
@@ -40,8 +41,7 @@ const _projectExists = (projectId, version) => {
 
   return dbHeadRaw(`projects/${projectId}`)
     .then(resp => {
-      //const latest = resp.headers.get('Latest-Version');
-      return resp.status === 200;
+      return parseInt(resp.headers.get('Latest-Version'), 10);
     })
     .catch(resp => {
       if (resp.status === 404) {
@@ -148,6 +148,7 @@ export const userOwnsProject = (userId, projectId, projectMustExist = false) => 
 //GET
 //resolve with null if does not exist
 
+//todo - use version module explicitly to get a version
 export const projectGet = (projectId, version) => {
   return _projectRead(projectId, version)
     .catch(err => {
@@ -164,6 +165,7 @@ export const projectGet = (projectId, version) => {
     });
 };
 
+//todo - use version module explicitly to get a version
 //returns map, where blockMap.blockId === undefined if was missing
 export const blocksGet = (projectId, version = false, ...blockIds) => {
   return projectGet(projectId, version)
@@ -175,6 +177,7 @@ export const blocksGet = (projectId, version = false, ...blockIds) => {
     });
 };
 
+//todo - use version module explicitly to get a version
 //prefer blocksGet, this is for atomic checks
 //rejects if the block is not present, and does not return a map (just the block), or null if doesnt exist
 export const blockGet = (projectId, version = false, blockId) => {

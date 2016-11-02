@@ -28,8 +28,6 @@ import {
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 
-//todo - prefer rollup creation utils instead of manually creating
-
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 
 describe('Server', () => {
@@ -153,10 +151,10 @@ describe('Server', () => {
             return projectPersistence.projectWrite(projectId, roll, testUserId);
           });
 
-          it('projectExists() resolves if it does exist', () => {
+          it('projectExists() resolves with latest version if it does exist', () => {
             return projectPersistence.projectExists(projectId)
               .then(res => {
-                expect(res).to.equal(true);
+                expect(res).to.equal(0);
               });
           });
 
@@ -171,6 +169,13 @@ describe('Server', () => {
             return projectPersistence.projectWrite(projectId, roll, testUserId)
               .then(info => {
                 expect(info.version).to.equal(1);
+              });
+          });
+
+          it('projectExists() resolves with latest version if it does exist', () => {
+            return projectPersistence.projectExists(projectId)
+              .then(res => {
+                expect(res).to.equal(1);
               });
           });
 
@@ -209,7 +214,7 @@ describe('Server', () => {
               [...myRollIds, ...otherRollIds].map(id => projectPersistence.projectExists(id))
             )
               .then(results => {
-                assert(results.every(result => result === true), 'should have all been written');
+                assert(results.every(result => Number.isInteger(result)), 'should have all been written');
               });
           });
 

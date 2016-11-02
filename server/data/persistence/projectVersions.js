@@ -32,21 +32,20 @@ const dummyVersionPayload = () => ({
 });
 
 const transformDbVersion = (result) => ({
-  version: result.version,
+  version: parseInt(result.version, 10),
   time: result.createdAt,
   owner: result.owner,
 });
 
 //todo - resolve to false if it doesnt exist -- match projectExists() signature
 export const projectVersionExists = (projectId, version) => {
-  //todo - use HEAD
-  return dbGet(`projects/versions/${projectId}?version=${version}`)
+  return dbHeadRaw(`projects/${projectId}?version=${version}`)
     .then(() => true);
 };
 
 export const projectVersionGet = (projectId, version) => {
-  //todo - transform response (need to inspect)
-  return dbGet(`projects/versions/${projectId}?version=${version}`);
+  return dbGet(`projects/${projectId}?version=${version}`)
+    .then(dbPruneResult);
 };
 
 export const projectVersionList = (projectId) => {

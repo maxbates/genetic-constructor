@@ -17,12 +17,9 @@
 import { assert, expect } from 'chai';
 import uuid from 'node-uuid';
 import _ from 'lodash';
-import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
 import { testUserId } from '../../../constants';
-import rollupFromArray from '../../../../src/utils/rollup/rollupFromArray';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
-import Project from '../../../../src/models/Project';
-import Block from '../../../../src/models/Block';
+import { createExampleRollup } from '../../../_utils/rollup';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as projectVersions from '../../../../server/data/persistence/projectVersions';
@@ -31,27 +28,78 @@ describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
       describe('projectsVersions', () => {
-        const projectName = 'persistenceProject';
-        const projectData = Project.classless(updateProjectWithTestAuthor({ metadata: { name: projectName } }));
-        const projectId = projectData.id;
+        const roll = createExampleRollup();
+        const updated = _.merge({}, roll, { project: { additional: 'field' } });
+        const latest = _.merge({}, updated, { project: { another: 'value' } });
 
-        const blockName = 'blockA';
-        const blockData = Block.classless({ projectId, metadata: { name: blockName } });
-        const blockId = blockData.id;
+        it('projectWrite() should return version, roll, owner', () => {
+          return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+            .then(result => {
+              expect(result.version).to.equal(0);
+              expect(result.id).to.equal(roll.project.id);
+              expect(result.data).to.eql(roll);
+              expect(result.owner).to.equal(testUserId);
+            });
+        });
 
-        const roll = rollupFromArray(projectData, blockData);
+        it('projectWrite() should create a version', () => {
+          return projectPersistence.projectWrite(roll.project.id, updated, testUserId)
+            .then(result => {
+              expect(result.version).to.equal(1);
+              return projectPersistence.projectWrite(roll.project.id, latest, testUserId)
+            })
+            .then(result => {
+              expect(result.version).to.equal(2);
+            });
+        });
 
-        it('projectWrite() should create a version');
+        it('projectVersionExists() should resolve when a version exists', () => {
+          return projectVersions.projectVersionExists(roll.project.id, 1)
+            .then(result => {
+              expect(result).to.equal(true);
+            });
+        });
 
-        it('projectWrite() should return version');
+        it('projectGet() should get latest by default', () => {
+          return projectPersistence.projectGet(roll.project.id)
+            .then(result => {
+              expect(result).to.eql(latest);
+            });
+        });
 
-        it('projectGet() should get latest by default'); //compare to latest version
+        it('projectVersionGet() should get a specific version', () => {
+          return projectVersions.projectVersionGet(roll.project.id, 0)
+            .then(result => {
+              expect(result).to.eql(roll);
+            });
+        });
 
-        it('projectVersionGet() should get a specific version');
+        it('projectVersionList() should reject when no project', (done) => {
+          projectVersions.projectVersionList(uuid.v4(), 0)
+            .then(result => done('shouldnt resolve'))
+            .catch(err => {
+              expect(err).to.equal(errorDoesNotExist);
+              done();
+            });
+        });
 
-        it('projectVersionList() should list versions');
+        it('projectVersionList() should list versions', () => {
+          return projectVersions.projectVersionList(roll.project.id)
+            .then(result => {
+              expect(result.length).to.equal(3);
+              assert(result.every(res => Number.isInteger(res.version) && res.owner && res.time));
+            });
+        });
 
-        it('projectDelete() deletes all versions');
+        it('projectDelete() deletes all versions', (done) => {
+          projectPersistence.projectDelete(roll.project.id)
+            .then(() => projectVersions.projectVersionList(roll.project.id))
+            .then(() => done('shouldnt resolve'))
+            .catch(err => {
+              expect(err).to.equal(errorDoesNotExist);
+              done();
+            });
+        });
       });
     });
   });
