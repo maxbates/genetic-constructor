@@ -128,7 +128,8 @@ export default class Schema {
         if (shouldThrow) {
           throw Error(errorMessage);
         } else if (process.env.NODE_ENV !== 'production') {
-          console.error(errorMessage); //eslint-disable-line
+          console.error(errorMessage); //eslint-disable-line no-console
+          console.log(instance); //eslint-disable-line no-console
         }
       }
 
