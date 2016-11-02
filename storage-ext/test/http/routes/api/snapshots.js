@@ -94,6 +94,7 @@ describeAppTest("http", function (app) {
           test: true,
           hello: "kitty",
           stuff: ["bing", "bang", "bong"],
+          worldSeries: "cubs",
         },
       };
 
@@ -146,6 +147,7 @@ describeAppTest("http", function (app) {
           test: true,
           hello: "kitty",
           stuff: ["bing", "bang", "bong", "BOOM"],
+          worldSeries: "cubs",
           fuzzy: "dice",
         },
       };
@@ -202,6 +204,7 @@ describeAppTest("http", function (app) {
             message: "new test snapshot",
             tags: {
               test: true,
+              hello: "kitty",
               stuff: ["ying", "yang"],
             },
           };
@@ -332,6 +335,142 @@ describeAppTest("http", function (app) {
               assert.notEqual(res.body.projectVersion, null);
               cb(null, null);
             });
+        },
+      ], function (err) {
+        assert.ifError(err);
+        done();
+      });
+    });
+
+    it('should fetch snapshots with tags', function fetchByTags(done) {
+      request(app.proxy)
+        .post('/api/snapshots/tags')
+        .send({
+          hello: "kitty",
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert(Array.isArray(res.body));
+          var snapshots = res.body;
+          assert.equal(snapshots.length, 2);
+          each(snapshots, function (snapshot) {
+            assert.notEqual(snapshot.projectUUID, null);
+            assert.notEqual(snapshot.updatedAt, null);
+            assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.message, null);
+            assert.notEqual(snapshot.tags, null);
+            assert.equal(snapshot.projectId, projectId);
+            assert.notEqual(snapshot.projectVersion, null);
+          });
+          done();
+        });
+    });
+
+    it('should fetch snapshots with tags and projectId', function fetchByTagsProjectId(done) {
+      request(app.proxy)
+        .post('/api/snapshots/tags' + '?project=' + projectId)
+        .send({
+          test: true,
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert(Array.isArray(res.body));
+          var snapshots = res.body;
+          assert.equal(snapshots.length, 2);
+          each(snapshots, function (snapshot) {
+            assert.notEqual(snapshot.projectUUID, null);
+            assert.notEqual(snapshot.updatedAt, null);
+            assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.message, null);
+            assert.notEqual(snapshot.tags, null);
+            assert.equal(snapshot.projectId, projectId);
+            assert.notEqual(snapshot.projectVersion, null);
+          });
+          done();
+        });
+    });
+
+    it('should fetch one snapshot with tags', function fetchOneWithTags(done) {
+      request(app.proxy)
+        .post('/api/snapshots/tags')
+        .send({
+          fuzzy: "dice",
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert(Array.isArray(res.body));
+          var snapshots = res.body;
+          assert.equal(snapshots.length, 1);
+          each(snapshots, function (snapshot) {
+            assert.notEqual(snapshot.projectUUID, null);
+            assert.notEqual(snapshot.updatedAt, null);
+            assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.message, null);
+            assert.notEqual(snapshot.tags, null);
+            assert.equal(snapshot.projectId, projectId);
+            assert.notEqual(snapshot.projectVersion, null);
+          });
+          done();
+        });
+    });
+
+    it('should return 404 fetch snapshots with junk tags', function fetchByTagsFail(done) {
+      request(app.proxy)
+        .post('/api/snapshots/tags')
+        .send({
+          pink: "flamingo",
+        })
+        .expect(404)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.notEqual(res.body.message, null);
+          done();
+        });
+    });
+
+    it('should delete a snapshot by UUID', function deleteByUUID(done) {
+      async.series([
+        function (cb) {
+          request(app.proxy)
+            .delete('/api/snapshots/uuid/' + snapshotUUID0)
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.equal(res.body.deleted, 1);
+              cb(err);
+            });
+        },
+        function (cb) {
+          request(app.proxy)
+            .get('/api/snapshots/uuid/' + snapshotUUID0)
+            .expect(404)
+            .end(function (err, res) {
+              assert.ifError(err);
+              cb(err);
+            });
+        },
+        function (cb) {
+          Snapshot.findOne({
+            where: {
+              uuid: snapshotUUID0,
+            }
+          }).then(function (result) {
+            assert.equal(result, null);
+            cb(null);
+          }).catch(cb);
         },
       ], function (err) {
         assert.ifError(err);

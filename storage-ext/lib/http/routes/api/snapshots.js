@@ -2,6 +2,7 @@
 
 var async = require('async');
 
+var isEmpty = require('underscore').isEmpty;
 var map = require('underscore').map;
 var max = require('underscore').max;
 
@@ -272,10 +273,88 @@ var saveSnapshot = function (req, res) {
   });
 };
 
+var fetchByTags = function (req, res) {
+  var tagsBody = req.body;
+  if (! tagsBody) {
+    return res.status(400).send({
+      message: 'post tags as request body'
+    }).end();
+  }
+
+  if (isEmpty(tagsBody)) {
+    return res.status(400).send({
+      message: 'tags request body may not be empty'
+    }).end();
+  }
+
+  var where = {
+    tags: tagsBody,
+  };
+
+  if ((req.query.project != null) && (req.query.project != "")) {
+    where.projectId = req.query.project;
+  }
+
+  return Snapshot.findAll({
+    where: where,
+  }).then(function (results) {
+    if(results.length < 1) {
+      return res.status(404).send({
+        message: 'no matching snapshots',
+      }).end();
+    }
+
+    return res.status(200).send(map(results, function (result) { return result.get(); })).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
+var deleteByUUID = function (req, res) {
+  var snapshotUUID = req.params.uuid;
+  if (! snapshotUUID) {
+    return res.status(400).send({
+      message: 'failed to parse Snapshot \'uuid\' from URI',
+    }).end();
+  }
+
+  if (! uuidValidate(snapshotUUID, 1)) {
+    return res.status(400).send({
+      message: 'UUID is invalid',
+    }).end();
+  }
+
+  return Snapshot.destroy({
+    where: {
+      uuid: snapshotUUID,
+    },
+  }).then(function (numDeleted) {
+    if (numDeleted < 1) {
+      return res.status(404).send({
+        message: 'snapshot [' + snapshotUUID + '] does not exist',
+      }).end();
+    }
+
+    return res.status(200).send({
+      deleted: numDeleted,
+    }).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
 var routes = [
   route('GET /:projectId', fetchSnapshots),
   route('HEAD /:projectId', checkSnapshots),
   route('GET /uuid/:uuid', fetchSnapshotByUUID),
+  route('DELETE /uuid/:uuid', deleteByUUID),
+  route('POST /tags', fetchByTags),
   route('POST /', saveSnapshot),
 ];
 
