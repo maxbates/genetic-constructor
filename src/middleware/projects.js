@@ -38,6 +38,7 @@ export const listProjects = () => {
   const url = dataApiPath('projects');
   return rejectingFetch(url, headersGet())
     .then(resp => resp.json())
+    //just in case some are empty (historical cruft) so rendering doesnt break
     .then(projects => projects.filter(project => !!project));
 };
 

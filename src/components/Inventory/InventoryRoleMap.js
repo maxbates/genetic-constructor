@@ -18,7 +18,7 @@ import Block from '../../models/Block';
 import { connect } from 'react-redux';
 import { blockLoad, blockStash } from '../../actions/blocks';
 import { block as blockDragType } from '../../constants/DragTypes';
-import { infoQuery } from '../../middleware/data';
+import { infoQuery } from '../../middleware/projects';
 import { symbolMap } from '../../inventory/roles';
 
 //bit of a hack, since we are not storing this information in the store (since its really derived data) but need to update it

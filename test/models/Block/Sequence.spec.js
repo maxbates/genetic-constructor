@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import { expect, assert } from 'chai';
-import { writeFile } from '../../../src/middleware/data';
+import { writeFile } from '../../../src/middleware/projects';
 import Block from '../../../src/models/Block';
 import md5 from 'md5';
 

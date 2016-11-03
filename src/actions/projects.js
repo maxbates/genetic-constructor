@@ -19,7 +19,7 @@
  */
 import invariant from 'invariant';
 import * as ActionTypes from '../constants/ActionTypes';
-import { saveProject, loadProject, listProjects, deleteProject } from '../middleware/data';
+import { saveProject, loadProject, listProjects, deleteProject } from '../middleware/projects';
 import { snapshot } from '../middleware/snapshots';
 import * as projectSelectors from '../selectors/projects';
 import * as blockActions from '../actions/blocks';

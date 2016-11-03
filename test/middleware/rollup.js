@@ -1,5 +1,5 @@
 import chai from 'chai';
-import * as api from '../../src/middleware/data';
+import * as api from '../../src/middleware/projects';
 import * as snapshotApi from '../../src/middleware/snapshots';
 import { merge, range } from 'lodash';
 import { testUserId } from '../constants';

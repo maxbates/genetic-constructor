@@ -22,7 +22,7 @@ import { every, filter, uniq, values } from 'lodash';
 import * as ActionTypes from '../constants/ActionTypes';
 import BlockSchema from '../schemas/Block';
 import Block from '../models/Block';
-import { loadBlock } from '../middleware/data';
+import { loadBlock } from '../middleware/projects';
 import * as selectors from '../selectors/blocks';
 import * as projectSelectors from '../selectors/projects';
 import * as undoActions from '../store/undo/actions';
