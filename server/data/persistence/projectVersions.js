@@ -17,8 +17,6 @@ import { dbHeadRaw, dbGet, dbPruneResult } from '../middleware/db';
 
 // note that versions are already generated on project writing, so use projectWrite() to create one
 
-//todo - update middleware on client, expecting commit SHA, to expect version
-
 const transformDbVersion = (result) => ({
   version: parseInt(result.version, 10),
   time: (new Date(result.createdAt)).valueOf(),

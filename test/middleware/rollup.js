@@ -13,8 +13,6 @@ import { createExampleRollup } from '../_utils/rollup';
 
 const { assert, expect } = chai;
 
-console.log('todo - re-enable versioning related middleware tests');
-
 describe('Middleware', () => {
   describe('Rollup', () => {
     //create a test project to load
@@ -53,7 +51,7 @@ describe('Middleware', () => {
       const block2 = roll.blocks[blockKeys[3]];
 
       return api.saveProject(projectId, roll)
-        .then((commit) => Promise
+        .then((versionInfo) => Promise
           .all([
             projectPersistence.projectGetManifest(projectId),
             projectPersistence.blocksGet(projectId, false, block1.id).then(map => map[block1.id]),
@@ -61,9 +59,9 @@ describe('Middleware', () => {
           ])
           .then(([gotProject, got1, got2]) => {
             expect(gotProject).to.eql(merge({}, project, {
-              version: commit.sha,
+              version: versionInfo.version,
               metadata: {
-                updated: commit.time,
+                updated: versionInfo.time,
                 authors: [testUserId],
               },
             }));
@@ -72,6 +70,8 @@ describe('Middleware', () => {
           }));
     });
 
+    //todo - this test needs a major redo
+
     it('saveProject() creates a commit', () => {
       const a_roll = createExampleRollup();
       const a_projectId = a_roll.project.id;
@@ -79,6 +79,8 @@ describe('Middleware', () => {
 
       const a_path = filePaths.createProjectDataPath(a_projectId);
       let a_log;
+
+      throw new Error('write this test over');
 
       return api.saveProject(a_projectId, a_roll)
         .then(() => versioning.log(a_path))

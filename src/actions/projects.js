@@ -134,7 +134,7 @@ export const projectSave = (inputProjectId, forceSave = false) => {
     instanceMap.saveRollup(roll);
 
     return saveProject(projectId, roll)
-      .then(commitInfo => {
+      .then(versionInfo => {
         setLocal(recentProjectKey, projectId);
 
         //if no version => first time saving, show a grunt
@@ -146,7 +146,7 @@ export const projectSave = (inputProjectId, forceSave = false) => {
           setLocal(saveMessageKey, true);
         }
 
-        const { version, time } = commitInfo;
+        const { version, time } = versionInfo;
         dispatch({
           type: ActionTypes.PROJECT_SAVE,
           projectId,

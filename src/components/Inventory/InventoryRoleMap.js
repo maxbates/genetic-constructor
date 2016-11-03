@@ -18,7 +18,7 @@ import Block from '../../models/Block';
 import { connect } from 'react-redux';
 import { blockLoad, blockStash } from '../../actions/blocks';
 import { block as blockDragType } from '../../constants/DragTypes';
-import { infoQuery } from '../../middleware/projects';
+import { getBlockRoles, getBlocksWithRole } from '../../middleware/querying';
 import { symbolMap } from '../../inventory/roles';
 
 //bit of a hack, since we are not storing this information in the store (since its really derived data) but need to update it
@@ -43,7 +43,7 @@ export class InventoryRoleMap extends Component {
 
   componentDidMount() {
     //returns a map { <rolekey> : number }
-    infoQuery('role').then(typeMap => this.setState({
+    getBlockRoles().then(typeMap => this.setState({
       typeMap,
       loadingMap: false,
     }));
@@ -88,7 +88,7 @@ export class InventoryRoleMap extends Component {
     //loading
     this.setRoleType(type, false);
 
-    infoQuery('role', type)
+    getBlocksWithRole(type)
       .then(blockMap => {
         const blocks = Object.keys(blockMap).map(blockId => new Block(blockMap[blockId]));
         this.setRoleType(type, blocks);

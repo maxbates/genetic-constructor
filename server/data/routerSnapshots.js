@@ -37,11 +37,10 @@ router.route('/:version?')
         .then(snapshot => res.status(200).json(snapshot))
         .catch(err => next(err));
     } else {
-      //todo - update log format + tests + client middleware expectations
       snapshots.snapshotList(projectId, user.uuid, tags)
         .then(log => res.status(200).json(log))
         .catch(err => {
-          //return if project exists but no snapshots found
+          //return 200 if project exists (implicit, due to prior middleware) but no snapshots found
           if (err === errorDoesNotExist) {
             return res.status(200).json([]);
           }

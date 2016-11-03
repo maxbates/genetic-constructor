@@ -1,37 +1,28 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
 import { headersGet, headersPost, headersDelete } from './utils/headers';
 import { dataApiPath } from './utils/paths';
 import { noteSave, noteFailure } from '../store/saveState';
+import { getBlockContents } from './querying';
 
 /******
  API requests
  ******/
-
-/***** info query - low level API call *****/
-
-export const infoQuery = (type, detail, additional) => {
-  const url = dataApiPath(`info/${type}${detail ? `/${detail}` : ''}${additional ? `/${additional}` : ''}`);
-  return rejectingFetch(url, headersGet())
-    .then(resp => resp.json());
-};
-
-/***** queries *****/
 
 //returns metadata of projects
 export const listProjects = () => {
@@ -41,8 +32,6 @@ export const listProjects = () => {
     //just in case some are empty (historical cruft) so rendering doesnt break
     .then(projects => projects.filter(project => !!project));
 };
-
-/***** rollups - loading + saving projects *****/
 
 //returns a rollup
 export const loadProject = (projectId) => {
@@ -73,10 +62,10 @@ export const saveProject = (projectId, rollup) => {
 
   return rejectingFetch(url, headersPost(stringified))
     .then(resp => resp.json())
-    .then(commit => {
-      const { version } = commit;
+    .then(versionInfo => {
+      const { version } = versionInfo;
       noteSave(projectId, version);
-      return commit;
+      return versionInfo;
     })
     .catch(err => {
       noteFailure(projectId, err);
@@ -93,8 +82,6 @@ export const deleteProject = (projectId) => {
     .then(resp => resp.json());
 };
 
-/***** loading / saving - not rollups *****/
-
 //Promise
 // returns object {
 //   components : { <blockId> : <block> } //including the parent requested
@@ -105,11 +92,12 @@ export const loadBlock = (blockId, projectId, withContents = false) => {
   invariant(blockId, 'Block ID is required');
 
   if (withContents === true) {
-    return infoQuery('contents', blockId, projectId);
+    return getBlockContents(blockId, projectId);
   }
 
   const url = dataApiPath(`${projectId}/${blockId}`);
 
   return rejectingFetch(url, headersGet())
-    .then(resp => resp.json());
+    .then(resp => resp.json())
+    .then(block => ({ components: { [block.id]: block } }));
 };
