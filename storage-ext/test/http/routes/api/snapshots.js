@@ -90,6 +90,7 @@ describeAppTest("http", function (app) {
         projectId: projectId,
         projectVersion: 0,
         message: "test snapshot",
+        type: "test",
         tags: {
           test: true,
           hello: "kitty",
@@ -129,6 +130,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body.projectUUID, null);
           assert.notEqual(res.body.updatedAt, null);
           assert.notEqual(res.body.createdAt, null);
+          assert.equal(res.body.type, "test");
           assert.notEqual(res.body.message, null);
           assert.notEqual(res.body.tags, null);
           assert.equal(res.body.projectId, projectId);
@@ -143,6 +145,7 @@ describeAppTest("http", function (app) {
         projectId: projectId,
         projectVersion: 0,
         message: "updated test snapshot",
+        type: "order",
         tags: {
           test: true,
           hello: "kitty",
@@ -162,6 +165,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body, null);
           assert.equal(res.body.uuid, snapshotUUID0);
           // console.log(res.body);
+          assert.equal(res.body.type, "order");
           assert.equal(res.body.message, data.message);
           assert.deepEqual(res.body.tags, data.tags);
           done();
@@ -202,6 +206,7 @@ describeAppTest("http", function (app) {
             projectId: projectId,
             projectVersion: newVersion,
             message: "new test snapshot",
+            type: "test",
             tags: {
               test: true,
               hello: "kitty",
@@ -261,6 +266,7 @@ describeAppTest("http", function (app) {
             assert.notEqual(snapshot.projectUUID, null);
             assert.notEqual(snapshot.updatedAt, null);
             assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.type, null);
             assert.notEqual(snapshot.message, null);
             assert.notEqual(snapshot.tags, null);
             assert.equal(snapshot.projectId, projectId);
@@ -285,6 +291,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(snapshot.projectUUID, null);
           assert.notEqual(snapshot.updatedAt, null);
           assert.notEqual(snapshot.createdAt, null);
+          assert.equal(snapshot.type, "order");
           assert.notEqual(snapshot.message, null);
           assert.notEqual(snapshot.tags, null);
           assert.equal(snapshot.projectId, projectId);
@@ -329,6 +336,7 @@ describeAppTest("http", function (app) {
               assert.notEqual(res.body.projectUUID, null);
               assert.notEqual(res.body.updatedAt, null);
               assert.notEqual(res.body.createdAt, null);
+              assert.equal(res.body.type, "test");
               assert.notEqual(res.body.message, null);
               assert.notEqual(res.body.tags, null);
               assert.equal(res.body.projectId, projectId);
@@ -360,6 +368,7 @@ describeAppTest("http", function (app) {
             assert.notEqual(snapshot.projectUUID, null);
             assert.notEqual(snapshot.updatedAt, null);
             assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.type, null);
             assert.notEqual(snapshot.message, null);
             assert.notEqual(snapshot.tags, null);
             assert.equal(snapshot.projectId, projectId);
@@ -387,6 +396,7 @@ describeAppTest("http", function (app) {
             assert.notEqual(snapshot.projectUUID, null);
             assert.notEqual(snapshot.updatedAt, null);
             assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.type, null);
             assert.notEqual(snapshot.message, null);
             assert.notEqual(snapshot.tags, null);
             assert.equal(snapshot.projectId, projectId);
@@ -414,6 +424,7 @@ describeAppTest("http", function (app) {
             assert.notEqual(snapshot.projectUUID, null);
             assert.notEqual(snapshot.updatedAt, null);
             assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.type, null);
             assert.notEqual(snapshot.message, null);
             assert.notEqual(snapshot.tags, null);
             assert.equal(snapshot.projectId, projectId);
@@ -466,6 +477,46 @@ describeAppTest("http", function (app) {
           Snapshot.findOne({
             where: {
               uuid: snapshotUUID0,
+            }
+          }).then(function (result) {
+            assert.notEqual(result, null);
+            assert.equal(result.get('status'), 0);
+            cb(null);
+          }).catch(cb);
+        },
+      ], function (err) {
+        assert.ifError(err);
+        done();
+      });
+    });
+
+    it('should destroy a snapshot by UUID', function deleteByUUID(done) {
+      async.series([
+        function (cb) {
+          request(app.proxy)
+            .delete('/api/snapshots/uuid/' + snapshotUUID1 + '?destroy=true')
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.equal(res.body.deleted, 1);
+              cb(err);
+            });
+        },
+        function (cb) {
+          request(app.proxy)
+            .get('/api/snapshots/uuid/' + snapshotUUID1)
+            .expect(404)
+            .end(function (err, res) {
+              assert.ifError(err);
+              cb(err);
+            });
+        },
+        function (cb) {
+          Snapshot.findOne({
+            where: {
+              uuid: snapshotUUID1,
             }
           }).then(function (result) {
             assert.equal(result, null);

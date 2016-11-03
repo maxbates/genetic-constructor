@@ -34,6 +34,7 @@ var fetchSnapshotByUUID = function (req, res) {
   return Snapshot.findOne({
     where: {
       uuid: snapshotUUID,
+      status: 1,
     },
   }).then(function (result) {
     if (! result) {
@@ -61,6 +62,7 @@ var fetchSnapshots = function (req, res) {
 
   var where = {
     projectId: projectId,
+    status: 1,
   };
 
   var version = parseInt(req.query.version);
@@ -100,6 +102,7 @@ var checkSnapshots = function (req, res) {
 
   var where = {
     projectId: projectId,
+    status: 1,
   };
 
   var version = parseInt(req.query.version);
@@ -167,6 +170,12 @@ var saveSnapshot = function (req, res) {
     }).end();
   }
 
+  if (body.type == null) {
+    return res.status(400).send({
+      message: '\'type\' is required in request body',
+    }).end();
+  }
+
   if (! body.message) {
     return res.status(400).send({
       message: '\'message\' is required in request body',
@@ -219,17 +228,19 @@ var saveSnapshot = function (req, res) {
         projectUUID: projectUUID,
         projectId: body.projectId,
         projectVersion: body.projectVersion,
+        type: body.type,
         message: body.message,
         tags: tags,
       }).then(function (newSnapshot) {
         return cb(null, newSnapshot.get());
       }).catch(Sequelize.UniqueConstraintError, function () {
         return Snapshot.update({
+          type: body.type,
           message: body.message,
           tags: tags,
         }, {
           returning: true,
-          fields: ['message', 'tags'],
+          fields: ['type', 'message', 'tags'],
           where: {
             owner: body.owner,
             projectId: body.projectId,
@@ -327,11 +338,40 @@ var deleteByUUID = function (req, res) {
     }).end();
   }
 
-  return Snapshot.destroy({
+  if ((req.query.destroy != null) && (req.query.destroy === "true")) {
+    req.log.info('Destroying Snapshot:', snapshotUUID);
+
+    return Snapshot.destroy({
+      where: {
+        uuid: snapshotUUID,
+      },
+    }).then(function (numDeleted) {
+      if (numDeleted < 1) {
+        return res.status(404).send({
+          message: 'snapshot [' + snapshotUUID + '] does not exist',
+        }).end();
+      }
+
+      return res.status(200).send({
+        deleted: numDeleted,
+      }).end();
+    }).catch(function (err) {
+      req.log.error(err);
+      return res.status(500).send({
+        message: err.message,
+      }).end();
+    });
+  }
+
+  return Snapshot.update({
+    status: 0,
+  }, {
+    returning: false,
     where: {
       uuid: snapshotUUID,
     },
-  }).then(function (numDeleted) {
+  }).then(function (results) {
+    var numDeleted = results[0];
     if (numDeleted < 1) {
       return res.status(404).send({
         message: 'snapshot [' + snapshotUUID + '] does not exist',

@@ -40,6 +40,10 @@ var schema = {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  type: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
   status: {
     type: Sequelize.INTEGER,
     allowNull: false,
