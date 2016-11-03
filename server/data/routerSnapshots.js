@@ -21,7 +21,6 @@ import {
   errorDoesNotExist,
 } from './../utils/errors';
 import * as projectPersistence from './persistence/projects';
-import * as projectVersions from './persistence/projectVersions';
 import * as snapshots from './persistence/snapshots';
 
 const router = express.Router(); //eslint-disable-line new-cap
@@ -33,17 +32,21 @@ router.route('/:version?')
     const { version } = req.params;
     const { tags } = req.query;
 
-    //todo - parse tags
-
     if (version) {
-      projectVersions.projectVersionGet(projectId, version)
-        .then(project => res.status(200).json(project))
+      snapshots.snapshotGet(projectId, user.uuid, version)
+        .then(snapshot => res.status(200).json(snapshot))
         .catch(err => next(err));
     } else {
       //todo - update log format + tests + client middleware expectations
       snapshots.snapshotList(projectId, user.uuid, tags)
         .then(log => res.status(200).json(log))
-        .catch(err => next(err));
+        .catch(err => {
+          //return if project exists but no snapshots found
+          if (err === errorDoesNotExist) {
+            return res.status(200).json([]);
+          }
+          next(err);
+        });
     }
   })
   .post((req, res, next) => {

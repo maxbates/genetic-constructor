@@ -51,10 +51,10 @@ describe('Server', () => {
             .then(() => projectPersistence.projectWrite(roll.project.id, latest, testUserId));
         });
 
-        it('snapshotList() should return empty array when no snapshots', () => {
+        it('snapshotList() returns 404 when no snapshots', () => {
           return snapshots.snapshotList(roll.project.id, testUserId)
-            .then(results => {
-              assert(Array.isArray(results) && results.length === 0, 'should get empty array');
+            .catch(err => {
+              expect(err).to.equal(errorDoesNotExist);
             });
         });
 
