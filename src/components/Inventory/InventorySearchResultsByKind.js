@@ -20,6 +20,7 @@ import { chain } from 'lodash';
 
 import InventoryList from './InventoryList';
 import InventoryListGroup from './InventoryListGroup';
+import '../../styles/InventorySearchResultGroup.css';
 
 export default class InventorySearchResultsByKind extends Component {
   static propTypes = {

@@ -36,11 +36,11 @@ export default class InventoryGroup extends Component {
     case 'role' :
       return (<InventoryGroupRole {...props} />);
     case 'search-ncbi' :
-      return (<InventoryGroupSearch {...props}/>);
+      return (<InventoryGroupSearch source="ncbi" {...props}/>);
     case 'search-igem' :
-      return (<InventoryGroupSearch {...props}/>);
+      return (<InventoryGroupSearch source="igem" {...props}/>);
     case 'search-egf' :
-      return (<InventoryGroupSearch {...props}/>);
+      return (<InventoryGroupSearch source="egf" {...props}/>);
     case 'projects':
       return (<InventoryGroupProjects {...props} templates={false} />);
     case 'templates':

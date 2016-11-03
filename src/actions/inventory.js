@@ -58,6 +58,10 @@ export const inventorySetSearchTerm = (searchTerm) => {
   };
 };
 
+export const inventorySearchSource = (inputTerm, source) => {
+
+}
+
 /**
  * Search for a term across active search sources
  * @function

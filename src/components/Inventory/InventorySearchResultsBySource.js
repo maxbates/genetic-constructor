@@ -18,7 +18,7 @@ import { block as blockDragType } from '../../constants/DragTypes';
 import { registry } from '../../inventory/registry';
 
 import InventoryList from './InventoryList';
-import InventoryListGroup from './InventoryListGroup';
+import '../../styles/InventorySearchResultGroup.css';
 
 export default class InventorySearchResultsBySource extends Component {
   static propTypes = {
@@ -30,13 +30,8 @@ export default class InventorySearchResultsBySource extends Component {
     onListGroupAction: PropTypes.func.isRequired,
   };
 
-  handleListGroupAction(evt, key) {
-    evt.preventDefault();
-    this.props.onListGroupAction(key);
-  }
-
   render() {
-    const { searchResults, sourcesVisible, onListGroupToggle, onItemSelect, onItemDrop } = this.props;
+    const { searchResults, sourcesVisible, onItemSelect, onItemDrop } = this.props;
 
     return (
       <div className="InventorySearchResultGroup">
@@ -51,26 +46,12 @@ export default class InventorySearchResultsBySource extends Component {
           const actionVisible = results.length > 0 && moreResults && sourcesVisible[key];
 
           return (
-            <InventoryListGroup title={`${name} (${results.length})`}
-                                disabled={!results.length}
-                                actionButton={{
-                                  text: 'Load More',
-                                  disabled: !!searchResults[key].loading,
-                                  visible: actionVisible,
-                                  onClick: (evt) => { this.handleListGroupAction(evt, key);},
-                                  'data-inventory': `load-more ${key}`,
-                                }}
-                                manual
-                                isExpanded={sourcesVisible[key]}
-                                onToggle={() => onListGroupToggle(key)}
-                                key={key}
-                                dataAttribute={`searchgroup ${name}`}>
+
               <InventoryList inventoryType={blockDragType}
                              onDrop={(item) => onItemDrop(key, item)}
                              onSelect={(item) => onItemSelect(key, item)}
                              items={results}
                              dataAttributePrefix={`searchresult ${name}`}/>
-            </InventoryListGroup>
           );
         })}
       </div>

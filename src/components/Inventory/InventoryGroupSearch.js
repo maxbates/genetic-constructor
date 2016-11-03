@@ -48,10 +48,7 @@ export class InventoryGroupSearch extends Component {
     blockStash: PropTypes.func.isRequired,
   };
 
-  onSourceToggle = (source) => {
-    this.props.inventoryToggleSource(source);
-    this.props.inventoryShowSourcesToggling(false);
-  };
+
 
   handleSearchChange = (searchTerm) => {
     const { inventorySearch } = this.props;
@@ -62,10 +59,20 @@ export class InventoryGroupSearch extends Component {
     this.props.inventorySearchPaginate(source);
   };
 
+  componentWillMount() {
+    alert('Search Source Initialized:' + this.props.source);
+    this.props.inventorySetSources([this.props.source]);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.source !== this.props.source) {
+      alert('Search Source Updated:' + nextProps.source);
+      this.props.inventorySetSources([nextProps.source]);
+    }
+  }
+
   render() {
     const { searchTerm, sourcesToggling, searching, sourceList, searchResults, sourcesVisible, inventoryShowSourcesToggling } = this.props;
-
-    console.log('Sources List:\n' + JSON.stringify(sourceList, null, 2));
     return (
       <div className={'InventoryGroup-content InventoryGroupSearch'}>
         <InventorySearch searchTerm={searchTerm}
