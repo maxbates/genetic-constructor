@@ -28,9 +28,13 @@ const router = express.Router(); //eslint-disable-line new-cap
 router.route('/:version?')
   .get((req, res, next) => {
     //pass the version you want, otherwise send commit log
-    const { user, projectId } = req;
+    const { user, projectId, projectDoesNotExist } = req;
     const { version } = req.params;
     const { tags } = req.query;
+
+    if (projectDoesNotExist === true) {
+      return res.status(404).send(errorDoesNotExist);
+    }
 
     if (version) {
       snapshots.snapshotGet(projectId, user.uuid, version)
@@ -52,27 +56,35 @@ router.route('/:version?')
     //you can POST a field 'message' for the commit, and an object of 'tags'
     //can also post a field 'rollup' for save a new rollup for the commit
     //receive the version
-    const { user, projectId } = req;
+    const { user, projectId, projectDoesNotExist } = req;
     const { version } = req.params;
     const { message, rollup: roll, tags } = req.body;
 
-    if (version && roll) {
+    if (projectDoesNotExist && !roll) {
+      return res.status(404).send(errorDoesNotExist);
+    }
+
+    if (!!version && !!roll) {
       return res.status(422).send('cannot send version and roll');
     }
 
     //todo - proper validation using schema
-    const rollupDefined = roll && roll.project && roll.blocks;
+    const rollupDefined = !!roll && roll.project && roll.blocks;
 
-    const writePromise = rollupDefined
-      ?
+    //use version they gave or get latest
+    const getVersionPromise = !!version ?
+      Promise.resolve(version) :
+      projectPersistence.projectExists(projectId).then(version => version);
+
+    //write rollup if passed, or just pass version to snapshot writing
+    const writePromise = rollupDefined ?
       projectPersistence.projectWrite(projectId, roll, user.uuid)
-        .then(({ version }) => version)
-      :
-      Promise.resolve(version);
+        .then(({ version }) => version) :
+      getVersionPromise;
 
     writePromise
       .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, message, tags))
-      .then(commit => res.status(200).json(commit))
+      .then(snapshot => res.status(200).json(snapshot))
       //may want better error handling here
       .catch(err => {
         if (err === errorInvalidModel) {

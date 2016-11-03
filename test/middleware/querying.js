@@ -17,6 +17,8 @@ import chai from 'chai';
 import * as api from '../../src/middleware/querying';
 const { assert, expect } = chai;
 
+//todo - forthcoming
+
 describe('Middleware', () => {
   describe('Querying', () => {
     it('getBlockContents() should get all contents of a block');

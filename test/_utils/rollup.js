@@ -60,8 +60,7 @@ export const createExampleRollup = () => {
  * |
  * B*-C*-D*-E*-F*-G*
  */
-export const createSequencedRollup = () => {
-  const numSeqs = numberBlocksInRollup - 1;
+export const createSequencedRollup = (numSeqs = (numberBlocksInRollup - 1)) => {
   const sequences = range(numSeqs).map(() => generateRandomSequence());
   const sequenceMd5s = sequences.map(seq => md5(seq));
   const sequenceMap = sequenceMd5s.reduce((acc, seqMd5, index) => {
@@ -100,9 +99,7 @@ export const createSequencedRollup = () => {
  *    4      4       4       4
  *    5      5       5       5
  */
-export const createListRollup = () => {
-  const numListBlocks = 4;
-  const numOptions = 5;
+export const createListRollup = (numListBlocks = 4, numOptions = 5) => {
   const totalBlocks = numListBlocks * numOptions;
 
   const sequences = range(totalBlocks).map(() => generateRandomSequence());

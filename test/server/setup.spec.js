@@ -14,9 +14,8 @@
  limitations under the License.
  */
 
-describe('Server', () => {
-  //todo - temporary, waiting for server to start
-  before(() => {
-    return new Promise(resolve => setTimeout(resolve, 2000));
-  });
+//wait for server to be ready
+before(() => {
+  console.log('waiting for server... (could be more explicit)');
+  return new Promise(resolve => setTimeout(resolve, 2000));
 });

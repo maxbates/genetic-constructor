@@ -126,14 +126,7 @@ describe('Server', () => {
               });
           });
 
-          it('userOwnsProject() resolves if no project and projectMustExist=false', () => {
-            return projectPersistence.userOwnsProject(testUserId, Project.classless().id, false)
-              .then(result => {
-                expect(result).to.equal(true);
-              });
-          });
-
-          it('userOwnsProject() rejects if no project and projectMustExist=true', (done) => {
+          it('userOwnsProject() rejects if no project', (done) => {
             projectPersistence.userOwnsProject(testUserId, Project.classless().id, true)
               .then(result => done('shouldnt resolve'))
               .catch(err => {

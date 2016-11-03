@@ -25,13 +25,6 @@ import { id as idRegex } from '../../src/utils/regex';
 import { userOwnsProject } from './persistence/projects';
 
 //todo - trace this -- its called a lot. should speed up, or avoid when unnecessary
-export const checkProjectAccess = (projectId, userId, projectMustExist = false) => {
-  //debugging....
-  console.log('checking project access: ', projectId);
-
-  return userOwnsProject(userId, projectId, projectMustExist);
-};
-
 export const projectPermissionMiddleware = (req, res, next) => {
   const { projectId, user } = req;
 
@@ -54,24 +47,27 @@ export const projectPermissionMiddleware = (req, res, next) => {
     next('[projectPermissionMiddleware] projectId not found on route request');
     return;
   }
+
   if (!idRegex().test(projectId)) {
-    //todo - status text is not being sent to the client. probably need to pass to error handler, which uses error as status text (this is going as body)
     res.status(400).send(errorInvalidId);
     next('[projectPermissionMiddleware] projectId is not valid, got ' + projectId);
     return;
   }
 
-  checkProjectAccess(projectId, user.uuid)
+  userOwnsProject(user.uuid, projectId)
     .then(() => next())
     .catch((err) => {
-      //todo - are there scenarios where this should be ok?
+      //if the project doesnt exist, mark the req and can handle downstream, but usually we want this to just fall through
       if (err === errorDoesNotExist) {
-        return res.status(404).send(`Project does not exist`);
+        Object.assign(req, { projectDoesNotExist: true });
+        return next();
       }
+
       if (err === errorNoPermission) {
         return res.status(403).send(`User ${user.email} does not have access to project ${projectId}`);
       }
-      console.log('permissions error:', err);
+
+      console.log('project permission check error:', err);
       console.log(err.stack);
       res.status(500).send('error checking project access');
     });

@@ -115,7 +115,8 @@ export const projectExists = (projectId, version) => {
 
 //check access to a particular project
 //ideally, would return a 403 on one call, rather than chaining two together
-export const userOwnsProject = (userId, projectId, projectMustExist = false) => {
+//todo - move to a HEAD call
+export const userOwnsProject = (userId, projectId) => {
   return getUserProjectIds(userId)
     .then((projectIds) => {
       if (projectIds.indexOf(projectId) >= 0) {
@@ -130,11 +131,8 @@ export const userOwnsProject = (userId, projectId, projectMustExist = false) => 
             return Promise.reject(errorNoPermission);
           }
 
-          if (err === errorDoesNotExist && !projectMustExist) {
-            return true;
-          }
-
-          if (err === errorDoesNotExist && projectMustExist) {
+          //we expect this if doesnt exist, just to be explicit
+          if (err === errorDoesNotExist) {
             return Promise.reject(errorDoesNotExist);
           }
 
@@ -193,7 +191,7 @@ export const blockGet = (projectId, version = false, blockId) => {
 
 //SET (WRITE + MERGE)
 
-//should return commit-like information (not just the project)
+//todo - clearly define what this returns
 export const projectWrite = (projectId, roll = {}, userId, bypassValidation = false) => {
   const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
 

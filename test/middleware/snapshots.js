@@ -13,24 +13,102 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import chai from 'chai';
+import { assert, expect } from 'chai';
+import _ from 'lodash';
 import * as api from '../../src/middleware/snapshots';
-const { assert, expect } = chai;
+import * as projectPersistence from '../../server/data/persistence/projects';
+import { testUserId } from '../constants';
+import { createExampleRollup } from '../_utils/rollup';
 
 describe('Middleware', () => {
   describe('Snapshots', () => {
+    const roll = createExampleRollup();
+    const updated = _.merge({}, roll, { project: { blah: 'blah' } });
+    const latest = _.merge({}, updated, { project: { another: 'field' } });
 
-    it('snapshotList() before projects exists gets 404');
+    const project = roll.project;
+    const projectId = project.id;
 
-    it('snapshotList() on project with no snapshots gets 200');
+    before(() => projectPersistence.projectWrite(projectId, roll, testUserId)
+      .then(() => projectPersistence.projectWrite(projectId, updated, testUserId))
+      .then(() => projectPersistence.projectWrite(projectId, latest, testUserId))
+    );
 
-    it('snapshotWrite() makes a snapshot');
+    it('snapshotList() before projects exists gets 404', (done) => {
+      api.snapshotList(createExampleRollup().project.id)
+        .then(result => {
+          done('shouldnt resolve');
+        })
+        .catch(resp => {
+          expect(resp.status).to.equal(404);
+          done();
+        });
+    });
 
-    it('snapshotWrite() overwrites a snapshot');
+    it('snapshotList() on project with no snapshots gets 200', () => {
+      return api.snapshotList(roll.project.id)
+        .then(versions => {
+          expect(versions.length).to.equal(0);
+        });
+    });
 
-    it('snapshotGet() gets a snapshot');
+    const version = 1;
 
-    it('snapshotList() gets the projects snapshots');
+    it('shapshot() a specific version', () => {
+      return api.snapshot(projectId, undefined, null, version)
+        .then(() => api.snapshotList(projectId))
+        .then(snapshots => {
+          const found = snapshots.find(snapshot => snapshot.version === version);
+          assert(found, 'expected a snapshot with version specified');
+        });
+    });
 
+    it('snapshot() overwrites a snapshot at specific version', () => {
+      const newMessage = 'some new message';
+      return api.snapshot(projectId, newMessage, null, version)
+        .then(() => api.snapshotGet(projectId, version))
+        .then(snapshot => {
+          expect(snapshot.message).to.equal(newMessage);
+        });
+    });
+
+    const commitMessage = 'my fancy message';
+
+    it('snapshotWrite() creates a snapshot, returns version, time, message, defaults to latest', () => {
+      return api.snapshot(projectId, commitMessage)
+        .then(info => {
+          assert(info.version === 2, 'should be version 2 (latest)');
+          assert(info.message === commitMessage, 'should have commit message');
+          assert(Number.isInteger(info.time), 'time should be number');
+        });
+    });
+
+    it('snapshotGet() gets a snapshot', () => {
+      return api.snapshotGet(projectId, 2)
+        .then(snapshot => {
+          expect(snapshot.version).to.equal(2);
+          expect(snapshot.message).to.equal(commitMessage);
+        });
+    });
+
+    it('snapshotWrite() given rollup bumps verion and creates a snapshot', () => {
+      const newest = _.merge({}, roll, { project: { some: 'final' } });
+
+      return api.snapshot(projectId, undefined, newest)
+        .then(info => {
+          assert(info.version === 3, 'should be version 3 (new latest)');
+        });
+    });
+
+    it('snapshotList() gets the projects snapshots', () => {
+      return api.snapshotList(projectId)
+      .then(snapshots => {
+        assert(Array.isArray(snapshots), 'should be array');
+        expect(snapshots.length).to.equal(3);
+      });
+    });
+
+    //todo
+    it('snapshot() accepts tags, snapshotList() can filter on tags');
   });
 });

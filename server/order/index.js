@@ -146,7 +146,10 @@ User ${user.uuid}
           remoteId: response.jobId,
         };
 
-        return snapshots.snapshotWrite(projectId, user.uuid, `Order @ ${foundry}: ${constructNames.join(' ')}`, tags, snapshots.SNAPSHOT_TYPE_ORDER)
+        //todo - need to get and supply this
+        const VERSION = null;
+
+        return snapshots.snapshotWrite(projectId, user.uuid, VERSION, `Order @ ${foundry}: ${constructNames.join(' ')}`, tags, snapshots.SNAPSHOT_TYPE_ORDER)
           .then(({ version, time }) => {
             merge(order, {
               metadata: {
