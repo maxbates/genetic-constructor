@@ -162,13 +162,15 @@ export const projectSave = (inputProjectId, forceSave = false) => {
  * Snapshots are saves of the project at an important point, creating an explicit commit with a user-specified message.
  * @function
  * @param {UUID} projectId
+ * @param {number} version project version, or null to default to latest
  * @param {string} message Commit message
+ * @param {object} tags Metadata tags to include in the snapshot
  * @param {boolean} [withRollup=true] Save the current version of the project
  * @returns {Promise}
  * @resolve {number} version for snapshot
  * @reject {string|Response} Error message
  */
-export const projectSnapshot = (projectId, message, withRollup = true) => {
+export const projectSnapshot = (projectId, version = null, message, tags = {}, withRollup = true) => {
   return (dispatch, getState) => {
     const roll = withRollup ?
       dispatch(projectSelectors.projectCreateRollup(projectId)) :
@@ -182,7 +184,7 @@ export const projectSnapshot = (projectId, message, withRollup = true) => {
       }
     }
 
-    return snapshot(projectId, message, roll)
+    return snapshot(projectId, version, message, tags, roll)
       .then(commitInfo => {
         if (!commitInfo) {
           return null;

@@ -55,7 +55,7 @@ describe('Middleware', () => {
     const version = 1;
 
     it('shapshot() a specific version', () => {
-      return api.snapshot(projectId, undefined, null, version)
+      return api.snapshot(projectId, version)
         .then(() => api.snapshotList(projectId))
         .then(snapshots => {
           const found = snapshots.find(snapshot => snapshot.version === version);
@@ -65,7 +65,7 @@ describe('Middleware', () => {
 
     it('snapshot() overwrites a snapshot at specific version', () => {
       const newMessage = 'some new message';
-      return api.snapshot(projectId, newMessage, null, version)
+      return api.snapshot(projectId, version, newMessage)
         .then(() => api.snapshotGet(projectId, version))
         .then(snapshot => {
           expect(snapshot.message).to.equal(newMessage);
@@ -75,7 +75,7 @@ describe('Middleware', () => {
     const commitMessage = 'my fancy message';
 
     it('snapshotWrite() creates a snapshot, returns version, time, message, defaults to latest', () => {
-      return api.snapshot(projectId, commitMessage)
+      return api.snapshot(projectId, null, commitMessage)
         .then(info => {
           assert(info.version === 2, 'should be version 2 (latest)');
           assert(info.message === commitMessage, 'should have commit message');
@@ -94,7 +94,7 @@ describe('Middleware', () => {
     it('snapshotWrite() given rollup bumps verion and creates a snapshot', () => {
       const newest = _.merge({}, roll, { project: { some: 'final' } });
 
-      return api.snapshot(projectId, undefined, newest)
+      return api.snapshot(projectId, null, undefined, null, newest)
         .then(info => {
           assert(info.version === 3, 'should be version 3 (new latest)');
         });
@@ -107,6 +107,9 @@ describe('Middleware', () => {
         expect(snapshots.length).to.equal(3);
       });
     });
+
+    //todo
+    it('cant snapshot a version which doesnt exist');
 
     //todo
     it('snapshot() accepts tags, snapshotList() can filter on tags');

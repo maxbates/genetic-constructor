@@ -23,13 +23,11 @@ import { noteSave, noteFailure } from '../store/saveState';
 //version recommended, otherwise defaults to latest
 //explicit, makes a snapshot rather than just a version
 //returns the snapshot wth version, message
-//todo - change signature to emphasize version
-//todo - change signature to support tags
-export const snapshot = (projectId, message = 'Project Snapshot', rollup = {}, version = null) => {
+export const snapshot = (projectId, version = null, msgInput, tags = {}, rollup = null) => {
   invariant(projectId, 'Project ID required to snapshot');
-  invariant(!message || typeof message === 'string', 'optional message for snapshot must be a string');
+  const message = typeof msgInput === 'string' ? msgInput : 'Project Snapshot';
 
-  const stringified = JSON.stringify({ message, rollup });
+  const stringified = JSON.stringify({ message, tags, rollup });
   const url = dataApiPath(`snapshots/${projectId}${Number.isInteger(version) ? '/' + version : ''}`);
 
   return rejectingFetch(url, headersPost(stringified))

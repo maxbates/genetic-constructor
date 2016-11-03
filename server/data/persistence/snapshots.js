@@ -41,6 +41,8 @@ export const snapshotWrite = (projectId, userId, version, message = defaultMessa
     Promise.resolve(version) :
     projectPersistence.projectExists(projectId).then(version => version);
 
+  console.log('writing shapshot', projectId, gotVersion, version, message);
+
   return getVersion
   //signature is weird - no data to pass, just several body parameters
     .then(version => dbPost(`snapshots/`, userId, {}, {}, {
