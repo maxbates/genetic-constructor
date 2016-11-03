@@ -19,7 +19,8 @@
  */
 import invariant from 'invariant';
 import * as ActionTypes from '../constants/ActionTypes';
-import { saveProject, loadProject, snapshot, listProjects, deleteProject } from '../middleware/data';
+import { saveProject, loadProject, listProjects, deleteProject } from '../middleware/data';
+import { snapshot } from '../middleware/snapshots';
 import * as projectSelectors from '../selectors/projects';
 import * as blockActions from '../actions/blocks';
 import * as blockSelectors from '../selectors/blocks';
@@ -109,7 +110,7 @@ export const projectDelete = (projectId) => {
  * @param {UUID} [inputProjectId] Omit to save the current project
  * @param {boolean} [forceSave=false] Force saving, even if the project has not changed since last save
  * @returns {Promise}
- * @resolve {sha|null} SHA of save, or null if save was unnecessary
+ * @resolve {number|null} version of save, or null if save was unnecessary
  * @reject {string|Response} Error message
  */
 export const projectSave = (inputProjectId, forceSave = false) => {
@@ -145,14 +146,14 @@ export const projectSave = (inputProjectId, forceSave = false) => {
           setLocal(saveMessageKey, true);
         }
 
-        const { sha, time } = commitInfo;
+        const { version, time } = commitInfo;
         dispatch({
           type: ActionTypes.PROJECT_SAVE,
           projectId,
-          sha,
+          version,
           time,
         });
-        return sha;
+        return version;
       });
   };
 };
@@ -164,7 +165,7 @@ export const projectSave = (inputProjectId, forceSave = false) => {
  * @param {string} message Commit message
  * @param {boolean} [withRollup=true] Save the current version of the project
  * @returns {Promise}
- * @resolve {sha} SHA of snapshot
+ * @resolve {number} version for snapshot
  * @reject {string|Response} Error message
  */
 export const projectSnapshot = (projectId, message, withRollup = true) => {
@@ -187,13 +188,13 @@ export const projectSnapshot = (projectId, message, withRollup = true) => {
           return null;
         }
 
-        const { sha } = commitInfo;
+        const { version } = commitInfo;
         dispatch({
           type: ActionTypes.PROJECT_SNAPSHOT,
           projectId,
-          sha,
+          version,
         });
-        return sha;
+        return version;
       });
   };
 };

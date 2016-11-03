@@ -38,7 +38,7 @@ describe('Server', () => {
   });
   describe('Data', () => {
     describe('persistence', () => {
-      describe.only('snapshot', () => {
+      describe('snapshot', () => {
         const roll = createExampleRollup();
         const updated = _.merge({}, roll, { project: { another: 'field' } });
         const latest = _.merge({}, updated, { project: { different: 'value' } });
@@ -124,7 +124,7 @@ describe('Server', () => {
             });
         });
 
-        it('snapshotDelete() removes a snapshot');
+        it('snapshotDelete() with version removes a single snapshot');
 
         it('snapshotDelete() only removes user snapshots');
 

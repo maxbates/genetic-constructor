@@ -1,5 +1,6 @@
 import chai from 'chai';
 import * as api from '../../src/middleware/data';
+import * as snapshotApi from '../../src/middleware/snapshots';
 import { merge, range } from 'lodash';
 import { testUserId } from '../constants';
 import Block from '../../src/models/Block';
@@ -71,7 +72,7 @@ describe('Middleware', () => {
           }));
     });
 
-    it.skip('saveProject() creates a commit', () => {
+    it('saveProject() creates a commit', () => {
       const a_roll = createExampleRollup();
       const a_projectId = a_roll.project.id;
       const b_roll = Object.assign(createExampleRollup(), { project: a_roll.project });
@@ -92,13 +93,13 @@ describe('Middleware', () => {
         });
     });
 
-    it.skip('snapshot() creates a snapshot commit, returns the sha', () => {
+    it('snapshot() creates a snapshot commit, returns the sha', () => {
       const roll = createExampleRollup();
       const project = roll.project;
       const projectId = project.id;
       const commitMessage = 'my fancy message';
 
-      return api.snapshot(projectId, commitMessage, roll)
+      return snapshotApi.snapshot(projectId, commitMessage, roll)
         .then(commit => {
           assert(commit.message.indexOf(commitMessages.SNAPSHOT) >= 0, 'wrong commit message type, shoudl be snapshot');
           assert(commit.message.indexOf(commitMessage) >= 0, 'commit message missing');

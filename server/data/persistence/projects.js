@@ -328,8 +328,8 @@ export const blocksDelete = (projectId, userId, ...blockIds) => {
 
 // PROJECT MANIFEST
 
-export const projectGetManifest = (projectId, sha) => {
-  return projectGet(projectId, sha)
+export const projectGetManifest = (projectId, version) => {
+  return projectGet(projectId, version)
     .then(result => result.project);
 };
 

@@ -18,13 +18,13 @@ import invariant from 'invariant';
 //track information about saving e.g. time
 const saveState = new Map();
 
-export const noteSave = (projectId, sha = null) => {
+export const noteSave = (projectId, version = null) => {
   invariant(projectId, 'must pass project ID');
   const lastState = saveState.get(projectId) || {};
 
   saveState.set(projectId, Object.assign(lastState, {
     updated: +Date.now(),
-    sha,
+    version,
   }));
 };
 
@@ -45,11 +45,11 @@ export const noteFailure = (projectId, err) => {
 export const getProjectSaveState = (projectId) => {
   invariant(projectId, 'must pass project ID');
   const state = saveState.get(projectId) || {};
-  const { updated = 0, lastFailed = 0, sha = null, lastErr = null, lastErrOffline = false } = state;
+  const { updated = 0, lastFailed = 0, version = null, lastErr = null, lastErrOffline = false } = state;
 
   return {
     updated,
-    sha,
+    version,
     lastFailed,
     lastErr,
     lastErrOffline,

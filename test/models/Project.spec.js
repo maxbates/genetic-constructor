@@ -37,15 +37,14 @@ describe('Model', () => {
     it('updateVersion() updates version', () => {
       const proj = new Project();
       assert(!proj.version, 'shouldnt scaffold version');
-      const versionSha = sha('sadf');
-      const updated = proj.updateVersion(versionSha);
-      assert(updated.version === versionSha);
+      const version = 19;
+      const updated = proj.updateVersion(version);
+      assert(updated.version === version);
     });
 
-    //todo - deprecate this test? will the client know what version it wants the projec to be?
     it('Project.compare() does equality check, ignoring version + updated', () => {
-      const v1 = sha('one');
-      const v2 = sha('two');
+      const v1 = 124;
+      const v2 = 241;
 
       const one = new Project({ version: v1 });
       const two = one.updateVersion(v2);
