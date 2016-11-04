@@ -30,6 +30,11 @@ export default class InventorySearchResultsBySource extends Component {
     onListGroupAction: PropTypes.func.isRequired,
   };
 
+  handleListGroupAction(evt, key) {
+    evt.preventDefault();
+    this.props.onListGroupAction(key);
+  }
+
   render() {
     const { searchResults, sourcesVisible, onItemSelect, onItemDrop } = this.props;
 
@@ -44,14 +49,23 @@ export default class InventorySearchResultsBySource extends Component {
             results.length < results.count :
             results.length % results.parameters.entries === 0;
           const actionVisible = results.length > 0 && moreResults && sourcesVisible[key];
+          const loadMore = actionVisible
+          ? <a
+            onClick={(evt) => {
+              this.handleListGroupAction(evt, key);
+            }}
+            className="InventorySearch-loadmore">Load more...</a>
+          : null;
 
           return (
-
-              <InventoryList inventoryType={blockDragType}
-                             onDrop={(item) => onItemDrop(key, item)}
-                             onSelect={(item) => onItemSelect(key, item)}
-                             items={results}
-                             dataAttributePrefix={`searchresult ${name}`}/>
+              <div>
+                {loadMore}
+                <InventoryList inventoryType={blockDragType}
+                               onDrop={(item) => onItemDrop(key, item)}
+                               onSelect={(item) => onItemSelect(key, item)}
+                               items={results}
+                               dataAttributePrefix={`searchresult ${name}`}/>
+              </div>
           );
         })}
       </div>

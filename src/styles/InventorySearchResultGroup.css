@@ -1,6 +1,8 @@
 @import './variables.css';
 
 .InventorySearchResultGroup {
-  width: calc(100% - var(--SidePanel-width-padding-content) * 2);
-  margin-left: var(--SidePanel-width-padding-content);
+
+  .InventoryItem-item {
+    padding: 2px 6px;
+  }
 }

@@ -23,4 +23,14 @@
       cursor: not-allowed;
     }
   }
+
+  &-loadmore {
+    height: 3rem;
+    line-height: 3rem;
+    margin-left: var(--SidePanel-width-padding-content);
+    cursor: pointer;
+  }
+  &-loadmore:hover {
+    text-decoration: underline;
+  }
 }

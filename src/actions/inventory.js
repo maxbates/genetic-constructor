@@ -58,9 +58,19 @@ export const inventorySetSearchTerm = (searchTerm) => {
   };
 };
 
-export const inventorySearchSource = (inputTerm, source) => {
-
+export const inventorySearchReset = () => {
+  return (dispatch, getState) => {
+    debugger;
+    const state = getState();
+    const { sourceList } = state.inventory;
+    dispatch({
+      type: ActionTypes.INVENTORY_SEARCH_RESET,
+      sourceList,
+    });
+    return Promise.resolve();
+  }
 }
+
 
 /**
  * Search for a term across active search sources
@@ -178,20 +188,21 @@ export const inventorySearchPaginate = (source) => {
     });
 
     return searchApi.search(searchTerm, parameters, source)
-      .catch(err => {
-        console.error(err); //eslint-disable-line no-console
-        return Object.assign([], { parameters });
-      })
-      .then((resultObject) => {
-        dispatch({
-          type: ActionTypes.INVENTORY_SEARCH_PAGINATE_RESOLVE,
-          source,
-          patch: resultObject,
-          searchTerm,
-        });
+    .catch(err => {
+      console.error(err); //eslint-disable-line no-console
+      return Object.assign([], { parameters });
+    })
+    .then((resultObject) => {
+      dispatch({
+        type: ActionTypes.INVENTORY_SEARCH_PAGINATE_RESOLVE,
+        source,
+        patch: resultObject,
+        searchTerm,
       });
+    });
   };
 };
+
 
 /**
  * Toggle whether the sources view is open

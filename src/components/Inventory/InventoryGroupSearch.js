@@ -18,16 +18,13 @@ import { connect } from 'react-redux';
 import {
   inventorySearch,
   inventorySearchPaginate,
+  inventorySearchReset,
   inventoryShowSourcesToggling,
   inventorySetSources,
   inventoryToggleSource,
   inventoryToggleSourceVisible,
 } from '../../actions/inventory';
 import { blockStash } from '../../actions/blocks';
-
-import { registry } from '../../inventory/registry';
-
-import InventorySources from './InventorySources';
 import InventorySearch from './InventorySearch';
 import InventorySearchResults from './InventorySearchResults';
 
@@ -41,14 +38,13 @@ export class InventoryGroupSearch extends Component {
     searchResults: PropTypes.object.isRequired,
     inventorySearch: PropTypes.func.isRequired,
     inventorySearchPaginate: PropTypes.func.isRequired,
+    inventorySearchReset: PropTypes.func.isRequired,
     inventoryShowSourcesToggling: PropTypes.func.isRequired,
     inventorySetSources: PropTypes.func.isRequired,
     inventoryToggleSource: PropTypes.func.isRequired,
     inventoryToggleSourceVisible: PropTypes.func.isRequired,
     blockStash: PropTypes.func.isRequired,
   };
-
-
 
   handleSearchChange = (searchTerm) => {
     const { inventorySearch } = this.props;
@@ -59,32 +55,33 @@ export class InventoryGroupSearch extends Component {
     this.props.inventorySearchPaginate(source);
   };
 
+  /**
+   * necessary to set the initial search source
+   */
   componentWillMount() {
-    alert('Search Source Initialized:' + this.props.source);
+    this.handleSearchChange(this.props.searchTerm);
     this.props.inventorySetSources([this.props.source]);
   }
 
+  /**
+   * update the search source
+   * @param nextProps
+   */
   componentWillReceiveProps(nextProps) {
     if (nextProps.source !== this.props.source) {
-      alert('Search Source Updated:' + nextProps.source);
+      this.handleSearchChange(this.props.searchTerm);
       this.props.inventorySetSources([nextProps.source]);
     }
   }
 
   render() {
-    const { searchTerm, sourcesToggling, searching, sourceList, searchResults, sourcesVisible, inventoryShowSourcesToggling } = this.props;
+    const { searchTerm, sourcesToggling, searching, searchResults, sourcesVisible } = this.props;
     return (
       <div className={'InventoryGroup-content InventoryGroupSearch'}>
         <InventorySearch searchTerm={searchTerm}
                          isSearching={searching}
                          disabled={sourcesToggling}
                          onSearchChange={(value) => this.handleSearchChange(value)}/>
-
-        {/*<InventorySources registry={registry}*/}
-                          {/*sourceList={sourceList}*/}
-                          {/*toggling={sourcesToggling}*/}
-                          {/*onToggleVisible={(nextState) => inventoryShowSourcesToggling(nextState)}*/}
-                          {/*onSourceToggle={(source) => this.onSourceToggle(source)}/>*/}
 
         {!sourcesToggling && (
           <InventorySearchResults searchTerm={searchTerm}
@@ -101,13 +98,14 @@ export class InventoryGroupSearch extends Component {
   }
 }
 
-function mapStateToProps(state, props) {
+function mapStateToProps(state) {
   return state.inventory;
 }
 
 export default connect(mapStateToProps, {
   inventorySearch,
   inventorySearchPaginate,
+  inventorySearchReset,
   inventoryShowSourcesToggling,
   inventorySetSources,
   inventoryToggleSource,
