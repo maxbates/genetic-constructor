@@ -31,12 +31,15 @@ var schema = {
   projectVersion: {
     type: Sequelize.INTEGER,
     allowNull: false,
-    defaultValue: 0, // first version
     validate: {
       min: 0,
     },
   },
   message: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  type: {
     type: Sequelize.STRING,
     allowNull: false,
   },
