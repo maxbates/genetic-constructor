@@ -3,6 +3,7 @@
 .InventoryGroup {
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   .InventoryGroup-heading {
     height: var(--width-SidePanel-closed);
@@ -18,7 +19,6 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    padding: 0 0 0.75em;
     position: relative;
     overflow: hidden;
 
