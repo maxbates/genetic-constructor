@@ -330,6 +330,7 @@ var fetchByTags = function (req, res) {
     }).end();
   }
 
+  // console.log('tags body', tagsBody);
   var where = {
     tags: tagsBody,
   };

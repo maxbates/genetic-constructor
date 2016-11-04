@@ -51,7 +51,7 @@ export const snapshotWrite = (projectId, userId, version, message = defaultMessa
 
 export const snapshotList = (projectId, userId, tags = {}) => {
   if (Object.keys(tags).length) {
-    return dbPost(`snapshots/tags?project=${projectId}`, userId, tags)
+    return dbPost(`snapshots/tags?project=${projectId}`, null, null, {}, tags)
       .then(results => results.map(transformDbVersion));
   }
 
