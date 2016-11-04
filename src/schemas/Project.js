@@ -32,9 +32,8 @@ const projectFields = {
   ],
 
   version: [
-    fields.version(),
-    'SHA1 version of project',
-    { avoidScaffold: true },
+    fields.number(),
+    'numeric version of project',
   ],
 
   components: [

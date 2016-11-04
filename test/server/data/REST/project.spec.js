@@ -68,7 +68,7 @@ describe('Server', () => {
             .expect(200)
             .expect('Content-Type', /json/)
             .expect(result => {
-              expect(result.body).to.eql(projectData);
+              assert(Project.compare(result.body, projectData), 'projects should match');
             })
             .end(done);
         });
@@ -87,11 +87,11 @@ describe('Server', () => {
               if (err) {
                 done(err);
               }
-              expect(result.body).to.eql(projectData);
+              assert(Project.compare(result.body, projectData), 'projects should match');
 
               projectPersistence.projectGet(projectId)
                 .then((result) => {
-                  expect(result.project).to.eql(projectData);
+                  assert(Project.compare(result.project, projectData), 'projects should match');
                   done();
                 })
                 .catch(done);

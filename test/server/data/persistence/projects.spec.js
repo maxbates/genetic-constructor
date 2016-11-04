@@ -27,6 +27,7 @@ import {
 } from '../../../../server/utils/errors';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
+import Rollup from '../../../../src/models/Rollup';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 
@@ -40,7 +41,7 @@ describe('Server', () => {
           return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
             .then(() => projectPersistence.projectGet(roll.project.id))
             .then(result => {
-              expect(result).to.eql(roll);
+              Rollup.compare(result, roll, true);
             });
         });
 
@@ -59,7 +60,7 @@ describe('Server', () => {
             .then(result => {
               expect(result.version).to.equal(0);
               expect(result.id).to.equal(roll.project.id);
-              expect(result.data).to.eql(roll);
+              Rollup.compare(result.data, roll, true);
               expect(result.owner).to.equal(testUserId);
             });
         });
@@ -72,7 +73,7 @@ describe('Server', () => {
             .then(result => {
               expect(result.version).to.equal(1);
               expect(result.id).to.equal(roll.project.id);
-              expect(result.data).to.eql(roll);
+              Rollup.compare(result.data, roll, true);
               expect(result.owner).to.equal(testUserId);
             });
         });
@@ -88,6 +89,7 @@ describe('Server', () => {
             .catch(err => expect(err).to.equal(errorInvalidModel));
         });
 
+        //should this throw? the router does.
         it('projectMerge() forces the ID', () => {
           const roll = createExampleRollup();
           const overwrite = { project: { id: uuid.v4(), some: 'field ' } };
@@ -95,10 +97,10 @@ describe('Server', () => {
 
           return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
             .then(() => projectPersistence.projectGet(roll.project.id))
-            .then(result => expect(result).to.eql(roll))
+            .then(result => Rollup.compare(result, roll, true))
             .then(() => projectPersistence.projectMerge(roll.project.id, overwrite, testUserId))
             .then(() => projectPersistence.projectGet(roll.project.id))
-            .then(result => expect(result).to.eql(merged));
+            .then(result => Rollup.compare(result, merged, true));
         });
 
         it('projectDelete() only marks the project deleted in the database');
@@ -126,14 +128,7 @@ describe('Server', () => {
               });
           });
 
-          it('userOwnsProject() resolves if no project and projectMustExist=false', () => {
-            return projectPersistence.userOwnsProject(testUserId, Project.classless().id, false)
-              .then(result => {
-                expect(result).to.equal(true);
-              });
-          });
-
-          it('userOwnsProject() rejects if no project and projectMustExist=true', (done) => {
+          it('userOwnsProject() rejects if no project', (done) => {
             projectPersistence.userOwnsProject(testUserId, Project.classless().id, true)
               .then(result => done('shouldnt resolve'))
               .catch(err => {
@@ -160,8 +155,8 @@ describe('Server', () => {
 
           it('projectGet() retrieves the project', () => {
             return projectPersistence.projectGet(projectId)
-              .then(res => {
-                expect(res).to.eql(roll);
+              .then(result => {
+                Rollup.compare(result, roll, true);
               });
           });
 
@@ -277,13 +272,13 @@ describe('Server', () => {
 
           it('projectGetManifest() gets manifest', () => {
             return projectPersistence.projectGetManifest(projectId)
-              .then(manifest => expect(manifest).to.eql(roll.project));
+              .then(manifest => Project.compare(manifest, roll.project, true));
           });
 
           it('projectWriteManifest() writes manifest', () => {
             return projectPersistence.projectWriteManifest(projectId, nextManifest, testUserId)
               .then(() => projectPersistence.projectGetManifest(projectId))
-              .then(manifest => expect(manifest).to.eql(nextManifest));
+              .then(manifest => Project.compare(manifest, nextManifest, true));
           });
 
           it('projectMergeManifest() merges manifest with a patch', () => {
@@ -292,7 +287,7 @@ describe('Server', () => {
 
             return projectPersistence.projectMergeManifest(projectId, patch, testUserId)
               .then(() => projectPersistence.projectGetManifest(projectId))
-              .then(manifest => expect(manifest).to.eql(merged));
+              .then(manifest => Project.compare(manifest, merged, true));
           });
         });
 

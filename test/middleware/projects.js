@@ -1,22 +1,17 @@
 import chai from 'chai';
 import * as api from '../../src/middleware/projects';
-import * as snapshotApi from '../../src/middleware/snapshots';
 import { merge, range } from 'lodash';
 import { testUserId } from '../constants';
+import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
 
-import * as commitMessages from '../../server/data/git-deprecated/commitMessages';
-import * as filePaths from '../../server/data/middleware/filePaths';
-import * as versioning from '../../server/data/git-deprecated/git';
 import * as projectPersistence from '../../server/data/persistence/projects';
-import { createExampleRollup } from '../_utils/rollup';
+import { createSequencedRollup, createListRollup, createExampleRollup } from '../_utils/rollup';
 
 const { assert, expect } = chai;
 
-console.log('todo - re-enable versioning related middleware tests');
-
 describe('Middleware', () => {
-  describe('Rollup', () => {
+  describe('Projects', () => {
     //create a test project to load
     const userId = testUserId;
     const roll = createExampleRollup();
@@ -37,7 +32,7 @@ describe('Middleware', () => {
     it('loadProject() loads a project rollup', () => {
       return api.loadProject(projectId)
         .then(gotRoll => {
-          expect(gotRoll.project).to.eql(project);
+          assert(Project.compare(project, gotRoll.project), 'projects should be the same');
           assert(Object.keys(gotRoll.blocks).every(blockId => {
             return !!roll.blocks[blockId];
           }));
@@ -53,56 +48,35 @@ describe('Middleware', () => {
       const block2 = roll.blocks[blockKeys[3]];
 
       return api.saveProject(projectId, roll)
-        .then((commit) => Promise
+        .then((versionInfo) => Promise
           .all([
             projectPersistence.projectGetManifest(projectId),
             projectPersistence.blocksGet(projectId, false, block1.id).then(map => map[block1.id]),
             projectPersistence.blocksGet(projectId, false, block2.id).then(map => map[block2.id]),
           ])
           .then(([gotProject, got1, got2]) => {
-            expect(gotProject).to.eql(merge({}, project, {
-              version: commit.sha,
-              metadata: {
-                updated: commit.time,
-                authors: [testUserId],
-              },
-            }));
+            assert(Project.compare(project, gotProject), 'projects should be the same');
             expect(got1).to.eql(block1);
             expect(got2).to.eql(block2);
           }));
     });
 
-    it('saveProject() creates a commit', () => {
-      const a_roll = createExampleRollup();
-      const a_projectId = a_roll.project.id;
-      const b_roll = Object.assign(createExampleRollup(), { project: a_roll.project });
+    it('saveProject() creates a version', () => {
+      const one = createExampleRollup();
 
-      const a_path = filePaths.createProjectDataPath(a_projectId);
-      let a_log;
+      const two = merge({}, one);
+      two.project.metadata.name = 'new name';
 
-      return api.saveProject(a_projectId, a_roll)
-        .then(() => versioning.log(a_path))
-        .then(log => {
-          a_log = log;
-        })
-        .then(() => api.saveProject(a_projectId, b_roll))
-        .then(() => versioning.log(a_path))
-        .then(log => {
-          assert(typeof log.length === 'number', 'log error in wrong format, got ' + log);
-          expect(a_log.length + 1).to.equal(log.length);
-        });
-    });
+      let info1;
+      let info2;
 
-    it('snapshot() creates a snapshot commit, returns the sha', () => {
-      const roll = createExampleRollup();
-      const project = roll.project;
-      const projectId = project.id;
-      const commitMessage = 'my fancy message';
-
-      return snapshotApi.snapshot(projectId, commitMessage, roll)
-        .then(commit => {
-          assert(commit.message.indexOf(commitMessages.SNAPSHOT) >= 0, 'wrong commit message type, shoudl be snapshot');
-          assert(commit.message.indexOf(commitMessage) >= 0, 'commit message missing');
+      return api.saveProject(one.project.id, one)
+        .then(info => { info1 = info; })
+        .then(() => api.saveProject(one.project.id, one))
+        .then(info => { info2 = info; })
+        .then(() => {
+          expect(info1.version).to.equal(0);
+          expect(info2.version).to.equal(1);
         });
     });
 
@@ -116,6 +90,34 @@ describe('Middleware', () => {
       merge(roll.blocks, newBlocks);
 
       return api.saveProject(project.id, roll);
+    });
+
+    it('loadBlock() gets the components and options of a block', () => {
+      const numberListBlocks = 3;
+      const numberListOptions = 4;
+      const numberSequenceBlocks = 5;
+
+      const roll = createListRollup(numberListBlocks, numberListOptions);
+      const sequenced = createSequencedRollup(numberSequenceBlocks);
+
+      roll.project.components.push(...sequenced.project.components);
+      Object.assign(roll.blocks, sequenced.blocks);
+
+      const listBlockId = roll.project.components[0];
+      const constructBlockId = roll.project.components[numberListBlocks];
+
+      return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+        .then(() => api.loadBlock(listBlockId, roll.project.id))
+        .then(({ components, options }) => {
+          expect(Object.keys(options).length).to.equal(numberListOptions);
+          expect(Object.keys(components).length).to.equal(1);
+          expect(components[Object.keys(components)[0]]).to.eql(roll.blocks[listBlockId])
+        })
+        .then(() => api.loadBlock(constructBlockId, roll.project.id))
+        .then(({ components, options }) => {
+          expect(Object.keys(components).length).to.equal(1 + numberSequenceBlocks);
+          expect(Object.keys(options).length).to.equal(0);
+        });
     });
   });
 });

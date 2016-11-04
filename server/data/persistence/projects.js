@@ -30,7 +30,33 @@ import { dbHeadRaw, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware
 /*********
  Helpers
  *********/
-//maybe can deprecate these helpers, and just use the exported functions
+
+//for project Get / Write
+//expects data, version, id, createdAt, updatedAt
+//note - makes testing a lot more complicated, since fields may change when written on server
+const mergeMetadataOntoProject = (data) => {
+  const transformedData = {
+    data: data.data,
+    id: data.id,
+    version: parseInt(data.version, 10),
+    updated: (new Date(data.updatedAt)).valueOf(),
+    created: (new Date(data.createdAt)).valueOf(),
+    owner: data.owner,
+  };
+
+  merge(transformedData.data, {
+    project: {
+      version: transformedData.version,
+      metadata: {
+        updated: transformedData.updated,
+      },
+    },
+  });
+
+  return transformedData;
+};
+
+//maybe can deprecate some of these helpers, and just use the exported functions
 
 //todo - this should resolve to false... need to update usages
 //resolves to latest version
@@ -57,20 +83,22 @@ const _projectExists = (projectId, version) => {
 //should not be called if the project already exists
 const _projectCreate = (projectId, userId, project = {}) => {
   //is there any other setup we want to do on creation?
-  return dbPost(`projects/`, userId, project, {}, { id: projectId });
+  return dbPost(`projects/`, userId, project, {}, { id: projectId })
+    .then(mergeMetadataOntoProject)
 };
 
 const _projectWrite = (projectId, userId, project = {}) => {
-  return dbPost(`projects/${projectId}`, userId, project);
+  return dbPost(`projects/${projectId}`, userId, project)
+    .then(mergeMetadataOntoProject)
 };
 
-//todo - should check metadata and force version + updated onto project
 const _projectRead = (projectId, version) => {
   if (Number.isInteger(version)) {
     //todo - should use projectVersions module instead
   }
 
   return dbGet(`projects/${projectId}`)
+    .then(mergeMetadataOntoProject)
     .then(dbPruneResult);
 };
 
@@ -115,7 +143,8 @@ export const projectExists = (projectId, version) => {
 
 //check access to a particular project
 //ideally, would return a 403 on one call, rather than chaining two together
-export const userOwnsProject = (userId, projectId, projectMustExist = false) => {
+//todo - move to a HEAD call
+export const userOwnsProject = (userId, projectId) => {
   return getUserProjectIds(userId)
     .then((projectIds) => {
       if (projectIds.indexOf(projectId) >= 0) {
@@ -130,11 +159,8 @@ export const userOwnsProject = (userId, projectId, projectMustExist = false) => 
             return Promise.reject(errorNoPermission);
           }
 
-          if (err === errorDoesNotExist && !projectMustExist) {
-            return true;
-          }
-
-          if (err === errorDoesNotExist && projectMustExist) {
+          //we expect this if doesnt exist, just to be explicit
+          if (err === errorDoesNotExist) {
             return Promise.reject(errorDoesNotExist);
           }
 
@@ -193,7 +219,7 @@ export const blockGet = (projectId, version = false, blockId) => {
 
 //SET (WRITE + MERGE)
 
-//should return commit-like information (not just the project)
+// see mergeMetadataOntoProject() above to see what is returned
 export const projectWrite = (projectId, roll = {}, userId, bypassValidation = false) => {
   const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
 
@@ -206,11 +232,6 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
   //invariant(userId, 'user id is required to write project');
 
   //todo - when do we not want to overwrite project / blocks? verify not corrupting e.g. EGF project or tests
-
-  //todo - assign fields version + lastSaved to match old projectSave()
-  //can optimistically set them, and then make sure the version is the same after save, and overwrite if necessary
-  //need to make sure dont write the wrong version
-  //may want to force overwrite when we do projectGet() in case something wrong was in the DB
 
   merge(roll.project, {
     id: projectId,
@@ -235,7 +256,12 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
 
   //if it doesn't exist, create the project
   return projectExists(projectId)
-    .then(() => {
+    .then(version => {
+      //increment the latest version + 1 as version of this project
+      //write the data in the database correctly to match the version
+      //we can optimistically set this, since we will always be creating a new one with writes
+      roll.project.version = version + 1;
+
       return _projectWrite(projectId, userId, roll);
     })
     .catch((err) => {
@@ -244,7 +270,6 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
       }
       return Promise.reject(err);
     })
-    //receieves { data, version, id, owner, updatedAt, createdAt }
     .then(data => {
       timer.end('project written');
       return data;

@@ -150,11 +150,11 @@ export const blockSetRole = (blockId, role) => {
  * @function
  * @param {UUID} blockId
  * @param {UUID} inputProjectId
- * @param {boolean} [withContents=false]
+ * @param {boolean} [withContents=true]
  * @param {boolean} [skipIfContentsEmpty=false]
  * @returns {Promise} Array of Blocks retrieved
  */
-export const blockLoad = (blockId, inputProjectId, withContents = false, skipIfContentsEmpty = false) => {
+export const blockLoad = (blockId, inputProjectId, withContents = true, skipIfContentsEmpty = false) => {
   return (dispatch, getState) => {
     const retrieved = getState().blocks[blockId];
     if (skipIfContentsEmpty === true && retrieved && !retrieved.hasContents()) {

@@ -33,13 +33,15 @@ export const SNAPSHOT_TYPE_USER = 'SNAPSHOT_USER';
 export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
 export const defaultMessage = 'Project Snapshot';
 
-//todo - update middleware on client, expecting commit SHA, to expect version
-
 export const snapshotWrite = (projectId, userId, version, message = defaultMessage, tags = {}, type = SNAPSHOT_TYPE_USER) => {
+  const gotVersion = Number.isInteger(version) || (typeof version === 'string' && Number.isInteger(parseInt(version, 10)));
+
   //get the latest version if they did not specify one
-  const getVersion = Number.isInteger(version) || (typeof version === 'string' && Number.isInteger(parseInt(version, 10))) ?
+  const getVersion = gotVersion ?
     Promise.resolve(version) :
     projectPersistence.projectExists(projectId).then(version => version);
+
+  console.log('writing shapshot', projectId, gotVersion, version, message);
 
   return getVersion
   //signature is weird - no data to pass, just several body parameters

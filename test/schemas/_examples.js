@@ -26,7 +26,7 @@ export const Block = {
 
 export const Project = {
   id: uuid.v4(),
-  version: sha1('project!'),
+  version: 12,
   parents: [],
   metadata: {
     authors: [],

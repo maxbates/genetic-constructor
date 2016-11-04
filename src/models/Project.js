@@ -13,16 +13,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { cloneDeep, isEqual } from 'lodash';
+import { merge, cloneDeep, isEqual } from 'lodash';
 import invariant from 'invariant';
 import Instance from './Instance';
 import ProjectSchema from '../schemas/Project';
 import safeValidate from '../schemas/fields/safeValidate';
-import { id, version } from '../schemas/fields/validators';
+import { id } from '../schemas/fields/validators';
 import { projectFileWrite, projectFileRead } from '../middleware/projectFiles';
 
 const idValidator = (input, required = false) => safeValidate(id(), required, input);
-const versionValidator = (ver, required = false) => safeValidate(version(), required, ver);
 
 /**
  * Projects are the containers for a body of work, including all their blocks, preferences, orders, and files.
@@ -73,26 +72,47 @@ export default class Project extends Instance {
 
   /**
    * compares two projects, checking if they are the same (ignoring project version + save time)
+   * use newer one as second arg (in case first one doesnt have updated / version stamp)
    * @method compare
    * @memberOf Project
    * @static
    * @param {Object} one
    * @param {Object} two
+   * @param {boolean} [throwOnError=false] Whether to throw on errors
+   * @throws if `throwOnError===true`, will throw when not equal
    * @returns {boolean} whether equal
    */
-  static compare(one, two) {
-    if (!one || !two) return false;
-    if (one === two) return true;
+  static compare(one, two, throwOnError = false) {
+    if ((typeof one === 'object') && (typeof two === 'object') && (one === two)) {
+      return true;
+    }
 
-    //massage fields from two we dont want to compare into a temp object (in case one is missing those fields)
-    const massaged = one.merge({
-      version: two.version,
-      metadata: {
-        updated: two.metadata.updated,
-      },
-    });
+    try {
+      invariant(one && two, 'must pass two projects');
+      invariant(one.id === two.id, 'projects IDs do not match');
+      invariant(isEqual(one.components, two.components), 'project components do not match');
 
-    return isEqual(two, massaged);
+      //expensive check across whole project
+      //want to ignore the version and updated, since may be set between saves, without changing the data
+      //lodash doesnt give a nice way to omit certain properties when cloning...
+      //also, need to onvert to POJO in case one is a model and one an object
+      const cloned = (inst) => {
+        //merge onto {} to remove prototype
+        const clone = merge({}, inst);
+        delete clone.version;
+        delete clone.metadata.updated;
+        return clone;
+      };
+
+      invariant(isEqual(cloned(one), cloned(two)), 'projects contain different data');
+    } catch (err) {
+      if (throwOnError === true) {
+        throw err;
+      }
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -128,7 +148,7 @@ export default class Project extends Instance {
    * @returns {Project}
    */
   updateVersion(version, updated = Date.now()) {
-    invariant(versionValidator(version), 'must pass valid SHA to update version');
+    invariant(Number.isInteger(version), 'must pass valid version to update version');
     invariant(Number.isInteger(updated), 'must pass valid time to update version');
     return this.merge({ version, metadata: { updated } });
   }

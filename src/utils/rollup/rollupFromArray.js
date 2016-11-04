@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//todo - this would make more sense as a static method of a rollup utility class
+//todo - use rollup model static method
 
 //for use when want to pass an array of blocks
 export default function rollupFromArray(project, ...blocks) {

@@ -2,8 +2,7 @@ import { assert, expect } from 'chai';
 import request from 'supertest';
 import { merge } from 'lodash';
 import userConfigDefaults from '../../server/onboarding/userConfigDefaults';
-
-const devServer = require('../../server/server');
+import devServer from '../../server/server';
 
 describe('Server', () => {
   describe('Auth', () => {
@@ -12,15 +11,23 @@ describe('Server', () => {
       password: 'HelpMe#1',
     };
 
+    let server;
+    beforeEach('server setup', () => {
+      server = devServer.listen();
+    });
+    afterEach(() => {
+      server.close();
+    });
+
     it('/auth/login route should return a 200', (done) => {
-      request(devServer)
+      request(server)
         .post('/auth/login')
         .send(dummyUser)
         .expect(200, done);
     });
 
     it('/auth/login should set a cookie on the client', (done) => {
-      request(devServer)
+      request(server)
         .post('/auth/login')
         .send(dummyUser)
         .expect((res) => {
@@ -32,7 +39,7 @@ describe('Server', () => {
 
     // THIS IS A TEST ROUTE ONLY - it only works in local auth
     it('/auth/cookies should return cookies sent on request', (done) => {
-      const agent = request.agent(devServer);
+      const agent = request.agent(server);
 
       agent
         .post('/auth/login')

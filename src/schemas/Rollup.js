@@ -14,6 +14,8 @@
  limitations under the License.
  */
 
+import invariant from 'invariant';
+import _ from 'lodash';
 import fields from './fields/index';
 import * as validators from './fields/validators';
 import SchemaClass from './SchemaClass';
@@ -69,22 +71,32 @@ export class RollupSchemaClass extends SchemaClass {
     super(Object.assign({}, rollupFields, fieldDefinitions));
   }
 
-  validate(instance, shouldThrow, cheapOnly = false) {
-    if (cheapOnly === true) {
-      return typeof instance === 'object' &&
-        typeof instance.project === 'object' &&
-        typeof instance.blocks === 'object' &&
-        idRegex().test(instance.project.id);
-    }
+  validate(instance, throwOnError, heavy) {
+    try {
+      invariant(typeof instance === 'object', 'must pass instance');
+      invariant(typeof instance.project === 'object' && typeof instance.blocks === 'object', 'must pass blocks and project objects');
+      invariant(idRegex().test(instance.project.id), 'must pass valid project ID');
 
-    const fieldsValid = super.validateFields(instance, shouldThrow);
+      //checks to run in non-production or if specified
+      if (heavy === true || (heavy !== false && process.env.NODE_ENV !== 'production')) {
+        const acceptedKeys = ['blocks', 'project', 'sequences'];
+        const keys = Object.keys(instance);
 
-    if (!fieldsValid) {
+        invariant(keys.length <= 3, 'too many keys: ' + keys.join(', '));
+        invariant(keys.every(key => acceptedKeys.indexOf(key) >= 0), 'unknown key');
+
+        const projectId = instance.project.id;
+
+        invariant(_.every(instance.blocks, (value, key) => value.projectId === projectId), 'all blocks must have correct projectId');
+
+        super.validateFields(instance, true);
+      }
+    } catch (err) {
+      if (throwOnError === true) {
+        throw err;
+      }
       return false;
     }
-
-    //todo - limit other fields
-    //todo - make sure projectId in each block matches
 
     return true;
   }

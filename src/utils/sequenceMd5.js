@@ -51,6 +51,10 @@ export const generatePseudoMd5 = (realMd5, start, end) => {
 
 //start and end will only be defined if byte range is specified
 export const parsePseudoMd5 = (pseudoMd5) => {
+  if (!pseudoMd5) {
+    return {};
+  }
+
   invariant(typeof pseudoMd5 === 'string', `must pass a string, got ${pseudoMd5}`);
 
   const match = pseudoMd5.match(pseudoMd5Regex);

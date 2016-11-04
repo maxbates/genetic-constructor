@@ -26,16 +26,9 @@ import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
-import * as projectVersions from '../../../../server/data/persistence/projectVersions';
 import * as snapshots from '../../../../server/data/persistence/snapshots';
 
-//todo - need to update all saving routes etc. to differentiate between versioning an dsnapshots --- update middleware specifically, and the appropriate tests
-
 describe('Server', () => {
-  //todo - temporary, waiting for server to start
-  before(() => {
-    return new Promise(resolve => setTimeout(resolve, 2000));
-  });
   describe('Data', () => {
     describe('persistence', () => {
       describe('snapshot', () => {
