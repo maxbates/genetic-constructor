@@ -21,14 +21,16 @@ import uuid from 'node-uuid';
 import { createExampleRollup, createSequencedRollup } from '../_utils/rollup';
 
 describe('Schema', () => {
-  describe.only('Rollup', () => {
+  describe('Rollup', () => {
     it('should validate the test created rollup', () => {
       expect(RollupSchema.validate(createExampleRollup())).to.equal(true);
     });
 
     it('should validate a simply created rollup', () => {
       const project = new Project();
-      const block = new Block();
+      const block = new Block({
+        projectId: project.id,
+      });
 
       const roll = {
         project,
@@ -40,9 +42,20 @@ describe('Schema', () => {
       expect(RollupSchema.validate(roll)).to.equal(true);
     });
 
+    it('should throw on error if specified', () => {
+      const good = createExampleRollup();
+      const bad = Object.assign({}, good, { project: { metadata: {}}});
+
+      expect(RollupSchema.validate(good)).to.equal(true);
+      expect(() => RollupSchema.validate(good, true)).to.not.throw();
+
+      expect(RollupSchema.validate(bad)).to.equal(false);
+      expect(() => RollupSchema.validate(bad, true)).to.throw();
+    });
+
     it('should validate a rollup with sequences', () => {
       // { md5: sequence } format
-      expect(RollupSchema.validate(createSequencedRollup())).to.equal(true);
+      RollupSchema.validate(createSequencedRollup(), true);
 
       const project = new Project();
       const seq = 'CAGTCGATCGATCGTCAGTACGTGCTAGCTGACTGACATCTAGCAGCTAGC';
@@ -68,13 +81,29 @@ describe('Schema', () => {
         }],
       };
 
-      expect(RollupSchema.validate(roll)).to.equal(true);
+      RollupSchema.validate(roll, true);
     });
 
-    //todo
-    it('should only allow fields project, blocks, sequences');
+    it('should only allow fields project, blocks, sequences', () => {
+      const bad = Object.assign(createSequencedRollup(), { extra: 'bad' });
+      expect(() => RollupSchema.validate(bad, true)).to.throw();
+    });
 
-    it('should make sure projectIds in blocks match the rollup project Id');
+    it('should make sure projectIds in blocks match the rollup project Id', () => {
+      const project = new Project();
+      const block = new Block({
+        projectId: Project.classless().id,
+      });
+
+      const roll = {
+        project,
+        blocks: {
+          [block.id]: block,
+        },
+      };
+
+      expect(RollupSchema.validate(roll)).to.equal(false);
+    });
 
     it('should allow for a cheap check');
   });
