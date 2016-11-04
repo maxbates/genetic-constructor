@@ -10,7 +10,6 @@ var each = require('underscore').each;
 var Project = require('../../../../lib/project');
 var Snapshot = require('../../../../lib/snapshot');
 
-
 var owner = '810ffb30-1938-11e6-a132-dd99bc746800';
 
 describeAppTest("http", function (app) {
