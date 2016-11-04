@@ -13,9 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { dbDelete } from '../middleware/db';
 
-//wait for server to be ready
-before(() => {
-  console.log('waiting for server... (could be more explicit)');
-  return new Promise(resolve => setTimeout(resolve, 2000));
-});
+export const deleteUser = (userId) => {
+  return dbDelete(`admin/owner/${userId}`);
+};

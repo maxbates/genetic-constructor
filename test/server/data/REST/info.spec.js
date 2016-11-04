@@ -1,5 +1,6 @@
 import { assert, expect } from 'chai';
 import request from 'supertest';
+import uuid from 'node-uuid';
 import { testUserId } from '../../../constants';
 import Block from '../../../../src/models/Block';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
@@ -24,19 +25,25 @@ describe('Server', () => {
           return block.components.length === 3;
         });
 
-        //add 5 weird role type blocks to roll
+        //add 5 weird role type (5 of each) blocks to roll
         const numberEsotericRole = 5;
         const esotericRole = 'sdlfkjasdlfkjasdf';
-        const blocks = range(numberEsotericRole)
-          .map(() => Block.classless({
+        const esotericRoleAlt = 'dflhjasvoasv';
+
+        const blocks = range(numberEsotericRole * 2)
+          .map((num) => Block.classless({
             projectId,
-            rules: { role: esotericRole },
+            rules: { role: (num % 2 === 0) ? esotericRoleAlt : esotericRole },
           }))
           .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
         merge(roll.blocks, blocks);
 
         before(() => {
-          return projectPersistence.projectWrite(projectId, roll, userId);
+          return projectPersistence.projectWrite(projectId, roll, userId)
+            //check across versions
+            .then(() => projectPersistence.projectWrite(projectId, roll, userId))
+            //check across users
+            .then(() => projectPersistence.projectWrite(projectId, roll, uuid.v1()));
         });
 
         beforeEach('server setup', () => {

@@ -84,12 +84,12 @@ const _projectExists = (projectId, version) => {
 const _projectCreate = (projectId, userId, project = {}) => {
   //is there any other setup we want to do on creation?
   return dbPost(`projects/`, userId, project, {}, { id: projectId })
-    .then(mergeMetadataOntoProject)
+    .then(mergeMetadataOntoProject);
 };
 
 const _projectWrite = (projectId, userId, project = {}) => {
   return dbPost(`projects/${projectId}`, userId, project)
-    .then(mergeMetadataOntoProject)
+    .then(mergeMetadataOntoProject);
 };
 
 const _projectRead = (projectId, version) => {
@@ -103,7 +103,8 @@ const _projectRead = (projectId, version) => {
 };
 
 const _projectDelete = (projectId, userId) => {
-  return dbDelete(`projects/${projectId}`);
+  return dbDelete(`projects/${projectId}`)
+    .then(resp => resp.json());
 };
 
 /*********
