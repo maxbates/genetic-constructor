@@ -8,6 +8,7 @@ var describeAppTest = require("../../../api-app");
 var each = require('underscore').each;
 
 var Project = require('../../../../lib/project');
+var Order = require('../../../../lib/order');
 var Snapshot = require('../../../../lib/snapshot');
 
 var owner = '810ffb30-1938-11e6-a132-dd99bc746800';
@@ -24,6 +25,19 @@ describeAppTest("http", function (app) {
 
     after(function (done) {
       async.series([
+        function (cb) {
+          return Order.destroy({
+            where: {
+              owner: owner,
+            },
+          }).then(function (numDeleted) {
+            console.log('deleted ' + numDeleted + ' orders');
+            cb();
+          }).catch(function (err) {
+            console.error('orders cleanup error', err);
+            cb(err);
+          });
+        },
         function (cb) {
           return Snapshot.destroy({
             where: {
@@ -589,6 +603,29 @@ describeAppTest("http", function (app) {
         },
         function (snapshotUUID, cb) {
           request(app.proxy)
+            .post('/api/orders')
+            .send({
+              owner: owner,
+              projectId: projectId1,
+              projectVersion: 0,
+              type: "test",
+              data: {
+                foundry: "egf",
+                status: "open",
+                parts: ["foo", "snack", "driver"],
+                dueDate: new Date(),
+              },
+            })
+            .expect(200)
+            .end(function (err, res) {
+              return cb(err, {
+                snapshotUUID: snapshotUUID,
+                orderUUID: res.body.uuid,
+              });
+            });
+        },
+        function (uuids, cb) {
+          request(app.proxy)
             .delete('/api/projects/' + projectId1)
             .expect(200)
             .end(function (err, res) {
@@ -598,19 +635,29 @@ describeAppTest("http", function (app) {
               assert.notEqual(res.body, null);
               assert.equal(res.body.projects, 1);
               assert.equal(res.body.snapshots, 1);
-              assert.equal(res.body.orders, 0);
-              return cb(err, snapshotUUID);
+              assert.equal(res.body.orders, 1);
+              return cb(err, uuids);
             });
         },
       ], function (err, result) {
         assert.ifError(err);
-        request(app.proxy)
-          .get('/api/snapshots/uuid/' + result)
-          .expect(404)
-          .end(function (err, res) {
-            assert.ifError(err);
-            done();
-          });
+        return async.parallel([
+          function (cb) {
+            request(app.proxy)
+              .get('/api/snapshots/uuid/' + result.snapshotUUID)
+              .expect(404)
+              .end(cb);
+          },
+          function (cb) {
+            request(app.proxy)
+              .get('/api/orders/uuid/' + result.orderUUID)
+              .expect(404)
+              .end(cb);
+          },
+        ], function (err) {
+          assert.ifError(err);
+          done();
+        });
       });
     });
   });

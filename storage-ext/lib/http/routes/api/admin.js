@@ -12,10 +12,12 @@ var route = require("http-route");
 var combiner = require('../../combiner');
 
 var Project = require('../../../project');
+var Order = require('../../../order');
 var Snapshot = require('../../../snapshot');
 
 // these should be ordered for deletion by foreign dependencies
 var orderedModels = {
+  orders: Order,
   snapshots: Snapshot,
   projects: Project,
 };

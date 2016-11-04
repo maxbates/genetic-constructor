@@ -18,6 +18,7 @@ var notNullAndPosInt = require('../../../util').notNullAndPosInt;
 
 var Sequelize = require('sequelize');
 var Project = require('../../../project');
+var Order = require('../../../order');
 var Snapshot = require('../../../snapshot');
 
 function collapseProjects(projectsArray) {
@@ -569,9 +570,21 @@ var deleteProject = function (req, res) {
           });
         },
         function (cb) {
-          // TODO delete Orders here
-          return cb(null, {
-            numDeleted: 0,
+          // TODO call REST API here
+          return Order.update({
+            status: 0,
+          }, {
+            returning: false,
+            where: cascadeWhere,
+          }).then(function (ordersDeleted) {
+            var numDeleted = ordersDeleted[0];
+            return cb(null, {
+              numDeleted: numDeleted,
+            });
+          }).catch(function (err) {
+            return cb({
+              message: err.message,
+            });
           });
         },
       ], function (cascadeErr, cascadeResults) {

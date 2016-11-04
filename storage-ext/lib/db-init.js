@@ -4,6 +4,7 @@ var init = require('./project').init;
 module.exports = function (callback) {
   init([
     // insert other tables here
+    require('./order'),
     require('./snapshot'),
   ], function (err) {
     if (err) {
