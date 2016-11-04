@@ -1,6 +1,8 @@
 import { directoryMake } from '../server/data/middleware/fileSystem';
 import { createStorageUrl } from '../server/data/middleware/filePaths';
 
+console.log('todo - deprecate the setup of folders etc. once DB migration complete, and move the EGF sequences to S3');
+
 import copyToStorage from '../data/egf_parts/copySequencesToStorage';
 
 async function setup() {

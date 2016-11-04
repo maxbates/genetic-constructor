@@ -13,4 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
- 
+import run from './run';
+import del from 'del';
+import setup from './setup';
+import checks from './checks';
+
+//todo - move make file to this
+
+async function testSetup() {
+  await run(checks);
+  await del(['storage/test'], { dot: true });
+  await run(setup);
+}
+
+export default testSetup;

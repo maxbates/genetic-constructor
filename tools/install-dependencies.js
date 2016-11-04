@@ -11,15 +11,11 @@
  limitations under the License.
  */
 
-import { promisedExec, spawnWaitUntilString } from './processUtils';
+import { promisedExec } from './processUtils';
 
 async function installDependencies() {
   try {
     await promisedExec('pip install --user biopython', {}, { forceOutput: true});
-    //todo - need to handle sudo here
-    /* await promisedExec('./install-fsharp.sh', {
-     cwd: __dirname,
-     }); */
   } catch (err) {
     console.log('CAUGHT', err);
     throw err;
