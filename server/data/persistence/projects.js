@@ -103,7 +103,8 @@ const _projectRead = (projectId, version) => {
 };
 
 const _projectDelete = (projectId, userId) => {
-  return dbDelete(`projects/${projectId}`);
+  return dbDelete(`projects/${projectId}`)
+    .then(resp => resp.json());
 };
 
 /*********

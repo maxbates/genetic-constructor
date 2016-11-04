@@ -41,6 +41,7 @@ const defaultErrorHandling = (resp) => {
 
   console.log('unhandled DB error @ ', resp.url || resp);
 
+  //todo - shouldnt parse the normal body without cloning it ... what relies on this being json?
   return resp.json().then(json => {
     console.log(json);
     return Promise.reject(json);
@@ -82,7 +83,6 @@ export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => {
 export const dbDelete = (path, params = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
   return rejectingFetch(makePath(path), headers.headersDelete(fetchParams))
-    .then(resp => resp.json())
     .catch(defaultErrorHandling);
 };
 
