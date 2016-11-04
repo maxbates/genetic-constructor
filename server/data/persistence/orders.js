@@ -13,12 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 import invariant from 'invariant';
 import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateOrder } from '../../utils/validation';
 import { dbGet, dbPost, dbPruneResult } from '../middleware/db';
-
 
 /*********
  Helpers
