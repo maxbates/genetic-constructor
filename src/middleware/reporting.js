@@ -39,7 +39,7 @@ ${user}`;
   const payload = JSON.stringify({
     title,
     body,
-    labels: ['bug:web'],
+    labels: ['bug:user_reported'],
   });
 
   return rejectingFetch(postUrl, headersPost(payload))
