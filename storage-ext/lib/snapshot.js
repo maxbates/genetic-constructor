@@ -31,7 +31,6 @@ var schema = {
   projectVersion: {
     type: Sequelize.INTEGER,
     allowNull: false,
-    defaultValue: 0, // first version
     validate: {
       min: 0,
     },

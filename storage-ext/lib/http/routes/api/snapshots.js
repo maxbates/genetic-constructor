@@ -164,12 +164,6 @@ var saveSnapshot = function (req, res) {
     }).end();
   }
 
-  if (body.projectVersion == null) {
-    return res.status(400).send({
-      message: '\'projectVersion\' is required in request body',
-    }).end();
-  }
-
   if (body.type == null) {
     return res.status(400).send({
       message: '\'type\' is required in request body',
@@ -199,12 +193,48 @@ var saveSnapshot = function (req, res) {
 
   async.waterfall([
     function (cb) {
+      if (notNullAndPosInt(body.projectVersion)) {
+        return cb(null, {
+          version: body.projectVersion,
+        });
+      }
+
       return Project.findOne({
         where: {
           owner: body.owner,
           id: body.projectId,
-          version: body.projectVersion,
+          status: 1,
         },
+        order: [
+          ['version', 'DESC'],
+        ],
+        attributes: [
+          'uuid',
+          'version',
+        ],
+      }).then(function (result) {
+        return cb(null, {
+          uuid: result.get('uuid'),
+          version: result.get('version'),
+        });
+      }).catch(function (err) {});
+    },
+    function (latest, cb) {
+      if (latest.uuid != null) {
+        return cb(null, latest);
+      }
+
+      return Project.findOne({
+        where: {
+          owner: body.owner,
+          id: body.projectId,
+          version: latest.version,
+          status: 1,
+        },
+        attributes: [
+          'uuid',
+          'version',
+        ],
       }).then(function (result) {
         if (! result) {
           return cb({
@@ -212,8 +242,10 @@ var saveSnapshot = function (req, res) {
             message: 'target project does not exist',
           });
         }
-
-        return cb(null, result.get('uuid'));
+        return cb(null, {
+          uuid: result.get('uuid'),
+          version: result.get('version'),
+        });
       }).catch(function (err) {
         return cb({
           status: 500,
@@ -222,12 +254,12 @@ var saveSnapshot = function (req, res) {
         });
       });
     },
-    function (projectUUID, cb) {
+    function (latest, cb) {
       return Snapshot.create({
         owner: body.owner,
-        projectUUID: projectUUID,
+        projectUUID: latest.uuid,
         projectId: body.projectId,
-        projectVersion: body.projectVersion,
+        projectVersion: latest.version,
         type: body.type,
         message: body.message,
         tags: tags,

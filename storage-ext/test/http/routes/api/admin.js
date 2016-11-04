@@ -13,7 +13,7 @@ var orderedModels = require('../../../../lib/http/routes/api/admin').orderedMode
 var owner ='810ffb30-1938-11e6-a132-dd99bc746801';
 
 describeAppTest("http", function (app) {
-  describe('api project routes', function () {
+  describe('api admin routes', function () {
     this.timeout(15000);
 
     var projectId0 = "project-364d0c6a-6f08-4fff-a292-425ca3eb91cd";

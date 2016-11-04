@@ -19,35 +19,69 @@ describeAppTest("http", function (app) {
     this.timeout(15000);
 
     var projectId = 'project-fe5b5340-8991-11e6-b86a-b5fa2a5eb9ca';
-    var projectUUID = null;
+
+    var projectUUID0 = null;
+    var projectUUID1 = null;
 
     var snapshotUUID0 = null;
     var snapshotUUID1 = null;
 
     before(function (done) {
-      request(app.proxy)
-        .post('/api/projects')
-        .send({
-          owner: owner,
-          id: projectId,
-          data: {
-            foo: "bar",
-            yes: "no",
-            counts: {
-              "1": 10,
-              "2": 47,
-            },
-          },
-        })
-        .expect(200)
-        .end(function (err, res) {
-          assert.ifError(err);
-          assert.notEqual(res, null);
-          assert.notEqual(res.body, null);
-          assert.notEqual(res.body.uuid, null);
-          projectUUID = res.body.uuid;
-          done();
-        });
+      async.series([
+        function (cb) {
+          request(app.proxy)
+            .post('/api/projects')
+            .send({
+              owner: owner,
+              id: projectId,
+              data: {
+                foo: "bar",
+                yes: "no",
+                counts: {
+                  "1": 10,
+                  "2": 47,
+                },
+              },
+            })
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.notEqual(res.body.uuid, null);
+              projectUUID0 = res.body.uuid;
+              return cb(err);
+            });
+        },
+        function (cb) {
+          request(app.proxy)
+            .post('/api/projects/' + projectId)
+            .send({
+              data: {
+                foo: "bar",
+                yes: "no",
+                counts: {
+                  "1": 10,
+                  "2": 47,
+                  "3": 578,
+                },
+                what: "happened",
+              },
+            })
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.notEqual(res.body.uuid, projectUUID0);
+              assert.equal(res.body.version, 1);
+              return cb(err);
+            });
+        },
+      ], function (err) {
+        assert.ifError(err);
+        done();
+      });
     });
 
     after(function (done) {
@@ -111,6 +145,41 @@ describeAppTest("http", function (app) {
           snapshotUUID0 = res.body.uuid;
           // console.log(res.body);
           assert.deepEqual(pick(res.body, keys(data)), data);
+          assert.notEqual(res.body.projectUUID, null);
+          assert.notEqual(res.body.createdAt, null);
+          assert.notEqual(res.body.updatedAt, null);
+          done();
+        });
+    });
+
+    it('should create a snapshot with most recent version', function createSnapshotMostRecent(done) {
+      var data = {
+        owner: owner,
+        projectId: projectId,
+        message: "test snapshot v1",
+        type: "test",
+        tags: {
+          test: true,
+          hello: "kitty",
+          stuff: ["bing", "bang", "bong"],
+          worldSeries: "cubs",
+          version: "latest",
+        },
+      };
+
+      request(app.proxy)
+        .post('/api/snapshots')
+        .send(data)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.notEqual(res.body.uuid, null);
+          assert.notEqual(res.body.uuid, snapshotUUID0);
+          // console.log(res.body);
+          assert.deepEqual(pick(res.body, keys(data)), data);
+          assert.equal(res.body.projectVersion, 1);
           assert.notEqual(res.body.projectUUID, null);
           assert.notEqual(res.body.createdAt, null);
           assert.notEqual(res.body.updatedAt, null);
@@ -261,7 +330,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body, null);
           assert(Array.isArray(res.body));
           var snapshots = res.body;
-          assert.equal(snapshots.length, 2);
+          assert.equal(snapshots.length, 3);
           each(snapshots, function (snapshot) {
             assert.notEqual(snapshot.projectUUID, null);
             assert.notEqual(snapshot.updatedAt, null);
@@ -363,7 +432,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body, null);
           assert(Array.isArray(res.body));
           var snapshots = res.body;
-          assert.equal(snapshots.length, 2);
+          assert.equal(snapshots.length, 3);
           each(snapshots, function (snapshot) {
             assert.notEqual(snapshot.projectUUID, null);
             assert.notEqual(snapshot.updatedAt, null);
@@ -391,7 +460,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body, null);
           assert(Array.isArray(res.body));
           var snapshots = res.body;
-          assert.equal(snapshots.length, 2);
+          assert.equal(snapshots.length, 3);
           each(snapshots, function (snapshot) {
             assert.notEqual(snapshot.projectUUID, null);
             assert.notEqual(snapshot.updatedAt, null);
