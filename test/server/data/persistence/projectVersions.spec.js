@@ -20,7 +20,7 @@ import _ from 'lodash';
 import { testUserId } from '../../../constants';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
 import { createExampleRollup } from '../../../_utils/rollup';
-import Project from '../../../../src/models/Project';
+import Rollup from '../../../../src/models/Rollup';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as projectVersions from '../../../../server/data/persistence/projectVersions';
@@ -38,7 +38,7 @@ describe('Server', () => {
             .then(result => {
               expect(result.version).to.equal(0);
               expect(result.id).to.equal(roll.project.id);
-              expect(result.data).to.eql(roll);
+              Rollup.compare(result.data, roll, true);
               expect(result.owner).to.equal(testUserId);
             });
         });
@@ -64,14 +64,14 @@ describe('Server', () => {
         it('projectGet() should get latest by default', () => {
           return projectPersistence.projectGet(roll.project.id)
             .then(result => {
-              expect(result).to.eql(latest);
+              Rollup.compare(result, latest, true);
             });
         });
 
         it('projectVersionGet() should get a specific version', () => {
           return projectVersions.projectVersionGet(roll.project.id, 0)
             .then(result => {
-              expect(result).to.eql(roll);
+              Rollup.compare(result, roll, true);
             });
         });
 

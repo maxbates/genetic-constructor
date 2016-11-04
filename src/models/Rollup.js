@@ -48,21 +48,45 @@ export default class Rollup extends Instance {
    * @throws if `throwOnError===true`, will throw when invalid
    * @returns {boolean} if `throwOnError===false`, whether input is a valid block
    * @example
-   * Project.validate(new Block()); //false
-   * Project.validate(new Project()); //true
+   * Rollup.validate(new Block()); //false
+   * Rollup.validate(new Rollup()); //true
    */
   static validate(input, throwOnError, light) {
     return RollupSchema.validate(input, throwOnError, light);
   }
 
+  /**
+   * Compare two rollups' project and blocks
+   * ignoring versioning information, e.g. see Project.compare()
+   *
+   * Note that this is expensive, especially for large rollups
+   * @method compare
+   * @memberOf Rollup
+   * @static
+   * @param {Rollup} one
+   * @param {Rollup} two
+   * @param {boolean} [throwOnError=false] Whether to throw on errors
+   * @throws if `throwOnError===true`, will throw when not equal
+   * @returns {boolean} if `throwOnError===false`, whether input is a valid block
+   * @example
+   * const roll = new Rollup();
+   * const other = Object.assign({}, roll);
+   *
+   * Rollup.compare(roll, other); //true
+   * Rollup.compare(roll, new Rollup()); //false
+   */
   static compare(one, two, throwOnError = false) {
-    if (one && two && one === two) {
+    if ((typeof one === 'object') && (typeof two === 'object') && (one === two)) {
       return true;
     }
 
     try {
       invariant(one && two, 'must pass two rollups');
-      invariant(Project.compare(one.project, two.project), 'projects do not match');
+
+      //compare projects, throwing if error
+      Project.compare(one.project, two.project, true);
+
+      //compare blocks
       invariant(Object.keys(one.blocks).length === Object.keys(two.blocks).length, 'blocks are different number');
       invariant(every(one.blocks, (value, key) => {
         return value === two.blocks[key] || isEqual(value, two.blocks[key]);

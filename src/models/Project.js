@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { cloneDeep, isEqual } from 'lodash';
+import { merge, cloneDeep, isEqual } from 'lodash';
 import invariant from 'invariant';
 import Instance from './Instance';
 import ProjectSchema from '../schemas/Project';
@@ -78,25 +78,41 @@ export default class Project extends Instance {
    * @static
    * @param {Object} one
    * @param {Object} two
+   * @param {boolean} [throwOnError=false] Whether to throw on errors
+   * @throws if `throwOnError===true`, will throw when not equal
    * @returns {boolean} whether equal
    */
-  static compare(one, two) {
-    if (!one || !two) return false;
-    if (one === two) return true;
+  static compare(one, two, throwOnError = false) {
+    if ((typeof one === 'object') && (typeof two === 'object') && (one === two)) {
+      return true;
+    }
 
-    //want to ignore the version and updated, since may be set between saves, without changing the data
-    //lodash doesnt give a nice way to omit certain properties when cloning...
-    const cloned = (inst) => {
-      const clone = cloneDeep(inst);
-      delete clone.version;
-      delete clone.metadata.updated;
-      return clone;
-    };
+    try {
+      invariant(one && two, 'must pass two projects');
+      invariant(one.id === two.id, 'projects IDs do not match');
+      invariant(isEqual(one.components, two.components), 'project components do not match');
 
-    return isEqual(
-      cloned(one),
-      cloned(two),
-    );
+      //expensive check across whole project
+      //want to ignore the version and updated, since may be set between saves, without changing the data
+      //lodash doesnt give a nice way to omit certain properties when cloning...
+      //also, need to onvert to POJO in case one is a model and one an object
+      const cloned = (inst) => {
+        //merge onto {} to remove prototype
+        const clone = merge({}, inst);
+        delete clone.version;
+        delete clone.metadata.updated;
+        return clone;
+      };
+
+      invariant(isEqual(cloned(one), cloned(two)), 'projects contain different data');
+    } catch (err) {
+      if (throwOnError === true) {
+        throw err;
+      }
+      return false;
+    }
+
+    return true;
   }
 
   /**

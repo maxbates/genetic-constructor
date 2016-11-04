@@ -1,6 +1,5 @@
 import { expect, assert } from 'chai';
 import Project from '../../src/models/Project';
-import sha from 'sha1';
 import { isEqual } from 'lodash';
 
 describe('Model', () => {
@@ -19,6 +18,32 @@ describe('Model', () => {
       const inst = new Project(existing);
 
       expect(inst.metadata.name).to.equal('blah');
+    });
+
+    it('compare() can throw, or not', () => {
+      const orig = new Project();
+      const copy = orig.clone(null);
+      const diff = orig.mutate('metadata.name', 'new name');
+
+      expect(Project.compare(orig, orig)).to.equal(true);
+
+      expect(Project.compare(orig, copy)).to.equal(true);
+      expect(() => Project.compare(orig, copy, true)).to.not.throw();
+
+      expect(Project.compare(orig, diff)).to.equal(false);
+      expect(() => Project.compare(orig, diff, true)).to.throw();
+    });
+
+    it('compare() compares model and POJO correctly', () => {
+      const orig = new Project();
+      const clone = orig.clone(null);
+      const copy = Object.assign({}, orig);
+
+      //both project instances
+      Project.compare(orig, clone, true);
+
+      //both same data, one Project one POJO
+      Project.compare(orig, copy, true);
     });
 
     it('Project.classless(input) creates unfrozen JSON object, no instance methods', () => {
