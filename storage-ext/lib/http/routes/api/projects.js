@@ -514,6 +514,7 @@ var deleteProject = function (req, res) {
 
   var where = {
     id: projectId,
+    status: 1,
   };
 
   if (owner != null) {

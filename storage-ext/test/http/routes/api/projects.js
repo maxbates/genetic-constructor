@@ -461,12 +461,68 @@ describeAppTest("http", function (app) {
         });
     });
 
-    it.skip('should delete a version of a project', function deleteProjectVersion(done ) {
-      done();
-    });
-
-    it.skip('should fetch projects by \'ownerId\' (fallback to older version)', function fetchOlderVersion(done ) {
-      done();
+    it('should delete a version of a project', function deleteProjectVersion(done ) {
+      async.waterfall([
+        function (cb) {
+          var data = {
+            chicago: 'blackhawks',
+            championships: 6,
+            biggestFan: 'DEH',
+            snafu: true,
+          };
+          request(app.proxy)
+            .post('/api/projects/' + projectId0 + '?owner=' + owner)
+            .send({
+              data: data,
+            })
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.notEqual(res.body.version, null);
+              assert(res.body.version > 0);
+              return cb(err, res.body.version)
+            });
+        },
+        function (version, cb) {
+          request(app.proxy)
+            .delete('/api/projects/' + projectId0 + '?version=' + version)
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.equal(res.body.projects, 1);
+              return cb(err, version);
+            });
+        },
+        function (version, cb) {
+          request(app.proxy)
+            .get('/api/projects/' + projectId0 + '?owner=' + owner + '&version=' + version)
+            .expect(404)
+            .end(function (err) {
+              assert.ifError(err);
+              return cb(err, version);
+            });
+        },
+        function (version, cb) {
+          request(app.proxy)
+            .get('/api/projects/' + projectId0 + '?owner=' + owner)
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.notEqual(res.body.version, null);
+              assert.equal(res.body.version, version - 1);
+              return cb(err);
+            });
+        },
+      ], function (err) {
+        assert.ifError(err);
+        done();
+      });
     });
 
     it('should delete a project with id', function deleteById(done) {
