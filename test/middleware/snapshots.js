@@ -108,8 +108,15 @@ describe('Middleware', () => {
       });
     });
 
-    //todo
-    it('cant snapshot a version which doesnt exist');
+    it('cant snapshot a version which doesnt exist', (done) => {
+      api.snapshot(projectId, 99)
+        .then(info => {
+          done('shouldnt resolve');
+        })
+        .catch(err => {
+          done();
+        })
+    });
 
     //todo
     it('snapshot() accepts tags, snapshotList() can filter on tags');

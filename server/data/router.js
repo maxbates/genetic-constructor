@@ -80,7 +80,6 @@ router.route('/versions/:projectId/:version?')
         .then(project => res.status(200).json(project))
         .catch(err => next(err));
     } else {
-      //todo - update log format + tests + client middleware expectations
       projectVersions.projectVersionList(projectId)
         .then(log => res.status(200).json(log))
         .catch(err => next(err));
@@ -157,6 +156,7 @@ router.route('/projects/:projectId')
     projectPersistence.projectWrite(projectId, roll, user.uuid)
       .then(info => res.status(200).json({
         version: info.version,
+        updated: info.updated,
         id: info.id,
       }))
       .catch(err => {

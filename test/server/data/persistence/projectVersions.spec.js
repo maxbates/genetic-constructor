@@ -20,6 +20,7 @@ import _ from 'lodash';
 import { testUserId } from '../../../constants';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
 import { createExampleRollup } from '../../../_utils/rollup';
+import Project from '../../../../src/models/Project';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as projectVersions from '../../../../server/data/persistence/projectVersions';

@@ -21,7 +21,7 @@ import uuid from 'node-uuid';
 import { createExampleRollup, createSequencedRollup } from '../_utils/rollup';
 
 describe('Schema', () => {
-  describe('Rollup', () => {
+  describe.only('Rollup', () => {
     it('should validate the test created rollup', () => {
       expect(RollupSchema.validate(createExampleRollup())).to.equal(true);
     });
@@ -46,8 +46,12 @@ describe('Schema', () => {
 
       const project = new Project();
       const seq = 'CAGTCGATCGATCGTCAGTACGTGCTAGCTGACTGACATCTAGCAGCTAGC';
-      const block = new Block();
-      const block2 = new Block();
+      const block = new Block({
+        projectId: project.id,
+      });
+      const block2 = new Block({
+        projectId: project.id,
+      });
 
       const roll = {
         project,
@@ -67,6 +71,7 @@ describe('Schema', () => {
       expect(RollupSchema.validate(roll)).to.equal(true);
     });
 
+    //todo
     it('should only allow fields project, blocks, sequences');
 
     it('should make sure projectIds in blocks match the rollup project Id');

@@ -87,7 +87,7 @@ export const deleteProject = (projectId) => {
 //   components : { <blockId> : <block> } //including the parent requested
 //   options: { <blockId> : <block> }
 // }
-export const loadBlock = (blockId, projectId, withContents = false) => {
+export const loadBlock = (blockId, projectId, withContents = true) => {
   invariant(projectId, 'Project ID is required');
   invariant(blockId, 'Block ID is required');
 
@@ -99,5 +99,8 @@ export const loadBlock = (blockId, projectId, withContents = false) => {
 
   return rejectingFetch(url, headersGet())
     .then(resp => resp.json())
-    .then(block => ({ components: { [block.id]: block } }));
+    .then(block => ({
+      components: { [block.id]: block },
+      options: {},
+    }));
 };

@@ -18,11 +18,10 @@ import invariant from 'invariant';
 import Instance from './Instance';
 import ProjectSchema from '../schemas/Project';
 import safeValidate from '../schemas/fields/safeValidate';
-import { id, version } from '../schemas/fields/validators';
+import { id } from '../schemas/fields/validators';
 import { projectFileWrite, projectFileRead } from '../middleware/projectFiles';
 
 const idValidator = (input, required = false) => safeValidate(id(), required, input);
-const versionValidator = (ver, required = false) => safeValidate(version(), required, ver);
 
 /**
  * Projects are the containers for a body of work, including all their blocks, preferences, orders, and files.
@@ -73,6 +72,7 @@ export default class Project extends Instance {
 
   /**
    * compares two projects, checking if they are the same (ignoring project version + save time)
+   * use newer one as second arg (in case first one doesnt have updated / version stamp)
    * @method compare
    * @memberOf Project
    * @static
@@ -84,15 +84,19 @@ export default class Project extends Instance {
     if (!one || !two) return false;
     if (one === two) return true;
 
-    //massage fields from two we dont want to compare into a temp object (in case one is missing those fields)
-    const massaged = one.merge({
-      version: two.version,
-      metadata: {
-        updated: two.metadata.updated,
-      },
-    });
+    //want to ignore the version and updated, since may be set between saves, without changing the data
+    //lodash doesnt give a nice way to omit certain properties when cloning...
+    const cloned = (inst) => {
+      const clone = cloneDeep(inst);
+      delete clone.version;
+      delete clone.metadata.updated;
+      return clone;
+    };
 
-    return isEqual(two, massaged);
+    return isEqual(
+      cloned(one),
+      cloned(two),
+    );
   }
 
   /**
@@ -128,7 +132,7 @@ export default class Project extends Instance {
    * @returns {Project}
    */
   updateVersion(version, updated = Date.now()) {
-    invariant(versionValidator(version), 'must pass valid SHA to update version');
+    invariant(Number.isInteger(version), 'must pass valid version to update version');
     invariant(Number.isInteger(updated), 'must pass valid time to update version');
     return this.merge({ version, metadata: { updated } });
   }

@@ -2,6 +2,7 @@ import chai from 'chai';
 import * as api from '../../src/middleware/projects';
 import { merge, range } from 'lodash';
 import { testUserId } from '../constants';
+import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
 
 import * as projectPersistence from '../../server/data/persistence/projects';
@@ -31,7 +32,7 @@ describe('Middleware', () => {
     it('loadProject() loads a project rollup', () => {
       return api.loadProject(projectId)
         .then(gotRoll => {
-          expect(gotRoll.project).to.eql(project);
+          assert(Project.compare(project, gotRoll.project), 'projects should be the same');
           assert(Object.keys(gotRoll.blocks).every(blockId => {
             return !!roll.blocks[blockId];
           }));
@@ -54,13 +55,7 @@ describe('Middleware', () => {
             projectPersistence.blocksGet(projectId, false, block2.id).then(map => map[block2.id]),
           ])
           .then(([gotProject, got1, got2]) => {
-            expect(gotProject).to.eql(merge({}, project, {
-              version: versionInfo.version,
-              metadata: {
-                updated: versionInfo.time,
-                authors: [testUserId],
-              },
-            }));
+            assert(Project.compare(project, gotProject), 'projects should be the same');
             expect(got1).to.eql(block1);
             expect(got2).to.eql(block2);
           }));
@@ -73,10 +68,10 @@ describe('Middleware', () => {
       const a_projectId = a_roll.project.id;
       const b_roll = Object.assign(createExampleRollup(), { project: a_roll.project });
 
+      throw new Error('write this test over');
+
       const a_path = filePaths.createProjectDataPath(a_projectId);
       let a_log;
-
-      throw new Error('write this test over');
 
       return api.saveProject(a_projectId, a_roll)
         .then(() => versioning.log(a_path))
@@ -111,11 +106,11 @@ describe('Middleware', () => {
       const roll = createListRollup(numberListBlocks, numberListOptions);
       const sequenced = createSequencedRollup(numberSequenceBlocks);
 
-      roll.project.components.push(...sequence.project.components);
+      roll.project.components.push(...sequenced.project.components);
       Object.assign(roll.blocks, sequenced.blocks);
 
       const listBlockId = roll.project.components[0];
-      const constructBlockId = roll.projects.components[numberListBlocks];
+      const constructBlockId = roll.project.components[numberListBlocks];
 
       return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
         .then(() => api.loadBlock(listBlockId, roll.project.id))

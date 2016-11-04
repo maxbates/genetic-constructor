@@ -21,15 +21,16 @@ import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
 describe('Server', () => {
   describe('Onboarding', () => {
-    const makeUser = (userId = uuid.v1(), nameStub) => ({
-      uuid: userId,
+    const makeUser = (nameStub) => ({
+      uuid: uuid.v1(),
       email: `test${nameStub}@tester.com`,
       firstName: 'Dev',
       lastName: 'Eloper',
     });
 
     const numUsers = 50;
-    const users = range(numUsers).map((num, index) => makeUser(undefined, index));
+    const users = range(numUsers)
+      .map((num) => makeUser(num));
 
     it('should onboard a user and create at least a project for them', () => {
       const user = makeUser();

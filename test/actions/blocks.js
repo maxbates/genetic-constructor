@@ -48,7 +48,7 @@ describe('Actions', () => {
         });
 
         it('blockClone() clones a block with a new id + proper parents', () => {
-          const projectVersion = sha1('someProject');
+          const projectVersion = 12;
           //stub project ID for now because requires reliance on focus / projects store if we put it in storeBlock directly
           const projectIdStub = 'dummy';
           const clone = blockStore.dispatch(actions.blockClone(storeBlock.id, {
@@ -72,7 +72,7 @@ describe('Actions', () => {
         });
 
         it('blockClone() deep clones by default, and updates children IDs', () => {
-          const projectVersion = sha1('someProject');
+          const projectVersion = 23;
           //stub project ID for now because requires reliance on focus / projects store if we put it in storeBlock directly
           const projectIdStub = 'dummy';
           const storePreClone = blockStore.getState().blocks;

@@ -18,9 +18,9 @@ import invariant from 'invariant';
 import Immutable from './Immutable';
 import InstanceSchema from '../schemas/Instance';
 import safeValidate from '../schemas/fields/safeValidate';
-import { version } from '../schemas/fields/validators';
+import { number } from '../schemas/fields/validators';
 
-const versionValidator = (ver, required = false) => safeValidate(version(), required, ver);
+const versionValidator = (ver, required = false) => safeValidate(number(), required, ver);
 
 /**
  * Instances are immutable objects, which conform to a schema, and provide an explicit API for modifying their data.

@@ -24,6 +24,10 @@ export const createExampleRollup = () => {
    * C  D  E
    */
 
+    //hack - add author for testing environment to simplify tests comparing before / after writing (auto-assigned)
+  const project = Project.classless({
+      metadata: { authors: [testUserId] },
+    });
   const blockC = Block.classless();
   const blockD = Block.classless();
   const blockE = Block.classless();
@@ -37,11 +41,8 @@ export const createExampleRollup = () => {
   const blockP = Block.classless({
     components: [blockA.id, blockB.id, blockF.id],
   });
-  //hack - add author for testing environment to simplify tests comparing before / after writing (auto-assigned)
-  const project = Project.classless({
-    metadata: { authors: [ testUserId ] },
-    components: [blockP.id],
-  });
+
+  project.components = [blockP.id];
 
   const blocks = [blockP, blockA, blockB, blockC, blockD, blockE, blockF];
 
@@ -67,20 +68,23 @@ export const createSequencedRollup = (numSeqs = (numberBlocksInRollup - 1)) => {
     return Object.assign(acc, { [seqMd5]: sequences[index] });
   }, {});
 
+  const project = Project.classless({
+    metadata: { authors: [testUserId] },
+  });
+
   const blocks = range(numSeqs).map((index) => Block.classless({
     sequence: {
       md5: sequenceMd5s[index],
     },
+    projectId: project.id,
   }));
 
   const construct = Block.classless({
+    projectId: project.id,
     components: blocks.map(block => block.id),
   });
 
-  const project = Project.classless({
-    metadata: { authors: [ testUserId ] },
-    components: [construct.id],
-  });
+  project.components = [construct.id];
 
   const roll = rollupFromArray(project, ...blocks, construct);
   Object.assign(roll, { sequences: sequenceMap });
@@ -108,7 +112,12 @@ export const createListRollup = (numListBlocks = 4, numOptions = 5) => {
     return Object.assign(acc, { [seqMd5]: sequences[index] });
   }, {});
 
+  const project = Project.classless({
+    metadata: { authors: [testUserId] },
+  });
+
   const options = range(totalBlocks).map((index) => Block.classless({
+    projectId: project.id,
     sequence: {
       md5: sequenceMd5s[index],
     },
@@ -119,14 +128,15 @@ export const createListRollup = (numListBlocks = 4, numOptions = 5) => {
     const optionIds = opts.map(opt => opt.id);
 
     return Block.classless({
+      projectId: project.id,
+      rules: {
+        list: true,
+      },
       options: optionIds.reduce((acc, optionId) => Object.assign(acc, { [optionId]: true }), {}),
     });
   });
 
-  const project = Project.classless({
-    metadata: { authors: [ testUserId ] },
-    components: listBlocks.map(block => block.id),
-  });
+  project.components = listBlocks.map(block => block.id);
 
   const roll = rollupFromArray(project, ...listBlocks, ...options);
   Object.assign(roll, { sequences: sequenceMap });
