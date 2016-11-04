@@ -353,7 +353,7 @@ var deleteByUUID = function (req, res) {
       }
 
       return res.status(200).send({
-        deleted: numDeleted,
+        numDeleted: numDeleted,
       }).end();
     }).catch(function (err) {
       req.log.error(err);
@@ -379,7 +379,7 @@ var deleteByUUID = function (req, res) {
     }
 
     return res.status(200).send({
-      deleted: numDeleted,
+      numDeleted: numDeleted,
     }).end();
   }).catch(function (err) {
     req.log.error(err);

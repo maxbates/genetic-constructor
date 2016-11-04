@@ -8,6 +8,8 @@ var describeAppTest = require("../../../api-app");
 var each = require('underscore').each;
 
 var Project = require('../../../../lib/project');
+var Snapshot = require('../../../../lib/snapshot');
+
 
 var owner = '810ffb30-1938-11e6-a132-dd99bc746800';
 
@@ -18,16 +20,38 @@ describeAppTest("http", function (app) {
     var projectId0 = 'b091da207742e81dae58257a323e3d3b';
     var projectId1 = 'project-364d0c6a-6f08-4fff-a292-425ca3eb91cc';
 
+    var projectUUID0 = null;
+    var projectUUID1 = null;
+
     after(function (done) {
-      Project.destroy({
-        where: {
-          owner: owner,
+      async.series([
+        function (cb) {
+          return Snapshot.destroy({
+            where: {
+              owner: owner,
+            },
+          }).then(function (numDeleted) {
+            console.log('deleted ' + numDeleted + ' snapshots');
+            cb();
+          }).catch(function (err) {
+            console.error('snapshots cleanup error', err);
+            cb(err);
+          });
         },
-      }).then(function (numDeleted) {
-        console.log('deleted ' + numDeleted + ' projects');
-        done();
-      }).catch(function (err) {
-        console.error('project cleanup error', err);
+        function (cb) {
+          return Project.destroy({
+            where: {
+              owner: owner,
+            },
+          }).then(function (numDeleted) {
+            console.log('deleted ' + numDeleted + ' projects');
+            cb();
+          }).catch(function (err) {
+            console.error('project cleanup error', err);
+            cb(err);
+          });
+        },
+      ], function (err) {
         done(err);
       });
     });
@@ -73,6 +97,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body, null);
           // console.log('save res:', res.body);
           assert.notEqual(res.body.uuid, null);
+          projectUUID0 = res.body.uuid;
           assert.equal(res.body.owner, owner);
           assert.equal(res.body.version, 0);
           assert.equal(res.body.status, 1);
@@ -93,6 +118,23 @@ describeAppTest("http", function (app) {
           assert.notEqual(res, null);
           var latestVersion = res.get('Latest-Version');
           assert.equal(latestVersion, 0);
+          var latestVersionUUID = res.get('Latest-Version-UUID');
+          assert.equal(latestVersionUUID, projectUUID0);
+          done();
+        });
+    });
+
+    it('should confirm project exists optimally', function testFastProjectExists(done) {
+      request(app.proxy)
+        .head('/api/projects/fast/project/'+ projectId0 + '?owner=' + owner)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          var latestVersion = res.get('Latest-Version');
+          assert.equal(latestVersion, 0);
+          var latestVersionUUID = res.get('Latest-Version-UUID');
+          assert.equal(latestVersionUUID, projectUUID0);
           done();
         });
     });
@@ -162,7 +204,7 @@ describeAppTest("http", function (app) {
 
     it('should confirm project exists with \`Lastest-Version\` in headers', function testProjectExistsWithVersion(done) {
       request(app.proxy)
-        // .head('/api/projects/'+ projectId0 + '?owner=' + owner)
+      // .head('/api/projects/'+ projectId0 + '?owner=' + owner)
         .head('/api/projects/'+ projectId0)
         .expect(200)
         .end(function (err, res) {
@@ -330,6 +372,9 @@ describeAppTest("http", function (app) {
         assert.equal(results.length, 2);
         assert.equal(results[1].length, 1);
         assert.deepEqual(results[0], results[1][0]);
+        projectUUID1 = results[0].uuid;
+        assert.notEqual(projectUUID1, null);
+        assert.notEqual(projectUUID1, "");
         return done();
       });
     });
@@ -343,8 +388,23 @@ describeAppTest("http", function (app) {
           assert.notEqual(res, null);
           var latestProject = res.get('Last-Project');
           assert.equal(latestProject, "project-364d0c6a-6f08-4fff-a292-425ca3eb91cc");
+          var latestProjectUUID = res.get('Last-Project-UUID');
+          assert.equal(latestProjectUUID, projectUUID1);
           done();
         });
+    });
+
+    it('should fetch a project by \'uuid\'', function testFetchByUUID(done) {
+      request(app.proxy)
+        .get('/api/projects/uuid/' + projectUUID1)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.equal(res.body.uuid, projectUUID1);
+          done();
+        })
     });
 
     it('should fetch projects by \'ownerId\' (two projects, one w/ 2 versions)', function fetchProjectsByOwnerId(done) {
@@ -401,6 +461,14 @@ describeAppTest("http", function (app) {
         });
     });
 
+    it.skip('should delete a version of a project', function deleteProjectVersion(done ) {
+      done();
+    });
+
+    it.skip('should fetch projects by \'ownerId\' (fallback to older version)', function fetchOlderVersion(done ) {
+      done();
+    });
+
     it('should delete a project with id', function deleteById(done) {
       request(app.proxy)
         .delete('/api/projects/' + projectId0)
@@ -409,7 +477,10 @@ describeAppTest("http", function (app) {
           assert.ifError(err);
           assert.notEqual(res, null);
           assert.notEqual(res.body, null);
-          assert.equal(res.body.numDeleted, 2);
+          // console.log(res.body);
+          assert.equal(res.body.projects, 2);
+          assert.equal(res.body.snapshots, 0);
+          assert.equal(res.body.orders, 0);
           return request(app.proxy)
             .get('/api/projects/' + projectId0)
             .expect(404)
@@ -423,7 +494,7 @@ describeAppTest("http", function (app) {
         });
     });
 
-    it('should fetch projects by \'ownerId\' (two projects, one w/ 2 versions)', function fetchProjectsByOwnerId(done) {
+    it('should fetch one project by \'ownerId\' (two projects, one deleted)', function fetchProjectsByOwnerId(done) {
       request(app.proxy)
         .get('/api/projects/owner/' + owner)
         .expect(200)
@@ -438,6 +509,54 @@ describeAppTest("http", function (app) {
           assert.equal(res.body[0].id, projectId1);
           done();
         });
+    });
+
+    it('should cascade delete to snapshots', function deleteByIDCascadeSnapshot(done) {
+      async.waterfall([
+        function (cb) {
+          request(app.proxy)
+            .post('/api/snapshots')
+            .send({
+              owner: owner,
+              projectId: projectId1,
+              projectVersion: 0,
+              message: "test snapshot for cascading delete test",
+              type: "test",
+              tags: {
+                test: true,
+                chicago: "cubs",
+              },
+            })
+            .expect(200)
+            .end(function (err, res) {
+              return cb(err, res.body.uuid);
+            });
+        },
+        function (snapshotUUID, cb) {
+          request(app.proxy)
+            .delete('/api/projects/' + projectId1)
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.notEqual(res.body, null);
+              assert.equal(res.body.projects, 1);
+              assert.equal(res.body.snapshots, 1);
+              assert.equal(res.body.orders, 0);
+              return cb(err, snapshotUUID);
+            });
+        },
+      ], function (err, result) {
+        assert.ifError(err);
+        request(app.proxy)
+          .get('/api/snapshots/uuid/' + result)
+          .expect(404)
+          .end(function (err, res) {
+            assert.ifError(err);
+            done();
+          });
+      });
     });
   });
 });

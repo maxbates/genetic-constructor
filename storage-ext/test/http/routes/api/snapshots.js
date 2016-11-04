@@ -460,7 +460,7 @@ describeAppTest("http", function (app) {
               assert.ifError(err);
               assert.notEqual(res, null);
               assert.notEqual(res.body, null);
-              assert.equal(res.body.deleted, 1);
+              assert.equal(res.body.numDeleted, 1);
               cb(err);
             });
         },
@@ -500,7 +500,7 @@ describeAppTest("http", function (app) {
               assert.ifError(err);
               assert.notEqual(res, null);
               assert.notEqual(res.body, null);
-              assert.equal(res.body.deleted, 1);
+              assert.equal(res.body.numDeleted, 1);
               cb(err);
             });
         },

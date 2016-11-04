@@ -7,6 +7,7 @@ var isEmpty = require('underscore').isEmpty;
 var map = require('underscore').map;
 var max = require('underscore').max;
 var pairs = require('underscore').pairs;
+var reduce = require('underscore').reduce;
 
 var uuidValidate = require("uuid-validate");
 
@@ -17,6 +18,7 @@ var notNullAndPosInt = require('../../../util').notNullAndPosInt;
 
 var Sequelize = require('sequelize');
 var Project = require('../../../project');
+var Snapshot = require('../../../snapshot');
 
 function collapseProjects(projectsArray) {
   var groupedProjects = groupBy(map(projectsArray, function (row) {
@@ -259,6 +261,7 @@ var checkLatestProject = function (req, res) {
     var latest = max(results, function (row) {
       return row.get('version');
     });
+    res.set('Latest-Version-UUID', latest.get('uuid'));
     res.set('Latest-Version', latest.get('version'));
     return res.status(200).send().end();
   }).catch(function (err) {
@@ -420,6 +423,7 @@ var checkProjects = function (req, res) {
       return new Date(result.get('updatedAt'));
     });
 
+    res.set('Last-Project-UUID', latest.get('uuid'));
     res.set('Last-Project', latest.get('id'));
     return res.status(200).send().end();
   }).catch(function (err) {
@@ -523,7 +527,7 @@ var deleteProject = function (req, res) {
   return Project.update({
     status: 0,
   }, {
-    returning: false,
+    returning: true,
     fields: ['status'],
     where: where,
   }).then(function (results) {
@@ -534,18 +538,79 @@ var deleteProject = function (req, res) {
       }).end();
     }
 
-    if ((where.version != null) && (results[0] > 1)) {
-      req.log.error('unexpectedly deleted more than one record for:', where);
-      return res.status(500).send({
-        message: 'unexpectedly deleted more than one record',
-      }).end();
-    }
+    return async.map(results[1], function (result, done) {
+      if (!result.uuid) {
+        return done({
+          message: 'update returning result missing \'uuid\'',
+        });
+      }
 
-    return res.status(200).send({
-      numDeleted: results[0],
-    }).end();
+      var cascadeWhere = {
+        projectUUID: result.uuid,
+      };
+      return async.parallel([
+        function (cb) {
+          // TODO call REST API here
+          return Snapshot.update({
+            status: 0,
+          }, {
+            returning: false,
+            where: cascadeWhere,
+          }).then(function (snapshotsDeleted) {
+            var numDeleted = snapshotsDeleted[0];
+            return cb(null, {
+              numDeleted: numDeleted,
+            });
+          }).catch(function (err) {
+            return cb({
+              message: err.message,
+            });
+          });
+        },
+        function (cb) {
+          // TODO delete Orders here
+          return cb(null, {
+            numDeleted: 0,
+          });
+        },
+      ], function (cascadeErr, cascadeResults) {
+        return done(cascadeErr, {
+          snapshots: cascadeResults[0],
+          orders: cascadeResults[1],
+        });
+      });
+    }, function (mapErr, mapResults) {
+
+      var cascadeSums = reduce(mapResults, function (sums, mapResult) {
+        return {
+          snapshots: sums.snapshots + mapResult.snapshots.numDeleted,
+          orders: sums.orders + mapResult.orders.numDeleted,
+        };
+      }, {
+        snapshots: 0,
+        orders: 0,
+      });
+
+      if ((where.version != null) && (results[0] > 1)) {
+        req.log.error('unexpectedly deleted more than one record for:', where);
+        return res.status(500).send({
+          message: 'unexpectedly deleted more than one record',
+          deleted: {
+            projects: results[0],
+            snapshots: cascadeSums.snapshots,
+            orders: cascadeSums.orders,
+          },
+        }).end();
+      }
+
+      return res.status(200).send({
+        projects: results[0],
+        snapshots: cascadeSums.snapshots,
+        orders: cascadeSums.orders,
+      }).end();
+    });
   }).catch(function (err) {
-    console.error(err);
+    req.log.error(err);
     res.status(500).send({
       message: err.message,
     }).end();
@@ -598,6 +663,80 @@ var fetchProjectsWithBlock = function (req, res) {
   });
 };
 
+var fetchProjectByUUID = function (req, res) {
+  var projectUUID = req.params.uuid;
+  if (!projectUUID) {
+    return res.status(400).send({
+      message: 'failed to parse uuid from URI',
+    }).end();
+  }
+
+  return Project.findOne({
+    where: {
+      uuid: projectUUID,
+    }
+  }).then(function (result) {
+    if (! result) {
+      return res.status(404).send({
+        message: 'no projects found for UUID: ' + projectUUID,
+      }).end();
+    }
+
+    return res.status(200).send(result.get()).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
+var optimizedCheckLatestProjectVersion = function (req, res) {
+  var projectId = req.params.projectId;
+  if (! projectId) {
+    return res.status(400).send({
+      message: 'failed to parse projectId from URI',
+    }).end();
+  }
+
+  var where = {
+    id: projectId,
+    status: 1,
+  };
+
+  if (notNullOrEmpty(req.query.owner)) {
+    if (!uuidValidate(req.query.owner, 1)) {
+      return res.status(400).send({
+        message: 'invalid owner UUID',
+      }).end();
+    }
+
+    where.owner = req.query.owner;
+  }
+
+  return Project.findOne({
+    where: where,
+    order: [
+      ['version', 'DESC'],
+    ],
+    attributes: [
+      'uuid',
+      'version',
+    ],
+  }).then(function (result) {
+    if (! result) {
+      return res.status(404).send().end();
+    }
+
+    res.set('Latest-Version-UUID', result.get('uuid'));
+    res.set('Latest-Version', result.get('version'));
+    return res.status(200).send().end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send().end();
+  });
+};
+
 var routes = [
   route('GET /:projectId', fetchLatestProject),
   route('HEAD /:projectId', checkLatestProject),
@@ -607,8 +746,10 @@ var routes = [
   route('HEAD /owner/:ownerId', checkProjects),
   route('GET /block/:blockId', fetchProjectsWithBlock),
   route('GET /fast/project/:projectId', optimizedFetchLatestProjectVersion),
+  route('HEAD /fast/project/:projectId', optimizedCheckLatestProjectVersion),
   route('GET /fast/owner/:ownerId', optimizedFetchProjects),
   route('GET /versions/:projectId', fetchProjectVersions),
+  route('GET /uuid/:uuid', fetchProjectByUUID),
   route('POST /', saveProject),
   route('GET /', function (req, res) {
     res.statusCode = 200;
