@@ -147,12 +147,12 @@ User ${user.uuid}
         };
 
         return snapshots.snapshotWrite(projectId, user.uuid, `Order @ ${foundry}: ${constructNames.join(' ')}`, tags, snapshots.SNAPSHOT_TYPE_ORDER)
-          .then(({ sha, time }) => {
+          .then(({ version, time }) => {
             merge(order, {
               metadata: {
                 constructNames,
               },
-              projectVersion: sha,
+              projectVersion: version,
               status: {
                 foundry,
                 response,
@@ -165,7 +165,7 @@ User ${user.uuid}
             return projectPersistence.projectGet(projectId)
               .then(roll => {
                 //console.log(roll);
-                return orderPersistence.orderWrite(order.id, order, projectId, sha, roll);
+                return orderPersistence.orderWrite(order.id, order, projectId, version, roll);
               });
           });
       })

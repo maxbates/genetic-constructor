@@ -13,9 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
+import { errorDoesNotExist } from '../../utils/errors';
 import * as projectPersistence from './projects';
-import { dbHeadRaw, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+import { dbGet, dbPost, } from '../middleware/db';
 
 // Snapshotting is special information about a version.
 
@@ -31,12 +31,11 @@ const transformDbVersion = (result) => ({
 
 export const SNAPSHOT_TYPE_USER = 'SNAPSHOT_USER';
 export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
-export const defaultMessage = 'Untitled Snapshot';
+export const defaultMessage = 'Project Snapshot';
 
 //todo - update middleware on client, expecting commit SHA, to expect version
 
 export const snapshotWrite = (projectId, userId, version, message = defaultMessage, tags = {}, type = SNAPSHOT_TYPE_USER) => {
-
   //get the latest version if they did not specify one
   const getVersion = Number.isInteger(version) || (typeof version === 'string' && Number.isInteger(parseInt(version, 10))) ?
     Promise.resolve(version) :

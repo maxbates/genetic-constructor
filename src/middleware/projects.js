@@ -38,6 +38,7 @@ export const listProjects = () => {
   const url = dataApiPath('projects');
   return rejectingFetch(url, headersGet())
     .then(resp => resp.json())
+    //just in case some are empty (historical cruft) so rendering doesnt break
     .then(projects => projects.filter(project => !!project));
 };
 
@@ -60,7 +61,7 @@ export const loadProject = (projectId) => {
 
 //expects a rollup
 //autosave
-//returns the commit with sha, message, or null if no need to save
+//returns the commit with version, message, or null if no need to save
 //resolves to null if the project has not changed
 export const saveProject = (projectId, rollup) => {
   invariant(projectId, 'Project ID required to snapshot');
@@ -73,31 +74,8 @@ export const saveProject = (projectId, rollup) => {
   return rejectingFetch(url, headersPost(stringified))
     .then(resp => resp.json())
     .then(commit => {
-      const { sha } = commit;
-      noteSave(projectId, sha);
-      return commit;
-    })
-    .catch(err => {
-      noteFailure(projectId, err);
-      return Promise.reject(err);
-    });
-};
-
-//rollup is optional, will be saved if provided
-//explicit, makes a git commit with special message to differentiate
-//returns the commit wth sha, message
-export const snapshot = (projectId, message = 'Project Snapshot', rollup = {}) => {
-  invariant(projectId, 'Project ID required to snapshot');
-  invariant(!message || typeof message === 'string', 'optional message for snapshot must be a string');
-
-  const stringified = JSON.stringify({ message, rollup });
-  const url = dataApiPath(`${projectId}/commit`);
-
-  return rejectingFetch(url, headersPost(stringified))
-    .then(resp => resp.json())
-    .then(commit => {
-      const { sha } = commit;
-      noteSave(projectId, sha);
+      const { version } = commit;
+      noteSave(projectId, version);
       return commit;
     })
     .catch(err => {

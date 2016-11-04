@@ -261,7 +261,7 @@ export const orderSubmit = (orderId, foundry) => {
         dispatch({
           type: ActionTypes.PROJECT_SNAPSHOT,
           projectId: order.projectId,
-          sha: order.projectVersion,
+          version: order.projectVersion,
         });
 
         dispatch({

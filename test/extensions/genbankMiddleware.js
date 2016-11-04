@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
 import fs from 'fs';
 import Block from '../../src/models/Block';
-import * as api from '../../src/middleware/data';
+import * as api from '../../src/middleware/projects';
 import {
   exportConstruct,
   convert,
