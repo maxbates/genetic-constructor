@@ -276,7 +276,7 @@ var saveSnapshot = function (req, res) {
           where: {
             owner: body.owner,
             projectId: body.projectId,
-            projectVersion: body.projectVersion,
+            projectVersion: latest.version,
           },
         }).then(function (results) {
           if (results[0] > 1) {

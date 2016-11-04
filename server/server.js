@@ -87,6 +87,7 @@ app.set('view engine', 'pug');
 //note - should come before local auth setup, so that mockUser setup can call storage without middleware in place
 if (!process.env.STORAGE_API) {
   console.log('Using local storage API, at /api/');
+  app.use(require('gctor-storage').mockReqLog); // the storage routes expect req.log to be defined
   app.use('/api', require('gctor-storage').routes);
 }
 
