@@ -7,13 +7,14 @@ import * as projectPersistence from '../../../../server/data/persistence/project
 import devServer from '../../../../server/server';
 import { numberBlocksInRollup, createExampleRollup } from '../../../_utils/rollup';
 import { range, merge } from 'lodash';
+import { deleteUser } from '../../../../server/data/persistence/admin';
 
 describe('Server', () => {
   describe('Data', () => {
     describe('REST', () => {
       describe('Info', () => {
         let server;
-        const userId = testUserId;
+        const randomUser = uuid.v1();
 
         const roll = createExampleRollup();
 
@@ -39,11 +40,15 @@ describe('Server', () => {
         merge(roll.blocks, blocks);
 
         before(() => {
-          return projectPersistence.projectWrite(projectId, roll, userId)
+          return projectPersistence.projectWrite(projectId, roll, testUserId)
             //check across versions
-            .then(() => projectPersistence.projectWrite(projectId, roll, userId))
+            .then(() => projectPersistence.projectWrite(projectId, roll, testUserId))
             //check across users
-            .then(() => projectPersistence.projectWrite(projectId, roll, uuid.v1()));
+            .then(() => projectPersistence.projectWrite(projectId, roll, randomUser));
+        });
+
+        after(() => {
+          return deleteUser(randomUser);
         });
 
         beforeEach('server setup', () => {

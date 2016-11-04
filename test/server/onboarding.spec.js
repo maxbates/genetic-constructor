@@ -17,6 +17,7 @@
 import { assert, expect } from 'chai';
 import { range, merge } from 'lodash';
 import uuid from 'node-uuid';
+import { deleteUser } from '../../server/data/persistence/admin';
 import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
 describe('Server', () => {
@@ -31,6 +32,12 @@ describe('Server', () => {
     const numUsers = 50;
     const users = range(numUsers)
       .map((num) => makeUser(num));
+
+    after(() => {
+      return Promise.all(
+        users.map(user => deleteUser(user.uuid)),
+      );
+    });
 
     it('should onboard a user and create at least a project for them', () => {
       const user = makeUser();

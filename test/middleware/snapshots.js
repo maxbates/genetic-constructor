@@ -42,7 +42,8 @@ describe('Middleware', () => {
         .catch(resp => {
           expect(resp.status).to.equal(404);
           done();
-        });
+        })
+        .catch(done);
     });
 
     it('snapshotList() on project with no snapshots gets 200', () => {
@@ -115,7 +116,7 @@ describe('Middleware', () => {
         })
         .catch(err => {
           done();
-        })
+        });
     });
 
     //todo

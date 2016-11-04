@@ -28,7 +28,7 @@ import {
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import Rollup from '../../../../src/models/Rollup';
-
+import { deleteUser } from '../../../../server/data/persistence/admin';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 
 describe('Server', () => {
@@ -106,6 +106,11 @@ describe('Server', () => {
         it('projectDelete() only marks the project deleted in the database');
 
         describe('ownership', () => {
+
+          const randomUserId = uuid.v1();
+
+          after(() => deleteUser(randomUserId));
+
           it('userOwnsProject() resolves if user owns the project', () => {
             const roll = createExampleRollup();
 
@@ -119,7 +124,7 @@ describe('Server', () => {
           it('userOwnsProject() rejects with errorNoPermission if someone else owns it', (done) => {
             const roll = createExampleRollup();
 
-            projectPersistence.projectWrite(roll.project.id, roll, uuid.v1())
+            projectPersistence.projectWrite(roll.project.id, roll, randomUserId)
               .then(() => projectPersistence.userOwnsProject(testUserId, roll.project.id))
               .then(result => done('shouldnt resolve'))
               .catch(err => {
@@ -183,8 +188,6 @@ describe('Server', () => {
         });
 
         describe('list', () => {
-          //todo - should clear these from the database somehow
-
           const myUserId = uuid.v1();
           const myRolls = [1, 2, 3, 4].map(createExampleRollup);
           const myRollIds = myRolls.map(roll => roll.project.id);
@@ -192,6 +195,9 @@ describe('Server', () => {
           const otherUserId = uuid.v1();
           const otherRolls = [1, 2, 3].map(createExampleRollup);
           const otherRollIds = otherRolls.map(roll => roll.project.id);
+
+          const randomUserId = uuid.v1();
+          const randomUserId2 = uuid.v1();
 
           before(() => {
             return Promise.all([
@@ -201,6 +207,15 @@ describe('Server', () => {
               ...otherRollIds.map((projectId, index) => {
                 return projectPersistence.projectWrite(projectId, otherRolls[index], otherUserId);
               }),
+            ]);
+          });
+
+          after(() => {
+            return Promise.all([
+              deleteUser(myUserId),
+              deleteUser(otherUserId),
+              deleteUser(randomUserId),
+              deleteUser(randomUserId2),
             ]);
           });
 
@@ -222,7 +237,7 @@ describe('Server', () => {
           });
 
           it('getUserProjectIds() doesnt fail when user has no projects', () => {
-            return projectPersistence.getUserProjectIds(uuid.v1())
+            return projectPersistence.getUserProjectIds(randomUserId)
               .then(projects => {
                 expect(projects.length).to.equal(0);
               });
@@ -251,7 +266,7 @@ describe('Server', () => {
           });
 
           it('getUserProjects() returns empty array for new user', () => {
-            return projectPersistence.getUserProjects(uuid.v1())
+            return projectPersistence.getUserProjects(randomUserId2)
               .then(result => {
                 expect(result).to.eql([]);
               });
