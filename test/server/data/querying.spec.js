@@ -5,12 +5,10 @@ import BlockSchema from '../../../src/schemas/Block';
 import ProjectSchema from '../../../src/schemas/Project';
 import * as projectPersistence from '../../../server/data/persistence/projects';
 import * as querying from '../../../server/data/querying';
+import { deleteUser } from '../../../server/data/persistence/admin';
 import { merge, values } from 'lodash';
 
 import { createExampleRollup } from '../../_utils/rollup';
-
-//todo
-console.log('todo - rewrite the querying test module');
 
 describe('Server', () => {
   describe('Data', () => {
@@ -44,8 +42,6 @@ describe('Server', () => {
       const otherRolls = [1, 2, 3].map(createCustomRollup);
       const otherRollIds = otherRolls.map(roll => roll.project.id);
 
-      const randomUserId = uuid.v1();
-
       before(() => {
         return Promise.all([
           ...myRollIds.map((projectId, index) => {
@@ -54,6 +50,13 @@ describe('Server', () => {
           ...otherRollIds.map((projectId, index) => {
             return projectPersistence.projectWrite(projectId, otherRolls[index], otherUserId);
           }),
+        ]);
+      });
+
+      after(() => {
+        return Promise.all([
+          deleteUser(myUserId),
+          deleteUser(otherUserId),
         ]);
       });
 

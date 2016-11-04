@@ -6,6 +6,7 @@ import run from './run';
 import runServer from './runServer';
 import { serverConfig, clientConfig } from './webpack.config';
 import setup from './setup';
+import checks from './checks';
 import clean from './clean';
 import copy from './copy';
 import bundleServer from './bundleServer';
@@ -14,6 +15,7 @@ import { debounce } from 'lodash';
 const DEBUG = !process.argv.includes('--release');
 
 async function start() {
+  await run(checks);
   await run(clean);
   await run(setup);
   await run(copy.bind(undefined, { watch: true }));
