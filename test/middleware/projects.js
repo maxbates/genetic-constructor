@@ -61,28 +61,22 @@ describe('Middleware', () => {
           }));
     });
 
-    //todo - this test needs a major redo
+    it('saveProject() creates a version', () => {
+      const one = createExampleRollup();
 
-    it('saveProject() creates a commit', () => {
-      const a_roll = createExampleRollup();
-      const a_projectId = a_roll.project.id;
-      const b_roll = Object.assign(createExampleRollup(), { project: a_roll.project });
+      const two = merge({}, one);
+      two.project.metadata.name = 'new name';
 
-      throw new Error('write this test over');
+      let info1;
+      let info2;
 
-      const a_path = filePaths.createProjectDataPath(a_projectId);
-      let a_log;
-
-      return api.saveProject(a_projectId, a_roll)
-        .then(() => versioning.log(a_path))
-        .then(log => {
-          a_log = log;
-        })
-        .then(() => api.saveProject(a_projectId, b_roll))
-        .then(() => versioning.log(a_path))
-        .then(log => {
-          assert(typeof log.length === 'number', 'log error in wrong format, got ' + log);
-          expect(a_log.length + 1).to.equal(log.length);
+      return api.saveProject(one.project.id, one)
+        .then(info => { info1 = info; })
+        .then(() => api.saveProject(one.project.id, one))
+        .then(info => { info2 = info; })
+        .then(() => {
+          expect(info1.version).to.equal(0);
+          expect(info2.version).to.equal(1);
         });
     });
 
