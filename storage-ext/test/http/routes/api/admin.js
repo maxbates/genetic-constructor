@@ -56,6 +56,25 @@ describeAppTest("http", function (app) {
             .expect(200)
             .end(function (err) {
               assert.ifError(err);
+              return cb(err, version);
+            });
+        },
+        function (version, cb) {
+          request(app.proxy)
+            .post('/api/orders')
+            .send({
+              owner: owner,
+              projectId: projectId0,
+              projectVersion: version,
+              type: "test",
+              data: {
+                foundry: "egf",
+                dueDate: new Date(),
+              },
+            })
+            .expect(200)
+            .end(function (err) {
+              assert.ifError(err);
               return cb(err);
             });
         },
