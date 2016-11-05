@@ -13,9 +13,9 @@ var newproject = function(browser) {
     .waitForElementPresent('.construct-viewer', 5000, 'expect a construct for the new project');
   // ensure inventory open
   openInventory(browser);
-    // click the second inventory group 'EGF Parts' to open it
+    // open the sketch blocks inventory
   browser
-    .click('.InventoryGroup:nth-of-type(3) .InventoryGroup-heading')
+    .click('.InventorySectionIcon.open[data-section="Sketch"]')
     // expect at least one inventory item and one block to drop on
     .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item');
 
