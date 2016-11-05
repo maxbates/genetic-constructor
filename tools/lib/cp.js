@@ -54,17 +54,23 @@ export const promisedExec = (cmd, opts, {
   });
 };
 
-export const spawnWaitUntilString = (cmd, args, opts, {
+export const spawnWaitUntilString = (cmd, args = [], opts = {}, {
   waitUntil = `${Math.random()}`,
   forceOutput = false,
   failOnStderr = false,
   comment = null,
 } = {}) => {
-  log(comment || '\nrunning: ' + cmd + ' ' + args.join(' '));
+  console.log(comment || '\nrunning: ' + cmd + ' ' + args.join(' '));
 
   return new Promise((resolve, reject) => {
     //const [ command, ...args ] = cmd.split(' ');
+
+    console.log(opts);
+
+
     const process = spawn(cmd, args, opts);
+
+    console.log(process);
 
     process.stdout.on('data', data => {
       log(`${data}`, forceOutput);
@@ -91,7 +97,7 @@ export const spawnWaitUntilString = (cmd, args, opts, {
     });
 
     process.on('close', (code) => {
-      log(`child process exited with code ${code}`, forceOutput);
+      console.log(`child process exited with code ${code}`, forceOutput);
     });
   });
 };

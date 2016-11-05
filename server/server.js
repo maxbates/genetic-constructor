@@ -30,6 +30,7 @@ import errorHandlingMiddleware from './utils/errorHandlingMiddleware';
 import checkUserSetup from './onboarding/userSetup';
 import { pruneUserObject } from './user/utils';
 
+import checkPortFree from './utils/checkPortFree';
 import { HOST_PORT, HOST_NAME, API_END_POINT } from './urlConstants';
 
 //file paths depending on if building or not
@@ -187,30 +188,6 @@ app.get('*', (req, res) => {
 
 /*** running ***/
 
-//check if the port is in use -- e.g. tests are running, or some other reason
-function checkPortFree(port) {
-  const net = require('net');
-  return new Promise((resolve, reject) => {
-    const tester = net.createServer()
-      .once('error', (err) => {
-        if (err.code !== 'EADDRINUSE') {
-          return reject(false);
-        }
-        reject(err);
-      })
-      .once('listening', () => {
-        tester.once('close', () => {
-          resolve(true);
-        }).close();
-      })
-      .listen({
-        port,
-        host: HOST_NAME,
-        exclusive: true,
-      });
-  });
-}
-
 function startServer() {
   return new Promise((resolve, reject) => {
     app.listen(HOST_PORT, HOST_NAME, (err) => {
@@ -242,8 +219,8 @@ function initDb() {
 //check if the port is taken, and init the db, and star the server
 //returns a promise, so you can listen and wait until it resolves
 export const listenSafely = () => {
-  return checkPortFree(HOST_PORT)
-    .catch(() => { throw new Error(`Port ${HOST_PORT} already in use!`); })
+  //first check if the port is in use -- e.g. tests are running, or some other reason
+  return checkPortFree(HOST_PORT, HOST_NAME)
     .then(initDb)
     .then(startServer);
 };
