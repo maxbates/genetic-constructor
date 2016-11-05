@@ -20,7 +20,7 @@ import checkPortFree from '../server/utils/checkPortFree';
 const STORAGE_PORT = 5432;
 
 const buildDb = 'docker build -t gctorstorage_db ./storage-ext/postgres/';
-const runDb = `docker run -p ${STORAGE_PORT}:${STORAGE_PORT} -l "gctorstorage_db" --rm -t -i gctorstorage_db`;
+const runDb = `docker run -p ${STORAGE_PORT}:${STORAGE_PORT} -l "gctorstorage_db" --rm gctorstorage_db`;
 
 async function startDb() {
   try {
@@ -66,6 +66,8 @@ async function startDb() {
           });
         }
       });
+
+    console.log('DB started');
   } catch (err) {
     console.log('Error starting Storage service...');
     throw err;

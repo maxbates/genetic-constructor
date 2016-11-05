@@ -65,16 +65,12 @@ export const spawnWaitUntilString = (cmd, args = [], opts = {}, {
   return new Promise((resolve, reject) => {
     //const [ command, ...args ] = cmd.split(' ');
 
-    console.log(opts);
-
-
     const process = spawn(cmd, args, opts);
-
-    console.log(process);
 
     process.stdout.on('data', data => {
       log(`${data}`, forceOutput);
       if (`${data}`.indexOf(waitUntil) >= 0) {
+        log('Resolved!');
         resolve(process);
       }
     });
