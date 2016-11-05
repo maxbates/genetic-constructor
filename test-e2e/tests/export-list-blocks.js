@@ -29,7 +29,7 @@ module.exports = {
 
     newProject(browser);
     openInventory(browser);
-    searchFor(browser, 'Runx1');
+    searchFor(browser, 'Ncbi', 'Runx1');
     dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
 
     // click the my projects inventory tab and expect a project.

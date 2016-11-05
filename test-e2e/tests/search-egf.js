@@ -18,7 +18,7 @@ module.exports = {
       .pause(1000);
 
     // term matches a part in the EGF library
-    searchFor(browser, 'YGL119W_P');
+    searchFor(browser, 'Egf', 'YGL119W_P');
 
     // drag first result to create new construct
     dragFromTo(browser, '.InventoryItem-item',10, 10, '.cvc-drop-target', 50, 40);

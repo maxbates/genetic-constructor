@@ -48,7 +48,7 @@ module.exports = {
     dragFromTo(browser, '.InventoryItemRole:nth-of-type(4)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph [data-nodetype="block"]', 300, 30);
 
     // term matches insulin in the registry
-    searchFor(browser, 'Runx1');
+    searchFor(browser, 'Ncbi', 'Runx1');
 
     // drag first result to the Promoter block
     dragFromTo(browser, '.InventoryItem-item', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph [data-nodetype="block"]', 30, 30);

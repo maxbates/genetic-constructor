@@ -18,7 +18,7 @@ module.exports = {
       .pause(1000);
 
     // term that matches a lot of items
-    searchFor(browser, 'yeast');
+    searchFor(browser, 'Ncbi', 'yeast');
 
     browser
       // wait for a block to appear
