@@ -34,7 +34,7 @@ module.exports = {
 
     // open sketch menu
     browser
-      .click('.InventoryGroup:nth-of-type(3) .InventoryGroup-heading')
+      .click('.InventorySectionIcon.open[data-section="Sketch"]')
       // expect at least one inventory item and one block to drop on
       .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item');
 
