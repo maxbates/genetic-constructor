@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import invariant from 'invariant';
-import _ from 'lodash';
 
 //GC specific
 import Project from '../../../../src/models/Project';
@@ -12,7 +11,6 @@ import * as rollup from '../../../../server/data/rollup';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 import { filter } from 'lodash';
 import { projectPermissionMiddleware } from '../../../data/permissions';
-import * as sequencePersistence from '../../../data/persistence/sequence';
 import * as projectPesistence from '../../../data/persistence/projects';
 import DebugTimer from '../../../utils/DebugTimer';
 

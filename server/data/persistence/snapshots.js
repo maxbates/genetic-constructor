@@ -13,7 +13,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import invariant from 'invariant';
 import { errorDoesNotExist } from '../../utils/errors';
 import { dbGet, dbPost } from '../middleware/db';
 

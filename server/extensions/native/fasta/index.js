@@ -4,7 +4,6 @@ import invariant from 'invariant';
 //GC specific
 import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
-import * as rollup from '../../../../server/data/rollup';
 import * as sequences from '../../../../server/data/persistence/sequence';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import { errorDoesNotExist } from '../../../../server/utils/errors';

@@ -19,7 +19,6 @@ import {
   errorInvalidModel,
   errorInvalidRoute,
   errorDoesNotExist,
-  errorVersioningSystem,
 } from '../utils/errors';
 import * as querying from './querying';
 import * as rollup from './rollup';

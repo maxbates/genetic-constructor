@@ -14,13 +14,11 @@
  limitations under the License.
  */
 
-import { every, cloneDeep, isEqual } from 'lodash';
+import { every, isEqual } from 'lodash';
 import invariant from 'invariant';
 import Instance from './Instance';
 import RollupSchema from '../schemas/Rollup';
 import Project from '../models/Project';
-import Block from '../models/Block';
-import safeValidate from '../schemas/fields/safeValidate';
 
 /**
  * Rollups contain a 'complete' project, and are what are sent between client and server
@@ -34,7 +32,7 @@ import safeValidate from '../schemas/fields/safeValidate';
  */
 export default class Rollup extends Instance {
   constructor(input) {
-    super(input, RollupSchema.scaffold())
+    super(input, RollupSchema.scaffold());
   }
 
   /**

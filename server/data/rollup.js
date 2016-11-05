@@ -29,7 +29,7 @@
 import { errorDoesNotExist } from '../utils/errors';
 import * as sequencePersistence from './persistence/sequence';
 import * as projectPersistence from './persistence/projects';
-import { mapValues, values } from 'lodash';
+import { mapValues } from 'lodash';
 import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
 
 /**

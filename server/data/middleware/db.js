@@ -67,8 +67,8 @@ export const dbGet = (path, params = {}) => {
 export const dbPostRaw = (path, userId, data, params = {}, bodyParams = {}) => {
   const body = JSON.stringify(Object.assign({},
     bodyParams,
-    (userId != null ? { owner: userId, } : {}),
-    (data != null ? { data: data, } : {}),
+    (userId !== null ? { owner: userId } : {}),
+    (data !== null ? { data: data } : {}),
   ));
 
   const fetchParams = Object.assign({}, defaultHeaders, params);
