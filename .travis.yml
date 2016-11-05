@@ -11,6 +11,8 @@ env:
   matrix:
     - FORCE_LOCAL=false
     - FORCE_LOCAL=true
+services:
+  - docker
 addons:
   apt:
     sources:
