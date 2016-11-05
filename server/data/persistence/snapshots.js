@@ -13,9 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 import { errorDoesNotExist } from '../../utils/errors';
-import * as projectPersistence from './projects';
-import { dbGet, dbPost, } from '../middleware/db';
+import { dbGet, dbPost } from '../middleware/db';
 
 // Snapshotting is special information about a version.
 
@@ -34,19 +34,23 @@ export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
 export const defaultMessage = 'Project Snapshot';
 
 export const snapshotWrite = (projectId, userId, version, message = defaultMessage, tags = {}, type = SNAPSHOT_TYPE_USER) => {
-  if ((version != null) && (typeof version === 'string')) {
-    version = parseInt(version, 10);
+  let projectVersion = version;
+
+  if (!!version && typeof version === 'string') {
+    projectVersion = parseInt(version, 10);
   }
 
-  console.log('writing snapshot', projectId, (version != null) ? version : "null version", message);
+  console.log(`writing shapshot @ V${projectVersion || '[latest]'} on ${projectId} - ${message}`);
 
+  //signature is weird - no data to pass, just several body parameters
   return dbPost(`snapshots/`, userId, {}, {}, {
-      projectId,
-      projectVersion: version,
-      type,
-      message,
-      tags,
-    }).then(transformDbVersion);
+    projectId,
+    projectVersion,
+    type,
+    message,
+    tags,
+  })
+    .then(transformDbVersion);
 };
 
 export const snapshotList = (projectId, userId, tags = {}) => {
