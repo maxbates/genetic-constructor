@@ -34,30 +34,24 @@ export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
 export const defaultMessage = 'Project Snapshot';
 
 export const snapshotWrite = (projectId, userId, version, message = defaultMessage, tags = {}, type = SNAPSHOT_TYPE_USER) => {
-  const gotVersion = Number.isInteger(version) || (typeof version === 'string' && Number.isInteger(parseInt(version, 10)));
+  if ((version != null) && (typeof version === 'string')) {
+    version = parseInt(version, 10);
+  }
 
-  //get the latest version if they did not specify one
-  const getVersion = gotVersion ?
-    Promise.resolve(version) :
-    projectPersistence.projectExists(projectId).then(version => version);
+  console.log('writing snapshot', projectId, (version != null) ? version : "null version", message);
 
-  console.log('writing shapshot', projectId, gotVersion, version, message);
-
-  return getVersion
-  //signature is weird - no data to pass, just several body parameters
-    .then(version => dbPost(`snapshots/`, userId, {}, {}, {
+  return dbPost(`snapshots/`, userId, {}, {}, {
       projectId,
       projectVersion: version,
       type,
       message,
       tags,
-    }))
-    .then(transformDbVersion);
+    }).then(transformDbVersion);
 };
 
 export const snapshotList = (projectId, userId, tags = {}) => {
   if (Object.keys(tags).length) {
-    return dbPost(`snapshots/tags?project=${projectId}`, userId, tags)
+    return dbPost(`snapshots/tags?project=${projectId}`, null, null, {}, tags)
       .then(results => results.map(transformDbVersion));
   }
 
