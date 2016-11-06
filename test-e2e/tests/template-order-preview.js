@@ -8,7 +8,7 @@ module.exports = {
   'Verify we can preview order assemblies' : function (browser) {
 
     size(browser);
-    homepageoRegister(browser);
+    homepageRegister(browser);
     openTemplates(browser);
     newProject(browser);
     browser
