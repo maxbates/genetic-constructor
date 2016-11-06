@@ -1,9 +1,6 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
 var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
 var clickMainMenu = require('../fixtures/click-main-menu');
 var openInventory = require('../fixtures/open-inventory');
 var size = require('../fixtures/size');
@@ -18,7 +15,7 @@ module.exports = {
 
     browser
       // open sbol blocks
-      .click('.InventoryGroup:nth-of-type(3) .InventoryGroup-heading');
+      .click('.InventorySectionIcon.open[data-section="Sketch"]');
 
     // create a new construct with a single block
     dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.cvc-drop-target', 50, 40);
@@ -26,26 +23,25 @@ module.exports = {
     // and again
     dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.cvc-drop-target', 50, 40);
 
-    //browser.pause(1000000);
 
     browser
+      .pause(5000)
       // expect three construct views, two with one block each
       .assert.countelements('.construct-viewer', 3)
-      .assert.countelements('[data-nodetype="block"]', 2)
+      .assert.countelements('[data-nodetype="block"]', 2);
 
     // save project
     clickMainMenu(browser, 1, 1);
 
     // click the my projects inventory tab and expect a project.
     browser
-      .click('.InventoryGroup:nth-of-type(2) .InventoryGroup-heading')
+      .click('.InventorySectionIcon.open[data-section="Projects"]')
       // expect one project
       .waitForElementPresent('.InventoryListGroup-heading', 5000, 'expect a list of projects to appear')
       // click to expand
-      //.click('.InventoryListGroup-heading')
       .pause(1000)
-      // expect to see 3 projects
-      .assert.countelements('[data-inventory~="project"]', 3)
+      // expect to see 2 projects
+      .assert.countelements('[data-inventory~="project"]', 2)
       // expand the 3rd project
       .click('[data-inventory~="project"]:nth-of-type(1) .Toggler')
       .click('[data-inventory~="project"]:nth-of-type(2) .Toggler')
