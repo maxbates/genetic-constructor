@@ -31,7 +31,7 @@ module.exports = {
 
     browser
       // open the sketch blocks
-      .click('.InventoryGroup:nth-of-type(3) .InventoryGroup-heading')
+      .click('.InventorySectionIcon.open[data-section="Sketch"]')
 
     // double check there are no construct viewers present
       .assert.countelements('.construct-viewer', 1);
