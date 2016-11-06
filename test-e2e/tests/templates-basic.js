@@ -1,7 +1,5 @@
 var homepageRegister = require('../fixtures/homepage-register');
 var openInventory = require('../fixtures/open-inventory');
-var newProject = require('../fixtures/newproject');
-var myProjects = require('../fixtures/myprojects');
 var size = require('../fixtures/size');
 var openTemplates = require('../fixtures/open-templates-sample');
 
@@ -11,8 +9,12 @@ module.exports = {
     // maximize for graphical tests
     size(browser);
     homepageRegister(browser);
-    myProjects(browser);
+    openInventory(browser);
     openTemplates(browser);
+    browser
+      .click('.InventoryListGroup-title')
+      .click('.Toggler')
+      .waitForElementPresent('.InventoryItem-item', 5000, 'expected inventory items');
     browser
       .assert.countelements('[data-inventory~="template"]', 29)
       .assert.countelements('.construct-viewer', 29)

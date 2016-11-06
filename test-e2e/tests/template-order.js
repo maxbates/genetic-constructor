@@ -11,9 +11,11 @@ module.exports = {
 
     size(browser);
     homepageRegister(browser);
-    myProjects(browser);
     openTemplates(browser);
     newProject(browser);
+    browser
+      .click('.Toggler')
+      .waitForElementPresent('.InventoryItem-item', 5000, 'expected inventory items');
     dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
     browser
       .click('.order-button')
