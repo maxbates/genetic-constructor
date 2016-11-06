@@ -19,7 +19,7 @@ module.exports = {
     size(browser);
     
     // register via fixture
-    var credentials = homepageRegister(browser);
+    homepageRegister(browser);
 
     // now we can go to the project page
     browser
@@ -34,17 +34,16 @@ module.exports = {
 
     // click the my projects inventory tab and expect a project.
     browser
-      .waitForElementPresent('.InventoryGroup:nth-of-type(2) .InventoryGroup-heading', 10000, 'expected project header')
-      .click('.InventoryGroup:nth-of-type(2) .InventoryGroup-heading')
+      .click('.InventorySectionIcon.open[data-section="Templates"]')
       // expect one project
       .waitForElementPresent('.InventoryListGroup-heading', 5000, 'expect a list of projects to appear')
       // click to expand
       .waitForElementPresent('[data-inventory~="project"]', 30000, 'expected projects to appear')
-      // expect to see 3 projects
-      .assert.countelements('[data-inventory~="project"]', 3)
-    // expand the 3rd project
-      .click('[data-inventory~="project"]:nth-of-type(3) .Toggler')
-      .pause(500)
+      // expect to see 1 template projects
+      .assert.countelements('[data-inventory~="project"]', 1)
+      // expand
+      .click('.Toggler')
+      .waitForElementPresent('[data-inventory~="template"]', 5000, 'expected templates')
 
     // drag the first construct into the canvas
     dragFromTo(browser, '[data-inventory~="template"]', 10, 10, '.cvc-drop-target', 50, 40);
