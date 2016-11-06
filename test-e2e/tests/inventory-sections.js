@@ -8,13 +8,13 @@ module.exports = {
     homepageRegister(browser);
     openInventory(browser);
     browser
-      .waitForElementPresent('.InventorySectionIcon[data-section="templates"]', 5000, 'expected a section icon')
-      .waitForElementPresent('.InventorySectionIcon[data-section="sketch"]', 5000, 'expected a section icon')
-      .waitForElementPresent('.InventorySectionIcon[data-section="commons"]', 5000, 'expected a section icon')
-      .waitForElementPresent('.InventorySectionIcon[data-section="projects"]', 5000, 'expected a section icon')
-      .waitForElementPresent('.InventorySectionIcon[data-section="ncbi"]', 5000, 'expected a section icon')
-      .waitForElementPresent('.InventorySectionIcon[data-section="igem"]', 5000, 'expected a section icon')
-      .waitForElementPresent('.InventorySectionIcon[data-section="egf"]', 5000, 'expected a section icon')
+      .waitForElementPresent('.InventorySectionIcon[data-section="Templates"]', 5000, 'expected a section icon')
+      .waitForElementPresent('.InventorySectionIcon[data-section="Sketch"]', 5000, 'expected a section icon')
+      .waitForElementPresent('.InventorySectionIcon[data-section="Commons"]', 5000, 'expected a section icon')
+      .waitForElementPresent('.InventorySectionIcon[data-section="Projects"]', 5000, 'expected a section icon')
+      .waitForElementPresent('.InventorySectionIcon[data-section="Ncbi"]', 5000, 'expected a section icon')
+      .waitForElementPresent('.InventorySectionIcon[data-section="Igem"]', 5000, 'expected a section icon')
+      .waitForElementPresent('.InventorySectionIcon[data-section="Egf"]', 5000, 'expected a section icon')
       .end();
   }
 }
