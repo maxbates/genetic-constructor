@@ -2,9 +2,7 @@ var openInventory = require('./open-inventory.js');
 
 var myprojects = function(browser) {
   openInventory(browser);
-  browser
-    .click('.InventoryGroup:nth-of-type(2) .InventoryGroup-heading')
-    .waitForElementPresent('[data-inventory~="project"]', 5000, 'expect at least one project');
+  browser.click('.InventorySectionIcon.open[data-section="Projects"]');
 };
 
 module.exports = myprojects;
