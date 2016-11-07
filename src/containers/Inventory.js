@@ -17,8 +17,6 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { inventoryToggleVisibility, inventorySelectTab } from '../actions/ui';
 import InventorySectionIcon from './InventorySectionIcon';
-
-import InventorySideGroup from '../components/Inventory/InventorySideGroup';
 import InventoryGroup from '../components/Inventory/InventoryGroup';
 
 import '../styles/Inventory.css';
@@ -33,65 +31,12 @@ export class Inventory extends Component {
     inventorySelectTab: PropTypes.func.isRequired,
   };
 
-  state = {
-    gslActive: false,
-  };
-
-  sections = {
-    Projects: {
-      type: 'projects',
-      title: 'Projects',
-      search: {
-        placeholder: 'Filter projects'
-      }
-    },
-    Templates: {
-      type: 'templates',
-      title: 'Templates',
-      search: {
-        placeholder: 'Filter templates'
-      }
-    },
-    Sketch: {
-      type: 'role',
-      title: 'Sketch Blocks',
-      search: {
-        placeholder: 'Filter sketch blocks'
-      }
-    },
-    Commons: null,
-    Ncbi: {
-      type: 'search-ncbi',
-      title: 'NCBI Search',
-      search: {
-        source: 'ncbi',
-        placeholder: 'Keyword, biological function'
-      }
-    },
-    Igem: {
-      type: 'search-igem',
-      title: 'IGEM Search',
-      search: {
-        source: 'igem',
-        placeholder: 'Keyword, biological function'
-      }
-    },
-    Egf: {
-      type: 'search-egf',
-      title: 'EGF Search',
-      search: {
-        source: 'egf',
-        placeholder: 'Part Name'
-      }
-    },
-  };
-
   constructor(props) {
     super(props);
   }
 
-  toggle = (forceVal) => {
-    this.props.inventoryToggleVisibility(forceVal);
+  state = {
+    gslActive: false,
   };
 
   setActive = (group) => {
@@ -99,23 +44,76 @@ export class Inventory extends Component {
     this.props.inventorySelectTab(group);
   };
 
+  toggle = (forceVal) => {
+    this.props.inventoryToggleVisibility(forceVal);
+  };
+
+  sections = {
+    Projects: {
+      type: 'projects',
+      title: 'Projects',
+      search: {
+        placeholder: 'Filter projects',
+      },
+    },
+    Templates: {
+      type: 'templates',
+      title: 'Templates',
+      search: {
+        placeholder: 'Filter templates',
+      },
+    },
+    Sketch: {
+      type: 'role',
+      title: 'Sketch Blocks',
+      search: {
+        placeholder: 'Filter sketch blocks',
+      },
+    },
+    Commons: null,
+    Ncbi: {
+      type: 'search-ncbi',
+      title: 'NCBI Search',
+      search: {
+        source: 'ncbi',
+        placeholder: 'Keyword, biological function',
+      },
+    },
+    Igem: {
+      type: 'search-igem',
+      title: 'IGEM Search',
+      search: {
+        source: 'igem',
+        placeholder: 'Keyword, biological function',
+      },
+    },
+    Egf: {
+      type: 'search-egf',
+      title: 'EGF Search',
+      search: {
+        source: 'egf',
+        placeholder: 'Part Name',
+      },
+    },
+  };
+
   render() {
     //may be better way to pass in projectId
-    const { isVisible, projectId, currentTab } = this.props;
+    const { isVisible } = this.props;
     // classes for content area
     const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
     // classes for vertical menu
     const menuClasses = `vertical-menu${isVisible ? ' open' : ''}`;
     // map sections to icons
     const icons = Object.keys(this.sections).map(sectionName => {
-      return <InventorySectionIcon
+      return (<InventorySectionIcon
           key={sectionName}
           open={isVisible}
           onSelect={this.setActive}
           onToggle={() => this.toggle(!isVisible)}
           selected={this.props.currentTab === sectionName}
           section={sectionName}
-        />;
+        />);
     });
     // setup content area
     const tabInfo = this.sections[this.props.currentTab];

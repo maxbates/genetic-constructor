@@ -154,7 +154,7 @@ export class InventoryItem extends Component {
 
     //handler, so if click somewhere else, shouldnt focus selection on resolve
     const onClickHandler = (evt) => {
-      if (!this.itemElement.contains(evt.target)) {
+      if (this.itemElement && !this.itemElement.contains(evt.target)) {
         this.setState({ skipFocus: true });
       }
       document.removeEventListener('click', onClickHandler);

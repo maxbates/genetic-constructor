@@ -23,10 +23,11 @@ import Spinner from '../ui/Spinner';
 
 export class InventoryProjectList extends Component {
   static propTypes = {
-    currentProject: PropTypes.string.isRequired,
+    currentProject: PropTypes.string,
     projects: PropTypes.object.isRequired,
     blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
+    templates: PropTypes.bool.isRequired,
   };
 
   state = {
@@ -92,7 +93,7 @@ export class InventoryProjectList extends Component {
               );
             })}
         </div>
-      </div>)
+      </div>);
   }
 }
 

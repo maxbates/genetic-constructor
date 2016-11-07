@@ -21,7 +21,8 @@ import InventoryTabs from './InventoryTabs';
 
 export default class InventoryGroupProjects extends Component {
   static propTypes = {
-    currentProject: PropTypes.string.isRequired,
+    currentProject: PropTypes.string,
+    templates: PropTypes.bool.isRequired,
   };
 
   constructor() {

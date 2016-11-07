@@ -19,14 +19,13 @@ import InventoryGroupRole from './InventoryGroupRole';
 import InventoryGroupBlocks from './InventoryGroupBlocks';
 import InventoryGroupSearch from './InventoryGroupSearch';
 import InventoryGroupProjects from './InventoryGroupProjects';
-import InventorySearch from './InventorySearch';
 
 import '../../styles/InventoryGroup.css';
 
 export default class InventoryGroup extends Component {
   static propTypes = {
-    title: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    type: PropTypes.string,
     actions: PropTypes.array,
     tabInfo: PropTypes.object.isRequired,
   };
@@ -42,9 +41,9 @@ export default class InventoryGroup extends Component {
     case 'search-egf' :
       return (<InventoryGroupSearch source="egf" {...props}/>);
     case 'projects':
-      return (<InventoryGroupProjects {...props} templates={false} />);
+      return (<InventoryGroupProjects {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
     case 'templates':
-      return (<InventoryGroupProjects {...props} templates={true} />);
+      return (<InventoryGroupProjects {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
     case 'block':
       return (<InventoryGroupBlocks {...props} />);
     default:
@@ -54,7 +53,7 @@ export default class InventoryGroup extends Component {
 
   render() {
     const { actions, ...rest } = this.props;
-    const { title, type, search } = this.props.tabInfo;
+    const { title, type } = this.props.tabInfo;
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
 
     //todo - define object model (from inventory.sections) + show these

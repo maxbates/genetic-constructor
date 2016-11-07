@@ -16,14 +16,6 @@
 
 import React, { Component, PropTypes } from 'react';
 
-//todo - Drag and Drop
-import DnD from '../../containers/graphics/dnd/dnd';
-import {
-  block as blockDragType,
-  gsl as gslDragType,
-  role as roleDragType,
-} from '../../constants/DragTypes';
-
 import '../../styles/InventorySideGroup.css';
 
 export default class InventorySideGroup extends Component {

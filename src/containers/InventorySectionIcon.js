@@ -20,8 +20,8 @@ import '../styles/InventorySectionIcon.css';
 // map section names to SVG URI
 const sectionNameToSVG = {
   Templates: '/images/ui/inventory_templates.svg',
-  Sketch : '/images/ui/inventory_sketch.svg',
-  Commons : '/images/ui/inventory_commons.svg',
+  Sketch: '/images/ui/inventory_sketch.svg',
+  Commons: '/images/ui/inventory_commons.svg',
   Projects: '/images/ui/inventory_projects.svg',
   Ncbi: '/images/ui/inventory_search_plugin_ncbi.svg',
   Igem: '/images/ui/inventory_search_plugin_igem.svg',
@@ -60,7 +60,14 @@ export default class InventorySectionIcon extends Component {
       this.props.onSelect(this.props.section);
       this.props.onToggle(true);
     }
-  }
+  };
+
+  onEnter = () => {
+    this.setState({hover: true});
+  };
+  onLeave = () => {
+    this.setState({hover: false});
+  };
 
   render() {
     // display in open or closed state ( reversed when hovered ).
@@ -80,11 +87,5 @@ export default class InventorySectionIcon extends Component {
         <img className={imgClass} title={this.props.section} src={sectionNameToSVG[this.props.section]}/>
       </div>
     );
-  }
-  onEnter = () => {
-    this.setState({hover: true});
-  }
-  onLeave = () => {
-    this.setState({hover: false});
   }
 }

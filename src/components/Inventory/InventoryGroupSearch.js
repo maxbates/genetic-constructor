@@ -33,6 +33,7 @@ export class InventoryGroupSearch extends Component {
     searchTerm: PropTypes.string.isRequired,
     sourcesToggling: PropTypes.bool.isRequired,
     searching: PropTypes.bool.isRequired,
+    source: PropTypes.string.isRequired,
     sourceList: PropTypes.array.isRequired,
     sourcesVisible: PropTypes.object.isRequired,
     searchResults: PropTypes.object.isRequired,
@@ -44,15 +45,6 @@ export class InventoryGroupSearch extends Component {
     inventoryToggleSource: PropTypes.func.isRequired,
     inventoryToggleSourceVisible: PropTypes.func.isRequired,
     blockStash: PropTypes.func.isRequired,
-  };
-
-  handleSearchChange = (searchTerm) => {
-    const { inventorySearch } = this.props;
-    inventorySearch(searchTerm);
-  };
-
-  handleLoadMore = (source) => {
-    this.props.inventorySearchPaginate(source);
   };
 
   /**
@@ -73,6 +65,15 @@ export class InventoryGroupSearch extends Component {
       this.props.inventorySetSources([nextProps.source]);
     }
   }
+
+  handleLoadMore = (source) => {
+    this.props.inventorySearchPaginate(source);
+  };
+
+  handleSearchChange = (searchTerm) => {
+    const { inventorySearch } = this.props;
+    inventorySearch(searchTerm);
+  };
 
   render() {
     const { searchTerm, sourcesToggling, searching, searchResults, sourcesVisible } = this.props;

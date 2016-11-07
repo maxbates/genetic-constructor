@@ -31,6 +31,7 @@ export default class RoleSvg extends Component {
     height: PropTypes.string,
     styles: PropTypes.object,
     stroke: PropTypes.number,
+    strokeWidth: PropTypes.number,
   };
 
   static defaultProps = {
@@ -68,7 +69,6 @@ export default class RoleSvg extends Component {
           setAttribute(svg, 'stroke-width', this.props.strokeWidth, true);
         }
         this.markup = serializer.serializeToString(svg);
-
       } else {
         // add a placeholder element
         const div = document.createElement('div');

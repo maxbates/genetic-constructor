@@ -44,14 +44,13 @@ export default class InventoryGroupRole extends Component {
                          onSearchChange={this.handleFilterChange}/>
         <div className="InventoryGroup-contentInner no-vertical-scroll">
           {this.roleSymbols.filter(item => {
-              return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0;
-            }).map(item => (
-              <InventoryItemRole key={item.id}
-                                 role={item}
-                                 hover={'white'}
-              />
-            ))
-          }
+            return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0;
+          }).map(item => (
+            <InventoryItemRole key={item.id}
+                               role={item}
+                               hover={'white'}
+            />
+          ))}
         </div>
       </div>
     );

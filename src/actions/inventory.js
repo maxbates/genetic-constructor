@@ -60,7 +60,6 @@ export const inventorySetSearchTerm = (searchTerm) => {
 
 export const inventorySearchReset = () => {
   return (dispatch, getState) => {
-    debugger;
     const state = getState();
     const { sourceList } = state.inventory;
     dispatch({
@@ -68,9 +67,8 @@ export const inventorySearchReset = () => {
       sourceList,
     });
     return Promise.resolve();
-  }
-}
-
+  };
+};
 
 /**
  * Search for a term across active search sources

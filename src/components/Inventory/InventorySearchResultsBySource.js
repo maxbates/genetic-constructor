@@ -44,7 +44,6 @@ export default class InventorySearchResultsBySource extends Component {
           const name = registry[key].name;
           const results = searchResults[key];
 
-          //todo - this will not handle case where number results % number entries == 0
           const moreResults = Number.isInteger(results.count) ?
             results.length < results.count :
             results.length % results.parameters.entries === 0;
@@ -58,7 +57,7 @@ export default class InventorySearchResultsBySource extends Component {
           : null;
 
           return (
-              <div>
+              <div key={key}>
                 {loadMore}
                 <InventoryList inventoryType={blockDragType}
                                onDrop={(item) => onItemDrop(key, item)}

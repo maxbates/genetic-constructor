@@ -31,7 +31,7 @@ export default class InventorySearch extends Component {
 
   render() {
     return (
-      <div className='InventorySearch'>
+      <div className="InventorySearch">
         <input className="InventorySearch-input"
                type="text"
                disabled={!!this.props.disabled ? true : null}

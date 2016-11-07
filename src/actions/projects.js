@@ -422,13 +422,7 @@ export const projectRename = (projectId, newName) => {
 export const projectAddConstruct = (projectId, constructId, forceProjectId = true) => {
   return (dispatch, getState) => {
     const oldProject = getState().projects[projectId];
-
-    console.log('old', oldProject);
-
     const project = oldProject.addComponents(constructId);
-
-    console.log('mnew', project);
-
     const component = getState().blocks[constructId];
     const componentProjectId = component.projectId;
 

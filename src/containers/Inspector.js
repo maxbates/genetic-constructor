@@ -27,7 +27,7 @@ import '../styles/SidePanel.css';
 
 export class Inspector extends Component {
   static propTypes = {
-    isVisible: PropTypes.bool.isRequired,
+    isVisible: PropTypes.bool,
     inspectorToggleVisibility: PropTypes.func.isRequired,
     readOnly: PropTypes.bool.isRequired,
     isAuthoring: PropTypes.bool.isRequired,

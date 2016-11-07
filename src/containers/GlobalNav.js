@@ -121,7 +121,7 @@ class GlobalNav extends Component {
     uiShowDNAImport: PropTypes.func.isRequired,
     uiReportError: PropTypes.func.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
-    inspectorVisible: PropTypes.bool.isRequired,
+    inspectorVisible: PropTypes.bool,
     detailViewVisible: PropTypes.bool.isRequired,
     focus: PropTypes.object.isRequired,
     blocks: PropTypes.object,
