@@ -44,7 +44,7 @@ const orderFields = {
   ],
 
   projectVersion: [
-    fields.version().required,
+    fields.number().required,
     'SHA1 version of project when order is submitted',
     { avoidScaffold: true },
   ],

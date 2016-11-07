@@ -40,7 +40,8 @@ export default class Order extends Instance {
    */
   constructor(input = {}) {
     invariant(input.projectId, 'project Id is required to make an order');
-    invariant(input.constructIds, 'constructIDs are required on creation for generating number of constructs');
+    invariant(Array.isArray(input.constructIds), 'constructIDs are required on creation for generating number of constructs');
+    invariant(input.constructIds.length > 0, 'constructIDs are required on creation for generating number of constructs');
 
     super(input, OrderDefinition.scaffold());
   }
@@ -85,7 +86,7 @@ export default class Order extends Instance {
    * @method validateParameters
    * @memberOf Order
    * @static
-   * @param input
+   * @param input Order.parameters
    * @param throwOnError
    * @throws if throwOnError ==== true
    * @returns {*}
@@ -212,6 +213,7 @@ export default class Order extends Instance {
   }
 
   //todo - should not need to pass this to the server. should be able to generated deterministically. Set up better code shsraing between client + server
+  //todo - this should update the order itself, not just on the server
   /**
    * Submit the order
    * @method submit
@@ -221,6 +223,9 @@ export default class Order extends Instance {
    */
   submit(foundry, positionalCombinations) {
     //may want to just set the foundry on the order directly?
-    return submitOrder(this, foundry, positionalCombinations);
+    return submitOrder(this, foundry, positionalCombinations)
+      .then(result => {
+        console.log(result);
+      })
   }
 }

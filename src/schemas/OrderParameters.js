@@ -63,7 +63,7 @@ export class OrderParametersSchemaClass extends Schema {
       return false;
     }
 
-    const hasFieldsIfNotOnePot = instance.onePot || (instance.combinatorialMethod && instance.permutations && instance.activeIndices); //todo - should make sure number active instances is correct
+    const hasFieldsIfNotOnePot = instance.onePot === true || (instance.combinatorialMethod && instance.permutations && instance.activeIndices); //todo - should make sure number active instances is correct
 
     if (!hasFieldsIfNotOnePot) {
       const errorMessage = 'Combinatorial method and # permutations required if not one pot, and activeInstances must be present and its length match # permutations';

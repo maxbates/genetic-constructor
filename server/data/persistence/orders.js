@@ -18,27 +18,8 @@ import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateOrder } from '../../utils/validation';
 import { dbGet, dbPost, dbPruneResult } from '../middleware/db';
 
-/*********
- Helpers
- *********/
-
-const _orderWrite = (orderId, order = {}, projectId) => {
-  //todo - write the order, mae sure have a version (should run after saving the project)
-  return dbPost(`orders/${projectId}/${orderId}`);
-};
-
-/*********
- API
- *********/
-
 export const orderList = (projectId) => {
-  return dbGet(`orders/${projectId}`)
-    .catch(err => {
-      if (err === errorDoesNotExist) {
-        return [];
-      }
-      return Promise.reject(err);
-    });
+  return dbGet(`orders/${projectId}`);
 };
 
 //todo - this should resolve to false... need to update usages (match project persistence existence check)
@@ -81,7 +62,8 @@ export const orderWrite = (userId, orderId, order, projectId, projectVersion, ro
 
   //todo - get rollup and write with order --- or just the project id and version?
 
-  return _orderWrite(orderId, idedOrder, projectId)
+  //todo - write the order, mae sure have a version (should run after saving the project)
+  return dbPost(`orders/${projectId}/${orderId}`, idedOrder)
     .then(() => idedOrder);
 };
 
