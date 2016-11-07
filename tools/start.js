@@ -8,6 +8,7 @@ import { serverConfig, clientConfig } from './webpack.config';
 import setup from './setup';
 import checks from './checks';
 import clean from './clean';
+import startDb from './startDb';
 import copy from './copy';
 import bundleServer from './bundleServer';
 import { debounce } from 'lodash';
@@ -18,6 +19,7 @@ async function start() {
   await run(checks);
   await run(clean);
   await run(setup);
+  await run(startDb);
   await run(copy.bind(undefined, { watch: true }));
 
   console.log('bundling...');

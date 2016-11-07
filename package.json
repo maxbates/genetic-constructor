@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "babel-node tools/run start",
+    "start-db": "babel-node tools/run startDb",
     "start-instance": "babel-node tools/run start-instance",
     "start-testing": "REQUIRELOGIN=true NODE_ENV=test PORT=3001 npm run start-instance",
     "start-auth-stack": "babel-node tools/run auth-stack",

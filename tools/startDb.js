@@ -50,7 +50,6 @@ async function startDb() {
       .catch(err => {
         //console.log(err);
         //ideallly should see what process is running on the port...
-        console.log('Port not free - assuming port is occupied by Postgres DB process....');
         return false;
       })
       .then(free => {
@@ -65,6 +64,9 @@ async function startDb() {
             comment: 'Running Docker container...',
           });
         }
+
+        //if not free
+        console.log('Port not free - assuming port is occupied by Postgres DB process....');
       });
 
     console.log('DB started');

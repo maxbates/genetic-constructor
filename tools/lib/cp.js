@@ -16,7 +16,7 @@
 import { exec, spawn } from 'child_process';
 
 //if this isnt working, you can debug with --DEBUG flag
-const DEBUG = process.argv.includes('--DEBUG');
+const DEBUG = process.argv.includes('--DEBUG') || (process.env.DEBUG && process.env.DEBUG.indexOf('tools') >= 0);
 if (!DEBUG) {
   console.log('enable build tool debugging by passing --DEBUG');
 }

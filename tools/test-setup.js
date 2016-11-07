@@ -17,6 +17,7 @@ import run from './run';
 import del from 'del';
 import setup from './setup';
 import checks from './checks';
+import startDb from './startDb';
 
 //todo - move make file to this
 
@@ -24,6 +25,9 @@ async function testSetup() {
   await run(checks);
   await del(['storage/test'], { dot: true });
   await run(setup);
+  //await run(startDb); //this is blocking completion of this setup script... need to manually start until this is working
+
+  console.log('tests ready to run...');
 }
 
 export default testSetup;
