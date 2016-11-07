@@ -38,7 +38,7 @@ export default class CodeEditorLayout extends Component {
     this.state = {
       editorContent: '',
       resultContent: '',
-      statusMessage: 'Begin typing GSL code. Drag and drop blocks or GSL commands from the Inventory to use them in a script.',
+      statusMessage: 'Begin typing GSL code.',
       showDownloadMenu: false,
       currentMenuPosition: {},
       consoleVisible: true,
@@ -52,11 +52,6 @@ export default class CodeEditorLayout extends Component {
           label: 'Save',
           action: this.saveCode,
           disabled: false,  // Make sure to update index references in saveCode if items are rearranged.
-        },
-        {
-          label: 'GSL Library',
-          action: this.showGSLLibrary,
-          imageUrl: '/images/ui/add_icon.svg',
         },
         {
           label: 'Comment',
@@ -189,7 +184,7 @@ export default class CodeEditorLayout extends Component {
     this.setState({ editorContent: content });
     this.props.onEditorContentChange(content);
     if (content === '') {
-      this.onStatusMessageChange('Begin typing GSL code. Drag and drop blocks or GSL commands from the Inventory to use them in a script.');
+      this.onStatusMessageChange('Begin typing GSL code.');
     } else {
       this.onStatusMessageChange(' ');
     }
@@ -390,16 +385,6 @@ export default class CodeEditorLayout extends Component {
       'x': evt.target.getBoundingClientRect().left - offsetLeft - fitInPageOffset,
       'y': evt.target.getBoundingClientRect().bottom + offsetBottom,
     });
-  }
-
-  /**
-   * Opens the GSL Library panel in the inventory.
-   * @param {MouseEvent} click event
-   */
-  showGSLLibrary = (evt) => {
-    window.constructor.api.ui.inventoryToggleVisibility(true);
-    window.constructor.api.ui.inventorySelectTab('gsl');
-    this.codeEditor.ace.editor.focus();
   }
 
   /**
