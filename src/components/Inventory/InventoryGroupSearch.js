@@ -51,8 +51,8 @@ export class InventoryGroupSearch extends Component {
    * necessary to set the initial search source
    */
   componentWillMount() {
-    this.handleSearchChange(this.props.searchTerm);
     this.props.inventorySetSources([this.props.source]);
+    this.handleSearchChange(this.props.searchTerm);
   }
 
   /**
@@ -61,8 +61,8 @@ export class InventoryGroupSearch extends Component {
    */
   componentWillReceiveProps(nextProps) {
     if (nextProps.source !== this.props.source) {
-      this.handleSearchChange(this.props.searchTerm);
       this.props.inventorySetSources([nextProps.source]);
+      this.handleSearchChange(this.props.searchTerm);
     }
   }
 
