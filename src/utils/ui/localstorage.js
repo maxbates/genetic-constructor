@@ -28,9 +28,16 @@ export function getLocal(key, defaultObject) {
     }
     return item || defaultObject;
   } catch (error) {
-    console.error('error getting localStorage:', key);//eslint-disable-line no-console
-    return defaultObject;
+    console.error('error getting localStorage:', key, ' - removing.');//eslint-disable-line no-console
+    try {
+      if (localStorage && localStorage.removeItem) {
+        localStorage.removeItem(key);
+      }
+    } catch (err) {
+      console.log('error removing ' + key + ' from localStorage'); //eslint-disable-line no-console
+    }
   }
+  return defaultObject;
 }
 
 /**
