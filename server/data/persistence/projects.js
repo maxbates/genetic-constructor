@@ -58,7 +58,7 @@ const mergeMetadataOntoProject = (data) => {
 
 //maybe can deprecate some of these helpers, and just use the exported functions
 
-//todo - this should resolve to false... need to update usages
+//todo - this should resolve to false... need to update usages (an dkeep snapshots, orders, etc. in sync)
 //resolves to latest version
 const _projectExists = (projectId, version) => {
   if (Number.isInteger(version)) {
@@ -220,6 +220,7 @@ export const blockGet = (projectId, version = false, blockId) => {
 
 //SET (WRITE + MERGE)
 
+//todo - should userId be the first argument? update orders if so
 // see mergeMetadataOntoProject() above to see what is returned
 export const projectWrite = (projectId, roll = {}, userId, bypassValidation = false) => {
   const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });

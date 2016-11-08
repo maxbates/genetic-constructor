@@ -28,14 +28,15 @@ import { userOwnsProject } from './persistence/projects';
 export const projectPermissionMiddleware = (req, res, next) => {
   const { projectId, user } = req;
 
-  //should be caught by preceding middleware but just in case...
+  //in case havent already checked for user on request
   if (!user) {
+    res.status(401);
     console.error('no user attached by auth middleware @', req.url);
     next('[projectPermissionMiddleware] user not attached to request by middleware');
     return;
   }
 
-  //should be caught by preceding middleware but just in case...
+  //in case havent already checked for user on request
   if (!user.uuid) {
     res.status(401);
     next('[projectPermissionMiddleware] no user.uuid present on request object');

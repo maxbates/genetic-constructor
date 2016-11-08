@@ -17,12 +17,10 @@
 import { assert, expect } from 'chai';
 import uuid from 'node-uuid';
 import _ from 'lodash';
-import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
 import { testUserId } from '../../../constants';
-import rollupFromArray from '../../../../src/utils/rollup/rollupFromArray';
+import { createExampleRollup } from '../../../_utils/rollup';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
 import Project from '../../../../src/models/Project';
-import Block from '../../../../src/models/Block';
 import Order from '../../../../src/models/Order';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
@@ -31,9 +29,45 @@ import * as orderPersistence from '../../../../server/data/persistence/orders';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
-      describe('orders', () => {
+      describe.only('orders', () => {
+        const roll = createExampleRollup();
+        const updated = _.merge({}, roll, { project: { another: 'field' } });
 
-        //const order = new Order();
+        const roll2 = createExampleRollup();
+        const updated2 = _.merge({}, roll, { project: { another: 'field' } });
+
+        let version = 1;
+
+        const order = Order.classless({
+          projectId: roll.project.id,
+          projectVersion: version,
+          user: testUserId,
+          constructIds: [roll.project.components[0]],
+          parameters: {
+            onePot: true,
+          },
+          status: {
+            foundry: 'egf',
+          },
+        });
+
+        const order2 = Order.classless({
+          projectId: roll2.project.id,
+          projectVersion: version,
+          user: testUserId,
+          constructIds: [roll2.project.components[0]],
+          parameters: {
+            onePot: true,
+          },
+          status: {
+            foundry: 'egf',
+          },
+        });
+
+        before(() => {
+          return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+            .then(() => projectPersistence.projectWrite(roll.project.id, updated, testUserId));
+        });
 
         it('orderList() returns 404 when no orders', (done) => {
           orderPersistence.orderList(Project.classless().id)
@@ -44,23 +78,79 @@ describe('Server', () => {
             });
         });
 
-        it('orderWrite() write makes an order', () => {
-          return orderPersistence.orderWrite(testUserId, )
+        it('orderExists() resolves when an order exists', (done) => {
+          orderPersistence.orderExists(order.id, order.projectId)
+            .then(() => done('shouldnt resolve'))
+            .catch((err) => {
+              expect(err).to.equal(errorDoesNotExist);
+              done();
+            });
         });
 
-        it('orderGet() gets an order');
+        it('orderWrite() should fail on an invalid order', (done) => {
+          const badOrder = Object.assign({}, order, { parameters: { onePot: 'bad' } });
+          orderPersistence.orderWrite(order.id, badOrder, testUserId)
+            .then(result => done('shouldnt resolve'))
+            .catch(err => {
+              expect(err).to.equal(errorInvalidModel);
+              done();
+            });
+        });
 
-        it('orderExists() resolves when an order exists');
+        it('orderWrite() should require that the foundry is set', () => {
+          const badOrder = Object.assign({}, order);
+          delete badOrder.status.foundry;
 
+          expect(() => orderPersistence.orderWrite(order.id, badOrder, testUserId)).to.throw();
+        });
+
+        it('orderWrite() should fail when version does not exist', (done) => {
+          const badVersion = Object.assign({}, order, { projectVersion: 10 });
+          orderPersistence.orderWrite(order.id, badVersion, testUserId)
+            .then(result => done('shouldnt resolve'))
+            .catch(err => {
+              expect(err).to.equal(errorDoesNotExist);
+              done();
+            });
+        });
+
+        it('orderWrite() write makes an order', () => {
+          return orderPersistence.orderWrite(order.id, order, testUserId);
+        });
+
+        it('orderGet() gets an order', () => {
+          return orderPersistence.orderGet(order.id, order.projectId)
+            .then(ord => {
+              expect(ord).to.eql(order);
+            });
+        });
+
+        it('orderExists() resolves when an order exists', () => {
+          return orderPersistence.orderExists(order.id, order.projectId);
+        });
+
+        //todo
         it('orderList() lists orders which exist for a project');
+
+        //todo
         it('orderList() lists orders only for given project');
 
-        it('orderExists() resolves for order which exists');
-        it('orderExists() rejects on non existent order');
+        //todo
+        it('orderWrite() should fail when version does not exist');
 
-        it('orderDelete() is impossible');
+        it('orderDelete() is impossible', () => {
+          expect(() => orderPersistence.orderDelete(order.id, order.projectId)).to.throw();
+        });
 
-        it('projectDelete() should remove orders');
+        it('projectDelete() should remove orders', (done) => {
+          projectPersistence.projectDelete(roll.project.id, testUserId)
+            .then(() => orderPersistence.orderList(order.projectId))
+            .then(() => done('shouldnt resolve'))
+            .catch(err => {
+              expect(err).to.equal(errorDoesNotExist);
+              done();
+            });
+        });
       });
     });
   });

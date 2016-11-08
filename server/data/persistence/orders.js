@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateOrder } from '../../utils/validation';
-import { dbGet, dbPost, dbPruneResult } from '../middleware/db';
+import { dbHead, dbGet, dbPost, dbDelete } from '../middleware/db';
 
 export const orderList = (projectId) => {
   return dbGet(`orders/${projectId}`);
@@ -24,7 +24,7 @@ export const orderList = (projectId) => {
 
 //todo - this should resolve to false... need to update usages (match project persistence existence check)
 export const orderExists = (orderId, projectId) => {
-  return dbGet(`orders/${projectId}/${orderId}`)
+  return dbHead(`orders/${projectId}?id=${orderId}`)
     .then(() => true)
     .catch(err => {
       if (err === errorDoesNotExist) {
@@ -35,42 +35,50 @@ export const orderExists = (orderId, projectId) => {
 };
 
 export const orderGet = (orderId, projectId) => {
-  return dbGet(`orders/${projectId}/${orderId}`)
-    .then(dbPruneResult)
-    .catch(err => {
-      if (err === errorDoesNotExist) {
-        return Promise.resolve(null);
-      }
-      return Promise.reject(err);
-    });
+  //hack - pending properly single item querying
+  return dbGet(`orders/${projectId}`)
+    .then(results => {
+      return results.find(result => result.data.id === orderId);
+    })
+    .then(result => result.data);
+
+  //return dbGet(`orders/${projectId}?orderId=${orderId}`)
+  //  .then(dbPruneResult);
 };
 
-//todo - require userId as arg + update usages
-//todo - require projectVersion as arg
-export const orderWrite = (userId, orderId, order, projectId, projectVersion, roll) => {
-  //todo - invariant checks on inputs
+export const orderWrite = (orderId, order, userId) => {
+  invariant(order.projectId, 'must have projectId defined');
+  invariant(order.projectVersion, 'must have project version defined');
+  invariant(!!order.status.foundry, 'foundry must be defined');
+
+  //todo - make sure have a version (should only be run after saving the project), and reject with errorDoesNotExist
+  //do not need to make sure it is the most recent version
 
   const idedOrder = Object.assign({}, order, {
     id: orderId,
-    projectId,
-    projectVersion,
+    user: userId,
   });
 
   if (!validateOrder(idedOrder)) {
     return Promise.reject(errorInvalidModel);
   }
 
-  //todo - get rollup and write with order --- or just the project id and version?
-
-  //todo - write the order, mae sure have a version (should run after saving the project)
-  return dbPost(`orders/${projectId}/${orderId}`, idedOrder)
+  return dbPost(`orders/`, userId, idedOrder, {}, {
+    projectId: order.projectId,
+    projectVersion: order.projectVersion,
+    type: order.status.foundry,
+  })
     .then(() => idedOrder);
 };
 
 //not sure why you would do this...
 export const orderDelete = (orderId, projectId) => {
   invariant(false, 'you cannot delete an order');
+
+  return dbGet(`orders/${projectId}`)
+    .then(results => {
+      const result = results.find(result => result.data.id === orderId);
+
+      return dbDelete(`orders/uuid/${result.uuid}`);
+    });
 };
-
-
-//todo - once this module is done, remove some stuff from querying.js

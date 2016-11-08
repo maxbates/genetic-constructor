@@ -22,7 +22,6 @@ import * as projectPersistence from './../data/persistence/projects';
 import * as orderPersistence from './../data/persistence/orders';
 import * as snapshots from './../data/persistence/snapshots';
 import * as rollup from './../data/rollup';
-import { ensureReqUserMiddleware } from '../user/utils';
 import { projectPermissionMiddleware } from './../data/permissions';
 
 import Order from '../../src/models/Order';
@@ -30,9 +29,6 @@ import { submit } from './egf';
 import saveCombinations from '../../src/utils/generators/orderConstructs';
 
 const router = express.Router(); //eslint-disable-line new-cap
-
-//ensure req.user is set, send 401 otherwise
-router.use(ensureReqUserMiddleware);
 
 //in theory, we could get rid of this part of the route, and just assign the projectID basic on the project that is posted
 router.param('projectId', (req, res, next, id) => {
@@ -137,9 +133,8 @@ User ${user.uuid}
       })
       .then(response => {
         //snapshot, return the order to the client
-        //todo - update signature
         //todo - need to write and make a version before snapshot
-        //todo - create snapshot after order is completed
+        //todo - create snapshot before order is completed
         const tags = {
           foundry,
           constructIds: order.constructIds,
@@ -168,7 +163,7 @@ User ${user.uuid}
             return projectPersistence.projectGet(projectId)
               .then(roll => {
                 //console.log(roll);
-                return orderPersistence.orderWrite(order.id, order, projectId, version, roll);
+                return orderPersistence.orderWrite(order.id, order, user.uuid);
               });
           });
       })

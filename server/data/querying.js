@@ -23,8 +23,6 @@ import { getUserProjects } from './persistence/projects';
 // key for no role rule
 const untypedKey = 'none';
 
-//todo - remove many of these functions - they are just persistence things, not really queries / migrate to new APIs
-
 //returns blockmap
 export const getAllBlocks = (userId) => {
   return getUserProjects(userId)
@@ -73,3 +71,5 @@ export const getAllBlockRoles = (userId) => {
       return obj;
     });
 };
+
+//todo - deprecate this module once we have the querying module in persistence

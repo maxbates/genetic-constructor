@@ -41,10 +41,11 @@ const defaultErrorHandling = (resp) => {
 
   console.log('unhandled DB error @ ', resp.url || resp);
 
-  //todo - shouldnt parse the normal body without cloning it ... what relies on this being json?
-  return resp.json().then(json => {
-    console.log(json);
-    return Promise.reject(json);
+  const clone = resp.clone();
+
+  return resp.text().then(text => {
+    console.log(text);
+    return Promise.reject(clone);
   });
 };
 

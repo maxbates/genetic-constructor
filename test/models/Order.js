@@ -65,11 +65,15 @@ describe('Model', () => {
       expect(typeof ord.quote).to.equal('function');
     });
 
+    it('submit() if all combinations allowed for');
+
     it('submit requires positional combinations', () => {
       const ord = validOrder();
       expect(ord.submit).to.throw();
       expect(() => ord.submit('egf')).to.throw();
     });
+
+    it('submit() with valid positional combinations');
 
     it('cannot change a submitted order', () => {
       const ord = validOrder({
