@@ -54,6 +54,12 @@ export const dbHeadRaw = (path, params = {}) => {
   return rejectingFetch(makePath(path), headers.headersHead(fetchParams));
 };
 
+//does some standardized error handling
+export const dbHead = (path, params = {}) => {
+  return dbHeadRaw(path, params)
+    .catch(defaultErrorHandling);
+};
+
 export const dbGetRaw = (path, params = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
   return rejectingFetch(makePath(path), headers.headersGet(fetchParams));

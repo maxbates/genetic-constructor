@@ -35,6 +35,17 @@ describe('Model', () => {
       },
     }, input));
 
+    it('validate can throw, or not', () => {
+      const good = validOrder();
+      const bad = _.merge({}, good, { projectVersion: 'adsfasdfasdfasdf' });
+
+      expect(Order.validate(good)).to.equal(true);
+      expect(Order.validate(bad)).to.equal(false);
+
+      expect(() => Order.validate(good, true)).to.not.throw();
+      expect(() => Order.validate(bad, true)).to.throw();
+    });
+
     it('requires projectId and construct Ids', () => {
       expect(() => new Order({})).to.throw();
       expect(() => new Order({ projectId: Project.classless().id })).to.throw();

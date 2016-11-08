@@ -54,8 +54,9 @@ const orderFields = {
     `IDs of constructs in project involved in order`,
   ],
 
+  //todo - deprecate
   numberCombinations: [
-    fields.number(validators.id()).required,
+    fields.number().required,
     `Number of possible combinations, determined when making the order`,
   ],
 

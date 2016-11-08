@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import invariant from 'invariant';
 import fields from './fields/index';
 import Schema from './SchemaClass';
 
@@ -56,25 +57,18 @@ export class OrderParametersSchemaClass extends Schema {
     super(Object.assign({}, fieldDefs, fieldDefinitions));
   }
 
-  validate(instance, shouldThrow) {
-    const fieldsValid = super.validateFields(instance, shouldThrow);
-
-    if (!fieldsValid) {
+  validate(instance, throwOnError = false) {
+    try {
+      super.validateFields(instance, true);
+      invariant(instance.onePot === true || (instance.combinatorialMethod && instance.permutations && instance.activeIndices), 'Combinatorial method and # permutations required if not one pot, and activeInstances must be present and its length match # permutations');
+    } catch (err) {
+      if (throwOnError === true) {
+        throw err;
+      }
       return false;
     }
 
-    const hasFieldsIfNotOnePot = instance.onePot === true || (instance.combinatorialMethod && instance.permutations && instance.activeIndices); //todo - should make sure number active instances is correct
-
-    if (!hasFieldsIfNotOnePot) {
-      const errorMessage = 'Combinatorial method and # permutations required if not one pot, and activeInstances must be present and its length match # permutations';
-      if (shouldThrow) {
-        throw Error(errorMessage, instance);
-      } else if (process.env.NODE_ENV !== 'production') {
-        console.error(errorMessage); //eslint-disable-line
-      }
-    }
-
-    return fieldsValid && hasFieldsIfNotOnePot;
+    return true;
   }
 }
 

@@ -26,21 +26,25 @@ const fieldDefs = {
   foundry: [
     fields.string().required,
     `key of foundry the Order has been submitted to`,
+    { avoidScaffold: true },
   ],
 
   remoteId: [
     fields.string().required,
     `ID at remote foundry`,
+    { avoidScaffold: true },
   ],
 
   price: [
     fields.any(),
     `Quote for the order`,
+    { avoidScaffold: true },
   ],
 
   timeSent: [
     fields.number(),
     `Time when the order was sent, in MS`,
+    { avoidScaffold: true },
   ],
 };
 

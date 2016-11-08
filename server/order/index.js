@@ -15,16 +15,19 @@
  */
 import express from 'express';
 import {
+  errorDoesNotExist,
   errorInvalidModel,
 } from './../utils/errors';
 import { merge } from 'lodash';
 import * as projectPersistence from './../data/persistence/projects';
+import * as projectVersions from './../data/persistence/projectVersions';
 import * as orderPersistence from './../data/persistence/orders';
 import * as snapshots from './../data/persistence/snapshots';
-import * as rollup from './../data/rollup';
+import { pruneUserObject } from '../user/utils';
 import { projectPermissionMiddleware } from './../data/permissions';
 
 import Order from '../../src/models/Order';
+import { submit as testSubmit } from './test';
 import { submit } from './egf';
 import saveCombinations from '../../src/utils/generators/orderConstructs';
 
@@ -53,6 +56,15 @@ router.route('/:projectId/:orderId?')
       .catch(err => next(err));
   })
   .post((req, res, next) => {
+    /* order flow:
+     - validation
+     - get project @ version (latest if no version specified)
+     - generate combinatorials (todo - on server)
+     - submit the order to the foundry
+     - create snapshot with type order
+     - return order to client
+     */
+
     const { user, projectId } = req;
     const { foundry, order, positionalCombinations } = req.body;
 
@@ -60,13 +72,16 @@ router.route('/:projectId/:orderId?')
       return res.status(422).send('project ID and order.projectId must match');
     }
 
-    //note - this expects order.id to be defined
-    if (!Order.validateSetup(order)) {
-      res.status(422);
-      return next(errorInvalidModel);
+    if (order.status.foundry && order.status.jobId) {
+      res.status(422).send('cannot submit an already submitted order');
     }
 
-    if (foundry !== 'egf') {
+    if (!Order.validateSetup(order)) {
+      return res.status(422).send('error validating order setup');
+    }
+
+    //todo (future) this should be dynamic, based on the foundry, pulling from a registry
+    if (!(foundry === 'egf' || (process.env.NODE_ENV === 'test' && foundry === 'test') )) {
       return res.status(501).send('foundry must be EGF');
     }
 
@@ -74,35 +89,42 @@ router.route('/:projectId/:orderId?')
 Valid Order request
 Order ID ${order.id}
 Project ID ${order.projectId}
+Project Version ${order.projectVersion}
 Constructs ${order.constructIds.join(', ')}
 User ${user.uuid}
 `);
 
-    //assign user to the order
-    merge(order, {
-      user: user.uuid,
-    });
+    const prunedUser = pruneUserObject(user);
 
-    // outerscope, to assign to the order
-    const constructNames = [];
+    //implicitly check that project @ version exists
+    //implicitly ensures that all blocks are valid, since written projects are validated
+    const getPromise = Number.isInteger(order.projectVersion) ?
+      projectVersions.projectVersionGet(order.projectId, order.projectVersion) :
+      projectPersistence.projectGet(order.projectId);
 
-    //NOTE - in future, need to do this based on the project version. For now, assume that only interested in the current state of the project.
-    projectPersistence.projectGet(order.projectId)
-      .then(projectRollup => {
+    getPromise
+      .then(rollup => {
         //block on sample project
-        if (projectRollup.project.isSample) {
+        if (rollup.project.isSample) {
           return Promise.reject('Cannot order sample project');
         }
 
-        //create a map of all the blocks involved in the order
-        return Promise.all(order.constructIds.map(constructId => rollup.getContentsRecursivelyGivenRollup(constructId, projectRollup)))
-          .then(blockMaps => blockMaps.reduce((acc, map) => Object.assign(acc, map.components, map.options), {}))
-          .then(blockMap => {
-            constructNames.push(...order.constructIds.map(constructId => blockMap[constructId].metadata.name));
-            return blockMap;
-          });
-      })
-      .then(blockMap => {
+        const projectVersion = rollup.project.version;
+
+        const constructNames = order.constructIds.map(constructId => rollup.blocks[constructId].metadata.name || 'Untitled Construct');
+
+        merge(order, {
+          user: user.uuid,
+          projectVersion,
+          metadata: {
+            constructNames,
+          },
+        });
+
+        //todo - compute positionalCombinations here, not as part of POST
+        //should also calculate numberCombinations and assign, should not be required in parameter validation
+
+        //generate combinations, given positonalCombinations
         const allConstructs = [];
         order.constructIds.forEach(constructId => {
           const constructPositionalCombinations = positionalCombinations[constructId];
@@ -118,52 +140,58 @@ User ${user.uuid}
           allConstructs.filter((el, idx, arr) => order.parameters.activeIndices[idx] === true) :
           allConstructs;
 
-        //future - this should be dynamic, based on the foundry, pulling from a registry
-        return submit(order, user, constructList, blockMap)
-          .then(response => {
-            // freeze all the blocks in the construct, given blockMap
-            const frozenBlockMap = Object.keys(blockMap)
-              .map(key => blockMap[key])
-              .map(block => merge(block, { rules: { frozen: true } }))
-              .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+        //todo (future) submit should be dynamic, based on the foundry, pulling from a registry
 
-            return projectPersistence.blocksMerge(projectId, user.uuid, frozenBlockMap)
-              .then(() => response);
-          });
-      })
-      .then(response => {
-        //snapshot, return the order to the client
-        //todo - need to write and make a version before snapshot
-        //todo - create snapshot before order is completed
-        const tags = {
-          foundry,
-          constructIds: order.constructIds,
-          remoteId: response.jobId,
-        };
+        const submissionPromise = (process.env.NODE_ENV === 'test' && foundry === 'test') ?
+          testSubmit(order, prunedUser, constructList, rollup) :
+          submit(order, prunedUser, constructList, rollup);
 
-        //todo - need to get and supply this
-        const VERSION = null;
+        return submissionPromise
+          .then(orderResponse => {
+            //check if we have a snapshot, create if we dont / merge if do
+            return snapshots.snapshotGet(projectId, user.uuid, projectVersion)
+              .catch(err => {
+                //assume the snapshot doesnt exist, and we want to create a new one
+                return null;
+              })
+              .then(snapshot => {
+                //use shallow, easy to merge keys...
+                //possible that multiple orders happen at the same snapshot
+                const snapshotTags = order.constructIds.reduce((acc, id) => Object.assign(acc, { [id]: true }),
+                  {
+                    [order.id]: true,
+                    [foundry]: true,
+                    [orderResponse.jobId]: true,
+                  });
+                let message = `Order @ ${foundry}: ${constructNames.join(' ')}`;
 
-        return snapshots.snapshotWrite(projectId, user.uuid, VERSION, `Order @ ${foundry}: ${constructNames.join(' ')}`, tags, snapshots.SNAPSHOT_TYPE_ORDER)
-          .then(({ version, time }) => {
-            merge(order, {
-              metadata: {
-                constructNames,
-              },
-              projectVersion: version,
-              status: {
-                foundry,
-                response,
-                remoteId: response.jobId,
-                price: response.cost,
-                timeSent: time,
-              },
-            });
+                //merge tags if snapshot existed
+                if (snapshot) {
+                  merge(snapshotTags, snapshot.tags);
+                  message = snapshot.message + ' | ' + message;
+                }
 
-            return projectPersistence.projectGet(projectId)
-              .then(roll => {
-                //console.log(roll);
-                return orderPersistence.orderWrite(order.id, order, user.uuid);
+                //write or update the snapshot
+                return snapshots.snapshotWrite(projectId, user.uuid, projectVersion, message, snapshotTags, snapshots.SNAPSHOT_TYPE_ORDER)
+                  .then((snapshot) => {
+                    merge(order, {
+                      status: {
+                        foundry,
+                        orderResponse,
+                        remoteId: orderResponse.jobId,
+                        price: orderResponse.cost,
+                        timeSent: Date.now(),
+                      },
+                    });
+
+                    //final validation before writing - if hit an error here, our fault
+                    if (!Order.validate(order)) {
+                      return Promise.reject(errorInvalidModel);
+                    }
+
+                    return orderPersistence.orderWrite(order.id, order, user.uuid)
+                      .then(info => info.data);
+                  });
               });
           });
       })
@@ -173,8 +201,15 @@ User ${user.uuid}
       .catch(err => {
         console.log('Order failed', err, err.stack);
 
-        //todo - handle errors more intelligently
-        res.status(400).send(errorInvalidModel);
+        if (err === errorInvalidModel) {
+          res.status(422).send(errorInvalidModel);
+        }
+
+        if (err === errorDoesNotExist) {
+          res.status(404).send(errorDoesNotExist);
+        }
+
+        res.status(500).send('There was an error handling the order...');
       });
   });
 

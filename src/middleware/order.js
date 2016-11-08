@@ -22,11 +22,14 @@ import Order from '../models/Order';
 // likely want a registry like for inventory and hit their respective functions for each foundry
 
 // todo - handle errors, make consistent
+// todo (future) - dont limit foundries statically
 //hack - passing combinations for now because easy to generate on client, but should just generate on the server
 export const submitOrder = (order, foundry = 'egf', positionalCombinations) => {
-  invariant(foundry === 'egf', 'must submit a foundry (right now, only egf works');
+  invariant(foundry === 'egf' || (foundry === 'test' && process.env.NODE_ENV === 'test'), 'must submit a foundry (right now, only egf works');
   invariant(Order.validateSetup(order), 'order be valid partial order (prior to ID + foundry data)');
   invariant(positionalCombinations, 'must pass positional combinations - object with key constructId, value is array returned from block selector blockGetPositionalCombinations. This is a bit hacky, but the way it is for now...');
+  invariant(order.constructIds.length, 'must have construct IDs');
+  invariant(typeof positionalCombinations === 'object' && order.constructIds.every(constructId => Array.isArray(positionalCombinations[constructId])), 'must pass positional combinations for each constructID, { [constructId]: [ [...], ... ]');
 
   const url = orderApiPath(`${order.projectId}`);
   const stringified = JSON.stringify({
@@ -41,7 +44,7 @@ export const submitOrder = (order, foundry = 'egf', positionalCombinations) => {
 
 /*
 //todo - implement once supported
-const getQuote = (foundry, order) => {
+const getQuote = (order, foundry) => {
   invariant(false, 'not implemented');
 };
 */

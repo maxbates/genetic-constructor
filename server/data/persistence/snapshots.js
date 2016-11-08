@@ -28,6 +28,7 @@ const transformDbVersion = (result) => ({
   owner: result.owner,
 });
 
+//todo - export these?
 export const SNAPSHOT_TYPE_USER = 'SNAPSHOT_USER';
 export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
 export const defaultMessage = 'Project Snapshot';
@@ -39,7 +40,7 @@ export const snapshotWrite = (projectId, userId, version, message = defaultMessa
     projectVersion = parseInt(version, 10);
   }
 
-  console.log(`writing shapshot @ V${projectVersion || '[latest]'} on ${projectId} - ${message}`);
+  console.log(`writing shapshot @ V${Number.isInteger(projectVersion) ? projectVersion : '[latest]'} on ${projectId} - ${message}`);
 
   //signature is weird - no data to pass, just several body parameters
   return dbPost(`snapshots/`, userId, {}, {}, {

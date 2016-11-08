@@ -17,6 +17,7 @@ import invariant from 'invariant';
 import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateOrder } from '../../utils/validation';
 import { dbHead, dbGet, dbPost, dbDelete } from '../middleware/db';
+import * as projectVersions from './projectVersions';
 
 export const orderList = (projectId) => {
   return dbGet(`orders/${projectId}`);
@@ -25,13 +26,7 @@ export const orderList = (projectId) => {
 //todo - this should resolve to false... need to update usages (match project persistence existence check)
 export const orderExists = (orderId, projectId) => {
   return dbHead(`orders/${projectId}?id=${orderId}`)
-    .then(() => true)
-    .catch(err => {
-      if (err === errorDoesNotExist) {
-        return Promise.reject(errorDoesNotExist);
-      }
-      return Promise.reject(err);
-    });
+    .then(() => true);
 };
 
 export const orderGet = (orderId, projectId) => {
@@ -48,11 +43,8 @@ export const orderGet = (orderId, projectId) => {
 
 export const orderWrite = (orderId, order, userId) => {
   invariant(order.projectId, 'must have projectId defined');
-  invariant(order.projectVersion, 'must have project version defined');
-  invariant(!!order.status.foundry, 'foundry must be defined');
-
-  //todo - make sure have a version (should only be run after saving the project), and reject with errorDoesNotExist
-  //do not need to make sure it is the most recent version
+  invariant(Number.isInteger(order.projectVersion), 'must have project version defined');
+  invariant(!!order.status.foundry, 'foundry must be defined to write');
 
   const idedOrder = Object.assign({}, order, {
     id: orderId,
@@ -63,16 +55,27 @@ export const orderWrite = (orderId, order, userId) => {
     return Promise.reject(errorInvalidModel);
   }
 
-  return dbPost(`orders/`, userId, idedOrder, {}, {
-    projectId: order.projectId,
-    projectVersion: order.projectVersion,
-    type: order.status.foundry,
-  })
-    .then(() => idedOrder);
+  //make sure the given project @ version exists
+  return projectVersions.projectVersionExists(idedOrder.projectId, idedOrder.projectVersion)
+    .catch(err => {
+      if (err === errorDoesNotExist) {
+        return Promise.reject(errorInvalidModel);
+      }
+      return err;
+    })
+    .then(() => {
+      //actually write the order
+      return dbPost(`orders/`, userId, idedOrder, {}, {
+        projectId: order.projectId,
+        projectVersion: order.projectVersion,
+        type: order.status.foundry,
+      });
+    });
 };
 
 //not sure why you would do this...
 export const orderDelete = (orderId, projectId) => {
+  //do not allow... will not hit code below
   invariant(false, 'you cannot delete an order');
 
   return dbGet(`orders/${projectId}`)

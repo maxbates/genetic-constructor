@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 /**
  * @module Actions_Orders
  * @memberOf module:Actions
@@ -244,6 +244,8 @@ export const orderSubmit = (orderId, foundry) => {
     invariant(retrievedOrder, 'order not in the store...');
     invariant(!retrievedOrder.isSubmitted(), 'Cant submit an order twice');
 
+    //todo - should save project before submitting, and use latest version, unless version already specified
+
     const positionalCombinations = retrievedOrder.constructIds.reduce((acc, constructId) => {
       return Object.assign(acc, { [constructId]: dispatch(blockSelectors.blockGetPositionalCombinations(constructId, true)) });
     }, {});
@@ -255,14 +257,14 @@ export const orderSubmit = (orderId, foundry) => {
         dispatch(pauseAction());
         dispatch(undoActions.transact());
 
-        //todo - the order is also frozen on the server... this is for parity. maybe we should just send + save the project...
-        order.constructIds.forEach(constructId => dispatch(blockActions.blockFreeze(constructId, true)));
-
-        dispatch({
-          type: ActionTypes.PROJECT_SNAPSHOT,
-          projectId: order.projectId,
-          version: order.projectVersion,
-        });
+        //fixme - update this. no guarantee project snapshotted
+        /*
+         dispatch({
+         type: ActionTypes.PROJECT_SNAPSHOT,
+         projectId: order.projectId,
+         version: order.projectVersion,
+         });
+         */
 
         dispatch({
           type: ActionTypes.ORDER_SUBMIT,

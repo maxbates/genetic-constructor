@@ -15,7 +15,6 @@
  */
 
 import { assert, expect } from 'chai';
-import uuid from 'node-uuid';
 import _ from 'lodash';
 import { testUserId } from '../../../constants';
 import { createExampleRollup } from '../../../_utils/rollup';
@@ -29,7 +28,7 @@ import * as orderPersistence from '../../../../server/data/persistence/orders';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
-      describe.only('orders', () => {
+      describe('orders', () => {
         const roll = createExampleRollup();
         const updated = _.merge({}, roll, { project: { another: 'field' } });
 
@@ -43,19 +42,6 @@ describe('Server', () => {
           projectVersion: version,
           user: testUserId,
           constructIds: [roll.project.components[0]],
-          parameters: {
-            onePot: true,
-          },
-          status: {
-            foundry: 'egf',
-          },
-        });
-
-        const order2 = Order.classless({
-          projectId: roll2.project.id,
-          projectVersion: version,
-          user: testUserId,
-          constructIds: [roll2.project.components[0]],
           parameters: {
             onePot: true,
           },
@@ -98,7 +84,7 @@ describe('Server', () => {
         });
 
         it('orderWrite() should require that the foundry is set', () => {
-          const badOrder = Object.assign({}, order);
+          const badOrder = _.merge({}, order);
           delete badOrder.status.foundry;
 
           expect(() => orderPersistence.orderWrite(order.id, badOrder, testUserId)).to.throw();
@@ -137,6 +123,9 @@ describe('Server', () => {
 
         //todo
         it('orderWrite() should fail when version does not exist');
+
+        //todo
+        it('ordering works with multiple constructs specified');
 
         it('orderDelete() is impossible', () => {
           expect(() => orderPersistence.orderDelete(order.id, order.projectId)).to.throw();
