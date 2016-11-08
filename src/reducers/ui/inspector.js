@@ -17,7 +17,7 @@ import * as ActionTypes from '../../constants/ActionTypes';
 import { getLocal, setLocal } from '../../utils/ui/localstorage';
 
 export const initialState = {
-  isVisible: getLocal('inspectorVisibility'),
+  isVisible: getLocal('inspectorVisibility', false),
 };
 
 export default function inspector(state = initialState, action) {

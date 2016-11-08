@@ -103,7 +103,7 @@ export class HomePage extends Component {
 
   // truthy if the cookie warning must be shown
   showCookieWarning() {
-    return !getLocal('cookie-warning');
+    return !getLocal('cookie-warning', false);
   }
 
   render() {
