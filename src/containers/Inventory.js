@@ -40,7 +40,6 @@ export class Inventory extends Component {
   };
 
   setActive = (group) => {
-    //todo - reset search term, unless switching between two search groups
     this.props.inventorySelectTab(group);
   };
 

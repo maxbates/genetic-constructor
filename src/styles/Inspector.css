@@ -1,48 +1,42 @@
-@import './variables.css';
+@import 'variables.css';
 
 .Inspector {
-  &-trigger {
-    background-image: url('/images/ui/inspector_icon.svg');
-  }
-}
 
-.InspectorContent {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  color: var(--colors-greyLight);
-  padding-bottom: 1rem;
-  width: 100%;
-
-  &Block {
-
-    &-Annotations {
-      display: block;
-    }
-
-    &-Annotation {
-      display: inline-block;
-      padding: 2px 4px;
-      margin: 2px;
-      border-radius: 2px;
-      color: var(--colors-grey);
-      background-color: var(--colors-white);
-
-      &:hover {
-
-      }
-    }
+  .container {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
   }
 
-  &-pickerWrap {
+  .vertical-menu {
+    position: absolute;
+    width: var(--width-SidePanel-closed);
+    height: 100%;
+    right: 0;
+    background-color: white;
+    z-index: 1;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    transition: background-color var(--timing-fast) var(--SidePanel-ease);
   }
 
-  &-section {
-    display: block;
-    background: var(--colors-blueGreyLighter);
-    margin: 0 -var(--SidePanel-width-padding-content);
-    padding: var(--SidePanel-width-padding-content);
+  .vertical-menu.open {
+    background-color: var(--colors-blueBlack);
   }
+
+  .content {
+    position: absolute;
+    left: 0px;
+    width: calc(var(--width-SidePanel-open) - var(--width-SidePanel-closed));
+    height: 100%;
+    background-color: var(--colors-white);
+    color: var(--colors-blueBlack);
+    transform: translateX(0);
+    transition: transform var(--timing-fast) var(--SidePanel-ease);
+  }
+
+  .content-closed {
+    transform: translateX(250px);
+  }
+
 }

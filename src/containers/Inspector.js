@@ -15,6 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import InventorySectionIcon from './InventorySectionIcon';
 import { inspectorToggleVisibility } from '../actions/ui';
 import { _getFocused } from '../selectors/focus';
 
@@ -42,7 +43,99 @@ export class Inspector extends Component {
     this.props.inspectorToggleVisibility(forceVal);
   };
 
+  setActive = (group) => {
+    this.toggle();
+  };
+
+  sections = {
+    Projects: {
+      type: 'projects',
+      title: 'Projects',
+      search: {
+        placeholder: 'Filter projects',
+      },
+    },
+    Templates: {
+      type: 'templates',
+      title: 'Templates',
+      search: {
+        placeholder: 'Filter templates',
+      },
+    },
+    Sketch: {
+      type: 'role',
+      title: 'Sketch Blocks',
+      search: {
+        placeholder: 'Filter sketch blocks',
+      },
+    },
+    Commons: null,
+    Ncbi: {
+      type: 'search-ncbi',
+      title: 'NCBI Search',
+      search: {
+        source: 'ncbi',
+        placeholder: 'Keyword, biological function',
+      },
+    },
+    Igem: {
+      type: 'search-igem',
+      title: 'IGEM Search',
+      search: {
+        source: 'igem',
+        placeholder: 'Keyword, biological function',
+      },
+    },
+    Egf: {
+      type: 'search-egf',
+      title: 'EGF Search',
+      search: {
+        source: 'egf',
+        placeholder: 'Part Name',
+      },
+    },
+  };
+
   render() {
+    //may be better way to pass in projectId
+    const { isVisible } = this.props;
+    // classes for content area
+    const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
+    // classes for vertical menu
+    const menuClasses = `vertical-menu${isVisible ? ' open' : ''}`;
+    // map sections to icons
+    const icons = Object.keys(this.sections).map(sectionName => {
+      return (<InventorySectionIcon
+        key={sectionName}
+        open={isVisible}
+        onSelect={this.setActive}
+        onToggle={() => this.toggle(!isVisible)}
+        selected={this.props.currentTab === sectionName}
+        section={sectionName}
+      />);
+    });
+    // setup content area
+    const tabInfo = this.sections[this.props.currentTab];
+    let tab;
+    if (tabInfo) {
+      tab = <InventoryGroup tabInfo={tabInfo} />;
+    }
+
+    return (
+      <div className={'SidePanel Inspector' + (isVisible ? ' visible' : '')}>
+        <div className="container">
+          <div className={menuClasses}>
+            {icons}
+          </div>
+          <div className={contentClasses}>
+            {tab}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderXXX() {
     const { isVisible, focused, orders, overrides, type, readOnly, forceIsConstruct, isAuthoring } = this.props;
 
     // inspect instances, or construct if no instance or project if no construct or instances
