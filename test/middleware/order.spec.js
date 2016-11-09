@@ -13,23 +13,33 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import invariant from 'invariant';
 import _ from 'lodash';
 import { assert, expect } from 'chai';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import { testUserId } from '../constants';
-import { createSequencedRollup, createListRollup, createExampleRollup } from '../_utils/rollup';
+import { createListRollup } from '../_utils/rollup';
 import * as api from '../../src/middleware/order';
 import Project from '../../src/models/Project';
 import Order from '../../src/models/Order';
 
-//todo - dont require sending positional combinations to server. share code better.
-
 describe('Middleware', () => {
-  describe.only('Orders', () => {
+  describe('Orders', () => {
     const numLists = 4;
     const numOpts = 5;
     const roll = createListRollup(numLists, numOpts);
+
+    //todo - dont require sending positional combinations to server. share code better.
+    //hack - should not be required to send this to the server
+    //only works for listRollup
+    const generateSimplePositionals = (roll, indexWanted = 0) => {
+      const componentId = roll.project.components[indexWanted];
+
+      const combos = roll.blocks[componentId].components
+        .map(componentId => Object.keys(roll.blocks[componentId].options).map(optionId => roll.blocks[optionId]))
+        .map(combo => combo.map(part => part.id));
+
+      return { [componentId ]: combos };
+    };
 
     const onePotOrder = new Order({
       projectId: roll.project.id,
@@ -62,13 +72,8 @@ describe('Middleware', () => {
       return projectPersistence.projectWrite(roll.project.id, roll, testUserId);
     });
 
-    it.only('submit(order, foundry, combinations) sends the order', () => {
-      //hack - this should not be necessary here -- and assumes a lot of structure
-      const combos = roll.project.components
-        .map(componentId => Object.keys(roll.blocks[componentId].options).map(optionId => roll.blocks[optionId]))
-        .map(combo => combo.map(part => part.id));
-
-      return api.submitOrder(onePotOrder, foundry, { [roll.project.components[0]]: combos })
+    it('submit(order, foundry, combinations) sends the order', () => {
+      return api.submitOrder(onePotOrder, foundry, generateSimplePositionals(roll, 0))
         .then(result => {
           assert(Order.validate(result), 'returned order must be valid');
           assert(result.status.foundry === foundry, 'should have foundry in status');
@@ -80,13 +85,25 @@ describe('Middleware', () => {
         });
     });
 
-    //todo
-    it('submit() with random subset only orders that subset');
+    it('submit() with random subset only orders that subset', () => {
+      return api.submitOrder(selectionOrder, foundry, generateSimplePositionals(roll, 0))
+        .then(result => {
+          assert(Order.validate(result), 'returned order must be valid');
+          assert(result.status.foundry === foundry, 'should have foundry in status');
+          assert(result.status.numberOrdered === Object.keys(activeIndices).length, 'should note number of constructs made');
+
+          const overridden = _.merge({}, result, selectionOrder);
+
+          //shouldnt change any values
+          expect(overridden).to.eql(result);
+        });
+    });
 
     //todo
-    it('submit() can specify project version');
+    it('submit() can specify project version, defaults to latest version');
 
     //todo - may need to update the retrieved order, since changes once submitted
+    //temp - expected to fail until orders do not overwrite
     it('getOrder() can retrieve a specific order (if submitted)', () => {
       return api.getOrder(roll.project.id, onePotOrder.id)
         .then(result => {
@@ -102,20 +119,20 @@ describe('Middleware', () => {
     });
 
     it('getOrders() can retrieve list of orders (if submitted)', () => {
-      return api.getOrder(roll.project.id)
+      return api.getOrders(roll.project.id)
         .then(results => {
           assert(Array.isArray(results), 'should get array');
         });
     });
+
+    //todo - future, requires some work. how to handle indices across multiple constructs?
+    it('ordering works with multiple constructs specified');
 
     //todo
     it('cannot re-order a submitted order - blocked by server');
 
     //todo - future, once supported
     it('can re-order an order by cloning');
-
-    //todo - future, requires some work
-    it('ordering works with multiple constructs specified');
 
     //todo - future
     it('should handle construct with list blocks in hierarchy');

@@ -19,8 +19,13 @@ import { validateOrder } from '../../utils/validation';
 import { dbHead, dbGet, dbPost, dbDelete } from '../middleware/db';
 import * as projectVersions from './projectVersions';
 
-export const orderList = (projectId) => {
-  return dbGet(`orders/${projectId}`);
+//do we need consistent result transformation, like for projects?
+
+export const orderList = (projectId, version) => {
+  const versionQuery = Number.isInteger(version) ? `?version=${version}` : '';
+
+  return dbGet(`orders/${projectId}${versionQuery}`)
+    .then(results => results.map(result => result.data));
 };
 
 //todo - this should resolve to false... need to update usages (match project persistence existence check)
@@ -33,9 +38,13 @@ export const orderGet = (orderId, projectId) => {
   //hack - pending properly single item querying
   return dbGet(`orders/${projectId}`)
     .then(results => {
-      return results.find(result => result.data.id === orderId);
-    })
-    .then(result => result.data);
+      const found = results.find(result => result.data.id === orderId);
+      if (found) {
+        return found.data;
+      }
+
+      return Promise.reject(errorDoesNotExist);
+    });
 
   //return dbGet(`orders/${projectId}?orderId=${orderId}`)
   //  .then(dbPruneResult);

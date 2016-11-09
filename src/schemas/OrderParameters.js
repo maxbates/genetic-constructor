@@ -41,6 +41,7 @@ const fieldDefs = {
   permutations: [
     fields.number(),
     'For multi pot combinatorial this is number of random constructs to assemble',
+    { avoidScaffold: true },
   ],
   combinatorialMethod: [
     fields.oneOf(['Random Subset', 'Maximum Unique Set']),
@@ -60,7 +61,7 @@ export class OrderParametersSchemaClass extends Schema {
   validate(instance, throwOnError = false) {
     try {
       super.validateFields(instance, true);
-      invariant(instance.onePot === true || (instance.combinatorialMethod && instance.permutations && instance.activeIndices), 'Combinatorial method and # permutations required if not one pot, and activeInstances must be present and its length match # permutations');
+      invariant(instance.onePot === true || (instance.combinatorialMethod && instance.permutations && typeof instance.activeIndices === 'object'), 'Combinatorial method and # permutations required if not one pot, and activeInstances must be present and its length match # permutations');
     } catch (err) {
       if (throwOnError === true) {
         throw err;

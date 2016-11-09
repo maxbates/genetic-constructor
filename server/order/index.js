@@ -53,7 +53,12 @@ router.route('/:projectId/:orderId?')
 
     return orderPersistence.orderList(projectId)
       .then(orders => res.status(200).json(orders))
-      .catch(err => next(err));
+      .catch(err => {
+        if (err === errorDoesNotExist) {
+          return res.status(200).json([]);
+        }
+        next(err);
+      });
   })
   .post((req, res, next) => {
     /* order flow:
@@ -163,12 +168,12 @@ User ${user.uuid}
                     [foundry]: true,
                     [orderResponse.jobId]: true,
                   });
-                let message = `Order @ ${foundry}: ${constructNames.join(' ')}`;
+                let message = `Order ${order.id} @ ${foundry}: ${constructNames.join(' ')}`;
 
                 //merge tags if snapshot existed
                 if (snapshot) {
                   merge(snapshotTags, snapshot.tags);
-                  message = snapshot.message + ' | ' + message;
+                  message = snapshot.message + ' |  ' + message;
                 }
 
                 //write or update the snapshot
@@ -177,6 +182,8 @@ User ${user.uuid}
                     merge(order, {
                       status: {
                         foundry,
+                        numberPermutations: allConstructs.length,
+                        numberOrdered: constructList.length,
                         orderResponse,
                         remoteId: orderResponse.jobId,
                         price: orderResponse.cost,

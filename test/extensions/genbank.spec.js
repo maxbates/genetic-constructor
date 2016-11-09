@@ -222,7 +222,7 @@ describe('Extensions', () => {
 
             JSZip.loadAsync(data)
               .then((zip) => {
-                expect(zip.file(/\.gb/).length).to.equal(22);
+                expect(zip.file(/\.gb/).length).to.equal(625 + 1 + 1);
                 zip.file(' -  - 10.gb')
                   .async('string')
                   .then((content) => {

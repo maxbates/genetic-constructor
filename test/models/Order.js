@@ -22,12 +22,12 @@ import _ from 'lodash';
 
 describe('Model', () => {
   describe('Order', () => {
-    const validOrderScaffold = (input = {}) => new Order(_.merge({
+    const validOrderConstructorInput = (input = {}) => new Order(_.merge({
       projectId: Project.classless().id,
       constructIds: [Block.classless().id],
     }, input));
 
-    const validOrder = (input = {}) => validOrderScaffold(_.merge({
+    const validOrderSetup = (input = {}) => validOrderConstructorInput(_.merge({
       user: testUserId,
       projectVersion: 10,
       parameters: {
@@ -35,7 +35,29 @@ describe('Model', () => {
       },
     }, input));
 
-    it('validate can throw, or not', () => {
+    const validOrder = (input = {}) => _.merge({
+      user: testUserId,
+      projectVersion: 0,
+      status: {
+        foundry: 'test',
+        remoteId: 'sdfasdfasdf',
+        price: '$1,000,000',
+        timeSent: Date.now(),
+      },
+    }, validOrderSetup(input));
+
+    it('validateSetup can throw, or not', () => {
+      const good = validOrderSetup();
+      const bad = _.merge({}, good, { projectId: 'adsfasdfasdfasdf' });
+
+      expect(Order.validateSetup(good)).to.equal(true);
+      expect(Order.validateSetup(bad)).to.equal(false);
+
+      expect(() => Order.validateSetup(good, true)).to.not.throw();
+      expect(() => Order.validateSetup(bad, true)).to.throw();
+    });
+
+    it('validate() can throw, or not', () => {
       const good = validOrder();
       const bad = _.merge({}, good, { projectVersion: 'adsfasdfasdfasdf' });
 
@@ -50,11 +72,11 @@ describe('Model', () => {
       expect(() => new Order({})).to.throw();
       expect(() => new Order({ projectId: Project.classless().id })).to.throw();
       expect(() => new Order({ constructIds: [] })).to.throw();
-      expect(validOrderScaffold).to.not.throw();
+      expect(validOrderConstructorInput).to.not.throw();
     });
 
     it('validateParams checks parameters', () => {
-      const ord = validOrderScaffold();
+      const ord = validOrderConstructorInput();
 
       assert(Order.validateParameters(ord.parameters), 'should be valid order params');
 
@@ -66,12 +88,14 @@ describe('Model', () => {
     });
 
     it('validate() requires projectVersion and userId', () => {
-      assert(Order.validate(validOrderScaffold()) === false, 'should require more than just parameters');
+      assert(Order.validate(validOrderConstructorInput()) === false, 'should require more than just parameters');
+      assert(Order.validateSetup(validOrderSetup()), 'setup should not require status');
+      assert(Order.validate(validOrderSetup()) === false, 'full validation should require more than just parameters');
       assert(Order.validate(validOrder()), 'valid order generator should be valid');
     });
 
     it('has submit() and quote()', () => {
-      const ord = validOrder();
+      const ord = validOrderSetup();
       expect(typeof ord.submit).to.equal('function');
       expect(typeof ord.quote).to.equal('function');
     });
@@ -79,7 +103,7 @@ describe('Model', () => {
     it('submit() if all combinations allowed for');
 
     it('submit requires positional combinations', () => {
-      const ord = validOrder();
+      const ord = validOrderSetup();
       expect(ord.submit).to.throw();
       expect(() => ord.submit('egf')).to.throw();
     });
@@ -87,7 +111,7 @@ describe('Model', () => {
     it('submit() with valid positional combinations');
 
     it('cannot change a submitted order', () => {
-      const ord = validOrder({
+      const ord = validOrderSetup({
         status: {
           foundry: 'egf',
           remoteId: 'actgactgatsdgtasd',

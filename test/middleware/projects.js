@@ -103,8 +103,9 @@ describe('Middleware', () => {
       roll.project.components.push(...sequenced.project.components);
       Object.assign(roll.blocks, sequenced.blocks);
 
-      const listBlockId = roll.project.components[0];
-      const constructBlockId = roll.project.components[numberListBlocks];
+      const listBlockConstructId = roll.project.components[0];
+      const listBlockId = roll.blocks[listBlockConstructId].components[0];
+      const constructBlockId = roll.project.components[1];
 
       return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
         .then(() => api.loadBlock(listBlockId, roll.project.id))

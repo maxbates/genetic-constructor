@@ -28,7 +28,7 @@ import * as orderPersistence from '../../../../server/data/persistence/orders';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
-      describe('orders', () => {
+      describe.only('orders', () => {
         const roll = createExampleRollup();
         const updated = _.merge({}, roll, { project: { another: 'field' } });
 
@@ -47,12 +47,17 @@ describe('Server', () => {
           },
           status: {
             foundry: 'egf',
+            remoteId: 'actacg',
           },
         });
 
         before(() => {
           return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
             .then(() => projectPersistence.projectWrite(roll.project.id, updated, testUserId));
+        });
+
+        it('test order should be valid for writing', () => {
+          Order.validate(order, true);
         });
 
         it('orderList() returns 404 when no orders', (done) => {
@@ -90,7 +95,7 @@ describe('Server', () => {
           expect(() => orderPersistence.orderWrite(order.id, badOrder, testUserId)).to.throw();
         });
 
-        it('orderWrite() should fail when version does not exist', (done) => {
+        it('orderWrite() should fail when version specified and does not exist', (done) => {
           const badVersion = Object.assign({}, order, { projectVersion: 10 });
           orderPersistence.orderWrite(order.id, badVersion, testUserId)
             .then(result => done('shouldnt resolve'))

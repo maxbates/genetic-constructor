@@ -57,7 +57,7 @@ describe('Extensions', () => {
         const construct = sampleRoll.blocks[constructId];
         const components = construct.components.map(blockId => sampleRoll.blocks[blockId]);
 
-        assert(components.every(compoenent => !!Object.keys(compoenent.options).length > 0), 'should have direct children that are lists');
+        assert(components.every(compoenent => Object.keys(compoenent.options).length > 0), 'should have direct children that are lists');
 
         return exportConstruct(projectId, constructId);
       });

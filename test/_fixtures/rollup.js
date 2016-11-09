@@ -32,9 +32,11 @@ import { createExampleRollup, createSequencedRollup, createListRollup } from '..
  *
  *
  * 2 - template with lists (e.g. EGF)
- * one construct, four list blocks, 5 options each, each with sequence
+ * one construct, 4 list blocks, 5 options each, each with sequence
  *
  *             project
+ *                |
+ *            construct
  *                |
  *    A      B       C       D
  *    |      |       |       |

@@ -95,6 +95,8 @@ export const createSequencedRollup = (numSeqs = (numberBlocksInRollup - 1)) => {
 /*
  *             project
  *                |
+ *             construct
+ *                |
  *    A      B       C       D
  *    |      |       |       |
  *    1      1       1       1
@@ -116,6 +118,8 @@ export const createListRollup = (numListBlocks = 4, numOptions = 5) => {
     metadata: { authors: [testUserId] },
   });
 
+  const construct = Block.classless();
+
   const options = range(totalBlocks).map((index) => Block.classless({
     projectId: project.id,
     sequence: {
@@ -136,9 +140,10 @@ export const createListRollup = (numListBlocks = 4, numOptions = 5) => {
     });
   });
 
-  project.components = listBlocks.map(block => block.id);
+  construct.components = listBlocks.map(block => block.id);
+  project.components = [construct.id];
 
-  const roll = rollupFromArray(project, ...listBlocks, ...options);
+  const roll = rollupFromArray(project, construct, ...listBlocks, ...options);
   Object.assign(roll, { sequences: sequenceMap });
   return roll;
 };
