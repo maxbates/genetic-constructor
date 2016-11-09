@@ -18,7 +18,7 @@
     "check": "babel-node tools/run checks && npm run lint && npm run test",
     "lint": "make lint",
     "lint-jscs": "jscs src server",
-    "test": "NODE_ENV=test babel-node tools/run test-setup && SERVER_MANUAL=true NODE_ENV=test make test",
+    "test": "SERVER_MANUAL=true NODE_ENV=test babel-node tools/run test-setup && SERVER_MANUAL=true NODE_ENV=test make test",
     "test-coverage": "npm run test-setup && NODE_ENV=test istanbul cover _mocha -- --recursive --compilers js:babel-register,css:test/css-null-compiler.js --require ./test/setup.js --timeout 25000",
     "test-coverage-report": "npm run test-coverage && cat ./coverage/lcov.info | coveralls",
     "test-jenkins": "rm -rf ./storage/test && NODE_ENV=test babel-node tools/run setup && NODE_ENV=test make jenkins",

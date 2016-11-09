@@ -13,12 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { exec, spawn } from 'child_process';
+import { fork, exec, spawn } from 'child_process';
 
-//if this isnt working, you can debug with --DEBUG flag
-const DEBUG = process.argv.includes('--DEBUG') || (process.env.DEBUG && process.env.DEBUG.indexOf('tools') >= 0);
+const DEBUG = process.env.DEBUG && process.env.DEBUG.indexOf('tools') >= 0;
 if (!DEBUG) {
-  console.log('enable build tool debugging by passing --DEBUG');
+  console.log('enable build tool debugging by setting env var DEBUG=tools');
 }
 
 //simple wrap around console.log
@@ -65,7 +64,7 @@ export const spawnWaitUntilString = (cmd, args = [], opts = {}, {
   return new Promise((resolve, reject) => {
     //const [ command, ...args ] = cmd.split(' ');
 
-    const process = spawn(cmd, args, opts);
+    const process = spawn(cmd, args, Object.assign({ silent: false }, opts));
 
     process.stdout.on('data', data => {
       log(`${data}`, forceOutput);

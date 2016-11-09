@@ -13,6 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+//requires that SERVER_MANUAL=true env var is set
+
 import run from './run';
 import del from 'del';
 import setup from './setup';
@@ -21,13 +24,27 @@ import startDb from './startDb';
 
 //todo - move make file to this
 
-async function testSetup() {
-  await run(checks);
-  await del(['storage/test'], { dot: true });
-  await run(setup);
-  //await run(startDb); //this is blocking completion of this setup script... need to manually start until this is working
+//note - DB + server hold on the to process, so this will resolve but process will never exit. So, can be used in promise chaining, but not in __ && __ bash syntax
 
-  console.log('tests ready to run...');
+async function testSetup() {
+  try {
+    await run(checks);
+
+    //delete old test data (must be before setup())
+    await del(['storage/test'], { dot: true });
+
+    //setup directories etc (may not be needed after transition to S3 / DB)
+    await run(setup);
+
+    //this is blocking completion of this setup script... need to manually start until this is working
+    //needs to happen in a separate task (without access to stdio?)
+    //await run(startDb);
+
+    console.log('tests ready to run!');
+  } catch (err) {
+    console.log('GOT ERROR');
+    console.log(err);
+  }
 }
 
 export default testSetup;

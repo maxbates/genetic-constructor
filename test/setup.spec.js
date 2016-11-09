@@ -19,16 +19,33 @@
 //requires that SERVER_MANUAL=true env var is set
 
 import { listenSafely } from '../server/server';
+import * as s3 from '../server/data/middleware/s3';
 import { testUserId } from './constants';
 import { deleteUser } from '../server/data/persistence/admin';
 
-//wait for server to be ready
+//wait for server to be ready and start with a clean slate
 before(() => {
   console.log('starting server...'); //eslint-disable-line
   return listenSafely()
     .then(() => {
-      //start with a clean slate
-      console.log('deleting all testUser data...'); //eslint-disable-line
+      console.log('deleting all testUser data from DB...'); //eslint-disable-line
       return deleteUser(testUserId);
+    })
+    .then(() => {
+      if (s3.useRemote) {
+        console.log('clearning S3 buckets...'); //eslint-disable-line
+
+        const buckets = [
+          'bionano-gctor-files',
+          'bionano-gctor-sequences',
+          'bionano-gctor-jobs',
+        ];
+
+        return Promise.all(buckets.map(bucketName => {
+          console.log('clearing ' + bucketName); //eslint-disable-line
+          const bucket = s3.getBucket(bucketName);
+          return s3.emptyBucketTests(bucket);
+        }));
+      }
     });
 });

@@ -31,7 +31,7 @@ import { errorDoesNotExist } from '../../utils/errors';
  */
 
 //in test environment, prefix everything so easier to clean up
-const testPrefix = 'TEST/';
+export const testPrefix = 'TEST/';
 const setupKey = (prefix) => {
   if (process.env.NODE_ENV === 'test') {
     return testPrefix + prefix;
@@ -62,6 +62,8 @@ if (process.env.NODE_ENV === 'production' || (
   });
 }
 
+//todo - this should create the bucket if needed (at least by arg)
+//sync
 export const getBucket = (Bucket) => new AWS.S3({ params: { Bucket } });
 
 //synchronous
@@ -249,9 +251,7 @@ export const objectPut = (bucket, Key, obj, params = {}) => {
 
 // DELETE
 
-export const itemDelete = (bucket, key) => {
-  const Key = setupKey(key);
-
+const _itemDelete = (bucket, Key) => {
   return new Promise((resolve, reject) => {
     bucket.deleteObject({ Key }, (err, result) => {
       if (err) {
@@ -268,3 +268,38 @@ export const itemDelete = (bucket, key) => {
     });
   });
 };
+
+export const itemDelete = (bucket, key) => {
+  const Key = setupKey(key);
+
+  return _itemDelete(bucket, Key);
+};
+
+//this is kinda hardwired so you dont make mistakes
+//clears everything prefixed with testPrefix in the bucket
+export const emptyBucketTests = (bucket) => {
+  return new Promise((resolve, reject) => {
+    const req = { Prefix: testPrefix };
+    bucket.listObjects(req, (err, results) => {
+
+      console.log(results);
+
+      if (!results.Contents) {
+        return resolve();
+      }
+
+      //todo
+      return Promise.all(results.Contents.map(item => _itemDelete(bucket )))
+        .then(() => {
+          if (results.IsTruncated) {
+            return resolve(emptyBucketTests(bucket));
+          }
+
+          return resolve();
+        });
+
+      //todo - handle truncated
+    });
+  });
+};
+
