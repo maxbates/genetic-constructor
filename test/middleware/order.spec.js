@@ -76,6 +76,8 @@ describe('Middleware', () => {
     it('submit(order, foundry, combinations) sends the order', () => {
       return api.submitOrder(onePotOrder, foundry, generateSimplePositionals(roll, 0))
         .then(result => {
+          assert(result.id != null);
+          console.log('OrderId:', result.id);
           onePotSubmitted = result;
 
           assert(Order.validate(result), 'returned order must be valid');
@@ -97,6 +99,9 @@ describe('Middleware', () => {
           assert(result.status.foundry === foundry, 'should have foundry in status');
           assert(result.status.numberOrdered === Object.keys(activeIndices).length, 'should note number of constructs made');
 
+          assert(result.id != null);
+          console.log('OrderId:', result.id);
+
           const overridden = _.merge({}, result, selectionOrder);
 
           //shouldnt change any values
@@ -105,11 +110,22 @@ describe('Middleware', () => {
     });
 
     it('submit() can specify project version, defaults to latest version', () => {
-      const versioned = _.merge({}, onePotOrder, { projectVersion: 0 });
+      const versioned = Order.classless({
+        projectId: roll.project.id,
+        projectVersion: 0,
+        constructIds: [roll.project.components[0]],
+        numberCombinations: 20,                      //hack - should not be required
+        parameters: {
+          onePot: true,
+        },
+      });
 
       return api.submitOrder(versioned, foundry, generateSimplePositionals(roll, 0))
         .then(result => {
           assert(result.projectVersion === 0, 'project version should default to latest');
+
+          assert(result.id != null);
+          console.log('OrderId:', result.id);
 
           const overridden = _.merge({}, result, versioned);
 
@@ -119,7 +135,9 @@ describe('Middleware', () => {
     });
 
     it('getOrder() can retrieve a specific order (if submitted)', () => {
-      return api.getOrder(roll.project.id, onePotOrder.id)
+      console.log('OrderId:', onePotSubmitted.id);
+
+      return api.getOrder(roll.project.id, onePotSubmitted.id)
         .then(result => {
           expect(result).to.eql(onePotSubmitted);
         });

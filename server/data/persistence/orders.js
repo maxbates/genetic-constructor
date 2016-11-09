@@ -30,20 +30,15 @@ export const orderList = (projectId, version) => {
 
 //todo - this should resolve to false... need to update usages (match project persistence existence check)
 export const orderExists = (orderId, projectId) => {
-  return dbHead(`orders/${projectId}?id=${orderId}`)
+  return dbHead(`orders/id/${orderId}`)
     .then(() => true);
 };
 
 export const orderGet = (orderId, projectId) => {
   //hack - pending properly single item querying
-  return dbGet(`orders/${projectId}`)
-    .then(results => {
-      const found = results.find(result => result.data.id === orderId);
-      if (found) {
-        return found.data;
-      }
-
-      return Promise.reject(errorDoesNotExist);
+  return dbGet(`orders/id/${orderId}`)
+    .then(result => {
+      return result.data;
     });
 
   //return dbGet(`orders/${projectId}?orderId=${orderId}`)
@@ -75,6 +70,7 @@ export const orderWrite = (orderId, order, userId) => {
     .then(() => {
       //actually write the order
       return dbPost(`orders/`, userId, idedOrder, {}, {
+        id: idedOrder.id,
         projectId: order.projectId,
         projectVersion: order.projectVersion,
         type: order.status.foundry,

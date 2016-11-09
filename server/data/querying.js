@@ -25,7 +25,7 @@ const untypedKey = 'none';
 
 //returns blockmap
 export const getAllBlocks = (userId) => {
-  return getUserProjects(userId)
+  return getUserProjects(userId, true)
     .then(rolls => rolls.map(roll => roll.blocks))
     .then(projectBlockMaps => merge({}, ...projectBlockMaps));
 };

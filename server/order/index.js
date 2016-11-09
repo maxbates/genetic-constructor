@@ -45,12 +45,15 @@ router.route('/:projectId/:orderId?')
     const { user, projectId } = req; //eslint-disable-line no-unused-vars
     const { orderId } = req.params;
 
+    console.log('OrderId Provided:', orderId);
+
     if (!!orderId) {
-      return orderPersistence.orderGet(orderId, projectId)
+      return orderPersistence.orderGet(orderId)
         .then(order => res.status(200).json(order))
         .catch(err => next(err));
     }
 
+    console.log('Get all orders for projectId:', projectId);
     return orderPersistence.orderList(projectId)
       .then(orders => res.status(200).json(orders))
       .catch(err => {

@@ -256,7 +256,7 @@ describe('Server', () => {
           });
 
           it('getUserProjects() returns rollups of each', () => {
-            return projectPersistence.getUserProjects(myUserId)
+            return projectPersistence.getUserProjects(myUserId, true)
               .then(rolls => {
                 assert(rolls.every(roll => {
                   return typeof roll.blocks === 'object' && typeof roll.project === 'object';
