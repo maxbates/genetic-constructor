@@ -1,40 +1,27 @@
 @import 'variables.css';
 
 .InputSimple {
-  width: 100%;
-
-  &-input {
-    cursor: pointer;
-    background: transparent;
-    padding: 5px;
-    margin: -2px 0;
-    outline: 0;
-    border: 0;
-    border-radius: 2px;
+  input,
+  input:focus {
     width: 100%;
-    color: var(--colors-white);
-    background-color: var(--colors-blueGreyDark);
-    transition: background-color linear 0.05s, color linear 0.05s;
+    height: 2.5rem;
+    padding: 0.5em 2em 0.5em 0.4em;
+    outline: 0;
+    border: 1px solid lightgray;
+    border-radius: 2px;
+    background: white;
+    color: var(--colors-text);
 
-    &:focus {
-      cursor: text;
-      background: white;
-      color: var(--colors-blueGreyDark);
-      background-color: white;
+    &[disabled] {
+      cursor: not-allowed;
     }
   }
-
-  &.readOnly {
-    overflow: scroll;
-
-    .InputSimple-input {
-      cursor: default;
-
-      &:focus {
-        cursor: default;
-        background: inherit;
-        color: inherit;
-      }
-    }
+  textarea {
+    width: 100%;
+    border: 1px solid lightgray;
+    border-radius: 2px;
+    background: white;
+    color: var(--colors-text);
+    outline: 0;
   }
 }

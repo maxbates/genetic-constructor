@@ -20,7 +20,6 @@ import {
   inspectorToggleVisibility,
   inspectorSelectTab,
 } from '../actions/ui';
-import { _getFocused } from '../selectors/focus';
 import InspectorGroup from '../components/Inspector/InspectorGroup';
 
 
@@ -29,15 +28,8 @@ import '../styles/SidePanel.css';
 
 export class Inspector extends Component {
   static propTypes = {
-    isVisible: PropTypes.bool,
-    inspectorToggleVisibility: PropTypes.func.isRequired,
-    readOnly: PropTypes.bool.isRequired,
-    isAuthoring: PropTypes.bool.isRequired,
-    forceIsConstruct: PropTypes.bool.isRequired,
-    type: PropTypes.string.isRequired,
-    focused: PropTypes.any.isRequired,
-    orders: PropTypes.array.isRequired,
-    overrides: PropTypes.object.isRequired,
+    isVisible: PropTypes.bool.isRequired,
+    currentTab: PropTypes.string.isRequired,
   };
 
   toggle = (forceVal) => {
@@ -76,8 +68,7 @@ export class Inspector extends Component {
   };
 
   render() {
-    //may be better way to pass in projectId
-    const { isVisible } = this.props;
+    const { isVisible, projectId } = this.props;
     // classes for content area
     const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
     // classes for vertical menu
@@ -98,7 +89,7 @@ export class Inspector extends Component {
     const tabInfo = this.sections[this.props.currentTab];
     let tab;
     if (tabInfo) {
-      tab = <InspectorGroup tabInfo={tabInfo} />;
+      tab = <InspectorGroup tabInfo={tabInfo} projectId={projectId} />;
     }
 
     return (
@@ -121,46 +112,11 @@ export class Inspector extends Component {
 
 function mapStateToProps(state, props) {
   const { isVisible, currentTab } = state.ui.inspector;
-
-  const { level, blockIds } = state.focus;
-  const currentProject = state.projects[props.projectId];
-
-  //delegate handling of focus state handling to selector
-  const { type, readOnly, focused } = _getFocused(state, true, props.projectId);
-
-  //handle overrides if a list option
-  const overrides = {};
-  if (type === 'option') {
-    const blockId = state.focus.blockIds[0];
-    const block = state.blocks[blockId];
-    if (!!block) {
-      Object.assign(overrides, {
-        color: block.getColor(),
-        role: block.getRole(false),
-      });
-    }
-  }
-
-  const forceIsConstruct = (level === 'construct') ||
-    blockIds.some(blockId => currentProject.components.indexOf(blockId) >= 0);
-
-  const isAuthoring = !!state.focus.constructId && state.blocks[state.focus.constructId].isAuthoring() && focused.length === 1 && type !== 'project' && !readOnly;
-
-  const orders = Object.keys(state.orders)
-    .map(orderId => state.orders[orderId])
-    .filter(order => order.projectId === currentProject.id && order.isSubmitted())
-    .sort((one, two) => one.status.timeSent - two.status.timeSent);
-
+  const projectId = props.projectId;
   return {
     isVisible,
     currentTab,
-    type,
-    readOnly,
-    focused,
-    forceIsConstruct,
-    orders,
-    overrides,
-    isAuthoring,
+    projectId,
   };
 }
 

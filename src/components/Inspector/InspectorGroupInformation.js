@@ -63,7 +63,6 @@ class InspectorGroupInformation extends Component {
 }
 
 function mapStateToProps(state, props) {
-
   const { level, blockIds } = state.focus;
   const currentProject = state.projects[props.projectId];
 

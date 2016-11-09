@@ -27,7 +27,7 @@ export default class InspectorGroup extends Component {
   inspectorGroupTypeToComponent = (type) => {
     switch (type) {
     case 'information' :
-      return (<InspectorGroupInformation />);
+      return (<InspectorGroupInformation projectId={this.props.projectId} />);
     default:
       //throw new Error(`Type ${type} is not registered in InspectorGroup`);
     }
