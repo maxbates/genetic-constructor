@@ -77,8 +77,8 @@ router.route('/:projectId/:orderId?')
       return res.status(422).send('project ID and order.projectId must match');
     }
 
-    if (order.status.foundry && order.status.jobId) {
-      res.status(422).send('cannot submit an already submitted order');
+    if (order.status.foundry && order.status.remoteId) {
+      return res.status(422).send('cannot submit an already submitted order');
     }
 
     if (!Order.validateSetup(order)) {

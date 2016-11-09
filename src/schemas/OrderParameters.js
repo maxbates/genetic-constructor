@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
 import fields from './fields/index';
 import Schema from './SchemaClass';
@@ -47,6 +47,7 @@ const fieldDefs = {
     fields.oneOf(['Random Subset', 'Maximum Unique Set']),
     'Combinatorial Method',
   ],
+  //todo- should be keyed by constructId
   activeIndices: [
     fields.object(),
     'If # permutations desired is less than number combinations possible, indices of constructs to keep',
@@ -61,7 +62,7 @@ export class OrderParametersSchemaClass extends Schema {
   validate(instance, throwOnError = false) {
     try {
       super.validateFields(instance, true);
-      invariant(instance.onePot === true || (instance.combinatorialMethod && instance.permutations && typeof instance.activeIndices === 'object'), 'Combinatorial method and # permutations required if not one pot, and activeInstances must be present and its length match # permutations');
+      invariant(instance.onePot === true || (instance.combinatorialMethod && instance.permutations && Object.keys(instance.activeIndices).length > 0), 'Combinatorial method and # permutations required if not one pot, and activeInstances must be present and its length match # permutations');
     } catch (err) {
       if (throwOnError === true) {
         throw err;

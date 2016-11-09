@@ -27,10 +27,11 @@ describe('Middleware', () => {
     const numLists = 4;
     const numOpts = 5;
     const roll = createListRollup(numLists, numOpts);
+    const updated = _.merge({}, roll, { project: { another: 'field' } });
 
     //todo - dont require sending positional combinations to server. share code better.
     //hack - should not be required to send this to the server
-    //only works for listRollup
+    //only works for exampleListRollup
     const generateSimplePositionals = (roll, indexWanted = 0) => {
       const componentId = roll.project.components[indexWanted];
 
@@ -41,21 +42,20 @@ describe('Middleware', () => {
       return { [componentId ]: combos };
     };
 
-    const onePotOrder = new Order({
+    const onePotOrder = Order.classless({
       projectId: roll.project.id,
-      projectVersion: 0,
       constructIds: [roll.project.components[0]],
       numberCombinations: 20,                      //hack - should not be required
       parameters: {
         onePot: true,
       },
     });
+    let onePotSubmitted;
 
     const activeIndices = [1, 4, 8, 12, 16].reduce((acc, num) => Object.assign(acc, { [num]: true }), {});
 
-    const selectionOrder = new Order({
+    const selectionOrder = Order.classless({
       projectId: roll.project.id,
-      projectVersion: 0,
       constructIds: [roll.project.components[0]],
       numberCombinations: 20,                              //hack - should not be required
       parameters: {
@@ -69,14 +69,19 @@ describe('Middleware', () => {
     const foundry = 'test';
 
     before(() => {
-      return projectPersistence.projectWrite(roll.project.id, roll, testUserId);
+      return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
+        .then(() => projectPersistence.projectWrite(roll.project.id, updated, testUserId));
     });
 
     it('submit(order, foundry, combinations) sends the order', () => {
       return api.submitOrder(onePotOrder, foundry, generateSimplePositionals(roll, 0))
         .then(result => {
+          onePotSubmitted = result;
+
           assert(Order.validate(result), 'returned order must be valid');
           assert(result.status.foundry === foundry, 'should have foundry in status');
+
+          assert(result.projectVersion === 1, 'project version should default to latest');
 
           const overridden = _.merge({}, result, onePotOrder);
 
@@ -99,15 +104,24 @@ describe('Middleware', () => {
         });
     });
 
-    //todo
-    it('submit() can specify project version, defaults to latest version');
+    it('submit() can specify project version, defaults to latest version', () => {
+      const versioned = _.merge({}, onePotOrder, { projectVersion: 0 });
 
-    //todo - may need to update the retrieved order, since changes once submitted
-    //temp - expected to fail until orders do not overwrite
+      return api.submitOrder(versioned, foundry, generateSimplePositionals(roll, 0))
+        .then(result => {
+          assert(result.projectVersion === 0, 'project version should default to latest');
+
+          const overridden = _.merge({}, result, versioned);
+
+          //shouldnt change any values
+          expect(overridden).to.eql(result);
+        });
+    });
+
     it('getOrder() can retrieve a specific order (if submitted)', () => {
       return api.getOrder(roll.project.id, onePotOrder.id)
         .then(result => {
-          expect(result).to.eql(onePotOrder);
+          expect(result).to.eql(onePotSubmitted);
         });
     });
 
@@ -122,14 +136,24 @@ describe('Middleware', () => {
       return api.getOrders(roll.project.id)
         .then(results => {
           assert(Array.isArray(results), 'should get array');
+          assert(results.length === 3, 'should have three orders');
+          expect(results[0]).to.eql(onePotSubmitted);
         });
     });
 
+    it('cannot re-order a submitted order - blocked by server', (done) => {
+      api.submitOrder(onePotSubmitted, foundry, generateSimplePositionals(roll, 0))
+        .then(() => done('shouldnt be able to submit'))
+        .catch(err => {
+          assert(err.indexOf('cannot submit') >= 0, 'should say cant resubmit');
+          done();
+        });
+    });
+
+    // future tests
+
     //todo - future, requires some work. how to handle indices across multiple constructs?
     it('ordering works with multiple constructs specified');
-
-    //todo
-    it('cannot re-order a submitted order - blocked by server');
 
     //todo - future, once supported
     it('can re-order an order by cloning');
