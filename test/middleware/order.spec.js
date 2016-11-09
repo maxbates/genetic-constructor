@@ -144,8 +144,8 @@ describe('Middleware', () => {
     it('cannot re-order a submitted order - blocked by server', (done) => {
       api.submitOrder(onePotSubmitted, foundry, generateSimplePositionals(roll, 0))
         .then(() => done('shouldnt be able to submit'))
-        .catch(err => {
-          assert(err.indexOf('cannot submit') >= 0, 'should say cant resubmit');
+        .catch(resp => {
+          expect(resp.status).to.equal(422);
           done();
         });
     });

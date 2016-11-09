@@ -110,8 +110,6 @@ describe('Server', () => {
         it('snapshotList() can limit to tags', () => {
           return snapshots.snapshotList(roll.project.id, testUserId, exampleTag)
             .then(results => {
-              console.log(results);
-
               assert(results.length === 1, 'should have 1 snapshot with tag');
               expect(results[0].version).to.equal(1);
             });
@@ -125,11 +123,11 @@ describe('Server', () => {
           projectPersistence.projectDelete(roll.project.id, testUserId)
             .then(() => snapshots.snapshotList(roll.project.id, testUserId))
             .then(results => {
-              console.log(results);
+              //console.log(results);
               done(new Error('project shouldnt exist'));
             })
             .catch(err => {
-              console.log(err);
+              //console.log(err);
               done();
             });
         });

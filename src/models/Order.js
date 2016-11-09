@@ -35,7 +35,7 @@ const idValidator = (id) => safeValidate(validators.id(), true, id);
 export default class Order extends Instance {
   /**
    * @constructor
-   * @param {Object} [input={}]
+   * @param {Object} [input={}] Must include projectId. projectVersion not necessary. constructIds must be array.
    * @returns {Order}
    */
   constructor(input = {}) {

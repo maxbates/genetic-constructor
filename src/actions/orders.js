@@ -21,9 +21,7 @@ import invariant from 'invariant';
 import Order from '../models/Order';
 import { getOrder, getOrders } from '../middleware/order';
 import * as ActionTypes from '../constants/ActionTypes';
-import * as undoActions from '../store/undo/actions';
-import { pauseAction, resumeAction } from '../store/pausableStore';
-import * as blockActions from './blocks';
+import * as projectActions from '../actions/projects';
 import * as blockSelectors from '../selectors/blocks';
 import { cloneDeep, merge, flatten, range, shuffle } from 'lodash';
 import * as instanceMap from '../store/instanceMap';
@@ -131,7 +129,7 @@ export const orderCreate = (projectId, constructIds = [], parameters = {}) => {
   };
 };
 
-//todo - selector
+//todo - selector / put in order model directly
 //todo - ensure this code (generating constructs from order + rollup) is shared between client and server
 /**
  * Generate all combinations for the constructs of an order (i.e., expand list blocks etc.)
@@ -162,6 +160,7 @@ export const orderGenerateConstructs = (orderId, allPossibilities = false) => {
   };
 };
 
+//todo - this logic should go into order model, wrap in try catch
 /**
  * Set the parameters of the order
  * @function
@@ -240,39 +239,40 @@ export const orderSetName = (orderId, name) => {
  */
 export const orderSubmit = (orderId, foundry) => {
   return (dispatch, getState) => {
-    const retrievedOrder = getState().orders[orderId];
+    const state = getState();
+    const retrievedOrder = state.orders[orderId];
     invariant(retrievedOrder, 'order not in the store...');
     invariant(!retrievedOrder.isSubmitted(), 'Cant submit an order twice');
 
-    //todo - should save project before submitting, and use latest version, unless version already specified
+    const { projectId, projectVersion } = retrievedOrder;
+    const project = state.projects[projectId];
+
+    invariant(project, 'project must be loaded');
+
+    //todo - should be generated on the server. no need to do that here.
 
     const positionalCombinations = retrievedOrder.constructIds.reduce((acc, constructId) => {
       return Object.assign(acc, { [constructId]: dispatch(blockSelectors.blockGetPositionalCombinations(constructId, true)) });
     }, {});
 
-    return retrievedOrder.submit(foundry, positionalCombinations)
+    //if want the latest state, so need to save first
+    //can set projectVersion, or server will do it, so lets just be specific
+    const savePromise = (!Number.isInteger(projectVersion))
+      ?
+      projectActions.projectSave(projectId, true)
+        .then(info => retrievedOrder.mutate('projectVersion', info.version))
+      :
+      Promise.resolve(retrievedOrder);
+
+    return savePromise
+      .then(order => order.submit(foundry, positionalCombinations))
       .then(orderData => {
         const order = new Order(orderData);
-
-        dispatch(pauseAction());
-        dispatch(undoActions.transact());
-
-        //fixme - update this. no guarantee project snapshotted
-        /*
-         dispatch({
-         type: ActionTypes.PROJECT_SNAPSHOT,
-         projectId: order.projectId,
-         version: order.projectVersion,
-         });
-         */
 
         dispatch({
           type: ActionTypes.ORDER_SUBMIT,
           order,
         });
-
-        dispatch(undoActions.commit());
-        dispatch(resumeAction());
 
         return order;
       });
