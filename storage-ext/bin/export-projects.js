@@ -6,20 +6,44 @@ var fs = require('fs');
 
 var map = require('underscore').map;
 
+var uuidValidate = require("uuid-validate");
+
 // arguably this script should use the REST API
 var dbInit = require('../lib/db-init');
+var DB = require('../lib/db');
 var Project = require('../lib/project');
-var Sequelize = require("sequelize");
 
 var mostProjectsQuery = "select owner, numprojects from (select owner, count(uuid) as numprojects from projects group by owner order by numprojects desc) as foo limit 1;";
+
+var ownerInput = null;
+
+if((process.argv[2] != null) && (process.argv[2] != "")) {
+  if (! uuidValidate(process.argv[2], 1)) {
+    console.error("invalid owner id:", process.argv[2]);
+    process.exit(1);
+  }
+
+  ownerInput = process.argv[2];
+  console.log('Target Project Owner Specified at Command-line:', ownerInput);
+}
 
 function dumpProjects () {
   async.waterfall([
     function (cb) {
-      return Sequelize.query(mostProjectsQuery).spread(function (results, metadata) {
-        console.log("custom query results:", results);
-        console.log("custom query metadata:", metadata);
-        return cb(null, "dc606c20-a085-11e6-9219-130ec77419b4");
+      if (ownerInput != null) {
+        return cb(null, ownerInput);
+      }
+
+      return DB.query(mostProjectsQuery).spread(function (results, metadata) {
+        if ((! results) || (! Array.isArray(results)) || (results.length != 1)) {
+          return cb("unexpected result from most projects query");
+        }
+
+        // console.log("custom query results:", results);
+        // console.log("custom query metadata:", metadata);
+
+        console.log("User with most projects:", results[0].owner, "\tProject Count:", results[0].numprojects);
+        return cb(null, results[0].owner);
       }).catch(cb);
     },
     function (targetOwner, cb) {

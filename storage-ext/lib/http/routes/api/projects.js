@@ -7,6 +7,7 @@ var isEmpty = require('underscore').isEmpty;
 var map = require('underscore').map;
 var max = require('underscore').max;
 var pairs = require('underscore').pairs;
+var omit = require('underscore').omit;
 var reduce = require('underscore').reduce;
 
 var uuidValidate = require("uuid-validate");
@@ -21,9 +22,12 @@ var Project = require('../../../project');
 var Order = require('../../../order');
 var Snapshot = require('../../../snapshot');
 
-function collapseProjects(projectsArray) {
+function collapseProjects(projectsArray, dataFilterKeyArray) {
+  dataFilterKeyArray = dataFilterKeyArray || [];
   var groupedProjects = groupBy(map(projectsArray, function (row) {
-    return row.get();
+    var projectJson = row.get();
+    projectJson.data = omit(projectJson.data, dataFilterKeyArray);
+    return projectJson;
   }), function (project) {
     return project.id;
   });
@@ -67,11 +71,17 @@ var saveProject = function (req, res) {
     }).end();
   }
 
-  return Project.create({
+  var newRecord = {
     owner: body.owner,
     id: body.id,
     data: body.data,
-  }).then(function (newProject) {
+  };
+
+  if (notNullAndPosInt(body.version)) {
+    newRecord.version = body.version;
+  }
+
+  return Project.create(newRecord).then(function (newProject) {
     return res.status(200).send(newProject.get()).end();
   }).catch(function (err) {
     console.log(err);
@@ -372,6 +382,11 @@ var fetchProjects = function (req, res) {
     }).end();
   }
 
+  var dataFilterKeyArray = ['blocks'];
+  if ((req.query.blocks != null) && (req.query.blocks === "true")) {
+    dataFilterKeyArray = [];
+  }
+
   return Project.findAll({
     where: {
       owner: ownerUUID,
@@ -384,7 +399,7 @@ var fetchProjects = function (req, res) {
       }).end();
     }
 
-    return res.status(200).send(collapseProjects(results)).end();
+    return res.status(200).send(collapseProjects(results, dataFilterKeyArray)).end();
   }).catch(function (err) {
     console.error(err);
     return res.status(500).send({
@@ -641,7 +656,7 @@ var fetchProjectsWithBlock = function (req, res) {
 
   var where = {
     data: {
-      '$contains': { components: [ blockId ]},
+      '$contains': { project: { components: [ blockId ]} },
     },
   };
 

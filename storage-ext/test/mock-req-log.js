@@ -31,7 +31,7 @@ describe('mock request log object', function () {
     var res = {};
     return mockReqLog(req, res, function () {
       assert.notEqual(req.log, null);
-      req.log.error("error info #1");
+      req.log.error("test error #1");
       done();
     });
   });

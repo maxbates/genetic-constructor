@@ -19,6 +19,7 @@ describeAppTest("http", function (app) {
 
     var projectId0 = 'b091da207742e81dae58257a323e3d3b';
     var projectId1 = 'project-364d0c6a-6f08-4fff-a292-425ca3eb91cc';
+    var projectId2 = 'project-119fcdd0-a08c-11e6-9541-41074ff8626b';
 
     var projectUUID0 = null;
     var projectUUID1 = null;
@@ -311,7 +312,7 @@ describeAppTest("http", function (app) {
     });
 
     it('should find a project that contains a blockId', function testGetByBlockId(done) {
-      var data = {
+      var project = {
         "id": "project-364d0c6a-6f08-4fff-a292-425ca3eb91cc",
         "parents": [],
         "metadata": {
@@ -365,7 +366,9 @@ describeAppTest("http", function (app) {
             .send({
               owner: owner,
               id: projectId1,
-              data: data,
+              data: {
+                project: project,
+              },
             })
             .expect(200)
             .end(function (err, res) {
@@ -659,6 +662,40 @@ describeAppTest("http", function (app) {
           done();
         });
       });
+    });
+
+    it('should save a new project with specified version', function saveNewProject(done) {
+
+      var data = {
+        chicago: 'blackhawks',
+        versioned: true,
+      };
+
+      request(app.proxy)
+        .post('/api/projects')
+        .send({
+          owner: owner,
+          id: projectId2,
+          data: data,
+          version: 47
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log('save res:', res.body);
+          assert.notEqual(res.body.uuid, null);
+          projectUUID0 = res.body.uuid;
+          assert.equal(res.body.owner, owner);
+          assert.equal(res.body.version, 47);
+          assert.equal(res.body.status, 1);
+          assert.equal(res.body.id, projectId2);
+          assert.deepEqual(res.body.data, data);
+          assert.notEqual(res.body.createdAt, null);
+          assert.notEqual(res.body.updatedAt, null);
+          done();
+        });
     });
   });
 });
