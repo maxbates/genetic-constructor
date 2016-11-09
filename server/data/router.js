@@ -185,9 +185,7 @@ router.route('/projects')
   .get((req, res, next) => {
     const { user } = req;
 
-    //todo - use dedicated function to get user manifests
-
-    return projectPersistence.getUserProjects(user.uuid)
+    return projectPersistence.getUserProjects(user.uuid, false)
       .then(rolls => rolls.map(roll => roll.project))
       .then(manifests => res.status(200).json(manifests))
       .catch(err => next(err));

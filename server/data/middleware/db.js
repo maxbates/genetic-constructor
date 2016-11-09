@@ -54,7 +54,7 @@ export const dbHeadRaw = (path, params = {}) => {
   return rejectingFetch(makePath(path), headers.headersHead(fetchParams));
 };
 
-//does some standardized error handling
+//does some standardized error handling, does not parse the response
 export const dbHead = (path, params = {}) => {
   return dbHeadRaw(path, params)
     .catch(defaultErrorHandling);

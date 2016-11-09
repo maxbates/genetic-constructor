@@ -22,7 +22,7 @@ import { pick, merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../utils/errors';
 import { validateId, validateBlock, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
-import { dbHeadRaw, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+import { dbHeadRaw, dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
 
 //TODO - CONSISTENT NAMING. MANY OF THESE OPERATIONS ARE REALLY ROLLUPS
 //we have classes for blocks and projects, and this persistence module conflates the two. lets use rollup to be consistent. rename after this stuff is working...
@@ -112,6 +112,11 @@ const _projectDelete = (projectId, userId) => {
  *********/
 
 //LIST
+
+export const getUserLastProjectId = (userId) => {
+  return dbHead(`projects/owner/${userId}`)
+    .then(resp => resp.headers.get('Last-Project'));
+};
 
 //actually gets rollups
 export const getUserProjects = (userId, fetchBlocks = false) => {

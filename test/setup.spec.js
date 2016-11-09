@@ -39,5 +39,6 @@ before(() => {
           return s3.emptyBucketTests(bucket);
         }));
       }
-    });
+    })
+    .then(() => console.log('tests ready!'));
 });
