@@ -88,6 +88,23 @@ export const inventorySelectTab = (tab) => {
   };
 };
 
+/**
+ * Select which tab of the inventory is active
+ * @function inventorySelectTab
+ * @todo - validate a legitimate tab is selected
+ * @param {string} tab Key of tab to be active
+ * @returns {string} Tab active
+ */
+export const inspectorSelectTab = (tab) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: ActionTypes.INSPECTOR_SELECT_TAB,
+      tab,
+    });
+    return tab;
+  };
+};
+
 /* detail view */
 
 /**

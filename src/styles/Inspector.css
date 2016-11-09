@@ -8,6 +8,20 @@
     overflow: hidden;
   }
 
+  .titleHolder {
+    text-align: right;
+  }
+  .title {
+    height: var(--width-SidePanel-closed);
+    line-height: var(--width-SidePanel-closed);
+    text-indent: var(--SidePanel-width-padding-content);
+    font-size: var(--font-size-sectionLabel);
+    font-weight: 100;
+    user-select: none;
+    cursor: default;
+    padding-right: var(--SidePanel-width-padding-content);
+  }
+
   .vertical-menu {
     position: absolute;
     width: var(--width-SidePanel-closed);

@@ -19,6 +19,7 @@ import '../styles/InventorySectionIcon.css';
 
 // map section names to SVG URI
 const sectionNameToSVG = {
+  // inventory icons
   Templates: '/images/ui/inventory_templates.svg',
   Sketch: '/images/ui/inventory_sketch.svg',
   Commons: '/images/ui/inventory_commons.svg',
@@ -26,6 +27,13 @@ const sectionNameToSVG = {
   Ncbi: '/images/ui/inventory_search_plugin_ncbi.svg',
   Igem: '/images/ui/inventory_search_plugin_igem.svg',
   Egf: '/images/ui/inventory_search_plugin_egf.svg',
+  // inspector icons
+  Information: '/images/ui/inspector_information.svg',
+  Settings: '/images/ui/inspector_settings.svg',
+  Extensions: '/images/ui/inspector_plugins.svg',
+  Help: '/images/ui/inspector_help.svg',
+  Orders: '/images/ui/inspector_orders.svg',
+  History: '/images/ui/inspector_history.svg',
 };
 
 export default class InventorySectionIcon extends Component {

@@ -16,12 +16,16 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import InventorySectionIcon from './InventorySectionIcon';
-import { inspectorToggleVisibility } from '../actions/ui';
+import {
+  inspectorToggleVisibility,
+  inspectorSelectTab,
+} from '../actions/ui';
 import { _getFocused } from '../selectors/focus';
 
 import InspectorRole from '../components/Inspector/InspectorRole';
 import InspectorBlock from '../components/Inspector/InspectorBlock';
 import InspectorProject from '../components/Inspector/InspectorProject';
+
 
 import '../styles/Inspector.css';
 import '../styles/SidePanel.css';
@@ -44,55 +48,33 @@ export class Inspector extends Component {
   };
 
   setActive = (group) => {
-    this.toggle();
+    this.props.inspectorSelectTab(group);
   };
 
   sections = {
-    Projects: {
-      type: 'projects',
-      title: 'Projects',
-      search: {
-        placeholder: 'Filter projects',
-      },
+    Information: {
+      type: 'information',
+      title: 'Information',
     },
-    Templates: {
-      type: 'templates',
-      title: 'Templates',
-      search: {
-        placeholder: 'Filter templates',
-      },
+    Settings: {
+      type: 'settings',
+      title: 'Settings',
     },
-    Sketch: {
-      type: 'role',
-      title: 'Sketch Blocks',
-      search: {
-        placeholder: 'Filter sketch blocks',
-      },
+    Extensions: {
+      type: 'extensions',
+      title: 'Plugins',
     },
-    Commons: null,
-    Ncbi: {
-      type: 'search-ncbi',
-      title: 'NCBI Search',
-      search: {
-        source: 'ncbi',
-        placeholder: 'Keyword, biological function',
-      },
+    Help: {
+      type: 'help',
+      title: 'Help',
     },
-    Igem: {
-      type: 'search-igem',
-      title: 'IGEM Search',
-      search: {
-        source: 'igem',
-        placeholder: 'Keyword, biological function',
-      },
+    Orders: {
+      type: 'orders',
+      title: 'Orders',
     },
-    Egf: {
-      type: 'search-egf',
-      title: 'EGF Search',
-      search: {
-        source: 'egf',
-        placeholder: 'Part Name',
-      },
+    History: {
+      type: 'history',
+      title: 'History',
     },
   };
 
@@ -114,11 +96,12 @@ export class Inspector extends Component {
         section={sectionName}
       />);
     });
+
     // setup content area
     const tabInfo = this.sections[this.props.currentTab];
     let tab;
     if (tabInfo) {
-      tab = <InventoryGroup tabInfo={tabInfo} />;
+      tab = null;
     }
 
     return (
@@ -128,7 +111,9 @@ export class Inspector extends Component {
             {icons}
           </div>
           <div className={contentClasses}>
-            {tab}
+            <div className="titleHolder">
+              <span className="title">{tabInfo.title}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -184,7 +169,7 @@ export class Inspector extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { isVisible } = state.ui.inspector;
+  const { isVisible, currentTab } = state.ui.inspector;
 
   const { level, blockIds } = state.focus;
   const currentProject = state.projects[props.projectId];
@@ -217,6 +202,7 @@ function mapStateToProps(state, props) {
 
   return {
     isVisible,
+    currentTab,
     type,
     readOnly,
     focused,
@@ -229,4 +215,5 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   inspectorToggleVisibility,
+  inspectorSelectTab,
 })(Inspector);
