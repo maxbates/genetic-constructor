@@ -33,8 +33,6 @@ before(() => {
     })
     .then(() => {
       if (s3.useRemote) {
-        console.log('clearning S3 buckets...'); //eslint-disable-line
-
         const buckets = [
           'bionano-gctor-files',
           'bionano-gctor-sequences',
@@ -42,7 +40,7 @@ before(() => {
         ];
 
         return Promise.all(buckets.map(bucketName => {
-          console.log('clearing ' + bucketName); //eslint-disable-line
+          console.log('clearing S3 bucket ' + bucketName); //eslint-disable-line
           const bucket = s3.getBucket(bucketName);
           return s3.emptyBucketTests(bucket);
         }));

@@ -251,9 +251,14 @@ export const objectPut = (bucket, Key, obj, params = {}) => {
 
 // DELETE
 
-const _itemDelete = (bucket, Key) => {
+const _itemDelete = (bucket, Key, VersionId = null) => {
   return new Promise((resolve, reject) => {
-    bucket.deleteObject({ Key }, (err, result) => {
+    const req = { Key };
+    if (VersionId) {
+      Object.assign(req, { VersionId });
+    }
+
+    bucket.deleteObject(req, (err, result) => {
       if (err) {
         if (err.statusCode === 404) {
           return reject(errorDoesNotExist);
@@ -269,10 +274,10 @@ const _itemDelete = (bucket, Key) => {
   });
 };
 
-export const itemDelete = (bucket, key) => {
+export const itemDelete = (bucket, key, version) => {
   const Key = setupKey(key);
 
-  return _itemDelete(bucket, Key);
+  return _itemDelete(bucket, Key, version);
 };
 
 //this is kinda hardwired so you dont make mistakes
@@ -281,24 +286,18 @@ export const emptyBucketTests = (bucket) => {
   return new Promise((resolve, reject) => {
     const req = { Prefix: testPrefix };
     bucket.listObjects(req, (err, results) => {
-
-      console.log(results);
-
       if (!results.Contents) {
         return resolve();
       }
 
-      //todo
-      return Promise.all(results.Contents.map(item => _itemDelete(bucket )))
+      return Promise.all(results.Contents.map(item => _itemDelete(bucket, item.Key)))
         .then(() => {
-          if (results.IsTruncated) {
+          if (results.IsTruncated === true) {
             return resolve(emptyBucketTests(bucket));
           }
 
           return resolve();
         });
-
-      //todo - handle truncated
     });
   });
 };
