@@ -21,10 +21,7 @@ import {
   inspectorSelectTab,
 } from '../actions/ui';
 import { _getFocused } from '../selectors/focus';
-
-import InspectorRole from '../components/Inspector/InspectorRole';
-import InspectorBlock from '../components/Inspector/InspectorBlock';
-import InspectorProject from '../components/Inspector/InspectorProject';
+import InspectorGroup from '../components/Inspector/InspectorGroup';
 
 
 import '../styles/Inspector.css';
@@ -101,7 +98,7 @@ export class Inspector extends Component {
     const tabInfo = this.sections[this.props.currentTab];
     let tab;
     if (tabInfo) {
-      tab = null;
+      tab = <InspectorGroup tabInfo={tabInfo} />;
     }
 
     return (
@@ -114,54 +111,8 @@ export class Inspector extends Component {
             <div className="titleHolder">
               <span className="title">{tabInfo.title}</span>
             </div>
+            {tab}
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  renderXXX() {
-    const { isVisible, focused, orders, overrides, type, readOnly, forceIsConstruct, isAuthoring } = this.props;
-
-    // inspect instances, or construct if no instance or project if no construct or instances
-    let inspect;
-    switch (type) {
-    case 'role' :
-      inspect = (<InspectorRole roleId={focused} readOnly/>);
-      break;
-    case 'project':
-      inspect = (<InspectorProject instance={focused}
-                                   orders={orders}
-                                   readOnly={readOnly}/>);
-      break;
-    case 'construct':
-    default:
-      inspect = (<InspectorBlock instances={focused}
-                                 overrides={overrides}
-                                 orders={orders}
-                                 readOnly={readOnly}
-                                 isAuthoring={isAuthoring}
-                                 forceIsConstruct={forceIsConstruct}/>);
-      break;
-    }
-
-    return (
-      <div className={'SidePanel Inspector' +
-      (isVisible ? ' visible' : '') +
-      (readOnly ? ' readOnly' : '')}>
-
-        <div className="SidePanel-heading">
-          <button tabIndex="-1" className="button-nostyle SidePanel-heading-trigger Inspector-trigger"
-                  onClick={() => this.toggle()}/>
-          <div className="SidePanel-heading-content">
-            <span className="SidePanel-heading-title">Inspector</span>
-            <button tabIndex="-1" className="button-nostyle SidePanel-heading-close"
-                    onClick={() => this.toggle(false)}/>
-          </div>
-        </div>
-
-        <div className="SidePanel-content no-vertical-scroll">
-          {inspect}
         </div>
       </div>
     );
