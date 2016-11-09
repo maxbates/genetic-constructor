@@ -30,6 +30,13 @@ import { errorDoesNotExist } from '../../utils/errors';
  e.g. stringGet vs. objectPut
  */
 
+//these are all the buckets the app expects
+export const buckets = [
+  'bionano-gctor-files',
+  'bionano-gctor-sequences',
+  'bionano-gctor-jobs',
+];
+
 //in test environment, prefix everything so easier to clean up
 export const testPrefix = 'TEST/';
 const setupKey = (prefix) => {
@@ -62,9 +69,54 @@ if (process.env.NODE_ENV === 'production' || (
   });
 }
 
-//todo - this should create the bucket if needed (at least by arg)
+//should run before server starts. s3 persistence modules expect buckets to exist
+//promise
+export const ensureBucketProvisioned = (Bucket) => {
+  return new Promise((resolve, reject) => {
+    console.log('Setting up S3 Bucket', Bucket); //eslint-disable-line
+
+    const API = new AWS.S3();
+
+    API.headBucket({ Bucket }, (err, data) => {
+      if (err) {
+        console.log(`Creating new S3 bucket ${Bucket}`);
+        const createParams = {
+          Bucket,
+          ACL: 'private',
+          CreateBucketConfiguration: {
+            LocationConstraint: 'us-west-1',
+          },
+        };
+
+        API.createBucket(createParams, (err, data) => {
+          if (err) {
+            console.log(`Failed to create S3 Bucket ${Bucket}\nError: ${err}`);
+            return reject(err);
+          }
+
+          console.log(`S3 Bucket created: ${Bucket}`);
+
+          API.waitFor('bucketExists', { Bucket }, (err, data) => {
+            if (err) {
+              console.log('Error waiting for bucket to exist:', Bucket);
+              return reject(err);
+            }
+            return resolve(data);
+          });
+        });
+      } else {
+        //already exists off the bat
+        resolve(data);
+      }
+    });
+  });
+};
+
 //sync
-export const getBucket = (Bucket) => new AWS.S3({ params: { Bucket } });
+//expects the bucket exists - setup prior to server start with ensureBucketProvisioned
+export const getBucket = (Bucket) => {
+  return new AWS.S3({ params: { Bucket } });
+};
 
 //synchronous
 export const getSignedUrl = (bucket, key, operation = 'getObject', opts = {}) => {

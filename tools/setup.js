@@ -1,6 +1,8 @@
 import { directoryMake } from '../server/data/middleware/fileSystem';
 import { createStorageUrl } from '../server/data/middleware/filePaths';
 
+import * as s3 from '../server/data/middleware/s3';
+
 import copyToStorage from '../data/egf_parts/copySequencesToStorage';
 
 async function setup() {
@@ -18,6 +20,12 @@ async function setup() {
   ]);
 
   await copyToStorage();
+
+  if (s3.useRemote) {
+    await Promise.all(
+      s3.buckets.map(bucket => s3.ensureBucketProvisioned(bucket))
+    );
+  }
 }
 
 export default setup;

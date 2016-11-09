@@ -33,13 +33,7 @@ before(() => {
     })
     .then(() => {
       if (s3.useRemote) {
-        const buckets = [
-          'bionano-gctor-files',
-          'bionano-gctor-sequences',
-          'bionano-gctor-jobs',
-        ];
-
-        return Promise.all(buckets.map(bucketName => {
+        return Promise.all(s3.buckets.map(bucketName => {
           console.log('clearing S3 bucket ' + bucketName); //eslint-disable-line
           const bucket = s3.getBucket(bucketName);
           return s3.emptyBucketTests(bucket);

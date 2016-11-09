@@ -73,13 +73,12 @@ describe('Middleware', () => {
         .then(() => projectPersistence.projectWrite(roll.project.id, updated, testUserId));
     });
 
-    it('submit(order, foundry, combinations) sends the order', () => {
+    it('submit(order, foundry, combinations) sends the order, defaults to latest version', () => {
       return api.submitOrder(onePotOrder, foundry, generateSimplePositionals(roll, 0))
         .then(result => {
-          assert(result.id != null);
-          console.log('OrderId:', result.id);
           onePotSubmitted = result;
 
+          assert(result.id, 'shold have an id');
           assert(Order.validate(result), 'returned order must be valid');
           assert(result.status.foundry === foundry, 'should have foundry in status');
 
@@ -99,8 +98,7 @@ describe('Middleware', () => {
           assert(result.status.foundry === foundry, 'should have foundry in status');
           assert(result.status.numberOrdered === Object.keys(activeIndices).length, 'should note number of constructs made');
 
-          assert(result.id != null);
-          console.log('OrderId:', result.id);
+          assert(result.id, 'shold have an id');
 
           const overridden = _.merge({}, result, selectionOrder);
 
@@ -109,7 +107,7 @@ describe('Middleware', () => {
         });
     });
 
-    it('submit() can specify project version, defaults to latest version', () => {
+    it('submit() can specify project version', () => {
       const versioned = Order.classless({
         projectId: roll.project.id,
         projectVersion: 0,
@@ -124,9 +122,7 @@ describe('Middleware', () => {
         .then(result => {
           assert(result.projectVersion === 0, 'project version should default to latest');
 
-          assert(result.id != null);
-          console.log('OrderId:', result.id);
-
+          assert(result.id, 'shold have an id');
           const overridden = _.merge({}, result, versioned);
 
           //shouldnt change any values
@@ -135,8 +131,6 @@ describe('Middleware', () => {
     });
 
     it('getOrder() can retrieve a specific order (if submitted)', () => {
-      console.log('OrderId:', onePotSubmitted.id);
-
       return api.getOrder(roll.project.id, onePotSubmitted.id)
         .then(result => {
           expect(result).to.eql(onePotSubmitted);
@@ -155,7 +149,9 @@ describe('Middleware', () => {
         .then(results => {
           assert(Array.isArray(results), 'should get array');
           assert(results.length === 3, 'should have three orders');
-          expect(results[0]).to.eql(onePotSubmitted);
+
+          const found = results.find(result => result.id === onePotSubmitted.id);
+          expect(found).to.eql(onePotSubmitted);
         });
     });
 
