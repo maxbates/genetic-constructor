@@ -28,7 +28,7 @@ import * as orderPersistence from '../../../../server/data/persistence/orders';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
-      describe.only('orders', () => {
+      describe('orders', () => {
         const roll = createExampleRollup();
         const updated = _.merge({}, roll, { project: { another: 'field' } });
 
