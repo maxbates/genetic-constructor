@@ -241,7 +241,7 @@ export default class Order extends Instance {
     //may want to just set the foundry on the order directly?
     return submitOrder(this, foundry, positionalCombinations)
       .then(result => {
-        console.log(result);
+        //todo - should update the order
         return result;
       });
   }

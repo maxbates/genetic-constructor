@@ -51,7 +51,6 @@ const getQuote = (order, foundry) => {
 
 export const getOrder = (projectId, orderId, avoidCache = false) => {
   const url = orderApiPath(`${projectId}/${orderId}`);
-  console.log('calling:', url);
   return rejectingFetch(url, headersGet())
     .then(resp => resp.json());
 };
