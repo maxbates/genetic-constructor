@@ -114,11 +114,10 @@ const _projectDelete = (projectId, userId) => {
 //LIST
 
 //actually gets rollups
-export const getUserProjects = (userId, fetchBlocks) => {
-  fetchBlocks = fetchBlocks || false;
+export const getUserProjects = (userId, fetchBlocks = false) => {
   //dbGet returns { data, id, ... }
   return dbGet(`projects/owner/${userId}?blocks=${fetchBlocks}`)
-    .then((projectInfos) => projectInfos.map(info => info.data))
+    .then((projectInfos) => projectInfos.map(dbPruneResult))
     .catch(err => {
       if (err === errorDoesNotExist) {
         return [];

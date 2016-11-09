@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateOrder } from '../../utils/validation';
-import { dbHead, dbGet, dbPost, dbDelete } from '../middleware/db';
+import { dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
 import * as projectVersions from './projectVersions';
 
 //do we need consistent result transformation, like for projects?
@@ -25,7 +25,7 @@ export const orderList = (projectId, version) => {
   const versionQuery = Number.isInteger(version) ? `?version=${version}` : '';
 
   return dbGet(`orders/${projectId}${versionQuery}`)
-    .then(results => results.map(result => result.data));
+    .then(results => results.map(dbPruneResult));
 };
 
 //todo - this should resolve to false... need to update usages (match project persistence existence check)
@@ -35,14 +35,8 @@ export const orderExists = (orderId, projectId) => {
 };
 
 export const orderGet = (orderId, projectId) => {
-  //hack - pending properly single item querying
   return dbGet(`orders/id/${orderId}`)
-    .then(result => {
-      return result.data;
-    });
-
-  //return dbGet(`orders/${projectId}?orderId=${orderId}`)
-  //  .then(dbPruneResult);
+    .then(dbPruneResult);
 };
 
 export const orderWrite = (orderId, order, userId) => {
@@ -65,7 +59,7 @@ export const orderWrite = (orderId, order, userId) => {
       if (err === errorDoesNotExist) {
         return Promise.reject(errorInvalidModel);
       }
-      return err;
+      return Promise.reject(err);
     })
     .then(() => {
       //actually write the order
@@ -83,10 +77,5 @@ export const orderDelete = (orderId, projectId) => {
   //do not allow... will not hit code below
   invariant(false, 'you cannot delete an order');
 
-  return dbGet(`orders/${projectId}`)
-    .then(results => {
-      const result = results.find(result => result.data.id === orderId);
-
-      return dbDelete(`orders/uuid/${result.uuid}`);
-    });
+  return dbDelete(`orders/id/${orderId}`);
 };
