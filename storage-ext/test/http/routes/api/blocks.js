@@ -20,7 +20,7 @@ var InputData = require('../../../inputs/gcprojects-dc606c20-a085-11e6-9219-130e
 var KeyedProjects = {};
 
 describeAppTest("http", function (app) {
-  describe('api admin routes', function () {
+  describe('api block queries', function () {
     this.timeout(15000);
 
     var owner = null;

@@ -15,6 +15,11 @@ var schema = {
     type: Sequelize.UUID,
     allowNull: false,
   },
+  id: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    unique: true,
+  },
   projectUUID: {
     type: Sequelize.UUID,
     allowNull: false,
@@ -59,12 +64,11 @@ var Order = DB.define('order', schema, {
   paranoid: false,
   indexes: [
     {
-      fields: ['projectId', 'projectVersion'],
+      fields: ['owner', 'id'],
       unique: true,
     },
     {
-      fields: ['owner', 'projectId', 'projectVersion'],
-      unique: true,
+      fields: ['owner', 'projectId'],
     },
     {
       fields: ['projectId'],

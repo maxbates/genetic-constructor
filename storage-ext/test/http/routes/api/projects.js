@@ -24,6 +24,8 @@ describeAppTest("http", function (app) {
     var projectUUID0 = null;
     var projectUUID1 = null;
 
+    var orderId0 = '364d0c6a-6f08-4dff-a292-425ca3eb91cd';
+
     after(function (done) {
       async.series([
         function (cb) {
@@ -609,6 +611,7 @@ describeAppTest("http", function (app) {
             .post('/api/orders')
             .send({
               owner: owner,
+              id: orderId0,
               projectId: projectId1,
               projectVersion: 0,
               type: "test",

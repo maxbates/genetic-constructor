@@ -17,6 +17,7 @@ describeAppTest("http", function (app) {
     this.timeout(15000);
 
     var projectId0 = "project-364d0c6a-6f08-4fff-a292-425ca3eb91cd";
+    var orderId0 = '364d0c6a-6f08-45ff-a292-425ca3eb91cd';
 
     before(function(done) {
       async.waterfall([
@@ -64,6 +65,7 @@ describeAppTest("http", function (app) {
             .post('/api/orders')
             .send({
               owner: owner,
+              id: orderId0,
               projectId: projectId0,
               projectVersion: version,
               type: "test",

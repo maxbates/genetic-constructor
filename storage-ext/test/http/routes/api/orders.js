@@ -20,11 +20,16 @@ describeAppTest("http", function (app) {
 
     var projectId = 'project-fe5b5340-8991-11e6-b86a-b5fa2a5eb9ca';
 
+    var orderId0 = 'fe5b5340-8991-11e6-b86a-b5fa2a5eb9ca';
+    var orderId1 = 'fe5b5340-8971-11e6-b86a-b5fa2a5eb9ca';
+    var orderId2 = 'fe5b5340-8931-11e6-b86a-b5fa2a5eb9ca';
+
     var projectUUID0 = null;
     var projectUUID1 = null;
 
     var orderUUID0 = null;
     var orderUUID1 = null;
+    var orderUUID2 = null;
 
     before(function (done) {
       async.series([
@@ -121,6 +126,7 @@ describeAppTest("http", function (app) {
     it('should create an order', function createOrder(done) {
       var orderData = {
         owner: owner,
+        id: orderId0,
         projectId: projectId,
         projectVersion: 0,
         type: "test",
@@ -151,9 +157,33 @@ describeAppTest("http", function (app) {
         });
     });
 
+    it('should check if order exists for an id', function checkById(done) {
+      request(app.proxy)
+        .head('/api/orders/id/' + orderId0)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          var uuidHeader = res.get('Order-UUID');
+          assert.equal(uuidHeader, orderUUID0);
+          done();
+        });
+    });
+
+    it('should check if order exists for an id and owner', function checkById(done) {
+      request(app.proxy)
+        .head('/api/orders/id/' + orderId0 + '?owner=fe5b5340-8971-11e6-b86a-b5fa2a5eb9ca')
+        .expect(404)
+        .end(function (err) {
+          assert.ifError(err);
+          done();
+        });
+    });
+
     it('should create an order with most recent version', function createOrderMostRecent(done) {
       var orderData = {
         owner: owner,
+        id: orderId1,
         projectId: projectId,
         type: "test",
         data: {
@@ -175,6 +205,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body, null);
           assert.notEqual(res.body.uuid, null);
           assert.notEqual(res.body.uuid, orderUUID0);
+          orderUUID1 = res.body.uuid;
           // console.log(res.body);
           assert.deepEqual(pick(res.body, keys(orderData)), orderData);
           assert.equal(res.body.projectVersion, 1);
@@ -188,6 +219,27 @@ describeAppTest("http", function (app) {
     it('should fetch an order using UUID', function fetchByUUID(done) {
       request(app.proxy)
         .get('/api/orders/uuid/' + orderUUID0)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.equal(res.body.uuid, orderUUID0);
+          assert.equal(res.body.id, orderId0);
+          assert.notEqual(res.body.projectUUID, null);
+          assert.notEqual(res.body.updatedAt, null);
+          assert.notEqual(res.body.createdAt, null);
+          assert.equal(res.body.type, "test");
+          assert.notEqual(res.body.data, null);
+          assert.equal(res.body.projectId, projectId);
+          assert.notEqual(res.body.projectVersion, null);
+          done();
+        });
+    });
+
+    it('should fetch an order using id', function fetchByUUID(done) {
+      request(app.proxy)
+        .get('/api/orders/id/' + orderId0)
         .expect(200)
         .end(function (err, res) {
           assert.ifError(err);
@@ -208,6 +260,7 @@ describeAppTest("http", function (app) {
     it('should update order for the same version', function updateSameVersion(done) {
       var orderData = {
         owner: owner,
+        id: orderId0,
         projectId: projectId,
         projectVersion: 0,
         type: "order",
@@ -267,6 +320,7 @@ describeAppTest("http", function (app) {
         function (newVersion, cb) {
           var newOrderData = {
             owner: owner,
+            id: orderId2,
             projectId: projectId,
             projectVersion: newVersion,
             type: "test",
@@ -285,8 +339,9 @@ describeAppTest("http", function (app) {
               assert.ifError(err);
               assert.notEqual(res, null);
               assert.notEqual(res.body, null);
+              assert.equal(res.body.id, orderId2);
               assert.notEqual(res.body.uuid, null);
-              orderUUID1 = res.body.uuid;
+              orderUUID2 = res.body.uuid;
               // console.log(res.body);
               assert.deepEqual(pick(res.body, keys(newOrderData)), newOrderData);
               assert.notEqual(res.body.projectUUID, null);
@@ -380,20 +435,26 @@ describeAppTest("http", function (app) {
             .end(function (err, res) {
               assert.ifError(err);
               assert.notEqual(res, null);
-              var latestOrder = res.get('Latest-Order');
-              assert.notEqual(latestOrder, null);
-              cb(null, latestOrder);
+              var latestOrderId = res.get('Latest-Order-Id');
+              assert.notEqual(latestOrderId, null);
+              var latestOrderUUID = res.get('Latest-Order-UUID');
+              assert.notEqual(latestOrderUUID, null);
+              cb(err, {
+                uuid: latestOrderUUID,
+                id: latestOrderId,
+              });
             });
         },
         function (latestOrder, cb) {
           request(app.proxy)
-            .get('/api/orders/uuid/' + latestOrder)
+            .get('/api/orders/uuid/' + latestOrder.uuid)
             .expect(200)
             .end(function (err, res) {
               assert.ifError(err);
               assert.notEqual(res, null);
               assert.notEqual(res.body, null);
-              assert.equal(res.body.uuid, latestOrder);
+              assert.equal(res.body.uuid, latestOrder.uuid);
+              assert.equal(res.body.id, latestOrder.id);
               assert.notEqual(res.body.projectUUID, null);
               assert.notEqual(res.body.updatedAt, null);
               assert.notEqual(res.body.createdAt, null);
@@ -401,7 +462,27 @@ describeAppTest("http", function (app) {
               assert.notEqual(res.body.data, null);
               assert.equal(res.body.projectId, projectId);
               assert.notEqual(res.body.projectVersion, null);
-              cb(null, null);
+              cb(err, latestOrder);
+            });
+        },
+        function (latestOrder, cb) {
+          request(app.proxy)
+            .get('/api/orders/id/' + latestOrder.id)
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.equal(res.body.uuid, latestOrder.uuid);
+              assert.equal(res.body.id, latestOrder.id);
+              assert.notEqual(res.body.projectUUID, null);
+              assert.notEqual(res.body.updatedAt, null);
+              assert.notEqual(res.body.createdAt, null);
+              assert.equal(res.body.type, "test");
+              assert.notEqual(res.body.data, null);
+              assert.equal(res.body.projectId, projectId);
+              assert.notEqual(res.body.projectVersion, null);
+              cb(err, latestOrder);
             });
         },
       ], function (err) {
@@ -454,7 +535,7 @@ describeAppTest("http", function (app) {
       async.series([
         function (cb) {
           request(app.proxy)
-            .delete('/api/orders/uuid/' + orderUUID1 + '?destroy=true')
+            .delete('/api/orders/uuid/' + orderUUID2 + '?destroy=true')
             .expect(200)
             .end(function (err, res) {
               assert.ifError(err);
@@ -466,7 +547,7 @@ describeAppTest("http", function (app) {
         },
         function (cb) {
           request(app.proxy)
-            .get('/api/orders/uuid/' + orderUUID1)
+            .get('/api/orders/uuid/' + orderUUID2)
             .expect(404)
             .end(function (err, res) {
               assert.ifError(err);
@@ -476,7 +557,79 @@ describeAppTest("http", function (app) {
         function (cb) {
           Order.findOne({
             where: {
-              uuid: orderUUID1,
+              uuid: orderUUID2,
+            }
+          }).then(function (result) {
+            assert.equal(result, null);
+            cb(null);
+          }).catch(cb);
+        },
+      ], function (err) {
+        assert.ifError(err);
+        done();
+      });
+    });
+
+    it('should delete an order by id', function deleteByOrderId(done) {
+      async.series([
+        function (cb) {
+          request(app.proxy)
+            .delete('/api/orders/id/' + orderId1)
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.equal(res.body.numDeleted, 1);
+              cb(err);
+            });
+        },
+        function (cb) {
+          request(app.proxy)
+            .get('/api/orders/id/' + orderId1)
+            .expect(404)
+            .end(function (err, res) {
+              assert.ifError(err);
+              cb(err);
+            });
+        },
+        function (cb) {
+          Order.findOne({
+            where: {
+              id: orderId1,
+              owner: owner,
+            }
+          }).then(function (result) {
+            assert.notEqual(result, null);
+            assert.equal(result.get('status'), 0);
+            cb(null);
+          }).catch(cb);
+        },
+      ], function (err) {
+        assert.ifError(err);
+        done();
+      });
+    });
+
+    it('should destroy an order by id and owner', function destroyByOrderId(done) {
+      async.series([
+        function (cb) {
+          request(app.proxy)
+            .delete('/api/orders/id/' + orderId1 + '?destroy=true' + '&owner=' + owner)
+            .expect(200)
+            .end(function (err, res) {
+              assert.ifError(err);
+              assert.notEqual(res, null);
+              assert.notEqual(res.body, null);
+              assert.equal(res.body.numDeleted, 1);
+              cb(err);
+            });
+        },
+        function (cb) {
+          Order.findOne({
+            where: {
+              id: orderId1,
+              owner: owner,
             }
           }).then(function (result) {
             assert.equal(result, null);

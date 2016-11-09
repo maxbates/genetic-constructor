@@ -52,6 +52,87 @@ var fetchOrderByUUID = function (req, res) {
   });
 };
 
+var fetchByOrderId = function (req, res) {
+  var orderId = req.params.orderId;
+  if ((! orderId) || (orderId == "")) {
+    return res.status(400).send({
+      message: 'failed to parse order \'orderId\' from URI',
+    }).end();
+  }
+
+  var where = {
+    id: orderId,
+    status: 1,
+  };
+
+  if ((req.query.owner != null) && (! uuidValidate(req.query.owner, 1))) {
+    return res.status(400).send({
+      message: '\'owner\' UUID is invalid',
+    }).end();
+  }
+
+  if (req.query.owner != null) {
+    where.owner = req.query.owner;
+  }
+
+  return Order.findOne({
+    where: where,
+  }).then(function (result) {
+    if (! result) {
+      return res.status(404).send({
+        message: 'order [' + orderId + '] does not exist',
+      }).end();
+    }
+
+    return res.status(200).send(result.get()).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
+var checkByOrderId = function (req, res) {
+  var orderId = req.params.orderId;
+  if ((! orderId) || (orderId == "")) {
+    return res.status(400).send({
+      message: 'failed to parse order \'orderId\' from URI',
+    }).end();
+  }
+
+  var where = {
+    id: orderId,
+    status: 1,
+  };
+
+  if ((req.query.owner != null) && (! uuidValidate(req.query.owner, 1))) {
+    return res.status(400).send({
+      message: '\'owner\' UUID is invalid',
+    }).end();
+  }
+
+  if (req.query.owner != null) {
+    where.owner = req.query.owner;
+  }
+
+  return Order.findOne({
+    where: where,
+  }).then(function (result) {
+    if (! result) {
+      return res.status(404).send().end();
+    }
+
+    res.set('Order-UUID', result.get('uuid'));
+    return res.status(200).send().end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
 var fetchOrders = function (req, res) {
   var projectId = req.params.projectId;
   if (! projectId) {
@@ -114,6 +195,7 @@ var checkOrders = function (req, res) {
     where: where,
     attributes: [ // TODO some left here for easier debugging
       'uuid',
+      'id',
       'projectId',
       'projectVersion',
       'updatedAt'
@@ -127,7 +209,8 @@ var checkOrders = function (req, res) {
       return new Date(result.get('updatedAt'));
     });
 
-    res.set('Latest-Order', latest.uuid);
+    res.set('Latest-Order-Id', latest.id);
+    res.set('Latest-Order-UUID', latest.uuid);
     return res.status(200).send(map(results, function (result) { return result.get(); })).end();
   }).catch(function (err) {
     req.log.error(err);
@@ -155,6 +238,12 @@ var saveOrder = function (req, res) {
   if (! uuidValidate(body.owner, 1)) {
     return res.status(400).send({
       message: '\'owner\' UUID is invalid',
+    }).end();
+  }
+
+  if (! body.id) {
+    return res.status(400).send({
+      message: 'unique order \'id\' is required in request body',
     }).end();
   }
 
@@ -246,6 +335,7 @@ var saveOrder = function (req, res) {
     function (latest, cb) {
       return Order.create({
         owner: body.owner,
+        id: body.id,
         projectUUID: latest.uuid,
         projectId: body.projectId,
         projectVersion: latest.version,
@@ -262,8 +352,7 @@ var saveOrder = function (req, res) {
           fields: ['type', 'data'],
           where: {
             owner: body.owner,
-            projectId: body.projectId,
-            projectVersion: body.projectVersion,
+            id: body.id,
           },
         }).then(function (results) {
           if (results[0] > 1) {
@@ -317,6 +406,8 @@ var deleteByUUID = function (req, res) {
     }).end();
   }
 
+  // console.log("ORDER DELETE UUID", orderUUID);
+
   if ((req.query.destroy != null) && (req.query.destroy === "true")) {
     req.log.info('Destroying Order:', orderUUID);
 
@@ -368,9 +459,83 @@ var deleteByUUID = function (req, res) {
   });
 };
 
+var deleteByOrderId = function (req, res) {
+  var orderId = req.params.orderId;
+  if ((! orderId) || (orderId == "")) {
+    return res.status(400).send({
+      message: 'failed to parse order \'orderId\' from URI',
+    }).end();
+  }
+
+  var where = {
+    id: orderId,
+  };
+
+  if ((req.query.owner != null) && (! uuidValidate(req.query.owner, 1))) {
+    return res.status(400).send({
+      message: '\'owner\' UUID is invalid',
+    }).end();
+  }
+
+  if (req.query.owner != null) {
+    where.owner = req.query.owner;
+  }
+
+  // console.log("ORDER DELETE WHERE", where);
+
+  if ((req.query.destroy != null) && (req.query.destroy === "true")) {
+    req.log.info('Destroying Order:', orderId);
+
+    return Order.destroy({
+      where: where,
+    }).then(function (numDeleted) {
+      if (numDeleted < 1) {
+        return res.status(404).send({
+          message: 'order [' + orderId + '] does not exist',
+        }).end();
+      }
+
+      return res.status(200).send({
+        numDeleted: numDeleted,
+      }).end();
+    }).catch(function (err) {
+      req.log.error(err);
+      return res.status(500).send({
+        message: err.message,
+      }).end();
+    });
+  }
+
+  return Order.update({
+    status: 0,
+  }, {
+    returning: false,
+    where: where,
+  }).then(function (results) {
+    var numDeleted = results[0];
+    if (numDeleted < 1) {
+      return res.status(404).send({
+        message: 'order [' + orderId + '] does not exist',
+      }).end();
+    }
+
+    return res.status(200).send({
+      numDeleted: numDeleted,
+    }).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
 var routes = [
   route('GET /:projectId', fetchOrders),
   route('HEAD /:projectId', checkOrders),
+  route('GET /id/:orderId', fetchByOrderId),
+  route('HEAD /id/:orderId', checkByOrderId),
+  route('DELETE /id/:orderId', deleteByOrderId),
   route('GET /uuid/:uuid', fetchOrderByUUID),
   route('DELETE /uuid/:uuid', deleteByUUID),
   route('POST /', saveOrder),
