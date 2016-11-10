@@ -24,8 +24,8 @@ import { testUserId } from './constants';
 import { deleteUser } from '../server/data/persistence/admin';
 
 //wait for server to be ready and start with a clean slate
+//we clear here instead of at test end so can explore test data
 before(() => {
-  console.log('starting server...'); //eslint-disable-line
   return listenSafely()
     .then(() => {
       console.log('deleting all testUser data from DB...'); //eslint-disable-line
@@ -41,6 +41,6 @@ before(() => {
       }
     })
     .then(() => {
-      console.log('tests ready!\n\n'); //eslint-disable-line
+      console.log('Test setup complete\n\n'); //eslint-disable-line
     });
 });

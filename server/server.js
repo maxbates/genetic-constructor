@@ -87,7 +87,7 @@ app.set('view engine', 'pug');
 // in deployed environment this API will be available on a different host, and not at this route endpoint
 //note - should come before local auth setup, so that mockUser setup can call storage without middleware in place
 if (!process.env.STORAGE_API) {
-  console.log('Using local storage API, at /api/');
+  console.log('[DB Storage] DB Storage API mounted locally at /api/');
   app.use(require('gctor-storage').mockReqLog); // the storage routes expect req.log to be defined
   app.use('/api', require('gctor-storage').routes);
 }
@@ -229,7 +229,7 @@ export const listenSafely = () => {
 if (process.env.SERVER_MANUAL !== 'true') {
   listenSafely();
 } else {
-  console.log('\nserver will be started manually...\n');
+  console.log('\nServer ready, will start listening manually...\n');
 }
 
 export default app;

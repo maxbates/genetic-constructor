@@ -52,7 +52,7 @@ describe('Server', () => {
         const nonExistentSHA = '795c5751c8e0b0c9b5993ec81928cd89f7eefd27';
         const projectData = new Project(updateProjectWithTestAuthor());
         const projectId = projectData.id;
-        const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
+        //const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const newProject = projectData.merge({ projectData: 'new stuff' });
 
         const blockData = Block.classless({ projectId });

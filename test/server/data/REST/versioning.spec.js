@@ -21,7 +21,7 @@ describe('Server', () => {
         const userId = testUserId;
         const projectData = new Project();
         const projectId = projectData.id;
-        const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
+        //const projectRepoDataPath = filePaths.createProjectDataPath(projectId);
         const newProject = projectData.merge({ projectData: 'new stuff' });
 
         const blockData = Block.classless({

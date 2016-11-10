@@ -32,10 +32,10 @@ const mochaOptions = `--recursive --compilers js:babel-register,css:test/css-nul
 const unitTestCommand = `./node_modules/mocha/bin/mocha ${mochaOptions}`;
 
 //using babel-node and babel-istanbul is way slow
-//todo - speed this up? may need a different package
+//only runs in travis though, not needed for unit tests alone
+//todo - investigate how to speed this up? may need a different package
 const coverageCommand = `node_modules/.bin/babel-node node_modules/.bin/babel-istanbul cover --dir ./coverage --report lcovonly node_modules/.bin/_mocha -- ${mochaOptions}`;
 
-//todo - test coveralls in travis
 const coverageReport = `cat ./coverage/lcov.info | coveralls`;
 
 //todo - incoporate jenkins needs

@@ -16,99 +16,25 @@ limitations under the License.
 import path from 'path';
 import invariant from 'invariant';
 
-const makePath = (...paths) => {
-  if (process.env.STORAGE) {
-    return path.resolve(process.env.STORAGE, ...paths);
-  } else if (process.env.BUILD) {
-    return path.resolve(__dirname, '../storage/', ...paths);
-  }
+const makePath = (...paths) => path.resolve('/tmp/', ...paths);
 
-  return path.resolve(__dirname, '../../../storage/', ...paths);
-};
-
-export const trashPath = 'trash';
 export const filePath = 'file';
 export const sequencePath = 'sequence';
-export const blockPath = 'blocks';
-export const projectPath = 'projects';
-export const projectDataPath = 'data';
-export const orderPath = 'orders';
 export const projectFilesPath = 'files';
 
-export const manifestFilename = 'manifest.json';
-export const permissionsFilename = 'permissions.json';
-export const permissionsDeletedFileName = 'priorOwner.json';
-
-//All files are put in the storage folder (until platform comes along)
+//All files are put in the /tmp/ folder in local development
 export const createStorageUrl = (...urls) => {
   const dev = ((process.env.NODE_ENV === 'test') ? 'test/' : '');
   return makePath(dev, ...urls);
 };
 
-/***** files *****/
+// FILES / JOBS
+// jobs are passed to /tmp/ when passed from client, rather than put in S3 directly by client, and then streamed to both job + S3
 
-export const createFilePath = (path) => {
-  return createStorageUrl(filePath, path);
-};
-
-/***** data *****/
-
-// TRASH
-
-export const createTrashPath = (...paths) => createStorageUrl(trashPath, ...paths);
-
-//PROJECTS
-
-export const createProjectsDirectoryPath = () => createStorageUrl(projectPath);
-
-export const createProjectPath = (projectId, ...rest) => {
-  invariant(projectId, 'Project ID required');
-  return createStorageUrl(projectPath, projectId, ...rest);
-};
-
-export const createProjectDataPath = (projectId, ...rest) => {
-  return createProjectPath(projectId, projectDataPath, ...rest);
-};
-
-export const createProjectPermissionsPath = (projectId) => {
-  return createProjectPath(projectId, permissionsFilename);
-};
-
-export const createProjectManifestPath = (projectId) => {
-  return createProjectDataPath(projectId, manifestFilename);
-};
-
-//BLOCKS
-
-export const createBlockDirectoryPath = (projectId, ...rest) => {
-  return createProjectDataPath(projectId, blockPath, ...rest);
-};
-
-export const createBlockManifestPath = (projectId, blockId) => {
-  return createBlockDirectoryPath(projectId, manifestFilename);
-};
-
-//ORDERS
-
-// projects/<projectId>/orders
-export const createOrderDirectoryPath = (projectId, ...rest) => {
-  return createProjectPath(projectId, orderPath, ...rest);
-};
-
-// projects/<projectId>/orders/<orderId>
-export const createOrderPath = (orderId, projectId, ...rest) => {
-  invariant(orderId, 'Order ID required');
-  invariant(projectId, 'Project ID required');
-  return createOrderDirectoryPath(projectId, orderId, ...rest);
-};
-
-//orders dont have their own directory, they are just files named by orderId
-export const createOrderManifestPath = (orderId, projectId) => {
-  return createOrderPath(orderId, projectId, manifestFilename);
-};
-
-export const createOrderProjectManifestPath = (orderId, projectId) => {
-  return createOrderPath(orderId, projectId, 'project.json');
+//todo - does this need namespacing, or enforce its an md5 / uuid?
+//dont want to allow overriding / race conditions of common names
+export const createFilePath = (md5) => {
+  return createStorageUrl(filePath, md5);
 };
 
 //SEQUENCE
@@ -120,7 +46,8 @@ export const createSequencePath = (md5) => {
 // PROJECT FILES
 
 export const createProjectFilesDirectoryPath = (projectId, ...rest) => {
-  return createProjectDataPath(projectId, projectFilesPath, ...rest);
+  invariant(projectId, 'Project ID required');
+  return createStorageUrl(projectFilesPath, projectId, ...rest);
 };
 
 export const createProjectFilePath = (projectId, namespace, fileName) => {
