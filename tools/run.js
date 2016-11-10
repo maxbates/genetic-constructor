@@ -7,20 +7,27 @@ function magentaLog(msg) {
   console.log(`\x1b[35m${msg}\x1b[0m`);
 }
 
+function redLog(msg) {
+  console.log(`\x1b[31m${msg}\x1b[0m`);
+}
+
 function run(fn, options) {
   const task = typeof fn.default === 'undefined' ? fn : fn.default;
   const start = new Date();
 
   magentaLog(`[${format(start)}] Starting '${task.name}${options ? `(${options})` : ''}'...`);
 
-  return task(options).then(() => {
+  return task(options).then(result => {
     const end = new Date();
     const time = end.getTime() - start.getTime();
 
     magentaLog(`[${format(end)}] Finished '${task.name}${options ? `(${options})` : ''}' after ${time} ms`);
+
+    return result;
   })
     .catch(err => {
-      console.log(err);
+      redLog(`uncaught error running ${task.name}`);
+      redLog(err);
       throw err;
     });
 }

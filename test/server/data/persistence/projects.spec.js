@@ -23,7 +23,7 @@ import {
   errorNoPermission,
   errorInvalidModel,
   errorAlreadyExists,
-  errorDoesNotExist
+  errorDoesNotExist,
 } from '../../../../server/utils/errors';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';

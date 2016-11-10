@@ -16,7 +16,7 @@
 import path from 'path';
 import run from './run';
 import checks from './checks';
-import { spawnWaitUntilString, promisedExec } from './lib/cp';
+import { spawnAsync, promisedExec } from './lib/cp';
 
 //todo - have a check to make sure docker is running
 
@@ -55,7 +55,7 @@ const setupBioNanoPlatform = (useGenomeDesignerBranch = false) => {
 };
 
 const startBioNanoPlatform = () => {
-  return spawnWaitUntilString('npm', ['run', 'storage-background'],
+  return spawnAsync('npm', ['run', 'storage-background'],
     {
       cwd: pathBioNanoPlatform,
       env: Object.assign({}, process.env, dockerEnv),
@@ -65,14 +65,14 @@ const startBioNanoPlatform = () => {
 };
 
 const startAuthServer = () => {
-  return spawnWaitUntilString('npm', ['start'],
+  return spawnAsync('npm', ['start'],
     { cwd: pathBioNanoPlatform },
     { waitUntil: `{ address: { address: '::', family: 'IPv6', port: 8080 } } 'started'` });
 };
 
 const startRunAuth = () => {
   console.log('\n\n');
-  return spawnWaitUntilString('npm', ['run', 'auth'],
+  return spawnAsync('npm', ['run', 'auth'],
     { cwd: pathProjectRoot },
     {
       waitUntil: 'Server listening at http://0.0.0.0:3000/',

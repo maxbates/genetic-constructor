@@ -40,5 +40,7 @@ before(() => {
         }));
       }
     })
-    .then(() => console.log('tests ready!'));
+    .then(() => {
+      console.log('tests ready!\n\n'); //eslint-disable-line
+    });
 });

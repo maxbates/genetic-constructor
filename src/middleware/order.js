@@ -21,7 +21,6 @@ import Order from '../models/Order';
 
 // likely want a registry like for inventory and hit their respective functions for each foundry
 
-// todo - handle errors, make consistent
 // todo (future) - dont limit foundries statically
 //hack - passing combinations for now because easy to generate on client, but should just generate on the server
 export const submitOrder = (order, foundry = 'egf', positionalCombinations) => {
