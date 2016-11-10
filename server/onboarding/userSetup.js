@@ -28,27 +28,25 @@ const checkUserSetup = (user) => {
 
   const timer = new DebugTimer('checkUserSetup ' + user.uuid, { disabled: true });
 
-  return projectPersistence.getUserProjectIds(user.uuid)
-    .then(projectIds => {
-      timer.time('query complete');
-
-      if (!projectIds.length) {
-        return onboardNewUser(user)
-          .then(rolls => {
-            console.log(`[User Setup] Generated ${rolls.length} projects for user ${user.uuid} (${user.email}):
+  return projectPersistence.getUserLastProjectId(user.uuid)
+    .then(projectId => {
+      timer.end('query complete, already onboarded');
+      return projectId;
+    })
+    .catch(err => {
+      timer.time('query complete, onboarding');
+      return onboardNewUser(user)
+        .then(rolls => {
+          console.log(`[User Setup] Generated ${rolls.length} projects for user ${user.uuid} (${user.email}):
 ${rolls.map(roll => `${roll.project.metadata.name || 'Unnamed'} @ ${roll.project.id}`).join('\n')}`);
-            timer.end('onboarded');
-            return rolls[0].project.id;
-          })
-          .catch(err => {
-            console.log('error onboarding user');
-            console.log(user);
-            return Promise.reject(err);
-          });
-      }
 
-      timer.end();
-      return projectIds[0];
+          timer.end('onboarded');
+          return rolls[0].project.id;
+        })
+        .catch(err => {
+          console.log('error onboarding user', user);
+          return Promise.reject(err);
+        });
     });
 };
 

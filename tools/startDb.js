@@ -13,8 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { promisedExec, spawnWaitUntilString } from './lib/cp';
+import { promisedExec, spawnAsync } from './lib/cp';
 import checkPortFree from '../server/utils/checkPortFree';
+
+//note - DB holds on the to process, so this will resolve but process will never exit. So, can be used in promise chaining, but not in __ && __ bash syntax
 
 //todo - env var?
 const STORAGE_PORT = 5432;
@@ -26,50 +28,51 @@ async function startDb() {
   try {
     await promisedExec(buildDb, {}, { comment: 'Building DB Docker container...' });
 
-    //todo - windows friendly
-    /*
-     await promisedExec(`lsof -i :${STORAGE_PORT}`, {}, { comment: `Checking port ${STORAGE_PORT} for DB...` })
-     .then(results => {
-     if (!results) {
-     //either errored and nothing returned, or we're ok and port is free
-     return;
-     }
-
-     const [, ...processes] = results.split('\n');
-
-     if (processes.every(process => !process || process.indexOf('postgresql') >= 0)) {
-     console.log(`Postgres already running at ${STORAGE_PORT}`);
-     return;
-     }
-
-     throw new Error(`Process running on port ${STORAGE_PORT} does not appear to be Postgres...`);
-     });
-     */
-
-    await checkPortFree(STORAGE_PORT)
+    const dbProcess = await checkPortFree(STORAGE_PORT)
       .catch(err => {
-        //console.log(err);
-        //ideallly should see what process is running on the port...
+        //ideally, see what is running at the port
+        //todo - windows friendly
+        /*
+         await promisedExec(`lsof -i :${STORAGE_PORT}`, {}, { comment: `Checking port ${STORAGE_PORT} for DB...` })
+         .then(results => {
+         if (!results) {
+         //either errored and nothing returned, or we're ok and port is free
+         return;
+         }
+
+         const [, ...processes] = results.split('\n');
+
+         if (processes.every(process => !process || process.indexOf('postgresql') >= 0)) {
+         console.log(`Postgres already running at ${STORAGE_PORT}`);
+         return;
+         }
+
+         throw new Error(`Process running on port ${STORAGE_PORT} does not appear to be Postgres...`);
+         });
+         */
         return false;
       })
       .then(free => {
         if (free) {
           const [cmd, ...args] = runDb.split(' ');
 
-          //fixme - cant get process to inherit stdio, so node or docker complains about TTY
+          //todo - cant get process to inherit stdio, so node or docker complains about TTY
           //{ stdio: [process.stdin, process.stdout, process.stderr] }
 
-          return spawnWaitUntilString(cmd, args, {}, {
-            waitUntil: 'database system is ready to accept connections',
+          return spawnAsync(cmd, args, {}, {
+            waitUntil: 'PostgreSQL init process complete; ready for start up',
             comment: 'Running Docker container...',
           });
         }
 
         //if not free
         console.log('Port not free - assuming port is occupied by Postgres DB process....');
+        return null;
       });
 
     console.log('DB started');
+
+    return dbProcess;
   } catch (err) {
     console.log('Error starting Storage service...');
     throw err;

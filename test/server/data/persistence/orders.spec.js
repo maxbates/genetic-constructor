@@ -97,10 +97,11 @@ describe('Server', () => {
 
         it('orderWrite() should fail when version specified and does not exist', (done) => {
           const badVersion = Object.assign({}, order, { projectVersion: 10 });
+
           orderPersistence.orderWrite(order.id, badVersion, testUserId)
             .then(result => done('shouldnt resolve'))
             .catch(err => {
-              expect(err).to.equal(errorDoesNotExist);
+              expect(err).to.equal(errorInvalidModel);
               done();
             });
         });

@@ -20,11 +20,6 @@ import run from './run';
 import del from 'del';
 import setup from './setup';
 import checks from './checks';
-import startDb from './startDb';
-
-//todo - move make file to this
-
-//note - DB + server hold on the to process, so this will resolve but process will never exit. So, can be used in promise chaining, but not in __ && __ bash syntax
 
 async function testSetup() {
   try {
@@ -36,11 +31,7 @@ async function testSetup() {
     //setup directories etc (may not be needed after transition to S3 / DB)
     await run(setup);
 
-    //this is blocking completion of this setup script... need to manually start until this is working
-    //needs to happen in a separate task (without access to stdio?)
-    //await run(startDb);
-
-    console.log('tests ready to run!');
+    console.log('tests ready to run! (if the DB is running!)');
   } catch (err) {
     console.log('GOT ERROR');
     console.log(err);

@@ -23,7 +23,7 @@ import {
   errorNoPermission,
   errorInvalidModel,
   errorAlreadyExists,
-  errorDoesNotExist
+  errorDoesNotExist,
 } from '../../../../server/utils/errors';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
@@ -269,6 +269,23 @@ describe('Server', () => {
             return projectPersistence.getUserProjects(randomUserId2)
               .then(result => {
                 expect(result).to.eql([]);
+              });
+          });
+
+          it('getUserLastProjectId() gets the last saved project', (done) => {
+            const roll = createExampleRollup();
+
+            projectPersistence.getUserLastProjectId(randomUserId)
+              .then(() => done('shouldnt resolve'))
+              .catch(err => {
+                expect(err).to.equal(errorDoesNotExist);
+
+                return projectPersistence.projectWrite(roll.project.id, roll, randomUserId);
+              })
+              .then(() => projectPersistence.getUserLastProjectId(randomUserId))
+              .then(projectId => {
+                expect(projectId).to.equal(roll.project.id);
+                done();
               });
           });
         });

@@ -4,13 +4,13 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import run from './run';
 import runServer from './runServer';
-import { serverConfig, clientConfig } from './webpack.config';
+import { clientConfig } from './webpack.config';
 import setup from './setup';
 import checks from './checks';
 import clean from './clean';
 import startDb from './startDb';
 import copy from './copy';
-import bundleServer from './bundleServer';
+//import bundleServer from './bundleServer';
 import { debounce } from 'lodash';
 
 const DEBUG = !process.argv.includes('--release');

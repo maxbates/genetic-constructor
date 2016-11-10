@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { fork, exec, spawn } from 'child_process';
+import { exec, spawn } from 'child_process';
 
 const DEBUG = process.env.DEBUG && process.env.DEBUG.indexOf('tools') >= 0;
 if (!DEBUG) {
@@ -53,7 +53,11 @@ export const promisedExec = (cmd, opts, {
   });
 };
 
-export const spawnWaitUntilString = (cmd, args = [], opts = {}, {
+// two options
+// pass IO to inherit, and resolve on close or reject on error (assumes task will close)
+// don't pass IO, and pass waitUntil as string
+// otherwise, could spawn in background
+export const spawnAsync = (cmd, args = [], opts = {}, {
   waitUntil = `${Math.random()}`,
   forceOutput = false,
   failOnStderr = false,
@@ -66,33 +70,41 @@ export const spawnWaitUntilString = (cmd, args = [], opts = {}, {
 
     const process = spawn(cmd, args, Object.assign({ silent: false }, opts));
 
-    process.stdout.on('data', data => {
-      log(`${data}`, forceOutput);
-      if (`${data}`.indexOf(waitUntil) >= 0) {
-        log('Resolved!');
-        resolve(process);
-      }
-    });
+    //stdio only defined when piped, not if inherited / ignored
+    if (process.stdout) {
+      process.stdout.on('data', data => {
+        log(`${data}`, forceOutput);
+        if (`${data}`.indexOf(waitUntil) >= 0) {
+          log('Resolved!');
+          resolve(process);
+        }
+      });
 
-    process.stderr.on('data', data => {
-      log(`${data}`, true);
-      if (`${data}`.indexOf(waitUntil) >= 0) {
-        return resolve(process);
-      }
-      if (failOnStderr === true) {
-        console.log('REJECTING');
-        process.kill();
-        reject(process);
-      }
-    });
+      process.stderr.on('data', data => {
+        log(`${data}`, true);
+        if (`${data}`.indexOf(waitUntil) >= 0) {
+          return resolve(process);
+        }
+        if (failOnStderr === true) {
+          console.log('REJECTING');
+          process.kill();
+          reject(process);
+        }
+      });
+    }
 
     process.on('error', (err) => {
-      console.log('Error in process');
-      console.log(err);
+      console.error('Error in process');
+      console.error(err);
+      reject(process);
     });
 
     process.on('close', (code) => {
-      console.log(`child process exited with code ${code}`, forceOutput);
+      log(`child process exited with code ${code}`, forceOutput);
+      if (code > 0) {
+        return reject(process);
+      }
+      resolve(process);
     });
   });
 };
