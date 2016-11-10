@@ -5,6 +5,8 @@ var async = require("async");
 var request = require("supertest");
 var describeAppTest = require("../../../api-app");
 
+var objectPath = require("object-path");
+
 var each = require('underscore').each;
 var extend = require('underscore').extend;
 var isEqual = require('underscore').isEqual;
@@ -110,6 +112,87 @@ describeAppTest("http", function (app) {
             assert.notDeepEqual(blocks, {});
             assert.deepEqual(blocks, KeyedProjects[project.id].data.blocks);
           });
+          done();
+        });
+    });
+
+    it('should fetch blocks in projects by block name', function fetchBlocksByName(done) {
+      request(app.proxy)
+        .get('/api/blocks/name/' + owner + '/promoter')
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log(res.body);
+          assert(Array.isArray(res.body));
+          assert.equal(res.body.length, 4);
+          var seenBlockIds = {};
+          each(res.body, function (block) {
+            assert.notEqual(block, null);
+            assert.equal(seenBlockIds[block.id], null);
+            seenBlockIds[block.id] = 1;
+            assert.equal(objectPath.get(block, 'metadata.name'), 'promoter');
+          });
+          done();
+        });
+    });
+
+    it('should fetch blocks in projects by block role', function fetchBlocksByRole(done) {
+      request(app.proxy)
+        .get('/api/blocks/role/' + owner + '/terminator')
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log(res.body);
+          assert(Array.isArray(res.body));
+          // console.log(res.body.length);
+          assert.equal(res.body.length, 4);
+          var seenBlockIds = {};
+          each(res.body, function (block) {
+            assert.notEqual(block, null);
+            assert.equal(seenBlockIds[block.id], null);
+            seenBlockIds[block.id] = 1;
+            assert.equal(objectPath.get(block, 'rules.role'), 'terminator');
+          });
+          done();
+        });
+    });
+
+    it('should fetch a map of block counts by role', function fetchProjectCountsByRole(done) {
+      request(app.proxy)
+        .get('/api/blocks/role/' + owner)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.equal(typeof res.body, "object");
+          each(pairs(res.body), function (roleCountPair) {
+            assert.equal(typeof roleCountPair[0], "string");
+            assert.equal(typeof roleCountPair[1], "number");
+            if (roleCountPair[0] === "terminator") {
+              assert.equal(roleCountPair[1], 4);
+            } else if (roleCountPair[0] === "promoter") {
+              assert.equal(roleCountPair[1], 4);
+            } else if (roleCountPair[0] === "none") {
+              assert.equal(roleCountPair[1], 28)
+            } else {
+              console.error('missing count test for block role:', roleCountPair[0]);
+            }
+          });
+          done();
+        });
+    });
+
+    it('should get 501 for unsupported blocks route', function get501(done) {
+      request(app.proxy)
+        .get('/api/blocks')
+        .expect(501)
+        .end(function (err) {
+          assert.ifError(err);
           done();
         });
     });
