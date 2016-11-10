@@ -58,7 +58,11 @@ async function test() {
 
     //start database (note - this holds onto the process until killed)
     const dbProcess = await run(startDb);
-    processes.push(dbProcess);
+
+    //not defined if DB was already running
+    if (dbProcess) {
+      processes.push(dbProcess);
+    }
 
     //now, run the test suite
 
@@ -89,7 +93,7 @@ async function test() {
     }
 
     processes.forEach(proc => {
-      if (!Number.isInteger(proc.exitCode)) {
+      if (proc && !Number.isInteger(proc.exitCode)) {
         proc.kill();
       }
     });
