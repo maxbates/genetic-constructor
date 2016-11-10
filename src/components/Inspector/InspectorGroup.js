@@ -16,6 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 
 import InspectorGroupInformation from './InspectorGroupInformation';
+import InspectorGroupHelp from './InspectorGroupHelp';
 
 import '../../styles/InspectorGroup.css';
 
@@ -28,6 +29,8 @@ export default class InspectorGroup extends Component {
     switch (type) {
     case 'information' :
       return (<InspectorGroupInformation projectId={this.props.projectId} />);
+    case 'help' :
+      return (<InspectorGroupHelp />);
     default:
       //throw new Error(`Type ${type} is not registered in InspectorGroup`);
     }

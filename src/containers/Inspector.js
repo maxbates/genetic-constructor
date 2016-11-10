@@ -22,7 +22,6 @@ import {
 } from '../actions/ui';
 import InspectorGroup from '../components/Inspector/InspectorGroup';
 
-
 import '../styles/Inspector.css';
 import '../styles/SidePanel.css';
 
@@ -99,9 +98,7 @@ export class Inspector extends Component {
             {icons}
           </div>
           <div className={contentClasses}>
-            <div className="titleHolder">
-              <span className="title">{tabInfo.title}</span>
-            </div>
+            <span className="title">{tabInfo.title}</span>
             {tab}
           </div>
         </div>

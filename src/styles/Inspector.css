@@ -8,13 +8,10 @@
     overflow: hidden;
   }
 
-  .titleHolder {
-    text-align: right;
-  }
   .title {
     height: var(--width-SidePanel-closed);
     line-height: var(--width-SidePanel-closed);
-    text-indent: var(--SidePanel-width-padding-content);
+    padding-left: var(--SidePanel-width-padding-content);
     font-size: var(--font-size-sectionLabel);
     font-weight: 100;
     user-select: none;
