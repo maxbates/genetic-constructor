@@ -2,11 +2,10 @@ function format(time) {
   return time.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1');
 }
 
-//color something magenta
+// if you want more colors, npm install colors
 function magentaLog(msg) {
   console.log(`\x1b[35m${msg}\x1b[0m`);
 }
-
 function redLog(msg) {
   console.log(`\x1b[31m${msg}\x1b[0m`);
 }

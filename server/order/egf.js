@@ -65,14 +65,14 @@ export const submit = (order, user, constructList, rollup) => {
     const payload = createOrderPayload(order, user, constructList, rollup);
     stringified = JSON.stringify(payload);
   } catch (err) {
-    console.log('error generating payload');
+    console.log('[Order] error generating payload');
     return Promise.reject(err);
   }
 
   return fetch(url, createPostBody(stringified))
     .then(response => {
       if (!response.ok) {
-        console.log('There was an error submitting to egf');
+        console.log('[Order] There was an error submitting to egf');
 
         const clone = response.clone();
         return clone.text().then(text => {

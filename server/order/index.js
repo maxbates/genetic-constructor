@@ -155,6 +155,13 @@ User ${user.uuid}
           submit(order, prunedUser, constructList, rollup);
 
         return submissionPromise
+          .catch(err => {
+            //probably want more consistent error handling across foundries, once we add more + decide how they are integrated
+
+            console.log(`[Order] error submitting order ${order.id} to ${foundry}`);
+            console.log(err);
+            return Promise.reject(errorInvalidModel);
+          })
           .then(orderResponse => {
             //check if we have a snapshot, create if we dont / merge if do
             return snapshots.snapshotGet(projectId, user.uuid, projectVersion)
