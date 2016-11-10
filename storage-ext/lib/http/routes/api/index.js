@@ -7,6 +7,7 @@ var combiner = require('../../combiner');
 
 var routes = [
   route('/admin', require('./admin')),
+  route('/blocks', require('./blocks')),
   route('/projects', require('./projects')),
   route('/orders', require('./orders')),
   route('/snapshots', require('./snapshots')),

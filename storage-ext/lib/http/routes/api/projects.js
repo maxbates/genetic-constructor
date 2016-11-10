@@ -655,6 +655,7 @@ var fetchProjectsWithBlock = function (req, res) {
   }
 
   var where = {
+    status: 1,
     data: {
       '$contains': { project: { components: [ blockId ]} },
     },
