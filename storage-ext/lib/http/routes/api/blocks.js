@@ -35,6 +35,10 @@ var FILTERS = {
 };
 
 function applyBlockFilter(blocks, filterField, filterValue) {
+  if (!filterField) {
+    return blocks;
+  }
+
   var filter = FILTERS[filterField];
   if (! filter) {
     console.error('unrecognized filter field:', filterField);
@@ -166,9 +170,40 @@ var fetchProjectCountsByRole = function (req, res) {
     }).end();
   }
 
-  return res.status(200).send({
+  var where = {
     owner: ownerUUID,
-  }).end();
+    status: 1,
+  };
+
+  return Project.findAll({
+    where: where,
+  }).then(function (results) {
+    if (results.length < 1) {
+      return res.status(404).send({
+        message: 'no blocks found for ' + JSON.stringify(where),
+      }).end();
+    }
+
+    var allBlocks = collapseBlocks(results);
+    // console.log('reducing', allBlocks.length, 'blocks for role map');
+    return res.status(200).send(reduce(allBlocks, function(memo, block) {
+      var role = objectPath.get(block, 'rules.role');
+      role = role || 'none';
+      var currentCount = memo[role];
+      if (! currentCount) {
+        memo[role] = 1;
+      } else {
+        memo[role] = currentCount + 1;
+      }
+
+      return memo;
+    }, {})).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
 };
 
 var routes = [
