@@ -56,11 +56,11 @@ async function startDb() {
         if (free) {
           const [cmd, ...args] = runDb.split(' ');
 
-          //fixme - cant get process to inherit stdio, so node or docker complains about TTY
+          //todo - cant get process to inherit stdio, so node or docker complains about TTY
           //{ stdio: [process.stdin, process.stdout, process.stderr] }
 
           return spawnWaitUntilString(cmd, args, {}, {
-            waitUntil: 'database system is ready to accept connections',
+            waitUntil: 'PostgreSQL init process complete; ready for start up',
             comment: 'Running Docker container...',
           });
         }

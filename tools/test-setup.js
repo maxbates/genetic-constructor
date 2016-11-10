@@ -20,7 +20,8 @@ import run from './run';
 import del from 'del';
 import setup from './setup';
 import checks from './checks';
-import startDb from './startDb';
+
+//import startDb from './startDb';
 
 //todo - move make file to this
 

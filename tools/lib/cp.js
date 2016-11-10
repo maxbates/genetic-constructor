@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { fork, exec, spawn } from 'child_process';
+import { exec, spawn } from 'child_process';
 
 const DEBUG = process.env.DEBUG && process.env.DEBUG.indexOf('tools') >= 0;
 if (!DEBUG) {

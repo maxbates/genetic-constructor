@@ -18,9 +18,9 @@ import testSetup from './test-setup';
 
 //todo - meant to replace the makefile
 
-const withCoverage = process.env.COVERAGE === 'true';
+//const withCoverage = process.env.COVERAGE === 'true';
 
-const mochaCommand = `./node_modules/mocha/bin/mocha --recursive --compilers js:babel-register,css:test/css-null-compiler.js --require ./test/setup.js --timeout 25000 -u bdd --reporter spec`;
+//const mochaCommand = `./node_modules/mocha/bin/mocha --recursive --compilers js:babel-register,css:test/css-null-compiler.js --require ./test/setup.js --timeout 25000 -u bdd --reporter spec`;
 
 async function test() {
   await testSetup();

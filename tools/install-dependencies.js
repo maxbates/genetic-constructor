@@ -11,7 +11,7 @@
  limitations under the License.
  */
 
-import { promisedExec } from './processUtils';
+import { promisedExec } from './lib/cp';
 
 async function installDependencies() {
   try {
