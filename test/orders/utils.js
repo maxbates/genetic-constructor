@@ -22,21 +22,27 @@ const numOpts = 5;
 export const makeOrderRoll = (lists = numLists, opts = numOpts) => createListRollup(numLists, numOpts);
 
 //todo - dont require sending positional combinations to server. share code better.
-//only works for makeOrderRoll
+//only works when single depth, either block or list block (no hierarchy)
 export const makeOrderPositionals = (roll, indexWanted = 0) => {
   const componentId = roll.project.components[indexWanted];
 
   const combos = roll.blocks[componentId].components
-    .map(componentId => Object.keys(roll.blocks[componentId].options).map(optionId => roll.blocks[optionId]))
+    .map(componentId => {
+      const opts = Object.keys(roll.blocks[componentId].options);
+
+      return opts.length > 0 ?
+        opts.map(optionId => roll.blocks[optionId]) :
+        [roll.blocks[componentId]];
+    })
     .map(combo => combo.map(part => part.id));
 
   return { [componentId ]: combos };
 };
 
 //note, has no version
-export const makeOnePotOrder = (roll) => Order.classless({
+export const makeOnePotOrder = (roll, constructIndex = 0) => Order.classless({
   projectId: roll.project.id,
-  constructIds: [roll.project.components[0]],
+  constructIds: [roll.project.components[constructIndex]],
   numberCombinations: 20,               //hack - should not be required
   parameters: {
     onePot: true,
@@ -44,12 +50,12 @@ export const makeOnePotOrder = (roll) => Order.classless({
 });
 
 //note, has no version
-export const makeSelectionOrder = (roll, indices = [1, 5, 9, 13, 17]) => {
+export const makeSelectionOrder = (roll, constructIndex = 0, indices = [1, 5, 9, 13, 17]) => {
   const activeIndices = indices.reduce((acc, num) => Object.assign(acc, { [num]: true }), {});
 
   return Order.classless({
     projectId: roll.project.id,
-    constructIds: [roll.project.components[0]],
+    constructIds: [roll.project.components[constructIndex]],
     numberCombinations: 20,               //hack - should not be required
     parameters: {
       onePot: false,

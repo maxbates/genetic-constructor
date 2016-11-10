@@ -18,12 +18,14 @@ import _ from 'lodash';
 import { assert, expect } from 'chai';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import { testUserId } from '../constants';
-import { createListRollup } from '../_utils/rollup';
 import * as api from '../../src/middleware/order';
 import Order from '../../src/models/Order';
 import { makeOrderRoll, makeOrderPositionals, makeOnePotOrder, makeSelectionOrder } from '../orders/utils';
 
 //todo - dont require sending positional combinations to server. share code better.
+
+//in the future, pull from registry
+const foundries = ['test', 'egf'];
 
 describe('Ordering', () => {
   describe('General', () => {
@@ -36,17 +38,32 @@ describe('Ordering', () => {
 
     const activeIndices = [1, 4, 8, 12, 16];
 
-    const selectionOrder = makeSelectionOrder(roll, activeIndices);
+    const selectionOrder = makeSelectionOrder(roll, 0, activeIndices);
 
     before(() => {
       return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
         .then(() => projectPersistence.projectWrite(roll.project.id, updated, testUserId));
     });
 
-    describe('Submit', () => {
-      //in the future, pull from registry
-      const foundries = ['test', 'egf'];
+    describe('Validate', () => {
+      foundries.forEach(foundry => {
+        it(`submit() does not throw unexpectedly to foundry: ${foundry}`, () => {
+          return api.validateOrder(onePotOrder, foundry, makeOrderPositionals(roll, 0))
+            .catch(resp => {
+              //ok if we get a 422, means wasnt valid, but handled properly
+              if (resp.status === 422) {
+                return true;
+              }
+              throw Error('unexpected error');
+            });
+        });
 
+        //todo - EGF will fail, since not all parts from EGF
+        it(`validate() valid order works at foundry: ${foundry}`);
+      });
+    });
+
+    describe('Submit', () => {
       foundries.forEach(foundry => {
         it(`submit() does not throw unexpectedly to foundry: ${foundry}`, () => {
           return api.submitOrder(onePotOrder, foundry, makeOrderPositionals(roll, 0))

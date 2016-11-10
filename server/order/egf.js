@@ -94,12 +94,19 @@ export const submit = (order, user, constructList, rollup) => {
 };
 
 export const validate = (order, user, constructList, rollup) => {
-  const payload = createOrderPayload(order, user, constructList, rollup);
-  payload.validationOnly = true;
-  const stringified = JSON.stringify(payload);
+  try {
+    const payload = createOrderPayload(order, user, constructList, rollup);
+
+    //to just validate it
+    payload.validationOnly = true;
+
+    const stringified = JSON.stringify(payload);
+  } catch (err) {
+    console.log('[Order] error generating payload');
+    return Promise.reject(err);
+  }
 
   return fetch(url, createPostBody(stringified))
     .then(resp => resp.json())
-    .then(resp => resp.success)
-    .catch(err => err);
+    .then(resp => resp.success);
 };

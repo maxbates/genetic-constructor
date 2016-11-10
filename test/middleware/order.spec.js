@@ -32,12 +32,12 @@ describe('Middleware', () => {
     const roll = makeOrderRoll(numLists, numOpts);
     const updated = _.merge({}, roll, { project: { another: 'field' } });
 
-    const onePotOrder = makeOnePotOrder(roll,);
+    const onePotOrder = makeOnePotOrder(roll, 0);
     let onePotSubmitted;
 
     const activeIndices = [1, 4, 8, 12, 16];
 
-    const selectionOrder = makeSelectionOrder(roll, activeIndices);
+    const selectionOrder = makeSelectionOrder(roll, 0, activeIndices);
 
     before(() => {
       return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
@@ -46,6 +46,14 @@ describe('Middleware', () => {
 
     describe('Basics', () => {
       const foundry = 'test';
+
+      it('validate() onePot order passes', () => {
+        return api.validateOrder(onePotOrder, foundry, makeOrderPositionals(roll, 0));
+      });
+
+      it('validate() selection order passes', () => {
+        return api.validateOrder(selectionOrder, foundry, makeOrderPositionals(roll, 0));
+      });
 
       it('submit(order, foundry, combinations) sends the order, defaults to latest version', () => {
         return api.submitOrder(onePotOrder, foundry, makeOrderPositionals(roll, 0))
