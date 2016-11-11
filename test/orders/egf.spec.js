@@ -42,7 +42,7 @@ describe('Ordering', () => {
           const order = makeSelectionOrder(templatesProject, index, indices);
           const positionals = makeOrderPositionals(templatesProject, index);
 
-          return api.validateOrder(order, foundryKey, positionals);
+          return api.validateOrder(order, foundryKey, positionals)
         });
       });
     });
