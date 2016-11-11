@@ -1,7 +1,7 @@
 {
   "name": "gctor-storage",
   "description": "a REST application for storing Genetic Constructor Project data",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": false,
   "author": {
     "name": "Drew Hylbert",
@@ -57,7 +57,7 @@
     "supertest": "^1.1.0"
   },
   "engines": {
-    "node": ">=4.2.3",
+    "node": ">=4.6.1",
     "npm": ">=2.14.7"
   }
 }
