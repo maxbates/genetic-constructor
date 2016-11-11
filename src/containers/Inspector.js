@@ -64,6 +64,10 @@ export class Inspector extends Component {
       type: 'history',
       title: 'History',
     },
+    Feedback: {
+      type: 'feedback',
+      title: 'Feedback',
+    },
   };
 
   render() {

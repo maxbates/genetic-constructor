@@ -34,6 +34,7 @@ const sectionNameToSVG = {
   Help: '/images/ui/inspector_help.svg',
   Orders: '/images/ui/inspector_orders.svg',
   History: '/images/ui/inspector_history.svg',
+  Feedback: '/images/ui/inspector_feedback.svg',
 };
 
 export default class InventorySectionIcon extends Component {
