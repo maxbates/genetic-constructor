@@ -15,7 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import InventorySectionIcon from './InventorySectionIcon';
+import SectionIcon from './SectionIcon';
 import {
   inspectorToggleVisibility,
   inspectorSelectTab,
@@ -78,7 +78,7 @@ export class Inspector extends Component {
     const menuClasses = `vertical-menu${isVisible ? ' open' : ''}`;
     // map sections to icons
     const icons = Object.keys(this.sections).map(sectionName => {
-      return (<InventorySectionIcon
+      return (<SectionIcon
         key={sectionName}
         open={isVisible}
         onSelect={this.setActive}

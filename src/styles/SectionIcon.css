@@ -1,6 +1,6 @@
 @import 'variables.css';
 
-.InventorySectionIcon {
+.SectionIcon {
   background-color: white;
   transition: background-color var(--timing-fast) var(--SidePanel-ease);
   cursor: pointer;
@@ -13,6 +13,6 @@
     filter: brightness(1000%);
   }
 }
-.InventorySectionIcon.open {
+.SectionIcon.open {
   background-color: var(--colors-blueBlack);
 }

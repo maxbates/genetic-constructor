@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import '../styles/InventorySectionIcon.css';
+import '../styles/SectionIcon.css';
 
 
 // map section names to SVG URI
@@ -37,7 +37,7 @@ const sectionNameToSVG = {
   Feedback: '/images/ui/inspector_feedback.svg',
 };
 
-export default class InventorySectionIcon extends Component {
+export default class SectionIcon extends Component {
   static propTypes = {
     section: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
@@ -84,7 +84,7 @@ export default class InventorySectionIcon extends Component {
     // if this is the selected icon then always show closed
     open = this.props.selected ? !this.props.open : open;
 
-    const containerClass = open ? 'InventorySectionIcon open' : 'InventorySectionIcon';
+    const containerClass = open ? 'SectionIcon open' : 'SectionIcon';
     const imgClass = open ? 'open' : '';
     return (
       <div
