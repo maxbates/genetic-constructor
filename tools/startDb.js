@@ -18,11 +18,10 @@ import checkPortFree from '../server/utils/checkPortFree';
 
 //note - DB holds on the to process, so this will resolve but process will never exit. So, can be used in promise chaining, but not in __ && __ bash syntax
 
-//todo - env var?
-const STORAGE_PORT = 5432;
+const STORAGE_PORT = process.env.PGPORT || 5432;
 
 const buildDb = 'docker build -t gctorstorage_db ./storage-ext/postgres/';
-const runDb = `docker run -p ${STORAGE_PORT}:${STORAGE_PORT} -l "gctorstorage_db" --rm gctorstorage_db`;
+const runDb = `docker run -p ${STORAGE_PORT}:5432 -l "gctorstorage_db" --rm gctorstorage_db`;
 
 async function startDb() {
   try {
@@ -69,7 +68,7 @@ async function startDb() {
         return null;
       });
 
-    console.log('DB started');
+    console.log('DB started on port:', STORAGE_PORT);
 
     return dbProcess;
   } catch (err) {

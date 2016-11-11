@@ -14,6 +14,7 @@ var pairs = require('underscore').pairs;
 var pick = require('underscore').pick;
 var reduce = require('underscore').reduce;
 
+var urlSafeBase64 = require('urlsafe-base64');
 var uuidValidate = require("uuid-validate");
 
 var Project = require('../../../../lib/project');
@@ -117,8 +118,9 @@ describeAppTest("http", function (app) {
     });
 
     it('should fetch blocks in projects by block name', function fetchBlocksByName(done) {
+      var encodedName = urlSafeBase64.encode(Buffer.from('promoter', 'utf8'));
       request(app.proxy)
-        .get('/api/blocks/name/' + owner + '/promoter')
+        .get('/api/blocks/name/' + owner + '/' + encodedName)
         .expect(200)
         .end(function (err, res) {
           assert.ifError(err);

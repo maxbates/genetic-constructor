@@ -16,6 +16,7 @@
 import _ from 'lodash';
 import { dbGet } from '../middleware/db';
 import { getUserProjects } from './projects';
+import * as urlSafeBase64 from 'urlsafe-base64';
 
 const reduceToMap = array => _.keyBy(array, block => block.id);
 
@@ -26,7 +27,9 @@ export const getAllBlocks = (userId) => {
 };
 
 export const getAllBlocksWithName = (userId, name) => {
-  return dbGet(`/blocks/name/${userId}/${name}`)
+  // block names are the only parameters currently url-encoded
+  var encodedName = urlSafeBase64.encode(Buffer.from(name, 'utf8'));
+  return dbGet(`/blocks/name/${userId}/${encodedName}`)
     .then(reduceToMap);
 };
 

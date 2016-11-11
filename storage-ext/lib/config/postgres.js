@@ -27,8 +27,10 @@ if (process.env.PGDATABASE != null) {
 
 function generateConnectString(config) {
   //'postgres://user:pass@example.com:5432/dbname'
-  return 'postgres://' + config.user + ':' + config.password + '@' + config.host + ':' + config.port + '/'
+  var pgConnString = 'postgres://' + config.user + ':' + config.password + '@' + config.host + ':' + config.port + '/'
     + config.database;
+  console.log("pgConnString", pgConnString);
+  return pgConnString;
 }
 
 module.exports = config;

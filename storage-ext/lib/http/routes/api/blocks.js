@@ -14,6 +14,7 @@ var omit = require('underscore').omit;
 var reduce = require('underscore').reduce;
 var values = require('underscore').values;
 
+var urlSafeBase64 = require('urlsafe-base64');
 var uuidValidate = require("uuid-validate");
 
 var route = require("http-route");
@@ -84,10 +85,24 @@ var fetchBlocksByName = function (req, res) {
     }).end();
   }
 
-  var blockName = req.params.name;
-  if ((! blockName) || (blockName == "")) {
+  // block names are the only parameters currently url-encoded
+  var encodedBlockName = req.params.name;
+  if ((! encodedBlockName) || (encodedBlockName == "")) {
     return res.status(400).send({
-      message: 'failed to parse block \'name\' from URI',
+      message: 'failed to parse encoded block \'name\' from URI',
+    }).end();
+  }
+
+  if (! urlSafeBase64.validate(encodedBlockName)) {
+    return res.status(400).send({
+      message: 'invalid encoded block \'name\'',
+    }).end();
+  }
+
+  var blockName = urlSafeBase64.decode(encodedBlockName).toString('utf8');
+  if ((!blockName) || (blockName == "")) {
+    return res.status(400).send({
+      message: 'decoding failure of encoded block \'name\'',
     }).end();
   }
 
