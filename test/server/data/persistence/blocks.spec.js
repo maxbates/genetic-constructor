@@ -13,7 +13,7 @@ import { createExampleRollup } from '../../../_utils/rollup';
 describe('Server', () => {
   describe('Data', () => {
     describe('Persistence', () => {
-      describe('Blocks', () => {
+      describe.only('Blocks', () => {
         const promoterBlockName = 'my_promoter';
         const terminatorBlockName = 'el terminado';
 
@@ -119,11 +119,11 @@ describe('Server', () => {
         });
 
         it('getAllBlocksByName() works with partial strings', () => {
-          return blockPersistence.getAllBlocksWithName(myUserId, terminatorBlockName.substring(0, 6))
+          return blockPersistence.getAllBlocksWithName(myUserId, promoterBlockName.substring(0, 6))
             .then(blockMap => {
               const blocks = values(blockMap);
               expect(blocks.length).to.equal(myRolls.length);
-              assert(blocks.every(block => block.metadata.name === terminatorBlockName), 'got block with wrong name');
+              assert(blocks.every(block => block.metadata.name === promoterBlockName), 'got block with wrong name');
             });
         });
       });

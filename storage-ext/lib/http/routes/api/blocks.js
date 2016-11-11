@@ -24,12 +24,14 @@ var Project = require('../../../project');
 var FILTERS = {
   name: function (blocksArray, filterValue) {
     return filter(blocksArray, function (blockObj) {
-      return (objectPath.get(blockObj, 'metadata.name') === filterValue);
+      var val = objectPath.get(blockObj, 'metadata.name');
+      return val && val.indexOf(filterValue) >= 0;
     });
   },
   role: function (blocksArray, filterValue) {
     return filter(blocksArray, function (blockObj) {
-      return (objectPath.get(blockObj, 'rules.role') === filterValue);
+      var val = objectPath.get(blockObj, 'rules.role');
+      return val && val.indexOf(filterValue) >= 0;
     });
   },
 };

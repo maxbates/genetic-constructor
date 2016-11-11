@@ -60,7 +60,7 @@ async function startDb() {
 
           return spawnAsync(cmd, args, {}, {
             waitUntil: 'PostgreSQL init process complete; ready for start up',
-            comment: 'Running Docker container...',
+            comment: 'Running DB Docker container...',
           });
         }
 
