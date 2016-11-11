@@ -56,57 +56,6 @@ const mergeMetadataOntoProject = (data) => {
   return transformedData;
 };
 
-//maybe can deprecate some of these helpers, and just use the exported functions
-
-//todo - this should resolve to false... need to update usages (an dkeep snapshots, orders, etc. in sync)
-//resolves to latest version
-const _projectExists = (projectId, version) => {
-  if (Number.isInteger(version)) {
-    //todo - should use projectVersions module instead
-  }
-
-  return dbHeadRaw(`projects/${projectId}`)
-    .then(resp => {
-      return parseInt(resp.headers.get('Latest-Version'), 10);
-    })
-    .catch(resp => {
-      if (resp.status === 404) {
-        return Promise.reject(errorDoesNotExist);
-      }
-
-      console.log('error retrieving project HEAD');
-      return Promise.reject(resp);
-    });
-};
-
-//this only called when the project doesn't exist in projectWrite()
-//should not be called if the project already exists
-const _projectCreate = (projectId, userId, project = {}) => {
-  //is there any other setup we want to do on creation?
-  return dbPost(`projects/`, userId, project, {}, { id: projectId })
-    .then(mergeMetadataOntoProject);
-};
-
-const _projectWrite = (projectId, userId, project = {}) => {
-  return dbPost(`projects/${projectId}`, userId, project)
-    .then(mergeMetadataOntoProject);
-};
-
-const _projectRead = (projectId, version) => {
-  if (Number.isInteger(version)) {
-    //todo - should use projectVersions module instead
-  }
-
-  return dbGet(`projects/${projectId}`)
-    .then(mergeMetadataOntoProject)
-    .then(dbPruneResult);
-};
-
-const _projectDelete = (projectId, userId) => {
-  return dbDelete(`projects/${projectId}`)
-    .then(resp => resp.json());
-};
-
 /*********
  API
  *********/
@@ -143,8 +92,26 @@ export const getUserProjectIds = (userId) => {
 
 //EXISTS
 
+//todo - this should resolve to false... need to update usages (an dkeep snapshots, orders, etc. in sync)
+//resolves to latest version
 export const projectExists = (projectId, version) => {
-  return _projectExists(projectId, version);
+  if (Number.isInteger(version)) {
+    //todo - use versioning module
+    invariant(false, 'no! use versioning module directly')
+  }
+
+  return dbHeadRaw(`projects/${projectId}`)
+    .then(resp => {
+      return parseInt(resp.headers.get('Latest-Version'), 10);
+    })
+    .catch(resp => {
+      if (resp.status === 404) {
+        return Promise.reject(errorDoesNotExist);
+      }
+
+      console.log('error retrieving project HEAD');
+      return Promise.reject(resp);
+    });
 };
 
 //check access to a particular project
@@ -180,9 +147,15 @@ export const userOwnsProject = (userId, projectId) => {
 //GET
 //resolve with null if does not exist
 
-//todo - use version module explicitly to get a version
 export const projectGet = (projectId, version) => {
-  return _projectRead(projectId, version)
+  if (Number.isInteger(version)) {
+    //todo - use version module explicitly to get a version
+    invariant(false, 'no! use versioning module directly')
+  }
+
+  return dbGet(`projects/${projectId}`)
+    .then(mergeMetadataOntoProject)
+    .then(dbPruneResult)
     .catch(err => {
       console.log('[projectGet] got error reading', err);
 
@@ -269,11 +242,15 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
       //we can optimistically set this, since we will always be creating a new one with writes
       roll.project.version = version + 1;
 
-      return _projectWrite(projectId, userId, roll);
+      return dbPost(`projects/${projectId}`, userId, roll)
+        .then(mergeMetadataOntoProject);
     })
     .catch((err) => {
       if (err === errorDoesNotExist) {
-        return _projectCreate(projectId, userId, roll);
+        //NB: should not be called if the project already exists
+        //is there any other setup we want to do on creation?
+        return dbPost(`projects/`, userId, roll, {}, { id: projectId })
+          .then(mergeMetadataOntoProject);
       }
       return Promise.reject(err);
     })
@@ -325,6 +302,12 @@ export const blocksPatch = (projectId, userId, blockMap) => {
 };
 
 //DELETE
+
+const _projectDelete = (projectId, userId) => {
+  return dbDelete(`projects/${projectId}`)
+    .then(resp => resp.json());
+};
+
 
 export const projectDelete = (projectId, userId, forceDelete = false) => {
   if (forceDelete === true) {
