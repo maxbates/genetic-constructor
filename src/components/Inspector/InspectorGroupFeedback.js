@@ -14,16 +14,59 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import Selector from '../../containers/orders/selector';
 
 import '../../styles/InspectorGroupFeedback.css';
+import '../../styles/ordermodal.css';
+
 
 export default class InspectorGroupFeedback extends Component {
   static propTypes = {
   };
 
+  /**
+   * when the destination for feedback is changed
+   * @param val
+   */
+  feedbackToChanged(val) {
+    console.log('Feedback To:', val);
+  }
+
+  toOptions = [
+    'Autodesk GSL: Editor Team',
+    'Genetic Constructor Team',
+    'Donald J trump',
+  ];
+
   render() {
     return (<div className="InspectorGroupFeedback">
-      <div className="Section">Feedback</div>
+      <span className="bold">How would you rate this software right now?</span>
+      <div className="star-box">
+        <div className="star-five star-five-small star-1"></div>
+        <div className="star-five star-five-small star-2"></div>
+        <div className="star-five star-five-small star-3"></div>
+        <div className="star-five star-five-small star-4"></div>
+        <div className="star-five star-five-small star-5" onMouseEnter={() => {
+          console.log('Mouse Enter Star 5');
+        }}></div>
+      </div>
+      <hr/>
+      <span className="bold">I would recommend this software to others.</span>
+      <input type="range"/>
+      <div class="range-labels">
+        <span className="light">Strongly disagree</span>
+        <span className="light" style={{float: 'right'}}>Strongly agree</span>
+      </div>
+      <hr/>
+      <span className="bold">Tell us what you think</span>
+      <br/>
+      <br/>
+      <Selector
+        options={this.toOptions}
+        onChange={this.feedbackToChanged}
+        disabled={false}
+        value={this.toOptions[0]}
+      />
     </div>);
   }
 }
