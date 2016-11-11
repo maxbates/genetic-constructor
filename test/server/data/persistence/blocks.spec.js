@@ -13,7 +13,7 @@ import { createExampleRollup } from '../../../_utils/rollup';
 describe('Server', () => {
   describe('Data', () => {
     describe('Persistence', () => {
-      describe.only('Blocks', () => {
+      describe('Blocks', () => {
         const promoterBlockName = 'my_promoter';
         const terminatorBlockName = 'el terminado';
 
