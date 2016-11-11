@@ -20,12 +20,12 @@ import {
   errorInvalidRoute,
   errorDoesNotExist,
 } from '../utils/errors';
-import * as querying from './querying';
 import * as rollup from './rollup';
 import { ensureReqUserMiddleware } from '../user/utils';
 import { projectPermissionMiddleware } from './permissions';
 import * as projectPersistence from './persistence/projects';
 import * as projectVersions from './persistence/projectVersions';
+import * as blockPersistence from './persistence/blocks';
 
 import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
@@ -94,32 +94,38 @@ router.route('/info/:type/:detail?/:additional?')
     const { user } = req;
     const { type, detail, additional } = req.params;
 
-    //todo - permissions checks where appropriate
-
     switch (type) {
     case 'role' :
       if (detail) {
-        querying.getAllPartsWithRole(user.uuid, detail)
+        blockPersistence.getAllPartsWithRole(user.uuid, detail)
           .then(info => res.status(200).json(info))
           .catch(err => next(err));
       } else {
-        querying.getAllBlockRoles(user.uuid)
+        blockPersistence.getAllBlockRoles(user.uuid)
           .then(info => res.status(200).json(info))
           .catch(err => next(err));
       }
       break;
+    case 'name' :
+      blockPersistence.getAllBlocksWithName(user.uuid, detail)
+        .then(info => res.status(200).json(info))
+        .catch(err => next(err));
+      break;
     case 'contents' :
-      rollup.getContents(detail, additional)
+      projectPersistence.userOwnsProject(user.uuid, additional)
+        .then(() => rollup.getContents(detail, additional))
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
       break;
     case 'components' :
-      rollup.getComponents(detail, additional)
+      projectPersistence.userOwnsProject(user.uuid, additional)
+        .then(() => rollup.getComponents(detail, additional))
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
       break;
     case 'options' :
-      rollup.getOptions(detail, additional)
+      projectPersistence.userOwnsProject(user.uuid, additional)
+        .then(() => rollup.getOptions(detail, additional))
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
       break;

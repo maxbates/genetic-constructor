@@ -36,7 +36,7 @@ var schema = {
     },
   },
   message: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false,
   },
   type: {

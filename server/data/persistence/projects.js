@@ -184,7 +184,7 @@ export const userOwnsProject = (userId, projectId) => {
 export const projectGet = (projectId, version) => {
   return _projectRead(projectId, version)
     .catch(err => {
-      console.log('got error reading');
+      console.log('[projectGet] got error reading', err);
 
       //todo - how to handle versioning error?
       if (err === errorDoesNotExist && !version) {

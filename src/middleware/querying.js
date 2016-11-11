@@ -21,6 +21,7 @@ import { dataApiPath } from './utils/paths';
 //info query - low level API call
 export const infoQuery = (type, detail, additional) => {
   const url = dataApiPath(`info/${type}${detail ? `/${detail}` : ''}${additional ? `/${additional}` : ''}`);
+
   return rejectingFetch(url, headersGet())
     .then(resp => resp.json());
 };
@@ -39,4 +40,11 @@ export const getBlockRoles = () => {
 export const getBlocksWithRole = (role = null) => {
   invariant(role, 'must provide roll');
   return infoQuery('role', role);
+};
+
+export const getBlocksWithName = (name) => {
+  if (!name) {
+    return Promise.resolve([]);
+  }
+  return infoQuery('name', name);
 };

@@ -17,6 +17,7 @@ describe('Server', () => {
         const randomUser = uuid.v1();
 
         const roll = createExampleRollup();
+        const otherRoll = createExampleRollup();
 
         const project = roll.project;
         const projectId = project.id;
@@ -31,20 +32,24 @@ describe('Server', () => {
         const esotericRole = 'sdlfkjasdlfkjasdf';
         const esotericRoleAlt = 'dflhjasvoasv';
 
-        const blocks = range(numberEsotericRole * 2)
-          .map((num) => Block.classless({
-            projectId,
-            rules: { role: (num % 2 === 0) ? esotericRoleAlt : esotericRole },
-          }))
-          .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
-        merge(roll.blocks, blocks);
+        const makeBlocks = (projectId) => {
+          return range(numberEsotericRole * 2)
+            .map((num) => Block.classless({
+              projectId,
+              rules: { role: (num % 2 === 0) ? esotericRoleAlt : esotericRole },
+            }))
+            .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+        };
+
+        merge(roll.blocks, makeBlocks(roll.project.id));
+        merge(otherRoll.blocks, makeBlocks(otherRoll.project.id));
 
         before(() => {
           return projectPersistence.projectWrite(projectId, roll, testUserId)
-            //check across versions
+          //check across versions
             .then(() => projectPersistence.projectWrite(projectId, roll, testUserId))
             //check across users
-            .then(() => projectPersistence.projectWrite(projectId, roll, randomUser));
+            .then(() => projectPersistence.projectWrite(otherRoll.project.id, otherRoll, randomUser));
         });
 
         after(() => {
@@ -73,6 +78,7 @@ describe('Server', () => {
             .expect(result => {
               const { body } = result;
               expect(typeof body).to.equal('object');
+              expect(typeof body[esotericRole]).to.equal('number');
               expect(body[esotericRole]).to.equal(numberEsotericRole);
             })
             .end(done);
@@ -84,7 +90,8 @@ describe('Server', () => {
             .get(url)
             .expect(200)
             .expect(result => {
-              expect(result.body.length).to.equal(numberEsotericRole);
+              expect(Object.keys(result.body).length).to.equal(numberEsotericRole);
+              expect(Object.keys(result.body).every(id => roll.blocks[id]));
             })
             .end(done);
         });
