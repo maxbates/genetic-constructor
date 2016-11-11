@@ -74,7 +74,7 @@ describe('Server', () => {
               }
               expect(result.body).to.eql(blockData);
 
-              projectPersistence.blocksGet(projectId, false, blockId)
+              projectPersistence.blocksGet(projectId, blockId)
                 .then(blockMap => {
                   const result = blockMap[blockId];
                   expect(result).to.eql(blockData);
@@ -98,7 +98,7 @@ describe('Server', () => {
               expect(result.body).to.eql(patchedBlock);
               expect(result.body).to.not.eql(blockData);
 
-              projectPersistence.blocksGet(projectId, false, blockId)
+              projectPersistence.blocksGet(projectId, blockId)
                 .then((blockMap) => {
                   const result = blockMap[blockId];
                   expect(result).to.eql(patchedBlock);
@@ -136,7 +136,7 @@ describe('Server', () => {
               expect(result.body).to.eql(newBlock);
               expect(result.body).to.not.eql(blockData);
 
-              projectPersistence.blocksGet(projectId, false)
+              projectPersistence.blocksGet(projectId)
                 .then((blockMap) => {
                   const result = blockMap[blockId];
                   expect(result).to.eql(newBlock);

@@ -51,8 +51,8 @@ describe('Middleware', () => {
         .then((versionInfo) => Promise
           .all([
             projectPersistence.projectGetManifest(projectId),
-            projectPersistence.blocksGet(projectId, false, block1.id).then(map => map[block1.id]),
-            projectPersistence.blocksGet(projectId, false, block2.id).then(map => map[block2.id]),
+            projectPersistence.blocksGet(projectId, block1.id).then(map => map[block1.id]),
+            projectPersistence.blocksGet(projectId, block2.id).then(map => map[block2.id]),
           ])
           .then(([gotProject, got1, got2]) => {
             assert(Project.compare(project, gotProject), 'projects should be the same');
