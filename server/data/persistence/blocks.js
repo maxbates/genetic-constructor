@@ -13,35 +13,30 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-/**
- * Utilities for querying the user information, wrapping file system queries etc.
- * @module querying
- */
-import { merge, filter, values } from 'lodash';
-import { getUserProjects } from './persistence/projects';
+import invariant from 'invariant';
+import _ from 'lodash';
+import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../utils/errors';
+import { dbHeadRaw, dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+import { getUserProjects } from './projects';
 
-// key for no role rule
-const untypedKey = 'none';
+const reduceToMap = array => _.keyBy(array, block => block.id);
 
-//returns blockmap
-//todo - move to persistence module
+//expensive
 export const getAllBlocks = (userId) => {
   return getUserProjects(userId, true)
-    .then(rolls => rolls.map(roll => roll.blocks))
-    .then(projectBlockMaps => merge({}, ...projectBlockMaps));
+    .then(rolls => _.reduce(rolls, (acc, roll) => Object.assign(acc, roll.blocks), {}));
 };
 
-//todo - use DB query directly
 export const getAllBlocksWithName = (userId, name) => {
+  return dbGet(`/blocks/name/${userId}/${name}`)
+    .then(reduceToMap);
 };
 
-//todo - use DB query directly
 export const getAllPartsWithRole = (userId, role) => {
+  return dbGet(`/blocks/role/${userId}/${role}`)
+    .then(reduceToMap);
 };
 
-//todo - use DB query directly
 export const getAllBlockRoles = (userId) => {
-
+  return dbGet(`/blocks/role/${userId}`);
 };
-
-//todo - deprecate this module once we have the querying module in persistence
