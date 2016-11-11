@@ -24,12 +24,11 @@ export default class InspectorGroupFeedback extends Component {
   static propTypes = {
   };
 
-  /**
-   * when the destination for feedback is changed
-   * @param val
-   */
-  feedbackToChanged(val) {
-    console.log('Feedback To:', val);
+  constructor() {
+    super();
+    this.state = {
+      feedbackTo: this.toOptions[0],
+    }
   }
 
   toOptions = [
@@ -38,7 +37,19 @@ export default class InspectorGroupFeedback extends Component {
     'Donald J trump',
   ];
 
+  /**
+   * when the destination for feedback is changed
+   * @param val
+   */
+  feedbackToChanged = (val) => {
+    this.setState({
+      feedbackTo: val,
+    });
+  }
+
   render() {
+    const url = "http://www.geneticconstructor.com";
+
     return (<div className="InspectorGroupFeedback">
       <span className="bold">How would you rate this software right now?</span>
       <div className="star-box">
@@ -53,7 +64,7 @@ export default class InspectorGroupFeedback extends Component {
       <hr/>
       <span className="bold">I would recommend this software to others.</span>
       <input type="range"/>
-      <div class="range-labels">
+      <div className="range-labels">
         <span className="light">Strongly disagree</span>
         <span className="light" style={{float: 'right'}}>Strongly agree</span>
       </div>
@@ -61,12 +72,34 @@ export default class InspectorGroupFeedback extends Component {
       <span className="bold">Tell us what you think</span>
       <br/>
       <br/>
+      <span className="light">To</span>
       <Selector
         options={this.toOptions}
         onChange={this.feedbackToChanged}
         disabled={false}
-        value={this.toOptions[0]}
+        value={this.state.feedbackTo}
       />
+      <br/>
+      <textarea
+        placeholder="Enter your feedback here"
+        rows="20"
+      />
+      <br/>
+      <span className="light">Feedback is published on Github</span>
+      <br/>
+      <br/>
+      <input type="checkbox"/>
+      <span className="light checkbox-label">Publish Anonymously</span>
+      <button className="publish-button">Publish</button>
+      <hr/>
+      <span className="bold">Share Genetic Constructor</span>
+      <div className="socialist">
+        <div className="social-button"></div>
+        <div className="social-button"></div>
+        <div className="social-button"></div>
+        <div className="social-button"></div>
+      </div>
+
     </div>);
   }
 }

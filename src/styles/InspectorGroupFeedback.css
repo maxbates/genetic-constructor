@@ -74,8 +74,48 @@
   .bold {
     font-family: ArtifaktElementBold;
   }
+  .light {
+    color: var(--colors-grey);
+  }
   input[type="range"] {
     width: 100%;
     margin-top: 1rem;
+  }
+  .dropdown-container {
+    background-color: var(--colors-greyLight);
+    padding: 0.5rem;
+  }
+  textarea {
+    border: none;
+    border-radius: 3px;
+    background-color: var(--colors-greyLight);
+    width: 100%;
+    height: calc(100% - 38rem);
+    outline: none;
+    resize: none;
+  }
+  .checkbox-label {
+    margin-left: 0.5rem;
+  }
+  .publish-button {
+    border: none;
+    background-color: var(--colors-selected);
+    color: var(--colors-white);
+    border-radius: 3px;
+    padding: 2px 10px;
+    float: right;
+  }
+  .socialist {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+
+    .social-button {
+      width: 2.5rem;
+      height: 2.5rem;
+      background-color: var(--colors-grey);
+      border-radius: 3px;
+      display: inline-block !important;
+    }
   }
 }
