@@ -346,7 +346,7 @@ describe('Server', () => {
 
           it('blocksGet() returns map without key if value undefined', () => {
             const fakeId = 'notRealId';
-            return projectPersistence.blocksGet(projectId, false, fakeId)
+            return projectPersistence.blocksGet(projectId, fakeId)
               .then(blockMap => {
                 assert(typeof blockMap === 'object', 'should return a map');
                 assert(!blockMap[fakeId], 'value should not be defined, or null');
@@ -355,7 +355,7 @@ describe('Server', () => {
 
           it('blocksGet() can get specific blocks', () => {
             const keys = Object.keys(roll.blocks).slice(1, 3);
-            return projectPersistence.blocksGet(projectId, false, ...keys)
+            return projectPersistence.blocksGet(projectId, ...keys)
               .then(blocks => {
                 expect(Object.keys(blocks).length).to.equal(keys.length);
                 expect(blocks[keys[0]]).to.eql(roll.blocks[keys[0]]);

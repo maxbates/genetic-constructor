@@ -94,12 +94,7 @@ export const getUserProjectIds = (userId) => {
 
 //todo - this should resolve to false... need to update usages (an dkeep snapshots, orders, etc. in sync)
 //resolves to latest version
-export const projectExists = (projectId, version) => {
-  if (Number.isInteger(version)) {
-    //todo - use versioning module
-    invariant(false, 'no! use versioning module directly')
-  }
-
+export const projectExists = (projectId) => {
   return dbHeadRaw(`projects/${projectId}`)
     .then(resp => {
       return parseInt(resp.headers.get('Latest-Version'), 10);
@@ -147,20 +142,12 @@ export const userOwnsProject = (userId, projectId) => {
 //GET
 //resolve with null if does not exist
 
-export const projectGet = (projectId, version) => {
-  if (Number.isInteger(version)) {
-    //todo - use version module explicitly to get a version
-    invariant(false, 'no! use versioning module directly')
-  }
-
+export const projectGet = (projectId) => {
   return dbGet(`projects/${projectId}`)
     .then(mergeMetadataOntoProject)
     .then(dbPruneResult)
     .catch(err => {
-      console.log('[projectGet] got error reading', err);
-
-      //todo - how to handle versioning error?
-      if (err === errorDoesNotExist && !version) {
+      if (err === errorDoesNotExist) {
         return Promise.reject(errorDoesNotExist);
       }
 
@@ -170,10 +157,9 @@ export const projectGet = (projectId, version) => {
     });
 };
 
-//todo - use version module explicitly to get a version
 //returns map, where blockMap.blockId === undefined if was missing
-export const blocksGet = (projectId, version = false, ...blockIds) => {
-  return projectGet(projectId, version)
+export const blocksGet = (projectId, ...blockIds) => {
+  return projectGet(projectId)
     .then(roll => {
       if (!blockIds.length) {
         return roll.blocks;
@@ -182,11 +168,10 @@ export const blocksGet = (projectId, version = false, ...blockIds) => {
     });
 };
 
-//todo - use version module explicitly to get a version
 //prefer blocksGet, this is for atomic checks
 //rejects if the block is not present, and does not return a map (just the block), or null if doesnt exist
-export const blockGet = (projectId, version = false, blockId) => {
-  return projectGet(projectId, version)
+export const blockGet = (projectId, blockId) => {
+  return projectGet(projectId)
     .then(roll => {
       const block = roll.blocks[blockId];
       if (!block) {
@@ -308,7 +293,6 @@ const _projectDelete = (projectId, userId) => {
     .then(resp => resp.json());
 };
 
-
 export const projectDelete = (projectId, userId, forceDelete = false) => {
   if (forceDelete === true) {
     return _projectDelete(projectId, userId)
@@ -343,8 +327,8 @@ export const blocksDelete = (projectId, userId, ...blockIds) => {
 
 // PROJECT MANIFEST
 
-export const projectGetManifest = (projectId, version) => {
-  return projectGet(projectId, version)
+export const projectGetManifest = (projectId) => {
+  return projectGet(projectId)
     .then(result => result.project);
 };
 

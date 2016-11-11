@@ -209,7 +209,7 @@ router.route('/:projectId/:blockId')
   .get((req, res, next) => {
     const { projectId, blockId } = req;
 
-    projectPersistence.blockGet(projectId, false, blockId)
+    projectPersistence.blockGet(projectId, blockId)
       .then(result => {
         if (!result) {
           return res.status(204).json(null);
