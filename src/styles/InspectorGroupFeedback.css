@@ -113,9 +113,7 @@
     .social-button {
       width: 2.5rem;
       height: 2.5rem;
-      background-color: var(--colors-grey);
       border-radius: 3px;
-      display: inline-block !important;
     }
   }
 }

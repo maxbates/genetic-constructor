@@ -47,19 +47,25 @@ export default class InspectorGroupFeedback extends Component {
     });
   }
 
+  /**
+   * mouse over a star
+   * @param index
+   */
+  overStar(index) {
+    console.log(index);
+  }
+
   render() {
     const url = "http://www.geneticconstructor.com";
 
     return (<div className="InspectorGroupFeedback">
       <span className="bold">How would you rate this software right now?</span>
       <div className="star-box">
-        <div className="star-five star-five-small star-1"></div>
-        <div className="star-five star-five-small star-2"></div>
-        <div className="star-five star-five-small star-3"></div>
-        <div className="star-five star-five-small star-4"></div>
-        <div className="star-five star-five-small star-5" onMouseEnter={() => {
-          console.log('Mouse Enter Star 5');
-        }}></div>
+        <div className="star-five star-five-small star-1" onMouseEnter={this.overStar.bind(this, 0)}></div>
+        <div className="star-five star-five-small star-2" onMouseEnter={this.overStar.bind(this, 1)}></div>
+        <div className="star-five star-five-small star-3" onMouseEnter={this.overStar.bind(this, 2)}></div>
+        <div className="star-five star-five-small star-4" onMouseEnter={this.overStar.bind(this, 3)}></div>
+        <div className="star-five star-five-small star-5" onMouseEnter={this.overStar.bind(this, 4)}></div>
       </div>
       <hr/>
       <span className="bold">I would recommend this software to others.</span>
@@ -94,10 +100,21 @@ export default class InspectorGroupFeedback extends Component {
       <hr/>
       <span className="bold">Share Genetic Constructor</span>
       <div className="socialist">
-        <div className="social-button"></div>
-        <div className="social-button"></div>
-        <div className="social-button"></div>
-        <div className="social-button"></div>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=www.geneticconstructor.com" target="_blank">
+          <img className="social-button" src="/images/ui/social-facebook.svg"/>
+        </a>
+        <a href="https://twitter.com/home?status=www.geneticconstructor.com" target="_blank">
+          <img className="social-button" src="/images/ui/social-twitter.svg"/>
+        </a>
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url=www.geneticconstructor.com&title=Autodesk%20-%20Genetic%20Constructor&summary=DNS%20Design%20Tools%20from%20Autodesk&source=www.geneticconstructor.com" target="_blank">
+          <img className="social-button" src="/images/ui/social-linkedin.svg"/>
+        </a>
+        <a href="https://plus.google.com/share?url=www.geneticconstructor.com" target="_blank">
+          <img className="social-button" src="/images/ui/social-google+.svg"/>
+        </a>
+        <a href="mailto:?&subject=Autodesk - Genetic Constructor">
+          <img className="social-button" src="/images/ui/social-email.svg"/>
+        </a>
       </div>
 
     </div>);
