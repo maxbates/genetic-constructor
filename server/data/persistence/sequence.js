@@ -74,6 +74,7 @@ export const sequenceGet = (pseudoMd5) => {
 
 //expects map { blockId: pseudoMd5 }
 //returns map { blockId: sequence }
+//dedupes requests across multiple files and fetches union byte range
 export const sequenceGetMany = (blockIdToMd5Map) => {
   return getSequencesFromMap(blockIdToMd5Map, (seqMd5) => sequenceGet(seqMd5));
 };
@@ -170,4 +171,16 @@ export const sequenceGetRemoteUrl = (pseudoMd5) => {
   const { hash } = parsePseudoMd5(pseudoMd5);
 
   return s3.getSignedUrl(s3bucket, hash, 'getObject');
+};
+
+/**
+ * Given a rollup, get all the sequences for blocks in the form: { blockId : sequence }
+ * @param rollup
+ * @returns rollup, with sequence map: { project: {}, blocks: {}, sequences: { <blockId>: 'ACAGTCGACTGAC' } }
+ */
+export const assignSequencesToRollup = (rollup) => {
+  const blockIdsToMd5s = mapValues(rollup.blocks, (block, blockId) => block.sequence.md5);
+
+  return sequenceGetMany(blockIdsToMd5s)
+    .then(sequences => Object.assign(rollup, { sequences }));
 };

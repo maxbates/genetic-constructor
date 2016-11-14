@@ -27,23 +27,8 @@
  * @module rollup
  */
 import { errorDoesNotExist } from '../utils/errors';
-import * as sequencePersistence from './persistence/sequence';
 import * as projectPersistence from './persistence/projects';
 import { mapValues } from 'lodash';
-import { getSequencesFromMap } from '../../src/utils/sequenceMd5';
-
-/**
- * Given a rollup, get all the sequences for blocks in the form: { blockId : sequence }
- * @param rollup
- * @returns rollup, with sequence map: { project: {}, blocks: {}, sequences: { <blockId>: 'ACAGTCGACTGAC' } }
- */
-//todo - would be nice to just make this an option in projectGet directly?
-export const getSequencesGivenRollup = (rollup) => {
-  const blockIdsToMd5s = mapValues(rollup.blocks, (block, blockId) => block.sequence.md5);
-
-  return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => sequencePersistence.sequenceGet(seqMd5))
-    .then(sequences => Object.assign(rollup, { sequences }));
-};
 
 ////// HELPERS ///////
 //todo - move to a rollup class

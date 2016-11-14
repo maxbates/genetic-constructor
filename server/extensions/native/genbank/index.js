@@ -12,6 +12,7 @@ import { errorDoesNotExist } from '../../../../server/utils/errors';
 import { filter } from 'lodash';
 import { projectPermissionMiddleware } from '../../../data/permissions';
 import * as projectPesistence from '../../../data/persistence/projects';
+import * as sequencePersistence from '../../../data/persistence/sequence';
 import DebugTimer from '../../../utils/DebugTimer';
 
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
@@ -75,7 +76,7 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
   console.log(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
 
   projectPesistence.projectGet(projectId)
-    .then(roll => rollup.getSequencesGivenRollup(roll))
+    .then(roll => sequencePersistence.assignSequencesToRollup(roll))
     .then(roll => {
       const blocks = blockIds.map(blockId => roll.blocks[blockId]);
       invariant(blocks.every(block => block.sequence.md5), 'some blocks dont have md5');
@@ -128,7 +129,7 @@ router.all('/export/:projectId/:constructId?',
     //console.log(options);
 
     projectPesistence.projectGet(projectId)
-      .then(roll => rollup.getSequencesGivenRollup(roll))
+      .then(roll => sequencePersistence.assignSequencesToRollup(roll))
       .then(roll => {
         const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
 
