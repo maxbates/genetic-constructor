@@ -28,6 +28,11 @@ export default class InspectorGroupFeedback extends Component {
     super();
     this.state = {
       feedbackTo: this.toOptions[0],
+      star0: false,
+      star1: false,
+      star2: false,
+      star3: false,
+      star4: false,
     }
   }
 
@@ -52,7 +57,20 @@ export default class InspectorGroupFeedback extends Component {
    * @param index
    */
   overStar(index) {
-    console.log(index);
+    this.setState({
+      star0: index >= 0,
+      star1: index >= 1,
+      star2: index >= 2,
+      star3: index >= 3,
+      star4: index >= 4,
+    });
+  }
+  /**
+   * user clicked a star rating
+   * @param index
+   */
+  starRating(index) {
+    alert(index);
   }
 
   render() {
@@ -61,11 +79,36 @@ export default class InspectorGroupFeedback extends Component {
     return (<div className="InspectorGroupFeedback">
       <span className="bold">How would you rate this software right now?</span>
       <div className="star-box">
-        <div className="star-five star-five-small star-1" onMouseEnter={this.overStar.bind(this, 0)}></div>
-        <div className="star-five star-five-small star-2" onMouseEnter={this.overStar.bind(this, 1)}></div>
-        <div className="star-five star-five-small star-3" onMouseEnter={this.overStar.bind(this, 2)}></div>
-        <div className="star-five star-five-small star-4" onMouseEnter={this.overStar.bind(this, 3)}></div>
-        <div className="star-five star-five-small star-5" onMouseEnter={this.overStar.bind(this, 4)}></div>
+        <div
+          className={`star-five star-five-small star-0 ${this.state.star0 ? '' : 'star-gray'}`}
+          onClick={this.starRating.bind(this, 0)}
+          onMouseEnter={this.overStar.bind(this, 0)}
+          onMouseLeave={this.overStar.bind(this, -1)}>
+        </div>
+        <div
+          className={`star-five star-five-small star-1 ${this.state.star1 ? '' : 'star-gray'}`}
+          onClick={this.starRating.bind(this, 1)}
+          onMouseEnter={this.overStar.bind(this, 1)}
+          onMouseLeave={this.overStar.bind(this, -1)}>
+        </div>
+        <div
+          className={`star-five star-five-small star-2 ${this.state.star2 ? '' : 'star-gray'}`}
+          onClick={this.starRating.bind(this, 2)}
+          onMouseEnter={this.overStar.bind(this, 2)}
+          onMouseLeave={this.overStar.bind(this, -1)}>
+        </div>
+        <div
+          className={`star-five star-five-small star-3 ${this.state.star3 ? '' : 'star-gray'}`}
+          onClick={this.starRating.bind(this, 3)}
+          onMouseEnter={this.overStar.bind(this, 3)}
+          onMouseLeave={this.overStar.bind(this, -1)}>
+        </div>
+        <div
+          className={`star-five star-five-small star-4 ${this.state.star4 ? '' : 'star-gray'}`}
+          onClick={this.starRating.bind(this, 4)}
+          onMouseEnter={this.overStar.bind(this, 4)}
+          onMouseLeave={this.overStar.bind(this, -1)}>
+        </div>
       </div>
       <hr/>
       <span className="bold">I would recommend this software to others.</span>

@@ -52,23 +52,26 @@
   }
 
   .star-five-small {
-    transform: translate(-80px, -70px) scale(0.14, 0.14) rotate(35deg);
+    transform: translate(-80px, -70px) scale(0.14, 0.15) rotate(35deg);
     position: absolute;
+    cursor: pointer;
   }
-  .star-1 {
+  .star-0 {
     left: 0px;
   }
+  .star-1 {
+    left: 30px;
+  }
   .star-2 {
-    left: 35px;
+    left: 60px;
   }
   .star-3 {
-    left: 70px;
+    left: 90px;
   }
   .star-4 {
-    left: 105px;
+    left: 120px;
   }
-  .star-5 {
-    left: 140px;
+  .star-gray {
     filter: grayscale() opacity(0.5);
   }
   .bold {
