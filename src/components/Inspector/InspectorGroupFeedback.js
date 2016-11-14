@@ -14,13 +14,18 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 import Selector from '../../containers/orders/selector';
+import debounce from 'lodash.debounce';
+import {
+  uiSetGrunt,
+} from '../../actions/ui';
 
 import '../../styles/InspectorGroupFeedback.css';
 import '../../styles/ordermodal.css';
 
 
-export default class InspectorGroupFeedback extends Component {
+class InspectorGroupFeedback extends Component {
   static propTypes = {
   };
 
@@ -33,13 +38,14 @@ export default class InspectorGroupFeedback extends Component {
       star2: false,
       star3: false,
       star4: false,
+      starClicked: false,
+      anon: false,
     }
   }
 
   toOptions = [
     'Autodesk GSL: Editor Team',
     'Genetic Constructor Team',
-    'Donald J trump',
   ];
 
   /**
@@ -50,13 +56,17 @@ export default class InspectorGroupFeedback extends Component {
     this.setState({
       feedbackTo: val,
     });
-  }
+  };
 
   /**
    * mouse over a star
    * @param index
    */
   overStar(index) {
+    // do not reset stars on mouse leave if the user already clicked a star
+    if (index === -1 && this.state.starClicked) {
+      return;
+    }
     this.setState({
       star0: index >= 0,
       star1: index >= 1,
@@ -67,15 +77,50 @@ export default class InspectorGroupFeedback extends Component {
   }
   /**
    * user clicked a star rating
-   * @param index
+   * @param index 0..4
    */
   starRating(index) {
-    alert(index);
+    const value = Number.parseFloat(index);
+    this.setState({starClicked: true});
+    this.props.uiSetGrunt('Thanks for your feedback.');
   }
 
-  render() {
-    const url = "http://www.geneticconstructor.com";
+  /**
+   * user changed the slider. onInput/onChange are not implemented correctly in most
+   * browsers so the timing is unreliable. We use the onInput event but debounce the updating
+   * of the value the user selects.
+   * @param event
+   */
+  onRecommendChanged = debounce(() => {
+    // value is 0..100
+    const value = Number.parseFloat(this.refs.rangeSlider.value);
+    this.props.uiSetGrunt('Thanks for your feedback.');
+  }, 5000, {leading: false, trailing: true});
 
+  /**
+   * toggle anon mode
+   */
+  onAnonChanged = (event) => {
+    this.setState({anon: !this.state.anon});
+  };
+
+  /**
+   * user wants to publish feedback
+   */
+  onPublishFeedback = () => {
+    const team = this.state.feedbackTo;
+    const anon = this.state.anon;
+    const message = this.refs.feedbackText.value.trim();
+    if (message) {
+      this.props.uiSetGrunt('Thanks for your feedback.');
+      alert(`Team: ${team}\nAnon: ${anon}\nMessage: ${message}`);
+    } else {
+      this.props.uiSetGrunt('Please enter some feedback first.');
+    }
+  };
+
+
+  render() {
     return (<div className="InspectorGroupFeedback">
       <span className="bold">How would you rate this software right now?</span>
       <div className="star-box">
@@ -112,7 +157,7 @@ export default class InspectorGroupFeedback extends Component {
       </div>
       <hr/>
       <span className="bold">I would recommend this software to others.</span>
-      <input type="range"/>
+      <input type="range" min="0" max="100" step="1" defaultValue="50" onInput={this.onRecommendChanged} ref="rangeSlider"/>
       <div className="range-labels">
         <span className="light">Strongly disagree</span>
         <span className="light" style={{float: 'right'}}>Strongly agree</span>
@@ -132,14 +177,15 @@ export default class InspectorGroupFeedback extends Component {
       <textarea
         placeholder="Enter your feedback here"
         rows="20"
+        ref="feedbackText"
       />
       <br/>
       <span className="light">Feedback is published on Github</span>
       <br/>
       <br/>
-      <input type="checkbox"/>
+      <input type="checkbox" defaultValue={this.state.anon} onChange={this.onAnonChanged}/>
       <span className="light checkbox-label">Publish Anonymously</span>
-      <button className="publish-button">Publish</button>
+      <button className="publish-button" onClick={this.onPublishFeedback}>Publish</button>
       <hr/>
       <span className="bold">Share Genetic Constructor</span>
       <div className="socialist">
@@ -163,4 +209,12 @@ export default class InspectorGroupFeedback extends Component {
     </div>);
   }
 }
+
+function mapStateToProps(state, props) {
+  return {};
+}
+
+export default connect(mapStateToProps, {
+  uiSetGrunt,
+})(InspectorGroupFeedback);
 
