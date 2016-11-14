@@ -42,15 +42,15 @@ export default class Rollup extends Instance {
    * @static
    * @param {Object} input
    * @param {boolean} [throwOnError=false] Whether to throw on errors
-   * @param {boolean} [light=false] deeply check project + blocks, true by default in NODE_ENV=test. If false, basic structure and IDs are valid. If true, validate everything.
+   * @param {boolean} [heavy] deeply check project + blocks, true by default in NODE_ENV=test. If false, basic structure and IDs are valid. If true, validate everything.
    * @throws if `throwOnError===true`, will throw when invalid
    * @returns {boolean} if `throwOnError===false`, whether input is a valid block
    * @example
    * Rollup.validate(new Block()); //false
    * Rollup.validate(new Rollup()); //true
    */
-  static validate(input, throwOnError, light) {
-    return RollupSchema.validate(input, throwOnError, light);
+  static validate(input, throwOnError, heavy) {
+    return RollupSchema.validate(input, throwOnError, heavy);
   }
 
   /**

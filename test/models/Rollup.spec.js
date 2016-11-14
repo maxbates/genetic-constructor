@@ -59,11 +59,40 @@ describe('Model', () => {
       expect(Rollup.validate(rl, false, false)).to.equal(true);
     });
 
-    it('validate() catches wrong projectId', () => {
-      throw Error('write me');
+    it('validate() catches wrong projectId, in non-light validation', () => {
+      const pr = Project.classless();
+      const bl = Block.classless({
+        projectId: Project.classless().id,
+      });
+      const rl = {
+        project: pr,
+        blocks: {
+          [bl.id]: bl,
+        },
+      };
+
+      expect(Rollup.validate(rl, false)).to.equal(false);
+
+      rl.blocks[bl.id].projectId = pr.id;
+
+      expect(Rollup.validate(rl, false)).to.equal(true);
     });
 
-    it('validate() checks for weird keys');
+    it('validate() checks for weird keys', () => {
+      const pr = Project.classless();
+      const bl = Block.classless({
+        projectId: Project.classless().id,
+      });
+      const rl = {
+        project: pr,
+        blocks: {
+          [bl.id]: bl,
+        },
+        random: 'value',
+      };
+
+      expect(Rollup.validate(rl, false)).to.equal(false);
+    });
 
     it('compare() can throw', () => {
       expect(() => Rollup.compare(createExampleRollup(), createExampleRollup(), true)).to.throw();

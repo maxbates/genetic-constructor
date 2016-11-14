@@ -68,43 +68,43 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
   return new Promise((resolve, reject) => {
     //const [ command, ...args ] = cmd.split(' ');
 
-    const process = spawn(cmd, args, Object.assign({ silent: false }, opts));
+    const spawned = spawn(cmd, args, Object.assign({ silent: false }, opts));
 
     //stdio only defined when piped, not if inherited / ignored
-    if (process.stdout) {
-      process.stdout.on('data', data => {
+    if (spawned.stdout) {
+      spawned.stdout.on('data', data => {
         log(`${data}`, forceOutput);
         if (`${data}`.indexOf(waitUntil) >= 0) {
           log('Resolved!');
-          resolve(process);
+          resolve(spawned);
         }
       });
 
-      process.stderr.on('data', data => {
+      spawned.stderr.on('data', data => {
         log(`${data}`, true);
         if (`${data}`.indexOf(waitUntil) >= 0) {
-          return resolve(process);
+          return resolve(spawned);
         }
         if (failOnStderr === true) {
           console.log('REJECTING');
-          process.kill();
-          reject(process);
+          spawned.kill();
+          reject(spawned);
         }
       });
     }
 
-    process.on('error', (err) => {
+    spawned.on('error', (err) => {
       console.error('Error in process');
       console.error(err);
-      reject(process);
+      reject(spawned);
     });
 
-    process.on('close', (code) => {
+    spawned.on('close', (code) => {
       log(`child process exited with code ${code}`, forceOutput);
       if (code > 0) {
-        return reject(process);
+        return reject(spawned);
       }
-      resolve(process);
+      resolve(spawned);
     });
   });
 };

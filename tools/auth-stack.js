@@ -16,6 +16,7 @@
 import path from 'path';
 import run from './run';
 import checks from './checks';
+import startDb from './startDb';
 import { spawnAsync, promisedExec } from './lib/cp';
 
 //note - should run checks first to ensure docker running
@@ -85,6 +86,7 @@ const startRunAuth = () => {
 async function auth() {
   try {
     await run(checks);
+    await run(startDb);
     await setupBioNanoPlatform();
     await startBioNanoPlatform();
     await startAuthServer();

@@ -55,8 +55,6 @@ async function startDb() {
         if (free) {
           const [cmd, ...args] = runDb.split(' ');
 
-          //todo - set up process listening properly, whether inherit or background the process
-
           return spawnAsync(cmd, args, {}, {
             waitUntil: 'PostgreSQL init process complete; ready for start up',
             comment: 'Running DB Docker container...',

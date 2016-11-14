@@ -103,10 +103,10 @@ describe('Middleware', () => {
 
     it('snapshotList() gets the projects snapshots', () => {
       return api.snapshotList(projectId)
-      .then(snapshots => {
-        assert(Array.isArray(snapshots), 'should be array');
-        expect(snapshots.length).to.equal(3);
-      });
+        .then(snapshots => {
+          assert(Array.isArray(snapshots), 'should be array');
+          expect(snapshots.length).to.equal(3);
+        });
     });
 
     it('cant snapshot a version which doesnt exist', (done) => {
@@ -119,8 +119,7 @@ describe('Middleware', () => {
         });
     });
 
-    it('snapshot() accepts tags, snapshotList() can filter on tags', () => {
-      throw Error('write me');
-    });
+    //future
+    it('snapshot() accepts tags, snapshotList() can filter on tags');
   });
 });

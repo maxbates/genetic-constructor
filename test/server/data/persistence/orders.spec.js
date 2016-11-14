@@ -31,22 +31,18 @@ describe('Server', () => {
       describe('orders', () => {
         const roll = createExampleRollup();
         const updated = _.merge({}, roll, { project: { another: 'field' } });
-
-        const roll2 = createExampleRollup();
-        const updated2 = _.merge({}, roll, { project: { another: 'field' } });
-
-        let version = 1;
+        let orderVersion = 1;
 
         const order = Order.classless({
           projectId: roll.project.id,
-          projectVersion: version,
+          projectVersion: orderVersion,
           user: testUserId,
           constructIds: [roll.project.components[0]],
           parameters: {
             onePot: true,
           },
           status: {
-            foundry: 'egf',
+            foundry: 'test',
             remoteId: 'actacg',
           },
         });
@@ -117,20 +113,55 @@ describe('Server', () => {
             });
         });
 
+        it('orderWrite() can overwrite an order', () => {
+          Object.assign(order, { another: 'field' });
+
+          return orderPersistence.orderWrite(order.id, order, testUserId)
+            .then(() => orderPersistence.orderGet(order.id, order.projectId))
+            .then(ord => {
+              expect(ord).to.eql(order);
+              expect(ord.another).to.equal('field');
+            });
+        });
+
         it('orderExists() resolves when an order exists', () => {
           return orderPersistence.orderExists(order.id, order.projectId);
         });
 
-        it('WRITE SUITE', () => {
-          throw new Error('write these tests');
+        it('orderList() lists orders which exist for a project', () => {
+          return orderPersistence.orderList(roll.project.id)
+            .then(orders => {
+              assert(Array.isArray(orders), 'should be array');
+              assert(orders.length > 0, 'expected orders');
+
+              const found = orders.find(ord => order.id === ord.id);
+              assert(found, 'should include order made');
+            });
         });
 
-        it('orderList() lists orders which exist for a project');
+        it('orderList() lists orders only for given project', () => {
+          const roll2 = createExampleRollup();
+          const order2 = Order.classless({
+            projectId: roll2.project.id,
+            projectVersion: 0,
+            user: testUserId,
+            constructIds: [roll2.project.components[0]],
+            status: {
+              foundry: 'test',
+              remoteId: 'tasgdflsdf',
+            },
+          });
 
-        it('orderList() lists orders only for given project');
+          return projectPersistence.projectWrite(roll2.project.id, roll2, testUserId)
+            .then(() => orderPersistence.orderWrite(order2.id, order2, testUserId))
+            .then(() => orderPersistence.orderList(roll2.project.id))
+            .then(orders => {
+              expect(orders.length).to.equal(1);
+              expect(orders[0]).to.eql(order2);
+            });
+        });
 
-        it('orderWrite() should fail when version does not exist');
-
+        //future
         it('ordering works with multiple constructs specified');
 
         it('orderDelete() is impossible', () => {
