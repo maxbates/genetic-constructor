@@ -33,7 +33,7 @@ describe('Middleware', () => {
     const projectId = roll.project.id;
 
     //add 5 weird role type (5 of each) blocks to roll
-    const numberEsotericRole = 5;
+    const numberCustom = 5;
     const myName = 'someBlockName';
     const altName = 'another block name';
 
@@ -41,7 +41,7 @@ describe('Middleware', () => {
     const esotericRoleAlt = 'sadfasdffdsadf';
 
     const makeBlocks = (projectId) => {
-      return _.range(numberEsotericRole * 2)
+      return _.range(numberCustom * 2)
         .map((num) => Block.classless({
           metadata: { name: (num % 2 === 0) ? myName : altName },
           projectId,
@@ -89,14 +89,14 @@ describe('Middleware', () => {
       return api.getBlockRoles()
         .then(roles => {
           expect(typeof roles).to.equal('object');
-          expect(roles[esotericRole]).to.equal(numberEsotericRole);
+          expect(roles[esotericRole]).to.equal(numberCustom);
         });
     });
 
     it('getBlocksWithRole() should get all blocks with a given role', () => {
       return api.getBlocksWithRole(esotericRoleAlt)
         .then(retrieved => {
-          expect(Object.keys(retrieved).length).to.equal(numberEsotericRole);
+          expect(Object.keys(retrieved).length).to.equal(numberCustom);
           expect(Object.keys(retrieved).every(id => roll.blocks[id]));
         });
     });
@@ -104,7 +104,7 @@ describe('Middleware', () => {
     it('getBlocksWithName() should get all blocks with name', () => {
       return api.getBlocksWithName(myName)
         .then(retrieved => {
-          expect(Object.keys(retrieved).length).to.equal(numberEsotericRole);
+          expect(Object.keys(retrieved).length).to.equal(numberCustom);
           expect(Object.keys(retrieved).every(id => roll.blocks[id]));
         })
         .catch(resp => resp.text().then(text => Promise.reject(text)));
@@ -113,7 +113,7 @@ describe('Middleware', () => {
     it('getBlocksWithName() should get all blocks with spaces in name', () => {
       return api.getBlocksWithName(altName)
         .then(retrieved => {
-          expect(Object.keys(retrieved).length).to.equal(numberEsotericRole);
+          expect(Object.keys(retrieved).length).to.equal(numberCustom);
           expect(Object.keys(retrieved).every(id => roll.blocks[id]));
         })
         .catch(resp => resp.text().then(text => Promise.reject(text)));

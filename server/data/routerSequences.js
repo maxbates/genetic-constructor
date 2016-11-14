@@ -14,11 +14,13 @@
  limitations under the License.
  */
 import express from 'express';
+import md5 from 'md5';
 import {
   errorDoesNotExist,
 } from './../utils/errors';
 import * as sequences from './persistence/sequence';
 import * as sequenceUtils from '../../src/utils/sequenceMd5';
+import { dnaLooseRegexp } from '../../src/utils/dna';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
@@ -26,7 +28,7 @@ const router = express.Router(); //eslint-disable-line new-cap
 
 //expect that a well-formed md5 is sent. however, not yet checking. So you really could just call it whatever you wanted...
 // future - url + `?format=${format}`;
-router.route('/:md5')
+router.route('/:md5?')
   .get((req, res, next) => {
     const { md5 } = req.params;
 
@@ -53,19 +55,33 @@ router.route('/:md5')
   })
   //todo - support passing as string, not just object
   .post((req, res, next) => {
-    const { md5 } = req.params;
     const { sequence } = req.body;
 
-    if (!sequenceUtils.validRealMd5(md5)) {
-      return res.status(422).send('invalid md5');
+    if (!sequence) {
+      return res.status(400).send('Sequence Required');
     }
 
-    sequences.sequenceWrite(md5, sequence)
-      .then(() => res.status(200).send())
+    if (!dnaLooseRegexp().test(sequence)) {
+      return res.status(400).send('Sequence invalid');
+    }
+
+    const hash = md5(sequence);
+
+    if (!!req.params.md5) {
+      if (!sequenceUtils.validRealMd5(req.params.md5)) {
+        return res.status(422).send('invalid md5 syntax');
+      }
+      if (hash !== req.params.md5) {
+        return res.status(409).send('md5 provided invalid');
+      }
+    }
+
+    sequences.sequenceWrite(hash, sequence)
+      .then(() => res.status(200).send(hash))
       .catch(err => next(err));
   })
   .delete((req, res) => {
-    res.status(403).send('Not allowed to delete sequence');
+    res.status(405).send('Not allowed to delete sequence');
   });
 
 export default router;

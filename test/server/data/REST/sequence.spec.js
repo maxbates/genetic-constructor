@@ -94,15 +94,58 @@ describe('Server', () => {
             });
         });
 
-        it('POST validates the sequence', () => {
-          throw Error('write this');
+        it('POST does not require md5', (done) => {
+          const newSequence = 'ACGTACTACTGACTGATCGAC';
+          const newMd5 = md5(newSequence);
+          const url = `/data/sequence/`;
+
+          request(server)
+            .post(url)
+            .send({ sequence: newSequence })
+            .expect(200)
+            .end((err, result) => {
+              if (err) {
+                done(err);
+                return;
+              }
+
+              expect(result.text).to.equal(newMd5);
+
+              sequences.sequenceGet(newMd5)
+                .then(seq => {
+                  expect(seq).to.equal(newSequence);
+                  done();
+                })
+                .catch(done);
+            });
+        });
+
+        it('POST validates the sequence', (done) => {
+          const fakeSeq = 'QWERTY';
+
+          const url = `/data/sequence/`;
+          request(server)
+            .post(url)
+            .send({ sequence: fakeSeq })
+            .expect(400, done);
+        });
+
+        it('POST validates the md5 if provided', (done) => {
+          const fakeSeq = 'BBBBBBB';
+          const fakeMd5 = md5(fakeSeq + 'asdf');
+
+          const url = `/data/sequence/${fakeMd5}`;
+          request(server)
+            .post(url)
+            .send({ sequence: fakeSeq })
+            .expect(409, done);
         });
 
         it('DELETE does not allow deletion', (done) => {
           const url = `/data/sequence/${sequenceMd5}`;
           request(server)
             .del(url)
-            .expect(403)
+            .expect(405)
             .end((err, result) => {
               if (err) {
                 done(err);
