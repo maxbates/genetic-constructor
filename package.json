@@ -20,7 +20,7 @@
     "test": "NODE_ENV=test babel-node tools/run test",
     "test-coverage": "COVERAGE=true npm run test",
     "test-coverage-report": "REPORT=true npm run test-coverage",
-    "test-jenkins": "npm run test-setup && NODE_ENV=test make jenkins",
+    "test-jenkins": "JENKINS=true npm run test",
     "artillery": "chmod u+x test-load/test-load.sh && test-load/test-load.sh",
     "test:watch": "npm test -- --watch",
     "nightwatch": "node ./node_modules/nightwatch/bin/nightwatch --retries 3 --config ./test-e2e/nightwatch.js --env local",

@@ -24,21 +24,36 @@ import checks from './checks';
 import startDb from './startDb';
 import { promisedExec, spawnAsync } from './lib/cp';
 
+//optional behaviors
 const withCoverage = process.env.COVERAGE === 'true';
 const withReport = process.env.REPORT === 'true';
+const withJenkins = !!process.env.JENKINS;
 
+//e.g. jenkins wants to always pass, so dont break the build
+const forceSuccess = withReport;
+
+//default test options for mocha
 const mochaOptions = `--recursive --compilers js:babel-register,css:test/css-null-compiler.js --require ./test/setup.js --timeout 25000`;
 
-const unitTestCommand = `./node_modules/mocha/bin/mocha ${mochaOptions}`;
+//jenkins specific mocha options
+const jenkinsOptions = `-u bdd --reporter mocha-jenkins-reporter --no-colors`;
+
+//test options to use
+let testOptions = mochaOptions;
+
+if (withJenkins) {
+  testOptions += ' ' + jenkinsOptions;
+}
+
+const unitTestCommand = `./node_modules/mocha/bin/mocha ${testOptions}`;
 
 //using babel-node and babel-istanbul is way slow
 //only runs in travis though, not needed for unit tests alone
 //todo - investigate how to speed this up? may need a different package
-const coverageCommand = `node_modules/.bin/babel-node node_modules/.bin/babel-istanbul cover --dir ./coverage --report lcovonly node_modules/.bin/_mocha -- ${mochaOptions}`;
+const coverageCommand = `node_modules/.bin/babel-node node_modules/.bin/babel-istanbul cover --dir ./coverage --report lcovonly node_modules/.bin/_mocha -- ${testOptions}`;
 
+//report coverage to coveralls (available in travis)
 const coverageReport = `cat ./coverage/lcov.info | coveralls`;
-
-//todo - incoporate jenkins needs
 
 async function test() {
   const processes = [];
@@ -66,11 +81,21 @@ async function test() {
 
     //now, run the test suite
 
-    const command = withCoverage ? coverageCommand : unitTestCommand;
+    let command = withCoverage ?
+      coverageCommand :
+      unitTestCommand;
+
+    if (forceSuccess) {
+      command += ' &';
+    }
+
     const [cmd, ...args] = command.split(' ');
 
     const testProcess = await spawnAsync(cmd, args, {
-      env: Object.assign({ SERVER_MANUAL: 'true' }, process.env),
+      env: Object.assign({
+        SERVER_MANUAL: 'true',
+        JUNIT_REPORT_PATH: `${process.env.TEST_OUTPUT_PATH || '.'}/report.xml`,
+      }, process.env),
       stdio: 'inherit',
     }, {
       forceOutput: true,
