@@ -23,7 +23,7 @@ const components2A = make('a-c', 3, 'd-f', 6, 7, 8, 9, 'j-k', 11, 'l-y', 25);
 const components2B = make('a-c', 3, 'd-f', 6, 7, 8, 9, 'j-k', 11, 'l-y', 'y-z');
 //3 is basically 2, just different preferred part in #6 - gets example though
 //4 is basically 2, just different preferred part in #8 - gets example though
-//const components4 = make('a-c', 3, 'd-f', 6, 7, 'p2A', 9, 'j-k', 11, 'l-y', 25); //todo - verify this picks the right part
+//const components4 = make('a-c', 3, 'd-f', 6, 7, 'p2A', 9, 'j-k', 11, 'l-y', 25);
 const components5 = make('a-c', 3, 'd-f', 6, 7, '8a', '8b', 9, 'j-k', 11, 'l-y', 25);
 const components6A = make('a-c', 3, 'd-f', 6, 7, 8, 9, 'j-k', 11, 'l-r', 18, 19, 20, 21, 22, 'w-y', 25);
 const components6B = make(1, 2, 3, 'd-f', 6, 7, 'h-k', 11, 'l-r', 18, 19, 20, 21, 22, 23, 24, 'y-z');

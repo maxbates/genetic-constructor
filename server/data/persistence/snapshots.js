@@ -28,7 +28,6 @@ const transformDbVersion = (result) => ({
   owner: result.owner,
 });
 
-//todo - export these?
 export const SNAPSHOT_TYPE_USER = 'SNAPSHOT_USER';
 export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
 export const defaultMessage = 'Project Snapshot';

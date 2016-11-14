@@ -59,8 +59,9 @@ describe('Model', () => {
       expect(Rollup.validate(rl, false, false)).to.equal(true);
     });
 
-    //todo
-    it('validate() catches wrong projectId');
+    it('validate() catches wrong projectId', () => {
+      throw Error('write me');
+    });
 
     it('validate() checks for weird keys');
 

@@ -106,7 +106,8 @@ describe('Middleware', () => {
         .then(retrieved => {
           expect(Object.keys(retrieved).length).to.equal(numberEsotericRole);
           expect(Object.keys(retrieved).every(id => roll.blocks[id]));
-        });
+        })
+        .catch(resp => resp.text().then(text => Promise.reject(text)));
     });
 
     it('getBlocksWithName() should get all blocks with spaces in name', () => {
@@ -114,7 +115,8 @@ describe('Middleware', () => {
         .then(retrieved => {
           expect(Object.keys(retrieved).length).to.equal(numberEsotericRole);
           expect(Object.keys(retrieved).every(id => roll.blocks[id]));
-        });
+        })
+        .catch(resp => resp.text().then(text => Promise.reject(text)));
     });
   });
 });

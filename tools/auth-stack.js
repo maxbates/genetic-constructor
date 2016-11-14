@@ -18,7 +18,7 @@ import run from './run';
 import checks from './checks';
 import { spawnAsync, promisedExec } from './lib/cp';
 
-//todo - have a check to make sure docker is running
+//note - should run checks first to ensure docker running
 
 /** paths **/
 

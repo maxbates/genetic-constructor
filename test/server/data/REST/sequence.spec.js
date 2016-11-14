@@ -94,8 +94,9 @@ describe('Server', () => {
             });
         });
 
-        //todo
-        it('POST validates the sequence');
+        it('POST validates the sequence', () => {
+          throw Error('write this');
+        });
 
         it('DELETE does not allow deletion', (done) => {
           const url = `/data/sequence/${sequenceMd5}`;

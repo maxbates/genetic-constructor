@@ -85,8 +85,7 @@ describe('Server', () => {
               expect(result.message).to.equal(message);
               expect(result.tags).to.eql(exampleTag);
               expect(result.owner).to.equal(testUserId);
-              //todo - enable once support types
-              //expect(result.type).to.equal(type);
+              expect(result.type).to.equal(type);
             });
         });
 

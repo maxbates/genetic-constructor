@@ -16,7 +16,6 @@ async function copy() {
     ncp('src/images', 'build/images'),
     ncp('src/content', 'build/content'),
 
-    //todo - dynamically get the version number
     ncp(`docs/jsdoc/genetic-constructor/${pkg.version}`, 'build/jsdoc'),
 
     //copy installed extensions

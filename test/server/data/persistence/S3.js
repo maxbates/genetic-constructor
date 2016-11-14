@@ -56,9 +56,6 @@ describe('Server', () => {
           expect(typeof bucket.getSignedUrl).to.equal('function');
         });
 
-        //todo
-        it('getBucket() provisions bucket if doesnt exist');
-
         it('getSignedUrl() returns url', () => {
           const url = s3.getSignedUrl(bucket, 'myFile');
           expect(url).to.be.defined;
@@ -149,7 +146,6 @@ describe('Server', () => {
             });
         });
 
-        //todo
         it('itemPutBuffer() uploads a buffer');
         it('itemGetBuffer() downloads a buffer');
       });

@@ -119,9 +119,8 @@ describe('Middleware', () => {
         });
     });
 
-    // TODO
-    it.skip('snapshot() accepts tags, snapshotList() can filter on tags', (done) => {
-      done();
+    it('snapshot() accepts tags, snapshotList() can filter on tags', () => {
+      throw Error('write me');
     });
   });
 });

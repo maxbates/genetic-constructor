@@ -58,7 +58,7 @@ describe('Ordering', () => {
             });
         });
 
-        //todo - EGF will fail, since not all parts from EGF
+        //note - EGF will fail, since not all parts from EGF
         it(`validate() valid order works at foundry: ${foundry}`);
       });
     });
@@ -76,7 +76,7 @@ describe('Ordering', () => {
             });
         });
 
-        //todo - EGF will fail, since not all parts from EGF
+        //note - EGF will fail, since not all parts from EGF
         it(`submit() valid order works at foundry: ${foundry}`);
       });
     });

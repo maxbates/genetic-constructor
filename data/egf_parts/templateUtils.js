@@ -84,7 +84,6 @@ export const part = (term) => {
 };
 
 //pass numbers for parts, strings as '#' or '#-#' for connectors (or e.g. 'A-B BsaI-X', see regex above), otherwise a part name
-//todo - need to handle linkers
 export const makeComponents = (...terms) => {
   return terms
     .map(term => termIsPartPos(term) ? //eslint-disable-line no-nested-ternary

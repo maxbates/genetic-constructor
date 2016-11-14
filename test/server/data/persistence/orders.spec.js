@@ -121,16 +121,16 @@ describe('Server', () => {
           return orderPersistence.orderExists(order.id, order.projectId);
         });
 
-        //todo
+        it('WRITE SUITE', () => {
+          throw new Error('write these tests');
+        });
+
         it('orderList() lists orders which exist for a project');
 
-        //todo
         it('orderList() lists orders only for given project');
 
-        //todo
         it('orderWrite() should fail when version does not exist');
 
-        //todo
         it('ordering works with multiple constructs specified');
 
         it('orderDelete() is impossible', () => {

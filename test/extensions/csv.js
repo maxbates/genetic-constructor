@@ -64,7 +64,6 @@ ${boundary}
         });
     });
 
-    //todo
     it('should write sequences to files');
   });
 });
