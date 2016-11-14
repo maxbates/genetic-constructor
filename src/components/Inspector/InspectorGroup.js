@@ -18,6 +18,7 @@ import React, { Component, PropTypes } from 'react';
 import InspectorGroupInformation from './InspectorGroupInformation';
 import InspectorGroupHelp from './InspectorGroupHelp';
 import InspectorGroupFeedback from './InspectorGroupFeedback';
+import InspectorGroupExtensions from './InspectorGroupExtensions';
 
 import '../../styles/InspectorGroup.css';
 
@@ -34,6 +35,8 @@ export default class InspectorGroup extends Component {
       return (<InspectorGroupHelp />);
     case 'feedback' :
       return (<InspectorGroupFeedback />);
+    case 'extensions' :
+      return (<InspectorGroupExtensions />);
     default:
       //throw new Error(`Type ${type} is not registered in InspectorGroup`);
     }

@@ -22,8 +22,6 @@ import {
 } from '../../actions/ui';
 
 import '../../styles/InspectorGroupFeedback.css';
-import '../../styles/ordermodal.css';
-
 
 class InspectorGroupFeedback extends Component {
   static propTypes = {
@@ -118,7 +116,6 @@ class InspectorGroupFeedback extends Component {
       this.props.uiSetGrunt('Please enter some feedback first.');
     }
   };
-
 
   render() {
     return (<div className="InspectorGroupFeedback">
