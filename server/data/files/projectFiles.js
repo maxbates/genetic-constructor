@@ -38,7 +38,7 @@ const getFilePath = (projectId, namespace, fileName) => {
 const getFolderPath = (projectId, namespace) => {
   return s3.useRemote ?
     `${projectId}/${namespace}` :
-    filePaths.createProjectFilesDirectoryPath(projectId, namespace);
+    filePaths.createProjectFilePath(projectId, namespace);
 };
 
 // IO

@@ -18,8 +18,6 @@ import { headersGet, headersPost } from './utils/headers';
 import { dataApiPath } from './utils/paths';
 import { generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
 
-//todo - allow writing a sequence, and generating md5 dynamically
-
 const getSequenceUrl = (md5, range) => {
   if (range) {
     const psuedoMd5 = generatePseudoMd5(md5, range);

@@ -28,19 +28,27 @@ export const fileRead = (s3bucket, filePath, params) => {
 export const fileWrite = (s3bucket, filePath, contents, params) => {
   invariant(filePath, 'file name is required');
   invariant(contents, 'contents required');
-  invariant(typeof contents === 'string', 'contents must be a string');
+  invariant(typeof contents === 'string' || Buffer.isBuffer(contents), 'contents must be a string or buffer');
+
+  let promise;
 
   if (s3.useRemote) {
-    return s3.stringPut(s3bucket, filePath, contents, params);
+    promise = s3.stringPut(s3bucket, filePath, contents, params);
+  } else {
+    const folderPath = filePath.substring(0, filePath.lastIndexOf('/'));
+    invariant(folderPath, 'must have a prefix with / to get folder path');
+
+    promise = fileSystem.directoryMake(folderPath)
+      .then(() => fileSystem.fileWrite(filePath, contents, false))
+      .then(() => ({
+        //hack - until we need to support versions for local development, this is not implemented
+        VersionId: '-1',
+      }));
   }
 
-  const folderPath = filePath.substring(0, filePath.lastIndexOf('/'));
-  invariant(folderPath, 'must have a prefix with / to get folder path');
-
-  return fileSystem.directoryMake(folderPath)
-    .then(() => fileSystem.fileWrite(filePath, contents, false))
-    //hack - until we need to support versions for local development, this is not implemented
-    .then(() => ({ VersionId: 'latest' }));
+  return promise.then(result => {
+    return Object.assign(result, { Key: filePath });
+  });
 };
 
 export const fileDelete = (s3bucket, filePath, params) => {

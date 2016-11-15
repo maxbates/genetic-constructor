@@ -18,7 +18,7 @@ import invariant from 'invariant';
 
 const makePath = (...paths) => path.resolve('/tmp/', ...paths);
 
-export const filePath = 'file';
+export const jobPath = 'jobs';
 export const sequencePath = 'sequence';
 export const projectFilesPath = 'files';
 
@@ -31,10 +31,10 @@ export const createStorageUrl = (...urls) => {
 // FILES / JOBS
 // jobs are passed to /tmp/ when passed from client, rather than put in S3 directly by client, and then streamed to both job + S3
 
-//todo - does this need namespacing, or enforce its an md5 / uuid?
-//dont want to allow overriding / race conditions of common names
-export const createFilePath = (md5) => {
-  return createStorageUrl(filePath, md5);
+// dont want to allow overriding / race conditions of common names
+// may want to enforce uuid / namespace
+export const createJobFilePath = (...paths) => {
+  return createStorageUrl(jobPath, ...paths);
 };
 
 //SEQUENCE
@@ -45,12 +45,8 @@ export const createSequencePath = (md5) => {
 
 // PROJECT FILES
 
-export const createProjectFilesDirectoryPath = (projectId, ...rest) => {
+export const createProjectFilePath = (projectId, ...rest) => {
   invariant(projectId, 'Project ID required');
+  invariant(rest.length > 0, 'must pass at least one namespace');
   return createStorageUrl(projectFilesPath, projectId, ...rest);
-};
-
-export const createProjectFilePath = (projectId, namespace, fileName) => {
-  invariant(namespace, 'must pass a directory name (extension key)');
-  return createProjectFilesDirectoryPath(projectId, namespace, fileName);
 };

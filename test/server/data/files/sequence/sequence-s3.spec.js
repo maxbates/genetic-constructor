@@ -26,7 +26,7 @@ import * as sequences from '../../../../../server/data/persistence/sequence';
 describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
-      describe('sequence', () => {
+      describe('files', () => {
         describe('S3', () => {
           let s3bucket;
 

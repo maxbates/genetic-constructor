@@ -15,31 +15,24 @@
  */
 import { assert, expect } from 'chai';
 import uuid from 'node-uuid';
-import { errorDoesNotExist } from '../../../../../server/utils/errors';
 import Project from '../../../../../src/models/Project';
+import { errorDoesNotExist } from '../../../../../server/utils/errors';
 import * as projectFiles from '../../../../../server/data/files/projectFiles';
-import {
-  fileExists,
-  fileRead,
-  fileWrite,
-  fileDelete,
-  directoryExists,
-  directoryMake,
-  directoryDelete
-} from '../../../../../server/data/middleware/fileSystem';
-import * as filePaths from '../../../../../server/data/middleware/filePaths';
 import * as s3 from '../../../../../server/data/middleware/s3';
 
 describe('Server', () => {
   describe('Data', () => {
-    describe('persistence', () => {
+    describe('files', () => {
       describe('Project Files', () => {
-        describe('Local', function projectFilesLocalTests() {
+        describe('S3', function projectFilesS3Tests() {
+          let s3bucket;
+
           //skip test suite if not using s3
           before(function () {
-            if (s3.useRemote) {
+            if (!s3.useRemote) {
               this.skip();
             }
+            s3bucket = s3.getBucket(projectFiles.bucketName);
           });
 
           const projectId = Project.classless().id;
@@ -48,10 +41,11 @@ describe('Server', () => {
           it('projectFilesWrite() should write a file', () => {
             const fileName = uuid.v4();
             const fileContents = 'h e r e a r e s o m e c o n t e n t s';
-            const filePath = filePaths.createProjectFilePath(projectId, namespace, fileName);
 
             return projectFiles.projectFileWrite(projectId, namespace, fileName, fileContents)
-              .then(() => fileRead(filePath, false))
+              .then(info => {
+                return s3.stringGet(s3bucket, `${projectId}/${namespace}/${fileName}`);
+              })
               .then(result => {
                 expect(result).to.equal(fileContents);
               });
@@ -60,27 +54,25 @@ describe('Server', () => {
           it('projectFilesRead() should read a file', () => {
             const fileName = uuid.v4();
             const fileContents = 'h e r e a r e s o m e c o n t e n t s';
-            const filePath = filePaths.createProjectFilePath(projectId, namespace, fileName);
 
-            return fileWrite(filePath, fileContents, false)
-              .then(() => projectFiles.projectFileRead(projectId, namespace, fileName))
+            return s3.stringPut(s3bucket, `${projectId}/${namespace}/${fileName}`, fileContents)
+              .then(() => {
+                return projectFiles.projectFileRead(projectId, namespace, fileName);
+              })
               .then(result => {
                 expect(result).to.equal(fileContents);
               });
           });
 
-          it('projectFileList() should list files', () => {
-            const randoNamespace = uuid.v4();
+          it('listProjectFiles() should list files', () => {
+            const namespace = uuid.v4();
             const files = [1, 2, 3, 4].map(() => uuid.v4());
             const contents = [1, 2, 3, 4].map(() => uuid.v4());
 
-            return directoryMake(filePaths.createProjectFilesDirectoryPath(projectId, randoNamespace))
-              .then(() => Promise.all(
-                files.map((file, index) => fileWrite(filePaths.createProjectFilePath(projectId, randoNamespace, file), contents[index], false))
-              ))
-              .then((paths) => {
-                return projectFiles.projectFilesList(projectId, randoNamespace);
-              })
+            return Promise.all(
+              files.map((file, index) => s3.stringPut(s3bucket, `${projectId}/${namespace}/${file}`, contents[index]))
+            )
+              .then(() => projectFiles.projectFilesList(projectId, namespace))
               .then(list => {
                 expect(list.length).to.equal(files.length);
                 expect(list.sort()).to.eql(files.sort());

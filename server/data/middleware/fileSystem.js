@@ -86,11 +86,14 @@ export const fileRead = (path, jsonParse = true, opts = {}) => {
 
 export const fileWrite = (path, contents, stringify = true) => {
   return new Promise((resolve, reject) => {
-    const fileContent = !!stringify ? stringifier(contents) : contents;
+    const fileContent = (!!stringify && typeof contents === 'object') ?
+      stringifier(contents) :
+      contents;
+
     fs.writeFile(path, fileContent, 'utf8', (err) => {
       if (err) {
         console.log('Error writing file');
-        console.log(err);
+        console.log(err, err.stack);
         return reject(err);
       }
       resolve(path);
@@ -98,7 +101,7 @@ export const fileWrite = (path, contents, stringify = true) => {
   });
 };
 
-export const fileMerge = (path, toMerge) => {
+export const fileMergeObject = (path, toMerge) => {
   invariant(typeof toMerge === 'object', 'must pass an object for file merge');
 
   return fileRead(path)

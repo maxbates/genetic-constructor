@@ -30,7 +30,7 @@ import * as sequences from '../../../../../server/data/persistence/sequence';
 
 describe('Server', () => {
   describe('Data', () => {
-    describe('persistence', () => {
+    describe('files', () => {
       describe('sequence', function persistenceTests() {
         const rangeStart = 20;
         const rangeEnd = 35;

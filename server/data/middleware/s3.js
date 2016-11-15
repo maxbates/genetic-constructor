@@ -173,6 +173,7 @@ export const folderContents = (bucket, prefix, params = {}) => {
       //remap data to account for Prefix
       const mapped = results.Contents.map(obj => ({
         name: obj.Key.replace(Prefix + '/', ''), //get rid of folder slash preceding file name
+        Key: obj.Key,
         LastModified: obj.LastModified,
         Size: obj.Size,
       }));

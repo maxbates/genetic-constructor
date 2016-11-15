@@ -125,50 +125,6 @@ describe('Extensions', () => {
         .catch(done);
     });
 
-    it('should roundtrip a Genbank project through our app', function exportGB() {
-      return importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
-        .then(output => {
-          expect(output.project).not.to.equal(undefined);
-          expect(ProjectSchema.validate(output.project)).to.equal(true);
-          expect(output.project.metadata.name).to.equal('EU912544');
-          expect(output.project.metadata.description).to.equal('Cloning vector pDM313, complete sequence.');
-
-          //usually middleware writes the sequences, so we need to do this ourselves
-          return Promise.all(
-            output.sequences.map(({ sequence, blocks }) => {
-              return sequenceWriteChunks(sequence, blocks)
-                .then((blocksToMd5s) => {
-                  _.forEach(blocksToMd5s, (pseudoMd5, blockId) => {
-                    _.merge(output.blocks[blockId], { sequence: { md5: pseudoMd5 } });
-                  });
-                });
-            })
-          )
-            .then(() => exportProject(output));
-        })
-        .then(resultFileName => {
-          return fileSystem.fileRead(resultFileName, false);
-        })
-        .then(result => {
-          expect(result).to.contain('LOCUS       EU912544                 120 bp    DNA');
-          expect(result).to.contain('SYN 06-FEB-2009');
-          expect(result).to.contain('DEFINITION  Cloning vector pDM313, complete sequence.');
-          expect(result).to.contain('ACCESSION   EU912544');
-          expect(result).to.contain('VERSION     EU912544.1  GI:198078160');
-          expect(result).to.contain('SOURCE      Cloning vector pDM313');
-          expect(result).to.contain('ORGANISM  Cloning vector pDM313');
-          expect(result).to.contain('other sequences; artificial sequences; vectors.');
-          expect(result).to.contain('REFERENCE   1');
-          expect(result).to.contain('AUTHORS   Veltman,D.M., Akar,G., Bosgraaf,L. and Van Haastert,P.J.');
-          expect(result).to.contain('TITLE     A new set of small, extrachromosomal expression vectors for');
-          expect(result).to.contain('Dictyostelium discoideum');
-          expect(result).to.contain('JOURNAL   Plasmid 61 (2), 110-118 (2009)');
-          expect(result).to.contain('PUBMED   19063918');
-          expect(result).to.contain('');
-          //return fileSystem.fileDelete(resultFileName);
-        });
-    });
-
     it('should roundtrip a Genbank construct through our app', function exportGB() {
       return importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
         .then(output => {
@@ -218,7 +174,7 @@ describe('Extensions', () => {
         .then(roll => exportProject(roll))
         .then(resultFileName => {
           fs.readFile(resultFileName, function (err, data) {
-            if (err) throw err;
+            if (err) done(err);
 
             JSZip.loadAsync(data)
               .then((zip) => {
@@ -233,7 +189,8 @@ describe('Extensions', () => {
               })
               .catch(done);
           });
-        });
+        })
+        .catch(done);
     });
 
     it.skip('should export project to multi-record Genbank', function exportGB(done) {

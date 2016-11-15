@@ -25,7 +25,7 @@ describe('Server', () => {
   describe('Utils', () => {
     describe('FileSystem', () => {
       const fileName = uuid.v4();
-      const filePath = filePaths.createFilePath(fileName);
+      const filePath = filePaths.createJobFilePath(fileName);
       const fileContents = `These are some file contents
 There is more than one line
 woah!`;
@@ -39,7 +39,7 @@ woah!`;
           .then(result => {
             fs.readFile(filePath, 'utf8', (err, contents) => {
               if (err) {
-                return Promise.reject('file read error');
+                throw err;
               }
               expect(contents).to.equal(result);
               expect(contents).to.equal(fileContents);

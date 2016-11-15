@@ -21,7 +21,7 @@ import * as projectFiles from '../../../../../server/data/files/projectFiles';
 
 describe('Server', () => {
   describe('Data', () => {
-    describe('persistence', () => {
+    describe('files', () => {
       describe('Project Files', function projectFilesTests() {
         const projectId = Project.classless().id;
         const namespace = 'someNamespace';

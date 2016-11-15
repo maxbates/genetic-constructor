@@ -33,7 +33,7 @@ import * as s3 from '../../../../../server/data/middleware/s3';
 
 describe('Server', () => {
   describe('Data', () => {
-    describe('persistence', () => {
+    describe('files', () => {
       describe('sequence', () => {
         describe('local', () => {
           const rangeStart = 20;

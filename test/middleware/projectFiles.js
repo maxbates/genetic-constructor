@@ -53,7 +53,7 @@ describe('Middleware', () => {
         });
     });
 
-    it('projectFileWrite() should return the latest version, or "latest" in local, and a url', () => {
+    it('projectFileWrite() should return the latest version, or "-1" in local, and a url', () => {
       return api.projectFileWrite(projectId, namespace, fileNameRoundtrip, fileContents)
         .then(response => {
           assert(!!response.VersionId, 'expected some VersionId');
@@ -63,7 +63,7 @@ describe('Middleware', () => {
             expect(typeof response.VersionId).to.equal('string');
           } else {
             //pending real versioning...
-            expect(response.VersionId).to.equal('latest');
+            expect(response.VersionId).to.equal('-1');
           }
         });
     });

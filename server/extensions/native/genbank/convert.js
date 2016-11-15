@@ -18,7 +18,7 @@ const timer = new DebugTimer('Genbank', { delayed: true });
 //////////////////////////////////////////////////////////////
 const createTempFilePath = () => `/tmp/${uuid.v4()}`;
 
-//todo - will need to consider bundling
+//future - will need to consider bundling
 //one process for each
 const importFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
 const exportFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
@@ -28,30 +28,43 @@ process.on('exit', () => {
   exportFork.kill('SIGHUP');
 });
 
+const listeners = {};
+const registerListener = (id, cb) => {
+  listeners[id] = cb;
+};
+const checkListeners = (message) => {
+  const { id } = message;
+  if (listeners[id]) {
+    listeners[id](message);
+    delete listeners[id];
+  }
+};
+
+importFork.on('message', checkListeners);
+exportFork.on('message', checkListeners);
+
 // Run an external command and return the data in the specified output file
 //commmand is 'import' or 'export'
 const runCommand = (command, inputFile, outputFile) => {
   const fork = command === 'import' ? importFork : exportFork;
 
-  //fixme - should not attach a new listener every time
-
   return new Promise((resolve, reject) => {
     const procId = uuid.v4();
     timer.time('starting fork ' + procId);
 
-    fork.send({ type: command, id: procId, input: inputFile, output: outputFile });
+    const onMessage = (message) => {
+      timer.time('fork completed ' + procId);
+      //console.log('proc completed', message);
 
-    fork.on('message', (message) => {
-      if (procId === message.id) {
-        timer.time('fork completed ' + procId);
-        //console.log('proc completed', message);
-
-        if (message.success) {
-          return resolve(message.result);
-        }
-        return reject(message.error);
+      if (message.success) {
+        return resolve(message.result);
       }
-    });
+      return reject(message.error);
+    };
+
+    registerListener(procId, onMessage);
+
+    fork.send({ type: command, id: procId, input: inputFile, output: outputFile });
   })
     .then(() => fileSystem.fileRead(outputFile, false));
 
