@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { mergeMetadataOntoProject } from './projects';
 import { dbHead, dbGet, dbPruneResult } from '../middleware/db';
 import Rollup from '../../../src/models/Rollup';
 
@@ -33,8 +34,8 @@ export const projectVersionExists = (projectId, version) => {
 //returns project at a particular point in time
 export const projectVersionGet = (projectId, version) => {
   return dbGet(`projects/${projectId}?version=${version}`)
-    .then(dbPruneResult)
-    .then(result => new Rollup(result));
+    .then(mergeMetadataOntoProject)
+    .then(dbPruneResult);
 };
 
 //list all versions of a project

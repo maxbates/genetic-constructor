@@ -42,7 +42,7 @@ const makeRollupInstance = (roll) => {
 //for project Get / Write
 //expects data, version, id, createdAt, updatedAt
 //note - makes testing a lot more complicated, since fields may change when written on server
-const mergeMetadataOntoProject = (data) => {
+export const mergeMetadataOntoProject = (data) => {
   const transformedData = {
     data: data.data,
     id: data.id,
