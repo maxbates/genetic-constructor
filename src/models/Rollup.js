@@ -143,7 +143,6 @@ export default class Rollup {
       const block = this.getBlock(blockId);
 
       if (!block) {
-        //todo - note error change from errorDoesNotExist
         throw new Error(`Block ${blockId} not in rollup: ${this.project.id}`);
       }
 
@@ -171,7 +170,6 @@ export default class Rollup {
       const block = this.getBlock(blockId);
 
       if (!block) {
-        //todo - note error change from errorDoesNotExist
         throw new Error(`Block ${blockId} not in rollup: ${this.project.id}`);
       }
 

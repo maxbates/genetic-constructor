@@ -25,7 +25,7 @@ describe('Middleware', () => {
         .then(projects => {
           const found = projects.find(proj => proj.id === projectId);
           expect(found).to.be.defined;
-          expect(found).to.eql(project);
+          Project.compare(found, project, true);
         });
     });
 

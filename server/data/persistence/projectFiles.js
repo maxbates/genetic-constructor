@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 import * as s3 from '../middleware/s3';
 import * as filePaths from '../middleware/filePaths';
-import * as fileSystem from '../middleware/fileSystem';
+import * as agnosticFs from '../files/agnosticFs';
 
 /* S3 Credentials, when in production */
 
@@ -26,6 +26,8 @@ let s3bucket;
 if (s3.useRemote) {
   s3bucket = s3.getBucket(bucketName);
 }
+
+// IO platform dependent paths
 
 const getFilePath = (projectId, namespace, fileName) => {
   return s3.useRemote ?
@@ -39,52 +41,38 @@ const getFolderPath = (projectId, namespace) => {
     filePaths.createProjectFilesDirectoryPath(projectId, namespace);
 };
 
-export const projectFileRead = (projectId, namespace, fileName, params = {}) => {
+// IO
+
+export const projectFileRead = (projectId, namespace, fileName) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
 
   const filePath = getFilePath(projectId, namespace, fileName);
 
-  return s3.useRemote ?
-    s3.stringGet(s3bucket, filePath) :
-    fileSystem.fileRead(filePath, false);
+  return agnosticFs.fileRead(s3bucket, filePath);
 };
 
-export const projectFileWrite = (projectId, namespace, fileName, contents, params = {}) => {
+export const projectFileWrite = (projectId, namespace, fileName, contents) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'namespace key is required');
-  invariant(fileName, 'file name is required');
-  invariant(contents, 'contents required');
-  invariant(typeof contents === 'string', 'contents must be a string');
 
   const filePath = getFilePath(projectId, namespace, fileName);
-  const folderPath = getFolderPath(projectId, namespace);
 
-  return s3.useRemote
-    ?
-    s3.stringPut(s3bucket, filePath, contents)
-    :
-    fileSystem.directoryMake(folderPath)
-      .then(() => fileSystem.fileWrite(filePath, contents, false))
-      .then(() => ({ VersionId: 'latest' })); //hack - until we need to support versions for local development, this is not implemented
+  return agnosticFs.fileWrite(s3bucket, filePath, contents);
 };
 
-export const projectFileDelete = (projectId, namespace, fileName, params = {}) => {
+export const projectFileDelete = (projectId, namespace, fileName) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'namespace key is required');
   invariant(fileName, 'file name is required');
 
   const filePath = getFilePath(projectId, namespace, fileName);
 
-  return s3.useRemote
-    ?
-    s3.itemDelete(s3bucket, filePath)
-    :
-    fileSystem.fileDelete(filePath);
+  return agnosticFs.fileDelete(s3bucket, filePath);
 };
 
-export const projectFilesList = (projectId, namespace, params = {}) => {
+export const projectFilesList = (projectId, namespace) => {
   invariant(projectId, 'projectId is required');
 
   //todo - suport skipping namespace. need to change format or results (will have slashes)
@@ -93,12 +81,5 @@ export const projectFilesList = (projectId, namespace, params = {}) => {
 
   const folderPath = getFolderPath(projectId, namespace);
 
-  //todo - verify the contents returned are the same
-
-  return s3.useRemote
-    ?
-    s3.folderContents(s3bucket, folderPath)
-      .then(files => files.map(file => file.name))
-    :
-    fileSystem.directoryContents(folderPath);
+  return agnosticFs.fileList(s3bucket, folderPath);
 };
