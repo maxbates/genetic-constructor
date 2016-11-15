@@ -22,6 +22,7 @@
     border-bottom: 70px  solid gold;
     border-left:   100px solid transparent;
     transform:    rotate(35deg);
+    background-color: var(--colors-white)''
   }
   .star-five:before {
     border-bottom: 80px solid gold;

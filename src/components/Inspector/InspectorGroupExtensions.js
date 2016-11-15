@@ -31,13 +31,27 @@ class InspectorGroupExtensions extends Component {
   constructor() {
     super();
     this.state = {
+      a: false,
+      b: true,
+      c: false,
+      d: true,
     }
   }
 
+  switched(which, newValue) {
+    console.log(`Switch: ${newValue ? 'ON' : 'OFF'}`);
+    this.setState({[which] : newValue});
+  };
 
   render() {
     return (<div className="InspectorGroupExtensions">
-      <Switch />
+      <Switch on={this.state.a} disabled={false} switched={this.switched.bind(this, 'a')}/>
+      <br/>
+      <Switch on={this.state.b} disabled={false} switched={this.switched.bind(this, 'b')}/>
+      <br/>
+      <Switch on={this.state.c} disabled={true} switched={this.switched.bind(this, 'c')}/>
+      <br/>
+      <Switch on={this.state.d} disabled={true} switched={this.switched.bind(this, 'd')}/>
     </div>);
   }
 }

@@ -19,28 +19,29 @@ import '../../styles/Switch.css';
 
 export default class Switch extends Component {
   static propTypes = {
-
+    on: PropTypes.bool.isRequired,
+    disabled: PropTypes.bool.isRequired,
+    switched: PropTypes.func.isRequired,
   };
 
   constructor() {
     super();
-    this.state = {
-      on: false,
-    }
   }
 
   onFlick = () => {
-    this.setState({
-      on: !this.state.on,
-    });
+    if (!this.props.disabled) {
+      this.props.switched(!this.props.on);
+    }
   };
 
   render() {
+    const switchClass = `slider-switch ${this.props.disabled ? 'slider-switch-disabled' : ''}`;
+    const nobClass = `slider-switch-nob ${this.props.on ? 'slider-switch-nob-on' : ''}`;
     return (
       <div
-        className="slider-switch"
+        className={switchClass}
         onClick={this.onFlick}>
-        <div className={`slider-switch-nob ${this.state.on ? 'slider-switch-nob-on' : ''}`}></div>
+        <div className={nobClass}></div>
       </div>
     )
   }
