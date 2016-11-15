@@ -11,12 +11,11 @@ describe('Middleware', () => {
     const range = [10, 20];
     const pseudoMd5 = generatePseudoMd5(hash, range);
 
-    it('writeSequence() rejects on psuedoMd5', () => {
-      expect(() => api.writeSequence(pseudoMd5, seq)).to.throw();
-    });
-
-    it('writeSequence() writes a sequence and resolves', () => {
-      return api.writeSequence(hash, seq);
+    it('writeSequence() works + returns md5', () => {
+      return api.writeSequence(seq)
+        .then(seqMd5 => {
+          expect(seqMd5).to.equal(hash);
+        });
     });
 
     it('getSequence() accepts an md5', () => {

@@ -13,18 +13,19 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import invariant from 'invariant';
 import rejectingFetch from './utils/rejectingFetch';
 import { headersGet, headersPost } from './utils/headers';
 import { dataApiPath } from './utils/paths';
-import { validRealMd5, generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
+import { generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
+
+//todo - allow writing a sequence, and generating md5 dynamically
 
 const getSequenceUrl = (md5, range) => {
   if (range) {
     const psuedoMd5 = generatePseudoMd5(md5, range);
     return dataApiPath(`sequence/${psuedoMd5}]`);
   }
-  return dataApiPath(`sequence/${md5}`);
+  return dataApiPath(`sequence/${md5 || ''}`);
 };
 
 const cacheSequence = (md5, sequence) => {
@@ -58,13 +59,14 @@ export const getSequences = (blockIdsToMd5s) => {
   return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => getSequence(seqMd5));
 };
 
-export const writeSequence = (md5, sequence, blockId, projectId) => {
-  invariant(validRealMd5(md5), 'must pass a valid md5, without a range');
-
-  const url = getSequenceUrl(md5, null, blockId, projectId);
+export const writeSequence = (sequence) => {
+  const url = getSequenceUrl();
   const stringified = JSON.stringify({ sequence });
 
-  cacheSequence(md5, sequence);
-
-  return rejectingFetch(url, headersPost(stringified));
+  return rejectingFetch(url, headersPost(stringified))
+    .then(resp => resp.text())
+    .then(md5 => {
+      cacheSequence(md5, sequence);
+      return md5;
+    });
 };

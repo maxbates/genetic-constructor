@@ -19,9 +19,8 @@ import { merge, cloneDeep } from 'lodash';
 import BlockSchema from '../schemas/Block';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
-import md5 from 'md5';
 import color from '../utils/generators/color';
-import { dnaStrict, dnaLoose } from '../utils/dna';
+import { dnaStrictRegexp, dnaLooseRegexp } from '../utils/dna';
 import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
 import { symbolMap } from '../inventory/roles';
@@ -705,7 +704,6 @@ export default class Block extends Instance {
     });
   }
 
-  //todo - ability to set source
   /**
    * Set sequence and write to server. Updates the length and initial bases. The block's source will be set to 'user'.
    * @method setSequence
@@ -716,24 +714,22 @@ export default class Block extends Instance {
    * @returns {Promise} Promise which resolves with the udpated block after the sequence is written to the server
    */
   setSequence(sequence, useStrict = false, persistSource = false) {
-    const sequenceLength = sequence.length;
-    const sequenceMd5 = md5(sequence);
-
-    const validatorStrict = new RegExp(`^[${dnaStrict}]*$`, 'gi');
-    const validatorLoose = new RegExp(`^[${dnaLoose}]*$`, 'gi');
-
-    const validator = !!useStrict ? validatorStrict : validatorLoose;
+    const validator = !!useStrict ? dnaStrictRegexp() : dnaLooseRegexp();
 
     if (!validator.test(sequence)) {
       return Promise.reject('sequence has invalid characters');
     }
 
-    const updatedSource = persistSource === true ? this.source : { source: 'user', id: null };
+    const updatedSource = persistSource === true ?
+      this.source :
+    { source: 'user', id: null };
 
-    return writeSequence(sequenceMd5, sequence, this.id)
-      .then(() => {
+    return writeSequence(sequence)
+      .then((md5) => {
+        const sequenceLength = sequence.length;
+
         const updatedSequence = {
-          md5: sequenceMd5,
+          md5,
           length: sequenceLength,
           initialBases: '' + sequence.substr(0, 6),
           download: null,
