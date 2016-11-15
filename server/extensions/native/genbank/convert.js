@@ -33,6 +33,8 @@ process.on('exit', () => {
 const runCommand = (command, inputFile, outputFile) => {
   const fork = command === 'import' ? importFork : exportFork;
 
+  //fixme - should not attach a new listener every time
+
   return new Promise((resolve, reject) => {
     const procId = uuid.v4();
     timer.time('starting fork ' + procId);

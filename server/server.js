@@ -18,6 +18,7 @@ import fs from 'fs';
 import express from 'express';
 import morgan from 'morgan';
 import compression from 'compression';
+import colors from 'colors';
 
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
@@ -198,7 +199,7 @@ function startServer() {
 
       /* eslint-disable no-console */
       const path = `http://${HOST_NAME}:${HOST_PORT}/`;
-      console.log(`Server listening at ${path}`);
+      console.log(colors.green(`\nServer listening at ${path}\n`));
       resolve(path);
     });
   });
@@ -229,7 +230,7 @@ export const listenSafely = () => {
 if (process.env.SERVER_MANUAL !== 'true') {
   listenSafely();
 } else {
-  console.log('\nServer ready, will start listening manually...\n');
+  console.log('Server ready, will start listening manually...');
 }
 
 export default app;
