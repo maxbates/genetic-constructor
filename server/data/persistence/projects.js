@@ -23,13 +23,21 @@ import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../u
 import { validateId, validateBlock, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
 import { dbHeadRaw, dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+import Rollup from '../../../src/models/Rollup';
 
-//TODO - CONSISTENT NAMING. MANY OF THESE OPERATIONS ARE REALLY ROLLUPS
+//TODO - consistent naming. projects in this module are generally rollups
 //we have classes for blocks and projects, and this persistence module conflates the two. lets use rollup to be consistent. rename after this stuff is working...
 
 /*********
  Helpers
  *********/
+
+const makeRollupInstance = (roll) => {
+  if (!roll) {
+    return roll;
+  }
+  return new Rollup(roll);
+};
 
 //for project Get / Write
 //expects data, version, id, createdAt, updatedAt
@@ -53,6 +61,8 @@ const mergeMetadataOntoProject = (data) => {
     },
   });
 
+  Object.assign(transformedData, { data: makeRollupInstance(transformedData.data)});
+
   return transformedData;
 };
 
@@ -71,7 +81,7 @@ export const getUserLastProjectId = (userId) => {
 export const getUserProjects = (userId, fetchBlocks = false) => {
   //dbGet returns { data, id, ... }
   return dbGet(`projects/owner/${userId}?blocks=${fetchBlocks}`)
-    .then((projectInfos) => projectInfos.map(dbPruneResult))
+    .then((projectInfos) => projectInfos.map(dbPruneResult).map(makeRollupInstance))
     .catch(err => {
       if (err === errorDoesNotExist) {
         return [];
@@ -160,25 +170,14 @@ export const projectGet = (projectId) => {
 //returns map, where blockMap.blockId === undefined if was missing
 export const blocksGet = (projectId, ...blockIds) => {
   return projectGet(projectId)
-    .then(roll => {
-      if (!blockIds.length) {
-        return roll.blocks;
-      }
-      return pick(roll.blocks, blockIds);
-    });
+    .then(rollup => rollup.getBlocks(...blockIds));
 };
 
 //prefer blocksGet, this is for atomic checks
 //rejects if the block is not present, and does not return a map (just the block), or null if doesnt exist
 export const blockGet = (projectId, blockId) => {
   return projectGet(projectId)
-    .then(roll => {
-      const block = roll.blocks[blockId];
-      if (!block) {
-        return Promise.resolve(null);
-      }
-      return block;
-    });
+    .then(roll => roll.getBlock(blockId));
 };
 
 //SET (WRITE + MERGE)
@@ -273,7 +272,7 @@ export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
     }).then(roll => {
       return projectWrite(projectId, roll, userId)
       //return the roll
-        .then(info => info.data);
+        .then(info => info.data)
     });
 };
 
@@ -329,7 +328,7 @@ export const blocksDelete = (projectId, userId, ...blockIds) => {
 
 export const projectGetManifest = (projectId) => {
   return projectGet(projectId)
-    .then(result => result.project);
+    .then(rollup => rollup.getManifest());
 };
 
 export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite = true) => {

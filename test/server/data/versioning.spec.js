@@ -4,7 +4,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import { exec } from 'child_process';
 import { createStorageUrl } from '../../../server/data/middleware/filePaths';
-import * as versioning from '../../../server/data/git-deprecated/git';
+//import * as versioning from '../../../server/data/git-deprecated/git';
 import { fileExists, fileRead, fileWrite, fileDelete, directoryMake, directoryDelete } from '../../../server/data/middleware/fileSystem';
 import { errorDoesNotExist } from '../../../server/utils/errors';
 

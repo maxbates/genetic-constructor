@@ -34,7 +34,7 @@ import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 
 import * as filePaths from '../../../../server/data/middleware/filePaths';
-import * as versioning from '../../../../server/data/git-deprecated/git';
+//import * as versioning from '../../../../server/data/git-deprecated/git';
 //import * as persistence from '../../../../server/data/persistence';
 import * as s3 from '../../../../server/data/middleware/s3';
 

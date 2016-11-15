@@ -63,6 +63,7 @@ const rollupFields = {
       }),
     ]),
     `Sequences, transiently part of the rollup, e.g. to batch write`,
+    { avoidScaffold: true },
   ],
 };
 

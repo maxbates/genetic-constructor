@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import { dbHead, dbGet, dbPruneResult } from '../middleware/db';
+import Rollup from '../../../src/models/Rollup';
 
 // note that versions are already generated on project writing, so use projectWrite() to create one
 
@@ -32,7 +33,8 @@ export const projectVersionExists = (projectId, version) => {
 //returns project at a particular point in time
 export const projectVersionGet = (projectId, version) => {
   return dbGet(`projects/${projectId}?version=${version}`)
-    .then(dbPruneResult);
+    .then(dbPruneResult)
+    .then(result => new Rollup(result));
 };
 
 //list all versions of a project

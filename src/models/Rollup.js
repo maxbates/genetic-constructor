@@ -14,11 +14,12 @@
  limitations under the License.
  */
 
-import { every, isEqual } from 'lodash';
+import _, { merge, every, isEqual } from 'lodash';
 import invariant from 'invariant';
-import Instance from './Instance';
 import RollupSchema from '../schemas/Rollup';
 import Project from '../models/Project';
+
+//note - not immutable, this is just a helper, primarily on the server
 
 /**
  * Rollups contain a 'complete' project, and are what are sent between client and server
@@ -27,12 +28,20 @@ import Project from '../models/Project';
  *
  * @name Rollup
  * @class
- * @extends Instance
  * @gc Model
  */
-export default class Rollup extends Instance {
-  constructor(input) {
-    super(input, RollupSchema.scaffold());
+export default class Rollup {
+  constructor(input = {}) {
+    invariant(typeof input === 'object', 'input must be an object');
+
+    //assign since merging twice would be hellllla slow
+    const scaffolded = _.assign(RollupSchema.scaffold(), input);
+
+    if (Object.keys(input).length) {
+      Rollup.validate(scaffolded, true);
+    }
+
+    return _.merge(this, scaffolded);
   }
 
   /**
@@ -100,10 +109,90 @@ export default class Rollup extends Instance {
   }
 
   static fromArray(project, ...blocks) {
-    return {
+    invariant(Project.validate(project), 'must pass valid project');
+
+    return new Rollup({
       project,
       blocks: blocks.reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {}),
-    };
+    });
   }
 
+  getManifest() {
+    return this.project;
+  }
+
+  getBlock(blockId) {
+    return this.blocks[blockId] || null;
+  }
+
+  getBlocks(...blockIds) {
+    if (!blockIds.length) {
+      return this.blocks;
+    }
+    return _.pick(this.blocks, blockIds);
+  }
+
+  getOptions(blockId) {
+    if (blockId) {
+      const block = this.getBlock(blockId);
+
+      if (!block) {
+        //todo - note error change from errorDoesNotExist
+        throw new Error(`Block ${blockId} not in rollup: ${this.project.id}`);
+      }
+
+      const { options } = block;
+
+      return Object.keys(options)
+        .map(optionId => this.getBlock(optionId))
+        .reduce((acc, option) => Object.assign(acc, { [option.id]: option }), {});
+    }
+
+    //if no id provided, get all blocks which are options
+    const optionDict = _.merge(_.map(this.blocks, block => block.options));
+    return _.pickBy(this.blocks, (block, blockId) => optionDict[blockId]);
+  }
+
+  getComponents(blockId, acc = {}) {
+    if (blockId) {
+      const block = this.getBlock(blockId);
+
+      if (!block) {
+        //todo - note error change from errorDoesNotExist
+        throw new Error(`Block ${blockId} not in rollup: ${this.project.id}`);
+      }
+
+      acc[blockId] = block;
+
+      //recurse
+      _.forEach(block.components, compId => this.getComponents(compId, acc));
+
+      return acc;
+    }
+
+    //if no blockId, get all blocks which are not options
+    //if no id provided, get all blocks which are options
+    const optionDict = _.merge(_.map(this.blocks, block => block.options));
+    return _.omitBy(this.blocks, (block, blockId) => optionDict[blockId]);
+  }
+
+  //returns object { components: <map> , options: <map> }
+  getContents(blockId) {
+    invariant(blockId, 'block ID is required');
+
+    const components = this.getComponents(blockId);
+
+    const options = Object.keys(components)
+      .map(compId => components[compId])
+      .filter(comp => comp.rules.list === true)
+      .reduce((optionsAcc, component) => {
+        const componentOptions = this.getOptions(component.id);
+        return Object.assign(optionsAcc, componentOptions);
+      }, {});
+
+    return {
+      components,
+      options,
+    };
+  }
 }
