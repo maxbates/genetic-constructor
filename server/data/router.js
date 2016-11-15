@@ -20,7 +20,6 @@ import {
   errorInvalidRoute,
   errorDoesNotExist,
 } from '../utils/errors';
-import * as rollup from './rollup';
 import { ensureReqUserMiddleware } from '../user/utils';
 import { projectPermissionMiddleware } from './permissions';
 import * as projectPersistence from './persistence/projects';
@@ -113,19 +112,22 @@ router.route('/info/:type/:detail?/:additional?')
       break;
     case 'contents' :
       projectPersistence.userOwnsProject(user.uuid, additional)
-        .then(() => rollup.getContents(detail, additional))
+        .then(() => projectPersistence.projectGet(additional))
+        .then(rollup => rollup.getContents(detail))
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
       break;
     case 'components' :
       projectPersistence.userOwnsProject(user.uuid, additional)
-        .then(() => rollup.getComponents(detail, additional))
+        .then(() => projectPersistence.projectGet(additional))
+        .then(rollup => rollup.getComponents(detail))
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
       break;
     case 'options' :
       projectPersistence.userOwnsProject(user.uuid, additional)
-        .then(() => rollup.getOptions(detail, additional))
+        .then(() => projectPersistence.projectGet(additional))
+        .then(rollup => rollup.getOptions(detail))
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
       break;

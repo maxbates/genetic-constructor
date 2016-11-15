@@ -132,6 +132,12 @@ export default class Rollup {
     return _.pick(this.blocks, blockIds);
   }
 
+  /**
+   * If ID is provided, recursively get all options of a block and its components. Does not include block itself
+   * If no ID provided, gets all list options in the project
+   * @param {UUID} [blockId] root to get components of
+   * @returns {object} with keys of blocks
+   */
   getOptions(blockId) {
     if (blockId) {
       const block = this.getBlock(blockId);
@@ -153,6 +159,13 @@ export default class Rollup {
     return _.pickBy(this.blocks, (block, blockId) => optionDict[blockId]);
   }
 
+  /**
+   * If ID is provided, recursively get all components of a block. Includes block itself
+   * If no ID provided, gets all components in the project
+   * @param {UUID} [blockId] root to get components of
+   * @param [acc={}] accumulator
+   * @returns {object} with keys of blocks
+   */
   getComponents(blockId, acc = {}) {
     if (blockId) {
       const block = this.getBlock(blockId);
@@ -176,7 +189,11 @@ export default class Rollup {
     return _.omitBy(this.blocks, (block, blockId) => optionDict[blockId]);
   }
 
-  //returns object { components: <map> , options: <map> }
+  /**
+   * @description Recursively get contents (components + children) of a block (and returns block itself, in components)
+   * @param {UUID} blockId root to get components of
+   * @returns {object} { components: {}, options: {} }
+   */
   getContents(blockId) {
     invariant(blockId, 'block ID is required');
 

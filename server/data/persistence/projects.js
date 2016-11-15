@@ -81,7 +81,7 @@ export const getUserLastProjectId = (userId) => {
 export const getUserProjects = (userId, fetchBlocks = false) => {
   //dbGet returns { data, id, ... }
   return dbGet(`projects/owner/${userId}?blocks=${fetchBlocks}`)
-    .then((projectInfos) => projectInfos.map(dbPruneResult).map(makeRollupInstance))
+    .then((projectInfos) => projectInfos.map(mergeMetadataOntoProject).map(dbPruneResult))
     .catch(err => {
       if (err === errorDoesNotExist) {
         return [];
