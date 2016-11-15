@@ -17,7 +17,7 @@ import { assert, expect } from 'chai';
 import uuid from 'node-uuid';
 import Project from '../../../../../src/models/Project';
 import { errorDoesNotExist } from '../../../../../server/utils/errors';
-import * as projectFiles from '../../../../../server/data/persistence/projectFiles';
+import * as projectFiles from '../../../../../server/data/files/projectFiles';
 import * as s3 from '../../../../../server/data/middleware/s3';
 
 describe('Server', () => {

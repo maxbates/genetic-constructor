@@ -21,7 +21,7 @@ import {
   errorFileNotFound,
 } from './../utils/errors';
 import { HOST_URL } from '../urlConstants';
-import * as projectFiles from './persistence/projectFiles';
+import * as projectFiles from './files/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();

@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 import * as s3 from '../middleware/s3';
 import * as filePaths from '../middleware/filePaths';
-import * as agnosticFs from '../files/agnosticFs';
+import * as agnosticFs from './agnosticFs';
 
 /* S3 Credentials, when in production */
 

@@ -17,7 +17,7 @@ import { assert, expect } from 'chai';
 import uuid from 'node-uuid';
 import { errorDoesNotExist } from '../../../../../server/utils/errors';
 import Project from '../../../../../src/models/Project';
-import * as projectFiles from '../../../../../server/data/persistence/projectFiles';
+import * as projectFiles from '../../../../../server/data/files/projectFiles';
 import {
   fileExists,
   fileRead,
