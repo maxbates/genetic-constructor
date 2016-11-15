@@ -17,6 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Switch from '../ui/Switch';
 import Arrow from '../ui/Arrow';
+import Label from '../ui/Label';
 
 import {
   uiSetGrunt,
@@ -58,9 +59,15 @@ class InspectorGroupExtensions extends Component {
     return (<div className="InspectorGroupExtensions">
       <Switch on={this.state.a} disabled={false} switched={this.switched.bind(this, 'a')}/>
       <br/>
+      <Label text="Label with hover" hover={true}></Label>
+      <br/>
       <Arrow direction={this.state.dir} disabled={false} onClick={this.arrowClicked} />
       <br/>
+      <Label text="Label with no hover"></Label>
+      <br/>
       <Switch on={this.state.b} disabled={false} switched={this.switched.bind(this, 'b')}/>
+      <br/>
+      <Label text="Full width label" hover={true} styles={{display:'block'}}></Label>
       <br/>
       <Arrow direction={"right"} disabled={false} />
       <br/>

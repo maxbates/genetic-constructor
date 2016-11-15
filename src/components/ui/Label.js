@@ -15,14 +15,15 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../../styles/Arrow.css';
+import '../../styles/Label.css';
 
-export default class Switch extends Component {
+export default class Label extends Component {
   static propTypes = {
-    // ['up', 'down', 'left', 'right']
-    direction: PropTypes.string.isRequired,
-    disabled: PropTypes.bool.isRequired,
+    disabled: PropTypes.bool,
+    hover: PropTypes.bool,
     onClick: PropTypes.func,
+    text: PropTypes.string.isRequired,
+    styles: PropTypes.object,
   };
 
   onClick = (evt) => {
@@ -32,17 +33,16 @@ export default class Switch extends Component {
   };
 
   render() {
-    let arrowClasses = 'arrow-base';
+    let labelClasses = 'label-base';
     if (this.props.disabled) {
-      arrowClasses += ' arrow-disabled';
+      labelClasses += ' label-disabled';
     }
-    arrowClasses += ` arrow-${this.props.direction}`;
-    if (this.props.onClick) {
-      arrowClasses += ' arrow-clickable';
+    if (this.props.hover) {
+      labelClasses += ' label-hover';
     }
 
     return (
-      <div className={arrowClasses} onClick={this.onClick}></div>
+      <span style={this.props.styles} className={labelClasses} onClick={this.onClick}>{this.props.text}</span>
     )
   }
 }

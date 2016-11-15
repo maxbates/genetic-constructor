@@ -24,10 +24,6 @@ export default class Switch extends Component {
     switched: PropTypes.func.isRequired,
   };
 
-  constructor() {
-    super();
-  }
-
   onFlick = () => {
     if (!this.props.disabled) {
       this.props.switched(!this.props.on);
