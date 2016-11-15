@@ -1,7 +1,7 @@
 @import './variables.css';
 
 :root {
-  --switch-size: 1.25rem;
+  --switch-size: 1.5rem;
   --switch-speed: 150ms;
 }
 

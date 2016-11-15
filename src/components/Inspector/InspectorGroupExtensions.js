@@ -16,8 +16,18 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Switch from '../ui/Switch';
-import Arrow from '../ui/Arrow';
-import Label from '../ui/Label';
+import registry from '../../extensions/clientRegistry';
+import {
+  extensionName,
+  extensionAuthor,
+  extensionRegion,
+  extensionType,
+  extensionDescription,
+  manifestIsClient,
+  manifestIsServer,
+} from '../../../server/extensions/manifestUtils';
+import { userUpdateConfig } from '../../actions/user';
+import Expando from '../ui/Expando';
 
 import {
   uiSetGrunt,
@@ -25,68 +35,82 @@ import {
 
 import '../../styles/InspectorGroupExtensions.css';
 
-
 class InspectorGroupExtensions extends Component {
   static propTypes = {
+
   };
 
   constructor() {
     super();
     this.state = {
-      a: false,
-      b: true,
-      c: false,
-      d: true,
-      dir: 'right',
     }
   }
 
-  switched(which, newValue) {
-    console.log(`Switch: ${newValue ? 'ON' : 'OFF'}`);
-    this.setState({[which] : newValue});
+  checkExtensionActive = (extension) => {
+    return this.props.config.extensions[extension] && this.props.config.extensions[extension].active;
   };
 
-  arrowClicked = () => {
-    this.setState({
-      dir: {
-        right: 'down',
-        down: 'right',
-      }[this.state.dir]
+  extensionToggled = (extensionName) => {
+    const update = Object.assign({}, this.props.config, {
+      extensions: {
+        [extensionName]: {
+          active: !this.checkExtensionActive(extensionName),
+        }
+      }
     });
+    this.props.userUpdateConfig(update)
+      .then(() => {
+        this.forceUpdate();
+      });
   };
 
   render() {
+
     return (<div className="InspectorGroupExtensions">
-      <Switch on={this.state.a} disabled={false} switched={this.switched.bind(this, 'a')}/>
-      <br/>
-      <Label text="Label with hover" hover={true}></Label>
-      <br/>
-      <Arrow direction={this.state.dir} disabled={false} onClick={this.arrowClicked} />
-      <br/>
-      <Label text="Label with no hover"></Label>
-      <br/>
-      <Switch on={this.state.b} disabled={false} switched={this.switched.bind(this, 'b')}/>
-      <br/>
-      <Label text="Full width label" hover={true} styles={{display:'block'}}></Label>
-      <br/>
-      <Arrow direction={"right"} disabled={false} />
-      <br/>
-      <Switch on={this.state.c} disabled={true} switched={this.switched.bind(this, 'c')}/>
-      <br/>
-      <Arrow direction={"down"} disabled={false} />
-      <br/>
-      <Switch on={this.state.d} disabled={true} switched={this.switched.bind(this, 'd')}/>
-      <br/>
-      <Arrow direction={"left"} disabled={false} />
+      {Object.keys(registry).map(key => registry[key]).map(extension => {
+        const values = {
+          Name       : extensionName(extension),
+          Type       : extensionType(extension),
+          Description: extensionDescription(extension),
+          Author     : extensionAuthor(extension),
+          Client     : manifestIsClient(extension),
+          isServer   : manifestIsServer(extension),
+          Region     : extensionRegion(extension),
+        };
+        return <Expando
+          text={values.Name}
+          headerWidgets={[
+            <Switch
+              disabled={false}
+              on={this.checkExtensionActive(extension.name)}
+              switched={this.extensionToggled.bind(this, extension.name)}/>
+          ]}
+          content={
+            <div className="content-dropdown">
+              <div className="row">
+                <div className="key">Type</div>
+                <div className="value">{values.Type}</div>
+              </div>
+              <div className="row">
+                <div className="key">Description</div>
+                <div className="value">{values.Description}</div>
+              </div>
+            </div>
+          }
+        />
+      })}
     </div>);
   }
 }
 
 function mapStateToProps(state, props) {
-  return {};
+  return {
+    config: state.user.config,
+  };
 }
 
 export default connect(mapStateToProps, {
   uiSetGrunt,
+  userUpdateConfig,
 })(InspectorGroupExtensions);
 
