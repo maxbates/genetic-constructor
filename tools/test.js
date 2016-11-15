@@ -22,6 +22,7 @@ import del from 'del';
 import setup from './setup';
 import checks from './checks';
 import startDb from './startDb';
+import * as filePaths from '../server/data/middleware/filePaths';
 import { promisedExec, spawnAsync } from './lib/cp';
 
 //optional behaviors
@@ -66,7 +67,8 @@ async function test() {
 
     //delete old test data
     // must be before setup() makes its directories
-    await del(['storage/test'], { dot: true });
+    console.log('clearing local files in ' + filePaths.createStorageUrl());
+    await del([filePaths.createStorageUrl()], { force: true, dot: true });
 
     //setup directories etc (may not be needed after transition to S3 / DB)
     await run(setup);
@@ -107,6 +109,7 @@ async function test() {
     //if we made it here, all tests passed
   } catch (err) {
     errored = 1;
+    console.log(err.stack);
   } finally {
     if (withReport) {
       //run coverage tests, even if tests failed

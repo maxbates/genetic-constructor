@@ -33,11 +33,11 @@ Contents!`;
         it('jobFileWrite() requires contents, namespace, and can generate key', () => {
           expect(() => jobFiles.jobFileWrite()).to.throw();
           expect(() => jobFiles.jobFileWrite(namespace)).to.throw();
-          expect(() => jobFiles.jobFileWrite(namespace, 'some contents')).to.not.throw();
+          expect(() => jobFiles.jobFileWrite(namespace, 'some contents')).to.not.throw();       // write #1
         });
 
         it('jobFileWrite() returns VersionId and Key', () => {
-          return jobFiles.jobFileWrite(namespace, contents)
+          return jobFiles.jobFileWrite(namespace, contents)                                     // write #2
             .then(result => {
               assert(typeof result === 'object');
               assert(result.VersionId, 'should make a version (or filler for local fs)');
@@ -47,7 +47,7 @@ Contents!`;
         });
 
         it('jobFileWrite() works with a buffer', () => {
-          return jobFiles.jobFileWrite(namespace, contentBuffer)
+          return jobFiles.jobFileWrite(namespace, contentBuffer)                              // write #3
             .then(result => {
               assert(result.Key, 'should have a key');
             });
@@ -57,6 +57,14 @@ Contents!`;
           return jobFiles.jobFileRead(namespace, filePath)
             .then(fileContent => {
               expect(fileContent).to.equal(contents);
+            });
+        });
+
+        it('jobFileList() lists files', () => {
+          return jobFiles.jobFileList(namespace)
+            .then(results => {
+              expect(results.length).to.equal(3);
+              assert(results.some(item => item.indexOf(filePath)) >= 0);
             });
         });
       });

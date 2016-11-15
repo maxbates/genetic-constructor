@@ -25,8 +25,8 @@ function run(fn, options) {
     return result;
   })
     .catch(err => {
-      redLog(`uncaught error running ${task.name}`);
-      redLog(err);
+      redLog(`Error running task: ${task.name}`);
+      redLog(err.stack);
       throw err;
     });
 }

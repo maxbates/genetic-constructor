@@ -64,4 +64,9 @@ export const jobFileDelete = (namespace, path) => {
   return agnosticFs.fileDelete(s3bucket, filePath);
 };
 
-//do we want to support listing? need a namespace then...
+export const jobFileList = (namespace) => {
+  invariant(namespace, 'need to pass a namespace');
+
+  const dirPath = getFilePath(namespace);
+  return agnosticFs.fileList(s3bucket, dirPath);
+};

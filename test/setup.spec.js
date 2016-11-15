@@ -20,11 +20,15 @@
 
 import { listenSafely } from '../server/server';
 import * as s3 from '../server/data/middleware/s3';
+import * as filePaths from '../server/data/middleware/filePaths';
+import * as fileSystem from '../server/data/middleware/fileSystem';
 import { testUserId } from './constants';
 import { deleteUser } from '../server/data/persistence/admin';
 
-//wait for server to be ready and start with a clean slate
-//we clear here instead of at test end so can explore test data
+// test setup part 2, data cleanup requiring the server
+// (part 1 is test-setup.js, which runs before setup.js)
+// we clear here instead of at test end so can explore test data
+
 before(() => {
   return listenSafely()
     .then(() => {

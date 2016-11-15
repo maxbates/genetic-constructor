@@ -16,7 +16,8 @@ limitations under the License.
 import path from 'path';
 import invariant from 'invariant';
 
-const makePath = (...paths) => path.resolve('/tmp/', ...paths);
+export const rootNamespace = 'constructor';
+const makePath = (...paths) => path.resolve('/tmp', rootNamespace, ...paths);
 
 export const jobPath = 'jobs';
 export const sequencePath = 'sequence';
