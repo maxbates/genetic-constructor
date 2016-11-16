@@ -27,6 +27,7 @@ import * as projectVersions from './persistence/projectVersions';
 import * as blockPersistence from './persistence/blocks';
 
 import projectFileRouter from './routerProjectFiles';
+import jobFileRouter from './routerJobs';
 import sequenceRouter from './routerSequences';
 import snapshotRouter from './routerSnapshots';
 
@@ -56,6 +57,9 @@ router.param('blockId', (req, res, next, id) => {
 });
 
 /********** ROUTES ***********/
+
+/* job files */
+router.use('/jobs/:projectId', projectPermissionMiddleware, jobFileRouter);
 
 /* project files */
 router.use('/file/:projectId', projectPermissionMiddleware, projectFileRouter);

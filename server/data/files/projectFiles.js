@@ -22,23 +22,21 @@ import * as agnosticFs from './agnosticFs';
 
 export const bucketName = 'bionano-gctor-files';
 
+// when using S3, write to the bucket
+// when using local, prefix with appropriate path
+
 let s3bucket;
 if (s3.useRemote) {
   s3bucket = s3.getBucket(bucketName);
+} else {
+  s3bucket = filePaths.createProjectFilePath();
 }
 
 // IO platform dependent paths
 
-const getFilePath = (projectId, namespace, fileName) => {
-  return s3.useRemote ?
-    `${projectId}/${namespace}/${fileName}` :
-    filePaths.createProjectFilePath(projectId, namespace, fileName);
-};
-
-const getFolderPath = (projectId, namespace) => {
-  return s3.useRemote ?
-    `${projectId}/${namespace}` :
-    filePaths.createProjectFilePath(projectId, namespace);
+const getFilePath = (...paths) => {
+  invariant(paths.length > 1, 'need to pass a path with namespaces');
+  return paths.join('/');
 };
 
 // IO
@@ -79,7 +77,7 @@ export const projectFilesList = (projectId, namespace) => {
   //will have to update project file router to account for no namespace
   invariant(namespace, 'must pass a namespace');
 
-  const folderPath = getFolderPath(projectId, namespace);
+  const folderPath = getFilePath(projectId, namespace);
 
   return agnosticFs.fileList(s3bucket, folderPath);
 };

@@ -22,6 +22,7 @@ describe('Server', () => {
   describe('Data', () => {
     describe('files', () => {
       describe('Jobs', () => {
+        const projectId = 'project-0928342309492038402938402934280349';
         const contents = `Here
 Are
 Some
@@ -32,36 +33,40 @@ Contents!`;
 
         it('jobFileWrite() requires contents, namespace, and can generate key', () => {
           expect(() => jobFiles.jobFileWrite()).to.throw();
-          expect(() => jobFiles.jobFileWrite(namespace)).to.throw();
-          expect(() => jobFiles.jobFileWrite(namespace, 'some contents')).to.not.throw();       // write #1
+          expect(() => jobFiles.jobFileWrite(projectId)).to.throw();
+          expect(() => jobFiles.jobFileWrite(projectId, namespace)).to.throw();
+          expect(() => jobFiles.jobFileWrite(projectId, namespace, 'some contents')).to.not.throw();       // write #1
         });
 
-        it('jobFileWrite() returns VersionId and Key', () => {
-          return jobFiles.jobFileWrite(namespace, contents)                                     // write #2
+        it('jobFileWrite() returns VersionId, Key, name', () => {
+          return jobFiles.jobFileWrite(projectId, namespace, contents)                                     // write #2
             .then(result => {
               assert(typeof result === 'object');
               assert(result.VersionId, 'should make a version (or filler for local fs)');
               assert(result.Key, 'should have a key');
-              filePath = result.Key;
+              assert(result.name, 'should have a name');
+              filePath = result.name;
+
+              assert(result.Key.indexOf(filePath) > 0, 'name should be in Key');
             });
         });
 
         it('jobFileWrite() works with a buffer', () => {
-          return jobFiles.jobFileWrite(namespace, contentBuffer)                              // write #3
+          return jobFiles.jobFileWrite(projectId, namespace, contentBuffer)                              // write #3
             .then(result => {
               assert(result.Key, 'should have a key');
             });
         });
 
         it('jobFileRead() returns contents', () => {
-          return jobFiles.jobFileRead(namespace, filePath)
+          return jobFiles.jobFileRead(projectId, namespace, filePath)
             .then(fileContent => {
               expect(fileContent).to.equal(contents);
             });
         });
 
         it('jobFileList() lists files', () => {
-          return jobFiles.jobFileList(namespace)
+          return jobFiles.jobFileList(projectId, namespace)
             .then(results => {
               expect(results.length).to.equal(3);
               assert(results.some(item => item.indexOf(filePath)) >= 0);

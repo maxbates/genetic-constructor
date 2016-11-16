@@ -13,16 +13,23 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import path from 'path';
 import invariant from 'invariant';
 import * as s3 from '../middleware/s3';
 import * as fileSystem from '../middleware/fileSystem';
 
+// when using S3, s3bucket is actually the S3 bucket
+// when using local, s3bucket is prefix
+// use this scheme so the filePath (e.g. on write) returned is the same across platforms
+
 export const fileRead = (s3bucket, filePath, params) => {
   invariant(filePath, 'file name is required');
 
-  return s3.useRemote ?
-    s3.stringGet(s3bucket, filePath, params) :
-    fileSystem.fileRead(filePath, false);
+  if (s3.useRemote) {
+    return s3.stringGet(s3bucket, filePath, params);
+  }
+  const fullPath = path.resolve(s3bucket, filePath);
+  return fileSystem.fileRead(fullPath, false);
 };
 
 export const fileWrite = (s3bucket, filePath, contents, params) => {
@@ -35,11 +42,12 @@ export const fileWrite = (s3bucket, filePath, contents, params) => {
   if (s3.useRemote) {
     promise = s3.stringPut(s3bucket, filePath, contents, params);
   } else {
-    const folderPath = filePath.substring(0, filePath.lastIndexOf('/'));
+    const fullPath = path.resolve(s3bucket, filePath);
+    const folderPath = fullPath.substring(0, fullPath.lastIndexOf('/'));
     invariant(folderPath, 'must have a prefix with / to get folder path');
 
     promise = fileSystem.directoryMake(folderPath)
-      .then(() => fileSystem.fileWrite(filePath, contents, false))
+      .then(() => fileSystem.fileWrite(fullPath, contents, false))
       .then(() => ({
         //hack - until we need to support versions for local development, this is not implemented
         VersionId: '-1',
@@ -47,27 +55,29 @@ export const fileWrite = (s3bucket, filePath, contents, params) => {
   }
 
   return promise.then(result => {
-    return Object.assign(result, { Key: filePath });
+    return Object.assign(result, {
+      Key: filePath,
+      name: filePath.substr(filePath.lastIndexOf('/') + 1),
+    });
   });
 };
 
 export const fileDelete = (s3bucket, filePath, params) => {
   invariant(filePath, 'file path is required');
 
-  return s3.useRemote
-    ?
-    s3.itemDelete(s3bucket, filePath, params)
-    :
-    fileSystem.fileDelete(filePath);
+  if (s3.useRemote) {
+    s3.itemDelete(s3bucket, filePath, params);
+  }
+  const fullPath = path.resolve(s3bucket, filePath);
+  return fileSystem.fileDelete(fullPath);
 };
 
 export const fileList = (s3bucket, namespace, params) => {
-  //todo - verify the contents returned are the same
+  if (s3.useRemote) {
+    return s3.folderContents(s3bucket, namespace, params)
+      .then(files => files.map(file => file.name));
+  }
 
-  return s3.useRemote
-    ?
-    s3.folderContents(s3bucket, namespace, params)
-      .then(files => files.map(file => file.name))
-    :
-    fileSystem.directoryContents(namespace);
+  const fullPath = path.resolve(s3bucket, namespace);
+  return fileSystem.directoryContents(fullPath);
 };
