@@ -105,7 +105,7 @@ export class Inspector extends Component {
             {icons}
           </div>
           <div className={contentClasses}>
-            <span className="title">{tabInfo.title}</span>
+            <span className="title">{tabInfo ? tabInfo.title : 'Unknown'}</span>
             {tab}
           </div>
         </div>

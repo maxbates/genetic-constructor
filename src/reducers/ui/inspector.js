@@ -18,7 +18,7 @@ import { getLocal, setLocal } from '../../utils/ui/localstorage';
 
 export const initialState = {
   isVisible: getLocal('inspectorVisibility', false),
-  currentTab: getLocal('inspectorTab', 'Projects'),
+  currentTab: getLocal('inspectorTab', 'Information'),
 };
 
 export default function inspector(state = initialState, action) {

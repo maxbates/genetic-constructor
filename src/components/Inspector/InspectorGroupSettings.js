@@ -28,7 +28,6 @@ class InspectorGroupSettings extends Component {
     uiSetGrunt: PropTypes.func.isRequired,
   };
 
-
   onAccountSettings = (event) => {
     event.preventDefault();
     this.props.uiShowAuthenticationForm('account');
