@@ -52,7 +52,8 @@ export default class Expando extends Component {
             hover
             onClick={this.onToggle}
             styles={{
-              margin: '0 0.5rem',
+              marginLeft: '0.5rem',
+              marginRight: this.props.headerWidgets && this.props.headerWidgets.length ? '0.5rem' : '0',
               flexGrow: 1,
               display: 'inline-block',
               userSelect: 'none',
