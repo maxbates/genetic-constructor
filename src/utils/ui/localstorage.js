@@ -24,9 +24,9 @@ export function getLocal(key, defaultObject) {
   try {
     let item = localStorage.getItem(key);
     if (item) {
-      item = JSON.parse(item);
+      return JSON.parse(item);
     }
-    return item || defaultObject;
+    return defaultObject;
   } catch (error) {
     console.error('error getting localStorage:', key, ' - removing.');//eslint-disable-line no-console
     try {
