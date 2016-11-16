@@ -98,6 +98,7 @@ class InspectorGroupExtensions extends Component {
           isServer: manifestIsServer(extension),
           Region: extensionRegion(extension),
         };
+        //debugger;
         return (<Expando
           key={index}
           text={values.Name}
@@ -117,6 +118,10 @@ class InspectorGroupExtensions extends Component {
               <div className="row">
                 <div className="key">Description</div>
                 <div className="value">{values.Description}</div>
+              </div>
+              <div className="row">
+                <div className="key">Author</div>
+                <div className="value">{values.Author.name ? values.Author.name + '\n' + values.Author.email : values.Author}</div>
               </div>
             </div>
           }
