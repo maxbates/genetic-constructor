@@ -15,7 +15,6 @@
  */
 import { mergeMetadataOntoProject } from './projects';
 import { dbHead, dbGet, dbPruneResult } from '../middleware/db';
-import Rollup from '../../../src/models/Rollup';
 
 // note that versions are already generated on project writing, so use projectWrite() to create one
 

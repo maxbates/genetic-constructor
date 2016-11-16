@@ -32,6 +32,7 @@ export const fileRead = (s3bucket, filePath, params) => {
   return fileSystem.fileRead(fullPath, false);
 };
 
+//return { VersionId, Key, name }
 export const fileWrite = (s3bucket, filePath, contents, params) => {
   invariant(filePath, 'file name is required');
   invariant(contents, 'contents required');

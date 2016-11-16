@@ -17,6 +17,7 @@ import invariant from 'invariant';
 import * as s3 from '../middleware/s3';
 import * as filePaths from '../middleware/filePaths';
 import * as agnosticFs from './agnosticFs';
+import { HOST_URL } from '../../urlConstants';
 
 /* S3 Credentials, when in production */
 
@@ -39,7 +40,13 @@ const getFilePath = (...paths) => {
   return paths.join('/');
 };
 
-// IO
+// API
+
+//keep this in sync with project file router
+export const makeProjectFileLink = (...paths) => {
+  invariant(paths.length > 0, 'must pass some namespace');
+  return `${HOST_URL}/data/file/${paths.join('/')}`;
+};
 
 export const projectFileRead = (projectId, namespace, fileName) => {
   invariant(projectId, 'projectId is required');
@@ -57,7 +64,10 @@ export const projectFileWrite = (projectId, namespace, fileName, contents) => {
 
   const filePath = getFilePath(projectId, namespace, fileName);
 
-  return agnosticFs.fileWrite(s3bucket, filePath, contents);
+  return agnosticFs.fileWrite(s3bucket, filePath, contents)
+    .then(result => Object.assign(result, {
+      url: makeProjectFileLink(result.Key),
+    }));
 };
 
 export const projectFileDelete = (projectId, namespace, fileName) => {

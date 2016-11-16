@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-import _, { merge, every, isEqual } from 'lodash';
+import _, { every, isEqual } from 'lodash';
 import invariant from 'invariant';
 import RollupSchema from '../schemas/Rollup';
 import Project from '../models/Project';

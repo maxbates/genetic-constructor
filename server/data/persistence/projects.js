@@ -18,7 +18,7 @@
  * @module persistence
  */
 import invariant from 'invariant';
-import { pick, merge, values, forEach } from 'lodash';
+import { merge, values, forEach } from 'lodash';
 import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../utils/errors';
 import { validateId, validateBlock, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
@@ -61,7 +61,7 @@ export const mergeMetadataOntoProject = (data) => {
     },
   });
 
-  Object.assign(transformedData, { data: makeRollupInstance(transformedData.data)});
+  Object.assign(transformedData, { data: makeRollupInstance(transformedData.data) });
 
   return transformedData;
 };
@@ -272,7 +272,7 @@ export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
     }).then(roll => {
       return projectWrite(projectId, roll, userId)
       //return the roll
-        .then(info => info.data)
+        .then(info => info.data);
     });
 };
 

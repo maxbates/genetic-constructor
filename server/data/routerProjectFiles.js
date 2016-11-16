@@ -21,16 +21,10 @@ import {
   errorDoesNotExist,
   errorFileNotFound,
 } from './../utils/errors';
-import { HOST_URL } from '../urlConstants';
 import * as projectFiles from './files/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();
-
-export const makeProjectFileLink = (...paths) => {
-  invariant(paths.length > 0, 'must pass some namespace');
-  return `${HOST_URL}/data/file/${paths.join('/')}`;
-};
 
 //permission checking currently handled by data router (user has access to project)
 //todo - S3 access control ???? Necessary if all requests go through application server (checks projectId this way)
@@ -73,12 +67,7 @@ router.route('/:namespace/:file/:version?')
     const content = typeof req.body === 'object' ? JSON.stringify(req.body) : (req.body || '');
 
     projectFiles.projectFileWrite(projectId, namespace, file, content)
-      .then(result => {
-        Object.assign(result, {
-          url: makeProjectFileLink(result.Key),
-        });
-        res.send(result);
-      })
+      .then(result => res.send(result))
       .catch((err) => {
         console.log('project file post err', err, err.stack);
         next(err);
@@ -111,12 +100,14 @@ router.route('/:namespace')
 
     //future - support query where namespace is optional (need to update s3 support as well)
 
+    //todo - move this to projectFilesList directly
+
     projectFiles.projectFilesList(projectId, namespace)
       .then(contents => {
         const mapped = contents.map(filename => ({
           name: filename,
           Key: [projectId, namespace, filename].join('/'),
-          url: makeProjectFileLink(projectId, namespace, filename),
+          url: projectFiles.makeProjectFileLink(projectId, namespace, filename),
         }));
         res.json(mapped);
       })

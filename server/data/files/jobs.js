@@ -14,10 +14,11 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import uuid from 'node-uuid';
+import md5 from 'md5';
 import * as s3 from '../middleware/s3';
 import * as filePaths from '../middleware/filePaths';
 import * as agnosticFs from './agnosticFs';
+import { HOST_URL } from '../../urlConstants';
 
 //note - this module is incredibly similar to project files...
 //notable, filename not required to write - will be generated and returned
@@ -43,6 +44,16 @@ const getFilePath = (...paths) => {
   return paths.join('/');
 };
 
+// API
+
+//ensure that this matches the router
+export const makeJobFileLink = (...paths) => {
+  invariant(paths.length > 0, 'must pass some namespace');
+  return `${HOST_URL}/data/jobs/${paths.join('/')}`;
+};
+
+export const jobFileName = (contents) => md5(contents);
+
 export const jobFileRead = (projectId, namespace, path) => {
   invariant(projectId, 'projectId is required');
   invariant(namespace, 'need to pass a namespace');
@@ -53,16 +64,19 @@ export const jobFileRead = (projectId, namespace, path) => {
   return agnosticFs.fileRead(s3bucket, filePath);
 };
 
-//note signature - filename is optional
+//note signature - filename is optional, will generate md5 if not provided
 export const jobFileWrite = (projectId, namespace, contents, fileName) => {
   invariant(projectId, 'projectId is required');
   invariant(typeof contents === 'string' || Buffer.isBuffer(contents), 'must pass contents as string or buffer');
   invariant(namespace, 'need to pass a namespace');
 
-  const name = fileName || uuid.v4();
+  const name = fileName || jobFileName(contents);
   const filePath = getFilePath(projectId, namespace, name);
 
-  return agnosticFs.fileWrite(s3bucket, filePath, contents);
+  return agnosticFs.fileWrite(s3bucket, filePath, contents)
+    .then(result => Object.assign(result, {
+      url: makeJobFileLink(result.Key),
+    }));
 };
 
 export const jobFileDelete = (projectId, namespace, path) => {
