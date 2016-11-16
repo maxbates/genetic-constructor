@@ -29,14 +29,17 @@ export class Inspector extends Component {
   static propTypes = {
     isVisible: PropTypes.bool.isRequired,
     currentTab: PropTypes.string.isRequired,
-  };
-
-  toggle = (forceVal) => {
-    this.props.inspectorToggleVisibility(forceVal);
+    inspectorToggleVisibility: PropTypes.func.isRequired,
+    inspectorSelectTab: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
   };
 
   setActive = (group) => {
     this.props.inspectorSelectTab(group);
+  };
+
+  toggle = (forceVal) => {
+    this.props.inspectorToggleVisibility(forceVal);
   };
 
   sections = {

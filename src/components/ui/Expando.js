@@ -50,12 +50,12 @@ export default class Expando extends Component {
             />
             <Label
               text={this.props.text}
-              hover={true}
+              hover
               onClick={this.onToggle}
               styles={{
                 marginLeft: '0.5rem',
-                width     : '215px',
-                display   : 'inline-block',
+                width: '215px',
+                display: 'inline-block',
                 userSelect: 'none',
               }}
             />
@@ -68,6 +68,6 @@ export default class Expando extends Component {
           {this.props.content}
         </div>
       </div>
-    )
+    );
   }
 }
