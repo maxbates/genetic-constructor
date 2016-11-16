@@ -98,7 +98,6 @@ class InspectorGroupExtensions extends Component {
           isServer: manifestIsServer(extension),
           Region: extensionRegion(extension),
         };
-        //debugger;
         return (<Expando
           key={index}
           text={values.Name}

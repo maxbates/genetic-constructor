@@ -1,0 +1,36 @@
+@import './variables.css';
+
+.InspectorGroupOrders {
+  width: 100%;
+  height: 100%;
+  background-color: var(--colors-white);
+
+  .expando {
+    margin-bottom: 0.5rem;
+  }
+
+  .content-dropdown {
+    background-color: var(--colors-blueGreyLighter);
+    margin: 0.5rem 0 0 -6px;
+    padding-bottom: 0.5rem;
+    width: calc(100% + 12px);
+
+    .row {
+      display: flex;
+      align-items: top;
+      padding: 0.5rem 0 0 0.5rem;
+
+      .key {
+        width: 30%;
+        text-align: right;
+        color: var(--colors-grey);
+        margin-right: 5%;
+      }
+      .value {
+        width: 60%;
+        color: var(--colors-blueBlack);
+        font-family: var(--font-family-bold);
+      }
+    }
+  }
+}

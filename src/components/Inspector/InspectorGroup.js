@@ -20,6 +20,7 @@ import InspectorGroupHelp from './InspectorGroupHelp';
 import InspectorGroupFeedback from './InspectorGroupFeedback';
 import InspectorGroupExtensions from './InspectorGroupExtensions';
 import InspectorGroupSettings from './InspectorGroupSettings';
+import InspectorGroupOrders from './InspectorGroupOrders';
 
 import '../../styles/InspectorGroup.css';
 
@@ -41,6 +42,8 @@ export default class InspectorGroup extends Component {
       return (<InspectorGroupExtensions />);
     case 'settings' :
       return (<InspectorGroupSettings />);
+    case 'orders' :
+      return (<InspectorGroupOrders />);
     default:
       //throw new Error(`Type ${type} is not registered in InspectorGroup`);
     }

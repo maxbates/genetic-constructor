@@ -23,7 +23,7 @@ export default class Expando extends Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
     content: PropTypes.object.isRequired,
-    headerWidgets: PropTypes.array.isRequired,
+    headerWidgets: PropTypes.array,
   };
 
   constructor() {
@@ -43,23 +43,21 @@ export default class Expando extends Component {
     return (
       <div className="expando">
         <div className="header">
-          <div>
-            <Arrow
-              direction={this.state.open ? 'down' : 'right'}
-              onClick={this.onToggle}
-            />
-            <Label
-              text={this.props.text}
-              hover
-              onClick={this.onToggle}
-              styles={{
-                marginLeft: '0.5rem',
-                width: '215px',
-                display: 'inline-block',
-                userSelect: 'none',
-              }}
-            />
-          </div>
+          <Arrow
+            direction={this.state.open ? 'down' : 'right'}
+            onClick={this.onToggle}
+          />
+          <Label
+            text={this.props.text}
+            hover
+            onClick={this.onToggle}
+            styles={{
+              margin: '0 0.5rem',
+              flexGrow: 1,
+              display: 'inline-block',
+              userSelect: 'none',
+            }}
+          />
           <div className="header-extras">
             {this.props.headerWidgets}
           </div>
