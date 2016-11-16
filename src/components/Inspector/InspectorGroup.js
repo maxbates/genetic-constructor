@@ -25,6 +25,7 @@ import '../../styles/InspectorGroup.css';
 export default class InspectorGroup extends Component {
   static propTypes = {
     tabInfo: PropTypes.object.isRequired,
+    projectId: PropTypes.string.isRequired,
   };
 
   inspectorGroupTypeToComponent = (type) => {

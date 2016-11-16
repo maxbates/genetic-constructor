@@ -43,6 +43,6 @@ export default class Switch extends Component {
 
     return (
       <div className={arrowClasses} onClick={this.onClick}></div>
-    )
+    );
   }
 }

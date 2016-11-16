@@ -18,8 +18,6 @@ import React, { Component, PropTypes } from 'react';
 import '../../styles/InspectorGroupHelp.css';
 
 export default class InspectorGroupHelp extends Component {
-  static propTypes = {
-  };
 
   render() {
     return (<div className="InspectorGroupHelp">

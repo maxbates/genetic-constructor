@@ -20,7 +20,7 @@ import '../../styles/Switch.css';
 export default class Switch extends Component {
   static propTypes = {
     on: PropTypes.bool.isRequired,
-    disabled: PropTypes.bool.isRequired,
+    disabled: PropTypes.bool,
     switched: PropTypes.func.isRequired,
   };
 
@@ -39,6 +39,6 @@ export default class Switch extends Component {
         onClick={this.onFlick}>
         <div className={nobClass}></div>
       </div>
-    )
+    );
   }
 }

@@ -37,13 +37,27 @@ import '../../styles/InspectorGroupExtensions.css';
 
 class InspectorGroupExtensions extends Component {
   static propTypes = {
-
+    config: PropTypes.object.isRequired,
+    uiSetGrunt: PropTypes.func.isRequired,
+    userUpdateConfig: PropTypes.func.isRequired,
   };
 
   constructor() {
     super();
-    this.state = {
-    }
+    this.state = {};
+  }
+
+
+  /**
+   * there is a delay loading extensions when the app starts. if we find none
+   * then update a 2 seconds intervals until we do.
+   */
+  componentDidMount() {
+    this.expectExtensions();
+  }
+
+  componentDidUpdate() {
+    this.expectExtensions();
   }
 
   checkExtensionActive = (extension) => {
@@ -55,35 +69,44 @@ class InspectorGroupExtensions extends Component {
       extensions: {
         [extensionName]: {
           active: !this.checkExtensionActive(extensionName),
-        }
-      }
+        },
+      },
     });
     this.props.userUpdateConfig(update)
-      .then(() => {
-        this.forceUpdate();
-      });
+    .then(() => {
+      this.forceUpdate();
+    });
   };
 
-  render() {
+  expectExtensions() {
+    if (Object.keys(registry).length === 0) {
+      setTimeout(() => {
+        this.forceUpdate();
+      }, 2000);
+    }
+  }
 
+  render() {
     return (<div className="InspectorGroupExtensions">
-      {Object.keys(registry).map(key => registry[key]).map(extension => {
+      {Object.keys(registry).map(key => registry[key]).map((extension, index) => {
         const values = {
-          Name       : extensionName(extension),
-          Type       : extensionType(extension),
+          Name: extensionName(extension),
+          Type: extensionType(extension),
           Description: extensionDescription(extension),
-          Author     : extensionAuthor(extension),
-          Client     : manifestIsClient(extension),
-          isServer   : manifestIsServer(extension),
-          Region     : extensionRegion(extension),
+          Author: extensionAuthor(extension),
+          Client: manifestIsClient(extension),
+          isServer: manifestIsServer(extension),
+          Region: extensionRegion(extension),
         };
-        return <Expando
+        return (<Expando
+          key={index}
           text={values.Name}
           headerWidgets={[
-            <Switch
-              disabled={false}
+            (<Switch
+              key={index}
               on={this.checkExtensionActive(extension.name)}
-              switched={this.extensionToggled.bind(this, extension.name)}/>
+              switched={this.extensionToggled.bind(this, extension.name)}
+            />),
           ]}
           content={
             <div className="content-dropdown">
@@ -97,7 +120,7 @@ class InspectorGroupExtensions extends Component {
               </div>
             </div>
           }
-        />
+        />);
       })}
     </div>);
   }

@@ -23,14 +23,14 @@ export default class Expando extends Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
     content: PropTypes.object.isRequired,
-    headerWidgets: PropTypes.object.isRequired,
+    headerWidgets: PropTypes.array.isRequired,
   };
 
   constructor() {
     super();
     this.state = {
       open: false,
-    }
+    };
   }
 
   onToggle = () => {

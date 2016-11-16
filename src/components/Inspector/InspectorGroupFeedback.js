@@ -25,6 +25,7 @@ import '../../styles/InspectorGroupFeedback.css';
 
 class InspectorGroupFeedback extends Component {
   static propTypes = {
+    uiSetGrunt: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -38,23 +39,52 @@ class InspectorGroupFeedback extends Component {
       star4: false,
       starClicked: false,
       anon: false,
-    }
+    };
   }
 
-  toOptions = [
-    'Autodesk GSL: Editor Team',
-    'Genetic Constructor Team',
-  ];
+  /**
+   * user changed the slider. onInput/onChange are not implemented correctly in most
+   * browsers so the timing is unreliable. We use the onInput event but debounce the updating
+   * of the value the user selects.
+   * @param event
+   */
+  onRecommendChanged = debounce(() => {
+    // value is 0..100
+    const value = Number.parseFloat(this.refs.rangeSlider.value);
+    this.props.uiSetGrunt('Thanks for your feedback.');
+  }, 5000, {leading: false, trailing: true});
 
   /**
-   * when the destination for feedback is changed
-   * @param val
+   * toggle anon mode
    */
-  feedbackToChanged = (val) => {
-    this.setState({
-      feedbackTo: val,
-    });
+  onAnonChanged = () => {
+    this.setState({anon: !this.state.anon});
   };
+
+  /**
+   * user wants to publish feedback
+   */
+  onPublishFeedback = () => {
+    const team = this.state.feedbackTo;
+    const anon = this.state.anon;
+    const message = this.refs.feedbackText.value.trim();
+    if (message) {
+      this.props.uiSetGrunt('Thanks for your feedback.');
+      alert(`Team: ${team}\nAnon: ${anon}\nMessage: ${message}`);
+    } else {
+      this.props.uiSetGrunt('Please enter some feedback first.');
+    }
+  };
+
+  /**
+   * user clicked a star rating
+   * @param index 0..4
+   */
+  starRating(index) {
+    const value = Number.parseFloat(index);
+    this.setState({starClicked: true});
+    this.props.uiSetGrunt('Thanks for your feedback.');
+  }
 
   /**
    * mouse over a star
@@ -73,49 +103,21 @@ class InspectorGroupFeedback extends Component {
       star4: index >= 4,
     });
   }
-  /**
-   * user clicked a star rating
-   * @param index 0..4
-   */
-  starRating(index) {
-    const value = Number.parseFloat(index);
-    this.setState({starClicked: true});
-    this.props.uiSetGrunt('Thanks for your feedback.');
-  }
 
   /**
-   * user changed the slider. onInput/onChange are not implemented correctly in most
-   * browsers so the timing is unreliable. We use the onInput event but debounce the updating
-   * of the value the user selects.
-   * @param event
+   * when the destination for feedback is changed
+   * @param val
    */
-  onRecommendChanged = debounce(() => {
-    // value is 0..100
-    const value = Number.parseFloat(this.refs.rangeSlider.value);
-    this.props.uiSetGrunt('Thanks for your feedback.');
-  }, 5000, {leading: false, trailing: true});
-
-  /**
-   * toggle anon mode
-   */
-  onAnonChanged = (event) => {
-    this.setState({anon: !this.state.anon});
+  feedbackToChanged = (val) => {
+    this.setState({
+      feedbackTo: val,
+    });
   };
 
-  /**
-   * user wants to publish feedback
-   */
-  onPublishFeedback = () => {
-    const team = this.state.feedbackTo;
-    const anon = this.state.anon;
-    const message = this.refs.feedbackText.value.trim();
-    if (message) {
-      this.props.uiSetGrunt('Thanks for your feedback.');
-      alert(`Team: ${team}\nAnon: ${anon}\nMessage: ${message}`);
-    } else {
-      this.props.uiSetGrunt('Please enter some feedback first.');
-    }
-  };
+  toOptions = [
+    'Autodesk GSL: Editor Team',
+    'Genetic Constructor Team',
+  ];
 
   render() {
     return (<div className="InspectorGroupFeedback">
