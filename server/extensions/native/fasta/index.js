@@ -5,6 +5,7 @@ import invariant from 'invariant';
 import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as sequences from '../../../../server/data/persistence/sequence';
+import { projectPermissionMiddleware } from '../../../../server/data/permissions';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 
@@ -39,42 +40,46 @@ router.get('/file/:fileId', (req, res, next) => {
 });
 
 //EXPORT - project, each construct as a FASTA
-router.get('/export/project/:projectId', (req, res, next) => {
-  //this is tricky because need to handle list blocks + hierarchy...
-  //probably want to share this code with selectors (and genbank extension)
+router.get('/export/project/:projectId',
+  projectPermissionMiddleware,
+  (req, res, next) => {
+    //this is tricky because need to handle list blocks + hierarchy...
+    //probably want to share this code with selectors (and genbank extension)
 
-  res.status(501).send('not implemented');
-});
+    res.status(501).send('not implemented');
+  });
 
 //EXPORT - specific blocks from a project (expects blocks with sequence only). comma-separated
-router.get('/export/blocks/:projectId/:blockIdList', (req, res, next) => {
-  const { projectId, blockIdList } = req.params;
-  const blockIds = blockIdList.split(',');
+router.get('/export/blocks/:projectId/:blockIdList',
+  projectPermissionMiddleware,
+  (req, res, next) => {
+    const { projectId, blockIdList } = req.params;
+    const blockIds = blockIdList.split(',');
 
-  projectPersistence.projectGet(projectId)
-    .then(roll => {
-      const blocks = blockIds.map(blockId => roll.blocks[blockId]);
-      if (!blocks.every(block => block.sequence.md5)) {
-        console.warn('[FASTA] some blocks dont have md5: ' + projectId, blockIds);
-        throw Error('all blocks must have an md5');
-      }
+    projectPersistence.projectGet(projectId)
+      .then(roll => {
+        const blocks = blockIds.map(blockId => roll.blocks[blockId]);
+        if (!blocks.every(block => block.sequence.md5)) {
+          console.warn('[FASTA] some blocks dont have md5: ' + projectId, blockIds);
+          throw Error('all blocks must have an md5');
+        }
 
-      return Promise.all(
-        blocks.map(block => sequences.sequenceGet(block.sequence.md5))
-      )
-        .then(sequences => {
-          const fullSeq = sequences.reduce((acc, seq) => acc + seq, '');
-          const name = roll.project.metadata.name || 'Constructor Export';
-          const fileContents = `>${name} | ${projectId} | ${blockIdList}
+        return Promise.all(
+          blocks.map(block => sequences.sequenceGet(block.sequence.md5))
+        )
+          .then(sequences => {
+            const fullSeq = sequences.reduce((acc, seq) => acc + seq, '');
+            const name = roll.project.metadata.name || 'Constructor Export';
+            const fileContents = `>${name} | ${projectId} | ${blockIdList}
 ${fullSeq}`;
 
-          res.set({
-            'Content-Disposition': `attachment; filename="sequence.fasta"`,
+            res.set({
+              'Content-Disposition': `attachment; filename="sequence.fasta"`,
+            });
+            res.send(fileContents);
           });
-          res.send(fileContents);
-        });
-    })
-    .catch(err => res.status(500).send(err));
-});
+      })
+      .catch(err => res.status(500).send(err));
+  });
 
 export default router;

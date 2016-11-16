@@ -114,9 +114,10 @@ router.post('/import/:projectId?',
   mergeRollupMiddleware
 );
 
-//todo
-router.get('export/:projectId', projectPermissionMiddleware, (req, res, next) => {
-  res.status(501).send();
-});
+router.get('export/:projectId',
+  projectPermissionMiddleware,
+  (req, res, next) => {
+    res.status(501).send();
+  });
 
 export default router;
