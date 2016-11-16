@@ -51,16 +51,14 @@ export const useRemote = process.env.NODE_ENV === 'production' || (
     (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
   );
 
-//todo - better error handling
-
 let AWS;
 
 if (process.env.NODE_ENV === 'production' || (
     (!process.env.FORCE_LOCAL || (!!process.env.FORCE_LOCAL && process.env.FORCE_LOCAL !== 'true')) &&
     (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
   )) {
-  invariant(!!process.env.AWS_ACCESS_KEY_ID, 'expected env var AWS_ACCESS_KEY_ID');
-  invariant(!!process.env.AWS_SECRET_ACCESS_KEY, 'expected env var AWS_SECRET_ACCESS_KEY');
+  invariant(!!process.env.AWS_ACCESS_KEY_ID, 'production environment uses AWS, unless specify env var FORCE_LOCAL=true. expected env var AWS_ACCESS_KEY_ID');
+  invariant(!!process.env.AWS_SECRET_ACCESS_KEY, 'production environment uses AWS, unless specify env var FORCE_LOCAL=true. expected env var AWS_SECRET_ACCESS_KEY');
 
   AWS = require('aws-sdk');
 

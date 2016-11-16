@@ -18,6 +18,8 @@ import invariant from 'invariant';
 import md5 from 'md5';
 import _ from 'lodash';
 
+import { errorNoPermission, errorDoesNotExist } from '../../../utils/errors';
+import { userOwnsProject } from '../../../data/persistence/projects';
 import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as seqPersistence from '../../../../server/data/persistence/sequence';
@@ -40,26 +42,30 @@ const createFileUrl = (fileName) => {
   return '/' + extensionKey + '/file/' + fileName;
 };
 
-//todo - check permissions on projectId
 //expects :projectId (optional) on request
 export default function importMiddleware(req, res, next) {
   const { projectId } = req.params;
   const noSave = req.query.hasOwnProperty('noSave') || projectId === 'convert'; //dont save sequences or project
   const returnRoll = projectId === 'convert'; //return roll at end instead of projectId
 
-  let promise; //resolves to the files in form { name, string, hash, filePath, fileUrl }
+  //first check if user has access to projectId, unless it is just a conversion
+  //resolves to the files in form { name, string, hash, filePath, fileUrl }
+  let promise = projectId === 'convert' ?
+    Promise.resolve() :
+    userOwnsProject(req.user.uuid, projectId);
 
   //depending on the type, set variables for file urls etc.
 
   //if we have an object, expect a string to have been passed
-  if (typeof req.body === 'object' && !!req.body.string) {
+  if (typeof req.body === 'object' && req.body.string) {
     const { name, string, ...rest } = req.body;
     const hash = md5(string);
     const filePath = createFilePath(hash);
     const fileUrl = createFileUrl(hash);
 
     //only write the file if it doesnt exist
-    promise = fileSystem.fileExists(filePath)
+    //todo - do not catch here -- let errorNoPermission fall through
+    promise.then(() => fileSystem.fileExists(filePath))
       .catch((err) => fileSystem.fileWrite(filePath, string, false))
       .then(() => [{
         name,
@@ -134,6 +140,13 @@ export default function importMiddleware(req, res, next) {
     next();
   })
     .catch((err) => {
+      if (err === errorDoesNotExist) {
+        return res.status(404).send(errorDoesNotExist);
+      }
+      if (err === errorNoPermission) {
+        return res.status(403).send(errorNoPermission);
+      }
+
       console.log('[Import Middleware]', err);
       console.log(err.stack);
       next(err);
@@ -180,10 +193,12 @@ export function mergeRollupMiddleware(req, res, next) {
         //todo - should also assign sequence length here etc.
         _.forEach(blockMd5s, (pseudoMd5, blockId) => {
           //const { hash, hasRange, start, end } = parsePseudoMd5(pseudoMd5);
-          _.merge(blocks[blockId], { sequence: {
-            md5: pseudoMd5,
-            //length: hasRange ? end - start : (GET_FULL_LENGTH)
-          } });
+          _.merge(blocks[blockId], {
+            sequence: {
+              md5: pseudoMd5,
+              //length: hasRange ? end - start : (GET_FULL_LENGTH)
+            },
+          });
         });
       })
     :
