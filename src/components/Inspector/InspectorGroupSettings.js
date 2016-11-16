@@ -37,6 +37,10 @@ class InspectorGroupSettings extends Component {
   onLogOut = (event) => {
     event.preventDefault();
     this.props.userLogout()
+    .then(() => {
+      // necessary since the store seems to hang on to the previous users projects.
+      window.location.reload();
+    })
     .catch((reason) => {
       this.props.uiSetGrunt('There was a problem signing you out');
     });
