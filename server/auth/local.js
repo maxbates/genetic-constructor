@@ -34,6 +34,8 @@ import userConfigDefaults from '../onboarding/userConfigDefaults';
 import { userConfigKey } from '../user/userConstants';
 import { getConfigFromUser, mergeConfigToUserData } from '../user/utils';
 
+//note - mocks missing for forgot-password and reset-password
+
 //super basic session handling
 const requireLogin = Boolean(process.env.REQUIRELOGIN);
 const generateMockCookieValue = () => requireLogin ?
@@ -204,8 +206,6 @@ router.get('/cookies', (req, res) => {
 
   res.send(':(');
 });
-
-//todo - mock forgot-password and reset-password
 
 const listeners = [];
 

@@ -20,6 +20,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import colors from 'colors';
 
+import pkg from '../package.json';
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
 import dataRouter from './data/router';
@@ -40,8 +41,7 @@ const createBuildPath = (isBuild, notBuild = isBuild) => {
   return path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
 };
 const pathContent = createBuildPath('content', '../src/content');
-//todo - dynamic, based on package number
-const pathDocs = createBuildPath('jsdoc', '../docs/jsdoc/genetic-constructor/0.6.0');
+const pathDocs = createBuildPath('jsdoc', `../docs/jsdoc/genetic-constructor/${pkg.version}`);
 const pathImages = createBuildPath('images', '../src/images');
 const pathPublic = createBuildPath('public', '../src/public');
 const pathClientBundle = createBuildPath('client.js', '../build/client.js');
@@ -129,7 +129,7 @@ if (process.env.BIO_NANO_AUTH) {
   const localAuth = require('./auth/local');
 
   //force default user on all requests
-  //todo - clarify this usage - requires / enforces that users are always signed in to hit API, even for non-client originating requests. what about extensions?
+  //NOTE - requires / enforces that users are always signed in to hit API, even for non-client originating requests. what about extensions?
   app.use(localAuth.mockUser);
 
   //mount the mock authentication routes

@@ -28,7 +28,6 @@ export const orderList = (projectId, version) => {
     .then(results => results.map(dbPruneResult));
 };
 
-//todo - this should resolve to false... need to update usages (match project persistence existence check)
 export const orderExists = (orderId, projectId) => {
   return dbHead(`orders/id/${orderId}`)
     .then(() => true);

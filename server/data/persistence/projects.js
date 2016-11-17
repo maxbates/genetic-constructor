@@ -102,7 +102,6 @@ export const getUserProjectIds = (userId) => {
 
 //EXISTS
 
-//todo - this should resolve to false... need to update usages (an dkeep snapshots, orders, etc. in sync)
 //resolves to latest version
 export const projectExists = (projectId) => {
   return dbHeadRaw(`projects/${projectId}`)

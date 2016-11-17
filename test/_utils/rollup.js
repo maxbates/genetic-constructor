@@ -12,22 +12,20 @@ export const numberBlocksInRollup = 7;
  Returns a Rollup in the form { project: project, blocks: {P,A,B,C,D,E,F} }
  parent most block has 3 components so easier to find
  */
+/**
+ *
+ *     project
+ *       |
+ *       P
+ *  /----|-----\
+ *  A     B    F
+ * /-\   |
+ * C  D  E
+ */
 export const createExampleRollup = () => {
-  /**
-   *
-   *     project
-   *       |
-   *       P
-   *  /----|-----\
-   *  A     B    F
-   * /-\   |
-   * C  D  E
-   */
-
-    //hack - add author for testing environment to simplify tests comparing before / after writing (auto-assigned)
   const project = Project.classless({
-      metadata: { authors: [testUserId] },
-    });
+    metadata: { authors: [testUserId] },
+  });
   const blockC = Block.classless();
   const blockD = Block.classless();
   const blockE = Block.classless();

@@ -71,8 +71,7 @@ describe('Server', () => {
         it('stringPut() puts string, returns a version', () => {
           return s3.stringPut(bucket, stringName, stringContents)
             .then(result => {
-              //todo - check actually exists
-              assert(result.VersionId, 'expected VersionId');
+              assert(!!result.VersionId, 'expected VersionId');
             });
         });
 
@@ -86,8 +85,7 @@ describe('Server', () => {
         it('objectPut() puts object, gets a version', () => {
           return s3.objectPut(bucket, objectName, objectContents)
             .then(result => {
-              //todo - check actually exists
-              assert(result.VersionId, 'expected VersionId');
+              assert(!!result.VersionId, 'expected VersionId');
             });
         });
 

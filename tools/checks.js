@@ -26,7 +26,7 @@ export const checkNodeVersion = () => {
   }
 };
 
-//todo - not urgent, but v3 greatly preferred
+//not necessary, but v3 greatly preferred
 export const checkNpmVersion = () => {};
 
 export const checkDockerInstalled = () => {

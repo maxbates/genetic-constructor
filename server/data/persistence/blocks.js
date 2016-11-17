@@ -28,7 +28,6 @@ export const getAllBlocks = (userId) => {
 
 export const getAllBlocksWithName = (userId, name) => {
   // block names are the only parameters currently url-encoded
-  // todo - need to update for node 6
   const encodedName = urlSafeBase64.encode(new Buffer(name, 'utf8'));
   return dbGet(`/blocks/name/${userId}/${encodedName}`)
     .then(reduceToMap);

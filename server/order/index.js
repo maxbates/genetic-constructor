@@ -51,7 +51,7 @@ const validateOrderMiddleware = (req, res, next) => {
     return res.status(422).send('error validating order setup');
   }
 
-  //todo (future) this should be dynamic, based on the foundry, pulling from a registry
+  //future - this should be dynamic, based on the foundry, pulling from a registry
   if (!(foundry === 'egf' || (process.env.NODE_ENV === 'test' && foundry === 'test') )) {
     return res.status(501).send('foundry must be EGF');
   }
@@ -116,7 +116,7 @@ const validateOrderMiddleware = (req, res, next) => {
 router.post('/validate', validateOrderMiddleware, (req, res, next) => {
   const { order, rollup, prunedUser, foundry, constructList } = req;
 
-  //todo (future) submit should be dynamic, based on the foundry, pulling from a registry
+  //future - submit should be dynamic, based on the foundry, pulling from a registry
 
   const validatePromise = (process.env.NODE_ENV === 'test' && foundry === 'test') ?
     testValidate(order, prunedUser, constructList, rollup) :
@@ -158,7 +158,7 @@ router.route('/:projectId/:orderId?')
     /* order flow:
      - validation
      - get project @ version (latest if no version specified)
-     - generate combinatorials (todo - on server)
+     - generate combinatorials
      - submit the order to the foundry
      - create snapshot with type order
      - return order to client
@@ -179,7 +179,7 @@ Constructs ${order.constructIds.join(', ')}
 User ${user.uuid}
 `);
 
-    //todo (future) submit should be dynamic, based on the foundry, pulling from a registry
+    //future - submit should be dynamic, based on the foundry, pulling from a registry
 
     const submissionPromise = (process.env.NODE_ENV === 'test' && foundry === 'test') ?
       testSubmit(order, prunedUser, constructList, rollup) :

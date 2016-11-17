@@ -30,7 +30,7 @@ async function startDb() {
     const dbProcess = await checkPortFree(STORAGE_PORT)
       .catch(err => {
         //ideally, see what is running at the port
-        //todo - windows friendly
+        //should be windows friendly
         /*
          await promisedExec(`lsof -i :${STORAGE_PORT}`, {}, { comment: `Checking port ${STORAGE_PORT} for DB...` })
          .then(results => {

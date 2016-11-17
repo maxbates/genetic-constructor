@@ -3,8 +3,6 @@ import sinon from 'sinon';
 import * as actions from '../../../src/store/undo/actions';
 import { undoReducerEnhancerCreator, makePurging, makeUndoable } from '../../../src/store/undo/reducerEnhancer';
 
-//todo - may want to expose the undoManager so can test it more easily... or just stick with testing functionality
-
 describe('Store', () => {
   describe('Undo', () => {
     describe('reducerEnhancer', () => {

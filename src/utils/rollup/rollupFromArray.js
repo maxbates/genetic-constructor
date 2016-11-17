@@ -14,12 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//todo - use rollup model static method
+import Rollup from '../../models/Rollup';
+
+//todo - depcreate this file, use rollup model directly
 
 //for use when want to pass an array of blocks
-export default function rollupFromArray(project, ...blocks) {
-  return {
-    project,
-    blocks: blocks.reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {}),
-  };
-}
+export default Rollup.fromArray;

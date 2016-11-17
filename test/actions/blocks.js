@@ -66,6 +66,7 @@ describe('Actions', () => {
             id: storeBlock.id,
             parents: [],
           });
+
           //hack - can't set projectId on storeBlock since can't use simpleStore.
           delete comparable.projectId;
           expect(comparable).to.eql(storeBlock);

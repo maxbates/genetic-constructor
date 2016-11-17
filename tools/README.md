@@ -11,8 +11,6 @@ Server is written so you can:
  
 Server launches in its own process, and new process is started every time the server rebuilds, and is proxied using BrowserSync. The proxy also dynamically adds in hot module loading, and reload when static assets update, and React Hot Module loading and React Transform.
 
-TODO: Build the server. Not building because of relative path issues, in particular of non-static imports (e.g. all the plugins)
-
 ## Build Automation Tools
 
 ### Command line flags

@@ -60,8 +60,7 @@ export const fileExists = (path) => {
   });
 };
 
-//todo - should return buffer, not read the entire sequence
-//not crucial, since will only affect local file system once move to S3 for remote storage
+// ?? buffering not crucial, since will only affect local file system once move to S3 for remote storage
 
 export const fileRead = (path, jsonParse = true, opts = {}) => {
   const options = Object.assign({}, opts, { encoding: 'utf8' });

@@ -137,7 +137,7 @@ describe('Middleware', () => {
       });
     });
 
-    //todo - future, once want to support
+    //future - once want to support
     describe('...Future tests...', () => {
       it('ordering works with multiple constructs specified');
 

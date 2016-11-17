@@ -22,6 +22,7 @@ import {
 } from './../utils/errors';
 import * as projectPersistence from './persistence/projects';
 import * as snapshots from './persistence/snapshots';
+import Rollup from '../../src/models/Rollup';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
@@ -68,7 +69,6 @@ router.route('/:version?')
       return res.status(422).send('cannot send version and roll');
     }
 
-    //todo - proper validation using schema
     const rollupDefined = !!roll && roll.project && roll.blocks;
 
     //use version they gave or get latest
@@ -76,7 +76,7 @@ router.route('/:version?')
       Promise.resolve(version) :
       projectPersistence.projectExists(projectId).then(version => version);
 
-    //write rollup if passed, or just pass version to snapshot writing
+    //write rollup if passed (will validate it), or just pass version to snapshot writing
     const writePromise = rollupDefined ?
       projectPersistence.projectWrite(projectId, roll, user.uuid)
         .then(({ version }) => version) :

@@ -24,7 +24,6 @@ const transformDbVersion = (result) => ({
   owner: result.owner,
 });
 
-//todo - resolve to false if it doesnt exist -- match projectExists() signature
 export const projectVersionExists = (projectId, version) => {
   return dbHead(`projects/${projectId}?version=${version}`)
     .then(() => true);
