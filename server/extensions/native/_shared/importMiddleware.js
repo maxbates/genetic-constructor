@@ -14,7 +14,6 @@
  limitations under the License.
  */
 import formidable from 'formidable';
-import invariant from 'invariant';
 import md5 from 'md5';
 import _ from 'lodash';
 
@@ -24,109 +23,103 @@ import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
+import * as jobFiles from '../../../../server/data/files/jobs';
+import Project from '../../../../src/models/Project'
 import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
 
 const extensionKey = 'import';
 
-//make storage directory just in case...
-fileSystem.directoryMake(filePaths.createStorageUrl(extensionKey));
-
-const createFilePath = (fileName) => {
-  invariant(fileName, 'need a file name');
-  return filePaths.createStorageUrl(extensionKey, fileName);
-};
-
-//todo - NB not yet active. no import router to serve these files. should use hash and include route in the conversion router itseld
-const createFileUrl = (fileName) => {
-  invariant(fileName, 'need a file name');
-  return '/' + extensionKey + '/file/' + fileName;
-};
-
-//expects :projectId (optional) on request
+//projectId is optional, or may be convert
 export default function importMiddleware(req, res, next) {
   const { projectId } = req.params;
   const noSave = req.query.hasOwnProperty('noSave') || projectId === 'convert'; //dont save sequences or project
   const returnRoll = projectId === 'convert'; //return roll at end instead of projectId
 
   //first check if user has access to projectId, unless it is just a conversion
-  //resolves to the files in form { name, string, hash, filePath, fileUrl }
-  let promise = projectId === 'convert' ?
+  let promise = (!projectId || projectId === 'convert') ?
     Promise.resolve() :
     userOwnsProject(req.user.uuid, projectId);
+
+  //mint a project ID if one doesn't exist, to save job File. See also merge middleware (for after conversion)
+  const mintedProjectId = projectId || Project.classless().id;
+  Object.assign(req, { mintedProjectId });
+
+  console.log(`minted ${mintedProjectId}`);
 
   //depending on the type, set variables for file urls etc.
 
   //if we have an object, expect a string to have been passed
   if (typeof req.body === 'object' && req.body.string) {
     const { name, string, ...rest } = req.body;
-    const hash = md5(string);
-    const filePath = createFilePath(hash);
-    const fileUrl = createFileUrl(hash);
 
-    //only write the file if it doesnt exist
-    //todo - do not catch here -- let errorNoPermission fall through
-    promise.then(() => fileSystem.fileExists(filePath))
-      .catch((err) => fileSystem.fileWrite(filePath, string, false))
-      .then(() => [{
+    //calc md5 and write locally to /tmp, so available to extensions
+    //future - tee to S3 and locally to extension
+
+    const hash = md5(string);
+    const localPath = filePaths.createStorageUrl(hash);
+
+    promise = promise.then(() => Promise.all(
+      [
+        fileSystem.fileWrite(localPath, string, false),
+        jobFiles.jobFileWrite(mintedProjectId, extensionKey, string, hash),
+      ])
+      .then(([local, job]) => [{
         name,
         string,
-        hash,
-        filePath,
-        fileUrl,
-      }]);
+        fileName: job.name,
+        filePath: localPath,
+        fileUrl: job.url,
+      }])
+    );
   } else {
     // otherwise, we are expecting a form
 
     // save incoming file then read back the string data.
-    // If these files turn out to be large we could modify the import functions to take
-    // file names instead but for now, in memory is fine.
+    // If these files turn out to be large we could modify the import functions to take file names instead
+    // but for now, in memory is fine.
     const form = new formidable.IncomingForm();
 
-    promise = new Promise((resolve, reject) => {
+    promise = promise.then(() => new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) {
           return reject(err);
         }
-        resolve(files);
-      });
-    })
-      .then(files => {
-        //future - actually support multiple files
-        return Promise.all(
-          [files].map(file => {
-            const tempPath = (file && file.data) ? file.data.path : null;
 
-            if (!tempPath) {
+        Promise.all(
+          [files].map(file => {
+            const localPath = (file && file.data) ? file.data.path : null;
+
+            if (!localPath) {
               return Promise.reject('no file provided');
             }
 
             const name = file.data.name;
 
-            return fileSystem.fileRead(tempPath, false)
+            //future - buffer
+            return fileSystem.fileRead(localPath, false)
               .then((string) => {
-                const hash = md5(string);
-                const filePath = createFilePath(hash);
-                const fileUrl = createFileUrl(hash);
-
-                return fileSystem.fileExists(filePath)
-                  .catch((err) => fileSystem.fileWrite(filePath, string, false))
-                  .then(() => ({
+                return jobFiles.jobFileWrite(projectId, extensionKey, string)
+                  .then(info => ({
                     name,
                     string,
-                    hash,
-                    filePath,
-                    fileUrl,
+                    fileName: info.name,
+                    filePath: localPath,
+                    fileUrl: info.url,
                   }));
               });
           })
-        );
-      })
+        )
+        //resolve with files
+          .then(resolve);
+      });
+    }))
       .catch((err) => {
         res.status(404).send('error parsing import -- was expecting a file, or JSON object: { name, string }');
         return Promise.reject(err);
       });
   }
 
+  //resolves the files in form { name, string, fileName, filePath, fileUrl }
   promise.then(files => {
     Object.assign(req, {
       files,
@@ -175,7 +168,7 @@ export default function importMiddleware(req, res, next) {
  * }]
  */
 export function mergeRollupMiddleware(req, res, next) {
-  const { projectId, roll, noSave, returnRoll } = req;
+  const { projectId, mintedProjectId, roll, noSave, returnRoll } = req;
   const { project, blocks, sequences = {} } = roll;
 
   //we write the sequences no matter what right now
@@ -207,6 +200,10 @@ export function mergeRollupMiddleware(req, res, next) {
   return writeSequencesPromise
     .then(() => {
       if (!projectId || returnRoll) {
+        //if we didnt recieve a projectId, we've assigned one already in importMiddleware above (for job file), so use here
+        //project writing will handle assigning block projectId for us
+        Object.assign(project, { id: mintedProjectId });
+
         return Promise.resolve({
           project,
           blocks,

@@ -26,7 +26,8 @@ import { userOwnsProject } from './persistence/projects';
 
 //todo - trace this -- its called a lot. should speed up, or avoid when unnecessary
 export const projectPermissionMiddleware = (req, res, next) => {
-  const { projectId, user } = req;
+  const { user } = req;
+  const { projectId } = req.params;
 
   //in case havent already checked for user on request
   if (!user) {

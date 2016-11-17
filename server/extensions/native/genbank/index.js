@@ -167,7 +167,7 @@ router.post('/import/:projectId?',
     console.log(`importing genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
-    const { name, string, hash, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
+    const { name, string, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
 
     //todo - unify rather than just returning (esp once convert does not save sequences)
     if (projectId === 'convert') {

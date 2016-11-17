@@ -62,27 +62,31 @@ describe('Extensions', () => {
         return exportConstruct(projectId, constructId);
       });
 
-      it('importString() should be able convert a genbank file to a project and add a construct to it', async () => {
-        const projectId = await importGenbankString(fileContents);
+      it('importString() should be able convert a genbank file to a project and add a construct to it', async() => {
+        try {
+          const projectId = await importGenbankString(fileContents);
 
-        expect(projectId).to.be.defined;
+          expect(projectId).to.be.defined;
 
-        const gotRoll = await api.loadProject(projectId);
-        expect(gotRoll.project.metadata.name).to.equal('EU912544');
-        expect(gotRoll.project.components.length).to.equal(1);
-        expect(Object.keys(gotRoll.blocks).length).to.equal(8); // There are 8 blocks in that file
+          const gotRoll = await api.loadProject(projectId);
+          expect(gotRoll.project.metadata.name).to.equal('EU912544');
+          expect(gotRoll.project.components.length).to.equal(1);
+          expect(Object.keys(gotRoll.blocks).length).to.equal(8); // There are 8 blocks in that file
 
-        // Now add another construct to it...
-        const sampleStrConstruct = await fileSystem.fileRead(genbankFilePath, false);
+          // Now add another construct to it...
+          const sampleStrConstruct = await fileSystem.fileRead(genbankFilePath, false);
 
-        // This just tests that the api works as expected. The tests about the particular
-        // Genbank conversions to and from blocks are in the genbank.spec.js file
-        const data = await importGenbankString(sampleStrConstruct, projectId);
+          // This just tests that the api works as expected. The tests about the particular
+          // Genbank conversions to and from blocks are in the genbank.spec.js file
+          const data = await importGenbankString(sampleStrConstruct, projectId);
 
-        const secondRoll = await api.loadProject(projectId);
+          const secondRoll = await api.loadProject(projectId);
 
-        expect(secondRoll.project.metadata.name).to.equal('EU912544');
-        expect(secondRoll.project.components.length).to.equal(2);
+          expect(secondRoll.project.metadata.name).to.equal('EU912544');
+          expect(secondRoll.project.components.length).to.equal(2);
+        } catch (err) {
+          return err.text().then(text => { throw text });
+        }
       });
     });
   });

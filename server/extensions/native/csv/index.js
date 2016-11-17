@@ -53,9 +53,9 @@ router.post('/import/:projectId?',
     const { noSave, returnRoll, projectId, files } = req; //eslint-disable-line no-unused-vars
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
-    const { name, string, hash, filePath, fileUrl } = files[0];
+    const { name, string, fileName, filePath, fileUrl } = files[0];
 
-    return convertCsv(string, name, fileUrl, hash)
+    return convertCsv(string, fileName, fileUrl)
       .then(converted => {
         return fileSystem.fileWrite(filePath + '-converted', converted)
           .then(() => converted);
