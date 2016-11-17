@@ -480,8 +480,6 @@ class GlobalNav extends Component {
   }
 
   menuBar() {
-    return null;
-
     return (<MenuBar
       menus={[
         {
@@ -716,7 +714,7 @@ class GlobalNav extends Component {
         {showMenu && this.menuBar()}
         <span className="GlobalNav-spacer"/>
         {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId}/>}
-        {/*{<UserWidget/>}*/}
+        <UserWidget/>
         <OkCancel
           open={this.state.showDeleteProject}
           titleText="Delete Project"

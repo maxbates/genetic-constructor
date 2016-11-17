@@ -15,63 +15,90 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Switch from '../ui/Switch';
-import registry from '../../extensions/clientRegistry';
+import { projectList } from '../../actions/projects';
+import { orderList } from '../../actions/orders';
+import { uiSetGrunt } from '../../actions/ui';
 import Expando from '../ui/Expando';
-
-import {
-  uiSetGrunt,
-} from '../../actions/ui';
 
 import '../../styles/InspectorGroupOrders.css';
 
 class InspectorGroupOrders extends Component {
   static propTypes = {
     uiSetGrunt: PropTypes.func.isRequired,
+    projectList: PropTypes.func.isRequired,
   };
 
   constructor() {
     super();
-    this.state = {};
+    this.state = {
+      orders: [],
+    };
   }
 
   orders = [
     {
-      orderId: 'face-1234',
-      when: new Date().toISOString(),
-      status: 'Pending',
-    },
-    {
-      orderId: 'abcd-5678',
-      when: new Date().toISOString(),
-      status: 'Fulfilled',
-    },
-    {
-      orderId: 'xyza-7777',
-      when: new Date().toISOString(),
-      status: 'Rejected',
-    },
-    {
-      orderId: 'squk-7700',
-      when: new Date().toISOString(),
-      status: 'MIA',
+      id: '1234',
+      projectId: 'abcd',
+      status: {
+        foundry: 'My little pony',
+        timeSent: Date.now(),
+        price: 1000,
+        remoteId: 'face-1234',
+      },
     },
   ];
+
+  /**
+   * get all orders then display
+   */
+  componentDidMount() {
+    this.props.projectList()
+    .then((projects) => {
+      this.projects = projects;
+      this.projects.forEach(project => {
+        this.props.orderList(project.id)
+          .then(orderList => {
+            // fake an order
+            this.setState({
+              orders: this.state.orders.concat(this.orders),
+            });
+          });
+      });
+    });
+  }
+
   render() {
     return (<div className="InspectorGroupOrders">
-      {this.orders.map((order, index) => {
+      {this.state.orders.map((order, index) => {
         return (<Expando
           key={index}
-          text={'Order: ' + order.orderId}
+          text={'Project: ' + ' Name of Project'}
           content={
             <div className="content-dropdown">
               <div className="row">
-                <div className="key">When</div>
-                <div className="value">{order.when}</div>
+                <div className="key">Project ID</div>
+                <div className="value">{order.projectId}</div>
               </div>
               <div className="row">
-                <div className="key">Status</div>
-                <div className="value">{order.status}</div>
+                <div className="key">ID</div>
+                <div className="value">{order.id}</div>
+              </div>
+              <div className="row">
+                <div className="key">Foundry</div>
+                <div className="value">{order.status.foundry}</div>
+              </div>
+              <div className="row">
+                <div className="key">Date</div>
+                <div className="value">{new Date(order.status.timeSent).toString()}</div>
+              </div>
+              <div className="row">
+                <div className="key">Price</div>
+                <div className="value">{new Date(order.status.price).toString()}</div>
+              </div>
+              <div className="row">
+                <div className="value">
+                  <a className="link" href="#">Review Order</a>
+                </div>
               </div>
             </div>
           }
@@ -87,5 +114,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   uiSetGrunt,
+  projectList,
+  orderList,
 })(InspectorGroupOrders);
 
