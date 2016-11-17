@@ -480,6 +480,8 @@ class GlobalNav extends Component {
   }
 
   menuBar() {
+    return null;
+
     return (<MenuBar
       menus={[
         {
@@ -705,11 +707,16 @@ class GlobalNav extends Component {
     return (
       <div className="GlobalNav">
         <RibbonGrunt />
-        <img className="GlobalNav-logo" src="/images/homepage/app-logo.png"/>
+        <div className="GlobalNav-logo">
+          <div className="GlobalNav-circle">
+            <div className="GlobalNav-bar"></div>
+          </div>
+        </div>
+        <div className="GlobalNav-appname">Genetic Constructor</div>
         {showMenu && this.menuBar()}
         <span className="GlobalNav-spacer"/>
         {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId}/>}
-        <UserWidget/>
+        {/*{<UserWidget/>}*/}
         <OkCancel
           open={this.state.showDeleteProject}
           titleText="Delete Project"
