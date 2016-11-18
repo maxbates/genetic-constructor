@@ -358,7 +358,6 @@ describeAppTest("http", function (app) {
           "block-1c7c8600-0b6e-4fc9-80f0-e11d655e25d7"
         ],
         "settings": {},
-        "isSample": true
       };
 
       async.series([

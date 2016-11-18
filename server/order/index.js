@@ -67,7 +67,7 @@ const validateOrderMiddleware = (req, res, next) => {
   getPromise
     .then(rollup => {
       //block on sample project
-      if (rollup.project.isSample) {
+      if (rollup.project.rules.frozen) {
         res.status(422);
         return next('Cannot order sample project');
       }

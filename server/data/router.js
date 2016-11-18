@@ -229,7 +229,7 @@ router.route('/:projectId/:blockId')
     const block = req.body;
 
     if (!!block.id && block.id !== blockId) {
-      return res.status(400).send(errorInvalidModel);
+      return res.status(422).send(errorInvalidModel);
     }
 
     projectPersistence.blocksPatch(projectId, user.uuid, { [blockId]: block })

@@ -41,7 +41,8 @@ export default class Rollup {
       Rollup.validate(scaffolded, true);
     }
 
-    return _.merge(this, scaffolded);
+    //assign is fine, since should be empty
+    return _.assign(this, scaffolded);
   }
 
   /**
@@ -108,12 +109,15 @@ export default class Rollup {
     return true;
   }
 
+  //create rollup from project (as POJO)and N blocks (as POJO)... assigns projectId
   static fromArray(project, ...blocks) {
     invariant(Project.validate(project), 'must pass valid project');
 
     return new Rollup({
       project,
-      blocks: blocks.reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {}),
+      blocks: _.reduce(blocks, (acc, block) => Object.assign(acc, {
+        [block.id]: Object.assign(block, { projectId: project.id }),
+      }), {}),
     });
   }
 

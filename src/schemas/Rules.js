@@ -36,12 +36,12 @@ const rulesFields = {
   ],
   hidden: [
     fields.bool(),
-    'The block is hidden in the design canvas. It serves as template logic.',
+    'The instance is not visible.',
     { avoidScaffold: true },
   ],
   frozen: [
     fields.bool(),
-    'The block is immutable - no changes are allowed',
+    'The instance is immutable - no changes are allowed',
     { avoidScaffold: true },
   ],
   fixed: [
@@ -54,13 +54,6 @@ const rulesFields = {
     `A template is being authored`,
     { avoidScaffold: true },
   ],
-  /*
-   //deprecated filters for now
-   filter: [
-   fields.object(),
-   'Map of fields to allowed values for constituents (options / components)',
-   ],
-   */
 };
 
 export class RulesSchemaClass extends Schema {

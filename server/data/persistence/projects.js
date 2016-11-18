@@ -208,10 +208,11 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
 
   timer.time('models updated');
 
-  if (process.env.NODE_ENV !== 'dev' && bypassValidation !== true) {
-    const projectValid = validateProject(roll.project);
-    const blocksValid = values(roll.blocks).every(block => validateBlock(block));
-    if (!projectValid || !blocksValid) {
+  if (bypassValidation !== true) {
+    try {
+      Rollup.validate(roll, true, true);
+    } catch (err) {
+      console.log(err);
       return Promise.reject(errorInvalidModel);
     }
     timer.time('validated');
@@ -271,7 +272,7 @@ export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
     }).then(roll => {
       return projectWrite(projectId, roll, userId)
       //return the roll
-        .then(info => info.data);
+        .then(dbPruneResult);
     });
 };
 
@@ -299,8 +300,8 @@ export const projectDelete = (projectId, userId, forceDelete = false) => {
 
   return projectExists(projectId)
     .then(() => projectGet(projectId))
-    .then(project => {
-      if (project && project.isSample) {
+    .then(roll => {
+      if (roll && roll.project.rules.frozen) {
         return Promise.reject('cannot delete sample projects');
       }
     })

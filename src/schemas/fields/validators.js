@@ -251,7 +251,7 @@ export const arrayOf = (validator, { required = false } = {}) => input => {
     return new Error(`this arrayOf requires values, but got an empty array: ${input}`);
   }
 
-  if (!input.every(item => safeValidate(validator, required, item))) {
+  if (_.some(input, (item) => !safeValidate(validator, required, item))) {
     return new Error(`input ${input} passed to arrayOf did not pass validation`);
   }
 };
@@ -269,7 +269,7 @@ export const objectOf = (validator, { required = false } = {}) => input => {
     return new Error(`this objectOf requires values, but got an empty object: ${input}`);
   }
 
-  if (!_.every(input, (value, key) => safeValidate(validator, required, value, false, key))) {
+  if (_.some(input, (value, key) => !safeValidate(validator, required, value, false, key))) {
     return new Error(`input ${input} passed to objectOf did not pass validation`);
   }
 };

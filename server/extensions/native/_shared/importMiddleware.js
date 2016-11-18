@@ -41,7 +41,7 @@ export default function importMiddleware(req, res, next) {
     userOwnsProject(req.user.uuid, projectId);
 
   //mint a project ID if one doesn't exist, to save job File. See also merge middleware (for after conversion)
-  const mintedProjectId = projectId || Project.classless().id;
+  const mintedProjectId = (!projectId || projectId === 'convert') ? Project.classless().id : projectId;
   Object.assign(req, { mintedProjectId });
 
   console.log(`minted ${mintedProjectId}`);

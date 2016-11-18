@@ -157,7 +157,7 @@ describe('Server', () => {
           request(server)
             .put(url)
             .send(newBlock)
-            .expect(400, done);
+            .expect(422, done);
         });
 
         it('PUT validates the block', (done) => {

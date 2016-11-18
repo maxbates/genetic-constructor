@@ -657,7 +657,7 @@ export class ConstructViewer extends Component {
   }
 
   isSampleProject() {
-    return this.props.projectGet(this.props.currentProjectId).isSample;
+    return this.props.projectGet(this.props.currentProjectId).rules.frozen;
   }
 
   /**

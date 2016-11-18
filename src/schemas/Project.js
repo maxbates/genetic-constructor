@@ -16,6 +16,7 @@ limitations under the License.
 import fields from './fields/index';
 import * as validators from './fields/validators';
 import ProjectFileSchema from './ProjectFile';
+import RulesSchema from './Rules';
 import { InstanceSchemaClass } from './Instance';
 
 /**
@@ -44,6 +45,11 @@ const projectFields = {
   settings: [
     fields.object().required,
     `Settings associated with this project`,
+  ],
+
+  rules: [
+    RulesSchema,
+    `Rules governing the whole Project`,
   ],
 
   files: [

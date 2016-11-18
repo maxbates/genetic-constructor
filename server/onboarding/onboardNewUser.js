@@ -27,8 +27,9 @@ import DebugTimer from '../utils/DebugTimer';
 import makeEgfRollup from '../../data/egf_parts/index';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 
-//while we are using imports, do this statically. todo - use require() for dynamic (will need to reconcile with build eventually, but whatever)
-//these are parameterized generators of projects, which return promises
+// while we are using imports, do this statically
+// todo - use require() for dynamic (will need to reconcile with build eventually, but whatever)
+// these are parameterized generators of projects, which return promises
 const projectMap = {
   egf_templates: (config, user) => makeEgfRollup(),
   emptyProject: (config, user) => emptyProjectWithConstruct(true),

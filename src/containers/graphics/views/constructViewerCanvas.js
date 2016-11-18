@@ -158,7 +158,7 @@ export class ConstructViewerCanvas extends Component {
    * true if current project is a sample project
    */
   isSampleProject() {
-    return this.props.projectGet(this.props.currentProjectId).isSample;
+    return this.props.projectGet(this.props.currentProjectId).rules.frozen;
   }
 
   /**

@@ -94,6 +94,20 @@ describe('Model', () => {
       expect(Rollup.validate(rl, false)).to.equal(false);
     });
 
+    it('validate checks if each block is valid', () => {
+      const proj = Project.classless();
+      const invalidBlock = Object.assign(Block.classless({projectId: proj.id}), { metadata: 'invalid' });
+
+      const rl = {
+        project: proj,
+        blocks: {
+          [invalidBlock.id]: invalidBlock,
+        },
+      };
+
+      expect(() => Rollup.validate(rl, true)).to.throw();
+    });
+
     it('compare() can throw', () => {
       expect(() => Rollup.compare(createExampleRollup(), createExampleRollup(), true)).to.throw();
     });

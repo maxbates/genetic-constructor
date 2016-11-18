@@ -2,7 +2,7 @@ import md5 from 'md5';
 import { range } from 'lodash';
 import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
-import rollupFromArray from '../../src/utils/rollup/rollupFromArray';
+import Rollup from '../../src/models/Rollup';
 import { generateRandomSequence } from './sequence';
 import { testUserId } from '../constants';
 
@@ -44,10 +44,7 @@ export const createExampleRollup = () => {
 
   const blocks = [blockP, blockA, blockB, blockC, blockD, blockE, blockF];
 
-  //assign the project ID, as it should be there anyway, and will be there after writing
-  blocks.forEach(block => Object.assign(block, { projectId: project.id }));
-
-  const roll = rollupFromArray(project, ...blocks);
+  const roll = Rollup.fromArray(project, ...blocks);
   return roll;
 };
 
@@ -74,17 +71,15 @@ export const createSequencedRollup = (numSeqs = (numberBlocksInRollup - 1)) => {
     sequence: {
       md5: sequenceMd5s[index],
     },
-    projectId: project.id,
   }));
 
   const construct = Block.classless({
-    projectId: project.id,
     components: blocks.map(block => block.id),
   });
 
   project.components = [construct.id];
 
-  const roll = rollupFromArray(project, ...blocks, construct);
+  const roll = Rollup.fromArray(project, ...blocks, construct);
   Object.assign(roll, { sequences: sequenceMap });
   return roll;
 };
@@ -119,7 +114,6 @@ export const createListRollup = (numListBlocks = 4, numOptions = 5) => {
   const construct = Block.classless();
 
   const options = range(totalBlocks).map((index) => Block.classless({
-    projectId: project.id,
     sequence: {
       md5: sequenceMd5s[index],
     },
@@ -130,7 +124,6 @@ export const createListRollup = (numListBlocks = 4, numOptions = 5) => {
     const optionIds = opts.map(opt => opt.id);
 
     return Block.classless({
-      projectId: project.id,
       rules: {
         list: true,
       },
@@ -141,7 +134,7 @@ export const createListRollup = (numListBlocks = 4, numOptions = 5) => {
   construct.components = listBlocks.map(block => block.id);
   project.components = [construct.id];
 
-  const roll = rollupFromArray(project, construct, ...listBlocks, ...options);
+  const roll = Rollup.fromArray(project, construct, ...listBlocks, ...options);
   Object.assign(roll, { sequences: sequenceMap });
   return roll;
 };

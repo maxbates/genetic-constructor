@@ -126,7 +126,6 @@ class GlobalNav extends Component {
     focus: PropTypes.object.isRequired,
     blocks: PropTypes.object,
     project: PropTypes.shape({
-      isSample: PropTypes.bool,
       getName: PropTypes.func,
       metadata: PropTypes.object,
     }),
@@ -275,7 +274,7 @@ class GlobalNav extends Component {
    * delete the current project and open a different one
    */
   deleteProject() {
-    if (this.props.project.isSample) {
+    if (this.props.project.rules.frozen) {
       this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
     } else {
       const projectId = this.props.currentProjectId;

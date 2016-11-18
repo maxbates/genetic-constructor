@@ -27,7 +27,7 @@ describe('Ordering', () => {
     const templatesProject = makeEgfRollup();
 
     //hack so dont need to clone the project to order from it
-    delete templatesProject.project.isSample;
+    delete templatesProject.project.rules.frozen;
 
     before(() => {
       return projectPersistence.projectWrite(templatesProject.project.id, templatesProject, testUserId, true);
