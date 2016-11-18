@@ -19,7 +19,7 @@ import Rollup from '../../src/models/Rollup';
 import _ from 'lodash';
 
 describe('Templates', () => {
-  describe.only('EGF', () => {
+  describe('EGF', () => {
     it('should create a valid rollup, blocks with correct projectId', () => {
       const roll = makeEgfRollup();
       Rollup.validate(roll, true);
@@ -52,7 +52,29 @@ describe('Templates', () => {
         });
       });
 
+      /*
+       //debugging:
+       console.log(`
+       Roll has ${Object.keys(roll.blocks).length} blocks
+       # Repeats: ${repeats.length}
+       # Unique Repeats: ${[...new Set(repeats)].length}
+       `);
+       */
+
       assert(!repeats.length, 'should not have any repeats');
+    });
+
+    it('should make it quickly', function speedTest(done) {
+      const number = 10;
+      const perSecond = 2.5;
+
+      this.timeout(number * 1000);
+
+      const rolls = _.range(number * perSecond).map((ind) => {
+        makeEgfRollup();
+      });
+
+      done();
     });
   });
 });
