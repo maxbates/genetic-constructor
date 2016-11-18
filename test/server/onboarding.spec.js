@@ -49,10 +49,11 @@ describe('Server', () => {
 
     it('can take a config of starting projects');
 
+    //note - this really isnt fast at all
     it('should onboard many users quickly', function speedTest(done) {
-      //note - this really isnt fast at all. this a 0.5 seconds per onboarding.
       //this will go away soon, once EGF project is global
-      this.timeout(numUsers * 0.67 * 1000);
+      const perSecond = 1;
+      this.timeout(numUsers * 1000 / perSecond);
 
       Promise.all(
         users.map((user) => onboardNewUser(user))

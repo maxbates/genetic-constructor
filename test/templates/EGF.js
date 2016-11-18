@@ -66,11 +66,11 @@ describe('Templates', () => {
 
     it('should make it quickly', function speedTest(done) {
       const number = 10;
-      const perSecond = 2.5;
+      const perSecond = 1.5;
 
-      this.timeout(number * 1000);
+      this.timeout(number * 1000 / perSecond);
 
-      const rolls = _.range(number * perSecond).map((ind) => {
+      const rolls = _.range(number).map((ind) => {
         makeEgfRollup();
       });
 
