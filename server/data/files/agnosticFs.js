@@ -41,7 +41,9 @@ export const fileWrite = (s3bucket, filePath, contents, params) => {
   let promise;
 
   if (s3.useRemote) {
-    promise = s3.stringPut(s3bucket, filePath, contents, params);
+    promise = typeof contents === 'string' ?
+      s3.stringPut(s3bucket, filePath, contents, params) :
+      s3.itemPutBuffer(s3bucket, filePath, contents, params);
   } else {
     const fullPath = path.resolve(s3bucket, filePath);
     const folderPath = fullPath.substring(0, fullPath.lastIndexOf('/'));
