@@ -31,7 +31,7 @@ install:
 - npm install
 script:
 - npm run lint
-- PGPORT=60914 npm run test
+- PGPORT=60914 npm run test-coverage-report
 #- npm run start-testing &
 #- sleep 120
 #- npm run nightwatch-saucelabs
