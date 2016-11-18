@@ -1,1 +1,1 @@
-web: sleep 20 && FORCE_LOCAL=true npm run start-instance && sleep 15
+web: sleep 20 && npm run start-instance && sleep 15
