@@ -19,6 +19,7 @@ import { projectList } from '../../actions/projects';
 import { orderList } from '../../actions/orders';
 import { uiSetGrunt } from '../../actions/ui';
 import Expando from '../ui/Expando';
+import moment from 'moment';
 
 import '../../styles/InspectorGroupOrders.css';
 
@@ -35,19 +36,6 @@ class InspectorGroupOrders extends Component {
     };
   }
 
-  orders = [
-    {
-      id: '1234',
-      projectId: 'abcd',
-      status: {
-        foundry: 'My little pony',
-        timeSent: Date.now(),
-        price: 1000,
-        remoteId: 'face-1234',
-      },
-    },
-  ];
-
   /**
    * get all orders then display
    */
@@ -60,7 +48,7 @@ class InspectorGroupOrders extends Component {
           .then(orderList => {
             // fake an order
             this.setState({
-              orders: this.state.orders.concat(this.orders),
+              orders: this.state.orders.concat(orderList),
             });
           });
       });
@@ -72,28 +60,28 @@ class InspectorGroupOrders extends Component {
       {this.state.orders.map((order, index) => {
         return (<Expando
           key={index}
-          text={'Project: ' + ' Name of Project'}
+          text={order.metadata.name}
           content={
             <div className="content-dropdown">
               <div className="row">
-                <div className="key">Project ID</div>
-                <div className="value">{order.projectId}</div>
+                <div className="key">Project</div>
+                <div className="value">{this.projects.find(project => project.id === order.projectId).metadata.name || 'Unnamed Project'}</div>
               </div>
               <div className="row">
-                <div className="key">ID</div>
-                <div className="value">{order.id}</div>
+                <div className="key">Order Created</div>
+                <div className="value">{moment(order.metadata.created).format('llll')}</div>
               </div>
               <div className="row">
                 <div className="key">Foundry</div>
                 <div className="value">{order.status.foundry}</div>
               </div>
               <div className="row">
-                <div className="key">Date</div>
-                <div className="value">{new Date(order.status.timeSent).toString()}</div>
+                <div className="key">Remote ID</div>
+                <div className="value">{order.status.remoteId}</div>
               </div>
               <div className="row">
-                <div className="key">Price</div>
-                <div className="value">{new Date(order.status.price).toString()}</div>
+                <div className="key">Time Sent</div>
+                <div className="value">{moment(order.status.timeSent).format('llll')}</div>
               </div>
               <div className="row">
                 <div className="value">
