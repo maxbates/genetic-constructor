@@ -1,8 +1,6 @@
-import invariant from 'invariant';
-import connectors from './connectors';
-import parts from './parts';
+import { parts, connectors } from './dictParts';
 import Block from '../../src/models/Block';
-import { merge } from 'lodash';
+import _, { merge } from 'lodash';
 
 //note that technically, these keys are strings, and passing a number will cast to a string as the key
 export const templateSymbols = {
@@ -38,14 +36,15 @@ export const templateSymbols = {
 const termIsPartPos = term => Number.isInteger(term) || term === '8a' || term === '8b';
 const stringIsConnector = (string) => (/^[a-zA-Z](-[a-zA-Z]{1,2})?( BsaI\-.)?$/gi).test(string);
 
-// pass position number, return map for block options
-export const getOptionParts = (pos, optionId) => {
-  return parts.filter(part => part.metadata.egfPosition === `${pos}`)
-    .reduce((acc, part, index) => Object.assign(acc, { [part.id]: (optionId ? optionId === part.id : true) }), {});
-};
-
 // create list block with parts
+//can pass specific optionId to enable only that list option
 export const list = (pos, optionId) => {
+  const options = parts[`${pos}`].map(part => Block.classless(part));
+
+  const optionMap = options.reduce((acc, part, index) => Object.assign(acc, {
+    [part.id]: (optionId ? optionId === part.id : true),
+  }), {});
+
   const listBlock = Block.classless({
     metadata: {
       name: `Position ${pos}`,
@@ -54,13 +53,13 @@ export const list = (pos, optionId) => {
       role: templateSymbols[pos], //role as metadata, since constructs shouldn't have a role
       list: true,
     },
-    options: getOptionParts(pos, optionId),
+    options: optionMap,
     notes: {
       Position: pos,
     },
   });
 
-  return listBlock;
+  return [listBlock, ...options];
 };
 
 // create block which is connector
@@ -68,22 +67,20 @@ export const list = (pos, optionId) => {
 // letters for name ('A-C')
 export const conn = (term) => {
   const isPos = !isNaN(parseInt(term[0], 10));
-  return connectors.find(conn => isPos ?
-    conn.metadata.egfPosition === `${term}` :
-    conn.metadata.name.toUpperCase() === `conn ${term}`.toUpperCase()
-  );
+  const key = isPos ? `${term}` : `conn ${term}`.toUpperCase();
+  const found = connectors[key];
+
+  return Block.classless(found);
 };
 
 //specific part by name or shortname
 //frozen, can clone it yourself if you want to
 export const part = (term) => {
-  return parts.find(part => {
-    return part.metadata.name.toLowerCase() === term ||
-      part.metadata.shortName.toLowerCase() === term;
-  });
+  return Block.classless(parts[term]);
 };
 
 //pass numbers for parts, strings as '#' or '#-#' for connectors (or e.g. 'A-B BsaI-X', see regex above), otherwise a part name
+//may pass single part, or an array (in which case, first block is construct / list, and subsequence are options / children
 export const makeComponents = (...terms) => {
   return terms
     .map(term => termIsPartPos(term) ? //eslint-disable-line no-nested-ternary
@@ -97,11 +94,9 @@ export const makeComponents = (...terms) => {
 //mark it frozen to save a mapping call later...
 //note - does not make a real block. Does not have an ID. need to wrap these appropriately.
 export const templateFromComponents = (components, toMerge = {}) => {
-  if (process.env.NODE_ENV !== 'production') {
-    invariant(components.every(comp => Block.validate(comp)), 'must pass valid blocks');
-  }
+  //invariant(components.every(comp => Block.validate(comp)), 'must pass valid blocks');
 
-  return merge({},
+  return Block.classless(merge({},
     toMerge,
     {
       components: components.map(comp => comp.id),
@@ -110,5 +105,5 @@ export const templateFromComponents = (components, toMerge = {}) => {
         frozen: true,
       },
     },
-  );
+  ));
 };

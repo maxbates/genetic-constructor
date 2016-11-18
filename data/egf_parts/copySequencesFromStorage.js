@@ -1,7 +1,7 @@
 import * as filePaths from '../../server/data/middleware/filePaths';
 import * as fileSystem from '../../server/data/middleware/fileSystem';
 
-import parts from './parts';
+import parts from './partList.json';
 
 const md5s = parts.map(part => part.sequence.md5);
 

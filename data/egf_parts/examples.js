@@ -9,6 +9,8 @@ import { baseTemplates, blocks as templateBlocks } from './templates';
 //list of list blocks created while creating our examples
 const created = [];
 
+//todo - need to pass in specific instances of templates to pull from
+
 const getTemplate = (name) => baseTemplates.find(tmpl => tmpl.metadata.name.toLowerCase().indexOf(`${name}`.toLowerCase()) === 0);
 
 //need to find the specific one for this position, not just by name, because dependent on position
