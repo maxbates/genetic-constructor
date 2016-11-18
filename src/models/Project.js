@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { assign, merge, cloneDeep, isEqual } from 'lodash';
+import { assign, merge, isEqual } from 'lodash';
 import invariant from 'invariant';
 import Instance from './Instance';
 import ProjectSchema from '../schemas/Project';
