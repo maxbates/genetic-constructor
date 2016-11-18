@@ -15,7 +15,7 @@
  */
 import Instance from './Instance';
 import invariant from 'invariant';
-import { merge, cloneDeep } from 'lodash';
+import { assign, merge, cloneDeep } from 'lodash';
 import BlockSchema from '../schemas/Block';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
@@ -45,10 +45,13 @@ export default class Block extends Instance {
    * Create a block given some input object
    * @constructor
    * @param {Object} [input]
+   * @param {Boolean} [frozen=true] Whether the model is frozen (false => POJO)
    * @returns {Block}
    */
-  constructor(input) {
-    super(input, BlockSchema.scaffold(), { metadata: { color: color() } });
+  constructor(input, frozen = true) {
+    const scaff = BlockSchema.scaffold();
+    scaff.metadata.color = color();
+    super(input, scaff, frozen);
   }
 
   /************
@@ -57,6 +60,7 @@ export default class Block extends Instance {
 
   /**
    * Create an unfrozen block, extending input with schema
+   * If you just want an unfrozen block with instance methods, call new Block(input, false)
    * @method classless
    * @memberOf Block
    * @static
@@ -64,7 +68,7 @@ export default class Block extends Instance {
    * @returns {Object} an unfrozen JSON, no instance methods
    */
   static classless(input) {
-    return Object.assign({}, cloneDeep(new Block(input)));
+    return assign({}, new Block(input, false));
   }
 
   /**

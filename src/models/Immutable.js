@@ -13,8 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { set as pathSet, unset as pathUnset, cloneDeep, merge } from 'lodash';
+import { set as pathSet, unset as pathUnset, cloneDeep, assign, merge } from 'lodash';
 import invariant from 'invariant';
+import deepFreeze from 'deep-freeze';
 
 /**
  * The Immutable class creates Immutable objects, whose properties are immutable and cannot be modifed except through their defined API.
@@ -27,17 +28,16 @@ export default class Immutable {
   /**
    * @constructor
    * @param {Object} input
+   * @param {Boolean} [frozen=true] Make it frozen (an immutable)
    * @returns {Immutable}
    */
-  constructor(input = {}) {
+  constructor(input = {}, frozen = true) {
     invariant(typeof input === 'object', 'must pass an object Immutable constructor');
 
-    merge(this,
-      input,
-    );
+    assign(this, input);
 
-    if (process.env.NODE_ENV !== 'production') {
-      require('deep-freeze')(this);
+    if (frozen !== false && process.env.NODE_ENV !== 'production') {
+      deepFreeze(this);
     }
 
     return this;
@@ -98,9 +98,7 @@ export default class Immutable {
    * const next = initial.merge({new: 'stuff'});
    */
   merge(obj) {
-    //use cloneDeep and perform mutation prior to calling constructor because constructor may freeze object
-    const base = cloneDeep(this);
-    merge(base, obj);
-    return new this.constructor(base);
+    //use merge and perform mutation prior to calling constructor because constructor may freeze object
+    return new this.constructor(merge({}, this, obj));
   }
 }

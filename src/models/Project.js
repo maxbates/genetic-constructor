@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { merge, cloneDeep, isEqual } from 'lodash';
+import { assign, merge, cloneDeep, isEqual } from 'lodash';
 import invariant from 'invariant';
 import Instance from './Instance';
 import ProjectSchema from '../schemas/Project';
@@ -36,10 +36,11 @@ export default class Project extends Instance {
    * Create a project given some input object
    * @memberOf Project
    * @param {Object} [input]
+   * @param {Boolean} [frozen=true]
    * @returns {Project}
    */
-  constructor(input) {
-    super(input, ProjectSchema.scaffold());
+  constructor(input, frozen = true) {
+    super(input, ProjectSchema.scaffold(), frozen);
   }
 
   /**
@@ -50,7 +51,7 @@ export default class Project extends Instance {
    * @returns {Object} an unfrozen JSON, no instance methods
    */
   static classless(input) {
-    return Object.assign({}, cloneDeep(new Project(input)));
+    return assign({}, new Project(input, false));
   }
 
   /**

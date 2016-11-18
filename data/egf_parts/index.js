@@ -1,4 +1,3 @@
-import { merge } from 'lodash';
 import Project from '../../src/models/Project';
 import Rollup from '../../src/models/Rollup';
 

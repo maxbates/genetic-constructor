@@ -39,13 +39,13 @@ const stringIsConnector = (string) => (/^[a-zA-Z](-[a-zA-Z]{1,2})?( BsaI\-.)?$/g
 // create list block with parts
 //can pass specific optionId to enable only that list option
 export const list = (pos, optionId) => {
-  const options = parts[`${pos}`].map(part => Block.classless(part));
+  const options = parts[`${pos}`].map(part => new Block(part, false));
 
   const optionMap = options.reduce((acc, part, index) => Object.assign(acc, {
     [part.id]: (optionId ? optionId === part.id : true),
   }), {});
 
-  const listBlock = Block.classless({
+  const listBlock = new Block({
     metadata: {
       name: `Position ${pos}`,
     },
@@ -57,7 +57,7 @@ export const list = (pos, optionId) => {
     notes: {
       Position: pos,
     },
-  });
+  }, false);
 
   return [listBlock, ...options];
 };
@@ -70,13 +70,13 @@ export const conn = (term) => {
   const key = isPos ? `${term}` : `conn ${term}`.toUpperCase();
   const found = connectors[key];
 
-  return Block.classless(found);
+  return new Block(found, false);
 };
 
 //specific part by name or shortname
 //frozen, can clone it yourself if you want to
 export const part = (term) => {
-  return Block.classless(parts[term]);
+  return new Block(parts[term], false);
 };
 
 //pass numbers for parts, strings as '#' or '#-#' for connectors (or e.g. 'A-B BsaI-X', see regex above), otherwise a part name
@@ -96,7 +96,7 @@ export const makeComponents = (...terms) => {
 export const templateFromComponents = (components, toMerge = {}) => {
   //invariant(components.every(comp => Block.validate(comp)), 'must pass valid blocks');
 
-  return Block.classless(merge({},
+  return new Block(merge({},
     toMerge,
     {
       components: components.map(comp => comp.id),
@@ -105,5 +105,5 @@ export const templateFromComponents = (components, toMerge = {}) => {
         frozen: true,
       },
     },
-  ));
+  ), false);
 };
