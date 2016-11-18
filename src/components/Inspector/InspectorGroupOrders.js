@@ -33,30 +33,51 @@ class InspectorGroupOrders extends Component {
     super();
     this.state = {
       orders: [],
+      loaded: false,
     };
   }
 
   /**
    * get all orders then display
    */
-  componentDidMount() {
+  componentDidMountXXX() {
     this.props.projectList()
     .then((projects) => {
       this.projects = projects;
       this.projects.forEach(project => {
         this.props.orderList(project.id)
-          .then(orderList => {
-            // fake an order
-            this.setState({
-              orders: this.state.orders.concat(orderList),
-            });
+        .then(orderList => {
+          // fake an order
+          this.setState({
+            orders: this.state.orders.concat(orderList),
           });
+        });
+      });
+    });
+  }
+
+  /**
+   * get all projects and reduce to an array of promises for the orders
+   */
+  componentDidMount() {
+    this.props.projectList()
+    .then((projects) => {
+      this.projects = projects;
+      Promise.all(this.projects.reduce((accumulator, project) => {
+        return accumulator.concat(this.props.orderList(project.id));
+      }, []))
+      .then((orderLists) => {
+        this.setState({
+          orders: [].concat.apply([], orderLists),
+          loaded: true
+        });
       });
     });
   }
 
   render() {
     return (<div className="InspectorGroupOrders">
+      {this.state.loaded && this.state.orders.length === 0 ? <div className="no-label">No Orders Found</div> : null}
       {this.state.orders.map((order, index) => {
         return (<Expando
           key={index}
@@ -65,7 +86,8 @@ class InspectorGroupOrders extends Component {
             <div className="content-dropdown">
               <div className="row">
                 <div className="key">Project</div>
-                <div className="value">{this.projects.find(project => project.id === order.projectId).metadata.name || 'Unnamed Project'}</div>
+                <div
+                  className="value">{this.projects.find(project => project.id === order.projectId).metadata.name || 'Unnamed Project'}</div>
               </div>
               <div className="row">
                 <div className="key">Order Created</div>
