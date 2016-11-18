@@ -18,9 +18,9 @@
  * @module persistence
  */
 import invariant from 'invariant';
-import { merge, values, forEach } from 'lodash';
+import { merge, forEach } from 'lodash';
 import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../utils/errors';
-import { validateId, validateBlock, validateProject } from '../../utils/validation';
+import { validateId, validateProject } from '../../utils/validation';
 import DebugTimer from '../../utils/DebugTimer';
 import { dbHeadRaw, dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
 import Rollup from '../../../src/models/Rollup';

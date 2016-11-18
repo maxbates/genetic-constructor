@@ -126,6 +126,9 @@ class GlobalNav extends Component {
     focus: PropTypes.object.isRequired,
     blocks: PropTypes.object,
     project: PropTypes.shape({
+      rules: PropTypes.shape({
+        frozen: PropTypes.bool,
+      }),
       getName: PropTypes.func,
       metadata: PropTypes.object,
     }),

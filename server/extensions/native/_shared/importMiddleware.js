@@ -24,7 +24,7 @@ import * as filePaths from '../../../data/middleware/filePaths';
 import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as jobFiles from '../../../../server/data/files/jobs';
-import Project from '../../../../src/models/Project'
+import Project from '../../../../src/models/Project';
 import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
 
 const extensionKey = 'import';

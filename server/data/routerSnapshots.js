@@ -22,7 +22,6 @@ import {
 } from './../utils/errors';
 import * as projectPersistence from './persistence/projects';
 import * as snapshots from './persistence/snapshots';
-import Rollup from '../../src/models/Rollup';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
