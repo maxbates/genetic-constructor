@@ -14,7 +14,7 @@
     "build-client": "./node_modules/.bin/babel-node tools/run bundle",
     "jsdoc": "jsdoc -c docs/jsdoc/jsdoc.conf.json --package package.json --readme docs/jsdoc/jsdoc.md",
     "postinstall": "npm run install-extensions && npm run selenium && npm run jsdoc && ./node_modules/.bin/babel-node tools/run install-dependencies",
-    "install-extensions": "cd server/extensions && node ./pruneNodeModules.js && npm install --global-style --only=prod --no-bin-link --no-optional",
+    "install-extensions": "cd server/extensions && node ./pruneNodeModules.js && npm install --global-style --only=prod --no-optional",
     "check": "./node_modules/.bin/babel-node tools/run checks && npm run lint && npm run test",
     "lint": "./node_modules/eslint/bin/eslint.js src server tools",
     "test": "NODE_ENV=test ./node_modules/.bin/babel-node tools/run test",

@@ -29,6 +29,12 @@ function generateConnectString(config) {
   //'postgres://user:pass@example.com:5432/dbname'
   var pgConnString = 'postgres://' + config.user + ':' + config.password + '@' + config.host + ':' + config.port + '/'
     + config.database;
+
+  //support for HEROKU
+  if (process.env.DATABASE_URL) {
+    pgConnString = process.env.DATABASE_URL;
+  }
+
   console.log("pgConnString", pgConnString);
   return pgConnString;
 }
