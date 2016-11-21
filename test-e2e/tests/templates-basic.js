@@ -10,8 +10,8 @@ module.exports = {
     homepageRegister(browser);
     openInventoryPanel(browser, 'Templates');
     browser
+      .waitForElementPresent('.InventoryListGroup-title', 5000, 'expected title for templates list to appear')
       .click('.InventoryListGroup-title')
-      .click('.Toggler')
       .waitForElementPresent('.InventoryItem-item', 5000, 'expected inventory items');
     browser
       .assert.countelements('[data-inventory~="template"]', 29)
