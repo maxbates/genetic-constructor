@@ -20,7 +20,6 @@ import AuthenticationForms from './authentication/authenticationforms';
 import AboutForm from '../components/aboutform';
 import ModalSpinner from '../components/modal/modalspinner';
 import InlineEditor from '../components/inline-editor/inline-editor';
-import ExtensionPicker from '../components/modal/ExtensionPicker';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
 import track from '../analytics/ga';
 
@@ -87,7 +86,6 @@ class App extends Component {
                    showMenu={onProjectPage}/>
         <AuthenticationForms />
         <AboutForm />
-        <ExtensionPicker />
         <ReportErrorModal />
         <div className="App-pageContent">
           {this.props.children}

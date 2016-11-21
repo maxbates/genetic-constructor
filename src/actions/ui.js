@@ -277,14 +277,4 @@ export const uiReportError = (nextState) => {
   };
 };
 
-export const uiShowExtensionPicker = (nextState = true) => {
-  return (dispatch, getState) => {
-    dispatch({
-      type: ActionTypes.UI_SHOW_EXTENSION_PICKER,
-      pickerState: nextState,
-    });
-    return nextState;
-  };
-};
-
 

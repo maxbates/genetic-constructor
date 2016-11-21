@@ -19,7 +19,7 @@ import { push } from 'react-router-redux';
 import PopupMenu from '../../components/Menu/PopupMenu';
 import Vector2D from '../../containers/graphics/geometry/vector2d';
 import { connect } from 'react-redux';
-import { uiShowAuthenticationForm, uiSetGrunt, uiShowExtensionPicker } from '../../actions/ui';
+import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
 import { userLogout } from '../../actions/user';
 import track from '../../analytics/ga';
 
@@ -29,7 +29,6 @@ class UserWidget extends Component {
 
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
-    uiShowExtensionPicker: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     user: PropTypes.object,
     push: PropTypes.func.isRequired,
@@ -91,12 +90,6 @@ class UserWidget extends Component {
             classes: 'blue-menu-items',
           },
           {
-            text: 'Extension Settings',
-            action: () => {
-              this.props.uiShowExtensionPicker(true);
-            },
-          },
-          {
             text: 'Account Settings',
             action: () => {
               this.props.uiShowAuthenticationForm('account');
@@ -143,7 +136,6 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiShowAuthenticationForm,
-  uiShowExtensionPicker,
   uiSetGrunt,
   push,
   userLogout,

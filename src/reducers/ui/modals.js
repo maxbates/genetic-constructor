@@ -34,7 +34,6 @@ export const initialState = {
   showReportError: false,
   showPartsCSVImport: false,
   listBlock: null,
-  showExtensionPicker: false,
 };
 
 export default function modals(state = initialState, action) {
@@ -101,10 +100,6 @@ export default function modals(state = initialState, action) {
   case ActionTypes.UI_SHOW_REPORT_ERROR:
     const { modalState } = action;
     return Object.assign({}, state, { showReportError: modalState });
-
-  case ActionTypes.UI_SHOW_EXTENSION_PICKER:
-    const { pickerState } = action;
-    return Object.assign({}, state, { showExtensionPicker: pickerState });
 
   case LOCATION_CHANGE :
     const toKeep = ['gruntMessage'].reduce((acc, field) => Object.assign(acc, { [field]: state[field] }), {});
