@@ -45,7 +45,7 @@ If you have the bio-user-platform installed, you can run the server with authent
 
 ## Extensions
 
-Once the server is up and running, you might need to make sure that specific server requirements as noted in the extension's README.md are installed in case you are running the extension's server (if any) locally.
+Extensions should not require additional dependencies or installations steps. They may run scripts that hook into npm or git to accomplish any additional steps automatically. If you experience problems with an extension, check its README.
 
 ## Troubleshooting
 
