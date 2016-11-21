@@ -1,7 +1,6 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var openInventory = require('../fixtures/open-inventory');
 var size = require('../fixtures/size');
-var openTemplates = require('../fixtures/open-templates-sample');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 
 module.exports = {
   'Verify all templates are available' : function (browser) {
@@ -9,8 +8,7 @@ module.exports = {
     // maximize for graphical tests
     size(browser);
     homepageRegister(browser);
-    openInventory(browser);
-    openTemplates(browser);
+    openInventoryPanel(browser, 'Templates');
     browser
       .click('.InventoryListGroup-title')
       .click('.Toggler')

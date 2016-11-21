@@ -1,12 +1,9 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
 var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
 var clickConstructTitle = require('../fixtures/click-construct-title');
-var openInventory = require('../fixtures/open-inventory');
-var openInspector = require('../fixtures/open-inspector');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
+var openInspectorPanel = require('../fixtures/open-inspector-panel');
 var size = require('../fixtures/size');
 
 module.exports = {
@@ -15,7 +12,7 @@ module.exports = {
     size(browser);
 
     // register via fixture
-    var credentials = homepageRegister(browser);
+    homepageRegister(browser);
 
     // now we can go to the project page
     browser
@@ -25,12 +22,10 @@ module.exports = {
 
     // start with a fresh project
     newProject(browser);
-    openInventory(browser);
-    openInspector(browser);
+    openInventoryPanel(browser, 'Sketch');
+    openInspectorPanel(browser, 'Information');
 
     browser
-      // open symbols
-      .click('.InventorySectionIcon.open[data-section="Sketch"]')
       // expect at least one inventory item and one block to drop on
       .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item')
       // expect one focused construct viewer

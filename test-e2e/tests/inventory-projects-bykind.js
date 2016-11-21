@@ -1,16 +1,14 @@
 var homepageRegister = require('../fixtures/homepage-register');
 var size = require('../fixtures/size');
-var openInventory = require('../fixtures/open-inventory');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var clickText = require('../fixtures/click-element-text');
 
 module.exports = {
   'Verify we view templates by block type': function (browser) {
     size(browser);
     homepageRegister(browser);
-    openInventory(browser);
+    openInventoryPanel(browser, 'Templates');
     browser
-    .waitForElementPresent('.InventorySectionIcon[data-section="Templates"]', 5000, 'expected a section icon')
-    .click('.InventorySectionIcon[data-section="Templates"]')
     .pause(3000)
     // start with 1 samples templates 'EGF Sample Templates'
     .assert.countelements('[data-inventory~="project"]', 1);

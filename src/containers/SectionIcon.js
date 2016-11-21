@@ -92,6 +92,7 @@ export default class SectionIcon extends Component {
         className={containerClass}
         onMouseEnter={this.onEnter}
         onMouseLeave={this.onLeave}
+        data-selected={this.props.selected}
         onClick={this.onClick}>
         <img className={imgClass} title={this.props.section} src={sectionNameToSVG[this.props.section]}/>
       </div>

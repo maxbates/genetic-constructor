@@ -1,13 +1,9 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
-var dragFromTo = require('../fixtures/dragfromto');
 var dragRegion = require('../fixtures/dragregion');
 var testProject = require('../fixtures/testproject');
-var newConstruct = require('../fixtures/newconstruct');
 var clickNthBlock = require('../fixtures/click-nth-block-bounds');
 var clickAt = require('../fixtures/clickAt');
-var openInventory = require('../fixtures/open-inventory');
+
 var size = require('../fixtures/size');
 
 module.exports = {

@@ -1,17 +1,11 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
 var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
-var clickMainMenu = require('../fixtures/click-main-menu');
 var http = require("http");
 var path = require('path');
 var size = require('../fixtures/size');
 var searchFor = require('../fixtures/search-for');
-var openInventory = require('../fixtures/open-inventory');
-var openNthBlockContextMenu = require('../fixtures/open-nth-block-contextmenu');
-var clickNthContextMenuItem = require('../fixtures/click-popmenu-nth-item');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 
 module.exports = {
   'Import an ncbi part when creating a construct and export the genbank file' : function (browser) {
@@ -30,11 +24,10 @@ module.exports = {
     // start with a new project to ensure no construct viewers are visible
     newProject(browser);
     browser.pause(1000);
-    openInventory(browser);
+    openInventoryPanel(browser, 'Sketch');
 
     // open sketch menu
     browser
-      .click('.InventorySectionIcon.open[data-section="Sketch"]')
       // expect at least one inventory item and one block to drop on
       .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item');
 

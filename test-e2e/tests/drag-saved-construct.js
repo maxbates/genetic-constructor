@@ -2,7 +2,7 @@ var homepageRegister = require('../fixtures/homepage-register');
 var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
 var clickMainMenu = require('../fixtures/click-main-menu');
-var openInventory = require('../fixtures/open-inventory');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var size = require('../fixtures/size');
 
 module.exports = {
@@ -11,18 +11,13 @@ module.exports = {
     size(browser);
     homepageRegister(browser);
     newProject(browser);
-    openInventory(browser);
+    openInventoryPanel(browser, "Sketch");
 
     browser
-      // open sbol blocks
-      .click('.InventorySectionIcon.open[data-section="Sketch"]');
-
     // create a new construct with a single block
     dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.cvc-drop-target', 50, 40);
-
     // and again
     dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.cvc-drop-target', 50, 40);
-
 
     browser
       .pause(5000)
@@ -34,8 +29,8 @@ module.exports = {
     clickMainMenu(browser, 1, 1);
 
     // click the my projects inventory tab and expect a project.
+    openInventoryPanel(browser, 'Projects');
     browser
-      .click('.InventorySectionIcon.open[data-section="Projects"]')
       // expect one project
       .waitForElementPresent('.InventoryListGroup-heading', 5000, 'expect a list of projects to appear')
       // click to expand
@@ -47,7 +42,7 @@ module.exports = {
       .click('[data-inventory~="project"]:nth-of-type(2) .Toggler')
       .pause(2000)
       // expect to see 2 blocks that we added to the two constructs
-      .assert.countelements('[data-inventory~="construct"]', 2)
+      .assert.countelements('[data-inventory~="construct"]', 2);
 
     // drag the first construct into the canvas
     dragFromTo(browser, '[data-inventory~="construct"]', 10, 10, '.cvc-drop-target', 50, 40);

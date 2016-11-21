@@ -1,14 +1,11 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
 var dragFromTo = require('../fixtures/dragfromto');
-var newConstruct = require('../fixtures/newconstruct');
 var openNthBlockContextMenu = require('../fixtures/open-nth-block-contextmenu');
 var clickNthContextMenuItem = require('../fixtures/click-popmenu-nth-item');
-var openInventory = require('../fixtures/open-inventory');
 var clickMainMenu = require('../fixtures/click-main-menu');
 var newProject = require('../fixtures/newproject');
 var size = require('../fixtures/size');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 
 module.exports = {
   'Import a DNA sequence into a sketch block' : function (browser) {
@@ -16,7 +13,7 @@ module.exports = {
     size(browser);
 
     // register via fixture
-    var credentials = homepageRegister(browser);
+    homepageRegister(browser);
 
     // now we can go to the project page
     browser
@@ -27,12 +24,9 @@ module.exports = {
 
     // start with a fresh project
     newProject(browser);
-    openInventory(browser);
+    openInventoryPanel(browser, 'Sketch');
 
     browser
-      // open the sketch blocks
-      .click('.InventorySectionIcon.open[data-section="Sketch"]')
-
     // double check there are no construct viewers present
       .assert.countelements('.construct-viewer', 1);
 

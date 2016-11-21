@@ -1,7 +1,7 @@
 var homepageRegister = require('../fixtures/homepage-register');
 var newProject = require('../fixtures/newproject');
 var size = require('../fixtures/size');
-var openTemplates = require('../fixtures/open-templates-sample');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var dragFromTo = require('../fixtures/dragfromto.js');
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
 
     size(browser);
     homepageRegister(browser);
-    openTemplates(browser);
+    openInventoryPanel(browser, 'Templates');
     newProject(browser);
     browser
       .click('.Toggler')

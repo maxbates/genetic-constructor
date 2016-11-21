@@ -1,10 +1,8 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
 var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
 var newConstruct = require('../fixtures/newconstruct');
-var openInventory = require('../fixtures/open-inventory');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var size = require('../fixtures/size');
 
 
@@ -18,11 +16,9 @@ module.exports = {
     newProject(browser);
     newConstruct(browser);
     newConstruct(browser);
-    openInventory(browser);
+    openInventoryPanel(browser, 'Sketch');
 
-      // open inventory
     browser
-      .click('.InventorySectionIcon.open[data-section="Sketch"]')
       // expect at least one inventory item and one block to drop on
       .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item');
 

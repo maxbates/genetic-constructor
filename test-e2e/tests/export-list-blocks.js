@@ -1,16 +1,12 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
 var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
 var clickMainMenu = require('../fixtures/click-main-menu');
 var http = require("http");
 var path = require('path');
 var size = require('../fixtures/size');
 var searchFor = require('../fixtures/search-for');
-var openInventory = require('../fixtures/open-inventory');
-var openTemplates = require('../fixtures/open-templates-sample');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 
 
 module.exports = {
@@ -28,18 +24,17 @@ module.exports = {
       .waitForElementPresent('.SidePanel.Inspector', 5000, 'Expected Inspector');
 
     newProject(browser);
-    openInventory(browser);
     searchFor(browser, 'Ncbi', 'Runx1');
     dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
 
     // click the my projects inventory tab and expect a project.
+    openInventoryPanel(browser, 'Templates');
     browser
-      .click('.InventorySectionIcon.open[data-section="Templates"]')
       // expect one project
       .waitForElementPresent('.InventoryListGroup-heading', 5000, 'expect a list of projects to appear')
       // click to expand
       .waitForElementPresent('[data-inventory~="project"]', 30000, 'expected projects to appear')
-      // expect to see 1 template projects
+      // expect to see 1 template project
       .assert.countelements('[data-inventory~="project"]', 1)
       // expand
       .click('.Toggler')
