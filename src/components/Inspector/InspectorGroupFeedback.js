@@ -49,10 +49,13 @@ class InspectorGroupFeedback extends Component {
    * @param event
    */
   onRecommendChanged = debounce(() => {
-    // value is 0..100
-    const value = Number.parseFloat(this.refs.rangeSlider.value);
+    // value is 0..4
+    const sliderRating = Number.parseFloat(this.refs.rangeSlider.value);
     this.props.uiSetGrunt('Thanks for your feedback.');
-  }, 5000, {leading: false, trailing: true});
+    if (heap && heap.track) {
+      heap.track('Slider rating', {sliderRating});
+    }
+  }, 2000, {leading: false, trailing: true});
 
   /**
    * toggle anon mode
@@ -66,11 +69,17 @@ class InspectorGroupFeedback extends Component {
    */
   onPublishFeedback = () => {
     const team = this.state.feedbackTo;
-    const anon = this.state.anon;
+    const anonymous = this.state.anon;
     const message = this.refs.feedbackText.value.trim();
     if (message) {
       this.props.uiSetGrunt('Thanks for your feedback.');
-      alert(`Team: ${team}\nAnon: ${anon}\nMessage: ${message}`);
+      if (heap && heap.track) {
+        heap.track('Feedback', {
+          team,
+          anonymous,
+          message,
+        });
+      }
     } else {
       this.props.uiSetGrunt('Please enter some feedback first.');
     }
@@ -84,6 +93,9 @@ class InspectorGroupFeedback extends Component {
     const value = Number.parseFloat(index);
     this.setState({starClicked: true});
     this.props.uiSetGrunt('Thanks for your feedback.');
+    if (heap && heap.track) {
+      heap.track('Star Rating', {value});
+    }
   }
 
   /**
@@ -156,7 +168,7 @@ class InspectorGroupFeedback extends Component {
       </div>
       <hr/>
       <span className="bold">I would recommend this software to others.</span>
-      <input type="range" min="0" max="100" step="1" defaultValue="50" onInput={this.onRecommendChanged} ref="rangeSlider"/>
+      <input type="range" min="0" max="4" step="1" defaultValue="2" onInput={this.onRecommendChanged} ref="rangeSlider"/>
       <div className="range-labels">
         <span className="light">Strongly disagree</span>
         <span className="light" style={{float: 'right'}}>Strongly agree</span>
