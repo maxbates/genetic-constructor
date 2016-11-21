@@ -17,7 +17,10 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { projectList } from '../../actions/projects';
 import { orderList } from '../../actions/orders';
-import { uiSetGrunt } from '../../actions/ui';
+import {
+  uiSetGrunt,
+  uiShowOrderForm,
+} from '../../actions/ui';
 import Expando from '../ui/Expando';
 import moment from 'moment';
 
@@ -107,7 +110,10 @@ class InspectorGroupOrders extends Component {
               </div>
               <div className="row">
                 <div className="value">
-                  <a className="link" href="#">Review Order</a>
+                  <a className="link" href="#" onClick={(event) => {
+                    event.preventDefault();
+                    this.props.uiShowOrderForm(true, order.id);
+                  }}>Review Order</a>
                 </div>
               </div>
             </div>
@@ -119,11 +125,20 @@ class InspectorGroupOrders extends Component {
 }
 
 function mapStateToProps(state, props) {
+// const orders = Object.keys(state.orders).reduce((accumulator, orderId) => {
+//   return accumulator.concat([state.orders[orderId]]);
+// }, []);
+// debugger;
+// return {
+//   orders,
+//   projects: state.projects,
+// };
   return {};
 }
 
 export default connect(mapStateToProps, {
   uiSetGrunt,
+  uiShowOrderForm,
   projectList,
   orderList,
 })(InspectorGroupOrders);
