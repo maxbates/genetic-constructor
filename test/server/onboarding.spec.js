@@ -57,7 +57,7 @@ describe('Server', () => {
       const perSecond = 1;
 
       if (withJenkins) {
-        this.timeout(60000);
+        this.timeout(120000);
       } else {
         this.timeout(numUsers * 1000 / perSecond);
       }
