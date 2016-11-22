@@ -2,11 +2,11 @@ import { expect, assert } from 'chai';
 import Block from '../../../src/models/Block';
 import _ from 'lodash';
 
+const withJenkins = !!process.env.JENKINS;
+
 describe('Model', () => {
   describe('Block', () => {
     describe('Constructor', () => {
-      this.timeout(10000);
-
       let block;
       beforeEach(() => {
         block = new Block();
@@ -66,7 +66,11 @@ describe('Model', () => {
         const perSecond = 2500;
         const number = 1000;
 
-        this.timeout(number * 1000 / perSecond);
+        if (withJenkins) {
+          this.timeout(15000);
+        } else {
+          this.timeout(number * 1000 / perSecond);
+        }
 
         _.range(number).map(() => new Block());
       });
@@ -75,7 +79,11 @@ describe('Model', () => {
         const perSecond = 2500;
         const number = 1000;
 
-        this.timeout(number * 1000 / perSecond);
+        if (withJenkins) {
+          this.timeout(15000);
+        } else {
+          this.timeout(number * 1000 / perSecond);
+        }
 
         _.range(number).map(() => Block.classless());
       });
