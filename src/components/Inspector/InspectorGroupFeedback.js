@@ -21,6 +21,8 @@ import {
   uiSetGrunt,
 } from '../../actions/ui';
 
+const heap = heap || {track: () => {}};
+
 import '../../styles/InspectorGroupFeedback.css';
 
 class InspectorGroupFeedback extends Component {
@@ -52,9 +54,7 @@ class InspectorGroupFeedback extends Component {
     // value is 0..4
     const sliderRating = Number.parseFloat(this.refs.rangeSlider.value);
     this.props.uiSetGrunt('Thanks for your feedback.');
-    if (heap && heap.track) {
-      heap.track('Slider rating', {sliderRating});
-    }
+    heap.track('Slider rating', {sliderRating});
   }, 2000, {leading: false, trailing: true});
 
   /**
@@ -73,13 +73,11 @@ class InspectorGroupFeedback extends Component {
     const message = this.refs.feedbackText.value.trim();
     if (message) {
       this.props.uiSetGrunt('Thanks for your feedback.');
-      if (heap && heap.track) {
-        heap.track('Feedback', {
-          team,
-          anonymous,
-          message,
-        });
-      }
+      heap.track('Feedback', {
+        team,
+        anonymous,
+        message,
+      });
     } else {
       this.props.uiSetGrunt('Please enter some feedback first.');
     }
@@ -93,9 +91,7 @@ class InspectorGroupFeedback extends Component {
     const value = Number.parseFloat(index);
     this.setState({starClicked: true});
     this.props.uiSetGrunt('Thanks for your feedback.');
-    if (heap && heap.track) {
-      heap.track('Star Rating', {value});
-    }
+    heap.track('Star Rating', {value});
   }
 
   /**

@@ -30,6 +30,8 @@ class InspectorGroupOrders extends Component {
   static propTypes = {
     uiSetGrunt: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
+    orderList: PropTypes.array.isRequired,
+    uiShowOrderForm: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -38,25 +40,6 @@ class InspectorGroupOrders extends Component {
       orders: [],
       loaded: false,
     };
-  }
-
-  /**
-   * get all orders then display
-   */
-  componentDidMountXXX() {
-    this.props.projectList()
-    .then((projects) => {
-      this.projects = projects;
-      this.projects.forEach(project => {
-        this.props.orderList(project.id)
-        .then(orderList => {
-          // fake an order
-          this.setState({
-            orders: this.state.orders.concat(orderList),
-          });
-        });
-      });
-    });
   }
 
   /**
@@ -72,7 +55,7 @@ class InspectorGroupOrders extends Component {
       .then((orderLists) => {
         this.setState({
           orders: [].concat.apply([], orderLists),
-          loaded: true
+          loaded: true,
         });
       });
     });

@@ -22,7 +22,7 @@
 export function getLocal(key, defaultObject) {
   // many things could go wrong here, no localStorage, unserializable object etc.
   try {
-    let item = localStorage.getItem(key);
+    const item = localStorage.getItem(key);
     if (item) {
       return JSON.parse(item);
     }
