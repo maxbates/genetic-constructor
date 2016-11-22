@@ -1,10 +1,10 @@
 service-name: gctorstorage
-environment: dev
+environment: local
 
 # parameters used when calling cloudformation update-stack
 # NOTE set this value in the Jenkins job as it varies by environment
 cfn-stack-name: ""
-cfn-param-compose-file: docker-compose-quickstart.yml
+cfn-param-compose-file: docker-compose-api-quickstart.yml
 cfn-param-compose-start-params: ""
 cfn-param-compose-cmd-prefix: ""
 tmp-cfn-status: CloudStackStatus.txt
@@ -29,8 +29,8 @@ zip-excludes-input-dirs: .
 
 # set false to only push a image tagged for the envrionment
 tag-latest: true
-lib-prefix: quay.io/bionano/
-lib-push-config: --config /var/jenkins_home/.docker
+lib-prefix: quay.io/autodesk_bionano/
+lib-push-config: --config /var/jenkins_home/.docker-config-autodesk-bionano-org
 
 build-compose-file: docker-compose.yml
 jenkins-test-compose-file: docker-compose-jenkins.yml
