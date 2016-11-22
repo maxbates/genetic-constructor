@@ -41,10 +41,6 @@ export default function color() {
   return next;
 }
 
-export function randomColor() {
-  return '#' + Math.floor(Math.random() * Math.pow(2, 24)).toString(16);
-}
-
 export function resetColorSeed() {
   lastIndex = 0;
 }

@@ -20,7 +20,7 @@ import BlockSchema from '../schemas/Block';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
 import md5 from 'md5';
-import color from '../utils/generators/color';
+import { isHex, getPalette, nextColor, colorFiller } from '../utils/color';
 import { dnaStrict, dnaLoose } from '../utils/dna';
 import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
@@ -49,7 +49,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   constructor(input) {
-    super(input, BlockSchema.scaffold(), { metadata: { color: color() } });
+    super(input, BlockSchema.scaffold(), { metadata: { color: nextColor() } });
   }
 
   /************
@@ -458,6 +458,7 @@ export default class Block extends Instance {
     return this.mutate('metadata.description', desc);
   }
 
+  //todo - update this
   /**
    * Set Block's color
    * @method setColor
@@ -467,7 +468,7 @@ export default class Block extends Instance {
    * @example
    * new Block().setColor('#99aaaa');
    */
-  setColor(newColor = color()) {
+  setColor(newColor = nextColor()) {
     return this.mutate('metadata.color', newColor);
   }
 
@@ -477,8 +478,23 @@ export default class Block extends Instance {
    * @memberOf Block
    * @returns {string} Hex Color value
    */
-  getColor() {
-    return this.metadata.color;
+  getColor(paletteName, byRole = false) {
+    const palette = getPalette(paletteName);
+
+    if (byRole) {
+      const role = this.getRole(false);
+      console.warn('handle color by role');
+      //todo - convert role to index
+      return role ? palette[0].hex : colorFiller;
+    }
+
+    if (isHex(this.metadata.color)) {
+      console.warn('have a hex color!');
+      //todo - upgrade hex colors
+      return this.metadata.color;
+    }
+
+    return palette[this.metadata.color].hex;
   }
 
   /************
