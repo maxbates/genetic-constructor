@@ -110,13 +110,10 @@ export function loginHandler(req, res, next) {
       return resp.json();
     })
     .then(userPayload => {
-
       if (!!userPayload.message) {
         return Promise.reject(userPayload);
       }
-
       const pruned = pruneUserObject(userPayload);
-
       res.json(pruned);
     })
     .catch(err => {
@@ -181,14 +178,11 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         return resp.json();
       })
       .then(userPayload => {
-
         if (!!userPayload.message) {
           return Promise.reject(userPayload);
         }
-
         const pruned = pruneUserObject(userPayload);
         const toSend = wholeUser ? pruned : pruned.config;
-
         res.json(toSend);
       })
       .catch(err => {
