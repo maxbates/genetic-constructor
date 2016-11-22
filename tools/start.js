@@ -6,10 +6,7 @@ import run from './run';
 import runServer from './runServer';
 import { clientConfig } from './webpack.config';
 import setup from './setup';
-import checks from './checks';
-import clean from './clean';
-import startDb from './startDb';
-import copy from './copy';
+import colors from 'colors';
 //import bundleServer from './bundleServer';
 import { debounce } from 'lodash';
 
@@ -18,7 +15,7 @@ const DEBUG = !process.argv.includes('--release');
 async function start() {
   await run(setup);
 
-  console.log('bundling...');
+  console.log('Bundling application with Webpack (this may take a moment)...');
 
   //await run(bundleServer);
 
@@ -89,7 +86,8 @@ async function start() {
     //use browsersync and its proxy so that we dont need to explicitly include it in server code, only when debugging...
     //also allows us to watch static assets
     let handleServerBundleComplete = () => {
-      console.info('webpack initial build complete, starting browser-sync with webpack middleware');
+      console.log(colors.green('webpack initial build complete'));
+      console.log(colors.green('Starting Browser-Sync proxy & injecting Webpack middleware'));
 
       runServer((err, host) => {
         if (!err) {
@@ -144,7 +142,7 @@ async function start() {
               return;
             }
             if (eventsCareAbout.includes(evt)) {
-              console.log('webpack watch:', evt, path);
+              console.log(colors.yellow('webpack watch:', evt, path));
               debouncedRunServer();
             }
           };

@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import colors from 'colors/safe';
 import { exec, spawn } from 'child_process';
 
 const DEBUG = process.env.DEBUG && process.env.DEBUG.indexOf('tools') >= 0;
@@ -31,7 +32,7 @@ export const promisedExec = (cmd, opts, {
   forceOutput = false,
   comment = null,
 } = {}) => {
-  console.log(comment || 'running ' + cmd);
+  console.log(colors.blue(comment || 'running ' + cmd));
 
   return new Promise((resolve, reject) => {
     exec(cmd, opts, (err, stdout, stderr) => {
@@ -63,7 +64,7 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
   failOnStderr = false,
   comment = null,
 } = {}) => {
-  console.log(comment || '\nrunning: ' + cmd + ' ' + args.join(' '));
+  console.log(colors.blue(comment || '\nrunning: ' + cmd + ' ' + args.join(' ')));
 
   return new Promise((resolve, reject) => {
     //const [ command, ...args ] = cmd.split(' ');

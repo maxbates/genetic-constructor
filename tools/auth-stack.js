@@ -30,27 +30,31 @@ console.log('path for bio-user-platform is ' + pathBioNanoPlatform + '. Set by p
 const setupBioNanoPlatform = (useGenomeDesignerBranch = false) => {
   const checkoutPromise = useGenomeDesignerBranch === true ?
     promisedExec(`git checkout genome-designer`,
-      { cwd: pathBioNanoPlatform }
+      { cwd: pathBioNanoPlatform },
+      { comment: 'Setting up User Module...' }
     ) :
     Promise.resolve();
 
   return checkoutPromise
     .then(() => promisedExec(`npm install`,
-      { cwd: pathBioNanoPlatform }
+      { cwd: pathBioNanoPlatform },
+      { comment: 'Installing User Module...' }
     ));
 };
 
 const startBioNanoPlatform = () => {
   return spawnAsync('npm', ['run', 'storage-background'],
     { cwd: pathBioNanoPlatform },
-    { waitUntil: 'database system is ready to accept connections' }
+    { comment: 'Starting User Module Database....',
+      waitUntil: 'database system is ready to accept connections' }
   );
 };
 
 const startAuthServer = () => {
   return spawnAsync('npm', ['start'],
     { cwd: pathBioNanoPlatform },
-    { waitUntil: `{ address: { address: '::', family: 'IPv6', port: 8080 } } 'started'` });
+    { comment: 'Starting User Module...',
+      waitUntil: `{ address: { address: '::', family: 'IPv6', port: 8080 } } 'started'` });
 };
 
 const startRunAuth = () => {
@@ -58,6 +62,7 @@ const startRunAuth = () => {
   return spawnAsync('npm', ['run', 'auth'],
     { cwd: pathProjectRoot },
     {
+      comment: 'Starting Constructor with Authentication...',
       waitUntil: 'Server listening at http://0.0.0.0:3000/',
       forceOutput: true,
       failOnStderr: false,

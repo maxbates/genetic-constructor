@@ -193,13 +193,13 @@ function startServer() {
   return new Promise((resolve, reject) => {
     app.listen(HOST_PORT, HOST_NAME, (err) => {
       if (err) {
-        console.log('Error starting server', err.stack);
+        console.log(colors.bgRed('Error starting server', err.stack));
         return reject(err);
       }
 
       /* eslint-disable no-console */
       const path = `http://${HOST_NAME}:${HOST_PORT}/`;
-      console.log(colors.green(`\nServer listening at ${path}\n`));
+      console.log(colors.bgGreen(`\nServer listening at ${path}\n`));
       resolve(path);
     });
   });

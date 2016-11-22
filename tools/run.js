@@ -6,6 +6,9 @@ function format(time) {
 function magentaLog(msg) {
   console.log(`\x1b[35m${msg}\x1b[0m`);
 }
+function greenLog(msg) {
+  console.log(`\x1b[32m${msg}\x1b[0m`);
+}
 function redLog(msg) {
   console.log(`\x1b[31m${msg}\x1b[0m`);
 }
@@ -20,7 +23,7 @@ function run(fn, options) {
     const end = new Date();
     const time = end.getTime() - start.getTime();
 
-    magentaLog(`[${format(end)}] Finished '${task.name}${options ? `(${options})` : ''}' after ${time} ms`);
+    greenLog(`[${format(end)}] Finished '${task.name}${options ? `(${options})` : ''}' after ${time} ms`);
 
     return result;
   })

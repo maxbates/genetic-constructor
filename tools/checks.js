@@ -13,12 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import colors from 'colors/safe';
 import { promisedExec } from './lib/cp';
 
 export const checkNodeVersion = () => {
   const ver = process.version;
 
-  console.log('Checking Node Version...');
+  console.log(colors.blue('Checking Node Version...'));
 
   if (!/v4/.test(ver)) {
     console.error('\n\nConstructor requires node version 4.x - you have: ' + ver + '\n\n');
@@ -41,7 +42,7 @@ async function checks() {
   try {
     await checkNodeVersion();
     await checkDockerInstalled();
-    console.log('Checks passed!');
+    console.log(colors.green('Checks passed!'));
   } catch (err) {
     console.log('error running checks for Constructor: ', err);
     throw err;
