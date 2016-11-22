@@ -29,6 +29,7 @@ import { promisedExec, spawnAsync } from './lib/cp';
 const withCoverage = process.env.COVERAGE === 'true';
 const withReport = process.env.REPORT === 'true';
 const withJenkins = !!process.env.JENKINS;
+const NO_DOCKER = process.env.NO_DOCKER || false;
 
 //e.g. jenkins wants to always pass, so dont break the build
 const forceSuccess = withReport;
@@ -73,16 +74,19 @@ async function test() {
     //setup directories etc (may not be needed after transition to S3 / DB)
     await run(setup);
 
-    //start database (note - this holds onto the process until killed)
-    const dbProcess = await run(startDb);
+    if(withJenkins || NO_DOCKER) {
+      console.log('assuming DB managed externally');
+    } else {
+      //start database (note - this holds onto the process until killed)
+      const dbProcess = await run(startDb);
 
-    //not defined if DB was already running
-    if (dbProcess) {
-      processes.push(dbProcess);
+      //not defined if DB was already running
+      if (dbProcess) {
+        processes.push(dbProcess);
+      }
     }
 
     //now, run the test suite
-
     let command = withCoverage ?
       coverageCommand :
       unitTestCommand;

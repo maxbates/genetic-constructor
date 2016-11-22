@@ -14,12 +14,15 @@ import copy from './copy';
 import { debounce } from 'lodash';
 
 const DEBUG = !process.argv.includes('--release');
+const NO_DOCKER = process.env.NO_DOCKER || false;
 
 async function start() {
   await run(checks);
   await run(clean);
   await run(setup);
-  await run(startDb);
+  if (! NO_DOCKER) {
+    await run(startDb);
+  }
   await run(copy.bind(undefined, { watch: true }));
 
   console.log('bundling...');

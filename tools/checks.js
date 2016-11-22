@@ -15,6 +15,8 @@
  */
 import { promisedExec } from './lib/cp';
 
+const NO_DOCKER = process.env.NO_DOCKER || false;
+
 export const checkNodeVersion = () => {
   const ver = process.version;
 
@@ -40,7 +42,9 @@ export const checkDockerInstalled = () => {
 async function checks() {
   try {
     await checkNodeVersion();
-    await checkDockerInstalled();
+    if (! NO_DOCKER) {
+      await checkDockerInstalled();
+    }
     console.log('Checks passed!');
   } catch (err) {
     console.log('error running checks for Constructor: ', err);

@@ -11,6 +11,7 @@ webapp:
     HOST_URL: https://geneticconstructor${BNR_ENV_URL_SUFFIX}.bionano.autodesk.com
     NODE_ENV: ${NODE_ENV}
     GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
+    NO_DOCKER: "true"
     STORAGE_API: http://gctor-storage${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
   command:
     npm run server-auth
