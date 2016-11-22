@@ -21,7 +21,7 @@
     transition: background-color var(--timing-fast) ease-out;
 
     &[disabled] {
-      background-color: var(--colors-greyMedLight);
+      background-color: var(--colors-mediumLightGrey);
       cursor: not-allowed;
     }
   }

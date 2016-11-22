@@ -47,8 +47,8 @@
   div&-header {
     padding-bottom: 0.5em;
     margin-bottom: 0.5em;
-    border-bottom: 1px solid var(--colors-greyMedLight);
-    color: var(--colors-greyMedLight);
+    border-bottom: 1px solid var(--colors-mediumLightGrey);
+    color: var(--colors-mediumLightGrey);
   }
 
   &-cell {

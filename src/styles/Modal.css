@@ -35,7 +35,7 @@
   font-size: 2rem;
   line-height: 4rem;
   height: 4rem;
-  color: var(--colors-grey);
+  color: var(--colors-slightlyDarkGrey);
   text-align: center;
 }
 .modal-button-bar {
