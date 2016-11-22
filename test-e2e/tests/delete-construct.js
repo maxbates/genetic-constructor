@@ -13,7 +13,7 @@ module.exports = {
     newProject(browser);
 
     browser
-      .waitForElementNotPresent('.ribbongrunt')
+      .waitForElementNotPresent('.ribbongrunt-visible')
       .waitForElementPresent('.construct-viewer', 5000, 'expected one construct viewer')
       .waitForElementPresent('[data-nodetype="construct-title"]', 5000, 'expected a title for the construct')
 

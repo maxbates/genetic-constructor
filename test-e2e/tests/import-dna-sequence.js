@@ -60,8 +60,8 @@ module.exports = {
       // submit the form with the valid sequence
       .submitForm('.importdnaform')
       // wait for the grunt ribbon to confirm,
-      .waitForElementPresent('.ribbongrunt', 5000, 'expected a grunt')
-      .assert.containsText('.ribbongrunt', 'Sequence was successfully inserted.');
+      .waitForElementPresent('.ribbongrunt-visible', 5000, 'expected a grunt')
+      .assert.containsText('.ribbongrunt-visible', 'Sequence was successfully inserted.');
 
     // now start a new project and ensure the dialog is no operational with no block selected
     // start with a fresh project
@@ -72,7 +72,7 @@ module.exports = {
 
     browser
       .pause(100)
-      .waitForElementPresent('.ribbongrunt', 1000, 'expect an error message for this case')
+      .waitForElementPresent('.ribbongrunt-visible', 1000, 'expect an error message for this case')
       .end();
   }
 };
