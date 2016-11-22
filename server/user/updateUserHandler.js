@@ -46,9 +46,6 @@ export function registrationHandler(req, res, next) {
   try {
     validateConfig(mergedConfig);
   } catch (err) {
-    console.log('[User Register] Error in input config');
-    console.log(err);
-    console.log(err.stack);
     return res.status(422).send({ err });
   }
 
@@ -73,25 +70,13 @@ export function registrationHandler(req, res, next) {
       return resp.json();
     })
     .then(userPayload => {
-      //console.log('userPayload');
-      //console.log(userPayload);
-
       if (!!userPayload.message) {
         return Promise.reject(userPayload);
       }
-
       const pruned = pruneUserObject(userPayload);
-
-      //console.log('sending pruned');
-      //console.log(pruned);
-
       res.json(pruned);
     })
     .catch(err => {
-      console.log('[User Register] got error registering');
-      console.log(req.body);
-      console.log(err);
-      console.log(err.stack);
       res.status(500).json({ err });
     });
 }
@@ -102,7 +87,6 @@ export function loginHandler(req, res, next) {
   }
 
   const { email, password } = req.body;
-  console.log(email, password);
 
   //basic checks before we hand off to auth/register
   if (!email || !EmailValidator.validate(email)) {
@@ -115,9 +99,6 @@ export function loginHandler(req, res, next) {
   //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
   const url = INTERNAL_HOST + '/auth/login';
 
-  console.log('hit login');
-  console.log(email, password, url);
-
   return fetch(url, headersPost(JSON.stringify(req.body)))
     .then(resp => {
       //re-assign cookies from platform authentication
@@ -129,8 +110,6 @@ export function loginHandler(req, res, next) {
       return resp.json();
     })
     .then(userPayload => {
-      console.log('userPayload');
-      console.log(userPayload);
 
       if (!!userPayload.message) {
         return Promise.reject(userPayload);
@@ -138,16 +117,9 @@ export function loginHandler(req, res, next) {
 
       const pruned = pruneUserObject(userPayload);
 
-      //console.log('sending pruned');
-      //console.log(pruned);
-
       res.json(pruned);
     })
     .catch(err => {
-      console.log('[User Login] got error logging in');
-      console.log(req.body);
-      console.log(err);
-      console.log(err.stack);
       res.status(500).json({ err });
     });
 }
@@ -159,8 +131,6 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
 
   return (req, res, next) => {
     const { user: userInput, config: configInput, userPatch } = req;
-
-    //console.log(userInput, userPatch, configInput);
 
     if (!userInput) next('req.user must be set');
     if (wholeUser && !userPatch) next('if updating user, set req.userPatch');
@@ -175,14 +145,8 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         user = updateUserConfig(userInput, configInput);
       }
     } catch (err) {
-      console.log('[User Config Handler] Error Updating config');
-      console.log(err);
-      console.log(err.stack);
       return res.status(422).json({ err });
     }
-
-    //console.log('USER CONFIG HANDLER');
-    //console.log(user, userInput, configInput, userPatch);
 
     //to update user, issues with setting cookies as auth and making a new fetch, so call user update function
     //might want to abstract to same across local + real auth
@@ -198,8 +162,6 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
           res.json(toSend);
         })
         .catch(err => {
-          console.log('[User Config Handler] error setting user config');
-          console.log(err);
           res.status(501).json({ err });
         });
     }
@@ -219,8 +181,6 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         return resp.json();
       })
       .then(userPayload => {
-        //console.log('userPayload');
-        //console.log(userPayload);
 
         if (!!userPayload.message) {
           return Promise.reject(userPayload);
@@ -229,15 +189,9 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         const pruned = pruneUserObject(userPayload);
         const toSend = wholeUser ? pruned : pruned.config;
 
-        //console.log('sending pruned');
-        //console.log(toSend);
-
         res.json(toSend);
       })
       .catch(err => {
-        console.log('[User Config Handler] got error setting user config');
-        console.log(err);
-        console.log(err.stack);
         res.status(500).json({ err });
       });
   };

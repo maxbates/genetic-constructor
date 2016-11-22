@@ -59,6 +59,11 @@ app.use(bodyParser.json({
 
 app.use(errorHandlingMiddleware);
 
+// duck punch console in production so no unexpected security leaks
+if (process.env.NODE_ENV === 'production') {
+  console.log = console.warn = console.error = () => {};
+}
+
 //HTTP logging middleware
 const logLevel = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
 app.use(morgan(logLevel, {
