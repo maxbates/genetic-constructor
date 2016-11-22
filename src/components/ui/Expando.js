@@ -41,7 +41,7 @@ export default class Expando extends Component {
 
   render() {
     return (
-      <div className="expando">
+      <div className="expando" data-expando={this.props.text}>
         <div className="header">
           <Arrow
             direction={this.state.open ? 'down' : 'right'}

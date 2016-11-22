@@ -4,7 +4,7 @@ var openInspectorPanel = require('../fixtures/open-inspector-panel');
 var clickAt = require('../fixtures/clickAt');
 
 module.exports = {
-  'Test deleting a construct using construct menu in header' : function (browser) {
+  'Test settings panel in inspector' : function (browser) {
     size(browser);
     homepageRegister(browser);
     openInspectorPanel(browser, 'Settings');
