@@ -1,7 +1,5 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var newConstruct = require('../fixtures/newconstruct');
 var newProject = require('../fixtures/newproject');
-var clickAt = require('../fixtures/clickAt');
 var rightClickAt = require('../fixtures/rightClickAt');
 var clickContextMenu = require('../fixtures/click-popmenu-nth-item.js');
 var size = require('../fixtures/size');
