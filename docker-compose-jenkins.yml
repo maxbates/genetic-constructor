@@ -3,9 +3,19 @@ test:
     file: docker-compose-common.yml
     service: webapp
   build: .
+  links:
+    - db
   command:
     npm run test-jenkins
   environment:
+    NO_DOCKER: "true"
+    PGHOST: db
     TEST_OUTPUT_PATH: /tmp/jenkins
   volumes:
     - $WORKSPACE:/tmp/jenkins
+
+db:
+  extends:
+    file: ./storage-ext/docker-compose-common.yml
+    service: db
+  build: ./storage-ext/postgres/

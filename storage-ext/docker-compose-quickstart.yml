@@ -2,7 +2,7 @@ api:
   extends:
     file: docker-compose-common.yml
     service: api
-  image: quay.io/bionano/gctorstorage_api${BNR_ENV_TAG}
+  image: quay.io/autodesk_bionano/gctorstorage_api${BNR_ENV_TAG}
   ports:
     - "4747:4747"
   links:
@@ -22,7 +22,7 @@ db:
     - /storage/db:/data/pgdata
   environment:
     PGDATA: /data/pgdata
-  image: quay.io/bionano/gctorstorage_db${BNR_ENV_TAG}
+  image: quay.io/autodesk_bionano/gctorstorage_db${BNR_ENV_TAG}
   log_driver: json-file
   log_opt:
     max-size: "128m"

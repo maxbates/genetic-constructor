@@ -16,6 +16,8 @@
 import colors from 'colors/safe';
 import { promisedExec } from './lib/cp';
 
+const NO_DOCKER = !!process.env.NO_DOCKER;
+
 export const checkNodeVersion = () => {
   const ver = process.version;
 
@@ -41,8 +43,9 @@ export const checkDockerInstalled = () => {
 async function checks() {
   try {
     await checkNodeVersion();
-    await checkDockerInstalled();
-    console.log(colors.green('Checks passed!'));
+    if (! NO_DOCKER) {
+      await checkDockerInstalled();
+    }
   } catch (err) {
     console.log('error running checks for Constructor: ', err);
     throw err;

@@ -15,10 +15,13 @@
  */
 import { promisedExec, spawnAsync } from './lib/cp';
 import checkPortFree from '../server/utils/checkPortFree';
+import colors from 'colors';
 
 //note - DB holds on the to process, so this will resolve but process will never exit. So, can be used in promise chaining, but not in __ && __ bash syntax
 
 const STORAGE_PORT = process.env.PGPORT || 5432;
+const withJenkins = !!process.env.JENKINS;
+const noDocker = !!process.env.NO_DOCKER;
 
 const buildDb = 'docker build -t gctorstorage_db ./storage-ext/postgres/';
 const runDb = `docker run -p ${STORAGE_PORT}:5432 -l "gctorstorage_db" --rm gctorstorage_db`;
@@ -26,6 +29,11 @@ const runDb = `docker run -p ${STORAGE_PORT}:5432 -l "gctorstorage_db" --rm gcto
 async function startDb() {
   try {
     await promisedExec(buildDb, {}, { comment: 'Building DB Docker container...' });
+
+    if (withJenkins || noDocker) {
+      console.log(colors.yellow('Assuming Database managed externally...'));
+      return Promise.resolve(null);
+    }
 
     const dbProcess = await checkPortFree(STORAGE_PORT)
       .catch(err => {
@@ -67,7 +75,6 @@ async function startDb() {
       });
 
     console.log('DB started on port:', STORAGE_PORT);
-
     return dbProcess;
   } catch (err) {
     console.log('Error starting Storage service...');

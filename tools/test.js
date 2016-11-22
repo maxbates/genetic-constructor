@@ -19,8 +19,6 @@
 import invariant from 'invariant';
 import run from './run';
 import setup from './setup';
-import checks from './checks';
-import startDb from './startDb';
 import { promisedExec, spawnAsync } from './lib/cp';
 
 //optional behaviors

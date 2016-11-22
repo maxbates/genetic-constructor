@@ -40,6 +40,7 @@ async function setup() {
   await run(copy.bind(undefined, { watch: true }));
 
   //start database (note - this holds onto the process until killed)
+  //will skip under certain conditions (see the script itself)
   const dbProcess = await run(startDb);
 
   //not defined if DB was already running
