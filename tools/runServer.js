@@ -52,7 +52,6 @@ function runServer(cb) {
 }
 
 process.on('exit', () => {
-  console.log(JSON.stringify(process.memoryUsage(), null, 2));
   if (server) {
     console.log('killing server');
     server.kill('SIGTERM');

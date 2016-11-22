@@ -1,6 +1,5 @@
 import run from './run';
-import clean from './clean';
-import copy from './copy';
+import setup from './setup';
 import bundle from './bundle';
 import bundleServer from './bundleServer';
 
@@ -9,8 +8,7 @@ import bundleServer from './bundleServer';
  * format and copies it to the output (build) folder.
  */
 async function build() {
-  await run(clean);
-  await run(copy);
+  await run(setup);
   await run(bundleServer);
   await run(bundle);
 }

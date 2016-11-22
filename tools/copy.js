@@ -8,6 +8,8 @@ import pkg from '../package.json';
 async function copy() {
   const ncp = Promise.promisify(require('ncp'));
 
+  console.log('Copying public assets, documentation, and extensions...');
+
   await Promise.all([
     //public assets
     ncp('src/public', 'build/public'),

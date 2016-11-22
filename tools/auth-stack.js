@@ -15,32 +15,17 @@
  */
 import path from 'path';
 import run from './run';
-import checks from './checks';
-import startDb from './startDb';
+import setup from './setup';
 import { spawnAsync, promisedExec } from './lib/cp';
-
-//note - should run checks first to ensure docker running
 
 /** paths **/
 
 const pathProjectRoot = path.resolve(__dirname, '../');
-let pathBioNanoPlatform = path.resolve(pathProjectRoot, '../bio-user-platform');
+const pathBioNanoPlatform = process.env.PLATFORM_PATH || path.resolve(pathProjectRoot, '../bio-user-platform');
 
-/** config **/
-
-//allow overwriting the bio-user-platform path
-process.argv.forEach((val, index) => {
-  const argFlag = 'PLATFORM_PATH';
-  if (val.startsWith(argFlag)) {
-    const newPath = val.substr(argFlag.length + 1);
-    pathBioNanoPlatform = newPath;
-  }
-});
-console.log('path for bio-user-platform is ' + pathBioNanoPlatform + '. Set by passing --PLATFORM_PATH=/your/path');
+console.log('path for bio-user-platform is ' + pathBioNanoPlatform + '. Set by passing env var PLATFORM_PATH=/your/path');
 
 /** scripts **/
-
-let dockerEnv;
 
 const setupBioNanoPlatform = (useGenomeDesignerBranch = false) => {
   const checkoutPromise = useGenomeDesignerBranch === true ?
@@ -57,10 +42,7 @@ const setupBioNanoPlatform = (useGenomeDesignerBranch = false) => {
 
 const startBioNanoPlatform = () => {
   return spawnAsync('npm', ['run', 'storage-background'],
-    {
-      cwd: pathBioNanoPlatform,
-      env: Object.assign({}, process.env, dockerEnv),
-    },
+    { cwd: pathBioNanoPlatform },
     { waitUntil: 'database system is ready to accept connections' }
   );
 };
@@ -85,8 +67,7 @@ const startRunAuth = () => {
 
 async function auth() {
   try {
-    await run(checks);
-    await run(startDb);
+    await run(setup);
     await setupBioNanoPlatform();
     await startBioNanoPlatform();
     await startAuthServer();

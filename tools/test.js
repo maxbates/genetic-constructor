@@ -18,11 +18,9 @@
 
 import invariant from 'invariant';
 import run from './run';
-import del from 'del';
 import setup from './setup';
 import checks from './checks';
 import startDb from './startDb';
-import * as filePaths from '../server/data/middleware/filePaths';
 import { promisedExec, spawnAsync } from './lib/cp';
 
 //optional behaviors
@@ -57,29 +55,14 @@ const coverageCommand = `node_modules/.bin/babel-node node_modules/.bin/babel-is
 const coverageReport = `cat ./coverage/lcov.info | coveralls`;
 
 async function test() {
-  const processes = [];
+  let processes = [];
   let errored = 0;
 
   try {
     invariant(process.env.NODE_ENV === 'test', 'must set NODE_ENV=test');
 
-    await run(checks);
-
-    //delete old test data
-    // must be before setup() makes its directories
-    console.log('clearing local files in ' + filePaths.createStorageUrl());
-    await del([filePaths.createStorageUrl()], { force: true, dot: true });
-
     //setup directories etc (may not be needed after transition to S3 / DB)
-    await run(setup);
-
-    //start database (note - this holds onto the process until killed)
-    const dbProcess = await run(startDb);
-
-    //not defined if DB was already running
-    if (dbProcess) {
-      processes.push(dbProcess);
-    }
+    processes = await run(setup);
 
     //now, run the test suite
 

@@ -16,11 +16,7 @@ import { debounce } from 'lodash';
 const DEBUG = !process.argv.includes('--release');
 
 async function start() {
-  await run(checks);
-  await run(clean);
   await run(setup);
-  await run(startDb);
-  await run(copy.bind(undefined, { watch: true }));
 
   console.log('bundling...');
 
