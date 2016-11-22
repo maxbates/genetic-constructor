@@ -22,6 +22,8 @@ import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
 describe('Server', () => {
   describe('Onboarding', () => {
+    this.timeout(10000);
+
     const makeUser = (nameStub) => ({
       uuid: uuid.v1(),
       email: `test${nameStub}@tester.com`,

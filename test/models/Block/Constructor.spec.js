@@ -5,6 +5,8 @@ import _ from 'lodash';
 describe('Model', () => {
   describe('Block', () => {
     describe('Constructor', () => {
+      this.timeout(10000);
+
       let block;
       beforeEach(() => {
         block = new Block();

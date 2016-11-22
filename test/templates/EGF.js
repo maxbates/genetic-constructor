@@ -18,6 +18,8 @@ import makeEgfRollup from '../../data/egf_parts/index';
 import Rollup from '../../src/models/Rollup';
 import _ from 'lodash';
 
+const withJenkins = !!process.env.JENKINS;
+
 describe('Templates', () => {
   describe('EGF', () => {
     it('should create a valid rollup, blocks with correct projectId', () => {
@@ -68,7 +70,11 @@ describe('Templates', () => {
       const number = 10;
       const perSecond = 1.5;
 
-      this.timeout(number * 1000 / perSecond);
+      if (withJenkins) {
+        this.timeout(15000);
+      } else {
+        this.timeout(number * 1000 / perSecond);
+      }
 
       const rolls = _.range(number).map((ind) => {
         makeEgfRollup();
