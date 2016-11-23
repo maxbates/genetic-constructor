@@ -13,22 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 export default [
-  { hex: '#eea38d', name: '' },
-  { hex: '#ff824f', name: '' },
-  { hex: '#fd504c', name: '' },
-  { hex: '#e41313', name: '' },
-  { hex: '#f574ed', name: '' },
-  { hex: '#ff41a1', name: '' },
-  { hex: '#c01079', name: '' },
-  { hex: '#943cec', name: '' },
-  { hex: '#50f7ff', name: '' },
-  { hex: '#15b6b2', name: '' },
-  { hex: '#6085ff', name: '' },
-  { hex: '#1147cd', name: '' },
-  { hex: '#f5fb81', name: '' },
-  { hex: '#a0f977', name: '' },
-  { hex: '#09f998', name: '' },
-  { hex: '#137651', name: '' },
+  { hex: '#418870', name: '' },
+  { hex: '#88c2b3', name: '' },
+  { hex: '#44848c', name: '' },
+  { hex: '#8ac2c9', name: '' },
+  { hex: '#81903a', name: '' },
+  { hex: '#c0cf5a', name: '' },
+  { hex: '#7c9e77', name: '' },
+  { hex: '#95be90', name: '' },
+  { hex: '#fae050', name: '' },
+  { hex: '#f7f1a6', name: '' },
+  { hex: '#b5ad9f', name: '' },
+  { hex: '#ded8cb', name: '' },
+  { hex: '#df7b37', name: '' },
+  { hex: '#ecb685', name: '' },
+  { hex: '#bc4f56', name: '' },
+  { hex: '#d6727b', name: '' },
 ];

@@ -14,8 +14,10 @@
  limitations under the License.
  */
 
-import paletteDefault from './paletteDefault';
+import paletteAnime from './paletteAnime';
 import paletteBright from './paletteBright';
+import palettePastel from './palettePastel';
+import paletteNature from './paletteNature';
 
 const paletteLength = 16;
 
@@ -26,8 +28,14 @@ export function getPalette(name) {
   switch (name) {
   case 'bright':
     return paletteBright;
+  case 'pastel':
+    return palettePastel;
+  case 'nature':
+    return 'nature';
+  case 'anime':
+  case 'default':
   default:
-    return paletteDefault;
+    return paletteAnime;
   }
 }
 
