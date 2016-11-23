@@ -27,7 +27,7 @@ const withReport = process.env.REPORT === 'true';
 const withJenkins = !!process.env.JENKINS;
 
 //e.g. jenkins wants to always pass, so dont break the build
-const forceSuccess = withReport;
+const forceSuccess = withJenkins;
 
 //default test options for mocha
 const mochaOptions = `--recursive --compilers js:babel-register,css:test/css-null-compiler.js --require ./test/setup.js --timeout 25000`;
@@ -68,8 +68,9 @@ async function test() {
       coverageCommand :
       unitTestCommand;
 
+    //dont force with ' &' or will change directory where tests are run
     if (forceSuccess) {
-      command += ' &';
+      command += ' || exit 0';
     }
 
     const [cmd, ...args] = command.split(' ');
