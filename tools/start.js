@@ -125,6 +125,10 @@ async function start() {
             if (/__jb_/ig.test(path)) {
               return true;
             }
+            //ignore compiled python
+            if (/\.pyc$/.test(path)) {
+              return true;
+            }
             //ignore node_modules for things in the root server/extensions/ folder
             //additional check needed to handle symlinked files (nested node modules wont pick this up in symlinks)
             //ugly because javascript doesnt support negative lookaheads
