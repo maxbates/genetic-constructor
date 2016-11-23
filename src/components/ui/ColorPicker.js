@@ -14,27 +14,44 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import { colorMap, colors } from '../../utils/generators/color';
+import { getPalette } from '../../utils/color';
 import PickerItem from './PickerItem';
 
 import '../../styles/Picker.css';
 import '../../styles/ColorPicker.css';
+
+//fixme - update onSelect
 
 //todo - this has a lot of logic shared with Symbol Picker, but some differences in data structure etc. Should probably merge them though.
 
 export default class ColorPicker extends Component {
   static propTypes = {
     readOnly: PropTypes.bool,
-    current: PropTypes.string,
+    current: PropTypes.number,
     onSelect: PropTypes.func,
+    palette: PropTypes.string,
+  };
+
+  static defaultProps = {
+    current: 0,
   };
 
   constructor(props) {
     super(props);
+    this.palette = getPalette(props.palette);
+
+    const paletteIndex = Number.isInteger(props.current) ? props.current : 0;
     this.state = {
       showContent: false,
-      hoverText: this.nameColor(props.current),
+      //hoverText: this.nameColor(this.props.current),
+      hoverText: this.palette[paletteIndex].name,
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.palette !== nextProps.palette) {
+      this.palette = getPalette(nextProps.palette);
+    }
   }
 
   onClickCurrent = () => {
@@ -48,16 +65,22 @@ export default class ColorPicker extends Component {
     this.setState({ showContent: true });
   };
 
-  onMouseEnter = (hoverText) => {
-    this.setState({ hoverText: this.nameColor(hoverText) });
+  onMouseEnter = (str) => {
+    //this.setState({ hoverText: this.nameColor(hoverText) });
+    this.setState({ hoverText: str});
   };
 
   onMouseOut = () => {
-    this.setState({ hoverText: this.nameColor(this.props.current) });
+    //this.setState({ hoverText: this.nameColor(this.props.current) });
+    this.setState({ hoverText: this.getColor(this.props.current).name });
   };
 
-  nameColor(color) {
-    return colorMap[color] || '';
+  getColor(index = 0) {
+    if (!Number.isInteger(index) || index < 0) {
+      console.warn('current index is not an index');
+      return this.palette[0];
+    }
+    return this.palette[index];
   }
 
   render() {
@@ -69,19 +92,19 @@ export default class ColorPicker extends Component {
              className="Picker-current"
              onClick={this.onClickCurrent}>
           <PickerItem isCurrent={false}
-                      styles={{ backgroundColor: current }}/>
+                      styles={{ backgroundColor: this.getColor(current).hex }}/>
         </div>
         {this.state.showContent && (
           <div className="Picker-content"
                onMouseOut={this.onMouseOut}>
             <div className="Picker-currentHovered">{this.state.hoverText}</div>
             <div className="Picker-options">
-              {colors.map(color => {
-                return (<PickerItem key={color}
-                                    isCurrent={current === color}
-                                    onMouseEnter={() => this.onMouseEnter(color)}
-                                    onClick={() => !readOnly && onSelect(color)}
-                                    styles={{ backgroundColor: color }}/>);
+              {this.palette.map((obj, index) => {
+                return (<PickerItem key={obj.hex}
+                                    isCurrent={current === index}
+                                    onMouseEnter={() => this.onMouseEnter(obj.name)}
+                                    onClick={() => !readOnly && onSelect(index)}
+                                    styles={{ backgroundColor: obj.hex }}/>);
               })}
             </div>
           </div>

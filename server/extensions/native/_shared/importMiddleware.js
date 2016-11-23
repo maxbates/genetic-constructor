@@ -21,7 +21,7 @@ import * as fileSystem from '../../../../server/utils/fileSystem';
 import * as filePaths from '../../../../server/utils/filePaths';
 import * as persistence from '../../../../server/data/persistence';
 import * as rollup from '../../../../server/data/rollup';
-import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
+import { resetColorSeed } from '../../../../src/utils/color';
 
 const extensionKey = 'import';
 
