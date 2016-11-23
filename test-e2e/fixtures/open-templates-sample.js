@@ -11,7 +11,7 @@ var openTemplatesSample = function(browser) {
             browser.elementIdClick(element.ELEMENT, function (clicked) {
               browser
                 .pause(10000)
-                .assert.countelements('.construct-viewer', 29);
+                .assert.countelements('.construct-viewer', 14);
             });
           });
         }
