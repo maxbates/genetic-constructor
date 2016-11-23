@@ -1,3 +1,4 @@
+const testUrl = process.env.NIGHTWATCH_URL || 'http://localhost:3001';
 
 module.exports = {
   src_folders: ['test-e2e/tests'],
@@ -20,7 +21,7 @@ module.exports = {
 
   test_settings: {
     local: {
-      launch_url: 'http://localhost:3001',
+      launch_url: testUrl,
       selenium_port: 4444,
       selenium_host: '127.0.0.1',
       silent: true,
@@ -43,7 +44,7 @@ module.exports = {
     },
 
     saucelabs: {
-      launch_url: 'http://localhost:3001',
+      launch_url: testUrl,
       selenium_port: 80,
       selenium_host: 'ondemand.saucelabs.com',
       desiredCapabilities: {

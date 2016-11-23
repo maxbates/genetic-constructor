@@ -37,9 +37,6 @@ RUN npm update -g npm && npm install
 
 ADD . /app
 
-#install fsharp (needed by gslEditor extension if it exists)
-RUN if [ -d ./extensions/gslEditor/ ]; then ./extensions/gslEditor/tools/install-fsharp.sh ; fi
-
 #install extensions, continue even if errors
 RUN npm run install-extensions || true
 
