@@ -479,6 +479,15 @@ export default class Block extends Instance {
    * @returns {string} Hex Color value
    */
   getColor(paletteName, byRole = false) {
+    if (this.isFiller()) {
+      return colorFiller;
+    }
+
+    //hack - should unify
+    if (!Number.isInteger(this.metadata.color)) {
+      return 'lightgray';
+    }
+
     const palette = getPalette(paletteName);
 
     if (byRole) {

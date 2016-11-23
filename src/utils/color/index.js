@@ -19,8 +19,7 @@ import paletteBright from './paletteBright';
 
 const paletteLength = 16;
 
-//todo - get the right one
-export const colorFiller = '#646464';
+export const colorFiller = '#4B505E';
 let lastIndex = 0;
 
 export function getPalette(name) {
@@ -34,8 +33,7 @@ export function getPalette(name) {
 
 //generate a random hex color
 export function nextColor() {
-  lastIndex = (lastIndex + 1) % paletteLength;
-  return lastIndex;
+  return lastIndex++ % paletteLength;
 }
 
 export function resetColorSeed() {
