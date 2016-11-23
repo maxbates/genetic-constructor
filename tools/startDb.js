@@ -28,12 +28,12 @@ const runDb = `docker run -p ${STORAGE_PORT}:5432 -l "gctorstorage_db" --rm gcto
 
 async function startDb() {
   try {
-    await promisedExec(buildDb, {}, { comment: 'Building DB Docker container...' });
-
     if (withJenkins || noDocker) {
       console.log(colors.yellow('Assuming Database managed externally...'));
       return Promise.resolve(null);
     }
+   
+    await promisedExec(buildDb, {}, { comment: 'Building DB Docker container...' });
 
     const dbProcess = await checkPortFree(STORAGE_PORT)
       .catch(err => {

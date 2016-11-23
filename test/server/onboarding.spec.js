@@ -20,6 +20,8 @@ import uuid from 'node-uuid';
 import { deleteUser } from '../../server/data/persistence/admin';
 import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
+const withJenkins = !!process.env.JENKINS;
+
 describe('Server', () => {
   describe('Onboarding', () => {
     const makeUser = (nameStub) => ({
@@ -53,7 +55,12 @@ describe('Server', () => {
     it('should onboard many users quickly', function speedTest(done) {
       //this will go away soon, once EGF project is global
       const perSecond = 1;
-      this.timeout(numUsers * 1000 / perSecond);
+
+      if (withJenkins) {
+        this.timeout(120000);
+      } else {
+        this.timeout(numUsers * 1000 / perSecond);
+      }
 
       Promise.all(
         users.map((user) => onboardNewUser(user))
