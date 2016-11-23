@@ -44,7 +44,7 @@ export default function importMiddleware(req, res, next) {
   const mintedProjectId = (!projectId || projectId === 'convert') ? Project.classless().id : projectId;
   Object.assign(req, { mintedProjectId });
 
-  console.log(`minted ${mintedProjectId}`);
+  console.log(`[Import Middleware] created ${mintedProjectId}`);
 
   //depending on the type, set variables for file urls etc.
 
@@ -85,7 +85,7 @@ export default function importMiddleware(req, res, next) {
           return reject(err);
         }
 
-        Promise.all(
+        return Promise.all(
           [files].map(file => {
             const localPath = (file && file.data) ? file.data.path : null;
 
@@ -98,7 +98,7 @@ export default function importMiddleware(req, res, next) {
             //future - buffer
             return fileSystem.fileRead(localPath, false)
               .then((string) => {
-                return jobFiles.jobFileWrite(projectId, extensionKey, string)
+                return jobFiles.jobFileWrite(mintedProjectId, extensionKey, string)
                   .then(info => ({
                     name,
                     string,
@@ -106,11 +106,19 @@ export default function importMiddleware(req, res, next) {
                     filePath: localPath,
                     fileUrl: info.url,
                   }));
+              })
+              .catch(err => {
+                console.log('[Import Middleware] error reading + writing job file ' + localPath);
+                throw err;
               });
           })
         )
         //resolve with files
-          .then(resolve);
+          .then(resolve)
+          .catch(err => {
+            console.log('[Import Middleware]', err);
+            reject(err);
+          });
       });
     }))
       .catch((err) => {
@@ -227,7 +235,7 @@ export function mergeRollupMiddleware(req, res, next) {
     .then((roll) => {
       const response = returnRoll ?
         roll :
-      { projectId: roll.project.id };
+        { projectId: roll.project.id };
 
       res.status(200).json(response);
     })
