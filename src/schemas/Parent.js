@@ -32,7 +32,7 @@ const fieldDefs = {
     'ID of project of parent (if not a project)',
   ],
   version: [
-    fields.version(),
+    fields.number({min: 0}),
     'Version of project, git SHA',
   ],
 };
