@@ -20,7 +20,7 @@ import BlockSchema from '../schemas/Block';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
 import md5 from 'md5';
-import { isHex, getPalette, nextColor, colorFiller } from '../utils/color';
+import { isHex, palettes, getPalette, nextColor, colorFiller } from '../utils/color';
 import { dnaStrict, dnaLoose } from '../utils/dna';
 import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
@@ -458,7 +458,21 @@ export default class Block extends Instance {
     return this.mutate('metadata.description', desc);
   }
 
-  //todo - update this
+  /**
+   * Set a construct's color palette.
+   * Should only apply to top-level constructs
+   * @method setPalette
+   * @memberOf Block
+   * @param {string} [palette] Palette name
+   * @returns {Block}
+   * @example
+   * new Block().setPalette('bright');
+   */
+  setPalette(palette) {
+    invariant(palettes.indexOf(palette) >= 0, 'palette must exist');
+    return this.mutate('metadata.palette', palette);
+  }
+
   /**
    * Set Block's color
    * @method setColor
@@ -469,6 +483,7 @@ export default class Block extends Instance {
    * new Block().setColor('#99aaaa');
    */
   setColor(newColor = nextColor()) {
+    invariant(Number.isInteger(newColor), 'color must be an index');
     return this.mutate('metadata.color', newColor);
   }
 
@@ -490,16 +505,17 @@ export default class Block extends Instance {
 
     const palette = getPalette(paletteName);
 
-    if (byRole) {
+    if (byRole === true) {
       const role = this.getRole(false);
       console.warn('handle color by role');
       //todo - convert role to index
       return role ? palette[0].hex : colorFiller;
     }
 
+    //backwards compatible
+    //todo - need to migrate data from hex -> index
     if (isHex(this.metadata.color)) {
       console.warn('have a hex color!');
-      //todo - upgrade hex colors
       return this.metadata.color;
     }
 
@@ -696,7 +712,7 @@ export default class Block extends Instance {
    */
   getSequenceLength(ignoreTrim = false) {
     const { length, trim } = this.sequence;
-    if (!Array.isArray(trim) || !!ignoreTrim) {
+    if (!Array.isArray(trim) || ignoreTrim) {
       return length;
     }
     return length - trim[0] - trim[1];
@@ -747,7 +763,7 @@ export default class Block extends Instance {
     const validatorStrict = new RegExp(`^[${dnaStrict}]*$`, 'gi');
     const validatorLoose = new RegExp(`^[${dnaLoose}]*$`, 'gi');
 
-    const validator = !!useStrict ? validatorStrict : validatorLoose;
+    const validator = useStrict ? validatorStrict : validatorLoose;
 
     if (!validator.test(sequence)) {
       return Promise.reject('sequence has invalid characters');

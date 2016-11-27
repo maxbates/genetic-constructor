@@ -141,6 +141,30 @@ export const blockSetRole = (blockId, role) => {
   };
 };
 
+export const blockSetPalette = (blockId, palette) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+    invariant(block.projectId, 'block must have a projectId (must be in a project)');
+
+    const isToplevel = getState().projects[block.projectId].components.indexOf(blockId) >= 0;
+    invariant(isToplevel, 'set palette of a toplevel block');
+
+    const oldPalette = oldBlock.metadata.palette;
+
+    if (oldRole === palette) {
+      return oldBlock;
+    }
+
+    const block = oldBlock.setPalette(palette);
+    dispatch({
+      type: ActionTypes.BLOCK_SET_PALETTE,
+      undoable: true,
+      block,
+    });
+    return block;
+  };
+}
+
 /***************************************
  * Store + Server Interaction
  ***************************************/

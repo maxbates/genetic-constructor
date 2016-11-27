@@ -24,6 +24,8 @@ const paletteLength = 16;
 export const colorFiller = '#4B505E';
 let lastIndex = 0;
 
+export const palettes = ['anime', 'bright', 'pastel', 'nature'];
+
 export function getPalette(name) {
   switch (name) {
   case 'bright':
@@ -31,7 +33,7 @@ export function getPalette(name) {
   case 'pastel':
     return palettePastel;
   case 'nature':
-    return 'nature';
+    return paletteNature;
   case 'anime':
   case 'default':
   default:
