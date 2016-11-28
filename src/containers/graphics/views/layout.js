@@ -351,7 +351,9 @@ export default class Layout {
       return this.blockColor(part);
     }
 
-    return block.getColor();
+    //fixme
+    //hack - this should be passed in better
+    return block.getColor(this.constructViewer.props.construct.metadata.palette);
   }
 
   /**

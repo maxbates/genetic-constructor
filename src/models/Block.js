@@ -503,7 +503,7 @@ export default class Block extends Instance {
       return 'lightgray';
     }
 
-    const palette = getPalette(paletteName);
+    const palette = getPalette(paletteName || this.metadata.palette);
 
     if (byRole === true) {
       const role = this.getRole(false);
