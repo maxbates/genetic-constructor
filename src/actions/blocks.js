@@ -494,6 +494,11 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
       dispatch(blockRemoveComponent(oldParent.id, componentId));
     }
 
+    //might have been a top-level construct, just clear top-level fields in case
+    if (component.isConstruct()) {
+      dispatch(blockStash(component.clearToplevelFields()));
+    }
+
     //now update the parent
     const block = oldBlock.addComponent(componentId, index);
     dispatch({

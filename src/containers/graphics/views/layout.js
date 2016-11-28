@@ -351,9 +351,7 @@ export default class Layout {
       return this.blockColor(part);
     }
 
-    //fixme
-    //hack - this should be passed in better
-    return block.getColor(this.constructViewer.props.construct.metadata.palette);
+    return block.getColor(this.palette);
   }
 
   /**
@@ -611,6 +609,7 @@ export default class Layout {
   update(options) {
     this.options = options;
     this.construct = options.construct;
+    this.palette = this.construct.metadata.palette;
     this.blocks = options.blocks;
     this.currentConstructId = options.currentConstructId;
     this.currentBlocks = options.currentBlocks;
@@ -1002,7 +1001,7 @@ export default class Layout {
     const sourceRectangle = cnodes.sourceNode.getAABB();
     const destinationRectangle = cnodes.destinationNode.getAABB();
     connector.line.set({
-      stroke: this.partMeta(cnodes.sourceBlock.id, 'color'),
+      stroke: this.fillColor(cnodes.sourceBlock.id),
       line: new Line2D(sourceRectangle.center, new Vector2D(sourceRectangle.center.x, destinationRectangle.y)),
     });
     // ensure the connectors are always behind the blocks

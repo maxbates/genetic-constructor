@@ -844,4 +844,17 @@ export default class Block extends Instance {
     annotations.splice(toSplice, 1);
     return this.mutate('sequence.annotations', annotations);
   }
+
+  /*********
+   Construct Things
+   *********/
+
+  //when something becomes a not-top level construct, do some cleanup
+  clearToplevelFields() {
+    return this.merge({
+      metadata: {
+        palette: null,
+      },
+    });
+  }
 }
