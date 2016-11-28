@@ -20,6 +20,7 @@ import AuthenticationForms from './authentication/authenticationforms';
 import AboutForm from '../components/aboutform';
 import ModalSpinner from '../components/modal/modalspinner';
 import InlineEditor from '../components/inline-editor/inline-editor';
+import MenuOverlay from '../components/Menu/MenuOverlay';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
 import track from '../analytics/ga';
 
@@ -92,6 +93,7 @@ class App extends Component {
         </div>
         <ModalSpinner spinMessage={this.props.spinMessage}/>
         <InlineEditor/>
+        <MenuOverlay/>
         <DevTools />
       </div>
     );

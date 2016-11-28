@@ -50,6 +50,7 @@ export default class Menu extends Component {
   };
 
   startTimeout = () => {
+    return;
     this.killTimeout();
 
     if (this.props.isOpen) {

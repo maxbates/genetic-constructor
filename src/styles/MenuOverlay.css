@@ -1,0 +1,35 @@
+@import './variables.css';
+
+.menu-overlay {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.01);
+  left: 0;
+  top: 0;
+  z-index: var(--zModal);
+
+  &-pointer {
+    position: absolute;
+    transform: rotate(45deg);
+    background-color: silver;
+  }
+  &-menu {
+    position: absolute;
+    padding: 0.5em 0;
+    box-shadow: 3px 3px 4px -1px rgba(0,0,0,0.61);
+    min-width: 19rem;
+    min-height: 30rem;
+    background-color: silver;
+    border-radius: 3px;
+  }
+
+  &-left {
+    transform: translateX(-24px);
+  }
+
+  &-right {
+    transform: translateX(-80%);
+  }
+
+}
