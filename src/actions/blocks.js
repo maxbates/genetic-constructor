@@ -144,14 +144,14 @@ export const blockSetRole = (blockId, role) => {
 export const blockSetPalette = (blockId, palette) => {
   return (dispatch, getState) => {
     const oldBlock = getState().blocks[blockId];
-    invariant(block.projectId, 'block must have a projectId (must be in a project)');
+    invariant(oldBlock.projectId, 'block must have a projectId (must be in a project)');
 
-    const isToplevel = getState().projects[block.projectId].components.indexOf(blockId) >= 0;
+    const isToplevel = getState().projects[oldBlock.projectId].components.indexOf(blockId) >= 0;
     invariant(isToplevel, 'set palette of a toplevel block');
 
     const oldPalette = oldBlock.metadata.palette;
 
-    if (oldRole === palette) {
+    if (oldPalette === palette) {
       return oldBlock;
     }
 
@@ -163,7 +163,7 @@ export const blockSetPalette = (blockId, palette) => {
     });
     return block;
   };
-}
+};
 
 /***************************************
  * Store + Server Interaction
