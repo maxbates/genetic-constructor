@@ -109,7 +109,8 @@ export default class Rollup {
     return true;
   }
 
-  //create rollup from project (as POJO)and N blocks (as POJO)... assigns projectId
+  // create rollup from project (as POJO) and N blocks (as POJO)
+  // assigns projectId to all blocks
   static fromArray(project, ...blocks) {
     invariant(Project.validate(project), 'must pass valid project');
 

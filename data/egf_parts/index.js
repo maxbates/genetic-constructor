@@ -5,7 +5,7 @@ import makeTemplates from './templates';
 // import { baseExamples, blocks as exampleBlocks } from './examples';
 
 function makeProject(componentIds) {
-  return Project.classless({
+  const project = Project.classless({
     rules: { frozen: true },
     metadata: {
       name: 'EGF Sample Templates',
@@ -13,6 +13,10 @@ function makeProject(componentIds) {
     },
     components: componentIds,
   });
+
+  project.id = 'egf_' + project.id;
+
+  return project;
 }
 
 //make the blocks, make the project, return the rollup
@@ -25,6 +29,6 @@ export default function makeEgfRollup() {
   const constructIds = blocks.templates.map(block => block.id);
   const project = makeProject(constructIds);
 
-  //note - dont need to set projectId, since it will be set when writing the rollup
+  //this function sets the projectId on the blocks
   return Rollup.fromArray(project, ...blocks.templates, ...blocks.blocks);
 }
