@@ -69,7 +69,8 @@ export default class Menu extends Component {
   };
 
   render() {
-    return (
+    return null;
+     return (
       <div className="menu-dropdown"
            onMouseLeave={() => this.startTimeout()}
            onMouseEnter={() => this.killTimeout()}>

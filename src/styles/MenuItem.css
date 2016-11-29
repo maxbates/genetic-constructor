@@ -1,0 +1,63 @@
+@import './variables.css';
+
+.menu-item {
+  color: var(--colors-blueBlack);
+  font-size: 1em;
+  user-select: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 1rem 0.2rem 1rem;
+  cursor: default;
+
+  &.disabled {
+    color: #999999;
+  }
+
+  &:hover {
+    background-color: var(--colors-bluetext);
+    color: white;
+    > .right {
+      > .arrow {
+        > .arrow-base {
+          border-left-color: var(--colors-white);
+        }
+      }
+    }
+  }
+
+  .menu-item-checked {
+    width: 1.5rem;
+    display: inline-block;
+  }
+  .menu-item-checked:before {
+    content: '✓';
+  }
+  .menu-item-unchecked {
+    width: 1.5rem;
+    display: inline-block;
+  }
+
+  .left {
+    margin-right: 4rem;
+    display: inline-flex;
+    align-items: center;
+    .text {
+      white-space: nowrap;
+    }
+  }
+  .right {
+    display: inline-flex;
+    align-items: center;
+    .arrow {
+      margin-left: 0.5rem;
+    }
+  }
+  /*positioning for sub menu*/
+  .sub-menu {
+    top: -0.5rem;
+    left: calc(100% - 4px);
+    box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.5);
+  }
+}

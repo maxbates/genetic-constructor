@@ -4,7 +4,7 @@
   position: fixed;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0,0,0,0.01);
+  background-color: rgba(0,0,0,0);
   left: 0;
   top: 0;
   z-index: var(--zModal);
@@ -12,16 +12,19 @@
   &-pointer {
     position: absolute;
     transform: rotate(45deg);
-    background-color: silver;
+    background-color: lightgray;
   }
   &-menu {
     position: absolute;
     padding: 0.5em 0;
-    box-shadow: 3px 3px 4px -1px rgba(0,0,0,0.61);
-    min-width: 19rem;
-    min-height: 30rem;
-    background-color: silver;
-    border-radius: 3px;
+    background-color: lightgray;
+    border-radius: 5px;
+    display: inline-flex;
+    flex-direction: column;
+  }
+  /* top level menu gets a different shadow than sub menus */
+  &-top {
+    box-shadow: 3px 3px 4px -1px rgba(0,0,0,0.5);
   }
 
   &-left {
@@ -31,5 +34,4 @@
   &-right {
     transform: translateX(-80%);
   }
-
 }

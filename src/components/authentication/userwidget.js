@@ -78,6 +78,7 @@ class UserWidget extends Component {
   }
 
   contextMenu() {
+    return null;
     return (<PopupMenu
       open={this.state.menuOpen}
       position={this.state.menuPosition}

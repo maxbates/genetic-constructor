@@ -41,6 +41,7 @@ export default class PopupMenu extends Component {
   }
 
   render() {
+    return null;
     // set position from properties
     const position = {
       left: `${this.props.position.x}px`,
