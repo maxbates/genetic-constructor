@@ -25,11 +25,13 @@ import { id as idRegex } from '../utils/regex';
 
 const sequenceMd5Validator = validators.sequenceMd5({ real: true });
 const sequenceValidator = validators.sequence();
+
 const idValidator = (value) => {
   if (!idRegex().test(value)) {
     return new Error(`invalid id, got ${value}`);
   }
 };
+
 const seqObjectBlocksValidator = validators.objectOf((value, key) => {
   if (!(value === true || (Array.isArray(value) && value.length === 2 && value[1] > value[0]))) {
     return new Error(`invalid sequence range specified for ${key}: ${value}`);
@@ -37,7 +39,17 @@ const seqObjectBlocksValidator = validators.objectOf((value, key) => {
   return idValidator(key);
 });
 
+//help track data model to aid migrations
+const currentDataModelVersion = 1;
+
 const rollupFields = {
+  //schema is validated on save, should always be at current version (should be upgraded on load)
+  schema: [
+    fields.number({ min: currentDataModelVersion }).required,
+    'Data model schema version',
+    { scaffold: () => currentDataModelVersion },
+  ],
+
   project: [
     ProjectSchema,
     'Project Manifest',
@@ -79,10 +91,10 @@ export class RollupSchemaClass extends SchemaClass {
 
       //checks to run in non-production or if specified
       if (heavy === true || (heavy !== false && process.env.NODE_ENV !== 'production')) {
-        const acceptedKeys = ['blocks', 'project', 'sequences'];
+        const acceptedKeys = ['schema', 'blocks', 'project', 'sequences'];
         const keys = Object.keys(instance);
 
-        invariant(keys.length <= 3, 'too many keys: ' + keys.join(', '));
+        invariant(keys.length <= acceptedKeys.length, 'too many keys: ' + keys.join(', '));
         invariant(keys.every(key => acceptedKeys.indexOf(key) >= 0), 'unknown key');
 
         const projectId = instance.project.id;
