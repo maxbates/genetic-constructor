@@ -22,6 +22,7 @@ import { spawnAsync, promisedExec } from './lib/cp';
 
 const pathProjectRoot = path.resolve(__dirname, '../');
 const pathBioNanoPlatform = process.env.PLATFORM_PATH || path.resolve(pathProjectRoot, '../bio-user-platform');
+const PGPASSWORD = process.env.PGPASSWORD || "storageGCTOR"; // TODO export this default from `gctor-storage`
 
 console.log('path for bio-user-platform is ' + pathBioNanoPlatform + '. Set by passing env var PLATFORM_PATH=/your/path');
 
@@ -42,17 +43,11 @@ const setupBioNanoPlatform = (useGenomeDesignerBranch = false) => {
     ));
 };
 
-const startBioNanoPlatform = () => {
-  return spawnAsync('npm', ['run', 'storage-background'],
-    { cwd: pathBioNanoPlatform },
-    { comment: 'Starting User Module Database....',
-      waitUntil: 'database system is ready to accept connections' }
-  );
-};
-
 const startAuthServer = () => {
   return spawnAsync('npm', ['start'],
-    { cwd: pathBioNanoPlatform },
+    { cwd: pathBioNanoPlatform,
+      env: Object.assign({ PGPASSWORD: PGPASSWORD }, process.env),
+    },
     { comment: 'Starting User Module...',
       waitUntil: `{ address: { address: '::', family: 'IPv6', port: 8080 } } 'started'` });
 };
@@ -74,7 +69,6 @@ async function auth() {
   try {
     await run(setup);
     await setupBioNanoPlatform();
-    await startBioNanoPlatform();
     await startAuthServer();
     await startRunAuth();
   } catch (err) {
