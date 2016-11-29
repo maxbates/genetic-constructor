@@ -71,7 +71,7 @@
   margin-top: 4px;
   padding: 0.75em;
   cursor: pointer;
-  color: var(--colors-grey);
+  color: var(--colors-slightlyDarkGrey);
   font-size: var(--font-size-heading);
   user-select: none;
   &-open {
@@ -80,7 +80,7 @@
 }
 
 .menu-item {
-  color: var(--colors-blueGreyDark);
+  color: var(--colors-darkerGrey);
   font-size: 1em;
   line-height: 1.25em;
   cursor: pointer;
@@ -91,7 +91,7 @@
   user-select: none;
 
   &:hover {
-    background: var(--colors-greyLight);
+    background: var(--colors-lighterGrey);
   }
 
   &:last-child {

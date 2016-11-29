@@ -25,7 +25,7 @@ import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as jobFiles from '../../../../server/data/files/jobs';
 import Project from '../../../../src/models/Project';
-import resetColorSeed from '../../../../src/utils/generators/color'; //necessary?
+import { resetColorSeed } from '../../../../src/utils/color'; //necessary?
 
 const extensionKey = 'import';
 

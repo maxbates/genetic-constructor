@@ -19,12 +19,12 @@
   svg {
     vertical-align: top;
     g g {
-      fill: var(--colors-grey);
+      fill: var(--colors-slightlyDarkGrey);
     }
 
     &:hover {
       g g {
-        fill: var(--colors-greyMedLight);
+        fill: var(--colors-mediumLightGrey);
       }
     }
   }
@@ -38,7 +38,7 @@
 
     svg g g,
     svg:hover g g {
-      fill: var(--colors-blueGreyMed);
+      fill: var(--colors-mediumDarkGrey);
     }
   }
 }

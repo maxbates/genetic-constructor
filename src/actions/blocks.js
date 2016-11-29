@@ -141,6 +141,30 @@ export const blockSetRole = (blockId, role) => {
   };
 };
 
+export const blockSetPalette = (blockId, palette) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+    invariant(oldBlock.projectId, 'block must have a projectId (must be in a project)');
+
+    const isToplevel = getState().projects[oldBlock.projectId].components.indexOf(blockId) >= 0;
+    invariant(isToplevel, 'set palette of a toplevel block');
+
+    const oldPalette = oldBlock.metadata.palette;
+
+    if (oldPalette === palette) {
+      return oldBlock;
+    }
+
+    const block = oldBlock.setPalette(palette);
+    dispatch({
+      type: ActionTypes.BLOCK_SET_PALETTE,
+      undoable: true,
+      block,
+    });
+    return block;
+  };
+};
+
 /***************************************
  * Store + Server Interaction
  ***************************************/
@@ -468,6 +492,11 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
     //remove component from old parent (should clone first to avoid this, this is to handle just moving)
     if (oldParent) {
       dispatch(blockRemoveComponent(oldParent.id, componentId));
+    }
+
+    //might have been a top-level construct, just clear top-level fields in case
+    if (component.isConstruct()) {
+      dispatch(blockStash(component.clearToplevelFields()));
     }
 
     //now update the parent

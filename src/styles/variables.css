@@ -4,18 +4,24 @@
   ==================== */
 
   --colors-black: #000000;
-  --colors-blueBlack: #1D222D;
-  --colors-blueGreyDark: #292D40; /*canvas*/
-  --colors-blueGreyMed: #4B505E;
-  --colors-grey: #6B6F7C;
-  --colors-greyMedLight: #C2C5D2;
-  --colors-blueGreyLighter: #DFE2EC;
-  --colors-greyLight: #EEEFF3;
+  --colors-nearlyBlack: #1D222D;
+  --colors-darkerGrey: #292D40;
+  --colors-darkGrey: #33374B;
+  --colors-mediumDarkGrey: #4B505E;
+  --colors-slightlyDarkGrey: #6B6F7C;
+  --colors-grey: #888B96;
+  --colors-slightlyLightGrey: #A0A3AE;
+  --colors-mediumLightGrey: #C2C5D2;
+  --colors-lightGrey: #DFE2EC;
+  --colors-lighterGrey: #EEEFF3;
+  --colors-nearlyWhite: #F6F7FB;
   --colors-white: #ffffff;
   --colors-selected: #3F82FF;
+  --colors-yellow: #FFFC79;
+  --colors-red: #FF2600;
 
   --colors-logo: rgb(189, 130, 113);
-  --colors-text: var(--colors-blueBlack);
+  --colors-text: var(--colors-nearlyBlack);
   --colors-bluetext: var(--colors-selected);
 
   /* Typography

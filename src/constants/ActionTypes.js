@@ -42,6 +42,7 @@ export const BLOCK_FREEZE = 'BLOCK_FREEZE';
 export const BLOCK_DETACH = 'BLOCK_DETACH';
 export const BLOCK_DELETE = 'BLOCK_DELETE';
 export const BLOCK_RENAME = 'BLOCK_RENAME';
+export const BLOCK_SET_PALETTE = 'BLOCK_SET_PALETTE';
 export const BLOCK_SET_COLOR = 'BLOCK_SET_COLOR';
 export const BLOCK_SET_ROLE = 'BLOCK_SET_ROLE';
 export const BLOCK_ADD_ROLE = 'BLOCK_ADD_ROLE';

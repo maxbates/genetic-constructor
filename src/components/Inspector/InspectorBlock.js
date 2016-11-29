@@ -38,6 +38,8 @@ export class InspectorBlock extends Component {
         return new Error('Must pass valid instances of blocks to the inspector, got ' + JSON.stringify(instance));
       }
     }).isRequired,
+    project: PropTypes.object.isRequired,
+    construct: PropTypes.object.isRequired, //top-level
     isAuthoring: PropTypes.bool.isRequired,
     overrides: PropTypes.shape({
       color: PropTypes.string,
@@ -194,13 +196,14 @@ export class InspectorBlock extends Component {
   }
 
   render() {
-    const { instances, orders, readOnly, forceIsConstruct, isAuthoring } = this.props;
+    const { instances, construct, orders, readOnly, forceIsConstruct, isAuthoring } = this.props;
     const singleInstance = instances.length === 1;
     const isList = singleInstance && instances[0].isList();
     const isTemplate = singleInstance && instances[0].isTemplate();
     const isConstruct = singleInstance && instances[0].isConstruct();
     const inputKey = instances.map(inst => inst.id).join(',');
     const anyIsConstructOrTemplateOrList = instances.some(instance => instance.isConstruct() || instance.isTemplate() || instance.isList());
+    const palette = construct.metadata.palette;
 
     const defaultType = forceIsConstruct ? 'Construct' : 'Block';
     const type = singleInstance ? instances[0].getType(defaultType) : 'Blocks';
@@ -273,6 +276,7 @@ export class InspectorBlock extends Component {
           <div className="InspectorContent-pickerWrap">
             <ColorPicker current={this.currentColor()}
                          readOnly={readOnly}
+                         palette={palette}
                          onSelect={this.selectColor}/>
 
             <SymbolPicker current={this.currentRoleSymbol()}

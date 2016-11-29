@@ -16,7 +16,7 @@
 import Immutable from './Immutable';
 import AnnotationSchema from '../schemas/Annotation';
 import { merge, cloneDeep } from 'lodash';
-import color from '../utils/generators/color';
+import { nextColor } from '../utils/color';
 import { symbolMap } from '../inventory/roles';
 
 /**
@@ -36,7 +36,7 @@ export default class Annotation extends Immutable {
   constructor(input) {
     return super(merge(
       AnnotationSchema.scaffold(),
-      { color: color() },
+      { color: nextColor() },
       input,
     ));
   }
