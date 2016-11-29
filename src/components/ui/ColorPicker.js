@@ -20,8 +20,6 @@ import PickerItem from './PickerItem';
 import '../../styles/Picker.css';
 import '../../styles/ColorPicker.css';
 
-// todo - pass construct into inspector, so can know what palette to use
-
 //todo - this has a lot of logic shared with Symbol Picker, but some differences in data structure etc. Should probably merge them though.
 
 export default class ColorPicker extends Component {

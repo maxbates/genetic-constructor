@@ -28,6 +28,18 @@ import { symbolMap } from '../inventory/roles';
 
 const idValidator = (id) => safeValidate(validators.id(), true, id);
 
+const fieldsClearToplevel = {
+  metadata: {
+    palette: null,
+  },
+};
+
+const fieldsClearLeaf = {
+  rules: {
+    role: null,
+  },
+};
+
 /**
  * Blocks are the foundational data type for representing DNA constructs in Genetic Constructor. Blocks can be thought of as parts, except they may not specify a sequence, and accommodate many more types of data than just base pairs and annotations.
  *
@@ -498,24 +510,23 @@ export default class Block extends Instance {
       return colorFiller;
     }
 
-    //hack - should unify
+    //color should always be defined... may happen if defined wrong / is null
     if (!Number.isInteger(this.metadata.color)) {
       return 'lightgray';
     }
 
     const palette = getPalette(paletteName || this.metadata.palette);
 
+    //todo - handle coloring by role
     if (byRole === true) {
+      console.warn('todo - handle color by role'); //eslint-disable-line
       const role = this.getRole(false);
-      console.warn('handle color by role');
-      //todo - convert role to index
       return role ? palette[0].hex : colorFiller;
     }
 
-    //backwards compatible
-    //todo - need to migrate data from hex -> index
+    //backwards compatible / if someone sets hex for some reason (shouldnt happen)
     if (isHex(this.metadata.color)) {
-      console.warn('have a hex color!');
+      console.warn('todo - migrate and avoid hex as color'); //eslint-disable-line
       return this.metadata.color;
     }
 
@@ -544,7 +555,10 @@ export default class Block extends Instance {
     const spliceIndex = (Number.isInteger(index) && index >= 0) ? index : this.components.length;
     const newComponents = this.components.slice();
     newComponents.splice(spliceIndex, 0, componentId);
-    return this.mutate('components', newComponents);
+
+    return this
+      .mutate('components', newComponents)
+      .clearBlockLevelFields();
   }
 
   /**
@@ -849,12 +863,12 @@ export default class Block extends Instance {
    Construct Things
    *********/
 
+  clearBlockLevelFields() {
+    return this.merge(fieldsClearLeaf);
+  }
+
   //when something becomes a not-top level construct, do some cleanup
   clearToplevelFields() {
-    return this.merge({
-      metadata: {
-        palette: null,
-      },
-    });
+    return this.merge(fieldsClearToplevel);
   }
 }
