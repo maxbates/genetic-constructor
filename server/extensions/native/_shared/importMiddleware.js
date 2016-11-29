@@ -24,6 +24,7 @@ import * as filePaths from '../../../data/middleware/filePaths';
 import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as jobFiles from '../../../../server/data/files/jobs';
+import Rollup from '../../../../src/models/Rollup';
 import Project from '../../../../src/models/Project';
 import { resetColorSeed } from '../../../../src/utils/color'; //necessary?
 
@@ -209,14 +210,15 @@ export function mergeRollupMiddleware(req, res, next) {
     .then(() => {
       if (!projectId || returnRoll) {
         //if we didnt recieve a projectId, we've assigned one already in importMiddleware above (for job file), so use here
-        //project writing will handle assigning block projectId for us
         Object.assign(project, { id: mintedProjectId });
+        _.forEach(blocks, (block) => Object.assign(block, { projectId: mintedProjectId }));
 
-        return Promise.resolve({
+        return Promise.resolve(new Rollup({
           project,
           blocks,
-        });
+        }));
       }
+
       return projectPersistence.projectGet(projectId)
         .then((existingRoll) => {
           existingRoll.project.components = existingRoll.project.components.concat(project.components);

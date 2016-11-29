@@ -3,6 +3,7 @@ import uuid from 'node-uuid';
 import request from 'supertest';
 import { testUserId } from '../../../constants';
 import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
+import Rollup from '../../../../src/models/Rollup';
 import Project from '../../../../src/models/Project';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import devServer from '../../../../server/server';
@@ -19,10 +20,7 @@ describe('Server', () => {
 
         const invalidDataProject = Object.assign({}, projectData, { metadata: 'blah' });
 
-        const projectPatch = { some: 'field' };
-        const patchedProject = projectData.merge(projectPatch);
-
-        const roll = { project: projectData, blocks: {} };
+        const roll = Rollup.fromArray(projectData);
 
         before(() => {
           return projectPersistence.projectWrite(projectId, roll, userId);

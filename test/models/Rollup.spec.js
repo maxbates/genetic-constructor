@@ -36,6 +36,7 @@ describe('Model', () => {
       const pr = Project.classless();
       const bl = Block.classless({ projectId: pr.id });
       const rl = {
+        schema: 1,
         project: pr,
         blocks: {
           [bl.id]: bl,
@@ -50,6 +51,7 @@ describe('Model', () => {
       const pr = Project.classless();
       const bl = Block.classless();
       const rl = {
+        schema: 1,
         project: pr,
         blocks: {
           [bl.id]: bl,
@@ -65,6 +67,7 @@ describe('Model', () => {
         projectId: Project.classless().id,
       });
       const rl = {
+        schema: 1,
         project: pr,
         blocks: {
           [bl.id]: bl,
@@ -84,6 +87,7 @@ describe('Model', () => {
         projectId: Project.classless().id,
       });
       const rl = {
+        schema: 1,
         project: pr,
         blocks: {
           [bl.id]: bl,
@@ -99,6 +103,7 @@ describe('Model', () => {
       const invalidBlock = Object.assign(Block.classless({projectId: proj.id}), { metadata: 'invalid' });
 
       const rl = {
+        schema: 1,
         project: proj,
         blocks: {
           [invalidBlock.id]: invalidBlock,

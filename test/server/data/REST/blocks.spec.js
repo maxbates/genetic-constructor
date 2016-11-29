@@ -1,6 +1,7 @@
 import { assert, expect } from 'chai';
 import request from 'supertest';
 import { testUserId } from '../../../constants';
+import Rollup from '../../../../src/models/Rollup';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
@@ -26,7 +27,7 @@ describe('Server', () => {
         const blockPatch = { some: 'field' };
         const patchedBlock = merge({}, blockData, blockPatch);
 
-        const roll = { project: projectData, blocks: { [blockId]: blockData } };
+        const roll = Rollup.fromArray(projectData, blockData);
 
         before(() => {
           return projectPersistence.projectWrite(projectId, roll, userId);

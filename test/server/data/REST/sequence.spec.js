@@ -3,6 +3,7 @@ import { testUserId } from '../../../constants';
 import request from 'supertest';
 import md5 from 'md5';
 import uuid from 'node-uuid';
+import Rollup from '../../../../src/models/Rollup';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
@@ -28,9 +29,8 @@ describe('Server', () => {
             length: sequence.length,
           },
         });
-        const blockId = blockData.id;
 
-        const roll = { project: projectData, blocks: { [blockId]: blockData } };
+        const roll = Rollup.fromArray(projectData, blockData);
 
         before(() => {
           return projectPersistence.projectWrite(projectId, roll, userId)

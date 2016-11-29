@@ -17,7 +17,6 @@ import { expect } from 'chai';
 import RollupSchema from '../../src/schemas/Rollup';
 import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
-import uuid from 'node-uuid';
 import { createExampleRollup, createSequencedRollup } from '../_utils/rollup';
 
 describe('Schema', () => {
@@ -26,7 +25,11 @@ describe('Schema', () => {
       expect(RollupSchema.validate(createExampleRollup())).to.equal(true);
     });
 
-    it('should validate a simply created rollup', () => {
+    it('should validate scaffold', () => {
+      expect(RollupSchema.validate(RollupSchema.scaffold())).to.equal(true);
+    });
+
+    it('should validate a simply created rollup, requiring version', () => {
       const project = new Project();
       const block = new Block({
         projectId: project.id,
@@ -39,12 +42,16 @@ describe('Schema', () => {
         },
       };
 
+      expect(RollupSchema.validate(roll)).to.equal(false);
+
+      Object.assign(roll, { schema: 1 });
+
       expect(RollupSchema.validate(roll)).to.equal(true);
     });
 
     it('should throw on error if specified', () => {
       const good = createExampleRollup();
-      const bad = Object.assign({}, good, { project: { metadata: {}}});
+      const bad = Object.assign({}, good, { project: { metadata: {} } });
 
       expect(RollupSchema.validate(good)).to.equal(true);
       expect(() => RollupSchema.validate(good, true)).to.not.throw();
@@ -67,6 +74,7 @@ describe('Schema', () => {
       });
 
       const roll = {
+        schema: 1,
         project,
         blocks: {
           [block.id]: block,
@@ -84,7 +92,7 @@ describe('Schema', () => {
       RollupSchema.validate(roll, true);
     });
 
-    it('should only allow fields project, blocks, sequences', () => {
+    it('should only allow certain fields (blocks, project, sequences, schema)', () => {
       const bad = Object.assign(createSequencedRollup(), { extra: 'bad' });
       expect(() => RollupSchema.validate(bad, true)).to.throw();
     });
@@ -96,6 +104,7 @@ describe('Schema', () => {
       });
 
       const roll = {
+        schema: 1,
         project,
         blocks: {
           [block.id]: block,
