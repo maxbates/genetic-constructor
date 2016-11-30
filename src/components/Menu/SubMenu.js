@@ -53,6 +53,7 @@ export default class SubMenu extends Component {
                 action={boundAction}
                 menuItems={item.menuItems}
                 close={this.props.close}
+                openLeft={this.props.openLeft}
               />) :
               (<MenuSeparator key={index}/>)
           )

@@ -16,9 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import SceneGraph2D from '../scenegraph2d/scenegraph2d';
-import Vector2D from '../geometry/vector2d';
 import Layout from './layout.js';
-import PopupMenu from '../../../components/Menu/PopupMenu';
 import { connect } from 'react-redux';
 import {
   blockCreate,
@@ -39,6 +37,7 @@ import {
   inspectorToggleVisibility,
   uiShowOrderForm,
   uiInlineEditor,
+  uiShowMenu,
 } from '../../../actions/ui';
 import {
   orderCreate,
@@ -115,18 +114,11 @@ export class ConstructViewer extends Component {
     projectAddConstruct: PropTypes.func,
     blocks: PropTypes.object,
     focus: PropTypes.object,
-    constructPopupMenuOpen: PropTypes.bool,
   };
 
   constructor(props) {
     super(props);
     idToViewer[this.props.constructId] = this;
-    this.state = {
-      blockPopupMenuOpen: false,     // context menu for blocks
-      constructPopupMenuOpen: false, // context menu for construct
-      menuPosition: new Vector2D(),  // position for any popup menu,
-      modalOpen: false,              // controls visibility of test modal window
-    };
     this.update = debounce(this._update.bind(this), 16);
   }
 
@@ -374,23 +366,6 @@ export class ConstructViewer extends Component {
   }
 
   /**
-   * close all popup menus
-   */
-  closePopups() {
-    this.setState({
-      blockPopupMenuOpen: false,
-      constructPopupMenuOpen: false,
-    });
-  }
-
-  /**
-   * open any popup menu by apply the appropriate state and global position
-   */
-  openPopup(state) {
-    this.setState(state);
-  }
-
-  /**
    * open the inspector
    *
    */
@@ -408,6 +383,13 @@ export class ConstructViewer extends Component {
     invariant(block, 'expected to get a block');
     // list blocks cannot have children
     return !block.isList();
+  }
+  /**
+   * show the block context menu at the given global coordinates.
+   * @param menuPosition
+   */
+  showBlockContextMenu(menuPosition) {
+    this.props.uiShowMenu(this.blockContextMenuItems(), menuPosition);
   }
 
   /**
@@ -455,14 +437,15 @@ export class ConstructViewer extends Component {
   };
 
   /**
-   * return JSX for block construct menu
+   * return JSX for construct context menu
    */
-  blockContextMenu() {
-    return (<PopupMenu
-      open={this.state.blockPopupMenuOpen}
-      position={this.state.menuPosition}
-      closePopup={this.closePopups.bind(this)}
-      menuItems={this.blockContextMenuItems()}/>);
+  showConstructContextMenu(menuPosition) {
+    // add the blocks context menu items if there are selected blocks
+    let items = this.constructContextMenuItems();
+    if (this.props.focus.blockIds.length) {
+      items = [...items, {}, ...this.blockContextMenuItems()];
+    }
+    this.props.uiShowMenu(items, menuPosition);
   }
 
   /**
@@ -512,23 +495,6 @@ export class ConstructViewer extends Component {
       ...templateItems,
     ];
   };
-
-  /**
-   * return JSX for construct context menu
-   */
-  constructContextMenu() {
-    // add the blocks context menu items if there are selected blocks
-    let items = this.constructContextMenuItems();
-    if (this.props.focus.blockIds.length) {
-      items = [...items, {}, ...this.blockContextMenuItems()];
-    }
-
-    return (<PopupMenu
-      open={this.state.constructPopupMenuOpen}
-      position={this.state.menuPosition}
-      closePopup={this.closePopups.bind(this)}
-      menuItems={items}/>);
-  }
 
   /**
    * add the given item using an insertion point from the constructviewer user interface.
@@ -696,8 +662,6 @@ export class ConstructViewer extends Component {
         <div className="sceneGraphContainer">
           <div className="sceneGraph"/>
         </div>
-        {this.blockContextMenu()}
-        {this.constructContextMenu()}
         {this.orderButton()}
         {this.lockIcon()}
       </div>
@@ -739,6 +703,7 @@ export default connect(mapStateToProps, {
   inspectorToggleVisibility,
   uiShowDNAImport,
   uiShowOrderForm,
+  uiShowMenu,
   uiInlineEditor,
   uiToggleDetailView,
   orderCreate,

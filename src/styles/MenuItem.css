@@ -57,7 +57,12 @@
   /*positioning for sub menu*/
   .sub-menu {
     top: -0.5rem;
-    left: calc(100% - 4px);
     box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.5);
+  }
+  .sub-menu-right {
+    left: calc(100% - 4px);
+  }
+  .sub-menu-left {
+    right: calc(100% - 4px);
   }
 }

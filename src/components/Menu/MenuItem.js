@@ -17,6 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import SubMenu from './SubMenu';
 import Arrow from '../ui/Arrow';
 import { stringToShortcut } from '../../utils/ui/keyboard-translator';
+import Box2D from '../../containers/graphics/geometry/box2d';
 
 import '../../styles/MenuItem.css';
 
@@ -57,16 +58,18 @@ export default class MenuItem extends Component {
     }
   };
 
+
   /**
    * delicate switch around opening and closing
    */
   onMouseEnter = () => {
-    this.setState({ inside: true });
+    this.setState({inside: true});
   };
 
   onMouseLeave = () => {
-    this.setState({ inside: false });
+    this.setState({inside: false});
   };
+
 
   render() {
     // indent if check able regardless of checked state
@@ -93,7 +96,8 @@ export default class MenuItem extends Component {
           <SubMenu
             menuItems={this.props.menuItems}
             close={this.props.close}
-            className="menu-overlay-menu sub-menu"
+            className={`menu-overlay-menu sub-menu sub-menu-${this.props.openLeft ? 'left' : 'right'}`}
+            openLeft={this.props.openLeft}
           />}
         </div>
       );
@@ -110,6 +114,7 @@ export default class MenuItem extends Component {
         onClick={this.onClick}
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
+        ref="itemElement"
       >
         <div className="left">
           {check}

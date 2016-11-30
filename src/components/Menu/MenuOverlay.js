@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import Box2D from '../../containers/graphics/geometry/box2d';
 import Vector2D from '../../containers/graphics/geometry/vector2d';
@@ -29,29 +30,31 @@ class MenuOverlay extends Component {
 
   constructor() {
     super();
+    this.state = {
+      openLeft: true,
+    }
   }
 
   /**
    * get the side class based on our target selector
    */
   getSideClass() {
-    return this.props.menuPosition.x < document.body.clientWidth / 2 ? 'menu-overlay-menu menu-overlay-left' : 'menu-overlay-menu menu-overlay-right';
+    return this.props.menuPosition.x < document.body.clientWidth / 2
+      ? 'menu-overlay-menu menu-overlay-top menu-overlay-left'
+      : 'menu-overlay-menu menu-overlay-top menu-overlay-right';
   }
 
   /**
    * handle window resizes
    */
   componentDidMount() {
-    window.addEventListener('resize', this.windowResize);
+    window.addEventListener('resize', this.close);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.windowResize);
+    window.removeEventListener('resize', this.close);
+    this.stopKillTimer();
   }
-
-  windowResize = () => {
-    this.forceUpdate();
-  };
 
 
   /**
@@ -61,14 +64,25 @@ class MenuOverlay extends Component {
     this.props.uiShowMenu();
   };
 
+  stopKillTimer() {
+    window.clearTimeout(this.killTimer);
+  }
+  startKillTimer() {
+    this.stopKillTimer();
+    this.killTimer = window.setTimeout(() => {
+      this.close();
+    }, 400);
+  }
+
   mouseEnterMenu = () => {
     this.inside = true;
+    this.stopKillTimer();
   };
 
   mouseLeaveMenu = () => {
     if (this.inside) {
       this.inside = false;
-      this.close();
+      this.startKillTimer();
     }
   };
 
@@ -82,6 +96,9 @@ class MenuOverlay extends Component {
     this.close();
   };
 
+  componentWillReceiveProps() {
+    this.measured = false;
+  }
   /*
    * render modal dialog with owner supplied payload and optional buttons.
    */
@@ -103,6 +120,19 @@ class MenuOverlay extends Component {
       left: pos.x - 10 + 'px',
       top: pos.y + psize / 2 + 'px',
     };
+    // to be called after render, react sucks
+    if (!this.measured) {
+      this.measured = true;
+      window.setTimeout(() => {
+        // determine which side to open sub menus once we have updated.
+        const box = new Box2D(ReactDOM.findDOMNode(this.refs.subMenu).getBoundingClientRect());
+        const openLeft = box.right > document.body.clientWidth / 2;
+        if (openLeft !== this.state.openLeft) {
+          this.setState({ openLeft });
+        }
+      }, 10);
+    }
+
     return (
       <div
         className="menu-overlay"
@@ -116,6 +146,8 @@ class MenuOverlay extends Component {
           onMouseEnter={this.mouseEnterMenu}
           onMouseLeave={this.mouseLeaveMenu}
           className={this.getSideClass()}
+          openLeft={this.state.openLeft}
+          ref="subMenu"
         />
       </div>
     );
