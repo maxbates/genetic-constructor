@@ -21,7 +21,7 @@ import _ from 'lodash';
 const withJenkins = !!process.env.JENKINS;
 
 describe('Templates', () => {
-  describe.only('EGF', () => {
+  describe('EGF', () => {
     it('should create a valid rollup, blocks with correct projectId', () => {
       const roll = makeEgfRollup();
       Rollup.validate(roll, true);
