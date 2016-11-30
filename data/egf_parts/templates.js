@@ -1,15 +1,42 @@
 import { makeComponents, templateFromComponents } from './templateUtils';
 import _ from 'lodash';
+import Block from '../../src/models/Block';
+import connectorList from './connectorList.json';
+import partList from './partList.json';
 
 export default function makeTemplates() {
   const created = [];
 
+  //make all the parts and connectors which are shared within the project, but unique to this project
+  const parts = _.map(partList, part => new Block(part, false));
+  const connectors = _.map(connectorList, conn => new Block(conn, false));
+
+  created.push(...parts, ...connectors);
+
+  //create dict for easier lookups
+  const partDict = _.groupBy(parts, 'metadata.egfPosition');
+  _.forEach(parts, (part) => {
+    Object.assign(partDict, { [part.metadata.name.toLowerCase()]: part });
+    Object.assign(partDict, { [part.metadata.shortName.toLowerCase()]: part });
+  });
+
+  const connDict = _.reduce(connectors, (acc, conn) => {
+    return Object.assign(acc, {
+      [conn.metadata.egfPosition]: conn,
+      [conn.metadata.name.toUpperCase()]: conn,
+    });
+  }, {});
+
+  const dict = {
+    parts: partDict,
+    connectors: connDict,
+  };
+
   //track the components we make, wrap makeComponents
   const make = (...terms) => {
-    const components = makeComponents(...terms);
-    //this returns single objects for blocks, or arrays for list blocks with options (just want the list block as the component,but to save all the blocks)
-    created.push(..._.flatten(components));
-    return components.map(comp => Array.isArray(comp) ? comp[0] : comp);
+    const components = makeComponents(dict, ...terms);
+    created.push(...components);
+    return components;
   };
 
   const components1A = make('a-c', 3, 'd-f', 6, 7, 'h-k', 11, 'l-y', 25);

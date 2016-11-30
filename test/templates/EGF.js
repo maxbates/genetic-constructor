@@ -21,7 +21,7 @@ import _ from 'lodash';
 const withJenkins = !!process.env.JENKINS;
 
 describe('Templates', () => {
-  describe('EGF', () => {
+  describe.only('EGF', () => {
     it('should create a valid rollup, blocks with correct projectId', () => {
       const roll = makeEgfRollup();
       Rollup.validate(roll, true);
@@ -34,41 +34,45 @@ describe('Templates', () => {
       assert(one.project.id !== two.project.id, 'shouldnt have same projectId');
     });
 
-    it('should have different blocks for same position in different constructs', () => {
+    it('should have same blocks for same position in different constructs', () => {
       const roll = makeEgfRollup();
-      const seen = {};
-      const repeats = [];
+      //maps of construct name -> expected
+      const expectedConnectors = {};
+      const expectedOptions = {};
 
       _.forEach(roll.blocks, (block) => {
+        //if has components, its a template
         _.forEach(block.components, componentId => {
-          if (seen[componentId]) {
-            repeats.push(componentId);
+          const component = roll.blocks[componentId];
+
+          //skip if a list
+          if (component.rules.list === true) {
+            return;
           }
-          seen[componentId] = true;
+
+          //if a connector, make sure no repeats
+
+          if (!expectedConnectors[block.metadata.name]) {
+            expectedConnectors[block.metadata.name] = block.id;
+          } else {
+            expect(expectedConnectors[block.metadata.name]).to.eql(block.id);
+          }
         });
+
+        //if has options, its a list block
         _.forEach(block.options, (active, optionId) => {
-          if (seen[optionId]) {
-            repeats.push(optionId);
+          if (!expectedOptions[block.metadata.name]) {
+            expectedOptions[block.metadata.name] = block.options;
+          } else {
+            expect(expectedOptions[block.metadata.name]).to.eql(block.options);
           }
-          seen[optionId] = true;
         });
       });
-
-      /*
-       //debugging:
-       console.log(`
-       Roll has ${Object.keys(roll.blocks).length} blocks
-       # Repeats: ${repeats.length}
-       # Unique Repeats: ${[...new Set(repeats)].length}
-       `);
-       */
-
-      assert(!repeats.length, 'should not have any repeats');
     });
 
     it('should make it quickly', function speedTest(done) {
       const number = 10;
-      const perSecond = 1.5;
+      const perSecond = 2;
 
       if (withJenkins) {
         this.timeout(15000);

@@ -1,4 +1,4 @@
-import { parts, connectors } from './dictParts';
+import invariant from 'invariant';
 import Block from '../../src/models/Block';
 import _, { merge } from 'lodash';
 
@@ -38,8 +38,8 @@ const stringIsConnector = (string) => (/^[a-zA-Z](-[a-zA-Z]{1,2})?( BsaI\-.)?$/g
 
 // create list block with parts
 //can pass specific optionId to enable only that list option
-export const list = (pos, optionId) => {
-  const options = parts[`${pos}`].map(part => new Block(part, false));
+export const list = (dict, pos, optionId) => {
+  const options = dict.parts[`${pos}`];
 
   const optionMap = options.reduce((acc, part, index) => Object.assign(acc, {
     [part.id]: (optionId ? optionId === part.id : true),
@@ -59,35 +59,35 @@ export const list = (pos, optionId) => {
     },
   }, false);
 
-  return [listBlock, ...options];
+  return listBlock;
 };
 
 // create block which is connector
 // string with numbers for positions
 // letters for name ('A-C')
-export const conn = (term) => {
+export const conn = (dict, term) => {
   const isPos = !isNaN(parseInt(term[0], 10));
   const key = isPos ? `${term}` : `conn ${term}`.toUpperCase();
-  const found = connectors[key];
-
-  return new Block(found, false);
+  return dict.connectors[key];
 };
 
 //specific part by name or shortname
 //frozen, can clone it yourself if you want to
-export const part = (term) => {
-  return new Block(parts[term], false);
+export const part = (dict, term) => {
+  return dict.parts[term];
 };
 
 //pass numbers for parts, strings as '#' or '#-#' for connectors (or e.g. 'A-B BsaI-X', see regex above), otherwise a part name
 //may pass single part, or an array (in which case, first block is construct / list, and subsequence are options / children
-export const makeComponents = (...terms) => {
+export const makeComponents = (dict, ...terms) => {
+  invariant(dict.parts && dict.connectors, 'must pass dict');
+
   return terms
     .map(term => termIsPartPos(term) ? //eslint-disable-line no-nested-ternary
-      list(term) :
+      list(dict, term) :
       stringIsConnector(term) ?
-        conn(term) :
-        part(term));
+        conn(dict, term) :
+        part(dict, term));
 };
 
 //pass in actual list of compoennts
