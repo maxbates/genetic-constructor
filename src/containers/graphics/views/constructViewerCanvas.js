@@ -152,8 +152,12 @@ export class ConstructViewerCanvas extends Component {
       evt.stopPropagation();
       this.props.focusBlocks([]);
     }
-    this.props.uiShowMenu(menuItems, {x: 200, y: 200});
   };
+
+  contextMenu = (evt) => {
+    evt.preventDefault();
+    this.props.uiShowMenu(menuItems, { x: evt.pageX, y: evt.pageY });
+  }
 
   /**
    * true if current project is a sample project
@@ -242,8 +246,11 @@ export class ConstructViewerCanvas extends Component {
 
     // map construct viewers so we can propagate projectId and any recently dropped blocks
     return (
-      <div className="ProjectPage-constructs no-vertical-scroll" onMouseDown={this.onMouseDown}
-           onMouseUp={this.onMouseUp}>
+      <div className="ProjectPage-constructs no-vertical-scroll"
+           onMouseDown={this.onMouseDown}
+           onMouseUp={this.onMouseUp}
+           onContextMenu={this.contextMenu}
+      >
         <div className={dropClasses} ref="dropTarget" key="dropTarget">Drop blocks here to create a new construct.</div>
         ;
         {constructViewers}

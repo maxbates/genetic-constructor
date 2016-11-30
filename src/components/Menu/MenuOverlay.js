@@ -72,6 +72,16 @@ class MenuOverlay extends Component {
     }
   };
 
+  /**
+   * mouse down in overlay
+   * @param evt
+   */
+  mouseOverlay = (evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    this.close();
+  };
+
   /*
    * render modal dialog with owner supplied payload and optional buttons.
    */
@@ -86,15 +96,18 @@ class MenuOverlay extends Component {
     const pointerPosition = {
       width: psize + 'px',
       height: psize + 'px',
-      left: pos.x + 'px',
+      left: pos.x - 10 + 'px',
       top: pos.y + 'px',
     };
     const menuPosition = {
-      left: pos.x + 'px',
+      left: pos.x - 10 + 'px',
       top: pos.y + psize / 2 + 'px',
     };
     return (
-      <div className="menu-overlay">
+      <div
+        className="menu-overlay"
+        onMouseDown={this.mouseOverlay}
+      >
         <div className="menu-overlay-pointer" style={pointerPosition}></div>
         <SubMenu
           menuItems={this.props.menuItems}

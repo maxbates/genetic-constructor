@@ -36,7 +36,7 @@ export default class SubMenu extends Component {
       >
         { this.props.menuItems.map((item, index) => {
           const boundAction = () => {
-            if (!item.disabled) {
+            if (!item.disabled && item.action) {
               item.action();
               this.props.close();
             }
