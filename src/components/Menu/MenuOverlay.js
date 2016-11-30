@@ -14,139 +14,28 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 import Box2D from '../../containers/graphics/geometry/box2d';
 import Vector2D from '../../containers/graphics/geometry/vector2d';
-import { stringToShortcut } from '../../utils/ui/keyboard-translator';
 import SubMenu from './SubMenu';
+import { uiShowMenu } from '../../actions/ui';
 
 import '../../../src/styles/MenuOverlay.css';
 /**
  * Elements that holds the active menu and blocks access to the page behind it.
  */
-export default class MenuOverlay extends Component {
+class MenuOverlay extends Component {
   static propTypes = {};
 
   constructor() {
     super();
-    this.state = {
-      target: '.cvc-drop-target',
-      checked: true,
-    };
-    this.menuItems = [
-      {
-        text: 'Save Project',
-        shortcut: stringToShortcut('meta S'),
-        action: () => {
-          alert("Save");
-        },
-      },
-      {
-        text: 'Delete Project',
-        action: () => {
-          alert("Delete");
-        },
-      },
-      {
-        text: 'Open Project',
-        shortcut: stringToShortcut('option shift ctrl O'),
-        menuItems: [
-          {
-            text: 'this is a very long piece of text for a menu',
-            shortcut: stringToShortcut('meta option S'),
-            action: () => {
-              alert("Save Nested");
-            },
-          },
-          {
-            text: 'DP Nested',
-            action: () => {
-              alert("Delete Nested");
-            },
-            menuItems: [
-              {
-                text: 'Save P Nested Twice',
-                action: () => {
-                  alert("Save Nested Nested");
-                },
-              },
-              {
-                text: 'Nested Nested',
-                action: () => {
-                  alert("Delete Nested Nested");
-                },
-              },
-            ],
-          },
-        ],
-        action: () => {
-          alert("Open");
-        },
-      },
-      {},
-      {
-        text: 'Kill Project',
-        shortcut: stringToShortcut('shift meta K'),
-        action: () => {
-          alert("Kill");
-        },
-      },
-      {},
-      {
-        text: 'Disabled Item',
-        disabled: true,
-      },
-      {
-        text: 'Another Checked Item',
-        checked: this.state.checked,
-        shortcut: stringToShortcut('shift option c'),
-        action: () => {
-          const newState = !this.state.checked;
-          this.menuItems.forEach(item => {
-            if (item.hasOwnProperty('checked')) {
-              item.checked = newState;
-            }
-          });
-          this.setState({checked: newState});
-        },
-      },
-      {
-        text: 'Checked Item',
-        checked: this.state.checked,
-        action: () => {
-          const newState = !this.state.checked;
-          this.menuItems.forEach(item => {
-            if (item.hasOwnProperty('checked')) {
-              item.checked = newState;
-            }
-          });
-          this.setState({checked: newState});
-        },
-      },
-    ];
-  }
-
-  /**
-   * get the position for the menu based on the css target
-   */
-  getPosition() {
-    const element = document.querySelector(this.state.target);
-    if (element) {
-      const bounds = new Box2D(element.getBoundingClientRect());
-      return new Vector2D(bounds.x + 100, bounds.bottom);
-    }
-    return new Vector2D(100, 200);
   }
 
   /**
    * get the side class based on our target selector
    */
   getSideClass() {
-    const element = document.querySelector(this.state.target);
-    if (element) {
-      const bounds = new Box2D(element.getBoundingClientRect());
-      return bounds.x + 100 < document.body.clientWidth / 2 ? 'menu-overlay-menu menu-overlay-left' : 'menu-overlay-menu menu-overlay-right';
-    }
-    return 'menu-overlay-menu menu-overlay-top menu-overlay-left';
+    return this.props.menuPosition.x < document.body.clientWidth / 2 ? 'menu-overlay-menu menu-overlay-left' : 'menu-overlay-menu menu-overlay-right';
   }
 
   /**
@@ -166,19 +55,32 @@ export default class MenuOverlay extends Component {
 
 
   /**
-   * open or close based on current state
+   * close by clearing out the menu items
    */
   close = () => {
+    this.props.uiShowMenu();
+  };
 
+  mouseEnterMenu = () => {
+    this.inside = true;
+  };
+
+  mouseLeaveMenu = () => {
+    if (this.inside) {
+      this.inside = false;
+      this.close();
+    }
   };
 
   /*
    * render modal dialog with owner supplied payload and optional buttons.
    */
   render() {
-
-    // get position for the menu based on the target element
-    const pos = this.getPosition();
+    // nothing if not open
+    if (!this.props.menuItems) {
+      return null;
+    }
+    const pos = this.props.menuPosition;
     // size and position pointer and menu
     const psize = 20;
     const pointerPosition = {
@@ -195,36 +97,24 @@ export default class MenuOverlay extends Component {
       <div className="menu-overlay">
         <div className="menu-overlay-pointer" style={pointerPosition}></div>
         <SubMenu
-          menuItems={this.menuItems}
+          menuItems={this.props.menuItems}
           position={menuPosition}
           close={this.close}
+          onMouseEnter={this.mouseEnterMenu}
+          onMouseLeave={this.mouseLeaveMenu}
           className={this.getSideClass()}
         />
       </div>
     );
   }
 }
-/*
-<div className={this.getSideClass()} style={menuPosition}>
-  {this.menuItems.map((item, index) => {
-    const boundAction = () => {
-      item.action();
-      this.close();
-    };
-    return (
-      item.text ?
-        (<MenuItem
-          key={item.text}
-          text={item.text}
-          shortcut={item.shortcut}
-          checked={item.checked}
-          disabled={!!item.disabled}
-          classes={item.classes}
-          menuItems={item.menuItems}
-          close={this.close}
-          action={boundAction}/>) :
-        (<MenuSeparator key={index}/>)
-    );
-  })}
-</div>
-*/
+
+function mapStateToProps(state) {
+  return {
+    menuItems: state.ui.modals.menuItems,
+    menuPosition: state.ui.modals.menuPosition,
+  };
+}
+export default connect(mapStateToProps, {
+  uiShowMenu,
+})(MenuOverlay);

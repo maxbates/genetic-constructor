@@ -233,6 +233,17 @@ export const uiSetGrunt = (gruntMessage) => {
   };
 };
 
+export const uiShowMenu = (menuItems, menuPosition) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: ActionTypes.UI_SHOW_MENU,
+      menuItems,
+      menuPosition,
+    });
+    return {menuItems, menuPosition};
+  };
+};
+
 export const uiSpin = (spinMessage = '') => {
   return (dispatch, getState) => {
     dispatch({

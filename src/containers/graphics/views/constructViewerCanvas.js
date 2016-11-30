@@ -24,7 +24,7 @@ import {
   blockClone,
   blockRename,
 } from '../../../actions/blocks';
-import { uiSpin } from '../../../actions/ui';
+import { uiSpin, uiShowMenu } from '../../../actions/ui';
 import { focusConstruct, focusBlocks } from '../../../actions/focus';
 import {
   projectGetVersion,
@@ -152,6 +152,7 @@ export class ConstructViewerCanvas extends Component {
       evt.stopPropagation();
       this.props.focusBlocks([]);
     }
+    this.props.uiShowMenu(menuItems, {x: 200, y: 200});
   };
 
   /**
@@ -259,6 +260,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   uiSpin,
+  uiShowMenu,
   focusConstruct,
   focusBlocks,
   projectAddConstruct,
@@ -269,3 +271,107 @@ export default connect(mapStateToProps, {
   projectGet,
   blockClone,
 })(ConstructViewerCanvas);
+
+const menuItems = [
+  {
+    text: 'Save Project',
+    shortcut: 'meta S',
+    action: () => {
+      alert("Save");
+    },
+  },
+  {
+    text: 'Delete Project',
+    action: () => {
+      alert("Delete");
+    },
+  },
+  {
+    text: 'Open Project',
+    shortcut: 'option shift ctrl O',
+    menuItems: [
+      {
+        text: 'New Construct',
+        shortcut: 'meta option S',
+        action: () => {
+          alert("Save Nested");
+        },
+      },
+      {
+        text: 'DP Nested',
+        action: () => {
+          alert("Delete Nested");
+        },
+        menuItems: [
+          {
+            text: 'Save P Nested Twice',
+            action: () => {
+              alert("Save Nested Nested");
+            },
+          },
+          {
+            text: 'Nested Nested',
+            action: () => {
+              alert("Delete Nested Nested");
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {},
+  {
+    text: 'Kill Project',
+    shortcut: 'shift meta K',
+    action: () => {
+      alert("Kill");
+    },
+  },
+  {},
+  {
+    text: 'Disabled Item',
+    disabled: true,
+  },
+  {
+    text: 'Another Checked Item',
+    checked: false,
+    shortcut: 'shift option c',
+    action: () => {
+      alert('Toggle Check')
+    },
+    menuItems: [
+      {
+        text: 'New Construct',
+        shortcut: 'meta option S',
+        action: () => {
+          alert("Save Nested");
+        },
+      },
+      {
+        text: 'DP Nested',
+        menuItems: [
+          {
+            text: 'Save P Nested Twice',
+            action: () => {
+              alert("Save Nested Nested");
+            },
+          },
+          {
+            text: 'Nested Nested',
+            action: () => {
+              alert("Delete Nested Nested");
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    text: 'Checked Item',
+    checked: true,
+    action: () => {
+      alert('Check Toggled')
+    },
+  },
+];
+

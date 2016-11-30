@@ -16,6 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import SubMenu from './SubMenu';
 import Arrow from '../ui/Arrow';
+import { stringToShortcut } from '../../utils/ui/keyboard-translator';
 
 import '../../styles/MenuItem.css';
 
@@ -29,17 +30,21 @@ import '../../styles/MenuItem.css';
  */
 export default class MenuItem extends Component {
   static propTypes = {
-    text    : PropTypes.string.isRequired,
-    action  : PropTypes.func,
+    text: PropTypes.string.isRequired,
+    action: PropTypes.func,
     disabled: PropTypes.bool,
-    checked : PropTypes.bool,
+    checked: PropTypes.bool,
     shortcut: PropTypes.string,
-    classes : PropTypes.string,
+    classes: PropTypes.string,
+    close: PropTypes.func.isRequired,
   };
 
-  static defaultProps = {
-    action: () => {},
-  };
+  constructor() {
+    super();
+    this.state = {
+      inside: false,
+    }
+  }
 
   /**
    * click handler
@@ -52,6 +57,17 @@ export default class MenuItem extends Component {
     }
   };
 
+  /**
+   * delicate switch around opening and closing
+   */
+  onMouseEnter = () => {
+    this.setState({ inside: true });
+  };
+
+  onMouseLeave = () => {
+    this.setState({ inside: false });
+  };
+
   render() {
     // indent if check able regardless of checked state
     const indent = this.props.checked === true || this.props.checked === false;
@@ -61,7 +77,10 @@ export default class MenuItem extends Component {
     }
     // short cut if any
     const shortcut = this.props.shortcut && (
-        <div className="menu-item-shortcut" disabled={this.props.disabled}>{this.props.shortcut}</div>);
+        <div
+          className="menu-item-shortcut"
+          disabled={this.props.disabled}>{stringToShortcut(this.props.shortcut)}
+        </div>);
     // text
     const text = (<div className="text">{this.props.text}</div>);
     // arrow
@@ -70,11 +89,12 @@ export default class MenuItem extends Component {
       subMenu = (
         <div className="arrow">
           <Arrow direction="right" disabled={false}/>
+          {this.state.inside &&
           <SubMenu
             menuItems={this.props.menuItems}
             close={this.props.close}
             className="menu-overlay-menu sub-menu"
-          />
+          />}
         </div>
       );
     }
@@ -88,6 +108,8 @@ export default class MenuItem extends Component {
       <div
         className={classes}
         onClick={this.onClick}
+        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
       >
         <div className="left">
           {check}
