@@ -68,11 +68,6 @@ async function test() {
       coverageCommand :
       unitTestCommand;
 
-    //dont force with ' &' or will change directory where tests are run
-    if (forceSuccess) {
-      command += ' || exit 0';
-    }
-
     const [cmd, ...args] = command.split(' ');
 
     const testProcess = await spawnAsync(cmd, args, {
@@ -91,7 +86,7 @@ async function test() {
     //if we made it here, all tests passed
   } catch (err) {
     errored = 1;
-    console.log(err.stack);
+    console.log("error stack:", err.stack);
   } finally {
     if (withReport) {
       //run coverage tests, even if tests failed
@@ -107,6 +102,11 @@ async function test() {
         proc.kill();
       }
     });
+
+    if (forceSuccess) {
+      process.exit(0);
+    }
+
     process.exit(errored);
   }
 }
