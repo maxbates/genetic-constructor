@@ -25,12 +25,12 @@ import Schema from './SchemaClass';
 const blockSourceFields = {
   source: [
     fields.string(),
-    `key of foundry the Order has been submitted to`,
+    `Source key for where the block came from`,
   ],
 
   id: [
     fields.string(),
-    `ID at remote foundry`,
+    `ID of remote resource`,
   ],
 
   url: [
