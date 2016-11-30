@@ -30,6 +30,7 @@ const fieldDefs = {
   md5: [
     fields.sequenceMd5(),
     `md5 hash of the sequence, used for lookup. May just be md5, or include byte range in format md5[start:end]`,
+    { avoidScaffold: true },
   ],
 
   url: [
