@@ -16,7 +16,6 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { push } from 'react-router-redux';
-import PopupMenu from '../../components/Menu/PopupMenu';
 import Vector2D from '../../containers/graphics/geometry/vector2d';
 import { connect } from 'react-redux';
 import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
@@ -38,10 +37,6 @@ class UserWidget extends Component {
 
   constructor() {
     super();
-    this.state = {
-      menuOpen: false,
-      menuPosition: new Vector2D(),
-    };
   }
 
   onSignIn(evt) {
@@ -51,16 +46,16 @@ class UserWidget extends Component {
 
   onShowMenu() {
     const box = ReactDOM.findDOMNode(this).getBoundingClientRect();
-    this.setState({
-      menuOpen: true,
-      menuPosition: new Vector2D(box.left - 200, box.top + box.height),
-    });
+    // this.setState({
+    //   menuOpen: true,
+    //   menuPosition: new Vector2D(box.left - 200, box.top + box.height),
+    // });
   }
 
   closeMenu() {
-    this.setState({
-      menuOpen: false,
-    });
+    // this.setState({
+    //   menuOpen: false,
+    // });
   }
 
   signOut() {
@@ -76,7 +71,7 @@ class UserWidget extends Component {
       track('Authentication', 'Sign Out', 'Failed');
     });
   }
-
+/*
   contextMenu() {
     return null;
     return (<PopupMenu
@@ -103,7 +98,7 @@ class UserWidget extends Component {
         ]
       }/>);
   }
-
+*/
   render() {
     if (!this.props.userWidgetVisible) {
       return null;
@@ -115,7 +110,6 @@ class UserWidget extends Component {
         <div className="userwidget">
           <div onClick={this.onShowMenu.bind(this)} className="signed-in">
             {this.props.user.firstName ? this.props.user.firstName.substr(0, 1) : '?'}</div>
-          {this.contextMenu()}
         </div>
       );
     }

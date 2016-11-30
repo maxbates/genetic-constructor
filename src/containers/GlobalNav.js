@@ -17,7 +17,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
-import MenuBar from '../components/Menu/MenuBar';
 import UserWidget from '../components/authentication/userwidget';
 import RibbonGrunt from '../components/ribbongrunt';
 import {
@@ -92,7 +91,6 @@ class GlobalNav extends Component {
     projectLoad: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string,
     blockCreate: PropTypes.func.isRequired,
-    showMenu: PropTypes.bool.isRequired,
     blockGetParents: PropTypes.func.isRequired,
     focusDetailsExist: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
@@ -478,7 +476,7 @@ class GlobalNav extends Component {
       this.props.focusBlocks(clones.map(clone => clone.id));
     }
   }
-
+/*
   menuBar() {
     return (<MenuBar
       menus={[
@@ -693,14 +691,14 @@ class GlobalNav extends Component {
         },
       ]}/>);
   }
-
+*/
   disgorgeDiscourse(path) {
     const uri = window.discourseDomain + path;
     window.open(uri, '_blank');
   }
 
   render() {
-    const { currentProjectId, showMenu } = this.props;
+    const { currentProjectId } = this.props;
 
     return (
       <div className="GlobalNav">
@@ -711,9 +709,8 @@ class GlobalNav extends Component {
           </div>
         </div>
         <div className="GlobalNav-appname">Genetic Constructor</div>
-        {showMenu && this.menuBar()}
         <span className="GlobalNav-spacer"/>
-        {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId}/>}
+        {currentProjectId && <AutosaveTracking projectId={currentProjectId}/>}
         <UserWidget/>
         <OkCancel
           open={this.state.showDeleteProject}

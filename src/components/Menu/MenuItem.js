@@ -17,7 +17,6 @@ import React, { Component, PropTypes } from 'react';
 import SubMenu from './SubMenu';
 import Arrow from '../ui/Arrow';
 import { stringToShortcut } from '../../utils/ui/keyboard-translator';
-import Box2D from '../../containers/graphics/geometry/box2d';
 
 import '../../styles/MenuItem.css';
 

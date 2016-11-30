@@ -17,7 +17,6 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import Box2D from '../../containers/graphics/geometry/box2d';
-import Vector2D from '../../containers/graphics/geometry/vector2d';
 import SubMenu from './SubMenu';
 import { uiShowMenu } from '../../actions/ui';
 
