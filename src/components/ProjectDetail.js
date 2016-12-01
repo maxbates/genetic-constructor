@@ -138,6 +138,22 @@ export class ProjectDetail extends Component {
             onMouseDown={this.handleResizableMouseDown}>
           </div>
           <div className="ProjectDetail-open-header">
+            <div className="ProjectDetail-open-header-left">
+              {this.extensions.map(key => {
+                const name = getExtensionName(key);
+                const active = key === currentExtension ? " ProjectDetail-open-header-left-active" : "";
+                const className = "ProjectDetail-open-header-left-extension" + active;
+                return (
+                  <a key={key}
+                     className={className}
+                     onClick={() => this.openExtension(key)}
+                  >{name}
+                  </a>
+                );
+              })}
+            </div>
+            <div className="ProjectDetail-open-header-right">
+            </div>
           </div>
           {currentExtension && (<ExtensionView region={projectDetailExtensionRegion}
                                                isVisible={true}

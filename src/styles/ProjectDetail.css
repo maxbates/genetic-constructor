@@ -21,13 +21,40 @@
       }
 
       &.dragging {
-        background-color: var(--colors-selected);
+        background-color: var(--colors-blueGreyLighter);
       }
     }
 
     &-header {
       height: var(--projectDetailHeaderHeight);
       background-color: var(--colors-blueGreyMed);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 0.5rem;
+
+      &-left {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        &-extension {
+          color: var(--colors-greyMedLight);
+          cursor: pointer;
+          user-select: none;
+          padding: 0.5rem 1rem;
+        }
+        &-active {
+          background-color: white;
+          color: black;
+          border-radius: 5px 5px 0 0;
+        }
+      }
+      &-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
     }
   }
 
