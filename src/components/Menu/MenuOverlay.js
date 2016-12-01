@@ -86,13 +86,16 @@ class MenuOverlay extends Component {
   };
 
   /**
-   * mouse down in overlay
+   * mouse down in overlay, careful to ignore propagated events
    * @param evt
    */
   mouseOverlay = (evt) => {
-    evt.preventDefault();
-    evt.stopPropagation();
-    this.close();
+    const el = ReactDOM.findDOMNode(this);
+    if (el.isSameNode(evt.target)) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      this.close();
+    }
   };
 
   componentWillReceiveProps() {

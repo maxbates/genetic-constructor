@@ -13,6 +13,7 @@
 
   &.disabled {
     color: #999999;
+    pointer-events: none;
   }
 
   &:hover {
