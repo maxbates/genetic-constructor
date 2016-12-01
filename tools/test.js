@@ -93,6 +93,7 @@ async function test() {
       try {
         await promisedExec(coverageReport, { stdio: 'inherit' }, { forceOutput: true });
       } catch (err) {
+        errored = 1;
         console.error('couldnt generate coverage information');
       }
     }
