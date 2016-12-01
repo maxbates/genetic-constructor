@@ -4,7 +4,7 @@ bio-user-platform.iml
 npm-debug.log
 tmp/
 report.xml
-bio-user-platform-*.tgz
+gctor-storage-*.tgz
 VERSION
 build-manifest.txt
 *.out*

@@ -2,6 +2,8 @@
 ./storage-ext/gctor-storage-*.tgz
 ./storage-ext/report.xml
 ./storage-ext/VERSION
+./storage-ext/npm-debug.log
+./storage-ext/node_modules/*
 ./storage-ext/node_modules/jenkins-docker/compose-tmp/.archive_excludes
 ./storage-ext/node_modules/jenkins-docker/compose-tmp/CloudStackStatus.txt
 ./storage-ext/node_modules/jenkins-docker/compose-tmp/compose-env.txt
