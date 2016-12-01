@@ -3,12 +3,13 @@
 WD="./"
 TD="${WD}storage-ext/"
 SCS="${WD}storage-app.md5"
+EX="${WD}storage-app.excludes"
 
 if [ -f "$SCS" ]; then
     LASTMD5=`cat ${SCS}`
 fi
 
-CURMD5=`tar -cf - ${TD} | md5sum | cut -f1 -d' '`
+CURMD5=`tar -X ${EX} -cf - ${TD} | md5sum | cut -f1 -d' '`
 echo "current md5 -> $CURMD5"
 
 if [ -n "$LASTMD5" ]; then
