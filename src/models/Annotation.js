@@ -15,8 +15,8 @@
  */
 import Immutable from './Immutable';
 import AnnotationSchema from '../schemas/Annotation';
-import { merge, cloneDeep } from 'lodash';
-import { nextColor } from '../utils/color';
+import { assign } from 'lodash';
+import { nextColorHex } from '../utils/color/index';
 import { symbolMap } from '../inventory/roles';
 
 /**
@@ -32,13 +32,12 @@ export default class Annotation extends Immutable {
    * Create an annotation
    * @constructor
    * @param {Object} input Input object for the annotation to merge onto the scaffold
+   * @param {boolean} frozen
    */
-  constructor(input) {
-    return super(merge(
-      AnnotationSchema.scaffold(),
-      { color: nextColor() },
-      input,
-    ));
+  constructor(input, frozen = true) {
+    const scaff = AnnotationSchema.scaffold();
+    scaff.color = nextColorHex();
+    return super(input, scaff, frozen);
   }
 
   /**
@@ -49,7 +48,7 @@ export default class Annotation extends Immutable {
    * @returns {Object} an unfrozen JSON, no instance methods
    */
   static classless(input) {
-    return cloneDeep(new Annotation(input));
+    return assign({}, new Annotation(input, false));
   }
 
   /**
