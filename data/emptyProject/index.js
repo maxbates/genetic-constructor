@@ -14,19 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import Block from '../../src/models/Block';
+import Rollup from '../../src/models/Rollup';
 import Project from '../../src/models/Project';
 
-export default function emptyProjectWithConstruct(useClassless = false) {
-  const construct = useClassless ? Block.classless() : new Block();
+export default function emptyProjectWithConstruct(freeze = true) {
+  const construct = new Block({}, freeze);
   const input = {
     components: [construct.id],
   };
-  const project = useClassless ? Project.classless(input) : new Project(input);
+  const project = new Project(input, freeze);
 
-  return {
+  return new Rollup({
     project,
     blocks: {
       [construct.id]: construct,
     },
-  };
+  });
 }

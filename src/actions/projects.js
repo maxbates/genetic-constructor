@@ -31,6 +31,7 @@ import { uniq, values, merge } from 'lodash';
 import * as instanceMap from '../store/instanceMap';
 import Block from '../models/Block';
 import Project from '../models/Project';
+import Rollup from '../models/Rollup';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 import { getLocal, setLocal } from '../utils/ui/localstorage';
@@ -247,10 +248,10 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
         .map((blockObject) => new Block(blockObject))
         .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 
-      return {
+      return new Rollup({
         project: projectModel,
         blocks: blockMap,
-      };
+      });
     })
     .catch(resp => {
       if ((resp === null || resp.status === 404) && loadMoreOnFail !== true && !Array.isArray(loadMoreOnFail)) {
@@ -278,7 +279,7 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
           //if no manifests, create a new rollup
           //note - this shouldnt happen while users have sample projects
           //todo - may want to hit the server to re-setup the user's account
-          return emptyProjectWithConstruct();
+          return emptyProjectWithConstruct(true);
         });
     });
 };

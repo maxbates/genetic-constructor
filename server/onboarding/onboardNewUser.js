@@ -32,7 +32,7 @@ import emptyProjectWithConstruct from '../../data/emptyProject/index';
 // these are parameterized generators of projects, which return promises
 const projectMap = {
   egf_templates: (config, user) => makeEgfRollup(),
-  emptyProject: (config, user) => emptyProjectWithConstruct(true),
+  emptyProject: (config, user) => emptyProjectWithConstruct(false),
 };
 
 //create rollup generators, where first is the one to return as final project ID
