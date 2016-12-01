@@ -18,12 +18,16 @@ import Rollup from '../../src/models/Rollup';
 import Project from '../../src/models/Project';
 
 export default function emptyProjectWithConstruct(freeze = true) {
+  const projectId = Project.classless().id;
 
-  const construct = new Block({}, freeze);
-  const input = {
+  const construct = new Block({
+    projectId,
+  }, freeze);
+
+  const project = new Project({
+    id: projectId,
     components: [construct.id],
-  };
-  const project = new Project(input, freeze);
+  }, freeze);
 
   return new Rollup({
     project,
