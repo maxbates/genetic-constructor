@@ -274,6 +274,7 @@ var checkLatestProject = function (req, res) {
     });
     res.set('Latest-Version-UUID', latest.get('uuid'));
     res.set('Latest-Version', latest.get('version'));
+    res.set('Owner', latest.get('owner'));
     return res.status(200).send().end();
   }).catch(function (err) {
     console.error(err);
@@ -751,6 +752,7 @@ var optimizedCheckLatestProjectVersion = function (req, res) {
     ],
     attributes: [
       'uuid',
+      'owner',
       'version',
     ],
   }).then(function (result) {
@@ -760,6 +762,7 @@ var optimizedCheckLatestProjectVersion = function (req, res) {
 
     res.set('Latest-Version-UUID', result.get('uuid'));
     res.set('Latest-Version', result.get('version'));
+    res.set('Owner', result.get('owner'));
     return res.status(200).send().end();
   }).catch(function (err) {
     req.log.error(err);

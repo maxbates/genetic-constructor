@@ -136,6 +136,8 @@ describeAppTest("http", function (app) {
           assert.equal(latestVersion, 0);
           var latestVersionUUID = res.get('Latest-Version-UUID');
           assert.equal(latestVersionUUID, projectUUID0);
+          var retrievedOwner = res.get('Owner');
+          assert.equal(owner, retrievedOwner);
           done();
         });
     });
@@ -151,6 +153,8 @@ describeAppTest("http", function (app) {
           assert.equal(latestVersion, 0);
           var latestVersionUUID = res.get('Latest-Version-UUID');
           assert.equal(latestVersionUUID, projectUUID0);
+          var retrievedOwner = res.get('Owner');
+          assert.equal(owner, retrievedOwner);
           done();
         });
     });
@@ -218,7 +222,7 @@ describeAppTest("http", function (app) {
         });
     });
 
-    it('should confirm project exists with \`Lastest-Version\` in headers', function testProjectExistsWithVersion(done) {
+    it('should confirm project exists with \`Lastest-Version\` and \`Owner\` in headers', function testProjectExistsWithVersion(done) {
       request(app.proxy)
       // .head('/api/projects/'+ projectId0 + '?owner=' + owner)
         .head('/api/projects/'+ projectId0)
@@ -228,6 +232,8 @@ describeAppTest("http", function (app) {
           assert.notEqual(res, null);
           var latestVersion = res.get('Latest-Version');
           assert.equal(latestVersion, 1);
+          var retrievedOwner = res.get('Owner');
+          assert.equal(owner, retrievedOwner);
           done();
         });
     });
