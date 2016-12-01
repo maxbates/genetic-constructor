@@ -41,7 +41,7 @@ describe('Server', () => {
       );
     });
 
-    it.only('should onboard a user and create at least a project for them', () => {
+    it('should onboard a user and create at least a project for them', () => {
       const user = makeUser();
       return onboardNewUser(user)
         .then(rolls => {
