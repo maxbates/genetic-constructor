@@ -3,11 +3,7 @@
 ./storage-ext/report.xml
 ./storage-ext/VERSION
 ./storage-ext/npm-debug.log
+./storage-ext/node_modules
 ./storage-ext/node_modules/*
-./storage-ext/node_modules/jenkins-docker/compose-tmp/.archive_excludes
-./storage-ext/node_modules/jenkins-docker/compose-tmp/CloudStackStatus.txt
-./storage-ext/node_modules/jenkins-docker/compose-tmp/compose-env.txt
-./storage-ext/node_modules/jenkins-docker/compose-tmp/dev-gctor-storage-latest.zip
-./storage-ext/node_modules/jenkins-docker/compose-tmp/dev-gctor-storage-previous.zip
-./storage-ext/node_modules/jenkins-docker/compose-tmp/images.txt
-./storage-ext/node_modules/jenkins-docker/compose-tmp/tmp-push
+./storage-ext/node_modules/jenkins-docker/compose-tmp
+./storage-ext/node_modules/jenkins-docker/compose-tmp/*
