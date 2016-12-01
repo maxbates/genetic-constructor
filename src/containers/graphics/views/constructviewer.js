@@ -100,6 +100,7 @@ export class ConstructViewer extends Component {
     blockAddComponents: PropTypes.func,
     blockDetach: PropTypes.func,
     uiShowDNAImport: PropTypes.func,
+    uiShowMenu: PropTypes.func,
     uiShowOrderForm: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
     orderCreate: PropTypes.func.isRequired,

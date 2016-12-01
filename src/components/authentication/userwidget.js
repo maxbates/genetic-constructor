@@ -29,6 +29,7 @@ class UserWidget extends Component {
 
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
+    uiShowMenu: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     user: PropTypes.object,
     push: PropTypes.func.isRequired,
@@ -53,22 +54,22 @@ class UserWidget extends Component {
     const menuPosition = new Vector2D(box.cx, box.bottom);
     const name = this.props.user.firstName + ' ' + this.props.user.lastName;
     this.props.uiShowMenu([
-        {
-          text: name,
-          disabled: true,
+      {
+        text: name,
+        disabled: true,
+      },
+      {
+        text: 'Account Settings',
+        action: () => {
+          this.props.uiShowAuthenticationForm('account');
         },
-        {
-          text: 'Account Settings',
-          action: () => {
-            this.props.uiShowAuthenticationForm('account');
-          },
-        },
-        {
-          text: 'Sign Out',
-          action: this.signOut.bind(this),
-        },
-      ],
-      menuPosition);
+      },
+      {
+        text: 'Sign Out',
+        action: this.signOut.bind(this),
+      },
+    ],
+    menuPosition);
   };
 
   signOut() {

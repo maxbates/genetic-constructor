@@ -142,8 +142,8 @@ export class ProjectDetail extends Component {
             <div className="ProjectDetail-open-header-left">
               {this.extensions.map(key => {
                 const name = getExtensionName(key);
-                const active = key === currentExtension ? " ProjectDetail-open-header-left-active" : "";
-                const className = "ProjectDetail-open-header-left-extension" + active;
+                const active = key === currentExtension ? ' ProjectDetail-open-header-left-active' : '';
+                const className = 'ProjectDetail-open-header-left-extension' + active;
                 return (
                   <a key={key}
                      className={className}
@@ -163,64 +163,24 @@ export class ProjectDetail extends Component {
             </div>
           </div>
           {currentExtension && (<ExtensionView region={projectDetailExtensionRegion}
-                                               isVisible={true}
+                                               isVisible
                                                extension={currentExtension}/>) }
         </div>
       );
-
-    } else {
-      // just a list of extensions if closed
-      return (
-        <div className="ProjectDetail-closed">
-          {this.extensions.map(key => {
-            const name = getExtensionName(key);
-            return (
-              <a key={key}
-                 className="ProjectDetail-closed-extension"
-                 onClick={() => this.openExtension(key)}
-              >{name}
-              </a>
-            );
-          })}
-        </div>
-      )
     }
-  }
-
-  renderXXX() {
-    const { isVisible, currentExtension } = this.props;
-
-    if (!this.extensions.length) {
-      return null;
-    }
-
+    // just a list of extensions if closed
     return (
-      <div className="ProjectDetail"
-           style={{ height: (isVisible ? `${this.state.openHeight}px` : null) }}>
-        {(isVisible) && (<div ref="resizeHandle"
-                              className="ProjectDetail-resizeHandle"
-                              onMouseDown={this.handleResizableMouseDown}></div>)}
-        <div className="ProjectDetail-heading">
-          {!isVisible && (<a ref="open"
-                             className={'ProjectDetail-heading-toggle' + (isVisible ? ' visible' : '')}
-                             onClick={this.handleClickToggle}/>)}
-          <div className={'ProjectDetail-heading-extensionList' + (isVisible ? ' visible' : '')}>
-            {this.extensions.map(key => {
-              const name = getExtensionName(key);
-              return (
-                <a key={key}
-                   className={'ProjectDetail-heading-extension' + (key === currentExtension ? ' active' : '')}
-                   onClick={() => this.openExtension(key)}>{name}</a>
-              );
-            })}
-          </div>
-          {isVisible && (<a ref="close"
-                            className={'ProjectDetail-heading-close'}
-                            onClick={() => this.toggle(false)}/>)}
-        </div>
-        {currentExtension && (<ExtensionView region={projectDetailExtensionRegion}
-                                             isVisible={isVisible}
-                                             extension={currentExtension}/>) }
+      <div className="ProjectDetail-closed">
+        {this.extensions.map(key => {
+          const name = getExtensionName(key);
+          return (
+            <a key={key}
+               className="ProjectDetail-closed-extension"
+               onClick={() => this.openExtension(key)}
+            >{name}
+            </a>
+          );
+        })}
       </div>
     );
   }

@@ -25,13 +25,33 @@ import '../../../src/styles/MenuOverlay.css';
  * Elements that holds the active menu and blocks access to the page behind it.
  */
 class MenuOverlay extends Component {
-  static propTypes = {};
+  static propTypes = {
+    menuPosition: PropTypes.object,
+    menuItems: PropTypes.array,
+    uiShowMenu: PropTypes.func.isRequired,
+  };
 
   constructor() {
     super();
     this.state = {
       openLeft: true,
-    }
+    };
+  }
+
+  /**
+   * handle window resizes
+   */
+  componentDidMount() {
+    window.addEventListener('resize', this.close);
+  }
+
+  componentWillReceiveProps() {
+    this.measured = false;
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.close);
+    this.stopKillTimer();
   }
 
   /**
@@ -42,19 +62,6 @@ class MenuOverlay extends Component {
       ? 'menu-overlay-menu menu-overlay-top menu-overlay-left'
       : 'menu-overlay-menu menu-overlay-top menu-overlay-right';
   }
-
-  /**
-   * handle window resizes
-   */
-  componentDidMount() {
-    window.addEventListener('resize', this.close);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.close);
-    this.stopKillTimer();
-  }
-
 
   /**
    * close by clearing out the menu items
@@ -98,9 +105,6 @@ class MenuOverlay extends Component {
     }
   };
 
-  componentWillReceiveProps() {
-    this.measured = false;
-  }
   /*
    * render modal dialog with owner supplied payload and optional buttons.
    */

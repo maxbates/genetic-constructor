@@ -37,13 +37,15 @@ export default class MenuItem extends Component {
     shortcut: PropTypes.string,
     classes: PropTypes.string,
     close: PropTypes.func.isRequired,
+    menuItems: PropTypes.array,
+    openLeft: PropTypes.bool,
   };
 
   constructor() {
     super();
     this.state = {
       inside: false,
-    }
+    };
   }
 
   /**

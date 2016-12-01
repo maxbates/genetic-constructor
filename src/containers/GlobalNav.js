@@ -65,12 +65,11 @@ import {
   uiReportError,
 } from '../actions/ui';
 import KeyboardTrap from 'mousetrap';
-import { stringToShortcut } from '../utils/ui/keyboard-translator';
 import {
   sortBlocksByIndexAndDepth,
   sortBlocksByIndexAndDepthExclude,
-  tos,
-  privacy,
+  // tos,
+  // privacy,
 } from '../utils/ui/uiapi';
 import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import OkCancel from '../components/okcancel';

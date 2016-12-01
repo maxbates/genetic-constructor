@@ -24,6 +24,8 @@ export default class SubMenu extends Component {
     position: PropTypes.object,
     onMouseEnter: PropTypes.func,
     onMouseLeave: PropTypes.func,
+    className: PropTypes.string,
+    openLeft: PropTypes.bool,
   };
 
   render() {
@@ -31,8 +33,8 @@ export default class SubMenu extends Component {
       <div
         className={this.props.className}
         style={this.props.position}
-        onMouseEnter={() => {if (this.props.onMouseEnter) {this.props.onMouseEnter()}}}
-        onMouseLeave={() => {if (this.props.onMouseLeave) {this.props.onMouseLeave()}}}
+        onMouseEnter={() => {if (this.props.onMouseEnter) {this.props.onMouseEnter();}}}
+        onMouseLeave={() => {if (this.props.onMouseLeave) {this.props.onMouseLeave();}}}
       >
         { this.props.menuItems.map((item, index) => {
           const boundAction = () => {
@@ -56,9 +58,9 @@ export default class SubMenu extends Component {
                 openLeft={this.props.openLeft}
               />) :
               (<MenuSeparator key={index}/>)
-          )
+          );
         })
         }
-      </div>)
+      </div>);
   }
 }
