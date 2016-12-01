@@ -64,7 +64,7 @@ async function test() {
 
     //now, run the test suite
 
-    let command = withCoverage ?
+    const command = withCoverage ?
       coverageCommand :
       unitTestCommand;
 
@@ -86,7 +86,7 @@ async function test() {
     //if we made it here, all tests passed
   } catch (err) {
     errored = 1;
-    console.log("error stack:", err.stack);
+    console.error(err.stack);
   } finally {
     if (withReport) {
       //run coverage tests, even if tests failed

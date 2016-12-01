@@ -18,6 +18,7 @@ import Rollup from '../../src/models/Rollup';
 import Project from '../../src/models/Project';
 
 export default function emptyProjectWithConstruct(freeze = true) {
+
   const construct = new Block({}, freeze);
   const input = {
     components: [construct.id],

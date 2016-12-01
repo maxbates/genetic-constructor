@@ -105,9 +105,7 @@ export const getUserProjectIds = (userId) => {
 //resolves to latest version
 export const projectExists = (projectId) => {
   return dbHeadRaw(`projects/${projectId}`)
-    .then(resp => {
-      return parseInt(resp.headers.get('Latest-Version'), 10);
-    })
+    .then(resp => parseInt(resp.headers.get('Latest-Version'), 10))
     .catch(resp => {
       if (resp.status === 404) {
         return Promise.reject(errorDoesNotExist);
@@ -119,32 +117,29 @@ export const projectExists = (projectId) => {
 };
 
 //check access to a particular project
-//ideally, would return a 403 on one call, rather than chaining two together
-//todo - move to a HEAD call
+//true if user owns peroject
+// reject errorNoPermission if exists and not users
+// reject errorDoesNotExist if does not exist
 export const userOwnsProject = (userId, projectId) => {
-  return getUserProjectIds(userId)
-    .then((projectIds) => {
-      if (projectIds.indexOf(projectId) >= 0) {
+  return dbHeadRaw(`projects/${projectId}`)
+    .then(resp => {
+      const owner = resp.headers.get('Owner');
+      if (owner === userId) {
         return true;
       }
+      return Promise.reject(errorNoPermission);
+    })
+    .catch(resp => {
+      //rethrow
+      if (resp === errorNoPermission) {
+        return Promise.reject(errorNoPermission);
+      }
+      if (resp.status === 404) {
+        return Promise.reject(errorDoesNotExist);
+      }
 
-      return projectExists(projectId)
-        .then(project => Promise.reject(errorNoPermission))
-        .catch(err => {
-          //re-handle this from .then() above
-          if (err === errorNoPermission) {
-            return Promise.reject(errorNoPermission);
-          }
-
-          //we expect this if doesnt exist, just to be explicit
-          if (err === errorDoesNotExist) {
-            return Promise.reject(errorDoesNotExist);
-          }
-
-          console.log('unexpected error checking project access');
-          console.error(err);
-          return Promise.reject(errorDoesNotExist);
-        });
+      console.log(`unhandled error checking project permission: ${userId} ${projectId}`);
+      throw new Error('Error checking project permission');
     });
 };
 

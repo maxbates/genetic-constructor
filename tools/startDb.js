@@ -32,7 +32,7 @@ async function startDb() {
       console.log(colors.yellow('Assuming Database managed externally...'));
       return Promise.resolve(null);
     }
-   
+
     await promisedExec(buildDb, {}, { comment: 'Building DB Docker container...' });
 
     const dbProcess = await checkPortFree(STORAGE_PORT)

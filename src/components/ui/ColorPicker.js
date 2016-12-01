@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import { getPalette } from '../../utils/color';
+import { getPalette } from '../../utils/color/index';
 import PickerItem from './PickerItem';
 
 import '../../styles/Picker.css';
@@ -75,7 +75,7 @@ export default class ColorPicker extends Component {
 
   getColor(index = 0) {
     if (!Number.isInteger(index) || index < 0) {
-      console.warn('current index is not an index');
+      console.warn('current index is not an index'); //eslint-disable-line no-console
       return this.palette[0];
     }
     return this.palette[index];
