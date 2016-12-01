@@ -259,8 +259,10 @@ export const orderSubmit = (orderId, foundry) => {
     //can set projectVersion, or server will do it, so lets just be specific
     const savePromise = (!Number.isInteger(projectVersion))
       ?
-      projectActions.projectSave(projectId, true)
-        .then(info => retrievedOrder.mutate('projectVersion', info.version))
+      dispatch(projectActions.projectSave(projectId, true))
+        .then(version => {
+          return retrievedOrder.mutate('projectVersion', version);
+        })
       :
       Promise.resolve(retrievedOrder);
 

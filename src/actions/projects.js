@@ -154,6 +154,7 @@ export const projectSave = (inputProjectId, forceSave = false) => {
           version,
           time,
         });
+
         return version;
       });
   };
