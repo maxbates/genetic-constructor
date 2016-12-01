@@ -127,10 +127,13 @@ class MenuOverlay extends Component {
       this.measured = true;
       window.setTimeout(() => {
         // determine which side to open sub menus once we have updated.
-        const box = new Box2D(ReactDOM.findDOMNode(this.refs.subMenu).getBoundingClientRect());
-        const openLeft = box.right > document.body.clientWidth / 2;
-        if (openLeft !== this.state.openLeft) {
-          this.setState({ openLeft });
+        const element = ReactDOM.findDOMNode(this.refs.subMenu);
+        if (element) {
+          const box = new Box2D(element.getBoundingClientRect());
+          const openLeft = box.right > document.body.clientWidth / 2;
+          if (openLeft !== this.state.openLeft) {
+            this.setState({ openLeft });
+          }
         }
       }, 10);
     }

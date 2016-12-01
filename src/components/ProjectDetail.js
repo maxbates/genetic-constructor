@@ -125,13 +125,54 @@ export class ProjectDetail extends Component {
 
   render() {
     const { isVisible, currentExtension } = this.props;
+    if (!this.extensions.length) {
+      return null;
+    }
+
+    if (isVisible) {
+      return (
+        <div className="ProjectDetail-open" style={{ height: `${this.state.openHeight}px`}}>
+          <div
+            ref="resizeHandle"
+            className="ProjectDetail-open-resizeHandle"
+            onMouseDown={this.handleResizableMouseDown}>
+          </div>
+          <div className="ProjectDetail-open-header">
+          </div>
+          {currentExtension && (<ExtensionView region={projectDetailExtensionRegion}
+                                               isVisible={true}
+                                               extension={currentExtension}/>) }
+        </div>
+      );
+
+    } else {
+      // just a list of extensions if closed
+      return (
+        <div className="ProjectDetail-closed">
+          {this.extensions.map(key => {
+            const name = getExtensionName(key);
+            return (
+              <a key={key}
+                 className="ProjectDetail-closed-extension"
+                 onClick={() => this.openExtension(key)}
+              >{name}
+              </a>
+            );
+          })}
+        </div>
+      )
+    }
+  }
+
+  renderXXX() {
+    const { isVisible, currentExtension } = this.props;
 
     if (!this.extensions.length) {
       return null;
     }
 
     return (
-      <div className={'ProjectDetail' + (isVisible ? ' visible' : '')}
+      <div className="ProjectDetail"
            style={{ height: (isVisible ? `${this.state.openHeight}px` : null) }}>
         {(isVisible) && (<div ref="resizeHandle"
                               className="ProjectDetail-resizeHandle"

@@ -85,5 +85,6 @@
   --listItem-backgroundHover: var(--colors-selected);
 
   /* Project Details */
-  --projectDetailsHeight: calc(100% - 24px);
+  --projectDetailHeaderHeight: 3rem;
+  --projectDetailsHeight: calc(100% - var(--projectDetailHeaderHeight));
 }
