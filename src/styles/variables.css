@@ -86,5 +86,6 @@
 
   /* Project Details */
   --projectDetailHeaderHeight: 3rem;
+  --projectDetailFooterHeight: 3rem;
   --projectDetailsHeight: calc(100% - var(--projectDetailHeaderHeight));
 }

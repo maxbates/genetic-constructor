@@ -29,7 +29,7 @@
       height: var(--projectDetailHeaderHeight);
       background-color: var(--colors-blueGreyMed);
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: space-between;
       padding: 0 0.5rem;
 
@@ -37,6 +37,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: flex-start;
+        transform: translateY(4px);
 
         &-extension {
           color: var(--colors-greyMedLight);
@@ -54,6 +55,15 @@
         display: inline-flex;
         align-items: center;
         justify-content: flex-end;
+
+        &-close {
+          background-image: url('/images/ui/close_icon_dark.svg');
+          cursor: pointer;
+          width: 17px;
+          height: 17px;
+          margin-right: 0.5rem;
+          filter: brightness(1000%);
+        }
       }
     }
   }
@@ -63,12 +73,20 @@
     background-color: var(--colors-blueGreyMed);
     display: flex;
     align-items: center;
+    min-height: var(--projectDetailFooterHeight);
+    padding-left: 0.5rem;
 
     &-extension {
       color: var(--colors-greyMedLight);
-      margin: 0.5rem 1rem;
+      padding: 0.4rem;
+      margin-right: 0.5rem;
       cursor: pointer;
       user-select: none;
+
+      &:hover {
+        background-color: white;
+        color: black;
+      }
     }
   }
 }

@@ -131,13 +131,14 @@ export class ProjectDetail extends Component {
 
     if (isVisible) {
       return (
-        <div className="ProjectDetail-open" style={{ height: `${this.state.openHeight}px`}}>
+        <div className="ProjectDetail-open" style={{ height: `${this.state.openHeight}px` }}>
           <div
             ref="resizeHandle"
             className="ProjectDetail-open-resizeHandle"
             onMouseDown={this.handleResizableMouseDown}>
           </div>
           <div className="ProjectDetail-open-header">
+            {/* Left side of header, extension tabls */}
             <div className="ProjectDetail-open-header-left">
               {this.extensions.map(key => {
                 const name = getExtensionName(key);
@@ -152,7 +153,13 @@ export class ProjectDetail extends Component {
                 );
               })}
             </div>
+            {/* right side of header, toolbar and close button */}
             <div className="ProjectDetail-open-header-right">
+              <a
+                ref="close"
+                className={'ProjectDetail-open-header-right-close'}
+                onClick={() => this.toggle(false)}
+              />
             </div>
           </div>
           {currentExtension && (<ExtensionView region={projectDetailExtensionRegion}
