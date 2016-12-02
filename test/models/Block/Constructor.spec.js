@@ -77,7 +77,7 @@ describe('Model', () => {
       }
 
       it('should make new Block() quickly', function makeBlocksFast() {
-        const perSecond = 2500;
+        const perSecond = 2000;
         const number = 1000;
         const timeout = number * 1000 / perSecond;
 
@@ -87,7 +87,7 @@ describe('Model', () => {
       });
 
       it('should make Block.classless() quickly', function makeBlocksFast() {
-        const perSecond = 2500;
+        const perSecond = 2000;
         const number = 1000;
         const timeout = number * 1000 / perSecond;
 
