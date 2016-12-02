@@ -21,6 +21,7 @@ import InventorySearch from './InventorySearch';
 import InventoryProject from './InventoryProject';
 import Spinner from '../ui/Spinner';
 
+
 export class InventoryProjectList extends Component {
   static propTypes = {
     currentProject: PropTypes.string,
