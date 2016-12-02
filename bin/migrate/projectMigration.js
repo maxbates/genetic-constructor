@@ -36,10 +36,13 @@ import onboardNewUser from '../../server/onboarding/onboardNewUser';
 /************ CONFIG ******************/
 
 const AUTH_API = process.env.API_END_POINT || "http://54.148.144.244:8080/api";
+console.log('AUTH API:', AUTH_API);
 
-//todo - may need to update this path
-const storagePath = path.resolve(__dirname, '../../storage');
+const storagePath = process.env.STORAGE || path.resolve(__dirname, '../storage');
+console.log('STORAGE PATH:', storagePath);
 const projectPath = path.resolve(storagePath, 'projects');
+console.log('PROJECT PATH:', projectPath);
+
 
 /****** THINGS WE WANT TO TRACK ***************/
 
@@ -56,6 +59,8 @@ const usersToMigrate = {};
 
 //track all the users, and their projects
 const users = {};
+const invalidUsers = [];
+const testUsers = [];
 
 console.log('checking all projects in ', projectPath);
 
@@ -70,13 +75,17 @@ console.log(projects);
 //go through projects, determine number for each user
 _.forEach(projects, projectId => {
   const permissionsFile = path.resolve(projectPath, projectId, 'permissions.json');
-  const owner = JSON.parse(fs.readFileSync(permissionsFile))[0];
+  if (! fs.existsSync(permissionsFile)) {
+    console.log(projectId, "has no permissions file; skipping.");
+  } else {
+    const owner = JSON.parse(fs.readFileSync(permissionsFile))[0];
 
-  if (!users[owner]) {
-    users[owner] = [];
+    if (!users[owner]) {
+      users[owner] = [];
+    }
+
+    users[owner].push(projectId);
   }
-
-  users[owner].push(projectId);
 });
 
 console.log('user map');
@@ -102,8 +111,11 @@ ${projects.join(', ')}`);
         console.log(user.email);
 
         //if the user is a test user, ignore them
-        if (user.email.indexOf('hotmail') >= 0) {
+        if ((user.email.indexOf('hotmail') >= 0) ||
+          (user.email.indexOf('royalsociety.co.uk') >= 0) ||
+          (user.email.indexOf('charlesdarwin') >= 0)) {
           console.log('User appears to be test user, skipping');
+          testUsers.push(userId);
           return Promise.resolve();
         }
 
@@ -135,10 +147,14 @@ ${projects.join(', ')}`);
         Object.assign(usersToMigrate, { [userId]: users[userId] });
       })
       .catch(err => {
-        console.log('error looking up user', userId);
-        console.log(err, err.stack);
-        throw err;
-        //nothing necessary
+        if (err.message && (err.message == "Incorrect UUID.")) {
+          invalidUsers.push(userId);
+        } else {
+          console.log('error looking up user', userId);
+          console.log('error', err);
+          throw err;
+          //nothing necessary
+        }
       });
   })
 )
@@ -197,7 +213,10 @@ ${projects.join(', ')}`);
     );
   })
   .then(() => {
-    console.log('users migrated!');
+    console.log('found', Object.keys(users).length, 'users.');
+    console.log('found', testUsers.length, 'test users.');
+    console.log('found', invalidUsers.length, 'invalid users.');
+    console.log('migrated', Object.keys(usersToMigrate).length, 'valid users.');
   })
   .catch(err => {
     console.log('uncaught error migrating users');
@@ -240,6 +259,9 @@ function lookupUser(userId) {
   }
 
   return fetch(`${AUTH_API}/auth/find`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
     method: 'POST',
     body: JSON.stringify({
       uuid: userId,
