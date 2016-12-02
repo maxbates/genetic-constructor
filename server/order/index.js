@@ -18,7 +18,7 @@ import {
   errorDoesNotExist,
   errorInvalidModel,
 } from './../utils/errors';
-import _, { merge } from 'lodash';
+import { merge } from 'lodash';
 import * as projectPersistence from './../data/persistence/projects';
 import * as projectVersions from './../data/persistence/projectVersions';
 import * as orderPersistence from './../data/persistence/orders';

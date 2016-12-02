@@ -80,5 +80,4 @@ export default function saveCombinations(combos) {
 
   return str.slice(0, -1) + ']';
   */
-
 }
