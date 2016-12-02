@@ -14,26 +14,94 @@
  limitations under the License.
  */
 
+//
+
 import path from 'path';
 import fetch from 'isomorphic-fetch';
 import fs from 'fs';
 import _ from 'lodash';
-import batchPromises from './batchPromises';
 import { defaultUser } from '../../server/auth/local';
 
 import * as fileSystem from '../../server/data/middleware/fileSystem';
 import * as s3 from '../../server/data/middleware/s3';
+import * as projectFiles from '../../server/data/files/projectFiles';
 
-if (!s3.useRemote) {
-  throw new Error('must use S3 - pass s3 credentials to propcess');
-}
+import batchPromises from './batchPromises';
+import { storagePath, projectPath, AUTH_API } from './config';
 
-// move project files
-// update the projects so they know about their files - will need to include versioning information on the write
-// namespacing - need to know projectId
-// appropriate permissions
+//if (!s3.useRemote) {
+  //throw new Error('must use S3 - pass s3 credentials to propcess');
+//}
 
+const files = {};
 
+console.log('checking all projects in ', projectPath);
+
+//get all the project IDs
+const projects = fs.readdirSync(projectPath)
+//skip .DS_Store
+  .filter(dir => dir[0] !== '.');
+
+console.log('checking projects with files...');
+
+//go through projects, determine if / list files
+_.forEach(projects, projectId => {
+  const projectFilesPath = path.resolve(projectPath, projectId, 'data', 'files');
+  let extensions;
+
+  try {
+    extensions = fs.readdirSync(projectFilesPath);
+  } catch (err) {
+    console.log('no files in project ' + projectId);
+    return;
+  }
+
+  files[projectId] = {};
+
+  _.forEach(extensions, extension => {
+    const projectFilesExtensionPath = path.resolve(projectFilesPath, extension);
+
+    let fileList;
+    try {
+      fileList = fs.readdirSync(projectFilesExtensionPath);
+    } catch (err) {
+      console.log('no files in for extension ' + extension);
+      return;
+    }
+
+    files[projectId][extension] = fileList;
+  });
+});
+
+console.log(files);
+
+const extensions = _.uniq(..._.map(files, (extensionObj, projectId) => Object.keys(extensionObj)));
+console.log(extensions);
+
+// move project files into s3
+
+/*
+batchPromises(_.map(files, (fileNames, projectId) => () => {
+  console.log('writing files for project ' + projectId);
+
+  //we only want to write GSL files... nothing else has made project files
+  const acceptable = ['project.gsl'];
+  const toWrite = _.union(fileNames, acceptable);
+
+  console.log('writing:', toWrite);
+
+  return Promise.all(toWrite.map(fileName => projectFiles.projectFile)
+}))
+  .then(() => {
+    console.log('project files migrated');
+  })
+  .catch(err => {
+    console.log(err, err.stack);
+    throw err;
+  });
+*/
+// todo - update the projects so they know about their files - will need to include versioning information on the write
+//should make sure the project atually exists in the database, and should only add once
 
 //todo - check importers and see how they expect these to exist? may just need to copy by file name (maybe handle projectId)
 // move imported files (now, job files)

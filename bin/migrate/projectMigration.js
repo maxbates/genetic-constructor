@@ -21,7 +21,6 @@ import path from 'path';
 import fetch from 'isomorphic-fetch';
 import fs from 'fs';
 import _ from 'lodash';
-import batchPromises from './batchPromises';
 import { defaultUser } from '../../server/auth/local';
 import Project from '../../src/models/Project';
 import Rollup from '../../src/models/Rollup';
@@ -31,18 +30,10 @@ import makeEgfRollup from '../../data/egf_parts/index';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
+import batchPromises from './batchPromises';
+import { storagePath, projectPath, AUTH_API } from './config';
+
 /* eslint-disable no-console */
-
-/************ CONFIG ******************/
-
-const AUTH_API = process.env.API_END_POINT || "http://54.148.144.244:8080/api";
-console.log('AUTH API:', AUTH_API);
-
-const storagePath = process.env.STORAGE || path.resolve(__dirname, '../storage');
-console.log('STORAGE PATH:', storagePath);
-const projectPath = path.resolve(storagePath, 'projects');
-console.log('PROJECT PATH:', projectPath);
-
 
 /****** THINGS WE WANT TO TRACK ***************/
 
