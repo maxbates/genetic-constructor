@@ -13,14 +13,23 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import _ from 'lodash';
 
-// move sequences
-// (directly copy)
+export default function batchPromises(promiseFunctions, size = 10) {
+  if (!_.every(promiseFunctions, fn => typeof fn === 'function')) {
+    throw Error('must pass functions');
+  }
 
-// move project files
-// namespacing
-// appropriate permissions
+  const batches = _.chunk(promiseFunctions, size);
 
-// move imported files (now, job files)
-// namespace by projectId
-// appropriate namespacing (Genbank, CSV) -> import
+  return _.reduce(batches, (acc, batch) => {
+    return acc.then((resolutions) => {
+      return Promise.all(
+        batch.map(fn => fn())
+      )
+        .then((createdBatch) => {
+          return resolutions.concat(createdBatch);
+        });
+    });
+  }, Promise.resolve([]));
+}

@@ -26,7 +26,7 @@ import * as projectPersistence from '../../../../server/data/persistence/project
 import * as jobFiles from '../../../../server/data/files/jobs';
 import Rollup from '../../../../src/models/Rollup';
 import Project from '../../../../src/models/Project';
-import { resetColorSeed } from '../../../../src/utils/color'; //necessary?
+import { resetColorSeed } from '../../../../src/utils/color/index'; //necessary?
 
 const extensionKey = 'import';
 

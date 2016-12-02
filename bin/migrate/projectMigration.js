@@ -21,14 +21,15 @@ import path from 'path';
 import fetch from 'isomorphic-fetch';
 import fs from 'fs';
 import _ from 'lodash';
-import { defaultUser } from '../server/auth/local';
-import Project from '../src/models/Project';
-import Rollup from '../src/models/Rollup';
-import * as fileSystem from '../server/data/middleware/fileSystem';
-import paletteAnime from '../src/utils/color/index';
-import makeEgfRollup from '../data/egf_parts/index';
-import * as projectPersistence from '../server/data/persistence/projects';
-import onboardNewUser from '../server/onboarding/onboardNewUser';
+import batchPromises from './batchPromises';
+import { defaultUser } from '../../server/auth/local';
+import Project from '../../src/models/Project';
+import Rollup from '../../src/models/Rollup';
+import * as fileSystem from '../../server/data/middleware/fileSystem';
+import paletteAnime from '../../src/utils/color/index';
+import makeEgfRollup from '../../data/egf_parts/index';
+import * as projectPersistence from '../../server/data/persistence/projects';
+import onboardNewUser from '../../server/onboarding/onboardNewUser';
 
 /* eslint-disable no-console */
 
@@ -338,23 +339,4 @@ function updateBlocks(blocks, projectId) {
 function mapColor(color) {
   const found = _.findIndex(paletteAnime, (item) => item.hex === color);
   return Math.max(0, found);
-}
-
-function batchPromises(promiseFunctions, size = 10) {
-  if (!_.every(promiseFunctions, fn => typeof fn === 'function')) {
-    throw Error('must pass functions');
-  }
-
-  const batches = _.chunk(promiseFunctions, size);
-
-  return _.reduce(batches, (acc, batch) => {
-    return acc.then((resolutions) => {
-      return Promise.all(
-        batch.map(fn => fn())
-      )
-        .then((createdBatch) => {
-          return resolutions.concat(createdBatch);
-        });
-    });
-  }, Promise.resolve([]));
 }
