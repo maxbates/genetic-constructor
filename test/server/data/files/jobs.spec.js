@@ -41,20 +41,15 @@ Contents!`;
         it('jobFileWrite() returns VersionId, Key, name', () => {
           return jobFiles.jobFileWrite(projectId, namespace, contents)                                     // write #2
             .then(result => {
+              console.log(result);
               assert(typeof result === 'object');
-              assert(result.VersionId, 'should make a version (or filler for local fs)');
-              assert(result.Key, 'should have a key');
+
               assert(result.name, 'should have a name');
               filePath = result.name;
 
-              assert(result.Key.indexOf(filePath) > 0, 'name should be in Key');
-            });
-        });
-
-        it('jobFileWrite() works with a buffer', () => {
-          return jobFiles.jobFileWrite(projectId, namespace, contentBuffer)                              // write #3
-            .then(result => {
+              assert(result.VersionId, 'should make a version (or filler for local fs)');
               assert(result.Key, 'should have a key');
+              assert(result.Key.indexOf(filePath) > 0, 'name should be in Key');
             });
         });
 
@@ -62,6 +57,13 @@ Contents!`;
           return jobFiles.jobFileRead(projectId, namespace, filePath)
             .then(fileContent => {
               expect(fileContent).to.equal(contents);
+            });
+        });
+
+        it('jobFileWrite() works with a buffer', () => {
+          return jobFiles.jobFileWrite(projectId, namespace, contentBuffer)                              // write #3
+            .then(result => {
+              assert(result.Key, 'should have a key');
             });
         });
 

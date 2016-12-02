@@ -101,7 +101,8 @@ describe('Middleware', () => {
         .catch(resp => {
           expect(resp.status).to.equal(404);
           done();
-        });
+        })
+        .catch(done);
     });
 
     it('listProjectFiles() should give list of files made', () => {
