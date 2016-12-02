@@ -15,7 +15,7 @@
  */
 import Immutable from './Immutable';
 import AnnotationSchema from '../schemas/Annotation';
-import { assign } from 'lodash';
+import { merge, assign } from 'lodash';
 import { nextColorHex } from '../utils/color/index';
 import { symbolMap } from '../inventory/roles';
 
@@ -37,7 +37,7 @@ export default class Annotation extends Immutable {
   constructor(input, frozen = true) {
     const scaff = AnnotationSchema.scaffold();
     scaff.color = nextColorHex();
-    return super(input, scaff, frozen);
+    return super(merge(scaff, input), frozen);
   }
 
   /**

@@ -18,7 +18,7 @@ import {
   errorDoesNotExist,
   errorInvalidModel,
 } from './../utils/errors';
-import { merge } from 'lodash';
+import _, { merge } from 'lodash';
 import * as projectPersistence from './../data/persistence/projects';
 import * as projectVersions from './../data/persistence/projectVersions';
 import * as orderPersistence from './../data/persistence/orders';
@@ -84,20 +84,25 @@ const validateOrderMiddleware = (req, res, next) => {
         },
       });
 
+      //note - this code is not very memory efficient and should be optimized more
+
       //todo - compute positionalCombinations here, not as part of POST
       //should make sure that all positional combinations are defined
 
       //generate combinations, given positonalCombinations
-      const allConstructs = [];
+      let allConstructs = [];
       order.constructIds.forEach(constructId => {
         const constructPositionalCombinations = positionalCombinations[constructId];
-        saveCombinations(constructPositionalCombinations, allConstructs);
+        allConstructs = allConstructs.concat(saveCombinations(constructPositionalCombinations));
       });
 
       //prune the list based on the parameters
-      const constructList = (!order.parameters.onePot && order.parameters.permutations < order.numberCombinations) ?
+      const constructListStrings = (!order.parameters.onePot && order.parameters.permutations < order.numberCombinations) ?
         Object.keys(order.parameters.activeIndices).map(index => allConstructs[index]) :
         allConstructs;
+
+      //convert to normal object now that we have the smaller size (hopefully)
+      //const constructList = _.map(constructListStrings, JSON.parse);
 
       Object.assign(req, {
         order,
@@ -105,11 +110,15 @@ const validateOrderMiddleware = (req, res, next) => {
         foundry,
         projectVersion,
         prunedUser,
-        numberPermutations: allConstructs.length, //assigning to req eats memory
-        constructList,
+        numberPermutations: allConstructs.length, //assigning allConstructs directly to req eats memory
+        constructList: constructListStrings,
       });
 
       next();
+    })
+    .catch(err => {
+      console.log('[Order Middleware]', err, err.stack);
+      res.status(500).send(err);
     });
 };
 

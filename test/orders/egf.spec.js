@@ -42,7 +42,14 @@ describe('Ordering', () => {
           const order = makeSelectionOrder(templatesProject, index, indices);
           const positionals = makeOrderPositionals(templatesProject, index);
 
-          return api.validateOrder(order, foundryKey, positionals)
+          //hack - dont order anything too big for now
+          const combinations = positionals[constructId].reduce((acc, list) => acc * list.length, 1);
+          if (combinations > Math.pow(10, 6)) {
+            console.log('skipping Construct ' + index + ' - too long');
+            return true;
+          }
+
+          return api.validateOrder(order, foundryKey, positionals);
         });
       });
     });
