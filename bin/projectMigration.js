@@ -21,18 +21,20 @@ import path from 'path';
 import fetch from 'isomorphic-fetch';
 import fs from 'fs';
 import _ from 'lodash';
-import { defaultUser } from '../../server/auth/local';
-import Project from '../../src/models/Project';
-import Rollup from '../../src/models/Rollup';
-import * as fileSystem from '../../server/data/middleware/fileSystem';
-import paletteAnime from '../../src/utils/color/index';
-import makeEgfRollup from '../../data/egf_parts/index';
-import * as projectPersistence from '../../server/data/persistence/projects';
-import onboardNewUser from '../../server/onboarding/onboardNewUser';
+import { defaultUser } from '../server/auth/local';
+import Project from '../src/models/Project';
+import Rollup from '../src/models/Rollup';
+import * as fileSystem from '../server/data/middleware/fileSystem';
+import paletteAnime from '../src/utils/color/index';
+import makeEgfRollup from '../data/egf_parts/index';
+import * as projectPersistence from '../server/data/persistence/projects';
+import onboardNewUser from '../server/onboarding/onboardNewUser';
 
 /* eslint-disable no-console */
 
 /************ CONFIG ******************/
+
+const AUTH_API = process.env.API_END_POINT || "http://54.148.144.244:8080/api";
 
 //todo - may need to update this path
 const storagePath = path.resolve(__dirname, '../../storage');
@@ -236,7 +238,7 @@ function lookupUser(userId) {
     return Promise.resolve(Object.assign({}, defaultUser, { uuid: '11111111-1111-1111-9111-111111111111' }));
   }
 
-  return fetch(`http://54.148.144.244:8080/api/auth/find`, {
+  return fetch(`${AUTH_API}/auth/find`, {
     method: 'POST',
     body: JSON.stringify({
       uuid: userId,
