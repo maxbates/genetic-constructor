@@ -24,7 +24,7 @@ if (!s3.useRemote) {
   throw new Error('must use S3 - pass s3 credentials to propcess');
 }
 
-const storagePath = process.env.STORAGE || path.resolve(__dirname, '../storage');
+const storagePath = process.env.STORAGE || path.resolve(__dirname, '../../storage');
 const seqPath = path.resolve(storagePath, 'sequences');
 
 // move sequences

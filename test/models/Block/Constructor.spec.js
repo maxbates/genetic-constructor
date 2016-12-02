@@ -6,7 +6,7 @@ const withJenkins = !!process.env.JENKINS;
 
 describe('Model', () => {
   describe('Block', () => {
-    describe('Constructor', () => {
+    describe.only('Constructor', () => {
       let block;
       beforeEach(() => {
         block = new Block();
@@ -62,30 +62,38 @@ describe('Model', () => {
         expect(instance.getName).to.be.undefined;
       });
 
+      //only for sync
+      function timed(fn, allow = 1000) {
+        const start = process.hrtime();
+        fn();
+        const end = process.hrtime();
+        const diff = ((end[0] - start[0]) + ((end[1] - start[1]) / Math.pow(10, 9))) * 1000;
+
+        console.log('took ' + diff + ' of ' + allow);
+
+        if (diff > allow) {
+          throw Error('test took too long');
+        }
+      }
+
       it('should make new Block() quickly', function makeBlocksFast() {
         const perSecond = 2500;
         const number = 1000;
+        const timeout = number * 1000 / perSecond;
 
-        if (withJenkins) {
-          this.timeout(15000);
-        } else {
-          this.timeout(number * 1000 / perSecond);
-        }
-
-        _.range(number).map(() => new Block());
+        timed(() => {
+          _.range(number).map(() => new Block());
+        }, timeout);
       });
 
       it('should make Block.classless() quickly', function makeBlocksFast() {
         const perSecond = 2500;
         const number = 1000;
+        const timeout = number * 1000 / perSecond;
 
-        if (withJenkins) {
-          this.timeout(15000);
-        } else {
-          this.timeout(number * 1000 / perSecond);
-        }
-
-        _.range(number).map(() => Block.classless());
+        timed(() => {
+          _.range(number).map(() => Block.classless());
+        }, timeout);
       });
     });
   });

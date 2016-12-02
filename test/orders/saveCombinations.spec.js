@@ -56,7 +56,7 @@ describe('Orders', () => {
 
     it('should work for a million of combinations', () => {
       const numOpts = 10;
-      const numLists = 7;
+      const numLists = 6;
       const bigList = createListRollup(numLists, numOpts);
       const bigCombosPerConstruct = makeOrderPositionals(bigList);
       const bigCombos = bigCombosPerConstruct[bigList.project.components[0]];
