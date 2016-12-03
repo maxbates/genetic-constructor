@@ -72,7 +72,7 @@ export const fileDelete = (s3bucket, filePath, params) => {
   invariant(filePath, 'file path is required');
 
   if (s3.useRemote) {
-    s3.itemDelete(s3bucket, filePath, params);
+    return s3.itemDelete(s3bucket, filePath, params);
   }
 
   const fullPath = path.resolve(s3bucket, filePath);
