@@ -96,6 +96,10 @@ describe('Middleware', () => {
 
     it('projectFileWrite() with null contents should delete', (done) => {
       api.projectFileWrite(projectId, namespace, fileNameAtomic, null)
+        .catch(err => {
+          console.log('shouldnt have error when null to delete');
+          throw Error(err);
+        })
         .then(() => api.projectFileRead(projectId, namespace, fileNameAtomic))
         .then(result => done(result))
         .catch(resp => {

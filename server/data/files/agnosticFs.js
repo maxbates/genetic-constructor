@@ -18,6 +18,8 @@ import invariant from 'invariant';
 import * as s3 from '../middleware/s3';
 import * as fileSystem from '../middleware/fileSystem';
 
+console.log(s3.useRemote ? '[S3] Using S3 for file persistence' : '[S3] Using file system for file persistence');
+
 // when using S3, s3bucket is actually the S3 bucket
 // when using local, s3bucket is prefix
 // use this scheme so the filePath (e.g. on write) returned is the same across platforms
@@ -28,6 +30,7 @@ export const fileRead = (s3bucket, filePath, params) => {
   if (s3.useRemote) {
     return s3.stringGet(s3bucket, filePath, params);
   }
+
   const fullPath = path.resolve(s3bucket, filePath);
   return fileSystem.fileRead(fullPath, false);
 };
@@ -71,6 +74,7 @@ export const fileDelete = (s3bucket, filePath, params) => {
   if (s3.useRemote) {
     s3.itemDelete(s3bucket, filePath, params);
   }
+
   const fullPath = path.resolve(s3bucket, filePath);
   return fileSystem.fileDelete(fullPath);
 };

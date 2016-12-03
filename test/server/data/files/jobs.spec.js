@@ -38,7 +38,8 @@ Contents!`;
           expect(() => jobFiles.jobFileWrite(projectId, namespace, 'some contents')).to.not.throw();       // write #1
         });
 
-        it('jobFileWrite() returns VersionId, Key, name', () => {
+        //note - job files dont return a version, just project files.
+        it('jobFileWrite() returns Key, name', () => {
           return jobFiles.jobFileWrite(projectId, namespace, contents)                                     // write #2
             .then(result => {
               console.log(result);
@@ -47,7 +48,6 @@ Contents!`;
               assert(result.name, 'should have a name');
               filePath = result.name;
 
-              assert(result.VersionId, 'should make a version (or filler for local fs)');
               assert(result.Key, 'should have a key');
               assert(result.Key.indexOf(filePath) > 0, 'name should be in Key');
             });
