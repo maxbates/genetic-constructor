@@ -1,3 +1,5 @@
+//deprecated
+
 import * as filePaths from '../../server/data/middleware/filePaths';
 import * as fileSystem from '../../server/data/middleware/fileSystem';
 

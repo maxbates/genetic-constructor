@@ -1,4 +1,6 @@
-import { directoryMake } from '../server/data/middleware/fileSystem';
+import path from 'path';
+import _ from 'lodash';
+import * as fileSystem from '../server/data/middleware/fileSystem';
 import {
   createStorageUrl,
   jobPath,
@@ -7,15 +9,14 @@ import {
 } from '../server/data/middleware/filePaths';
 
 import * as s3 from '../server/data/middleware/s3';
-
-import copyToStorage from '../data/egf_parts/copySequencesToStorage';
+import * as sequencePersistence from '../server/data/persistence/sequence';
 
 async function setupFiles() {
   console.log('Creating storage directories...');
-  await directoryMake(createStorageUrl());
-  await directoryMake(createStorageUrl(jobPath));
-  await directoryMake(createStorageUrl(sequencePath));
-  await directoryMake(createStorageUrl(projectFilesPath));
+  await fileSystem.directoryMake(createStorageUrl());
+  await fileSystem.directoryMake(createStorageUrl(jobPath));
+  await fileSystem.directoryMake(createStorageUrl(sequencePath));
+  await fileSystem.directoryMake(createStorageUrl(projectFilesPath));
 
   if (s3.useRemote) {
     console.log('ensuring S3 buckets provisioned...');
@@ -24,9 +25,40 @@ async function setupFiles() {
     );
   }
 
-  console.log('Copying sequences to storage...');
-  //todo - might need to clone these to S3
-  await copyToStorage();
+  console.log('Copying EGF sequences to storage');
+  const pathSequences = path.resolve(__dirname, '../data/egf_parts/sequences');
+  console.log('Copying from', pathSequences);
+
+  await fileSystem.directoryContents(pathSequences)
+    .then(sequenceFiles => {
+      //check if a few exist, and if they dont, then write them all
+      //check because this step will be slow e.g. on travis
+      const samples = _.sampleSize(sequenceFiles, 5);
+
+      return Promise.all(
+        samples.map(seqMd5 => sequencePersistence.sequenceExists(seqMd5))
+      )
+        //if all resolve, they exist
+        .then(() => {
+          console.log('EGF Sequences already copied');
+        })
+        //if fail, write them all
+        .catch(() => {
+          console.log('copying all ' + sequenceFiles.length + ' EGF sequences...');
+
+          return Promise.all(
+            sequenceFiles.map(fileName => {
+              const filePath = path.resolve(pathSequences, fileName);
+              return fileSystem.fileRead(filePath, false)
+                .then(contents => sequencePersistence.sequenceWrite(fileName, contents));
+            })
+          );
+        })
+        .catch(err => {
+          console.log('Error copying EGF sequences, continuing...');
+          console.log(err.stack);
+        })
+    });
 }
 
 export default setupFiles;
