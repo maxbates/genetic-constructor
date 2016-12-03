@@ -6,7 +6,7 @@ const withJenkins = !!process.env.JENKINS;
 
 describe('Model', () => {
   describe('Block', () => {
-    describe.only('Constructor', () => {
+    describe('Constructor', () => {
       let block;
       beforeEach(() => {
         block = new Block();
