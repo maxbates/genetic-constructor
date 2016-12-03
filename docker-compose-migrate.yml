@@ -1,4 +1,4 @@
-webapp:
+migrate:
   image: quay.io/autodesk_bionano/gctordb_webapp${BNR_ENV_TAG}
   volumes:
     - /storage/genome-designer/projects:/projects
@@ -8,5 +8,5 @@ webapp:
     STORAGE_API: http://gctor-storage${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
     NO_DOCKER: "true"
   command:
-    ./node_modules/.bin/babel-node ./bin/projectMigration
+    ./bin/migrate/infinite-loop.sh
   log_driver: json-file

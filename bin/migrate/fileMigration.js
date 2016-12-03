@@ -75,8 +75,10 @@ _.forEach(projects, projectId => {
 
 console.log(files);
 
-const extensions = _.uniq(..._.map(files, (extensionObj, projectId) => Object.keys(extensionObj)));
-console.log(extensions);
+const extensions = _.uniq(_.flatten(_.map(files, (extensionObj, projectId) => Object.keys(extensionObj))));
+const fileNames = _.uniq(_.flattenDeep(_.map(files, (extensionObj, projectId) => _.values(extensionObj))));
+console.log('extensions', extensions);
+console.log('fileNames', fileNames);
 
 // move project files into s3
 
