@@ -35,7 +35,7 @@ if (!s3.useRemote) {
   throw new Error('must use S3 - pass s3 credentials to propcess');
 }
 
-const extensionName = 'gc-gsl-editor';
+const extensionName = 'GC-GSL-Editor';
 const gslFileName = 'project.gsl';
 
 const files = [];
