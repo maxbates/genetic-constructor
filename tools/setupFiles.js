@@ -57,7 +57,7 @@ async function setupFiles() {
         .catch(err => {
           console.log('Error copying EGF sequences, continuing...');
           console.log(err.stack);
-        })
+        });
     });
 }
 
