@@ -604,8 +604,7 @@ export const blockGetCombinations = (blockId, onlyIds, includeUnselected) => {
      return combos;
      */
 
-    const comboString = saveCombinations(positions);
-    return JSON.parse(comboString);
+    return saveCombinations(positions);
   };
 };
 
