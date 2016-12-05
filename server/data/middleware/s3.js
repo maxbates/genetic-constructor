@@ -37,14 +37,37 @@ export const buckets = [
   'bionano-gctor-jobs',
 ];
 
-//in test environment, prefix everything so easier to clean up
-export const testPrefix = 'TEST/';
+//namespace keys by environment, version, etc.
+export const testPrefix = 'TEST/'; //in test environment, prefix everything so easier to clean up
+const storageVersion = '1'; //static, for data migrations
+const environment = !!process.env.BNR_ENVIRONMENT ? process.env.BNR_ENVIRONMENT + '/' : ''; //environment so data is siloed across environments
 const setupKey = (prefix) => {
+  let key = `${environment}${storageVersion}/${prefix}`;
+
+  //last (so its the first prefix), add test prefix for test environments
   if (process.env.NODE_ENV === 'test') {
-    return testPrefix + prefix;
+    key = testPrefix + key;
   }
-  return prefix;
+
+  return key;
 };
+
+//ensure we have consistent fields returned
+const massageResult = (obj, Prefix) => {
+  const prefix = Prefix ?
+    `${Prefix}/` :
+    setupKey('/'); //if no specific prefix provided, hide the stuff we do automatically
+
+  //explicitly remap a few fields so we know they are there / fields to expect
+  return Object.assign(obj, {
+    name: obj.Key.replace(prefix, ''), //get rid of folder slash preceding file name
+    Key: obj.Key,
+    LastModified: obj.LastModified,
+    Size: obj.Size,
+  });
+};
+
+/************ S3 Setup **********/
 
 export const useRemote = process.env.NODE_ENV === 'production' || (
     (!process.env.FORCE_LOCAL || (!!process.env.FORCE_LOCAL && process.env.FORCE_LOCAL !== 'true')) &&
@@ -66,6 +89,8 @@ if (process.env.NODE_ENV === 'production' || (
     region: process.env.AWS_S3_LOCATION || 'us-west-1',
   });
 }
+
+/*********** API ************/
 
 //should run before server starts. s3 persistence modules expect buckets to exist
 //promise
@@ -169,12 +194,7 @@ export const folderContents = (bucket, prefix, params = {}) => {
       }
 
       //remap data to account for Prefix
-      const mapped = results.Contents.map(obj => ({
-        name: obj.Key.replace(Prefix + '/', ''), //get rid of folder slash preceding file name
-        Key: obj.Key,
-        LastModified: obj.LastModified,
-        Size: obj.Size,
-      }));
+      const mapped = results.Contents.map(obj => massageResult(obj, Prefix));
 
       return resolve(mapped);
     });
@@ -206,8 +226,11 @@ export const itemVersions = (bucket, Key, params = {}) => {
         console.log(err);
         return reject(err);
       }
+
       //expect notable keys Key, VersionId, LastModified
-      resolve(results.Versions);
+      const mapped = results.Versions.map(obj => massageResult(obj, Prefix));
+
+      resolve(mapped);
     });
   });
 };
