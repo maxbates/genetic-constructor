@@ -13,6 +13,8 @@ webapp:
     GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
     NO_DOCKER: "true"
     STORAGE_API: http://gctor-storage${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
   command:
     npm run server-auth
   log_driver: json-file
