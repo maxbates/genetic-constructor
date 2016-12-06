@@ -76,6 +76,10 @@ _.forEach(projects, projectId => {
 
     if (fileList.indexOf(gslFileName) >= 0) {
       const gslFilePath = path.resolve(projectFilesExtensionPath, gslFileName);
+      if (files.findIndex(item => item.projectId == projectId) >= 0) {
+        console.log('skipping file for projectId', gslFilePath);
+        return;
+      }
 
       files.push({
         projectId,

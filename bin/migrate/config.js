@@ -15,7 +15,7 @@
  */
 import path from 'path';
 
-const AUTH_API = process.env.API_END_POINT || "http://54.148.144.244:8080/api";
+export const AUTH_API = process.env.API_END_POINT || "http://54.148.144.244:8080/api";
 console.log('AUTH API:', AUTH_API);
 
 export const storagePath = process.env.STORAGE || path.resolve(__dirname, '../../storage');
