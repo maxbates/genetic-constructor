@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+import colors from 'colors/safe';
 import { errorDoesNotExist } from '../../utils/errors';
 
 //API docs: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
@@ -29,6 +30,19 @@ import { errorDoesNotExist } from '../../utils/errors';
 
  e.g. stringGet vs. objectPut
  */
+
+/* config */
+
+//double bang to make sure not empty string
+const awsKeyEnvVarsSet = !!process.env.AWS_ACCESS_KEY_ID && !!process.env.AWS_SECRET_ACCESS_KEY;
+
+const forceLocal = ((process.env.FORCE_LOCAL !== null) && (process.env.FORCE_LOCAL === 'true'));
+
+export const useRemote = ((!forceLocal) && ((process.env.NODE_ENV === 'production') || awsKeyEnvVarsSet));
+
+console.log(colors.yellow('[S3 Config] AWS Keys set via environment variables? ' + awsKeyEnvVarsSet));
+console.log(colors.yellow('[S3 Config] Force Local Storage? ' + forceLocal));
+console.log(colors.yellow('[S3 Config] Remote Persistence Enabled? ' + useRemote));
 
 //these are all the buckets the app expects
 // TODO these should be configurable
@@ -67,18 +81,6 @@ const massageResult = (obj, Prefix) => {
     Size: obj.Size,
   });
 };
-
-const awsKeyEnvVarsSet = (
-  ((process.env.AWS_ACCESS_KEY_ID != null) && (process.env.AWS_ACCESS_KEY_ID != "")) &&
-  ((process.env.AWS_SECRET_ACCESS_KEY != null) && (process.env.AWS_SECRET_ACCESS_KEY != ""))
-);
-console.log('AWS Keys set via environment variables?', awsKeyEnvVarsSet);
-
-const forceLocal = ((process.env.FORCE_LOCAL != null) && (process.env.FORCE_LOCAL === 'true'));
-console.log('Force Local Storage?', forceLocal);
-
-export const useRemote = ((! forceLocal) && ((process.env.NODE_ENV === 'production') || awsKeyEnvVarsSet));
-console.log('S3 Remote Persistence Enabled?', useRemote);
 
 let AWS;
 if (useRemote) {

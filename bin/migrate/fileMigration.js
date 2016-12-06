@@ -36,7 +36,8 @@ if (!s3.useRemote) {
 }
 
 const extensionName = 'GC-GSL-Editor';
-const gslFileName = 'project.gsl';
+const gslFileName = 'project.gsl'; //upload to s3 and update project
+const gslFileNameAlt = 'project.run.gsl'; //just upload to s3
 
 const files = [];
 
@@ -75,14 +76,30 @@ _.forEach(projects, projectId => {
     }
 
     if (fileList.indexOf(gslFileName) >= 0) {
+      //check project.gsl
       const gslFilePath = path.resolve(projectFilesExtensionPath, gslFileName);
-      if (files.findIndex(item => item.projectId == projectId) >= 0) {
+      if (files.findIndex(item => item.projectId === projectId && item.fileName === gslFileName) >= 0) {
         console.log('skipping file for projectId', gslFilePath);
         return;
       }
 
       files.push({
         projectId,
+        fileName: gslFileName,
+        extension, //the old extension name (should be namespaced into new extension name)
+        gslPath: gslFilePath,
+      });
+    } else if (fileList.indexOf(gslFileNameAlt) >= 0) {
+      //check project.run.gsl
+      const gslFilePath = path.resolve(projectFilesExtensionPath, gslFileNameAlt);
+      if (files.findIndex(item => item.projectId === projectId && item.fileName === gslFileNameAlt) >= 0) {
+        console.log('skipping file for projectId', gslFilePath);
+        return;
+      }
+
+      files.push({
+        projectId,
+        fileName: gslFileNameAlt,
         extension, //the old extension name (should be namespaced into new extension name)
         gslPath: gslFilePath,
       });
@@ -92,6 +109,8 @@ _.forEach(projects, projectId => {
     }
   });
 });
+
+console.log(files);
 
 // move project files into s3
 
@@ -124,7 +143,12 @@ batchPromises(_.map(files, (fileObject) => () => {
   })
   //now update all the projects so they know about their files
   .then(() => {
-    return batchPromises(_.map(files, (fileObj) => () => {
+    //only want to update project manifests with project.gsl... let the extension handle update project.run.gsl itself
+    const filtered = _.filter(files, (fileObj) => fileObj.fileName === gslFileName);
+
+    console.log(filtered);
+
+    return batchPromises(_.map(filtered, (fileObj) => () => {
       const { projectId, VersionId } = fileObj;
 
       return projectPersistence.projectGetManifest(projectId)

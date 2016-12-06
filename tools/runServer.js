@@ -17,8 +17,8 @@ const serverPath = './server/devServerBabel.js';
 function runServer(cb) {
   function defaultWriteOut(data) {
     const time = new Date().toTimeString();
-    process.stderr.write(time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
-    process.stderr.write(data);
+    process.stdout.write(time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
+    process.stdout.write(data);
   }
 
   function onStdOut(data) {
