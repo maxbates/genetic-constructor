@@ -129,8 +129,8 @@ batchPromises(_.map(files, (fileObject) => () => {
           Object.assign(fileObject, fileInfo);
         })
         .catch(err => {
-          console.log('error writing file', projectId);
-          throw err;
+          console.log('error writing file, but continuing', projectId);
+          console.log(fileContents);
         });
     });
 }))
