@@ -125,6 +125,7 @@ batchPromises(_.map(files, (fileObject) => () => {
     .then(fileContents => {
       if (!fileContents) {
         console.log('no file contents, skipping', projectId, gslPath);
+        fileObject.skip = true;
         return;
       }
 
@@ -149,7 +150,7 @@ batchPromises(_.map(files, (fileObject) => () => {
   //now update all the projects so they know about their files
   .then(() => {
     //only want to update project manifests with project.gsl... let the extension handle update project.run.gsl itself
-    const filtered = _.filter(files, (fileObj) => fileObj.fileName === gslFileName);
+    const filtered = _.filter(files, (fileObj) => fileObj.fileName === gslFileName && fileObj.skip !== true);
 
     console.log(filtered);
 
