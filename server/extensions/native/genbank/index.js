@@ -171,7 +171,7 @@ router.post('/import/:projectId?',
 
     //todo - unify rather than just returning (esp once convert does not save sequences)
     if (projectId === 'convert') {
-      return convert(filePath)
+      return convert(filePath, fileUrl)
         .then(converted => {
           const roots = converted.roots;
           const rootBlocks = filter(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
@@ -186,7 +186,7 @@ router.post('/import/:projectId?',
         .catch(err => next(err));
     }
 
-    return importProject(filePath)
+    return importProject(filePath, fileUrl)
     //wrap all the childless blocks in a construct (so they dont appear as top-level constructs), update rollup with construct Ids
       .then(roll => {
         timer.time('imported');
