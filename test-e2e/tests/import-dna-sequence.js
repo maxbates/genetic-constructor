@@ -62,7 +62,7 @@ module.exports = {
       // wait for the grunt ribbon to confirm,
       .waitForElementPresent('.ribbongrunt-visible', 5000, 'expected a grunt')
       .assert.containsText('.ribbongrunt-visible', 'Sequence was successfully inserted.');
-
+0
     // now start a new project and ensure the dialog is no operational with no block selected
     // start with a fresh project
     newProject(browser);

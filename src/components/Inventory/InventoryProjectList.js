@@ -85,8 +85,6 @@ export class InventoryProjectList extends Component {
               const projectId = project.id;
               const isActive = (projectId === currentProject);
 
-              //todo - this is coming later
-
               return (
                 <InventoryProject key={projectId}
                                   project={project}

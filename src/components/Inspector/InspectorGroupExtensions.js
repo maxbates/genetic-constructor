@@ -35,6 +35,7 @@ import {
 
 import '../../styles/InspectorGroupExtensions.css';
 
+
 class InspectorGroupExtensions extends Component {
   static propTypes = {
     config: PropTypes.object.isRequired,

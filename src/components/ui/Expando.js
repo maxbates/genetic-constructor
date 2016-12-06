@@ -24,6 +24,7 @@ export default class Expando extends Component {
     text: PropTypes.string.isRequired,
     content: PropTypes.object.isRequired,
     headerWidgets: PropTypes.array,
+    onExpand: PropTypes.func,
   };
 
   constructor() {
@@ -33,10 +34,15 @@ export default class Expando extends Component {
     };
   }
 
+  /**
+   * toggle the open state and invoke the optional onExpand property.
+   */
   onToggle = () => {
-    this.setState({
-      open: !this.state.open,
-    });
+    const open = !this.state.open;
+    this.setState({open});
+    if (open && this.props.onExpand) {
+      this.props.onExpand();
+    }
   };
 
   render() {

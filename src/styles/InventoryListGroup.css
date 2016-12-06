@@ -17,6 +17,11 @@
     border-radius: 3px;
     position: relative;
 
+    &:hover {
+      background-color: var(--colors-selected);
+      color: var(--colors-white);
+    }
+
     &-filler {
       flex-grow: 1;
     }

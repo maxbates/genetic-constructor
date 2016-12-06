@@ -16,6 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import InventoryProjectList from './InventoryProjectList';
+import InventoryProjectTree from './InventoryProjectTree';
 import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
 import { uiShowMenu } from '../../actions/ui';
@@ -91,6 +92,10 @@ class InventoryGroupProjects extends Component {
     this.props.projectOpen(project.id);
   };
 
+  /**
+   * run context menu wherever the user clicked in the panel
+   * @param evt
+   */
   onContextMenu = (evt) => {
     evt.preventDefault();
     this.props.uiShowMenu([
@@ -102,14 +107,6 @@ class InventoryGroupProjects extends Component {
       {
         text: 'New Project',
         action: this.onNewProject,
-      },
-      {
-        text: 'New Construct',
-        action: () => {},
-      },
-      {
-        text: 'New Template',
-        action: () => {},
       },
       {},
       {
@@ -136,7 +133,7 @@ class InventoryGroupProjects extends Component {
 
     const currentList = groupBy === 'type'
       ? <InventoryRoleMap />
-      : <InventoryProjectList currentProject={currentProject} templates={this.props.templates}/>;
+      : <InventoryProjectTree currentProject={currentProject} templates={this.props.templates}/>;
 
     return (
       <div
