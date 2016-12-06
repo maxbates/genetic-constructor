@@ -24,7 +24,9 @@ export default class Expando extends Component {
     text: PropTypes.string.isRequired,
     selected: PropTypes.bool,
     content: PropTypes.object.isRequired,
+    labelWidgets: PropTypes.array,
     headerWidgets: PropTypes.array,
+    bold: PropTypes.bool,
     onExpand: PropTypes.func,
   };
 
@@ -63,14 +65,15 @@ export default class Expando extends Component {
 
           <Label
             text={this.props.text}
+            bold={this.props.bold}
             hover
             onClick={this.onToggle}
             selected={this.props.selected}
+            widgets={this.props.labelWidgets}
             styles={{
               marginLeft: '0.5rem',
               marginRight: this.props.headerWidgets && this.props.headerWidgets.length ? '0.5rem' : '0',
               flexGrow: 1,
-              display: 'inline-block',
               userSelect: 'none',
             }}
           />

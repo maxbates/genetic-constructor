@@ -56,20 +56,24 @@ export class InventoryProjectTree extends Component {
   };
 
   /**
-   * when a project is expanded
+   * when a project is expanded, we need to load to get the blocks
    * @param projectId
    */
   onExpandProject(project, item) {
+    this.props.projectLoad(project.id);
+  }
+
+  /**
+   * when a project is opened ( from the open widget in the tree expandos )
+   * @param projectId
+   */
+  onOpenProject(project, evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
     this.props.projectLoad(project.id)
-      .then(() => {
-        this.props.projectOpen(project.id)
-          .then(() => {
-            const c = project.components;
-            console.log(c);
-            console.log(item.text);
-            // update the tree here.
-          });
-      });
+    .then(() => {
+      this.props.projectOpen(project.id)
+    });
   }
 
   /**
@@ -118,9 +122,18 @@ export class InventoryProjectTree extends Component {
     .map(project => {
       return {
         text: project.getName(),
+        bold: true,
         selected: project.id === currentProject,
         onExpand: this.onExpandProject.bind(this, project),
         items: this.getProjectBlocksRecursive(project.components),
+        labelWidgets: [
+          <img
+            src="/images/ui/gear.svg"
+            onClick={this.onOpenProject.bind(this, project)}
+            className="label-hover-bright"
+          />
+
+        ]
       }
     });
 

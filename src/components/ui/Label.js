@@ -21,6 +21,7 @@ export default class Label extends Component {
   static propTypes = {
     disabled: PropTypes.bool,
     hover: PropTypes.bool,
+    bold: PropTypes.bool,
     onClick: PropTypes.func,
     text: PropTypes.string.isRequired,
     styles: PropTypes.object,
@@ -35,6 +36,9 @@ export default class Label extends Component {
 
   render() {
     let labelClasses = 'label-base';
+    if (this.props.bold) {
+      labelClasses += ' label-bold';
+    }
     if (this.props.disabled) {
       labelClasses += ' label-disabled';
     } else {
@@ -49,7 +53,13 @@ export default class Label extends Component {
     }
 
     return (
-      <span style={this.props.styles} className={labelClasses} onClick={this.onClick}>{this.props.text}</span>
+      <div style={this.props.styles} className={labelClasses} onClick={this.onClick}>
+        <div className="left">{this.props.text}
+        </div>
+        <div className="right">
+          {this.props.widgets}
+        </div>
+      </div>
     );
   }
 }

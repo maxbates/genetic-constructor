@@ -11,8 +11,28 @@
 .label-base {
   border-radius: 3px;
   padding: 2px 5px;
-}
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .left {
+    display: inline-block;
+  }
+  .right {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    visibility: hidden;
 
+    img:hover {
+      filter: brightness(100%);
+    }
+  }
+}
+.label-base:hover {
+  .right {
+    visibility: visible;
+  }
+}
 
 .label-selected {
   background-color: var(--label-background);
@@ -39,4 +59,16 @@
 .label-disabled {
   background-color: var(--colors-white);
   color: var(--colors-greyLight);
+}
+
+.label-hover-bright {
+  &:hover {
+    filter: brightness(1000%);
+  }
+}
+
+.label-bold {
+  .left {
+    font-family: var(--font-family-bold);
+  }
 }
