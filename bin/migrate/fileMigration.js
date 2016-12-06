@@ -123,6 +123,11 @@ batchPromises(_.map(files, (fileObject) => () => {
       throw err;
     })
     .then(fileContents => {
+      if (!fileContents) {
+        console.log('no file contents, skipping', projectId, gslPath);
+        return;
+      }
+
       return projectFiles.projectFileWrite(projectId, extensionName, gslFileName, fileContents)
         .then((fileInfo) => {
           console.log('wrote project file for project', extension, fileInfo);
