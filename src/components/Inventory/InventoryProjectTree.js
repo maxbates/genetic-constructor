@@ -147,7 +147,7 @@ export class InventoryProjectTree extends Component {
         items: this.getProjectBlocksRecursive(project.components),
         labelWidgets: [
           <img
-            src="/images/ui/gear.svg"
+            src="/images/ui/open.svg"
             onClick={this.onOpenProject.bind(this, project)}
             className="label-hover-bright"
           />
