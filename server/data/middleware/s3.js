@@ -31,6 +31,7 @@ import { errorDoesNotExist } from '../../utils/errors';
  */
 
 //these are all the buckets the app expects
+// TODO these should be configurable
 export const buckets = [
   'bionano-gctor-files',
   'bionano-gctor-sequences',
@@ -67,19 +68,20 @@ const massageResult = (obj, Prefix) => {
   });
 };
 
-/************ S3 Setup **********/
+const awsKeyEnvVarsSet = (
+  ((process.env.AWS_ACCESS_KEY_ID != null) && (process.env.AWS_ACCESS_KEY_ID != "")) &&
+  ((process.env.AWS_SECRET_ACCESS_KEY != null) && (process.env.AWS_SECRET_ACCESS_KEY != ""))
+);
+console.log('AWS Keys set via environment variables?', awsKeyEnvVarsSet);
 
-export const useRemote = process.env.NODE_ENV === 'production' || (
-    (!process.env.FORCE_LOCAL || (!!process.env.FORCE_LOCAL && process.env.FORCE_LOCAL !== 'true')) &&
-    (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
-  );
+const forceLocal = ((process.env.FORCE_LOCAL != null) && (process.env.FORCE_LOCAL === 'true'));
+console.log('Force Local Storage?', forceLocal);
+
+export const useRemote = ((! forceLocal) && ((process.env.NODE_ENV === 'production') || awsKeyEnvVarsSet));
+console.log('S3 Remote Persistence Enabled?', useRemote);
 
 let AWS;
-
-if (process.env.NODE_ENV === 'production' || (
-    (!process.env.FORCE_LOCAL || (!!process.env.FORCE_LOCAL && process.env.FORCE_LOCAL !== 'true')) &&
-    (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
-  )) {
+if (useRemote) {
   invariant(!!process.env.AWS_ACCESS_KEY_ID, 'production environment uses AWS, unless specify env var FORCE_LOCAL=true. expected env var AWS_ACCESS_KEY_ID');
   invariant(!!process.env.AWS_SECRET_ACCESS_KEY, 'production environment uses AWS, unless specify env var FORCE_LOCAL=true. expected env var AWS_SECRET_ACCESS_KEY');
 

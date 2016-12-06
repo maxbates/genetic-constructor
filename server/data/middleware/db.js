@@ -18,7 +18,7 @@ import { errorDoesNotExist, errorNoPermission } from '../../utils/errors';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import * as headers from '../../../src/middleware/utils/headers';
 
-const makePath = path => STORAGE_URL + path;
+const makePath = path => STORAGE_URL + '/' + path;
 
 const defaultHeaders = {
   Accept: 'application/json',

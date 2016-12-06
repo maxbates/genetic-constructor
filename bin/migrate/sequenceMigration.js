@@ -25,7 +25,7 @@ if (!s3.useRemote) {
 }
 
 const storagePath = process.env.STORAGE || path.resolve(__dirname, '../../storage');
-const seqPath = path.resolve(storagePath, 'sequences');
+const seqPath = path.resolve(storagePath, 'sequence');
 
 // move sequences
 // (directly copy)
