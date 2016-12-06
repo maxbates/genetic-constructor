@@ -21,7 +21,7 @@ import { projectList, projectLoad, projectSave, projectOpen } from '../../action
 import * as instanceMap from '../../store/instanceMap';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
-import { focusForceProject } from '../../actions/focus';
+import { focusForceProject, focusForceBlocks } from '../../actions/focus';
 import { inspectorToggleVisibility } from '../../actions/ui';
 
 import '../../styles/InventoryProjectTree.css';
@@ -38,6 +38,7 @@ export class InventoryProjectTree extends Component {
     projectSave: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
+    focusForceBlocks: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
   };
 
@@ -72,6 +73,15 @@ export class InventoryProjectTree extends Component {
   }
 
   /**
+   * when a block is expanded, show it in the inspector
+   * @param projectId
+   */
+  onExpandBlock(block, item) {
+    this.props.focusForceBlocks([block]);
+    this.props.inspectorToggleVisibility(true);
+  }
+
+  /**
    * when a project is opened ( from the open widget in the tree expandos )
    * @param projectId
    */
@@ -96,6 +106,7 @@ export class InventoryProjectTree extends Component {
         items.push({
           block,
           text: block.getName(),
+          onExpand: this.onExpandBlock.bind(this, block),
           items: this.getProjectBlocksRecursive(block.components),
         })
       }
@@ -174,5 +185,6 @@ export default connect(mapStateToProps, {
   projectSave,
   projectOpen,
   focusForceProject,
+  focusForceBlocks,
   inspectorToggleVisibility,
 })(InventoryProjectTree);
