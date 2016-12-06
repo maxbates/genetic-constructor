@@ -88,10 +88,10 @@ const runCommand = (command, inputFile, outputFile) => {
 //////////////////////////////////////////////////////////////
 // Create a GD block given a structure coming from Python
 //assigns the sequence to a custom field
-const createBlockStructure = (block, sourceId) => {
+const createBlockStructure = (block, fileUrl) => {
   // generate a valid block scaffold. This is similar to calling new Block(),
   // but a bit more light weight and easier to work with (models are frozen so you cannot edit them)
-  const fileName = /[^/]*$/.exec(sourceId)[0];
+  //const fileName = /[^/]*$/.exec(sourceId)[0];
 
   // Remap annotations
   let allAnnotations = [];
@@ -109,7 +109,7 @@ const createBlockStructure = (block, sourceId) => {
       annotations: allAnnotations,
     },
     source: {
-      id: fileName,
+      url: fileUrl,
       source: 'genbank',
     },
     rules: block.rules,
@@ -129,8 +129,8 @@ const createBlockStructure = (block, sourceId) => {
 
 // Creates a structure of GD blocks given the structure coming from Python
 //and save sequences
-const createAllBlocks = (outputBlocks, sourceId) => {
-  return _.map(outputBlocks, (block) => createBlockStructure(block, sourceId));
+const createAllBlocks = (outputBlocks, fileUrl) => {
+  return _.map(outputBlocks, (block) => createBlockStructure(block, fileUrl));
 };
 
 // Takes a block structure and sets up the hierarchy through GD ids.
@@ -191,14 +191,15 @@ const readGenbankFile = (inputFilePath) => {
 };
 
 // Creates a rough project structure (not in GD format yet!) and a list of blocks from a genbank file
-const handleBlocks = (inputFilePath) => {
+// fileUrl is the job url for future downloads
+const handleBlocks = (inputFilePath, fileUrl) => {
   return readGenbankFile(inputFilePath)
     .then(result => {
       timer.time('file read');
 
       if (result && result.project && result.blocks &&
         result.project.components && result.project.components.length > 0) {
-        const blocksWithOldIds = createAllBlocks(result.blocks, inputFilePath);
+        const blocksWithOldIds = createAllBlocks(result.blocks, fileUrl);
         timer.time('blocks created');
 
         const idMap = _.zipObject(
@@ -224,10 +225,10 @@ const handleBlocks = (inputFilePath) => {
 
 // Import project and construct/s from genbank
 // Returns a project structure and the list of all blocks
-export const importProject = (inputFilePath) => {
+export const importProject = (inputFilePath, fileUrl) => {
   timer.start('start');
 
-  return handleBlocks(inputFilePath)
+  return handleBlocks(inputFilePath, fileUrl)
     .then((result) => {
       timer.time('blocks handled');
 
@@ -247,8 +248,8 @@ export const importProject = (inputFilePath) => {
 
 // Import only construct/s from genbank
 // Returns a list of block ids that represent the constructs, and the list of all blocks
-export const importConstruct = (inputFilePath) => {
-  return handleBlocks(inputFilePath)
+export const importConstruct = (inputFilePath, fileUrl) => {
+  return handleBlocks(inputFilePath, fileUrl)
     .then((rawProjectRootsAndBlocks) => {
       if (_.isString(rawProjectRootsAndBlocks)) {
         return rawProjectRootsAndBlocks;
@@ -263,8 +264,8 @@ export const importConstruct = (inputFilePath) => {
 
 //given a genbank file, converts it, returning an object with the form {roots: <ids>, blocks: <blocks>}
 //this handles saving sequences
-export const convert = (inputFilePath) => {
-  return importConstruct(inputFilePath);
+export const convert = (inputFilePath, fileUrl) => {
+  return importConstruct(inputFilePath, fileUrl);
 };
 
 //////////////////////////////////////////////////////////////
