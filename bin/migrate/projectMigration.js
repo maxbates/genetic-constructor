@@ -25,7 +25,7 @@ import { defaultUser } from '../../server/auth/local';
 import Project from '../../src/models/Project';
 import Rollup from '../../src/models/Rollup';
 import * as fileSystem from '../../server/data/middleware/fileSystem';
-import paletteAnime from '../../src/utils/color/index';
+import paletteAnime from '../../src/utils/color/paletteAnime';
 import makeEgfRollup from '../../data/egf_parts/index';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import onboardNewUser from '../../server/onboarding/onboardNewUser';
