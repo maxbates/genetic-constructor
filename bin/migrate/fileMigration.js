@@ -82,10 +82,10 @@ _.forEach(projects, projectId => {
         extension, //the old extension name (should be namespaced into new extension name)
         gslPath: gslFilePath,
       });
+    } else {
+      //expected project.gsl not found
+      console.log('couldnt find expected file for project', projectId, extension, fileList);
     }
-
-    //expected project.gsl not found
-    console.log('couldnt find expected file for project', projectId, extension, fileList);
   });
 });
 
@@ -135,11 +135,11 @@ batchPromises(_.map(files, (fileObject) => () => {
             }],
           };
 
-          const userId = manifest.authors[0];
+          const userId = manifest.metadata.authors[0];
 
           return projectPersistence.projectWriteManifest(projectId, patch, userId, false)
             .catch(err => {
-              console.log('error writing manifest');
+              console.log('error writing manifest: ' + projectId);
               console.log(err);
               throw err;
             });
@@ -147,7 +147,7 @@ batchPromises(_.map(files, (fileObject) => () => {
         .catch(err => {
           //if project doesnt exist, then whatever who cares
           if (err === errorDoesNotExist) {
-            console.log('project did not exist, ignoring');
+            console.log('project did not exist, ignoring ' + projectId);
             return;
           }
 
