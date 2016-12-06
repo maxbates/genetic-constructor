@@ -24,6 +24,7 @@ export default class Label extends Component {
     onClick: PropTypes.func,
     text: PropTypes.string.isRequired,
     styles: PropTypes.object,
+    selected: PropTypes.bool,
   };
 
   onClick = (evt) => {
@@ -36,9 +37,15 @@ export default class Label extends Component {
     let labelClasses = 'label-base';
     if (this.props.disabled) {
       labelClasses += ' label-disabled';
-    }
-    if (this.props.hover) {
-      labelClasses += ' label-hover';
+    } else {
+      if (this.props.hover) {
+        labelClasses += ' label-hover';
+      }
+      if (this.props.selected) {
+        labelClasses += ' label-selected';
+      } else {
+        labelClasses += ' label-unselected';
+      }
     }
 
     return (

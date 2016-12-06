@@ -5,20 +5,38 @@
   --label-background: var(--colors-white);
   --label-hover-background: var(--colors-selected);
   --label-hover-color: var(--colors-white);
+  --label-selected: var(--colors-selected);
 }
 
 .label-base {
-  background-color: var(--label-background);
-  color: var(--label-color);
   border-radius: 3px;
   padding: 2px 5px;
 }
-.label-hover:hover {
+
+
+.label-selected {
+  background-color: var(--label-background);
+  color: var(--label-selected);
+}
+
+.label-selected:hover {
   background-color: var(--label-hover-background);
   color: var(--label-hover-color);
   cursor: pointer;
 }
+
+.label-unselected {
+  background-color: var(--label-background);
+  color: var(--label-color);
+}
+
+.label-unselected:hover {
+  background-color: var(--label-hover-background);
+  color: var(--label-hover-color);
+  cursor: pointer;
+}
+
 .label-disabled {
-  background-color: var(--colors-white) !important;
-  color: var(--colors-greyLight) !important;
+  background-color: var(--colors-white);
+  color: var(--colors-greyLight);
 }

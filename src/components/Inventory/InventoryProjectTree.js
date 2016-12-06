@@ -22,6 +22,8 @@ import * as instanceMap from '../../store/instanceMap';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
 
+import '../../styles/InventoryProjectTree.css';
+
 export class InventoryProjectTree extends Component {
   static propTypes = {
     currentProject: PropTypes.string,
@@ -58,7 +60,6 @@ export class InventoryProjectTree extends Component {
    * @param projectId
    */
   onExpandProject(project, item) {
-    debugger;
     this.props.projectLoad(project.id)
       .then(() => {
         this.props.projectOpen(project.id)
@@ -115,18 +116,9 @@ export class InventoryProjectTree extends Component {
     .map(projectId => filtered[projectId])
     .sort((one, two) => two.metadata.created - one.metadata.created)
     .map(project => {
-      const projectId = project.id;
-      const isActive = (projectId === currentProject);
-
-      // return (
-      //   <InventoryProject key={projectId}
-      //                     project={project}
-      //                     isActive={isActive}/>
-      // );
-
-
       return {
         text: project.getName(),
+        selected: project.id === currentProject,
         onExpand: this.onExpandProject.bind(this, project),
         items: this.getProjectBlocksRecursive(project.components),
       }
@@ -138,7 +130,7 @@ export class InventoryProjectTree extends Component {
                          disabled={false}
                          placeholder="Filter projects"
                          onSearchChange={this.handleFilterChange}/>
-        <div className="InventoryProjectList">
+        <div className="inventory-project-tree">
           <Tree items={treeItems} />
         </div>
       </div>);

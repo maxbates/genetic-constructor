@@ -54,9 +54,11 @@ export default class Tree extends Component {
           return (
             <div style={{paddingLeft: this.props.depth ? '12px' : '0'}}>
               <Expando
+                showArrowWhenEmpty={this.props.depth === 0}
                 onExpand={this.onExpandBranch.bind(this, item)}
                 key={index}
                 text={item.text}
+                selected={item.selected}
                 content={item.items && item.items.length
                   ? <Tree
                   items={item.items}

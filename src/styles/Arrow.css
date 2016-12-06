@@ -35,3 +35,7 @@
 .arrow-clickable:hover {
   border-left: calc(var(--arrow-size) * 1.5px) solid var(--colors-grey);
 }
+
+.arrow-hidden {
+  visibility: hidden;
+}

@@ -23,16 +23,17 @@ export default class Switch extends Component {
     direction: PropTypes.string.isRequired,
     disabled: PropTypes.bool.isRequired,
     onClick: PropTypes.func,
+    hidden: PropTypes.bool,
   };
 
   onClick = (evt) => {
-    if (this.props.onClick) {
+    if (this.props.onClick && !this.props.hidden) {
       this.props.onClick(evt);
     }
   };
 
   render() {
-    let arrowClasses = 'arrow-base';
+    let arrowClasses = `arrow-base ${this.props.hidden ? 'arrow-hidden' : ''}`;
     if (this.props.disabled) {
       arrowClasses += ' arrow-disabled';
     }

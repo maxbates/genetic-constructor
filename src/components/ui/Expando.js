@@ -22,9 +22,14 @@ import '../../styles/Expando.css';
 export default class Expando extends Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
+    selected: PropTypes.bool,
     content: PropTypes.object.isRequired,
     headerWidgets: PropTypes.array,
     onExpand: PropTypes.func,
+  };
+
+  static defaultProps = {
+    showArrowWhenEmpty: true,
   };
 
   constructor() {
@@ -39,24 +44,28 @@ export default class Expando extends Component {
    */
   onToggle = () => {
     const open = !this.state.open;
-    this.setState({open});
+    this.setState({ open });
     if (open && this.props.onExpand) {
       this.props.onExpand();
     }
   };
 
   render() {
+    const showArrow = this.props.content || this.props.showArrowWhenEmpty;
     return (
       <div className="expando" data-expando={this.props.text}>
         <div className="header">
           <Arrow
             direction={this.state.open ? 'down' : 'right'}
             onClick={this.onToggle}
+            hidden={!showArrow}
           />
+
           <Label
             text={this.props.text}
             hover
             onClick={this.onToggle}
+            selected={this.props.selected}
             styles={{
               marginLeft: '0.5rem',
               marginRight: this.props.headerWidgets && this.props.headerWidgets.length ? '0.5rem' : '0',
