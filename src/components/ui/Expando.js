@@ -17,6 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import Arrow from './Arrow';
 import Label from './Label';
 
+
 import '../../styles/Expando.css';
 
 export default class Expando extends Component {
@@ -24,6 +25,7 @@ export default class Expando extends Component {
     text: PropTypes.string.isRequired,
     selected: PropTypes.bool,
     content: PropTypes.object.isRequired,
+    textWidgets: PropTypes.array,
     labelWidgets: PropTypes.array,
     headerWidgets: PropTypes.array,
     bold: PropTypes.bool,
@@ -70,6 +72,7 @@ export default class Expando extends Component {
             onClick={this.onToggle}
             selected={this.props.selected}
             widgets={this.props.labelWidgets}
+            textWidgets={this.props.textWidgets}
             styles={{
               marginLeft: '0.5rem',
               marginRight: this.props.headerWidgets && this.props.headerWidgets.length ? '0.5rem' : '0',

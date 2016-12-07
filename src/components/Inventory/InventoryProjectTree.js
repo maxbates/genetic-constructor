@@ -26,6 +26,7 @@ import {
   inspectorToggleVisibility,
   inspectorSelectTab,
 } from '../../actions/ui';
+import BasePairCount from '../ui/BasePairCount';
 
 import '../../styles/InventoryProjectTree.css';
 
@@ -112,6 +113,9 @@ export class InventoryProjectTree extends Component {
         items.push({
           block,
           text: block.getName(),
+          textWidgets: [
+            <BasePairCount count="99999" style={{color: 'gray'}}/>
+          ],
           onExpand: this.onExpandBlock.bind(this, block),
           items: this.getProjectBlocksRecursive(block.components),
         })

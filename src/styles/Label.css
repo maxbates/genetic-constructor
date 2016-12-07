@@ -16,6 +16,9 @@
   justify-content: space-between;
   .left {
     display: inline-block;
+    .BasePairCount {
+      margin-left: 0.25rem;
+    }
   }
   .right {
     display: inline-flex;
@@ -29,6 +32,13 @@
   }
 }
 .label-base:hover {
+
+  .left {
+    .BasePairCount {
+      color: white !important;
+    }
+  }
+
   .right {
     visibility: visible;
   }

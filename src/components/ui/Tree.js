@@ -58,6 +58,7 @@ export default class Tree extends Component {
                 onExpand={this.onExpandBranch.bind(this, item)}
                 key={index}
                 text={item.text}
+                textWidgets={item.textWidgets}
                 bold={item.bold}
                 labelWidgets={item.labelWidgets}
                 selected={item.selected}

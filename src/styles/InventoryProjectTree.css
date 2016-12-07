@@ -2,4 +2,8 @@
 
 .inventory-project-tree {
   margin: 0 0.5rem;
+
+  .BasePairCount:hover {
+    color: white;
+  }
 }
