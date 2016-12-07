@@ -22,7 +22,10 @@ import * as instanceMap from '../../store/instanceMap';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
 import { focusForceProject, focusForceBlocks } from '../../actions/focus';
-import { inspectorToggleVisibility } from '../../actions/ui';
+import {
+  inspectorToggleVisibility,
+  inspectorSelectTab,
+} from '../../actions/ui';
 
 import '../../styles/InventoryProjectTree.css';
 
@@ -40,6 +43,7 @@ export class InventoryProjectTree extends Component {
     focusForceProject: PropTypes.func.isRequired,
     focusForceBlocks: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
+    inspectorSelectTab: PropTypes.func.isRequired,
   };
 
   state = {
@@ -69,6 +73,7 @@ export class InventoryProjectTree extends Component {
     .then(() => {
       this.props.focusForceProject(project);
       this.props.inspectorToggleVisibility(true);
+      this.props.inspectorSelectTab('Information');
     });
   }
 
@@ -79,6 +84,7 @@ export class InventoryProjectTree extends Component {
   onExpandBlock(block, item) {
     this.props.focusForceBlocks([block]);
     this.props.inspectorToggleVisibility(true);
+    this.props.inspectorSelectTab('Information');
   }
 
   /**
@@ -187,4 +193,5 @@ export default connect(mapStateToProps, {
   focusForceProject,
   focusForceBlocks,
   inspectorToggleVisibility,
+  inspectorSelectTab,
 })(InventoryProjectTree);
