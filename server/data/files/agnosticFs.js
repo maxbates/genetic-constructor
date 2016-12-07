@@ -38,7 +38,7 @@ export const fileRead = (s3bucket, filePath, params) => {
 //return { VersionId, Key, name }
 export const fileWrite = (s3bucket, filePath, contents, params) => {
   invariant(filePath, 'file name is required');
-  invariant(contents, 'contents required');
+  invariant(contents !== undefined, 'contents required');
   invariant(typeof contents === 'string' || Buffer.isBuffer(contents), 'contents must be a string or buffer');
 
   let promise;

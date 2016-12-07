@@ -55,6 +55,10 @@ Contents`;
             });
         });
 
+        it('fileWrite() can take empty string', () => {
+          return agnosticFs.fileWrite(s3bucket, getFilePath(namespace, uuid.v4()), '');
+        });
+
         it('fileRead reads a file', () => {
           return agnosticFs.fileRead(s3bucket, filePath)
             .then(fileContent => {
