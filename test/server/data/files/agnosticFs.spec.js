@@ -56,7 +56,7 @@ Contents`;
         });
 
         it('fileWrite() can take empty string', () => {
-          return agnosticFs.fileWrite(s3bucket, getFilePath(namespace, uuid.v4()), '');
+          return agnosticFs.fileWrite(s3bucket, getFilePath(uuid.v4(), uuid.v4()), '');
         });
 
         it('fileRead reads a file', () => {
