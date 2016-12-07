@@ -62,7 +62,7 @@ router.route('/:namespace/:file/:version?')
   })
   .post(textParser, (req, res, next) => {
     const { projectId, namespace, file } = req;
-    //check if JSON was passed, parse to string if so
+    //check if JSON was passed, parse to string if so (wont parse on the way back out)
     const content = typeof req.body === 'object' ? JSON.stringify(req.body) : (req.body || '');
 
     projectFiles.projectFileWrite(projectId, namespace, file, content)
