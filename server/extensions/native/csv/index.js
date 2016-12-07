@@ -6,10 +6,10 @@ import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddle
 //GC specific
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
-import * as fileSystem from '../../../../server/utils/fileSystem';
-import * as filePaths from '../../../../server/utils/filePaths';
+import * as fileSystem from '../../../data/middleware/fileSystem';
+import * as filePaths from '../../../data/middleware/filePaths';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
-import { permissionsMiddleware } from '../../../data/permissions';
+import { projectPermissionMiddleware } from '../../../data/permissions';
 
 const extensionKey = 'csv'; //eslint-disable-line no-unused-vars
 
@@ -53,9 +53,9 @@ router.post('/import/:projectId?',
     const { noSave, returnRoll, projectId, files } = req; //eslint-disable-line no-unused-vars
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
-    const { name, string, hash, filePath, fileUrl } = files[0];
+    const { name, string, fileName, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
 
-    return convertCsv(string, name, fileUrl, hash)
+    return convertCsv(string, fileName, fileUrl)
       .then(converted => {
         return fileSystem.fileWrite(filePath + '-converted', converted)
           .then(() => converted);
@@ -70,7 +70,8 @@ router.post('/import/:projectId?',
 
         const roll = { sequences };
 
-        //hack - if we are doing a convert, then dont wrap with constructs
+        //todo - reconcile automatic wrapping in constructs with Genbank conversions
+        //if we are doing a convert, then dont wrap with constructs
         if (projectId === 'convert') {
           Object.assign(roll, {
             project: Project.classless({ components: blockIds }),
@@ -113,9 +114,10 @@ router.post('/import/:projectId?',
   mergeRollupMiddleware
 );
 
-//todo
-router.get('export/:projectId', permissionsMiddleware, (req, res, next) => {
-  res.status(501).send();
-});
+router.get('export/:projectId',
+  projectPermissionMiddleware,
+  (req, res, next) => {
+    res.status(501).send();
+  });
 
 export default router;

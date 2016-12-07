@@ -17,13 +17,20 @@ import { assert, expect } from 'chai';
 import request from 'supertest';
 import { merge } from 'lodash';
 import userConfigDefaults from '../../server/onboarding/userConfigDefaults';
-
-const devServer = require('../../server/server');
+import devServer from '../../server/server';
 
 describe('Server', () => {
   describe('User', () => {
+    let server;
+    beforeEach('server setup', () => {
+      server = devServer.listen();
+    });
+    afterEach(() => {
+      server.close();
+    });
+
     it('/user/config should get user config', (done) => {
-      const agent = request.agent(devServer);
+      const agent = request.agent(server);
 
       agent.get('/user/config')
         .expect(200)
@@ -37,7 +44,7 @@ describe('Server', () => {
     });
 
     it('/user/config should set user config', (done) => {
-      const agent = request.agent(devServer);
+      const agent = request.agent(server);
 
       const allInactive = Object.keys(userConfigDefaults.extensions).reduce((acc, key) => Object.assign(acc, { [key]: { active: false } }), {});
       const nextConfig = merge({}, userConfigDefaults, { extensions: allInactive });
@@ -57,14 +64,14 @@ describe('Server', () => {
     });
 
     it('/user/config should error on setting invalid user config', (done) => {
-      const agent = request.agent(devServer);
+      const agent = request.agent(server);
       agent.post('/user/config')
         .send({ extensions: [] })
         .expect(422, done);
     });
 
     it('GET /user/info should get pruned user', (done) => {
-      const agent = request.agent(devServer);
+      const agent = request.agent(server);
       agent.get('/user/info')
         .expect(200)
         .expect((res) => {
@@ -79,7 +86,7 @@ describe('Server', () => {
     });
 
     it('POST /user/update should merge user delta, and return user', (done) => {
-      const agent = request.agent(devServer);
+      const agent = request.agent(server);
       const newEmail = 'billybob@joe.com';
       agent.post('/user/info')
         .send({ email: newEmail })
@@ -92,14 +99,14 @@ describe('Server', () => {
     });
 
     it('POST /user/update errors on fields it doesnt know', (done) => {
-      const agent = request.agent(devServer);
+      const agent = request.agent(server);
       agent.post('/user/info')
         .send({ invalidField: 'some value' })
         .expect(422, done);
     });
 
     it('/register works without a configuration', (done) => {
-      const agent = request.agent(devServer);
+      const agent = request.agent(server);
       const user = {
         email: `T.${Math.random()}@test.com`,
         password: '123456',
@@ -121,7 +128,7 @@ describe('Server', () => {
     });
 
     it('/register accepts a configuration, returns the user', (done) => {
-      const agent = request.agent(devServer);
+      const agent = request.agent(server);
 
       const allInactive = Object.keys(userConfigDefaults.extensions).reduce((acc, key) => Object.assign(acc, { [key]: { active: false } }), {});
       const nextConfig = { extensions: allInactive };

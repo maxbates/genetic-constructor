@@ -12,7 +12,7 @@
   }
 
   &-explanation {
-    color: var(--colors-grey);
+    color: var(--colors-slightlyDarkGrey);
     padding: 0.25em 0 0.5em;
   }
 
@@ -30,7 +30,7 @@
       transition: color var(--timing-fast) ease-out;
 
       &.disabled {
-        color: var(--colors-grey);
+        color: var(--colors-slightlyDarkGrey);
         cursor: default;
       }
     }
@@ -40,13 +40,13 @@
 .CSVFileDrop {
   padding: 1em;
   border-radius: 0.5em;
-  background-color: var(--colors-blueGreyDark);
+  background-color: var(--colors-darkerGrey);
   text-align: center;
   transition: background-color var(--timing-fast) ease-out;
 
   &-hover,
   &:hover {
-    background-color: var(--colors-blueGreyMed);
+    background-color: var(--colors-mediumDarkGrey);
     cursor: pointer;
   }
 

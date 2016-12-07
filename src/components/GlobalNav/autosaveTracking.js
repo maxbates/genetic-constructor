@@ -56,12 +56,12 @@ export class autosaveTracking extends Component {
   render() {
     const { projectId } = this.props;
     const saveState = getProjectSaveState(projectId);
-    const { lastSaved, saveDelta, saveSuccessful } = saveState;
+    const { updated, saveDelta, saveSuccessful } = saveState;
     const dirty = autosaveInstance.isDirty();
 
     let text;
     if (!saveSuccessful) {
-      text = `Last Saved: ${(new Date(lastSaved)).toLocaleTimeString()}`;
+      text = `Last Saved: ${(new Date(updated)).toLocaleTimeString()}`;
     } else if (dirty || saveDelta > 15000) {
       text = '';
     } else if (saveDelta <= 500) {

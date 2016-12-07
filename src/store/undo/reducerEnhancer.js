@@ -20,6 +20,7 @@ import UndoManager from './UndoManager';
 
 //future - support for reducerEnhancing the whole store. Key parts will be weird?
 
+//fixme - creating manager singleton here for undoReducer vs. dedicated manager in enhancerCreator creates a disparity. enhcancer creator should create on which is shared, and update what is exported
 const manager = new UndoManager();
 
 //hack - curently required to be last reducer (to run after enhancers have run to update undoManager, relying on key order in combineReducers)
@@ -96,8 +97,8 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
       //on redux init types, reset the history
       if (params.initTypes.some(type => type === action.type)) {
         //this is very hard to trace otherwise
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('store initializing'); //eslint-disable-line no-console
+        if (process.env.NODE_ENV !== 'production' && (undoManager.past.length > 0 || undoManager.future.length > 0)) {
+          console.log('store init event (undo reducer enhancer resetting, had history which is now purged)'); //eslint-disable-line no-console
         }
         undoManager.purge();
         undoManager.patch(key, nextState, action);

@@ -22,15 +22,9 @@ export const errorInvalidId = 'INVALID_ID';
 export const errorInvalidModel = 'INVALID_MODEL';
 export const errorInvalidRoute = 'INVALID_ROUTE';
 
-export const errorNoUser = 'NO_USER';
-export const errorInvalidSessionKey = 'INVALID_SESSION_KEY';
-export const errorSessionKeyNotValidated = 'SESSION_KEY_NOT_VALIDATED';
-
 export const errorFileSystem = 'FILE_SYSTEM_ERROR';
 export const errorFileNotFound = 'FILE_NOT_FOUND';
 export const errorVersioningSystem = 'VERSIONING_ERROR';
-
-export const errorCouldntFindProjectId = 'PROJECT_ID_NOT_FOUND';
 
 export const errorOrderRejected = 'ORDER_REJECTED';
 export const errorInvalidPart = 'INVALID_PART';

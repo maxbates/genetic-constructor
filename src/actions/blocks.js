@@ -22,7 +22,7 @@ import { every, filter, uniq, values } from 'lodash';
 import * as ActionTypes from '../constants/ActionTypes';
 import BlockSchema from '../schemas/Block';
 import Block from '../models/Block';
-import { loadBlock } from '../middleware/data';
+import { loadBlock } from '../middleware/projects';
 import * as selectors from '../selectors/blocks';
 import * as projectSelectors from '../selectors/projects';
 import * as undoActions from '../store/undo/actions';
@@ -141,6 +141,30 @@ export const blockSetRole = (blockId, role) => {
   };
 };
 
+export const blockSetPalette = (blockId, palette) => {
+  return (dispatch, getState) => {
+    const oldBlock = getState().blocks[blockId];
+    invariant(oldBlock.projectId, 'block must have a projectId (must be in a project)');
+
+    const isToplevel = getState().projects[oldBlock.projectId].components.indexOf(blockId) >= 0;
+    invariant(isToplevel, 'set palette of a toplevel block');
+
+    const oldPalette = oldBlock.metadata.palette;
+
+    if (oldPalette === palette) {
+      return oldBlock;
+    }
+
+    const block = oldBlock.setPalette(palette);
+    dispatch({
+      type: ActionTypes.BLOCK_SET_PALETTE,
+      undoable: true,
+      block,
+    });
+    return block;
+  };
+};
+
 /***************************************
  * Store + Server Interaction
  ***************************************/
@@ -150,11 +174,11 @@ export const blockSetRole = (blockId, role) => {
  * @function
  * @param {UUID} blockId
  * @param {UUID} inputProjectId
- * @param {boolean} [withContents=false]
+ * @param {boolean} [withContents=true]
  * @param {boolean} [skipIfContentsEmpty=false]
  * @returns {Promise} Array of Blocks retrieved
  */
-export const blockLoad = (blockId, inputProjectId, withContents = false, skipIfContentsEmpty = false) => {
+export const blockLoad = (blockId, inputProjectId, withContents = true, skipIfContentsEmpty = false) => {
   return (dispatch, getState) => {
     const retrieved = getState().blocks[blockId];
     if (skipIfContentsEmpty === true && retrieved && !retrieved.hasContents()) {
@@ -468,6 +492,11 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
     //remove component from old parent (should clone first to avoid this, this is to handle just moving)
     if (oldParent) {
       dispatch(blockRemoveComponent(oldParent.id, componentId));
+    }
+
+    //might have been a top-level construct, just clear top-level fields in case
+    if (component.isConstruct()) {
+      dispatch(blockStash(component.clearToplevelFields()));
     }
 
     //now update the parent

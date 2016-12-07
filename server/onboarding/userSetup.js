@@ -14,42 +14,40 @@
  limitations under the License.
  */
 
-import * as querying from '../data/querying';
+import * as projectPersistence from '../data/persistence/projects';
 import onboardNewUser from './onboardNewUser';
 import DebugTimer from '../utils/DebugTimer';
 
 //if user has been setup, then return true
-const ensureUserSetup = (user) => {
+const checkUserSetup = (user) => {
   /*
    if (user && user.data && user.data.constructor === true) {
    return Promise.resolve(true);
    }
    */
 
-  const timer = new DebugTimer('ensureUserSetup ' + user.uuid, { disabled: true });
+  const timer = new DebugTimer('checkUserSetup ' + user.uuid, { disabled: true });
 
-  return querying.listProjectsWithAccess(user.uuid)
-    .then(projects => {
-      timer.time('query complete');
-
-      if (!projects.length) {
-        return onboardNewUser(user)
-          .then(rolls => {
-            console.log(`[User Setup] Generated ${rolls.length} projects for user ${user.uuid} (${user.email}):
+  return projectPersistence.getUserLastProjectId(user.uuid)
+    .then(projectId => {
+      timer.end('query complete, already onboarded');
+      return projectId;
+    })
+    .catch(err => {
+      timer.time('query complete, onboarding');
+      return onboardNewUser(user)
+        .then(rolls => {
+          console.log(`[User Setup] Generated ${rolls.length} projects for user ${user.uuid} (${user.email}):
 ${rolls.map(roll => `${roll.project.metadata.name || 'Unnamed'} @ ${roll.project.id}`).join('\n')}`);
-            timer.end('onboarded');
-            return rolls[0].project.id;
-          })
-          .catch(err => {
-            console.log('error onboarding user');
-            console.log(user);
-            return Promise.reject(err);
-          });
-      }
 
-      timer.end();
-      return projects[0].id;
+          timer.end('onboarded');
+          return rolls[0].project.id;
+        })
+        .catch(err => {
+          console.log('error onboarding user', user);
+          return Promise.reject(err);
+        });
     });
 };
 
-export default ensureUserSetup;
+export default checkUserSetup;

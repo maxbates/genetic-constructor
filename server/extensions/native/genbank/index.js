@@ -5,12 +5,13 @@ import invariant from 'invariant';
 //GC specific
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
-import * as fileSystem from '../../../../server/utils/fileSystem';
-import * as filePaths from '../../../../server/utils/filePaths';
-import * as rollup from '../../../../server/data/rollup';
+import * as fileSystem from '../../../data/middleware/fileSystem';
+import * as filePaths from '../../../data/middleware/filePaths';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
 import { filter } from 'lodash';
-import { permissionsMiddleware } from '../../../data/permissions';
+import { projectPermissionMiddleware } from '../../../data/permissions';
+import * as projectPesistence from '../../../data/persistence/projects';
+import * as sequencePersistence from '../../../data/persistence/sequence';
 import DebugTimer from '../../../utils/DebugTimer';
 
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
@@ -67,13 +68,14 @@ router.get('/file/:fileId', (req, res, next) => {
 
 /***** EXPORT ******/
 
-router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req, res, next) => {
+router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware, (req, res, next) => {
   const { projectId, blockIdList } = req.params;
   const blockIds = blockIdList.split(',');
 
   console.log(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
 
-  rollup.getProjectRollup(projectId)
+  projectPesistence.projectGet(projectId)
+    .then(roll => sequencePersistence.assignSequencesToRollup(roll))
     .then(roll => {
       const blocks = blockIds.map(blockId => roll.blocks[blockId]);
       invariant(blocks.every(block => block.sequence.md5), 'some blocks dont have md5');
@@ -90,6 +92,7 @@ router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req
         components: [construct.id],
       }));
 
+      //todo - need to merge with flo's stuff to pass in sequence properly
       const partialRoll = {
         project,
         blocks: blocks.reduce((acc, block) => {
@@ -113,18 +116,19 @@ router.get('/export/blocks/:projectId/:blockIdList', permissionsMiddleware, (req
 });
 
 router.all('/export/:projectId/:constructId?',
-  permissionsMiddleware,
+  projectPermissionMiddleware,
   formParser,
   (req, res, next) => {
     const { projectId, constructId } = req.params;
 
-    //todo - use this for genbank
-    const options = req.body;
+    //todo - use this for genbank, to export specific blocks
+    //const options = req.body;
 
     console.log(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
-    console.log(options);
+    //console.log(options);
 
-    rollup.getProjectRollup(projectId)
+    projectPesistence.projectGet(projectId)
+      .then(roll => sequencePersistence.assignSequencesToRollup(roll))
       .then(roll => {
         const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
 
@@ -163,11 +167,11 @@ router.post('/import/:projectId?',
     console.log(`importing genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
-    const { name, string, hash, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
+    const { name, string, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
 
     //todo - unify rather than just returning (esp once convert does not save sequences)
     if (projectId === 'convert') {
-      return convert(filePath)
+      return convert(filePath, fileUrl)
         .then(converted => {
           const roots = converted.roots;
           const rootBlocks = filter(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
@@ -182,7 +186,7 @@ router.post('/import/:projectId?',
         .catch(err => next(err));
     }
 
-    return importProject(filePath)
+    return importProject(filePath, fileUrl)
     //wrap all the childless blocks in a construct (so they dont appear as top-level constructs), update rollup with construct Ids
       .then(roll => {
         timer.time('imported');

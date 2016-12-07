@@ -1,7 +1,6 @@
 import { expect, assert } from 'chai';
 import Project from '../../src/models/Project';
-import sha from 'sha1';
-import { isEqual } from 'lodash';
+import { merge, isEqual } from 'lodash';
 
 describe('Model', () => {
   describe('Project', () => {
@@ -21,12 +20,48 @@ describe('Model', () => {
       expect(inst.metadata.name).to.equal('blah');
     });
 
+    it('validate can throw, or not', () => {
+      const good = Project.classless();
+      const bad = merge({}, good, { version: 'adsfasdfasdfasdf' });
+
+      expect(Project.validate(good)).to.equal(true);
+      expect(Project.validate(bad)).to.equal(false);
+
+      expect(() => Project.validate(good, true)).to.not.throw();
+      expect(() => Project.validate(bad, true)).to.throw();
+    });
+
+    it('compare() can throw, or not', () => {
+      const orig = new Project();
+      const copy = orig.clone(null);
+      const diff = orig.mutate('metadata.name', 'new name');
+
+      expect(Project.compare(orig, orig)).to.equal(true);
+
+      expect(Project.compare(orig, copy)).to.equal(true);
+      expect(() => Project.compare(orig, copy, true)).to.not.throw();
+
+      expect(Project.compare(orig, diff)).to.equal(false);
+      expect(() => Project.compare(orig, diff, true)).to.throw();
+    });
+
+    it('compare() compares model and POJO correctly', () => {
+      const orig = new Project();
+      const clone = orig.clone(null);
+      const copy = Object.assign({}, orig);
+
+      //both project instances
+      Project.compare(orig, clone, true);
+
+      //both same data, one Project one POJO
+      Project.compare(orig, copy, true);
+    });
+
     it('Project.classless(input) creates unfrozen JSON object, no instance methods', () => {
       const instance = Project.classless({
         rules: { someRule: 'yep' },
       });
 
-      console.log(instance);
       expect(instance.id).to.be.defined;
       expect(instance.rules.someRule === 'yep');
       expect(instance.merge).to.be.undefined;
@@ -38,14 +73,14 @@ describe('Model', () => {
     it('updateVersion() updates version', () => {
       const proj = new Project();
       assert(!proj.version, 'shouldnt scaffold version');
-      const versionSha = sha('sadf');
-      const updated = proj.updateVersion(versionSha);
-      assert(updated.version === versionSha);
+      const version = 19;
+      const updated = proj.updateVersion(version);
+      assert(updated.version === version);
     });
 
-    it('Project.compare() does equality check, ignoring version', () => {
-      const v1 = sha('one');
-      const v2 = sha('two');
+    it('Project.compare() does equality check, ignoring version + updated', () => {
+      const v1 = 124;
+      const v2 = 241;
 
       const one = new Project({ version: v1 });
       const two = one.updateVersion(v2);

@@ -15,6 +15,8 @@ limitations under the License.
 */
 import fields from './fields/index';
 import * as validators from './fields/validators';
+import ProjectFileSchema from './ProjectFile';
+import RulesSchema from './Rules';
 import { InstanceSchemaClass } from './Instance';
 
 /**
@@ -31,14 +33,8 @@ const projectFields = {
   ],
 
   version: [
-    fields.version(),
-    'SHA1 version of project',
-    { avoidScaffold: true },
-  ],
-
-  lastSaved: [
     fields.number(),
-    'POSIX time (ms since 1970) when last saved',
+    'numeric version of project',
   ],
 
   components: [
@@ -49,6 +45,16 @@ const projectFields = {
   settings: [
     fields.object().required,
     `Settings associated with this project`,
+  ],
+
+  rules: [
+    RulesSchema,
+    `Rules governing the whole Project`,
+  ],
+
+  files: [
+    fields.arrayOf(ProjectFileSchema.validate.bind(ProjectFileSchema)).required,
+    `Files associated with the project`,
   ],
 };
 

@@ -1,4 +1,4 @@
-import * as fileSystem from '../../../../server/utils/fileSystem';
+import * as fileSystem from '../../../data/middleware/fileSystem';
 import invariant from 'invariant';
 import Block from '../../../../src/models/Block';
 import parse from 'csv-parse';
@@ -53,7 +53,7 @@ const mapPartFields = (importedObject) => {
   };
 };
 
-export function convertCsv(csvContents, fileName, fileUrl, hash) {
+export function convertCsv(csvContents, fileName, fileUrl) {
   invariant(typeof csvContents === 'string', 'expected a string');
 
   let fields;
@@ -65,6 +65,7 @@ export function convertCsv(csvContents, fileName, fileUrl, hash) {
       resolve(output);
     });
   })
+  //todo - there is no reason to chain promises, this is inefficient
     //remove top rows
     .then(lines => {
       //todo - ensure these are fields, beyond just making sure a required field is present
@@ -99,8 +100,8 @@ export function convertCsv(csvContents, fileName, fileUrl, hash) {
       return Object.assign(part, {
         source: {
           source: 'csv',
-          id: hash,
-          url: '/extensions/api/csv/file/' + hash, //todo - use fileUrl once import router is up
+          id: fileName,
+          url: fileUrl,
         },
       });
     }))

@@ -4,7 +4,7 @@
   position: relative;
   min-height: 30px;
   flex-shrink: 0;
-  background-color: var(--colors-blueGreyMed);
+  background-color: var(--colors-mediumDarkGrey);
 
   &.visible {
     background-color: var(--colors-white);
@@ -21,7 +21,7 @@
     background-color: var(--colors-white);
 
     &:hover {
-      background-color: var(--colors-blueGreyLighter);
+      background-color: var(--colors-lightGrey);
     }
 
     &.dragging {
@@ -62,18 +62,18 @@
 
     &-extension {
       padding: 0px 20px;
-      border-right: 1px solid var(--colors-grey);
-      color: var(--colors-greyMedLight);
+      border-right: 1px solid var(--colors-slightlyDarkGrey);
+      color: var(--colors-mediumLightGrey);
       cursor: pointer;
 
       .visible & {
         cursor: default;
-        color: var(--colors-greyMedLight);
-        border-color: var(--colors-greyMedLight);
+        color: var(--colors-mediumLightGrey);
+        border-color: var(--colors-mediumLightGrey);
         cursor: pointer;
 
         &.active {
-          color: var(--colors-blueBlack);
+          color: var(--colors-nearlyBlack);
           cursor: default;
         }
       }

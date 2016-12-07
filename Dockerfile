@@ -32,6 +32,7 @@ WORKDIR /app
 
 #setup node
 ADD package.json /app/package.json
+ADD storage-ext /app/storage-ext
 RUN npm update -g npm && npm install
 
 ADD . /app

@@ -89,28 +89,28 @@ describe('Model', () => {
     });
 
     it('can be cloned, and update the parents array, with newest first', () => {
-      const parentSha = sha1('someversion');
+      const parentVersion = 135;
       const inst = new Instance({
-        version: parentSha,
+        version: parentVersion,
         prior: 'field',
       });
       expect(inst.parents.length).to.equal(0);
 
       const clone = inst.clone();
       expect(clone.parents.length).to.equal(1);
-      expect(clone.parents[0]).to.eql({ id: inst.id, version: parentSha });
+      expect(clone.parents[0]).to.eql({ id: inst.id, version: parentVersion });
 
       const second = clone.clone();
       expect(second.parents.length).to.equal(2);
       expect(second.parents).to.eql([
-        { id: clone.id, version: parentSha },
-        { id: inst.id, version: parentSha },
+        { id: clone.id, version: parentVersion },
+        { id: inst.id, version: parentVersion },
       ]);
     });
 
     it('clone() validates a version is passed in', () => {
       const badVersion = 'bad!';
-      const goodVersion = sha1('bleepboop');
+      const goodVersion = 352;
 
       const inst = new Instance();
 

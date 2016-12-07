@@ -68,7 +68,6 @@ export const getConfigFromUser = (user = {}, def = userConfigDefaults) => {
 export const updateUserConfig = (user, newConfig) => {
   const oldConfig = getConfigFromUser(user);
 
-  //todo
   //question!!!! - merge deeply, or shallow assign? For now, shallow assign so have to explicitly include default projects + extensions for them to show up
   const config = Object.assign({}, oldConfig, newConfig);
 

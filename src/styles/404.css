@@ -6,7 +6,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: var(--colors-blueBlack);
+  background-color: var(--colors-nearlyBlack);
   z-index: var(--z404);
 
   .font-regular {

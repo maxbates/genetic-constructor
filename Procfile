@@ -1,1 +1,1 @@
-web: npm run start-instance && sleep 10
+web: npm run start-instance

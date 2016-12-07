@@ -8,6 +8,8 @@ import pkg from '../package.json';
 async function copy() {
   const ncp = Promise.promisify(require('ncp'));
 
+  console.log('Copying public assets, documentation, and extensions...');
+
   await Promise.all([
     //public assets
     ncp('src/public', 'build/public'),
@@ -16,7 +18,6 @@ async function copy() {
     ncp('src/images', 'build/images'),
     ncp('src/content', 'build/content'),
 
-    //todo - dynamically get the version number
     ncp(`docs/jsdoc/genetic-constructor/${pkg.version}`, 'build/jsdoc'),
 
     //copy installed extensions

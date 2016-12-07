@@ -139,7 +139,7 @@
     padding: 0;
     border-radius: 0;
     overflow-y: auto;
-    background-color: var(--colors-blueGreyDark);
+    background-color: var(--colors-darkerGrey);
     * {
       border-radius: 0;
     }
@@ -182,8 +182,8 @@
     }
 
     .angle {
-      border-left: 2px solid var(--colors-greyMedLight);
-      border-top: 2px solid var(--colors-greyMedLight);
+      border-left: 2px solid var(--colors-mediumLightGrey);
+      border-top: 2px solid var(--colors-mediumLightGrey);
       transform: rotateZ(-45deg);
       width: 18px;
       height: 18px;
@@ -201,7 +201,7 @@
 
     .text {
       font-size: var(--fontsize);
-      color: var(--colors-greyMedLight);
+      color: var(--colors-mediumLightGrey);
       text-align: center;
       line-height: 1rem;
       margin: 0;
@@ -210,8 +210,8 @@
   }
 
   .selector-arrow {
-    border-left: 2px solid var(--colors-greyMedLight);
-    border-top: 2px solid var(--colors-greyMedLight);
+    border-left: 2px solid var(--colors-mediumLightGrey);
+    border-top: 2px solid var(--colors-mediumLightGrey);
     width: 10px;
     height: 10px;
     border-radius: 0px;

@@ -20,68 +20,55 @@
  *
  * @module permissions
  */
-import * as filePaths from '../utils/filePaths';
-import * as fileSystem from '../utils/fileSystem';
 import { errorInvalidId, errorNoIdProvided, errorNoPermission, errorDoesNotExist } from '../utils/errors';
 import { id as idRegex } from '../../src/utils/regex';
+import { userOwnsProject } from './persistence/projects';
 
-export const createProjectPermissions = (projectId, userId) => {
-  const projectPermissionsPath = filePaths.createProjectPermissionsPath(projectId);
-  const contents = [userId];
-  return fileSystem.fileWrite(projectPermissionsPath, contents);
-};
+export const projectPermissionMiddleware = (req, res, next) => {
+  const { user } = req;
+  const { projectId } = req.params;
 
-//check access to a particular project
-export const checkProjectAccess = (projectId, userId, projectMustExist = false) => {
-  const projectPermissionsPath = filePaths.createProjectPermissionsPath(projectId);
-  return fileSystem.fileRead(projectPermissionsPath)
-    .then(contents => {
-      if (contents.indexOf(userId) < 0) {
-        return Promise.reject(errorNoPermission);
-      }
-      return true;
-    })
-    .catch(err => {
-      if (err === errorDoesNotExist && !projectMustExist) {
-        return Promise.resolve(true);
-      }
-      return Promise.reject(err);
-    });
-};
-
-export const permissionsMiddleware = (req, res, next) => {
-  const { projectId, user } = req;
-
+  //in case havent already checked for user on request
   if (!user) {
+    res.status(401);
     console.error('no user attached by auth middleware @', req.url);
-    next('[permissionsMiddleware] user not attached to request by middleware');
+    next('[projectPermissionMiddleware] user not attached to request by middleware');
     return;
   }
 
+  //in case havent already checked for user on request
   if (!user.uuid) {
     res.status(401);
-    next('[permissionsMiddleware] no user.uuid present on request object');
-    return;
-  }
-  if (!projectId) {
-    res.status(400).send(errorNoIdProvided);
-    next('[permissionsMiddleware] projectId not found on route request');
-    return;
-  }
-  if (!idRegex().test(projectId)) {
-    //todo - status text is not being sent to the client. probably need to pass to error handler, which uses error as status text (this is going as body)
-    res.status(400).send(errorInvalidId);
-    next('[permissionsMiddleware] projectId is not valid, got ' + projectId);
+    next('[projectPermissionMiddleware] no user.uuid present on request object');
     return;
   }
 
-  checkProjectAccess(projectId, user.uuid)
+  if (!projectId) {
+    res.status(400).send(errorNoIdProvided);
+    next('[projectPermissionMiddleware] projectId not found on route request');
+    return;
+  }
+
+  if (!idRegex().test(projectId)) {
+    res.status(400).send(errorInvalidId);
+    next('[projectPermissionMiddleware] projectId is not valid, got ' + projectId);
+    return;
+  }
+
+  userOwnsProject(user.uuid, projectId)
     .then(() => next())
     .catch((err) => {
+      //if the project doesnt exist, mark the req and can handle downstream, but usually we want this to just fall through
+      if (err === errorDoesNotExist) {
+        Object.assign(req, { projectDoesNotExist: true });
+        return next();
+      }
+
       if (err === errorNoPermission) {
         return res.status(403).send(`User ${user.email} does not have access to project ${projectId}`);
       }
-      console.log('permissions error:', err);
+
+      console.log('project permission check error:', err);
       console.log(err.stack);
       res.status(500).send('error checking project access');
     });

@@ -10,14 +10,14 @@
     margin: 0 -var(--SidePanel-width-padding-content);
     font-size: var(--font-size-sectionLabel);
     font-weight: 100;
-    background-color: var(--colors-blueGreyMed);
+    background-color: var(--colors-mediumDarkGrey);
     flex-shrink: 0;
     cursor: pointer;
     user-select: none;
-    border-top: 1px solid var(--colors-grey);
+    border-top: 1px solid var(--colors-slightlyDarkGrey);
 
     &:hover {
-      background-color: var(--colors-blueGreyDark);
+      background-color: var(--colors-darkerGrey);
     }
   }
 
@@ -55,7 +55,7 @@
   }
 
   &-placeholderContent {
-    color: var(--colors-greyMedLight);
+    color: var(--colors-mediumLightGrey);
     text-align: center;
     margin: 10px auto;
   }

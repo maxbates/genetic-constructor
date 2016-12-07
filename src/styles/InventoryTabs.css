@@ -5,7 +5,7 @@
   flex-direction: row;
   margin-bottom: 1em;
   padding-bottom: 0.5em;
-  border-bottom: 1px solid var(--colors-grey);
+  border-bottom: 1px solid var(--colors-slightlyDarkGrey);
   display: inline-block;
   flex-shrink: 0;
 

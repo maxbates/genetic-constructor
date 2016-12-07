@@ -19,7 +19,7 @@
  NOTE - create instances using Block.classless and Project.classless - the server is expect JSON blobs that it can assign to, and instances of classes are frozen.
  */
 import invariant from 'invariant';
-import * as rollup from '../data/rollup';
+import * as projectPersistence from '../data/persistence/projects';
 import { getConfigFromUser } from '../user/utils';
 import DebugTimer from '../utils/DebugTimer';
 
@@ -27,11 +27,12 @@ import DebugTimer from '../utils/DebugTimer';
 import makeEgfRollup from '../../data/egf_parts/index';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 
-//while we are using imports, do this statically. todo - use require() for dynamic (will need to reconcile with build eventually, but whatever)
-//these are parameterized generators of projects, which return promises
+// while we are using imports, do this statically
+// todo - use require() for dynamic (will need to reconcile with build eventually, but whatever)
+// these are parameterized generators of projects, which return promises
 const projectMap = {
   egf_templates: (config, user) => makeEgfRollup(),
-  emptyProject: (config, user) => emptyProjectWithConstruct(true),
+  emptyProject: (config, user) => emptyProjectWithConstruct(false),
 };
 
 //create rollup generators, where first is the one to return as final project ID
@@ -66,20 +67,21 @@ export default function onboardNewUser(user) {
   timer.time('made generators');
 
   //generate the firstRoll last, so that it has the most recent timestamp, and is opened first
-  return Promise.resolve()
-    .then(() => Promise.all(
+  return Promise.all(
       restRollGens.map(generator => {
         const roll = generator();
         timer.time('non-primary rolls generated');
-        return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true);
+        return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
+          .then(info => info.data);
       })
-    ))
+    )
     .then((restRolls) => {
       timer.time('non-primary rolls wrote');
       const roll = firstRollGen();
       timer.time('second roll generated');
 
-      return rollup.writeProjectRollup(roll.project.id, roll, user.uuid, true)
+      return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
+        .then(info => info.data)
         .then(firstRoll => {
           timer.end('onboarding complete');
           return [firstRoll, ...restRolls];

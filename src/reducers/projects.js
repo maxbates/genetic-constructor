@@ -33,15 +33,16 @@ export default function projects(state = initialState, action) {
   case ActionTypes.PROJECT_RENAME :
   case ActionTypes.PROJECT_REMOVE_CONSTRUCT:
   case ActionTypes.PROJECT_ADD_CONSTRUCT :
+  case ActionTypes.PROJECT_FILE_WRITE :
     const { project } = action;
     instanceMap.saveProject(project);
     return Object.assign({}, state, { [project.id]: project });
 
   case ActionTypes.PROJECT_SNAPSHOT :
   case ActionTypes.PROJECT_SAVE :
-    const { projectId, sha, time } = action;
+    const { projectId, version, time } = action;
     const gotProject = state[projectId];
-    const updatedProject = gotProject.updateVersion(sha, time);
+    const updatedProject = gotProject.updateVersion(version, time);
     instanceMap.saveProject(updatedProject);
     return Object.assign({}, state, { [projectId]: updatedProject });
 

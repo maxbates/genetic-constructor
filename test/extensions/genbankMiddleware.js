@@ -1,14 +1,14 @@
 import { assert, expect } from 'chai';
 import fs from 'fs';
 import Block from '../../src/models/Block';
-import * as api from '../../src/middleware/data';
+import * as api from '../../src/middleware/projects';
 import {
   exportConstruct,
   convert,
   importString as importGenbankString,
 } from '../../src/middleware/genbank';
-import { createExampleProject } from '../fixtures/rollup';
-import * as fileSystem from '../../server/utils/fileSystem';
+import { createExampleProject } from '../_fixtures/rollup';
+import * as fileSystem from '../../server/data/middleware/fileSystem';
 
 describe('Extensions', () => {
   describe('Genbank', () => {
@@ -57,32 +57,36 @@ describe('Extensions', () => {
         const construct = sampleRoll.blocks[constructId];
         const components = construct.components.map(blockId => sampleRoll.blocks[blockId]);
 
-        assert(components.every(compoenent => !!Object.keys(compoenent.options).length > 0), 'should have direct children that are lists');
+        assert(components.every(compoenent => Object.keys(compoenent.options).length > 0), 'should have direct children that are lists');
 
         return exportConstruct(projectId, constructId);
       });
 
-      it('importString() should be able convert a genbank file to a project and add a construct to it', async () => {
-        const projectId = await importGenbankString(fileContents);
+      it('importString() should be able convert a genbank file to a project and add a construct to it', async() => {
+        try {
+          const projectId = await importGenbankString(fileContents);
 
-        expect(projectId).to.be.defined;
+          expect(projectId).to.be.defined;
 
-        const gotRoll = await api.loadProject(projectId);
-        expect(gotRoll.project.metadata.name).to.equal('EU912544');
-        expect(gotRoll.project.components.length).to.equal(1);
-        expect(Object.keys(gotRoll.blocks).length).to.equal(8); // There are 8 blocks in that file
+          const gotRoll = await api.loadProject(projectId);
+          expect(gotRoll.project.metadata.name).to.equal('EU912544');
+          expect(gotRoll.project.components.length).to.equal(1);
+          expect(Object.keys(gotRoll.blocks).length).to.equal(8); // There are 8 blocks in that file
 
-        // Now add another construct to it...
-        const sampleStrConstruct = await fileSystem.fileRead(genbankFilePath, false);
+          // Now add another construct to it...
+          const sampleStrConstruct = await fileSystem.fileRead(genbankFilePath, false);
 
-        // This just tests that the api works as expected. The tests about the particular
-        // Genbank conversions to and from blocks are in the genbank.spec.js file
-        const data = await importGenbankString(sampleStrConstruct, projectId);
+          // This just tests that the api works as expected. The tests about the particular
+          // Genbank conversions to and from blocks are in the genbank.spec.js file
+          const data = await importGenbankString(sampleStrConstruct, projectId);
 
-        const secondRoll = await api.loadProject(projectId);
+          const secondRoll = await api.loadProject(projectId);
 
-        expect(secondRoll.project.metadata.name).to.equal('EU912544');
-        expect(secondRoll.project.components.length).to.equal(2);
+          expect(secondRoll.project.metadata.name).to.equal('EU912544');
+          expect(secondRoll.project.components.length).to.equal(2);
+        } catch (err) {
+          return err.text().then(text => { throw text });
+        }
       });
     });
   });

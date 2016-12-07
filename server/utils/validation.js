@@ -17,6 +17,7 @@ import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
 import Order from '../../src/models/Order';
 import * as validators from '../../src/schemas/fields/validators';
+import { id as idRegex } from '../../src/utils/regex';
 
 import { errorNoIdProvided, errorInvalidId } from './errors';
 
@@ -31,6 +32,8 @@ export const validateProject = (instance) => {
 export const validateOrder = instance => {
   return Order.validate(instance, false);
 };
+
+export const validateId = id => idRegex().test(id);
 
 //throws on error
 const idValidator = validators.id();

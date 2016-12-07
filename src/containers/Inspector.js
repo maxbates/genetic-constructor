@@ -34,6 +34,8 @@ export class Inspector extends Component {
     forceIsConstruct: PropTypes.bool.isRequired,
     type: PropTypes.string.isRequired,
     focused: PropTypes.any.isRequired,
+    project: PropTypes.object,
+    construct: PropTypes.object,
     orders: PropTypes.array.isRequired,
     overrides: PropTypes.object.isRequired,
   };
@@ -43,7 +45,7 @@ export class Inspector extends Component {
   };
 
   render() {
-    const { isVisible, focused, orders, overrides, type, readOnly, forceIsConstruct, isAuthoring } = this.props;
+    const { isVisible, focused, project, construct, orders, overrides, type, readOnly, forceIsConstruct, isAuthoring } = this.props;
 
     // inspect instances, or construct if no instance or project if no construct or instances
     let inspect;
@@ -63,6 +65,8 @@ export class Inspector extends Component {
                                  orders={orders}
                                  readOnly={readOnly}
                                  isAuthoring={isAuthoring}
+                                 project={project}
+                                 construct={construct}
                                  forceIsConstruct={forceIsConstruct}/>);
       break;
     }
@@ -93,8 +97,10 @@ export class Inspector extends Component {
 function mapStateToProps(state, props) {
   const { isVisible } = state.ui.inspector;
 
-  const { level, blockIds } = state.focus;
+  const { level, blockIds, constructId } = state.focus;
   const currentProject = state.projects[props.projectId];
+
+  const currentConstruct = state.blocks[constructId];
 
   //delegate handling of focus state handling to selector
   const { type, readOnly, focused } = _getFocused(state, true, props.projectId);
@@ -126,8 +132,10 @@ function mapStateToProps(state, props) {
     isVisible,
     type,
     readOnly,
-    focused,
     forceIsConstruct,
+    project: currentProject,
+    construct: currentConstruct,
+    focused,
     orders,
     overrides,
     isAuthoring,

@@ -61,7 +61,7 @@
     cursor: default;
 
     &.selected {
-      color: var(--colors-grey);
+      color: var(--colors-slightlyDarkGrey);
     }
 
     &:hover {

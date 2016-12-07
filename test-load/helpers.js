@@ -80,7 +80,6 @@ function createSimpleProjectJSON(requestParams, context, ee, next) {
         'created': past,
         'tags': {},
       },
-      'lastSaved': 0,
       'components': [
         parentId,
       ],

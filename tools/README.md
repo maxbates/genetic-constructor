@@ -11,8 +11,6 @@ Server is written so you can:
  
 Server launches in its own process, and new process is started every time the server rebuilds, and is proxied using BrowserSync. The proxy also dynamically adds in hot module loading, and reload when static assets update, and React Hot Module loading and React Transform.
 
-TODO: Build the server. Not building because of relative path issues, in particular of non-static imports (e.g. all the plugins)
-
 ## Build Automation Tools
 
 ### Command line flags
@@ -26,6 +24,8 @@ Flag          | Description
 `--debugmode` | Launches the App in Debugging mode (e.g. with Redux devtools)
 
 An additional `--` before flags is necessary to pass the arguments from babel-node to the actual process spawned (see examples).
+
+
 
 #### `npm run start` (`start.js`)
 
@@ -41,11 +41,19 @@ Run the app for local development, with full sourcemapping etc.
 $ npm run start
 ```
 
+Run all the unit tests:
+
+```sh
+$ npm run test
+```
+
 Launch dev server in production mode + minified
 
 ```sh
-$ npm start -- --release
+$ npm run start -- --release
 ```
+
+
 
 #### `npm run build` (`build.js`)
 
@@ -61,6 +69,8 @@ Build the app in production mode and log each step
 $ npm run build -- --release --verbose
 ```
 
+
+
 #### `npm run start-instance` (`start-instance.js`)
 
 * clean, setup
@@ -72,6 +82,8 @@ $ npm run build -- --release --verbose
 ```sh
 $ npm run start-instance
 ```
+
+
 
 #### `npm run start-auth-stack` (`auth-stack.js`)
 
@@ -85,17 +97,34 @@ $ npm run start-instance
 
 ##### Additional Options
 
+There are a mix of environment varaibles and flags that can be set (these could be better unified..)
+
+Env Var              | Description
+-------------------- | -----------------
+NODE_ENV             | `test`, `dev`, `production` are valid options, change code paths + logging + speed
+SERVER_MANUAL=true   | Server will not start listening automatically
+DEBUG=timer          | Enable Debug Timer class, for timing debugging (can set to 'realtime' to log as tasks are completed, instead of at end of a task)
+DEBUG=timer:realtime | Debug timer logs as tasks are completed, instead of at end of a task
+FORCE_LOCAL          | Force local file system, instead of S3 even when AWS credentials supplied (where applicable)
+
 Flag                                           | Description
 ---------------------------------------------- | --------------------------------------------------
 `--PLATFORM_PATH=/path/to/bio-user-platform/`  | Define path to bio-user-platform, defaults to sibling with project root
-`--DEBUG`                                      | Log all output
+
+
 
 ##### Examples
+
+Enable DebugTimer class (where used and enabled):
+
+```sh
+DEBUG=timer:realtime npm run start
+```
 
 Run using babel-node directly, and pass in a flag
 
 ```sh
-$ babel-node tools/run auth-stack -- --DEBUG
+$ DEBUG=tools babel-node tools/run auth-stack
 ```
 
 ## Misc

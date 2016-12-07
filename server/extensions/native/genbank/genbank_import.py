@@ -76,15 +76,14 @@ name_qualifier_table = {
 }
 
 # Creates a scaffold structure for a block
-def create_block_json(id, sequence, features):
+def create_block_json(id):
     return {
         "id": id,
         "metadata" : { "genbank" : {}},
         "rules": {},
         "components": [],
         "sequence" : {
-            "sequence": sequence,
-            "features": features
+            "features": []
         }
       }
 
@@ -96,15 +95,15 @@ def create_block_json(id, sequence, features):
 #    "partial": block1 and block2 have a partial overlap
 #    "before": block1 comes before than block2 in the sequence
 #    "after": block1 comes after block2 in the sequence
-def relationship(block1, block2, full_size):
+def relationship(block1, block2):
     if block1["sequence"]["length"] < block2["sequence"]["length"] and block2["metadata"]["start"] <= block1["metadata"]["start"] and block2["metadata"]["end"] >= block1["metadata"]["end"]:
         return "child"
     if block1["sequence"]["length"] == block2["sequence"]["length"] and block2["metadata"]["start"] == block1["metadata"]["start"] and block2["metadata"]["end"] == block1["metadata"]["end"]:
         return "equal"
     if block1["sequence"]["length"] > block2["sequence"]["length"] and block1["metadata"]["start"] <= block2["metadata"]["start"] and block1["metadata"]["end"] >= block2["metadata"]["end"]:
         return "parent"
-    if (block1["metadata"]["start"] <= block2["metadata"]["start"] and block1["metadata"]["end"] >= block2["metadata"]["start"]) or \
-        (block1["metadata"]["start"] <= block2["metadata"]["end"] and block1["metadata"]["end"] >= block2["metadata"]["end"]):
+    if (block1["metadata"]["start"] <= block2["metadata"]["start"] and block1["metadata"]["end"] > block2["metadata"]["start"]) or \
+        (block1["metadata"]["start"] < block2["metadata"]["end"] and block1["metadata"]["end"] >= block2["metadata"]["end"]):
         return "partial"
     if block1["metadata"]["end"]-1 < block2["metadata"]["start"]:
         return "before"
@@ -157,15 +156,18 @@ def convert_block_to_annotation(all_blocks, to_convert, parent, to_remove_list):
 
 # Takes a genbank record and creates a root block
 def create_root_block_from_genbank(gb, sequence):
-    full_length = len(sequence)
+    full_length = len(sequence["sequence"])
 
     root_id = str(uuid.uuid4())
-    root_block = create_block_json(root_id, sequence, [])
+    root_block = create_block_json(root_id)
     root_block["metadata"]["description"] = gb.description
     root_block["metadata"]["name"] = gb.name
     root_block["metadata"]["genbank"]["name"] = gb.name
+
     root_block["metadata"]["start"] = 0
-    root_block["metadata"]["end"] = full_length - 1
+    root_block["metadata"]["end"] = full_length
+    sequence["blocks"][root_id] = [root_block["metadata"]["start"], root_block["metadata"]["end"]]
+
     root_block["metadata"]["genbank"]["id"] = gb.id
     root_block["sequence"]["length"] = full_length
     if "references" in gb.annotations:
@@ -248,7 +250,7 @@ def create_child_block_from_feature(f, all_blocks, root_block, sequence):
     else:
         # It's a regular annotation, create a block
         block_id = str(uuid.uuid4())
-        child_block = create_block_json(block_id, sequence[start:end], [])
+        child_block = create_block_json(block_id)
         convert_block_name(f, child_block)
         convert_GC_info(f, child_block)
 
@@ -261,8 +263,10 @@ def create_child_block_from_feature(f, all_blocks, root_block, sequence):
                 pass
 
         child_block["metadata"]["start"] = start
-        child_block["metadata"]["end"] = end - 1
-        child_block["sequence"]["length"] = len(child_block["sequence"]["sequence"])
+        child_block["metadata"]["end"] = end
+        sequence["blocks"][block_id] = [child_block["metadata"]["start"], child_block["metadata"]["end"]]
+
+        child_block["sequence"]["length"] = child_block["metadata"]["end"] - child_block["metadata"]["start"]
         child_block["metadata"]["strand"] = strand
         child_block["metadata"]["genbank"]["type"] = f.type
 
@@ -287,7 +291,6 @@ def block_by_old_id(old_id, all_blocks):
 # Traverse an array of blocks and build a hierarchy. The hierarchy embeds blocks into other blocks in order,
 # and create filler blocks where needed
 def build_block_hierarchy(all_blocks, root_block, sequence):
-    full_length = len(sequence)
     # Going through the blocks from shorter to longer, so hopefully we will maximize
     # the ones that convert to blocks instead of features
 
@@ -311,7 +314,7 @@ def build_block_hierarchy(all_blocks, root_block, sequence):
                 convert_block_to_annotation(all_blocks, block, block_by_old_id(block["metadata"]["old_parents"][0], all_blocks), to_remove)
             else:
                 for old_parent_id in block["metadata"]["old_parents"]:
-                    insert_child_in_parent(all_blocks, block, full_length, block_by_old_id(old_parent_id, all_blocks), to_remove)
+                    insert_child_in_parent(all_blocks, block, block_by_old_id(old_parent_id, all_blocks), to_remove)
             continue
 
         inserted = False
@@ -328,9 +331,9 @@ def build_block_hierarchy(all_blocks, root_block, sequence):
                 parents.append(sorted_blocks[j])
 
         for other_block in parents:
-            rel = relationship(block, other_block, full_length)
+            rel = relationship(block, other_block)
             if rel == "child":
-                insert_child_in_parent(all_blocks, block, full_length, other_block, to_remove)
+                insert_child_in_parent(all_blocks, block, other_block, to_remove)
                 inserted = True
                 break
             elif rel == "equal":
@@ -352,15 +355,16 @@ def build_block_hierarchy(all_blocks, root_block, sequence):
     # Delete all the blocks that were converted to features
     for removing in to_remove:
         all_blocks.pop(removing)
+        sequence["blocks"].pop(removing)
 
 
-def insert_child_in_parent(all_blocks, block, full_length, parent_block, to_remove):
+def insert_child_in_parent(all_blocks, block, parent_block, to_remove):
     i = 0
     is_partial_overlap = False
     # Go through the siblins to see where to insert the current block
     for sib_id in parent_block["components"]:
         sibling = all_blocks[sib_id]
-        relationship_to_sibling = relationship(block, sibling, full_length)
+        relationship_to_sibling = relationship(block, sibling)
         # Keep moving forward until we get to one where we need to be "before"
         if relationship_to_sibling == "after":
             i += 1
@@ -392,24 +396,34 @@ def create_filler_blocks_for_holes(all_blocks, sequence):
                 # Create a filler block before the current block, encompassing the sequence between where the child should
                 # start and where it actually starts. Add the filler block to the parent.
                 block_id = str(uuid.uuid4())
-                filler_block = create_block_json(block_id, sequence[current_position:child["metadata"]["start"]], [])
-                filler_block["metadata"]["initialBases"] = filler_block["sequence"]["sequence"][:3] + "..."
+                filler_block = create_block_json(block_id)
                 filler_block["metadata"]["color"] = None
+
                 filler_block["metadata"]["start"] = current_position
-                filler_block["metadata"]["end"] = child["metadata"]["start"] - 1
-                filler_block["sequence"]["length"] = len(filler_block["sequence"]["sequence"])
+                filler_block["metadata"]["end"] = child["metadata"]["start"]
+                sequence["blocks"][block_id] = [filler_block["metadata"]["start"], filler_block["metadata"]["end"]]
+
+                filler_block["sequence"]["length"] = filler_block["metadata"]["end"] - filler_block["metadata"]["start"]
+
+                filler_block["metadata"]["initialBases"] = sequence["sequence"][filler_block["metadata"]["start"]:filler_block["metadata"]["start"]+3] + "..."
+
                 all_blocks[block_id] = filler_block
                 block["components"].insert(i, block_id)
-            current_position = child["metadata"]["end"] + 1
+            current_position = child["metadata"]["end"]
         # If the last block doesn't end at the end of the parent, create a filler too!
         if child and current_position < block["metadata"]["end"]:
             block_id = str(uuid.uuid4())
-            filler_block = create_block_json(block_id, sequence[current_position:block["metadata"]["end"] + 1], [])
-            filler_block["metadata"]["initialBases"] = filler_block["sequence"]["sequence"][:3] + "..."
+            filler_block = create_block_json(block_id)
             filler_block["metadata"]["color"] = None
+
             filler_block["metadata"]["start"] = current_position
             filler_block["metadata"]["end"] = block["metadata"]["end"]
-            filler_block["sequence"]["length"] = len(filler_block["sequence"]["sequence"])
+            sequence["blocks"][block_id] = [filler_block["metadata"]["start"], filler_block["metadata"]["end"]]
+
+            filler_block["sequence"]["length"] = filler_block["metadata"]["end"] - filler_block["metadata"]["start"]
+
+            filler_block["metadata"]["initialBases"] = sequence["sequence"][filler_block["metadata"]["start"]:filler_block["metadata"]["start"]+3] + "..."
+
             all_blocks[block_id] = filler_block
             block["components"].insert(i + 1, block_id)
 
@@ -417,7 +431,6 @@ def create_filler_blocks_for_holes(all_blocks, sequence):
 def remove_sequence_from_parents(all_blocks):
     for block in all_blocks.values():
         if len(block["components"]) > 0:
-            block["sequence"]["sequence"] = ""
             block["sequence"]["length"] = 0
 
 # Once we have arranged all blocks, there is no need to keep the start and end values for each block. We do keep
@@ -437,7 +450,7 @@ def remove_start_and_end_of_blocks(all_blocks):
 # with temporary ids
 def convert_genbank_record_to_blocks(gb):
     all_blocks = {}
-    sequence = str(gb.seq)
+    sequence = { "sequence": str(gb.seq), "blocks": {}}
 
     root_block = create_root_block_from_genbank(gb, sequence)
     all_blocks[root_block["id"]] = root_block
@@ -453,13 +466,14 @@ def convert_genbank_record_to_blocks(gb):
     remove_sequence_from_parents(all_blocks)
     remove_start_and_end_of_blocks(all_blocks)
 
-    return { "root": all_blocks[root_block["id"]], "blocks": all_blocks }
+    return { "root": all_blocks[root_block["id"]], "blocks": all_blocks, "sequence": sequence }
 
 
 # Given a file, create project and blocks structures to import into GD
 def genbank_to_project(filename):
     project = { "components": []}
     blocks = {}
+    sequences = []
 
     generator = SeqIO.parse(open(filename,"r"),"genbank")
     for record in generator:
@@ -470,4 +484,5 @@ def genbank_to_project(filename):
         project["description"] = results["root"]["metadata"]["description"]
 
         blocks.update(results["blocks"])
-    return { "project": project, "blocks": blocks }
+        sequences.append(results["sequence"])
+    return { "project": project, "blocks": blocks, "sequences": sequences }
