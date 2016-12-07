@@ -1,6 +1,6 @@
 migrate:
-#  image: quay.io/autodesk_bionano/gctordb_webapp${BNR_ENV_TAG}
-  image: geneticconstructor_webapp:latest # local build
+  image: quay.io/autodesk_bionano/gctor_webapp${BNR_ENV_TAG}
+#  image: geneticconstructor_webapp:latest # local build
   volumes:
     - /storage/genome-designer/projects:/projects
   environment:
