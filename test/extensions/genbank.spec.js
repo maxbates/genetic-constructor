@@ -39,7 +39,8 @@ describe('Extensions', () => {
           expect(parentBlock.metadata.genbank.annotations.data_file_division).to.equal('SYN');
           expect(parentBlock.metadata.genbank.annotations.date).to.equal('06-FEB-2009');
           expect(parentBlock.source.source).to.equal('genbank');
-          expect(parentBlock.source.id).to.equal('sampleGenbankContiguous.gb');
+          //expect(parentBlock.source.id).to.equal('sampleGenbankContiguous.gb');
+          expect(parentBlock.source.url).to.be.defined;
           expect(getBlock(output.blocks, parentBlock.components[0]).rules.role).to.equal('promoter');
           expect(getBlock(output.blocks, parentBlock.components[1]).rules.role).to.equal('cds');
           expect(getBlock(output.blocks, parentBlock.components[2]).rules.role).to.equal('terminator');
