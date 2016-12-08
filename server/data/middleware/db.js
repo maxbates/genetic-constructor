@@ -13,12 +13,19 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 import { STORAGE_URL } from '../../urlConstants';
 import { errorDoesNotExist, errorNoPermission } from '../../utils/errors';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import * as headers from '../../../src/middleware/utils/headers';
 
-const makePath = path => STORAGE_URL + '/' + path;
+const makePath = path => {
+  if (path[0] !== '/') {
+    console.warn('makePath: first character should not be a slash, got ' + path);
+    return STORAGE_URL + path;
+  }
+  return STORAGE_URL + '/' + path;
+};
 
 const defaultHeaders = {
   Accept: 'application/json',
