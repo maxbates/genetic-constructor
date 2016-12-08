@@ -49,7 +49,7 @@ import '../../styles/InventoryProjectTree.css';
 
 export class InventoryProjectTree extends Component {
   static propTypes = {
-    currentProject: PropTypes.string,
+    currentProjectId: PropTypes.string,
     projects: PropTypes.object.isRequired,
     blockCreate: PropTypes.func.isRequired,
     blockStash: PropTypes.func.isRequired,
@@ -257,7 +257,7 @@ export class InventoryProjectTree extends Component {
   };
 
   render() {
-    const { projects, currentProject } = this.props;
+    const { projects, currentProjectId } = this.props;
     const { isLoading } = this.state;
 
     if (isLoading) {
@@ -284,7 +284,7 @@ export class InventoryProjectTree extends Component {
       return {
         text: project.getName(),
         bold: true,
-        selected: project.id === currentProject,
+        selected: project.id === currentProjectId,
         onExpand: this.onExpandProject.bind(this, project),
         onContextMenu: this.onProjectContextMenu.bind(this, project),
         items: this.getProjectBlocksRecursive(project.components),

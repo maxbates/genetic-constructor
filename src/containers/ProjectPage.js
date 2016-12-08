@@ -125,7 +125,7 @@ class ProjectPage extends Component {
         <SaveErrorModal />
         <OrderModal projectId={projectId} />
 
-        <Inventory projectId={projectId}/>
+        <Inventory currentProjectId={projectId}/>
 
         <div className="ProjectPage-content">
 

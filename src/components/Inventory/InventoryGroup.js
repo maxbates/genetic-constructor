@@ -28,6 +28,7 @@ export default class InventoryGroup extends Component {
     type: PropTypes.string,
     actions: PropTypes.array,
     tabInfo: PropTypes.object.isRequired,
+    currentProjectId: PropTypes.string,
   };
 
   inventoryGroupTypeToComponent = (type, props) => {

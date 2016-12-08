@@ -41,7 +41,7 @@ class InventoryGroupProjects extends Component {
     projectDelete: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
-    currentProject: PropTypes.string,
+    currentProjectId: PropTypes.string,
     templates: PropTypes.bool.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
   };
@@ -101,12 +101,11 @@ class InventoryGroupProjects extends Component {
   };
 
   render() {
-    const { currentProject } = this.props;
+    const { currentProjectId } = this.props;
     const { groupBy } = this.state;
-
     const currentList = groupBy === 'type'
       ? <InventoryRoleMap />
-      : <InventoryProjectTree currentProject={currentProject} templates={this.props.templates}/>;
+      : <InventoryProjectTree currentProjectId={currentProjectId} templates={this.props.templates}/>;
 
     return (
       <div className="InventoryGroup-content InventoryGroupProjects">

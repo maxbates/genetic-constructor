@@ -24,7 +24,7 @@ import '../styles/SidePanel.css';
 
 export class Inventory extends Component {
   static propTypes = {
-    projectId: PropTypes.string,
+    currentProjectId: PropTypes.string,
     isVisible: PropTypes.bool.isRequired,
     currentTab: PropTypes.string,
     inventoryToggleVisibility: PropTypes.func.isRequired,
@@ -97,7 +97,6 @@ export class Inventory extends Component {
   };
 
   render() {
-    //may be better way to pass in projectId
     const { isVisible } = this.props;
     // classes for content area
     const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
@@ -118,7 +117,7 @@ export class Inventory extends Component {
     const tabInfo = this.sections[this.props.currentTab];
     let tab;
     if (tabInfo) {
-      tab = <InventoryGroup tabInfo={tabInfo} />;
+      tab = <InventoryGroup currentProjectId={this.props.currentProjectId} tabInfo={tabInfo} />;
     }
 
     return (
