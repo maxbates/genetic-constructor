@@ -27,6 +27,7 @@ import {
   inspectorSelectTab,
 } from '../../actions/ui';
 import BasePairCount from '../ui/BasePairCount';
+import DnD from '../../containers/graphics/dnd/dnd';
 
 import '../../styles/InventoryProjectTree.css';
 
@@ -102,6 +103,50 @@ export class InventoryProjectTree extends Component {
   }
 
   /**
+   * make a drag and drop proxy for the item
+   */
+  makeDnDProxy(block) {
+    const proxy = document.createElement('div');
+    proxy.className = 'InventoryItemProxy';
+    proxy.innerHTML = block.getName();
+    // const svg = this.itemElement.querySelector('svg');
+    // if (svg) {
+    //   const svgClone = svg.cloneNode(true);
+    //   svgClone.removeAttribute('data-reactid');
+    //   proxy.appendChild(svgClone);
+    // }
+    return proxy;
+  }
+
+  onBlockDrag(block, globalPoint) {
+    console.log('Start Drag:', block.getName(), ' Point:', globalPoint.toString());
+    // start DND
+    DnD.startDrag(this.makeDnDProxy(block), globalPoint, {
+      item: block,
+      type: 'block',
+      source: 'inventory',
+    }, {
+      onDrop: (target, position) => {
+        // if (this.props.onDrop) {
+        //   return this.props.onDrop(this.props.item, target, position);
+        // }
+      },
+      onDropFailure: (error, target) => {
+        // this.props.uiSetGrunt(`There was an error creating a block for ${this.props.item.metadata.name}`);
+        // this.props.uiSpin();
+        // if (this.props.onDropFailure) {
+        //   return this.props.onDropFailure(error, target);
+        // }
+      },
+      onDragComplete: (target, position, payload) => {
+        // if (this.props.onDragComplete) {
+        //   this.props.onDragComplete(payload.item, target, position);
+        // }
+      },
+    });
+  }
+
+  /**
    * build a nested set of tree items from the given components array
    * @param components
    */
@@ -110,14 +155,16 @@ export class InventoryProjectTree extends Component {
     (components || []).forEach(blockId => {
       const block = this.props.blocks[blockId] || instanceMap.getBlock(blockId);
       if (block) {
+        const hasSequence = block.sequence && block.sequence.length > 0;
         items.push({
           block,
           text: block.getName(),
           textWidgets: [
-            <BasePairCount count="99999" style={{color: 'gray'}}/>
+            hasSequence ? <BasePairCount count={block.sequence.length} style={{color: 'gray'}}/> : null,
           ],
           onExpand: this.onExpandBlock.bind(this, block),
           items: this.getProjectBlocksRecursive(block.components),
+          startDrag: this.onBlockDrag.bind(this, block),
         })
       }
     });

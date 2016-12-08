@@ -55,7 +55,7 @@ export default class Label extends Component {
     return (
       <div style={this.props.styles} className={labelClasses} onClick={this.onClick}>
         <div className="left">
-          {this.props.text}
+          <span>{this.props.text}</span>
           {this.props.textWidgets}
         </div>
         <div className="right">

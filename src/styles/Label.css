@@ -15,7 +15,11 @@
   align-items: center;
   justify-content: space-between;
   .left {
-    display: inline-block;
+
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+
     .BasePairCount {
       margin-left: 0.25rem;
     }

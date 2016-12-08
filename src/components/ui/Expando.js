@@ -14,9 +14,10 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import Arrow from './Arrow';
 import Label from './Label';
-
+import MouseTrap from '../../containers/graphics/mousetrap';
 
 import '../../styles/Expando.css';
 
@@ -43,6 +44,22 @@ export default class Expando extends Component {
     };
   }
 
+  componentDidMount() {
+    if (this.props.startDrag) {
+      this.mouseTrap = new MouseTrap({
+        element: ReactDOM.findDOMNode(this.refs.label),
+        mouseDrag: (event, localPosition, startPosition, distance) => {
+          // cancel mouse drag and start a drag and drop
+          this.mouseTrap.cancelDrag();
+          // get global point as starting point for drag
+          const globalPoint = this.mouseTrap.mouseToGlobal(event);
+          // callback to owner
+          this.props.startDrag(globalPoint);
+        }
+      });
+    }
+  }
+
   /**
    * toggle the open state and invoke the optional onExpand property.
    */
@@ -66,6 +83,7 @@ export default class Expando extends Component {
           />
 
           <Label
+            ref="label"
             text={this.props.text}
             bold={this.props.bold}
             hover
