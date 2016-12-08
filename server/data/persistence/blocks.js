@@ -29,15 +29,15 @@ export const getAllBlocks = (userId) => {
 export const getAllBlocksWithName = (userId, name) => {
   // block names are the only parameters currently url-encoded
   const encodedName = urlSafeBase64.encode(new Buffer(name, 'utf8'));
-  return dbGet(`/blocks/name/${userId}/${encodedName}`)
+  return dbGet(`blocks/name/${userId}/${encodedName}`)
     .then(reduceToMap);
 };
 
 export const getAllPartsWithRole = (userId, role) => {
-  return dbGet(`/blocks/role/${userId}/${role}`)
+  return dbGet(`blocks/role/${userId}/${role}`)
     .then(reduceToMap);
 };
 
 export const getAllBlockRoles = (userId) => {
-  return dbGet(`/blocks/role/${userId}`);
+  return dbGet(`blocks/role/${userId}`);
 };
