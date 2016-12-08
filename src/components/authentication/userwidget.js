@@ -69,7 +69,7 @@ class UserWidget extends Component {
         action: this.signOut.bind(this),
       },
     ],
-    menuPosition);
+    menuPosition, true);
   };
 
   signOut() {

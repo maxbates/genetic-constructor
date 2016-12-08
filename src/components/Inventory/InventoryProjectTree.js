@@ -17,11 +17,26 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { blockStash } from '../../actions/blocks';
 import InventorySearch from './InventorySearch';
-import { projectList, projectLoad, projectSave, projectOpen } from '../../actions/projects';
+import {
+  projectCreate,
+  projectAddConstruct,
+  projectSave,
+  projectOpen,
+  projectDelete,
+  projectList,
+  projectLoad,
+} from '../../actions/projects';
+import {
+  blockCreate,
+} from '../../actions/blocks';
 import * as instanceMap from '../../store/instanceMap';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
-import { focusForceProject, focusForceBlocks } from '../../actions/focus';
+import {
+  focusForceProject,
+  focusForceBlocks,
+  focusConstruct,
+} from '../../actions/focus';
 import {
   inspectorToggleVisibility,
   inspectorSelectTab,
@@ -36,6 +51,7 @@ export class InventoryProjectTree extends Component {
   static propTypes = {
     currentProject: PropTypes.string,
     projects: PropTypes.object.isRequired,
+    blockCreate: PropTypes.func.isRequired,
     blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
     templates: PropTypes.bool.isRequired,
@@ -43,6 +59,7 @@ export class InventoryProjectTree extends Component {
     projectGet: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
+    focusConstruct: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
     focusForceBlocks: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
@@ -96,8 +113,10 @@ export class InventoryProjectTree extends Component {
    * @param projectId
    */
   onOpenProject(project, evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
+    if (evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    }
     this.props.projectLoad(project.id)
     .then(() => {
       this.props.projectOpen(project.id)
@@ -174,6 +193,36 @@ export class InventoryProjectTree extends Component {
   }
 
   /**
+   * create a new project and navigate to it.
+   */
+  onNewProject = () => {
+    // create project and add a default construct
+    const project = this.props.projectCreate();
+    // add a construct to the new project
+    const block = this.props.blockCreate({ projectId: project.id });
+    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id);
+
+    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
+    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
+    instanceMap.saveRollup({
+      project: projectWithConstruct,
+      blocks: {
+        [block.id]: block,
+      },
+    });
+
+    this.props.focusConstruct(block.id);
+    this.props.projectOpen(project.id);
+  };
+
+  /**
+   * delete the given project
+   * @param project
+   */
+  onDeleteProject = (project) => {
+    this.props.projectDelete(project.id);
+  };
+  /**
    * used want to open the context menu for the project.
    * @param project
    */
@@ -181,12 +230,12 @@ export class InventoryProjectTree extends Component {
     this.props.uiShowMenu([
       {
         text: 'Open Project',
-        action: () => {},
+        action: this.onOpenProject.bind(this, project),
       },
       {},
       {
         text: 'New Project',
-        action: () => { alert('New Project!')}, //this.onNewProject,
+        action: this.onNewProject,
       },
       {},
       {
@@ -199,7 +248,7 @@ export class InventoryProjectTree extends Component {
       },
       {
         text: 'Delete Project',
-        action: () => {},
+        action: this.onDeleteProject.bind(this, project),
       },
     ], {
       x: evt.pageX,
@@ -273,11 +322,16 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
+  blockCreate,
   blockStash,
-  projectList,
-  projectLoad,
+  projectCreate,
+  projectAddConstruct,
   projectSave,
   projectOpen,
+  projectDelete,
+  projectList,
+  projectLoad,
+  focusConstruct,
   focusForceProject,
   focusForceBlocks,
   inspectorToggleVisibility,

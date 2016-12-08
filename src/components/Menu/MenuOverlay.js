@@ -29,6 +29,7 @@ class MenuOverlay extends Component {
     menuPosition: PropTypes.object,
     menuItems: PropTypes.array,
     uiShowMenu: PropTypes.func.isRequired,
+    menuHat: PropTypes.bool,
   };
 
   constructor() {
@@ -114,8 +115,8 @@ class MenuOverlay extends Component {
       return null;
     }
     const pos = this.props.menuPosition;
-    // size and position pointer and menu
-    const psize = 20;
+    // size and position hat and menu
+    const psize = this.props.menuHat ? 20 : 0;
     const pointerPosition = {
       width: psize + 'px',
       height: psize + 'px',
@@ -147,7 +148,10 @@ class MenuOverlay extends Component {
         className="menu-overlay"
         onMouseDown={this.mouseOverlay}
       >
-        <div className="menu-overlay-pointer" style={pointerPosition}></div>
+        {this.props.menuHat
+          ? <div className="menu-overlay-pointer" style={pointerPosition}></div>
+          : null
+        }
         <SubMenu
           menuItems={this.props.menuItems}
           position={menuPosition}
@@ -167,6 +171,7 @@ function mapStateToProps(state) {
   return {
     menuItems: state.ui.modals.menuItems,
     menuPosition: state.ui.modals.menuPosition,
+    menuHat: state.ui.modals.menuHat,
   };
 }
 export default connect(mapStateToProps, {

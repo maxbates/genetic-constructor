@@ -75,8 +75,8 @@ export default function modals(state = initialState, action) {
     return Object.assign({}, state, { gruntMessage });
 
   case ActionTypes.UI_SHOW_MENU :
-    const { menuItems, menuPosition } = action;
-    return Object.assign({}, state, { menuItems, menuPosition });
+    const { menuItems, menuPosition, menuHat } = action;
+    return Object.assign({}, state, { menuItems, menuPosition, menuHat });
 
   case ActionTypes.UI_SPIN:
     const { spinMessage } = action;

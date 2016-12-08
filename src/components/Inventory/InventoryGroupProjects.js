@@ -21,7 +21,6 @@ import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
 import { uiShowMenu } from '../../actions/ui';
 import {
-  projectCreate,
   projectAddConstruct,
   projectSave,
   projectOpen,
@@ -29,9 +28,6 @@ import {
   projectList,
   projectLoad,
 } from '../../actions/projects';
-import {
-  blockCreate,
-} from '../../actions/blocks';
 import * as instanceMap from '../../store/instanceMap';
 import {
   focusConstruct,
@@ -39,9 +35,7 @@ import {
 
 class InventoryGroupProjects extends Component {
   static propTypes = {
-    blockCreate: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
-    projectCreate: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
@@ -69,28 +63,7 @@ class InventoryGroupProjects extends Component {
     this.setState({ groupBy: key });
   };
 
-  /**
-   * create a new project and navigate to it.
-   */
-  onNewProject = () => {
-    // create project and add a default construct
-    const project = this.props.projectCreate();
-    // add a construct to the new project
-    const block = this.props.blockCreate({ projectId: project.id });
-    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id);
 
-    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
-    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
-    instanceMap.saveRollup({
-      project: projectWithConstruct,
-      blocks: {
-        [block.id]: block,
-      },
-    });
-
-    this.props.focusConstruct(block.id);
-    this.props.projectOpen(project.id);
-  };
 
   /**
    * run context menu wherever the user clicked in the panel
@@ -154,10 +127,8 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   uiShowMenu,
-  blockCreate,
   focusConstruct,
   projectAddConstruct,
-  projectCreate,
   projectSave,
   projectOpen,
   projectDelete,

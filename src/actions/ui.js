@@ -233,12 +233,13 @@ export const uiSetGrunt = (gruntMessage) => {
   };
 };
 
-export const uiShowMenu = (menuItems, menuPosition) => {
+export const uiShowMenu = (menuItems, menuPosition, menuHat) => {
   return (dispatch, getState) => {
     dispatch({
       type: ActionTypes.UI_SHOW_MENU,
       menuItems,
       menuPosition,
+      menuHat,
     });
     return {menuItems, menuPosition};
   };
