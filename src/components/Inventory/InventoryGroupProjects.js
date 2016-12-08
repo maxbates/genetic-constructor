@@ -19,7 +19,6 @@ import InventoryProjectList from './InventoryProjectList';
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
-import { uiShowMenu } from '../../actions/ui';
 import {
   projectAddConstruct,
   projectSave,
@@ -43,7 +42,6 @@ class InventoryGroupProjects extends Component {
     projectLoad: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string,
     templates: PropTypes.bool.isRequired,
-    uiShowMenu: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -61,43 +59,6 @@ class InventoryGroupProjects extends Component {
 
   onTabSelect = (key) => {
     this.setState({ groupBy: key });
-  };
-
-
-
-  /**
-   * run context menu wherever the user clicked in the panel
-   * @param evt
-   */
-  onContextMenu = (evt) => {
-    evt.preventDefault();
-    this.props.uiShowMenu([
-      {
-        text: 'Open Project',
-        action: () => {},
-      },
-      {},
-      {
-        text: 'New Project',
-        action: this.onNewProject,
-      },
-      {},
-      {
-        text: 'Download Project',
-        action: () => {},
-      },
-      {
-        text: 'Duplicate Project',
-        action: () => {},
-      },
-      {
-        text: 'Delete Project',
-        action: () => {},
-      },
-    ], {
-      x: evt.pageX,
-      y: evt.pageY,
-    })
   };
 
   render() {
@@ -125,7 +86,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  uiShowMenu,
   focusConstruct,
   projectAddConstruct,
   projectSave,

@@ -240,10 +240,12 @@ export class InventoryProjectTree extends Component {
       {},
       {
         text: 'Download Project',
+        disabled: true,
         action: () => {},
       },
       {
         text: 'Duplicate Project',
+        disabled: true,
         action: () => {},
       },
       {

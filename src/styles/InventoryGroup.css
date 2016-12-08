@@ -13,6 +13,9 @@
     font-weight: 100;
     user-select: none;
     cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   &-content {

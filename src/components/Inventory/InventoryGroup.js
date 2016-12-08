@@ -19,6 +19,7 @@ import InventoryGroupRole from './InventoryGroupRole';
 import InventoryGroupBlocks from './InventoryGroupBlocks';
 import InventoryGroupSearch from './InventoryGroupSearch';
 import InventoryGroupProjects from './InventoryGroupProjects';
+import InventoryProjectHeader from './InventoryProjectHeader';
 
 import '../../styles/InventoryGroup.css';
 
@@ -31,6 +32,25 @@ export default class InventoryGroup extends Component {
     currentProjectId: PropTypes.string,
   };
 
+  /**
+   * returns the current componengt
+   */
+  inventoryGroupTypeToHeaderComponent = (type, props) => {
+    switch (type) {
+
+    case 'projects':
+      return (<InventoryProjectHeader {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
+    case 'templates':
+      return (<InventoryProjectHeader {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
+
+    default:
+      return null;
+    }
+  };
+
+  /**
+   * return component for header area
+   */
   inventoryGroupTypeToComponent = (type, props) => {
     switch (type) {
     case 'role' :
@@ -56,6 +76,7 @@ export default class InventoryGroup extends Component {
     const { actions, ...rest } = this.props;
     const { title, type } = this.props.tabInfo;
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
+    const currentHeaderComponent = this.inventoryGroupTypeToHeaderComponent(type, rest);
 
     //todo - define object model (from inventory.sections) + show these
     const actionButtons = !actions ? null : actions.map((action, index) => <div key={index}></div>);
@@ -64,9 +85,7 @@ export default class InventoryGroup extends Component {
       <div className={'InventoryGroup'}>
         <div className="InventoryGroup-heading">
           <span className="InventoryGroup-title">{title}</span>
-          <div className="InventoryGroup-actions">
-            {actionButtons}
-          </div>
+          {currentHeaderComponent}
         </div>
         {currentGroupComponent}
       </div>
