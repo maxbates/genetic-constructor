@@ -76,8 +76,12 @@
 }
 
 .label-hover-bright {
+  padding: 3px;
+  border-radius: 3px;
+
   &:hover {
     filter: brightness(1000%);
+    background-color: rgba(255, 255, 255, 0.25);
   }
 }
 
