@@ -13,7 +13,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import invariant from 'invariant';
 import { STORAGE_URL } from '../../urlConstants';
 import { errorDoesNotExist, errorNoPermission } from '../../utils/errors';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
