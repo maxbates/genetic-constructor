@@ -31,6 +31,7 @@ export default class Expando extends Component {
     headerWidgets: PropTypes.array,
     bold: PropTypes.bool,
     onExpand: PropTypes.func,
+    onContextMenu: PropTypes.func,
   };
 
   static defaultProps = {
@@ -74,14 +75,22 @@ export default class Expando extends Component {
   render() {
     const showArrow = this.props.content || this.props.showArrowWhenEmpty;
     return (
-      <div className="expando" data-expando={this.props.text}>
+      <div
+        className="expando" data-expando={this.props.text}
+        onContextMenu={(evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          if (this.props.onContextMenu) {
+            this.props.onContextMenu(evt);
+          }
+        }}
+      >
         <div className="header">
           <Arrow
             direction={this.state.open ? 'down' : 'right'}
             onClick={this.onToggle}
             hidden={!showArrow}
           />
-
           <Label
             ref="label"
             text={this.props.text}

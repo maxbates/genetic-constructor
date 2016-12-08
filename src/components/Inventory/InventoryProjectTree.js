@@ -28,6 +28,7 @@ import {
 } from '../../actions/ui';
 import BasePairCount from '../ui/BasePairCount';
 import DnD from '../../containers/graphics/dnd/dnd';
+import { uiShowMenu } from '../../actions/ui';
 
 import '../../styles/InventoryProjectTree.css';
 
@@ -46,6 +47,7 @@ export class InventoryProjectTree extends Component {
     focusForceBlocks: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
     inspectorSelectTab: PropTypes.func.isRequired,
+    uiShowMenu: PropTypes.func.isRequired,
   };
 
   state = {
@@ -171,6 +173,40 @@ export class InventoryProjectTree extends Component {
     return items;
   }
 
+  /**
+   * used want to open the context menu for the project.
+   * @param project
+   */
+  onProjectContextMenu = (project, evt) => {
+    this.props.uiShowMenu([
+      {
+        text: 'Open Project',
+        action: () => {},
+      },
+      {},
+      {
+        text: 'New Project',
+        action: () => { alert('New Project!')}, //this.onNewProject,
+      },
+      {},
+      {
+        text: 'Download Project',
+        action: () => {},
+      },
+      {
+        text: 'Duplicate Project',
+        action: () => {},
+      },
+      {
+        text: 'Delete Project',
+        action: () => {},
+      },
+    ], {
+      x: evt.pageX,
+      y: evt.pageY,
+    });
+  };
+
   render() {
     const { projects, currentProject } = this.props;
     const { isLoading } = this.state;
@@ -201,6 +237,7 @@ export class InventoryProjectTree extends Component {
         bold: true,
         selected: project.id === currentProject,
         onExpand: this.onExpandProject.bind(this, project),
+        onContextMenu: this.onProjectContextMenu.bind(this, project),
         items: this.getProjectBlocksRecursive(project.components),
         labelWidgets: [
           <img
@@ -245,4 +282,5 @@ export default connect(mapStateToProps, {
   focusForceBlocks,
   inspectorToggleVisibility,
   inspectorSelectTab,
+  uiShowMenu,
 })(InventoryProjectTree);

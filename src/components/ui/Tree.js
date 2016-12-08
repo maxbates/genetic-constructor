@@ -61,6 +61,7 @@ export default class Tree extends Component {
                 textWidgets={item.textWidgets}
                 bold={item.bold}
                 labelWidgets={item.labelWidgets}
+                onContextMenu={item.onContextMenu}
                 startDrag={item.startDrag}
                 selected={item.selected}
                 content={item.items && item.items.length

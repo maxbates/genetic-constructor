@@ -45,6 +45,9 @@ class App extends Component {
     document.addEventListener('keydown', this.rejectBackspace);
     document.addEventListener('keypress', this.rejectBackspace);
 
+    // disable context menus since the app generates it own
+    document.addEventListener('contextmenu', this.rejectContextMenu);
+
     // in production, track top level, unhandled exceptions in the app
     // not in production, ignore this so we dont garble the callstack
     if (process.env.NODE_ENV === 'production') {
@@ -74,6 +77,20 @@ class App extends Component {
       if (!rx.test(evt.target.tagName) || evt.target.disabled || evt.target.readOnly) {
         evt.preventDefault();
       }
+    }
+  }
+
+  /**
+   * only allow the default context menu on text edit components
+   * @param evt
+   */
+  rejectContextMenu(evt) {
+    const rx = /INPUT|SELECT|TEXTAREA/i;
+    if (evt.target.hasAttribute('contenteditable')) {
+      return;
+    }
+    if (!rx.test(evt.target.tagName)) {
+      evt.preventDefault();
     }
   }
 

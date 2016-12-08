@@ -136,9 +136,7 @@ class InventoryGroupProjects extends Component {
       : <InventoryProjectTree currentProject={currentProject} templates={this.props.templates}/>;
 
     return (
-      <div
-        className="InventoryGroup-content InventoryGroupProjects"
-        onContextMenu={this.onContextMenu}>
+      <div className="InventoryGroup-content InventoryGroupProjects">
         <InventoryTabs tabs={this.inventoryTabs}
                        activeTabKey={groupBy}
                        onTabSelect={(tab) => this.onTabSelect(tab.key)}/>
