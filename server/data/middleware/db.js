@@ -20,7 +20,7 @@ import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import * as headers from '../../../src/middleware/utils/headers';
 
 const makePath = path => {
-  if (path[0] !== '/') {
+  if (path[0] === '/') {
     console.warn('makePath: first character should not be a slash, got ' + path);
     return STORAGE_URL + path;
   }
