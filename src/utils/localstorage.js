@@ -17,7 +17,7 @@
 const getPrefix = () => constructor.store.getState().user.userid;
 const getKey = (key) => {
   const prefix = getPrefix();
-  return prefix ? key : `${prefix}_${key}`;
+  return prefix ? `${prefix}_${key}` : key;
 };
 
 /**
