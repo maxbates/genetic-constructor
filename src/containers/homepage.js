@@ -28,7 +28,7 @@ import {
 import {
   getLocal,
   setLocal,
-} from '../utils/ui/localstorage';
+} from '../utils/localstorage';
 
 
 export class HomePage extends Component {

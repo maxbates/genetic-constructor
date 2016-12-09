@@ -15,7 +15,7 @@
  */
 import * as ActionTypes from '../constants/ActionTypes';
 import { getSources } from '../inventory/registry';
-import { getLocal, setLocal } from '../utils/ui/localstorage';
+import { getLocal, setLocal } from '../utils/localstorage';
 
 /*
  Search results take the form:
