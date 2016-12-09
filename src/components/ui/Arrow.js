@@ -21,7 +21,7 @@ export default class Switch extends Component {
   static propTypes = {
     // ['up', 'down', 'left', 'right']
     direction: PropTypes.string.isRequired,
-    disabled: PropTypes.bool.isRequired,
+    disabled: PropTypes.bool,
     onClick: PropTypes.func,
     hidden: PropTypes.bool,
   };

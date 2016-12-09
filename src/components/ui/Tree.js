@@ -51,7 +51,7 @@ export default class Tree extends Component {
       <div className="tree">
         {(this.props.items || []).map((item, index) => {
           return (
-            <div style={{paddingLeft: this.props.depth ? '12px' : '0'}}>
+            <div key={index} style={{paddingLeft: this.props.depth ? '12px' : '0'}}>
               <Expando
                 showArrowWhenEmpty={this.props.depth === 0}
                 onExpand={this.onExpandBranch.bind(this, item)}

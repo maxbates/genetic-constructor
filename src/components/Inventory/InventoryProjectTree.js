@@ -63,7 +63,6 @@ export class InventoryProjectTree extends Component {
     projectAddConstruct: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
-    projectGet: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
@@ -74,7 +73,7 @@ export class InventoryProjectTree extends Component {
     uiShowMenu: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowOkCancel: PropTypes.func.isRequired,
-    blocks: PropTypes.array.isRequired,
+    blocks: PropTypes.object.isRequired,
   };
 
   state = {
@@ -174,7 +173,7 @@ export class InventoryProjectTree extends Component {
           block,
           text: block.getName(),
           textWidgets: [
-            hasSequence ? <BasePairCount count={block.sequence.length} style={{color: 'gray'}}/> : null,
+            hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{color: 'gray'}}/> : null,
           ],
           onExpand: this.onExpandBlock.bind(this, block),
           items: this.getProjectBlocksRecursive(block.components),
@@ -316,6 +315,7 @@ export class InventoryProjectTree extends Component {
         items: this.getProjectBlocksRecursive(project.components),
         labelWidgets: [
           <img
+            key="open"
             src="/images/ui/open.svg"
             onClick={this.onOpenProject.bind(this, project)}
             className="label-hover-bright"

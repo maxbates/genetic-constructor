@@ -30,7 +30,7 @@ class InspectorGroupOrders extends Component {
   static propTypes = {
     uiSetGrunt: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
-    orderList: PropTypes.array.isRequired,
+    orderList: PropTypes.func.isRequired,
     uiShowOrderForm: PropTypes.func.isRequired,
   };
 

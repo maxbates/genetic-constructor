@@ -25,7 +25,7 @@ export default class Expando extends Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
     selected: PropTypes.bool,
-    content: PropTypes.object.isRequired,
+    content: PropTypes.object,
     textWidgets: PropTypes.array,
     labelWidgets: PropTypes.array,
     headerWidgets: PropTypes.array,

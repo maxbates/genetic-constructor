@@ -27,13 +27,12 @@ import '../styles/ok-cancel-form.css';
  */
 class OkCancel extends Component {
   static propTypes = {
-    open: PropTypes.bool.isRequired,
-    title: PropTypes.string.isRequired,
-    message: PropTypes.node.isRequired,
+    title: PropTypes.string,
+    message: PropTypes.string,
     okText: PropTypes.string,
     cancelText: PropTypes.string,
-    onOk: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
+    onOk: PropTypes.func,
+    onCancel: PropTypes.func,
   };
 
   render() {
