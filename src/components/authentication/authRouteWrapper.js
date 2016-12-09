@@ -29,11 +29,10 @@ class AuthRouteWrapper extends Component {
       return React.Children.only(this.props.children);
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      this.props.router.push('/homepage');
-      //console.log('no user for RouteWrapper');
-    }
+    //redirect them to the homepage
+    this.props.router.push('/homepage');
 
+    //empty component until redirected
     return null;
   }
 }

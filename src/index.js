@@ -16,7 +16,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import reduxRouter from './routes/reduxRouter';
+import routes from './routes';
 import * as actionTypes from './constants/ActionTypes';
 import store, { lastAction } from './store/index';
 import orchestrator from './store/api';
@@ -25,7 +25,7 @@ import DnD from './containers/graphics/dnd/dnd';
 
 render(
   <Provider store={store}>
-    {reduxRouter}
+    {routes}
   </Provider>,
   document.getElementById('root')
 );
