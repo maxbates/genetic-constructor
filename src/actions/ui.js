@@ -245,6 +245,21 @@ export const uiShowMenu = (menuItems, menuPosition, menuHat) => {
   };
 };
 
+export const uiShowOkCancel = (title, message, onOk, onCancel = null, okText = 'Ok', cancelText = 'Cancel') => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: ActionTypes.UI_OK_CANCEL,
+      title,
+      message,
+      onOk,
+      onCancel,
+      okText,
+      cancelText,
+    });
+    return title;
+  };
+};
+
 export const uiSpin = (spinMessage = '') => {
   return (dispatch, getState) => {
     dispatch({

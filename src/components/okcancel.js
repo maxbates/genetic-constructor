@@ -14,38 +14,37 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 import ModalWindow from './modal/modalwindow';
+import {
+  uiShowOkCancel,
+} from '../actions/ui';
 
 import '../styles/ok-cancel-form.css';
 
 /**
- * Genbank import dialog.
+ * generic ok/cancel dialog, available via uiShowOkCancel action
  */
-export default class OkCancel extends Component {
+class OkCancel extends Component {
   static propTypes = {
     open: PropTypes.bool.isRequired,
-    titleText: PropTypes.string.isRequired,
-    messageHTML: PropTypes.node.isRequired,
+    title: PropTypes.string.isRequired,
+    messagL: PropTypes.node.isRequired,
     okText: PropTypes.string,
     cancelText: PropTypes.string,
-    ok: PropTypes.func.isRequired,
-    cancel: PropTypes.func.isRequired,
-  };
-
-  static defaultProps = {
-    okText: 'ok',
-    cancelText: 'cancel',
+    onOk: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
   };
 
   render() {
-    if (!this.props.open) {
+    if (!this.props.title) {
       return null;
     }
     return (
       <div>
         <ModalWindow
-          open
-          title={this.props.titleText}
+          open={!!this.props.title}
+          title={this.props.title}
           payload={(
             <form
               className="gd-form ok-cancel-form"
@@ -54,18 +53,24 @@ export default class OkCancel extends Component {
                 this.props.ok();
               }}
             >
-              <div className="title">{this.props.titleText}</div>
-              {this.props.messageHTML}
+              <div className="title">{this.props.title}</div>
+              <div className="message">{this.props.message}</div>
+              <br/>
               <button
                 type="submit"
                 onClick={(evt) => {
                   evt.preventDefault();
-                  this.props.ok();
+                  this.props.onOk();
                 }}
               >{this.props.okText}</button>
               <button
                 type="button"
-                onClick={this.props.cancel}
+                onClick={(evt) => {
+                  evt.preventDefault();
+                  if (this.props.onCancel) {
+                    this.props.onCancel();
+                  }
+                }}
               >{this.props.cancelText}
               </button>
             </form>
@@ -80,3 +85,19 @@ export default class OkCancel extends Component {
     );
   }
 }
+
+function mapStateToProps(state, props) {
+  return {
+    title: state.ui.modals.title,
+    message: state.ui.modals.message,
+    onOk: state.ui.modals.onOk,
+    onCancel: state.ui.modals.onCancel,
+    okText: state.ui.modals.okText,
+    cancelText: state.ui.modals.cancelText,
+  };
+}
+
+export default connect(mapStateToProps, {
+  uiShowOkCancel,
+})(OkCancel);
+

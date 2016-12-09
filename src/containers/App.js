@@ -22,6 +22,7 @@ import ModalSpinner from '../components/modal/modalspinner';
 import InlineEditor from '../components/inline-editor/inline-editor';
 import MenuOverlay from '../components/Menu/MenuOverlay';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
+import OkCancel from '../components/okcancel';
 import track from '../analytics/ga';
 
 import '../styles/App.css';
@@ -105,6 +106,7 @@ class App extends Component {
         <AuthenticationForms />
         <AboutForm />
         <ReportErrorModal />
+        <OkCancel />
         <div className="App-pageContent">
           {this.props.children}
         </div>

@@ -110,6 +110,7 @@ export const UI_SHOW_ORDER_FORM = 'UI_SHOW_ORDER_FORM';
 export const UI_SHOW_ABOUT = 'UI_SHOW_ABOUT';
 export const UI_SET_GRUNT = 'UI_SET_GRUNT';
 export const UI_SHOW_MENU = 'UI_SHOW_MENU';
+export const UI_OK_CANCEL = 'UI_OK_CANCEL';
 export const UI_SPIN = 'UI_SPIN';
 export const UI_INLINE_EDITOR = 'UI_INLINE_EDITOR';
 export const UI_SHOW_GENBANK_IMPORT = 'UI_SHOW_GENBANK_IMPORT';

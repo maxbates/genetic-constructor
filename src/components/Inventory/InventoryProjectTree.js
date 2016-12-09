@@ -43,7 +43,12 @@ import {
 } from '../../actions/ui';
 import BasePairCount from '../ui/BasePairCount';
 import DnD from '../../containers/graphics/dnd/dnd';
-import { uiShowMenu } from '../../actions/ui';
+import { 
+  uiShowMenu,
+  uiShowOkCancel,
+  uiSetGrunt,
+} from '../../actions/ui';
+import OkCancel from '../../components/okcancel';
 
 import '../../styles/InventoryProjectTree.css';
 
@@ -65,6 +70,8 @@ export class InventoryProjectTree extends Component {
     inspectorToggleVisibility: PropTypes.func.isRequired,
     inspectorSelectTab: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
+    uiSetGrunt: PropTypes.func.isRequired,
+    uiShowOkCancel: PropTypes.func.isRequired,
   };
 
   state = {
@@ -220,8 +227,37 @@ export class InventoryProjectTree extends Component {
    * @param project
    */
   onDeleteProject = (project) => {
-    this.props.projectDelete(project.id);
+    this.props.uiShowOkCancel(
+      'Delete Project',
+      `${project.getName() || 'Your project'}\nand all related project data will be permanently deleted.\nThis action cannot be undone.`,
+      () => {
+        this.props.uiShowOkCancel();
+        this.deleteProject(project);
+      },
+      () => {
+        this.props.uiShowOkCancel();
+      },
+      'Delete Project',
+      'Cancel'
+    );
   };
+
+  /**
+   * perform the actual deletion.
+   */
+  deleteProject(project) {
+    if (project.isSample) {
+      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
+    } else {
+      //load another project, avoiding this one
+      this.props.projectLoad(null, false, [project.id])
+      //open the new project, skip saving the previous one
+      .then(openProject => this.props.projectOpen(openProject.id, true))
+      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+      .then(() => this.props.projectDelete(project.id));
+    }
+  };
+
   /**
    * used want to open the context menu for the project.
    * @param project
@@ -339,4 +375,6 @@ export default connect(mapStateToProps, {
   inspectorToggleVisibility,
   inspectorSelectTab,
   uiShowMenu,
+  uiShowOkCancel,
+  uiSetGrunt,
 })(InventoryProjectTree);
