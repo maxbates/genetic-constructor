@@ -43,12 +43,11 @@ import {
 } from '../../actions/ui';
 import BasePairCount from '../ui/BasePairCount';
 import DnD from '../../containers/graphics/dnd/dnd';
-import { 
+import {
   uiShowMenu,
   uiShowOkCancel,
   uiSetGrunt,
 } from '../../actions/ui';
-import OkCancel from '../../components/okcancel';
 
 import '../../styles/InventoryProjectTree.css';
 
@@ -60,6 +59,9 @@ export class InventoryProjectTree extends Component {
     blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
     templates: PropTypes.bool.isRequired,
+    projectCreate: PropTypes.func.isRequired,
+    projectAddConstruct: PropTypes.func.isRequired,
+    projectDelete: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectGet: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
@@ -72,6 +74,7 @@ export class InventoryProjectTree extends Component {
     uiShowMenu: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowOkCancel: PropTypes.func.isRequired,
+    blocks: PropTypes.array.isRequired,
   };
 
   state = {
@@ -84,8 +87,6 @@ export class InventoryProjectTree extends Component {
     this.props.projectList()
     .then(() => this.setState({ isLoading: false }));
   }
-
-  static filter = '';
 
   handleFilterChange = (filter) => {
     InventoryProjectTree.filter = filter;
@@ -126,7 +127,7 @@ export class InventoryProjectTree extends Component {
     }
     this.props.projectLoad(project.id)
     .then(() => {
-      this.props.projectOpen(project.id)
+      this.props.projectOpen(project.id);
     });
   }
 
@@ -146,31 +147,16 @@ export class InventoryProjectTree extends Component {
     return proxy;
   }
 
+  /**
+   * block dragged from project inventory
+   * @param block
+   * @param globalPoint
+   */
   onBlockDrag(block, globalPoint) {
-    console.log('Start Drag:', block.getName(), ' Point:', globalPoint.toString());
-    // start DND
     DnD.startDrag(this.makeDnDProxy(block), globalPoint, {
       item: block,
       type: 'block',
       source: 'inventory',
-    }, {
-      onDrop: (target, position) => {
-        // if (this.props.onDrop) {
-        //   return this.props.onDrop(this.props.item, target, position);
-        // }
-      },
-      onDropFailure: (error, target) => {
-        // this.props.uiSetGrunt(`There was an error creating a block for ${this.props.item.metadata.name}`);
-        // this.props.uiSpin();
-        // if (this.props.onDropFailure) {
-        //   return this.props.onDropFailure(error, target);
-        // }
-      },
-      onDragComplete: (target, position, payload) => {
-        // if (this.props.onDragComplete) {
-        //   this.props.onDragComplete(payload.item, target, position);
-        // }
-      },
     });
   }
 
@@ -193,11 +179,13 @@ export class InventoryProjectTree extends Component {
           onExpand: this.onExpandBlock.bind(this, block),
           items: this.getProjectBlocksRecursive(block.components),
           startDrag: this.onBlockDrag.bind(this, block),
-        })
+        });
       }
     });
     return items;
   }
+
+  static filter = '';
 
   /**
    * create a new project and navigate to it.
@@ -256,7 +244,7 @@ export class InventoryProjectTree extends Component {
       //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
       .then(() => this.props.projectDelete(project.id));
     }
-  };
+  }
 
   /**
    * used want to open the context menu for the project.
@@ -331,10 +319,9 @@ export class InventoryProjectTree extends Component {
             src="/images/ui/open.svg"
             onClick={this.onOpenProject.bind(this, project)}
             className="label-hover-bright"
-          />
-
-        ]
-      }
+          />,
+        ],
+      };
     });
 
     return (

@@ -35,7 +35,14 @@ import '../../styles/InventoryProjectHeader.css';
 
 class InventoryProjectHeader extends Component {
   static propTypes = {
-
+    blockCreate: PropTypes.func.isRequired,
+    projectCreate: PropTypes.func.isRequired,
+    projectOpen: PropTypes.func.isRequired,
+    projectSave: PropTypes.func.isRequired,
+    projectAddConstruct: PropTypes.func.isRequired,
+    focusConstruct: PropTypes.func.isRequired,
+    uiShowGenBankImport: PropTypes.func.isRequired,
+    currentProjectId: PropTypes.string.isRequired,
   };
 
   onAddNewProject = () => {

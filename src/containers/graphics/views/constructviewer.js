@@ -434,53 +434,6 @@ export class ConstructViewer extends Component {
         },
       },
       ...authoringListItems,
-      {
-        text: "Sub Menu",
-        menuItems: [
-          {
-            text: "Menu Item 1",
-            menuItems: [
-              {
-                text: "Menu Item 1",
-              },
-              {
-                text: "Menu Item 2",
-              },
-              {
-                text: "Menu Item 3",
-              }
-            ]
-          },
-          {
-            text: "Menu Item 2",
-            menuItems: [
-              {
-                text: "Menu Item 1",
-              },
-              {
-                text: "Menu Item 2",
-              },
-              {
-                text: "Menu Item 3",
-              }
-            ]
-          },
-          {
-            text: "Menu Item 3",
-            menuItems: [
-              {
-                text: "Menu Item 1",
-              },
-              {
-                text: "Menu Item 2",
-              },
-              {
-                text: "Menu Item 3",
-              }
-            ]
-          }
-        ]
-      }
     ];
   };
 

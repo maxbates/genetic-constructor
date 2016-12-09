@@ -32,6 +32,8 @@ export default class Expando extends Component {
     bold: PropTypes.bool,
     onExpand: PropTypes.func,
     onContextMenu: PropTypes.func,
+    startDrag: PropTypes.func,
+    showArrowWhenEmpty: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -56,7 +58,7 @@ export default class Expando extends Component {
           const globalPoint = this.mouseTrap.mouseToGlobal(event);
           // callback to owner
           this.props.startDrag(globalPoint);
-        }
+        },
       });
     }
   }

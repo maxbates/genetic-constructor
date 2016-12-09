@@ -73,14 +73,10 @@ export default class InventoryGroup extends Component {
   };
 
   render() {
-    const { actions, ...rest } = this.props;
+    const { ...rest } = this.props;
     const { title, type } = this.props.tabInfo;
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
     const currentHeaderComponent = this.inventoryGroupTypeToHeaderComponent(type, rest);
-
-    //todo - define object model (from inventory.sections) + show these
-    const actionButtons = !actions ? null : actions.map((action, index) => <div key={index}></div>);
-
     return (
       <div className={'InventoryGroup'}>
         <div className="InventoryGroup-heading">

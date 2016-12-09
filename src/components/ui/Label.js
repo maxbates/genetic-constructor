@@ -26,6 +26,8 @@ export default class Label extends Component {
     text: PropTypes.string.isRequired,
     styles: PropTypes.object,
     selected: PropTypes.bool,
+    textWidgets: PropTypes.array,
+    widgets: PropTypes.array,
   };
 
   onClick = (evt) => {

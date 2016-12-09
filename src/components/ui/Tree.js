@@ -14,8 +14,6 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import Arrow from './Arrow';
-import Label from './Label';
 import Expando from './Expando';
 
 import '../../styles/Tree.css';
@@ -23,7 +21,8 @@ import '../../styles/Tree.css';
 
 export default class Tree extends Component {
   static propTypes = {
-
+    items: PropTypes.array,
+    depth: PropTypes.number.isRequired,
   };
 
   static defaultProps = {

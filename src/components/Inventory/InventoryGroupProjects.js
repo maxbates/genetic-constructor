@@ -15,7 +15,6 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import InventoryProjectList from './InventoryProjectList';
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
@@ -27,7 +26,6 @@ import {
   projectList,
   projectLoad,
 } from '../../actions/projects';
-import * as instanceMap from '../../store/instanceMap';
 import {
   focusConstruct,
 } from '../../actions/focus';

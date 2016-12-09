@@ -29,7 +29,7 @@ class OkCancel extends Component {
   static propTypes = {
     open: PropTypes.bool.isRequired,
     title: PropTypes.string.isRequired,
-    messagL: PropTypes.node.isRequired,
+    message: PropTypes.node.isRequired,
     okText: PropTypes.string,
     cancelText: PropTypes.string,
     onOk: PropTypes.func.isRequired,
@@ -50,19 +50,13 @@ class OkCancel extends Component {
               className="gd-form ok-cancel-form"
               onSubmit={(evt) => {
                 evt.preventDefault();
-                this.props.ok();
+                this.props.onOk();
               }}
             >
               <div className="title">{this.props.title}</div>
               <div className="message">{this.props.message}</div>
               <br/>
-              <button
-                type="submit"
-                onClick={(evt) => {
-                  evt.preventDefault();
-                  this.props.onOk();
-                }}
-              >{this.props.okText}</button>
+              <button type="submit">{this.props.okText}</button>
               <button
                 type="button"
                 onClick={(evt) => {
