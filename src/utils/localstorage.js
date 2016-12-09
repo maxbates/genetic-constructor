@@ -14,6 +14,12 @@
  limitations under the License.
  */
 
+const getPrefix = () => constructor.store.getState().user.userid;
+const getKey = (key) => {
+  const prefix = getPrefix();
+  return prefix ? key : `${prefix}_${key}`;
+};
+
 /**
  * get the object with the given key. If the key is not present
  * return the defaultObject.
@@ -22,7 +28,7 @@
 export function getLocal(key, defaultObject) {
   // many things could go wrong here, no localStorage, unserializable object etc.
   try {
-    let item = localStorage.getItem(key);
+    let item = localStorage.getItem(getKey(key));
     if (item) {
       item = JSON.parse(item);
     }
@@ -45,7 +51,7 @@ export function getLocal(key, defaultObject) {
  */
 export function setLocal(key, value) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(getKey(key), JSON.stringify(value));
   } catch (error) {
     console.error('Error setting localStorage item:', key);//eslint-disable-line no-console
   }
