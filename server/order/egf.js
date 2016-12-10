@@ -65,14 +65,14 @@ export const submit = (order, user, constructList, rollup) => {
     const payload = createOrderPayload(order, user, constructList, rollup);
     stringified = JSON.stringify(payload);
   } catch (err) {
-    console.log('[Order] error generating payload');
+    console.log('[EGF Order] error generating payload');
     return Promise.reject(err);
   }
 
   return fetch(url, createPostBody(stringified))
     .then(response => {
       if (!response.ok) {
-        console.log('[Order] There was an error submitting to egf');
+        console.log('[EGF Order] There was an error submitting to egf');
 
         const clone = response.clone();
         return clone.text().then(text => {
@@ -82,7 +82,7 @@ export const submit = (order, user, constructList, rollup) => {
       }
 
       return response.json().then(json => {
-        console.log('got response from EGF:');
+        console.log('[EGF Order] got response from EGF:');
         console.log(json);
 
         return Promise.resolve({
@@ -104,7 +104,7 @@ export const validate = (order, user, constructList, rollup) => {
 
     stringified = JSON.stringify(payload);
   } catch (err) {
-    console.log('[Order] error generating payload');
+    console.log('[EGF Order] error generating payload');
     return Promise.reject(err);
   }
 

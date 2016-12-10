@@ -17,8 +17,11 @@
 import invariant from 'invariant';
 import Order from '../../src/models/Order';
 import Rollup from '../../src/models/Rollup';
+import debug from 'debug';
 
 //test ordering module, which resolves when the order, user, constructList, blockMap are valid
+
+const log = debug('constructor:order');
 
 const runChecks = (order, user, constructList, rollup) => {
   Order.validateSetup(order, true);
@@ -38,7 +41,8 @@ export const submit = (order, user, constructList, rollup) => {
   try {
     runChecks(order, user, constructList, rollup);
   } catch (err) {
-    console.log('got error submitting order', err);
+    log('[test.submit()] Error submitting order:');
+    log(err);
     return Promise.reject(err);
   }
 
@@ -52,7 +56,8 @@ export const validate = (order, user, constructList, rollup) => {
   try {
     runChecks(order, user, constructList, rollup);
   } catch (err) {
-    console.log('got error validating order', err);
+    log('[test.validate()] Error validating order:');
+    log(err);
     return Promise.reject(err);
   }
 
