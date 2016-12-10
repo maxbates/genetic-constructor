@@ -42,7 +42,7 @@ function runServer(cb) {
   }
 
   if (server) {
-    console.log(colors.bgYellow('server exists, killing...'));
+    console.log(colors.blue('Restarting server...'));
     server.kill('SIGTERM');
   }
 

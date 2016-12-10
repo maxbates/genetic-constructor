@@ -6,7 +6,7 @@ import run from './run';
 import runServer from './runServer';
 import { clientConfig } from './webpack.config';
 import setup from './setup';
-import colors from 'colors';
+import colors from 'colors/safe';
 //import bundleServer from './bundleServer';
 import { debounce } from 'lodash';
 
@@ -15,7 +15,7 @@ const DEBUG = !process.argv.includes('--release');
 async function start() {
   await run(setup);
 
-  console.log('Bundling application with Webpack (this may take a moment)...');
+  console.log(colors.blue('Bundling application with Webpack (this may take a moment)...'));
 
   //await run(bundleServer);
 
@@ -86,8 +86,10 @@ async function start() {
     //use browsersync and its proxy so that we dont need to explicitly include it in server code, only when debugging...
     //also allows us to watch static assets
     let handleServerBundleComplete = () => {
-      console.log(colors.green('webpack initial build complete'));
-      console.log(colors.green('Starting Browser-Sync proxy & injecting Webpack middleware'));
+      console.log('webpack initial build complete');
+      console.log('Starting Browser-Sync proxy & injecting Webpack middleware...');
+
+      console.log(colors.blue('Starting server...'));
 
       runServer((err, host) => {
         if (!err) {
@@ -168,7 +170,10 @@ async function start() {
     // middleware will initiate the build for us, we dont need to explicit run()
     // if we do, might call handleServerBundleComplete twice (because two calls before browsersync set up)
 
-    clientCompiler.plugin('failed', (err) => console.warn(err));
+    clientCompiler.plugin('failed', (err) => {
+      console.log(colors.bgRed('Error creating webpack bundle!'));
+      throw err;
+    });
     clientCompiler.plugin('done', () => handleServerBundleComplete());
 
     /*
