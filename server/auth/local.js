@@ -216,3 +216,30 @@ router.get('/cookies', (req, res) => {
 
   res.send(':(');
 });
+
+const listeners = [];
+
+//assign the user to the request, including their config
+export const mockUser = (req, res, next) => {
+  if (requireLogin !== true || req.cookies.sess === currentCookie) {
+    Object.assign(req, { user: defaultUser });
+
+    if (listeners.length > 0) {
+      log('mockUser() clearing listeners...');
+      return Promise.all(listeners.map(listener => listener()))
+        .then(() => {
+          listeners.length = 0;
+          next();
+        });
+    }
+
+    next();
+  } else {
+    next();
+  }
+};
+
+//can't call userSetup immediately, need to wait until server has started, so cue it for first request
+export const prepareUserSetup = () => {
+  listeners.push(ensureUserSetup);
+};

@@ -15,17 +15,20 @@
  */
 import colors from 'colors/safe';
 import { exec, spawn } from 'child_process';
+import debug from 'debug';
 
-const DEBUG = process.env.DEBUG && process.env.DEBUG.indexOf('tools') >= 0;
-if (!DEBUG) {
-  console.log('enable build tool debugging by setting env var DEBUG=tools');
+const logger = debug('constructor:tools');
+
+if (!logger.enabled) {
+  console.log('Enable build tool with env var DEBUG=constructor:tools');
 }
 
-//simple wrap around console.log
+//wrap, so can force output
 const log = (output = '', forceOutput = false) => {
-  if (DEBUG || forceOutput === true) {
+  if (forceOutput === true) {
     console.log(output.trim());
   }
+  logger(output.trim());
 };
 
 export const promisedExec = (cmd, opts, {
