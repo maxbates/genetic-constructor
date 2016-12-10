@@ -20,11 +20,13 @@ const path = require('path');
 const rimraf = require('rimraf');
 
 //pass this CLI flag to only delete extensions not in extensions package.json -- e.g. if you are symlinked or have a hefty install
-const onlyDeleteOutersection = !!process.env.EXTENSIONS_PRUNE;
+const onlyDeleteOutersection = process.env.EXTENSIONS_PRUNE === 'true';
 
 export default function pruneNodeModules(inputPath) {
   //expects to be run from root, or explicit path so path doesnt exist if called from elsewhere
   const nodeModulePath = inputPath || path.resolve(__dirname, 'server', 'extensions', 'node_modules');
+
+  console.log('pass env var EXTENSIONS_PRUNE=true to prune extensions not in package.json, not delete them all');
 
   return new Promise((resolve) => {
     fs.stat(nodeModulePath, function checkDirExists(err, stat) {
