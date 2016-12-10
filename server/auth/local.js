@@ -33,6 +33,9 @@ import checkUserSetup from '../onboarding/userSetup';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
 import { userConfigKey } from '../user/userConstants';
 import { getConfigFromUser, mergeConfigToUserData } from '../user/utils';
+import debug from 'debug';
+
+const log = debug('constructor:auth:local');
 
 //note - mocks missing for forgot-password and reset-password
 
@@ -84,7 +87,8 @@ export const defaultUser = Object.assign(
 export const ensureUserSetup = () => {
   return checkUserSetup(defaultUser)
     .catch(resp => {
-      console.log('error checking user setup in ensureUserSetup', resp);
+      log('error checking user setup in ensureUserSetup');
+      log(resp);
 
       return resp.text().then(text => {
         console.log(`${text}`);
@@ -98,6 +102,8 @@ export const ensureUserSetup = () => {
 //basic auth routes
 
 router.post('/login', (req, res) => {
+  log('Logging in...');
+
   currentCookie = generateMockCookieValue();
   res.cookie('sess', currentCookie);
   res.statusCode = 200;
@@ -123,6 +129,8 @@ router.get('/current-user', (req, res) => {
 });
 
 router.get('/logout', (req, res) => {
+  log('Logging out...');
+
   currentCookie = null;
   res.clearCookie('sess');
   res.status(200).send();
@@ -146,7 +154,9 @@ const handleUpdate = (req, res, next) => {
     Object.assign(defaultUser, defaultUserForcedFields());
   }
 
-  console.log('[Local Auth - User Update]');
+  log('User Update:');
+  log(defaultUser);
+
   fs.writeFileSync(userConfigTempPath, JSON.stringify(defaultUser, null, 2), 'utf8');
 
   res.json(defaultUser);
@@ -170,8 +180,8 @@ const handleRegister = (req, res, next) => {
     Object.assign(defaultUser, { data });
   }
 
-  console.log('[Local Auth - User Register]');
-  //console.log(JSON.stringify(defaultUser, null, 2));
+  log('User Register:');
+  log(defaultUser);
 
   //if not logged in (requireLogin) then mockAuth won't setup user on register, so lets double check here (even though ID not changing)
   checkUserSetup(defaultUser)
@@ -206,29 +216,3 @@ router.get('/cookies', (req, res) => {
 
   res.send(':(');
 });
-
-const listeners = [];
-
-//assign the user to the request, including their config
-export const mockUser = (req, res, next) => {
-  if (requireLogin !== true || req.cookies.sess === currentCookie) {
-    Object.assign(req, { user: defaultUser });
-
-    if (listeners.length > 0) {
-      return Promise.all(listeners.map(listener => listener()))
-        .then(() => {
-          listeners.length = 0;
-          next();
-        });
-    }
-
-    next();
-  } else {
-    next();
-  }
-};
-
-//can't call userSetup immediately, need to wait until server has started, so cue it for first request
-export const prepareUserSetup = () => {
-  listeners.push(ensureUserSetup);
-};
