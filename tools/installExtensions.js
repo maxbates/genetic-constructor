@@ -13,7 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
+import path from 'path';
+import colors from 'colors';
 import { promisedExec } from './lib/cp';
 import pruneNodeModules from '../server/extensions/pruneNodeModules';
 
@@ -21,13 +22,12 @@ async function installExtensions() {
   try {
     const extensionsPath = path.resolve(__dirname, '../server/extensions/node_modules');
 
-    console.log(`clearing extensions in ${extensionsPath} ...`);
+    console.log(colors.blue(`clearing extensions in ${extensionsPath} ...`));
     await pruneNodeModules(extensionsPath);
 
-    console.log('npm install()-ing extensions...');
     await promisedExec('npm install --global-style --no-optional',
       { cwd: extensionsPath },
-      { forceOutput: true }
+      { comment: 'Running npm install() for extensions' }
     );
   } catch (err) {
     throw err;

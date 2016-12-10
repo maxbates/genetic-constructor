@@ -23,16 +23,16 @@ const rimraf = require('rimraf');
 const onlyDeleteOutersection = !!process.env.EXTENSIONS_PRUNE;
 
 export default function pruneNodeModules(inputPath) {
-  return new Promise((resolve, reject) => {
-    //expects to be run from root, or explicit path so path doesnt exist if called from elsewhere
-    const nodeModulePath = inputPath || path.resolve(__dirname, 'server', 'extensions', 'node_modules');
+  //expects to be run from root, or explicit path so path doesnt exist if called from elsewhere
+  const nodeModulePath = inputPath || path.resolve(__dirname, 'server', 'extensions', 'node_modules');
 
+  return new Promise((resolve) => {
     fs.stat(nodeModulePath, function checkDirExists(err, stat) {
       if (err) {
         if (err.code === 'ENOENT') {
-          console.log(`Directory ${nodeModulePath} does not exist... Aborting deletion.`);
+          console.log(`Directory ${nodeModulePath} does not exist`);
         } else {
-          console.error('error checking for directory server/extensions/node_modules');
+          console.error(`error checking for directory ${nodeModulePath}`);
         }
         throw err;
       }
@@ -41,17 +41,24 @@ export default function pruneNodeModules(inputPath) {
       const deps = pkg.dependencies;
       const dirContents = fs.readdirSync(nodeModulePath);
 
-      dirContents.forEach(function checkDir(dir) {
+      return Promise.all(dirContents.map(function checkDir(dir) {
         if (!onlyDeleteOutersection || !deps[dir]) {
           //todo - should check version and see if newer available as well
 
-          rimraf(path.resolve(nodeModulePath, dir), function callback() {
-            console.log('deleted extension ' + dir);
+          return new Promise((resolve, reject) => {
+            rimraf(path.resolve(nodeModulePath, dir), function callback(err) {
+              if (err) {
+                return reject(err);
+              }
+              console.log('deleted extension ' + dir);
+              resolve(dir);
+            });
           });
         }
-      });
 
-      resolve();
+        return Promise.resolve();
+      }))
+        .then(resolve);
     });
   });
 }
