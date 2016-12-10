@@ -8,21 +8,22 @@ import pkg from '../package.json';
 async function copy() {
   const ncp = Promise.promisify(require('ncp'));
 
-  console.log('Copying public assets, documentation, and extensions...');
+  //public assets
+  console.log('Copying public assets...');
+  await ncp('src/public', 'build/public');
 
-  await Promise.all([
-    //public assets
-    ncp('src/public', 'build/public'),
+  //static page content
+  console.log('Copying static content...');
+  await ncp('src/images', 'build/images');
+  await ncp('src/content', 'build/content');
 
-    //static page content
-    ncp('src/images', 'build/images'),
-    ncp('src/content', 'build/content'),
+  //docs
+  console.log('Copying documentation...');
+  await ncp(`docs/jsdoc/genetic-constructor/${pkg.version}`, 'build/jsdoc');
 
-    ncp(`docs/jsdoc/genetic-constructor/${pkg.version}`, 'build/jsdoc'),
-
-    //copy installed extensions
-    ncp('server/extensions/node_modules', 'build/node_modules'),
-  ]);
+  //copy installed extensions
+  console.log('Copying extensions ...');
+  await ncp('server/extensions/node_modules', 'build/node_modules');
 
   await writeFile('./build/package.json', JSON.stringify({
     private: true,
