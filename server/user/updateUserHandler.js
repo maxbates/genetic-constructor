@@ -30,7 +30,7 @@ const log = debug('constructor:auth');
 //note - expects JSON parser ahead of it
 export function registrationHandler(req, res, next) {
   if (!req.body || typeof req.body !== 'object') {
-    log('[Register] invalid body for registration');
+    log('[User Register] invalid body for registration');
     next('must pass object to login handler, use json parser');
   }
 
@@ -39,11 +39,11 @@ export function registrationHandler(req, res, next) {
 
   //basic checks before we hand off to auth/register
   if (!email || !EmailValidator.validate(email)) {
-    log(`[Register] email invalid: ${email}`);
+    log(`[User Register] email invalid: ${email}`);
     return res.status(422).json({ message: 'invalid email' });
   }
   if (!password || password.length < 6) {
-    log(`[Register] password invalid: ${password}`);
+    log(`[User Register] password invalid: ${password}`);
     return res.status(422).json({ message: 'invalid password' });
   }
 
@@ -52,7 +52,7 @@ export function registrationHandler(req, res, next) {
   try {
     validateConfig(mergedConfig);
   } catch (err) {
-    log('[Register] Error in input config');
+    log('[User Register] Error in input config');
     log(err);
     log(err.stack);
     return res.status(422).send({ err });
@@ -65,7 +65,7 @@ export function registrationHandler(req, res, next) {
     lastName,
   }, mergedConfig);
 
-  log('[Register] registering...');
+  log('[User Register] registering...');
   log(mappedUser);
 
   //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
@@ -97,7 +97,7 @@ export function registrationHandler(req, res, next) {
       res.json(pruned);
     })
     .catch(err => {
-      log('[Register] Error registering');
+      log('[User Register] Error registering');
       log(req.body);
       log(err);
       log(err.stack);
@@ -114,18 +114,18 @@ export function loginHandler(req, res, next) {
 
   //basic checks before we hand off to auth/register
   if (!email || !EmailValidator.validate(email)) {
-    log(`[Login] email invalid: ${email}`);
+    log(`[User Login] email invalid: ${email}`);
     return res.status(422).json({ message: 'invalid email' });
   }
   if (!password) {
-    log(`[Login] password required, got: ${password}`);
+    log(`[User Login] password required, got: ${password}`);
     return res.status(422).json({ message: 'invalid password' });
   }
 
   //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
   const url = INTERNAL_HOST + '/auth/login';
 
-  log('[Login] Logging in:');
+  log('[User Login] Logging in:');
   log(email, password, url);
 
   return fetch(url, headersPost(JSON.stringify(req.body)))
@@ -139,7 +139,7 @@ export function loginHandler(req, res, next) {
       return resp.json();
     })
     .then(userPayload => {
-      log('[Login] received payload');
+      log('[User Login] received payload');
       log(userPayload);
 
       if (!!userPayload.message) {
@@ -148,13 +148,13 @@ export function loginHandler(req, res, next) {
 
       const pruned = pruneUserObject(userPayload);
 
-      log('[Login] sending pruned:');
+      log('[User Login] sending pruned:');
       log(pruned);
 
       res.json(pruned);
     })
     .catch(err => {
-      log('[Login] Error logging in');
+      log('[User Login] Error logging in');
       log(req.body);
       log(err);
       log(err.stack);
@@ -170,7 +170,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
   return (req, res, next) => {
     const { user: userInput, config: configInput, userPatch } = req;
 
-    log('[Config Handler]');
+    log('[User Config]');
     log(userInput);
     log(userPatch);
     log(configInput);
@@ -188,7 +188,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         user = updateUserConfig(userInput, configInput);
       }
     } catch (err) {
-      log('[Config Handler] Error Updating config:');
+      log('[User Config] Error Updating config:');
       log(err);
       log(err.stack);
       return res.status(422).json({ err });
@@ -211,7 +211,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
           res.json(toSend);
         })
         .catch(err => {
-          log('[Config Handler] error setting user config');
+          log('[User Config] error setting user config');
           log(err);
           res.status(501).json({ err });
         });
@@ -232,7 +232,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         return resp.json();
       })
       .then(userPayload => {
-        log('[Config Handler] received payload');
+        log('[User Config] received payload');
         log(userPayload);
 
         if (!!userPayload.message) {
@@ -245,7 +245,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         res.json(toSend);
       })
       .catch(err => {
-        log('[Config Handler] got error setting user config');
+        log('[User Config] got error setting user config');
         log(err);
         log(err.stack);
         res.status(500).json({ err });

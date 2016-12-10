@@ -14,8 +14,10 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import colors from 'colors/safe';
 import { errorDoesNotExist } from '../../utils/errors';
+import debug from 'debug';
+
+const log = debug('constructor:data:s3');
 
 //API docs: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html
 /*
@@ -40,9 +42,9 @@ const forceLocal = ((process.env.FORCE_LOCAL !== null) && (process.env.FORCE_LOC
 
 export const useRemote = ((!forceLocal) && ((process.env.NODE_ENV === 'production') || awsKeyEnvVarsSet));
 
-console.log(colors.yellow('[S3 Config] AWS Keys set via environment variables? ' + awsKeyEnvVarsSet));
-console.log(colors.yellow('[S3 Config] Force Local Storage? ' + forceLocal));
-console.log(colors.yellow('[S3 Config] Remote Persistence Enabled? ' + useRemote));
+log('[S3 Config] AWS Keys set via environment variables? ' + awsKeyEnvVarsSet);
+log('[S3 Config] Force Local Storage? ' + forceLocal);
+log('[S3 Config] Remote Persistence Enabled? ' + useRemote);
 
 //these are all the buckets the app expects
 // TODO these should be configurable
@@ -55,17 +57,19 @@ export const buckets = [
 //namespace keys by environment, version, etc.
 export const testPrefix = 'TEST/'; //in test environment, prefix everything so easier to clean up
 const storageVersion = '1'; //static, for data migrations
-const environment = !!process.env.BNR_ENVIRONMENT ? process.env.BNR_ENVIRONMENT + '/' : ''; //environment so data is siloed across environments
-const setupKey = (prefix) => {
-  let key = `${environment}${storageVersion}/${prefix}`;
-
-  //last (so its the first prefix), add test prefix for test environments
+const environment = !!process.env.BNR_ENVIRONMENT ? (process.env.BNR_ENVIRONMENT + '/') : 'local/'; //environment so data is siloed across environments
+const generatePrefix = () => {
+  let prefix = `${environment}${storageVersion}/`;
   if (process.env.NODE_ENV === 'test') {
-    key = testPrefix + key;
+    //last (so its the first prefix), add test prefix for test environments
+    prefix = testPrefix + prefix;
   }
-
-  return key;
+  return prefix;
 };
+
+const setupKey = (key) => generatePrefix() + key;
+
+log(`[S3 Config] prefix = ${generatePrefix()}`);
 
 //ensure we have consistent fields returned
 const massageResult = (obj, Prefix) => {
@@ -100,13 +104,13 @@ if (useRemote) {
 //promise
 export const ensureBucketProvisioned = (Bucket) => {
   return new Promise((resolve, reject) => {
-    console.log('Setting up S3 Bucket', Bucket); //eslint-disable-line
+    log(`Setting up S3 Bucket ${Bucket}...`);
 
     const API = new AWS.S3();
 
     API.headBucket({ Bucket }, (err, data) => {
       if (err) {
-        console.log(`Creating new S3 bucket ${Bucket}`);
+        log(`Creating new S3 bucket ${Bucket}...`);
         const createParams = {
           Bucket,
           ACL: 'private',
@@ -117,15 +121,18 @@ export const ensureBucketProvisioned = (Bucket) => {
 
         API.createBucket(createParams, (err, data) => {
           if (err) {
-            console.log(`Failed to create S3 Bucket ${Bucket}\nError: ${err}`);
+            log(`Failed to create S3 Bucket ${Bucket}`);
+            log(err);
+            log(err.stack);
             return reject(err);
           }
 
-          console.log(`S3 Bucket created: ${Bucket}`);
+          log(`S3 Bucket created: ${Bucket}`);
 
           API.waitFor('bucketExists', { Bucket }, (err, data) => {
             if (err) {
-              console.log('Error waiting for bucket to exist:', Bucket);
+              log('Error waiting for bucket to exist:', Bucket);
+              log(err);
               return reject(err);
             }
             return resolve(data);
