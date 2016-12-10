@@ -22,7 +22,7 @@ const nodeModulesDir = process.env.BUILD ? 'gd_extensions' : path.resolve(__dirn
 
 const registry = {};
 
-//todo - this should include the 'native' extensions -- these wont show up in registry currently
+//note - this should include the 'native' extensions -- these wont show up in registry currently
 
 fs.readdirSync(nodeModulesDir).forEach(packageName => {
   try {
@@ -46,7 +46,7 @@ fs.readdirSync(nodeModulesDir).forEach(packageName => {
   }
 });
 
-console.log('[Extensions Loaded] ' + Object.keys(registry));
+console.log('[Extensions] Extensions included' + Object.keys(registry));
 
 export const isRegistered = (name) => {
   return registry.hasOwnProperty(name);
