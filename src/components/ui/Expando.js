@@ -34,6 +34,7 @@ export default class Expando extends Component {
     onContextMenu: PropTypes.func,
     startDrag: PropTypes.func,
     showArrowWhenEmpty: PropTypes.bool,
+    showLock: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -101,6 +102,7 @@ export default class Expando extends Component {
             onClick={this.onToggle}
             selected={this.props.selected}
             widgets={this.props.labelWidgets}
+            showLock={this.props.showLock}
             textWidgets={this.props.textWidgets}
             styles={{
               marginLeft: '0.5rem',

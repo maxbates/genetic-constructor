@@ -28,6 +28,7 @@ export default class Label extends Component {
     selected: PropTypes.bool,
     textWidgets: PropTypes.array,
     widgets: PropTypes.array,
+    showLock: PropTypes.bool,
   };
 
   onClick = (evt) => {
@@ -57,7 +58,10 @@ export default class Label extends Component {
     return (
       <div style={this.props.styles} className={labelClasses} onClick={this.onClick}>
         <div className="left">
-          <span title={this.props.text}>{this.props.text}</span>
+          <div className="primary-enclosure">
+            {this.props.showLock ? <div className="lock"></div> : null}
+            <span className="primary" title={this.props.text}>{this.props.text}</span>
+          </div>
           {this.props.textWidgets}
         </div>
         <div className="right">

@@ -163,24 +163,27 @@ export class InventoryProjectTree extends Component {
    * build a nested set of tree items from the given components array
    * @param components
    */
-  getProjectBlocksRecursive(components) {
+  getProjectBlocksRecursive(components, depth, maxDepth = Number.MAX_VALUE) {
     const items = [];
-    (components || []).forEach(blockId => {
-      const block = this.props.blocks[blockId] || instanceMap.getBlock(blockId);
-      if (block) {
-        const hasSequence = block.sequence && block.sequence.length > 0;
-        items.push({
-          block,
-          text: block.getName(),
-          textWidgets: [
-            hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{color: 'gray'}}/> : null,
-          ],
-          onExpand: this.onExpandBlock.bind(this, block),
-          items: this.getProjectBlocksRecursive(block.components),
-          startDrag: this.onBlockDrag.bind(this, block),
-        });
-      }
-    });
+    if (depth < maxDepth) {
+      (components || []).forEach(blockId => {
+        const block = this.props.blocks[blockId] || instanceMap.getBlock(blockId);
+        if (block) {
+          const hasSequence = block.sequence && block.sequence.length > 0;
+          items.push({
+            block,
+            text       : block.getName(),
+            textWidgets: [
+              hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }}/> : null,
+            ],
+            onExpand   : this.onExpandBlock.bind(this, block),
+            items      : this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
+            startDrag  : this.onBlockDrag.bind(this, block),
+            locked     : block.isFrozen(),
+          });
+        }
+      });
+    }
     return items;
   }
 
@@ -312,7 +315,7 @@ export class InventoryProjectTree extends Component {
         selected: project.id === currentProjectId,
         onExpand: this.onExpandProject.bind(this, project),
         onContextMenu: this.onProjectContextMenu.bind(this, project),
-        items: this.getProjectBlocksRecursive(project.components),
+        items: this.getProjectBlocksRecursive(project.components, 0, project.isSample ? 1 : Number.MAX_VALUE),
         labelWidgets: [
           <img
             key="open"

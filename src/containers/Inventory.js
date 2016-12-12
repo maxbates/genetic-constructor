@@ -69,7 +69,7 @@ export class Inventory extends Component {
         placeholder: 'Filter sketch blocks',
       },
     },
-    Commons: null,
+    // Commons: null,
     Ncbi: {
       type: 'search-ncbi',
       title: 'NCBI Search',

@@ -23,10 +23,27 @@
     justify-content: space-between;
     width: 100%;
 
-    span {
+    .primary-enclosure {
+      display: inline-flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .lock {
+      width: 12px;
+      height: 12px;
+      display: inline-block;
+      background-image: url('/images/ui/lock.svg');
+      background-repeat: no-repeat;
+      background-size: contain;
+      margin-right: 4px;
+    }
+    span.primary {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      line-height: 1.5rem;
+      padding-top: 2px;
     }
 
     .BasePairCount {
@@ -49,6 +66,9 @@
   .left {
     .BasePairCount {
       color: white !important;
+    }
+    .lock {
+      filter: brightness(1000%);
     }
   }
 

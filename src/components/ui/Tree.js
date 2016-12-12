@@ -47,16 +47,12 @@ export default class Tree extends Component {
   }
 
   render() {
-    // calculate width of expand
-    const expandoWidth = 12 * this.props.depth;
-
     return (
       <div className="tree">
         {(this.props.items || []).map((item, index) => {
           return (
             <div key={index} style={{
-              paddingLeft: `${expandoWidth}px`,
-              width: `calc(100% - ${expandoWidth}px)`,
+              paddingLeft: this.props.depth === 0 ? '0' : '12px',
             }}>
               <Expando
                 showArrowWhenEmpty={this.props.depth === 0}
@@ -69,6 +65,7 @@ export default class Tree extends Component {
                 onContextMenu={item.onContextMenu}
                 startDrag={item.startDrag}
                 selected={item.selected}
+                showLock={item.locked}
                 content={item.items && item.items.length
                   ? <Tree
                   items={item.items}
