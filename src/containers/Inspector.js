@@ -120,16 +120,52 @@ export class Inspector extends Component {
 
 function mapStateToProps(state, props) {
   const { isVisible, currentTab } = state.ui.inspector;
-  const { level, blockIds, constructId } = state.focus;
   const projectId = props.projectId;
-  const currentProject = state.projects[projectId];
+
+  const { level, blockIds, constructId } = state.focus;
+  const currentProject = state.projects[props.projectId];
+
   const currentConstruct = state.blocks[constructId];
+
+  //delegate handling of focus state handling to selector
+  const { type, readOnly, focused } = _getFocused(state, true, props.projectId);
+
+  //handle overrides if a list option
+  const overrides = {};
+  if (type === 'option') {
+    const blockId = state.focus.blockIds[0];
+    const block = state.blocks[blockId];
+    if (!!block) {
+      Object.assign(overrides, {
+        color: block.getColor(),
+        role: block.getRole(false),
+      });
+    }
+  }
+
+  const forceIsConstruct = (level === 'construct') ||
+    blockIds.some(blockId => currentProject.components.indexOf(blockId) >= 0);
+
+  const isAuthoring = !!state.focus.constructId && state.blocks[state.focus.constructId].isAuthoring() && focused.length === 1 && type !== 'project' && !readOnly;
+
+  const orders = Object.keys(state.orders)
+  .map(orderId => state.orders[orderId])
+  .filter(order => order.projectId === currentProject.id && order.isSubmitted())
+  .sort((one, two) => one.status.timeSent - two.status.timeSent);
+
   return {
     isVisible,
     currentTab,
+    type,
+    readOnly,
+    forceIsConstruct,
     projectId,
     project: currentProject,
     construct: currentConstruct,
+    focused,
+    orders,
+    overrides,
+    isAuthoring,
   };
 }
 
