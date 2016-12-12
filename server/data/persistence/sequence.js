@@ -25,7 +25,9 @@ import {
   fileDelete,
 } from '../middleware/fileSystem';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5, getSequencesFromMap } from '../../../src/utils/sequenceMd5';
-import DebugTimer from '../../utils/DebugTimer';
+import debug from 'debug';
+
+const logger = debug('constructor:data:sequences');
 
 //todo - may need userId / projectId to address privacy concerns
 
@@ -104,8 +106,9 @@ export const sequenceWrite = (realMd5, sequence) => {
 //expect object, map of md5 (not pseudoMd5) to sequence
 export const sequenceWriteMany = (map) => {
   invariant(typeof map === 'object', 'must pass an object');
+  logger('[sequenceWriteMany] starting... ' + Object.keys(map).length);
+  //logger(JSON.stringify(map, null, 2));
 
-  const timer = new DebugTimer('sequenceWriteMany', { disabled: true });
   const batches = chunk(Object.keys(map), 50);
 
   return batches.reduce((acc, batch) => {
@@ -114,13 +117,13 @@ export const sequenceWriteMany = (map) => {
       //sequenceWrite for each member of batch
       return Promise.all(batch.map(pseudoMd5 => sequenceWrite(pseudoMd5, map[pseudoMd5])))
         .then((createdBatch) => {
-          timer.time('(sequenceWriteMany) made + wrote a chunk');
+          logger('[sequenceWriteMany] batch completed');
           return allWrites.concat(createdBatch);
         });
     });
   }, Promise.resolve([]))
     .then((allWrites) => {
-      timer.end('all sequences written');
+      logger('[sequenceWriteMany] all batches completed');
       return map;
     });
 };
