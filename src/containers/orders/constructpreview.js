@@ -21,6 +21,7 @@ import Layout from '../../containers/graphics/views/layout';
 import { orderGenerateConstructs } from '../../actions/orders';
 import invariant from 'invariant';
 import UpDown from './updown';
+import Block from '../../models/Block';
 
 import '../../../src/styles/ordermodal.css';
 import '../../../src/styles/SceneGraphPage.css';
@@ -82,14 +83,15 @@ class ConstructPreview extends Component {
       const constructIndex = this.state.index;
       const componentIds = construct;
       this.layout.update({
-        construct: {
+        construct: new Block({
           metadata: {
             color: parentConstruct.metadata.color || 'lightgray',
           },
           components: componentIds,
-          // this fake construct should not be a template, so we don't get empty list block placeholders
-          isTemplate: () => {return false;},
-        },
+          rules: {
+            fixed: false,
+          },
+        }),
         blocks: this.props.blocks,
         currentBlocks: [],
         currentConstructId: constructIndex,
@@ -137,7 +139,7 @@ class ConstructPreview extends Component {
     });
     if (blockIndex >= 0) {
       // we have the index of the parent block
-      this.optionColorHash[optionId] = this.props.blocks[parentConstruct.components[blockIndex]].metadata.color;
+      this.optionColorHash[optionId] = this.props.blocks[parentConstruct.components[blockIndex]].getColor();
       return this.optionColorHash[optionId];
     }
     return 'lightgray';

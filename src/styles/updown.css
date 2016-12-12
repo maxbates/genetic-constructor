@@ -32,8 +32,8 @@
       height: 100%;
     }
     .updown-arrows {
-      border-left: 2px solid var(--colors-greyMedLight);
-      border-top: 2px solid var(--colors-greyMedLight);
+      border-left: 2px solid var(--colors-mediumLightGrey);
+      border-top: 2px solid var(--colors-mediumLightGrey);
       width: 10px;
       height: 10px;
       border-radius: 0px;

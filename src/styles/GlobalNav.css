@@ -6,7 +6,7 @@
   align-items: center;
   flex-direction: row;
   flex-shrink: 0;
-  background-color: var(--colors-blueGreyDark);
+  background-color: var(--colors-darkerGrey);
 
   &-logo {
     width: 50px;

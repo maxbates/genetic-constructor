@@ -17,7 +17,7 @@ import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
 
 import exampleWithAnnotations from './exampleWithAnnotations';
-import dummyBlocks from '../../data/egf_parts/parts';
+import dummyBlocks from '../../data/egf_parts/partList.json';
 
 const annotationExample = new Block(exampleWithAnnotations);
 

@@ -1,7 +1,7 @@
 @import './variables.css';
 
 :root {
-  --label-color: var(--colors-blueBlack);
+  --label-color: var(--colors-nearlyBlack);
   --label-background: var(--colors-white);
   --label-hover-background: var(--colors-selected);
   --label-hover-color: var(--colors-white);
@@ -101,7 +101,7 @@
 
 .label-disabled {
   background-color: var(--colors-white);
-  color: var(--colors-greyLight);
+  color: var(--colors-lighterGrey);
 }
 
 .label-hover-bright {

@@ -46,7 +46,7 @@ class ProjectHeader extends Component {
     this.props.inspectorToggleVisibility(true);
     this.props.focusPrioritize('project');
     const name = this.props.project.metadata.name || 'Untitled Project';
-    if (!this.props.project.isSample) {
+    if (!this.props.project.rules.frozen) {
       this.props.uiInlineEditor(value => {
         this.props.projectRename(this.props.project.id, value);
       }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this));
@@ -67,7 +67,7 @@ class ProjectHeader extends Component {
 
   render() {
     const { project, isFocused } = this.props;
-    const hover = this.state.hover && !this.props.project.isSample
+    const hover = this.state.hover && !this.props.project.rules.frozen
       ? <div className="inline-editor-hover inline-editor-hover-project">
           <span>{project.metadata.name || 'Untitled Project'}</span>
           <img src="/images/ui/inline_edit.svg"/>

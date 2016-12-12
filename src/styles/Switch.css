@@ -10,7 +10,7 @@
   display: inline-block;
   width: calc(var(--switch-size) * 2);
   height: var(--switch-size);
-  background-color: var(--colors-greyLight);
+  background-color: var(--colors-lighterGrey);
   border-radius: calc(var(--switch-size) / 2);
   cursor: pointer;
 

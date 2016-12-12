@@ -18,12 +18,13 @@ import fs from 'fs';
 import express from 'express';
 import morgan from 'morgan';
 import compression from 'compression';
+import colors from 'colors';
 
+import pkg from '../package.json';
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
-import dataRouter from './data/index';
+import dataRouter from './data/router';
 import orderRouter from './order/index';
-import fileRouter from './file/index';
 import extensionsRouter from './extensions/index';
 import reportRouter from './report/index';
 import bodyParser from 'body-parser';
@@ -31,6 +32,7 @@ import errorHandlingMiddleware from './utils/errorHandlingMiddleware';
 import checkUserSetup from './onboarding/userSetup';
 import { pruneUserObject } from './user/utils';
 
+import checkPortFree from './utils/checkPortFree';
 import { HOST_PORT, HOST_NAME, API_END_POINT } from './urlConstants';
 
 //file paths depending on if building or not
@@ -39,8 +41,7 @@ const createBuildPath = (isBuild, notBuild = isBuild) => {
   return path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
 };
 const pathContent = createBuildPath('content', '../src/content');
-//todo - dynamic, based on package number
-const pathDocs = createBuildPath('jsdoc', '../docs/jsdoc/genetic-constructor/0.6.0');
+const pathDocs = createBuildPath('jsdoc', `../docs/jsdoc/genetic-constructor/${pkg.version}`);
 const pathImages = createBuildPath('images', '../src/images');
 const pathPublic = createBuildPath('public', '../src/public');
 const pathClientBundle = createBuildPath('client.js', '../build/client.js');
@@ -85,18 +86,19 @@ app.set('view engine', 'pug');
 // Register API middleware
 // ----------------------------------------------------
 
-const onLoginHandler = (req, res, next) => {
-  return checkUserSetup(req.user)
-    .then((projectId) => {
-      //note this expects an abnormal return of req and res to the next function
-      return next(req, res);
-    })
-    .catch(err => {
-      console.log(err);
-      console.log(err.stack);
-      res.status(500).end();
-    });
-};
+// STORAGE
+
+// routes / mini-app for interacting with postgres DB
+// expose this route for local development, production will call `process.env.STORAGE_API` directly
+// in deployed environment this API will be available on a different host, and not at this route endpoint
+//note - should come before local auth setup, so that mockUser setup can call storage without middleware in place
+if (!process.env.STORAGE_API) {
+  console.log('[DB Storage] DB Storage API mounted locally at /api/');
+  app.use(require('gctor-storage').mockReqLog); // the storage routes expect req.log to be defined
+  app.use('/api', require('gctor-storage').routes);
+}
+
+// AUTH
 
 // insert some form of user authentication
 // the auth routes are currently called from the client and expect JSON responses
@@ -110,27 +112,46 @@ if (process.env.BIO_NANO_AUTH) {
     loginFailure: false,
     resetForm: '/homepage/reset',
     apiEndPoint: API_END_POINT,
-    onLogin: onLoginHandler,
+    onLogin: (req, res, next) => {
+      return checkUserSetup(req.user)
+        .then((projectId) => {
+          //note this expects an abnormal return of req and res to the next function
+          return next(req, res);
+        })
+        .catch(err => {
+          console.log(err);
+          console.log(err.stack);
+          res.status(500).end();
+        });
+    },
     //onLogin: (req, res, next) => next(req, res), //mock
     registerRedirect: false,
   };
   app.use(initAuthMiddleware(authConfig));
 } else {
   app.use(require('cookie-parser')());
-  // import the mocked auth routes
-  app.use(require('./auth/local').mockUser);
-  const authRouter = require('./auth/local').router;
-  app.use('/auth', authRouter);
+
+  const localAuth = require('./auth/local');
+
+  //force default user on all requests
+  //NOTE - requires / enforces that users are always signed in to hit API, even for non-client originating requests. what about extensions?
+  app.use(localAuth.mockUser);
+
+  //mount the mock authentication routes
+  app.use('/auth', localAuth.router);
+
+  //do an initial setup of the user's projects on server start
+  localAuth.prepareUserSetup();
 }
 
 //expose our own register route to handle custom onboarding
 app.post('/register', registrationHandler);
 app.use('/user', userRouter);
 
-//primary routes
+// PRIMARY ROUTES
+
 app.use('/data', dataRouter);
 app.use('/order', orderRouter);
-app.use('/file', fileRouter);
 app.use('/extensions', extensionsRouter);
 app.use('/report', reportRouter);
 
@@ -173,40 +194,48 @@ app.get('*', (req, res) => {
 
 /*** running ***/
 
-//i have no idea why, but sometimes the server tries to build when the port is already in use, so lets just check if port is in use and if it is, then dont try to listen on it.
-const isPortFree = (port, cb) => {
-  const net = require('net');
-  const tester = net.createServer()
-    .once('error', (err) => {
-      if (err.code !== 'EADDRINUSE') {
-        return cb(err, false);
+function startServer() {
+  return new Promise((resolve, reject) => {
+    app.listen(HOST_PORT, HOST_NAME, (err) => {
+      if (err) {
+        console.log(colors.bgRed('Error starting server', err.stack));
+        return reject(err);
       }
-      cb(null, false);
-    })
-    .once('listening', () => {
-      tester.once('close', () => {
-        cb(null, true);
-      })
-        .close();
-    })
-    .listen({
-      port,
-      host: HOST_NAME,
-      exclusive: true,
+
+      /* eslint-disable no-console */
+      const path = `http://${HOST_NAME}:${HOST_PORT}/`;
+      console.log(colors.bgGreen(`\nServer listening at ${path}\n`));
+      resolve(path);
     });
+  });
+}
+
+// initialize the DB connection if we're not using an external storage API
+// note - requires running `npm run storage-db`
+function initDb() {
+  return new Promise((resolve, reject) => {
+    const init = (!process.env.STORAGE_API) ?
+      require('gctor-storage').init :
+      (cb) => { return cb(); };
+
+    init(resolve);
+  });
+}
+
+//check if the port is taken, and init the db, and star the server
+//returns a promise, so you can listen and wait until it resolves
+export const listenSafely = () => {
+  //first check if the port is in use -- e.g. tests are running, or some other reason
+  return checkPortFree(HOST_PORT, HOST_NAME)
+    .then(initDb)
+    .then(startServer);
 };
 
-const startServer = () => app.listen(HOST_PORT, HOST_NAME, (err) => {
-  if (err) {
-    console.log('error listening!', err.stack);
-    return;
-  }
-
-  /* eslint-disable no-console */
-  console.log(`Server listening at http://${HOST_NAME}:${HOST_PORT}/`);
-});
-
-//start the server by default, if port is not taken
-isPortFree(HOST_PORT, (err, free) => free && startServer());
+//attempt start the server by default
+if (process.env.SERVER_MANUAL !== 'true') {
+  listenSafely();
+} else {
+  console.log('Server ready, will start listening manually...');
+}
 
 export default app;

@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { cloneDeep, merge } from 'lodash';
+import { cloneDeep, assign, merge } from 'lodash';
 import invariant from 'invariant';
 import Immutable from './Immutable';
 import InstanceSchema from '../schemas/Instance';
 import safeValidate from '../schemas/fields/safeValidate';
-import { version } from '../schemas/fields/validators';
+import { number } from '../schemas/fields/validators';
 
-const versionValidator = (ver, required = false) => safeValidate(version(), required, ver);
+const versionValidator = (ver, required = false) => safeValidate(number(), required, ver);
 
 /**
  * Instances are immutable objects, which conform to a schema, and provide an explicit API for modifying their data.
@@ -36,18 +36,16 @@ export default class Instance extends Immutable {
    * @constructor
    * @param {Object} input Input object
    * @param {Object} [subclassBase] If extending the class, additional fields to use in the scaffold
-   * @param {Object} [moreFields] Additional fields, beyond the scaffold
+   * @param {Object} [frozen=true] Additional fields, beyond the scaffold
    * @returns {Instance} An instance, frozen if not in production
    */
-  constructor(input = {}, subclassBase, moreFields) {
+  constructor(input = {}, subclassBase, frozen) {
     invariant(typeof input === 'object', 'must pass an object (or leave undefined) to model constructor');
 
     return super(merge(
-      InstanceSchema.scaffold(),
-      subclassBase,
-      moreFields,
+      assign(InstanceSchema.scaffold(), subclassBase), //perf. NB - this is only valid so long as no overlapping fields
       input,
-    ));
+    ), frozen);
   }
 
   /**

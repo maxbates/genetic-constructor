@@ -32,10 +32,12 @@ class InspectorGroupInformation extends Component {
     focused: PropTypes.any.isRequired,
     orders: PropTypes.array.isRequired,
     overrides: PropTypes.object.isRequired,
+    project: PropTypes.object,
+    construct: PropTypes.object,
   };
 
   render() {
-    const { focused, orders, overrides, type, readOnly, forceIsConstruct, isAuthoring } = this.props;
+    const { focused, orders, overrides, type, readOnly, forceIsConstruct, isAuthoring, project, construct } = this.props;
     // inspect instances, or construct if no instance or project if no construct or instances
     let inspect;
     switch (type) {
@@ -54,6 +56,8 @@ class InspectorGroupInformation extends Component {
                                  orders={orders}
                                  readOnly={readOnly}
                                  isAuthoring={isAuthoring}
+                                 project={project}
+                                 construct={construct}
                                  forceIsConstruct={forceIsConstruct}/>);
       break;
     }

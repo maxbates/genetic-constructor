@@ -86,13 +86,13 @@
     margin-top: 1rem;
   }
   .dropdown-container {
-    background-color: var(--colors-greyLight);
+    background-color: var(--colors-lighterGrey);
     padding: 0.5rem;
   }
   textarea {
     border: none;
     border-radius: 3px;
-    background-color: var(--colors-greyLight);
+    background-color: var(--colors-lighterGrey);
     width: 100%;
     height: calc(100% - 38rem);
     outline: none;

@@ -6,7 +6,7 @@
   padding: 10px;
   flex-direction: row;
   justify-content: space-between;
-  color: var(--colors-blueGreyLighter);
+  color: var(--colors-lightGrey);
   cursor: pointer;
 
   /* left side */

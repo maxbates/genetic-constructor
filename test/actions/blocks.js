@@ -5,13 +5,11 @@ import * as projectActions from '../../src/actions/projects';
 import blocksReducer from '../../src/reducers/blocks';
 import { simpleStore } from '../store/mocks';
 import configureStore from '../../src/store/configureStore';
-//need to import this so global store is already setup and the actions we trigger only affect our tests. avoid the @@INIT event
-import store from '../../src/store/index'; //eslint-disable-line
 import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
 
 describe('Actions', () => {
-  describe('Block Actions', () => {
+  describe('Blocks', () => {
     //simple store focuses on block actions exclusively. setting projectId on block would require project store.
     describe('Simple Store', () => {
       const storeBlock = new Block();
@@ -50,7 +48,7 @@ describe('Actions', () => {
         });
 
         it('blockClone() clones a block with a new id + proper parents', () => {
-          const projectVersion = sha1('someProject');
+          const projectVersion = 12;
           //stub project ID for now because requires reliance on focus / projects store if we put it in storeBlock directly
           const projectIdStub = 'dummy';
           const clone = blockStore.dispatch(actions.blockClone(storeBlock.id, {
@@ -68,13 +66,14 @@ describe('Actions', () => {
             id: storeBlock.id,
             parents: [],
           });
+
           //hack - can't set projectId on storeBlock since can't use simpleStore.
           delete comparable.projectId;
           expect(comparable).to.eql(storeBlock);
         });
 
         it('blockClone() deep clones by default, and updates children IDs', () => {
-          const projectVersion = sha1('someProject');
+          const projectVersion = 23;
           //stub project ID for now because requires reliance on focus / projects store if we put it in storeBlock directly
           const projectIdStub = 'dummy';
           const storePreClone = blockStore.getState().blocks;

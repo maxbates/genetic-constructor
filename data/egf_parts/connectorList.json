@@ -1,6 +1,5 @@
 [
   {
-    "id": "block-dd0de7d6-2768-4790-94fd-36551c833bda",
     "parents": [],
     "metadata": {
       "name": "conn A-C",
@@ -8,7 +7,7 @@
       "authors": [],
       "created": 1468259954430,
       "tags": {},
-      "color": "#6DA19C",
+      "color": "#bababa",
       "egfPosition": "1-2"
     },
     "sequence": {
@@ -22,14 +21,15 @@
       "id": "EGF_ML_connac"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-f6bd7554-69c4-461e-8867-8da19688d2eb",
     "parents": [],
     "metadata": {
       "name": "conn B-C",
@@ -37,7 +37,7 @@
       "authors": [],
       "created": 1468259954431,
       "tags": {},
-      "color": "#B1CED0",
+      "color": "#bababa",
       "egfPosition": "2"
     },
     "sequence": {
@@ -51,14 +51,15 @@
       "id": "EGF_ML_connbc"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-193acabb-c7e6-4809-9eae-cd6741f36a73",
     "parents": [],
     "metadata": {
       "name": "conn B-F",
@@ -66,7 +67,7 @@
       "authors": [],
       "created": 1468259954432,
       "tags": {},
-      "color": "#65AAB1",
+      "color": "#bababa",
       "egfPosition": "2-5"
     },
     "sequence": {
@@ -80,14 +81,15 @@
       "id": "EGF_ML_connbf"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-77ae64a7-6733-4afc-8091-a7f07257a4e9",
     "parents": [],
     "metadata": {
       "name": "conn B-L",
@@ -95,7 +97,7 @@
       "authors": [],
       "created": 1468259954433,
       "tags": {},
-      "color": "#8EC78D",
+      "color": "#bababa",
       "egfPosition": "2-11"
     },
     "sequence": {
@@ -109,14 +111,15 @@
       "id": "EGF_ML_connbl"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-791fa85c-2644-48a5-a8f2-0bd97283cfdf",
     "parents": [],
     "metadata": {
       "name": "conn D-E",
@@ -124,7 +127,7 @@
       "authors": [],
       "created": 1468259954433,
       "tags": {},
-      "color": "#53B15F",
+      "color": "#bababa",
       "egfPosition": "4"
     },
     "sequence": {
@@ -138,14 +141,15 @@
       "id": "EGF_ML_connde"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-63e4b7ca-f914-4b66-8d09-0298f05e8a9d",
     "parents": [],
     "metadata": {
       "name": "conn D-F",
@@ -153,7 +157,7 @@
       "authors": [],
       "created": 1468259954434,
       "tags": {},
-      "color": "#C5C4C1",
+      "color": "#bababa",
       "egfPosition": "4-5"
     },
     "sequence": {
@@ -167,14 +171,15 @@
       "id": "EGF_ML_conndf"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-da7618af-483c-4a1f-8ea1-d6948abc9acd",
     "parents": [],
     "metadata": {
       "name": "conn E-F",
@@ -182,7 +187,7 @@
       "authors": [],
       "created": 1468259954435,
       "tags": {},
-      "color": "#A5A6A2",
+      "color": "#bababa",
       "egfPosition": "5"
     },
     "sequence": {
@@ -196,14 +201,15 @@
       "id": "EGF_ML_connef"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-4123e718-4bb8-4dd9-9d2f-35177dbed260",
     "parents": [],
     "metadata": {
       "name": "conn H-Ha",
@@ -211,7 +217,7 @@
       "authors": [],
       "created": 1468259954436,
       "tags": {},
-      "color": "#e7aaa9",
+      "color": "#bababa",
       "egfPosition": "8a"
     },
     "sequence": {
@@ -225,14 +231,15 @@
       "id": "EGF_ML_connhha"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-2ef9bce3-919d-45d4-9d8e-58bdc58b524a",
     "parents": [],
     "metadata": {
       "name": "conn H-J",
@@ -240,7 +247,7 @@
       "authors": [],
       "created": 1468259954437,
       "tags": {},
-      "color": "#D28482",
+      "color": "#bababa",
       "egfPosition": "8-9"
     },
     "sequence": {
@@ -254,14 +261,15 @@
       "id": "EGF_ML_connhj"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-add2a14c-6c5d-44be-9f7d-3e7b0b3db397",
     "parents": [],
     "metadata": {
       "name": "conn H-K",
@@ -269,7 +277,7 @@
       "authors": [],
       "created": 1468259954438,
       "tags": {},
-      "color": "#E9BA9b",
+      "color": "#bababa",
       "egfPosition": "8-10"
     },
     "sequence": {
@@ -283,14 +291,15 @@
       "id": "EGF_ML_connhk"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-f1de7361-038c-448c-aae6-79b4696cfdb2",
     "parents": [],
     "metadata": {
       "name": "conn Ha-J",
@@ -298,7 +307,7 @@
       "authors": [],
       "created": 1468259954438,
       "tags": {},
-      "color": "#efac7e",
+      "color": "#bababa",
       "egfPosition": "8b-9"
     },
     "sequence": {
@@ -312,14 +321,15 @@
       "id": "EGF_ML_connhaj"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-2b977fda-b769-40f8-a3e5-6e64618888ab",
     "parents": [],
     "metadata": {
       "name": "conn Ha-K",
@@ -327,7 +337,7 @@
       "authors": [],
       "created": 1468259954439,
       "tags": {},
-      "color": "#EFD79A",
+      "color": "#bababa",
       "egfPosition": "8b-10"
     },
     "sequence": {
@@ -341,14 +351,15 @@
       "id": "EGF_ML_connhak"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-98da0223-ccbb-415c-bf2d-c60d17c1ff2a",
     "parents": [],
     "metadata": {
       "name": "conn J-K",
@@ -356,7 +367,7 @@
       "authors": [],
       "created": 1468259954440,
       "tags": {},
-      "color": "#F1D26C",
+      "color": "#bababa",
       "egfPosition": "10"
     },
     "sequence": {
@@ -370,14 +381,15 @@
       "id": "EGF_ML_connjk"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-239e3655-c455-495d-a8e5-1ae62ee40c79",
     "parents": [],
     "metadata": {
       "name": "conn L-M",
@@ -385,7 +397,7 @@
       "authors": [],
       "created": 1468259954441,
       "tags": {},
-      "color": "#E4E480",
+      "color": "#bababa",
       "egfPosition": "12"
     },
     "sequence": {
@@ -399,14 +411,15 @@
       "id": "EGF_ML_connlm"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-b4de04cf-6b88-4750-98e6-e0c176318a8e",
     "parents": [],
     "metadata": {
       "name": "conn L-N",
@@ -414,7 +427,7 @@
       "authors": [],
       "created": 1468259954442,
       "tags": {},
-      "color": "#D3D34F",
+      "color": "#bababa",
       "egfPosition": "12-13"
     },
     "sequence": {
@@ -428,14 +441,15 @@
       "id": "EGF_ML_connln"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-838936a9-9921-4bc3-a037-802751617cde",
     "parents": [],
     "metadata": {
       "name": "conn L-R",
@@ -443,7 +457,7 @@
       "authors": [],
       "created": 1468259954443,
       "tags": {},
-      "color": "#9CC6C0",
+      "color": "#bababa",
       "egfPosition": "12-17"
     },
     "sequence": {
@@ -457,14 +471,15 @@
       "id": "EGF_ML_connlr"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-c9b26f16-01f6-4241-9c9f-021f0391f38d",
     "parents": [],
     "metadata": {
       "name": "conn L-W",
@@ -472,7 +487,7 @@
       "authors": [],
       "created": 1468259954444,
       "tags": {},
-      "color": "#6DA19C",
+      "color": "#bababa",
       "egfPosition": "12-22"
     },
     "sequence": {
@@ -486,14 +501,15 @@
       "id": "EGF_ML_connlw"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-87fd4979-3638-4410-a5f6-8f6952b1ccd7",
     "parents": [],
     "metadata": {
       "name": "conn L-Y",
@@ -501,7 +517,7 @@
       "authors": [],
       "created": 1468259954444,
       "tags": {},
-      "color": "#B1CED0",
+      "color": "#bababa",
       "egfPosition": "12-24"
     },
     "sequence": {
@@ -515,14 +531,15 @@
       "id": "EGF_ML_connly"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-cbfe780f-2324-44ed-b42c-e2bb8452e330",
     "parents": [],
     "metadata": {
       "name": "conn M-R",
@@ -530,7 +547,7 @@
       "authors": [],
       "created": 1468259954445,
       "tags": {},
-      "color": "#65AAB1",
+      "color": "#bababa",
       "egfPosition": "13-17"
     },
     "sequence": {
@@ -544,14 +561,15 @@
       "id": "EGF_ML_connmr"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-fa6e13fd-2166-4f9b-ac71-c9657355b118",
     "parents": [],
     "metadata": {
       "name": "conn N-R",
@@ -559,7 +577,7 @@
       "authors": [],
       "created": 1468259954445,
       "tags": {},
-      "color": "#8EC78D",
+      "color": "#bababa",
       "egfPosition": "14-17"
     },
     "sequence": {
@@ -573,14 +591,15 @@
       "id": "EGF_ML_connnr"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-e22e799d-2b90-4c88-87a3-dc60991a9e2a",
     "parents": [],
     "metadata": {
       "name": "conn Q-R",
@@ -588,7 +607,7 @@
       "authors": [],
       "created": 1468259954446,
       "tags": {},
-      "color": "#53B15F",
+      "color": "#bababa",
       "egfPosition": "17"
     },
     "sequence": {
@@ -602,14 +621,15 @@
       "id": "EGF_ML_connqr"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-2e653d1b-69bd-41ef-9777-3d42150056cd",
     "parents": [],
     "metadata": {
       "name": "conn Q-W",
@@ -617,7 +637,7 @@
       "authors": [],
       "created": 1468259954446,
       "tags": {},
-      "color": "#C5C4C1",
+      "color": "#bababa",
       "egfPosition": "17-22"
     },
     "sequence": {
@@ -631,14 +651,15 @@
       "id": "EGF_ML_connqw"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-0c8e8151-1244-4112-8e98-5d5809c7d1f4",
     "parents": [],
     "metadata": {
       "name": "conn R-W",
@@ -646,7 +667,7 @@
       "authors": [],
       "created": 1468259954446,
       "tags": {},
-      "color": "#A5A6A2",
+      "color": "#bababa",
       "egfPosition": "18-22"
     },
     "sequence": {
@@ -660,14 +681,15 @@
       "id": "EGF_ML_connrw"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-de9b5891-eeca-453a-a45d-3779193991ca",
     "parents": [],
     "metadata": {
       "name": "conn T-V",
@@ -675,7 +697,7 @@
       "authors": [],
       "created": 1468259954447,
       "tags": {},
-      "color": "#e7aaa9",
+      "color": "#bababa",
       "egfPosition": "20-21"
     },
     "sequence": {
@@ -689,14 +711,15 @@
       "id": "EGF_ML_conntv"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-74de0e61-737f-4646-bcd4-733ff1cd3253",
     "parents": [],
     "metadata": {
       "name": "conn U-V",
@@ -704,7 +727,7 @@
       "authors": [],
       "created": 1468259954447,
       "tags": {},
-      "color": "#D28482",
+      "color": "#bababa",
       "egfPosition": "21"
     },
     "sequence": {
@@ -718,14 +741,15 @@
       "id": "EGF_ML_connuv"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-ae1dcba4-fe41-4e3d-a8e1-1d2b68f56537",
     "parents": [],
     "metadata": {
       "name": "conn W-X",
@@ -733,7 +757,7 @@
       "authors": [],
       "created": 1468259954448,
       "tags": {},
-      "color": "#E9BA9b",
+      "color": "#bababa",
       "egfPosition": "23"
     },
     "sequence": {
@@ -747,14 +771,15 @@
       "id": "EGF_ML_connwx"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-c9df41ab-68ec-42f4-9c10-25bac91b63ff",
     "parents": [],
     "metadata": {
       "name": "conn W-Y",
@@ -762,7 +787,7 @@
       "authors": [],
       "created": 1468259954448,
       "tags": {},
-      "color": "#efac7e",
+      "color": "#bababa",
       "egfPosition": "23-24"
     },
     "sequence": {
@@ -776,14 +801,15 @@
       "id": "EGF_ML_connwy"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-65a36385-6725-44e6-a087-55dcb1cde82c",
     "parents": [],
     "metadata": {
       "name": "conn W-Z",
@@ -791,7 +817,7 @@
       "authors": [],
       "created": 1468259954448,
       "tags": {},
-      "color": "#EFD79A",
+      "color": "#bababa",
       "egfPosition": "23-25"
     },
     "sequence": {
@@ -805,14 +831,15 @@
       "id": "EGF_ML_connwz"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-e36ec063-d17c-4775-942f-46c48b0d46e1",
     "parents": [],
     "metadata": {
       "name": "conn Y-Z",
@@ -820,7 +847,7 @@
       "authors": [],
       "created": 1468259954449,
       "tags": {},
-      "color": "#F1D26C",
+      "color": "#bababa",
       "egfPosition": "25"
     },
     "sequence": {
@@ -834,14 +861,15 @@
       "id": "EGF_ML_connyz"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-d8dbdf36-73ca-40ac-9a81-621ed14228b6",
     "parents": [],
     "metadata": {
       "name": "conn A-B BsaI-X",
@@ -849,7 +877,7 @@
       "authors": [],
       "created": 1468259954449,
       "tags": {},
-      "color": "#E4E480",
+      "color": "#bababa",
       "egfPosition": "1"
     },
     "sequence": {
@@ -863,14 +891,15 @@
       "id": "EGF_ML_connabbsaix"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-1ed0fed6-1000-403b-8768-c5e203c6c794",
     "parents": [],
     "metadata": {
       "name": "conn A-B BsaI-1",
@@ -878,7 +907,7 @@
       "authors": [],
       "created": 1468259954450,
       "tags": {},
-      "color": "#D3D34F",
+      "color": "#bababa",
       "egfPosition": "1"
     },
     "sequence": {
@@ -892,14 +921,15 @@
       "id": "EGF_ML_connabbsai1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-92b7d823-ac90-4253-afe1-6b9fd4228bdd",
     "parents": [],
     "metadata": {
       "name": "conn Y-Z BsaI-1",
@@ -907,7 +937,7 @@
       "authors": [],
       "created": 1468259954450,
       "tags": {},
-      "color": "#9CC6C0",
+      "color": "#bababa",
       "egfPosition": "25"
     },
     "sequence": {
@@ -921,14 +951,15 @@
       "id": "EGF_ML_connyzbsai1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},
     "notes": {}
   },
   {
-    "id": "block-f7e7b320-00dc-43ba-96bd-cbf71401c580",
     "parents": [],
     "metadata": {
       "name": "conn Y-Z BsaI-Y",
@@ -936,7 +967,7 @@
       "authors": [],
       "created": 1468259954450,
       "tags": {},
-      "color": "#6DA19C",
+      "color": "#bababa",
       "egfPosition": "25"
     },
     "sequence": {
@@ -950,7 +981,9 @@
       "id": "EGF_ML_connyzbsaiy"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true,
+      "hidden": true
     },
     "components": [],
     "options": {},

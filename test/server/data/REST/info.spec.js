@@ -1,20 +1,23 @@
 import { assert, expect } from 'chai';
 import request from 'supertest';
+import uuid from 'node-uuid';
 import { testUserId } from '../../../constants';
 import Block from '../../../../src/models/Block';
-import * as rollup from '../../../../server/data/rollup';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
 import devServer from '../../../../server/server';
-import { numberBlocksInRollup, createExampleRollup } from '../../../utils/rollup';
+import { numberBlocksInRollup, createExampleRollup } from '../../../_utils/rollup';
 import { range, merge } from 'lodash';
+import { deleteUser } from '../../../../server/data/persistence/admin';
 
 describe('Server', () => {
   describe('Data', () => {
     describe('REST', () => {
       describe('Info', () => {
         let server;
-        const userId = testUserId;
+        const randomUser = uuid.v1();
 
         const roll = createExampleRollup();
+        const otherRoll = createExampleRollup();
 
         const project = roll.project;
         const projectId = project.id;
@@ -24,19 +27,33 @@ describe('Server', () => {
           return block.components.length === 3;
         });
 
-        //add 5 weird role type blocks to roll
+        //add 5 weird role type (5 of each) blocks to roll
         const numberEsotericRole = 5;
         const esotericRole = 'sdlfkjasdlfkjasdf';
-        const blocks = range(numberEsotericRole)
-          .map(() => Block.classless({
-            projectId,
-            rules: { role: esotericRole },
-          }))
-          .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
-        merge(roll.blocks, blocks);
+        const esotericRoleAlt = 'dflhjasvoasv';
+
+        const makeBlocks = (projectId) => {
+          return range(numberEsotericRole * 2)
+            .map((num) => Block.classless({
+              projectId,
+              rules: { role: (num % 2 === 0) ? esotericRoleAlt : esotericRole },
+            }))
+            .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+        };
+
+        merge(roll.blocks, makeBlocks(roll.project.id));
+        merge(otherRoll.blocks, makeBlocks(otherRoll.project.id));
 
         before(() => {
-          return rollup.writeProjectRollup(projectId, roll, userId);
+          return projectPersistence.projectWrite(projectId, roll, testUserId)
+          //check across versions
+            .then(() => projectPersistence.projectWrite(projectId, roll, testUserId))
+            //check across users
+            .then(() => projectPersistence.projectWrite(otherRoll.project.id, otherRoll, randomUser));
+        });
+
+        after(() => {
+          return deleteUser(randomUser);
         });
 
         beforeEach('server setup', () => {
@@ -61,6 +78,7 @@ describe('Server', () => {
             .expect(result => {
               const { body } = result;
               expect(typeof body).to.equal('object');
+              expect(typeof body[esotericRole]).to.equal('number');
               expect(body[esotericRole]).to.equal(numberEsotericRole);
             })
             .end(done);
@@ -72,7 +90,8 @@ describe('Server', () => {
             .get(url)
             .expect(200)
             .expect(result => {
-              expect(result.body.length).to.equal(numberEsotericRole);
+              expect(Object.keys(result.body).length).to.equal(numberEsotericRole);
+              expect(Object.keys(result.body).every(id => roll.blocks[id]));
             })
             .end(done);
         });

@@ -1,6 +1,5 @@
 [
   {
-    "id": "block-a2741651-80bc-4fb3-aa8a-71cbda590be3",
     "parents": [],
     "metadata": {
       "name": "5'HA-hAAVS1",
@@ -23,7 +22,8 @@
       "id": "EGF_ML_1_5hahaavs1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -33,7 +33,6 @@
     }
   },
   {
-    "id": "block-abb60df6-7db4-4adc-9352-6b96144d1497",
     "parents": [],
     "metadata": {
       "name": "5'-ITR-PB",
@@ -56,7 +55,8 @@
       "id": "EGF_ML_1_5itrpb"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -66,7 +66,6 @@
     }
   },
   {
-    "id": "block-d5dbec3b-5038-43da-aae5-e2c0efe88f70",
     "parents": [],
     "metadata": {
       "name": "Insulator_FB",
@@ -89,7 +88,8 @@
       "id": "EGF_ML_2_insulatorfb"
     },
     "rules": {
-      "role": "insulator"
+      "role": "insulator",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -99,7 +99,6 @@
     }
   },
   {
-    "id": "block-c91c72da-b5a8-49c0-b3b8-1aa698970bf9",
     "parents": [],
     "metadata": {
       "name": "CAGp",
@@ -122,7 +121,8 @@
       "id": "EGF_ML_3_cagp"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -132,7 +132,6 @@
     }
   },
   {
-    "id": "block-6583f240-7509-4b75-bcbe-b42f11ce1069",
     "parents": [],
     "metadata": {
       "name": "CMVp_Tet",
@@ -155,7 +154,8 @@
       "id": "EGF_ML_3_cmvptet"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -165,7 +165,6 @@
     }
   },
   {
-    "id": "block-2da77eb4-a789-4890-93d9-012e932fde44",
     "parents": [],
     "metadata": {
       "name": "EF1ap",
@@ -188,7 +187,8 @@
       "id": "EGF_ML_3_ef1ap"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -198,7 +198,6 @@
     }
   },
   {
-    "id": "block-cf6cb9ac-aa53-41be-81e0-90229f3fd978",
     "parents": [],
     "metadata": {
       "name": "TRE3Gp",
@@ -221,7 +220,8 @@
       "id": "EGF_ML_3_tre3gp"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -231,7 +231,6 @@
     }
   },
   {
-    "id": "block-e20de3a8-388e-489f-a137-75d840c126ab",
     "parents": [],
     "metadata": {
       "name": "Kt-L7Ae - Weiss",
@@ -254,7 +253,8 @@
       "id": "EGF_ML_4_ktl7aeweiss"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -264,7 +264,6 @@
     }
   },
   {
-    "id": "block-3d7a90a7-6c66-466d-995b-8dac952e081b",
     "parents": [],
     "metadata": {
       "name": "attP - BxB1",
@@ -287,7 +286,8 @@
       "id": "EGF_ML_5_attpbxb1"
     },
     "rules": {
-      "role": "restrictionSite"
+      "role": "restrictionSite",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -297,7 +297,6 @@
     }
   },
   {
-    "id": "block-8a339152-e264-49a6-a82b-e75a00048139",
     "parents": [],
     "metadata": {
       "name": "K1-K1 -L7Ae",
@@ -320,7 +319,8 @@
       "id": "EGF_ML_5_k1k1l7ae"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -330,7 +330,6 @@
     }
   },
   {
-    "id": "block-7c798b28-7084-4081-90fe-085009c2e5df",
     "parents": [],
     "metadata": {
       "name": "Kt-Kt -L7Ae-Weiss",
@@ -353,7 +352,8 @@
       "id": "EGF_ML_5_ktktl7aeweiss"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -363,7 +363,6 @@
     }
   },
   {
-    "id": "block-894ab5d3-3fcb-42b8-b1be-fa0f64f1c776",
     "parents": [],
     "metadata": {
       "name": "ATG-BoxC (L7Ae)",
@@ -386,7 +385,8 @@
       "id": "EGF_ML_6_atgboxcl7ae"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -396,7 +396,6 @@
     }
   },
   {
-    "id": "block-4b0467cd-7edb-4cf2-9099-9d71d21c8a04",
     "parents": [],
     "metadata": {
       "name": "Kozak_ATG",
@@ -419,7 +418,8 @@
       "id": "EGF_ML_6_kozakatg"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -429,7 +429,6 @@
     }
   },
   {
-    "id": "block-6f97c11a-c92c-41af-9d65-9db1217261cf",
     "parents": [],
     "metadata": {
       "name": "Nt-IgKL sequence",
@@ -452,7 +451,8 @@
       "id": "EGF_ML_6_ntigklsequence"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -462,7 +462,6 @@
     }
   },
   {
-    "id": "block-4ce92693-3fdf-4454-8d5c-595fd9e94a30",
     "parents": [],
     "metadata": {
       "name": "Nt-MLS",
@@ -485,7 +484,8 @@
       "id": "EGF_ML_6_ntmls"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -495,7 +495,6 @@
     }
   },
   {
-    "id": "block-d39f4706-0071-4891-bf05-645a184f1827",
     "parents": [],
     "metadata": {
       "name": "Nt-myristoylation signal",
@@ -518,7 +517,8 @@
       "id": "EGF_ML_6_ntmyristoylationsignal"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -528,7 +528,6 @@
     }
   },
   {
-    "id": "block-2f550b28-4495-4866-aa5f-fe0fcbdfe521",
     "parents": [],
     "metadata": {
       "name": "Nt-Palmytolination sequence",
@@ -551,7 +550,8 @@
       "id": "EGF_ML_6_ntpalmytolinationsequence"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -561,7 +561,6 @@
     }
   },
   {
-    "id": "block-acdeb320-70ab-425c-94f7-d081a3e372a9",
     "parents": [],
     "metadata": {
       "name": "Nt-SV40-NLS",
@@ -584,7 +583,8 @@
       "id": "EGF_ML_6_ntsv40nls"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -594,7 +594,6 @@
     }
   },
   {
-    "id": "block-956af19b-6336-4bff-91b4-da9ea1e99337",
     "parents": [],
     "metadata": {
       "name": "3X-FLAG",
@@ -617,7 +616,8 @@
       "id": "EGF_ML_6_3xflag"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -627,7 +627,6 @@
     }
   },
   {
-    "id": "block-d94d2b15-09a0-456f-8291-b34ee1189a68",
     "parents": [],
     "metadata": {
       "name": "BxB1",
@@ -650,7 +649,8 @@
       "id": "EGF_ML_7_bxb1"
     },
     "rules": {
-      "role": "restrictionSite"
+      "role": "restrictionSite",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -660,7 +660,6 @@
     }
   },
   {
-    "id": "block-c7edeff2-27de-4f91-89eb-d5cf9f7bb347",
     "parents": [],
     "metadata": {
       "name": "L7Ae - Weiss",
@@ -683,7 +682,8 @@
       "id": "EGF_ML_7_l7aeweiss"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -693,7 +693,6 @@
     }
   },
   {
-    "id": "block-2ea316e3-1bc1-483e-84ae-0c4505913025",
     "parents": [],
     "metadata": {
       "name": "L7Ae ",
@@ -716,7 +715,8 @@
       "id": "EGF_ML_7_l7ae"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -726,7 +726,6 @@
     }
   },
   {
-    "id": "block-9634db1c-9a2e-41b3-afba-849da6eda76e",
     "parents": [],
     "metadata": {
       "name": "mKate2",
@@ -749,7 +748,8 @@
       "id": "EGF_ML_7_mkate2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -759,7 +759,6 @@
     }
   },
   {
-    "id": "block-7611cee5-dae6-4e6c-a71c-1448dccad814",
     "parents": [],
     "metadata": {
       "name": "mNeoGreen",
@@ -782,7 +781,8 @@
       "id": "EGF_ML_7_mneogreen"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -792,7 +792,6 @@
     }
   },
   {
-    "id": "block-b3036bbb-9e4b-42cb-b7be-4c49f4836e9f",
     "parents": [],
     "metadata": {
       "name": "mRuby2",
@@ -815,7 +814,8 @@
       "id": "EGF_ML_7_mruby2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -825,7 +825,6 @@
     }
   },
   {
-    "id": "block-8357346a-1bb0-4aea-9350-cb21eb2d3c2c",
     "parents": [],
     "metadata": {
       "name": "mTagBFP2",
@@ -848,7 +847,8 @@
       "id": "EGF_ML_7_mtagbfp2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -858,7 +858,6 @@
     }
   },
   {
-    "id": "block-e4164889-3743-4d6e-b120-28e2979c4416",
     "parents": [],
     "metadata": {
       "name": "Fyrefly Luciferase ",
@@ -881,7 +880,8 @@
       "id": "EGF_ML_7_fyreflyluciferase"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -891,7 +891,6 @@
     }
   },
   {
-    "id": "block-dd957447-78a8-4650-97a3-8b3ecd7c3495",
     "parents": [],
     "metadata": {
       "name": "Linker 1",
@@ -914,7 +913,8 @@
       "id": "EGF_ML_8_linker1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -924,7 +924,6 @@
     }
   },
   {
-    "id": "block-4d643391-675e-463b-9aa2-ed0c2cf2e9fc",
     "parents": [],
     "metadata": {
       "name": "Linker 2",
@@ -947,7 +946,8 @@
       "id": "EGF_ML_8_linker2"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -957,7 +957,6 @@
     }
   },
   {
-    "id": "block-82b9a70f-49c4-46c6-9f9b-d96201b28b85",
     "parents": [],
     "metadata": {
       "name": "p2A-Porcine teschovirus-1 ",
@@ -980,7 +979,8 @@
       "id": "EGF_ML_8_p2aporcineteschovirus1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -990,7 +990,6 @@
     }
   },
   {
-    "id": "block-6084a964-0753-4155-8f9e-6a8d40d9e362",
     "parents": [],
     "metadata": {
       "name": "Ct-KDEL",
@@ -1013,7 +1012,8 @@
       "id": "EGF_ML_8a_ctkdel"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1023,7 +1023,6 @@
     }
   },
   {
-    "id": "block-5a643e3b-73b8-490e-b3e0-32e2f206e7f0",
     "parents": [],
     "metadata": {
       "name": "IRES2",
@@ -1046,7 +1045,8 @@
       "id": "EGF_ML_8b_ires2"
     },
     "rules": {
-      "role": "rbs"
+      "role": "rbs",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1056,7 +1056,6 @@
     }
   },
   {
-    "id": "block-154842b2-13d9-4991-a678-b8bb3c1ad547",
     "parents": [],
     "metadata": {
       "name": "BSDR",
@@ -1079,7 +1078,8 @@
       "id": "EGF_ML_9_bsdr"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1089,7 +1089,6 @@
     }
   },
   {
-    "id": "block-cccb17a2-b9b5-411e-b194-9c94c7135402",
     "parents": [],
     "metadata": {
       "name": "PuroR",
@@ -1112,7 +1111,8 @@
       "id": "EGF_ML_9_puror"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1122,7 +1122,6 @@
     }
   },
   {
-    "id": "block-bb19b48f-c32c-4355-ab63-ddbf2c6db7f3",
     "parents": [],
     "metadata": {
       "name": "NeoR",
@@ -1145,7 +1144,8 @@
       "id": "EGF_ML_9_neor"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1155,7 +1155,6 @@
     }
   },
   {
-    "id": "block-397fba2e-032b-4d96-b9d3-ff8642ee99c0",
     "parents": [],
     "metadata": {
       "name": "DmrC",
@@ -1178,7 +1177,8 @@
       "id": "EGF_ML_9_dmrc"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1188,7 +1188,6 @@
     }
   },
   {
-    "id": "block-17b785e0-3a92-4118-b84f-89651c304bec",
     "parents": [],
     "metadata": {
       "name": "Fyrefly Luciferase -3XFLAG",
@@ -1211,7 +1210,8 @@
       "id": "EGF_ML_9_fyreflyluciferase3xflag"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1221,7 +1221,6 @@
     }
   },
   {
-    "id": "block-d014edb5-856e-4d87-b759-2cf18045291b",
     "parents": [],
     "metadata": {
       "name": "mNeoGreen",
@@ -1244,7 +1243,8 @@
       "id": "EGF_ML_9_mneogreen"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1254,7 +1254,6 @@
     }
   },
   {
-    "id": "block-efd1004e-a4e8-48f0-b033-cf0d14d75e7b",
     "parents": [],
     "metadata": {
       "name": "mRuby2",
@@ -1277,7 +1276,8 @@
       "id": "EGF_ML_9_mruby2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1287,7 +1287,6 @@
     }
   },
   {
-    "id": "block-fa20c757-bf77-4b27-afdd-f301893059d4",
     "parents": [],
     "metadata": {
       "name": "mTagBFP2",
@@ -1310,7 +1309,8 @@
       "id": "EGF_ML_9_mtagbfp2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1320,7 +1320,6 @@
     }
   },
   {
-    "id": "block-b8daec5c-ebae-4e3b-a08f-815894f0b38d",
     "parents": [],
     "metadata": {
       "name": "a-Tubulin",
@@ -1343,7 +1342,8 @@
       "id": "EGF_ML_9_atubulin"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1353,7 +1353,6 @@
     }
   },
   {
-    "id": "block-9edc4ded-040a-4529-9711-57bcc8bb847c",
     "parents": [],
     "metadata": {
       "name": "Tet-Aptazyme",
@@ -1376,7 +1375,8 @@
       "id": "EGF_ML_10_tetaptazyme"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1386,7 +1386,6 @@
     }
   },
   {
-    "id": "block-eb4ed506-6d95-4346-bb4f-72576680eedf",
     "parents": [],
     "metadata": {
       "name": "SV40 polyA",
@@ -1409,7 +1408,8 @@
       "id": "EGF_ML_11_sv40polya"
     },
     "rules": {
-      "role": "terminator"
+      "role": "terminator",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1419,7 +1419,6 @@
     }
   },
   {
-    "id": "block-8e38e3ee-884f-408d-a4f7-1491544d7a14",
     "parents": [],
     "metadata": {
       "name": "SV40p",
@@ -1442,7 +1441,8 @@
       "id": "EGF_ML_14_sv40p"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1452,7 +1452,6 @@
     }
   },
   {
-    "id": "block-fab9ecda-1314-4ac7-950f-ae9d902f36db",
     "parents": [],
     "metadata": {
       "name": "PuroR",
@@ -1475,7 +1474,8 @@
       "id": "EGF_ML_15_puror"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1485,7 +1485,6 @@
     }
   },
   {
-    "id": "block-218e0a0a-3128-40ce-af14-f1bf745489d5",
     "parents": [],
     "metadata": {
       "name": "bGH polyA",
@@ -1508,7 +1507,8 @@
       "id": "EGF_ML_16_bghpolya"
     },
     "rules": {
-      "role": "terminator"
+      "role": "terminator",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1518,7 +1518,6 @@
     }
   },
   {
-    "id": "block-124214b7-7479-4a74-959f-8aa374433c11",
     "parents": [],
     "metadata": {
       "name": "CMVp",
@@ -1541,7 +1540,8 @@
       "id": "EGF_ML_18_cmvp"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1551,7 +1551,6 @@
     }
   },
   {
-    "id": "block-eff6d2b1-e46a-47c4-8a12-6839de3d94cd",
     "parents": [],
     "metadata": {
       "name": "EF1ap",
@@ -1574,7 +1573,8 @@
       "id": "EGF_ML_18_ef1ap"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1584,7 +1584,6 @@
     }
   },
   {
-    "id": "block-88b6f220-a1cf-46a0-b766-bfc38f7d153b",
     "parents": [],
     "metadata": {
       "name": "mNeoGreen",
@@ -1607,7 +1606,8 @@
       "id": "EGF_ML_19_mneogreen"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1617,7 +1617,6 @@
     }
   },
   {
-    "id": "block-d7e0816b-d37b-4e05-8e2a-20ef05134a28",
     "parents": [],
     "metadata": {
       "name": "mRuby2",
@@ -1640,7 +1639,8 @@
       "id": "EGF_ML_19_mruby2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1650,7 +1650,6 @@
     }
   },
   {
-    "id": "block-51375f96-a370-460d-a305-42def03066c5",
     "parents": [],
     "metadata": {
       "name": "mTagBFP2",
@@ -1673,7 +1672,8 @@
       "id": "EGF_ML_19_mtagbfp2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1683,7 +1683,6 @@
     }
   },
   {
-    "id": "block-0690bdd6-1b02-4dd1-a967-0ea2a9b0d1e9",
     "parents": [],
     "metadata": {
       "name": "Tet-ON-3G",
@@ -1706,7 +1705,8 @@
       "id": "EGF_ML_19_teton3g"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1716,7 +1716,6 @@
     }
   },
   {
-    "id": "block-f7245100-a774-44a6-94f0-5d558f1e6a6b",
     "parents": [],
     "metadata": {
       "name": "Ct-minute-NES",
@@ -1739,7 +1738,8 @@
       "id": "EGF_ML_20_ctminutenes"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1749,7 +1749,6 @@
     }
   },
   {
-    "id": "block-1d6f141d-9b42-414e-b07c-5c7a3105b1fb",
     "parents": [],
     "metadata": {
       "name": "Ct-NES",
@@ -1772,7 +1771,8 @@
       "id": "EGF_ML_20_ctnes"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1782,7 +1782,6 @@
     }
   },
   {
-    "id": "block-6446add2-d86e-49c9-9536-5ccf819a8f9f",
     "parents": [],
     "metadata": {
       "name": "Linker 3",
@@ -1805,7 +1804,8 @@
       "id": "EGF_ML_20_linker3"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1815,7 +1815,6 @@
     }
   },
   {
-    "id": "block-ca2e8327-1179-449f-8b03-471bada2a73d",
     "parents": [],
     "metadata": {
       "name": "p2A-Porcine teschovirus-1 ",
@@ -1838,7 +1837,8 @@
       "id": "EGF_ML_20_p2aporcineteschovirus1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1848,7 +1848,6 @@
     }
   },
   {
-    "id": "block-ab244a54-4ccd-4da0-b544-3dc20cce3970",
     "parents": [],
     "metadata": {
       "name": "DmrA",
@@ -1871,7 +1870,8 @@
       "id": "EGF_ML_21_dmra"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1881,7 +1881,6 @@
     }
   },
   {
-    "id": "block-2fd164be-ceb5-404e-81b1-d06d83097335",
     "parents": [],
     "metadata": {
       "name": "mKate2",
@@ -1904,7 +1903,8 @@
       "id": "EGF_ML_21_mkate2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1914,7 +1914,6 @@
     }
   },
   {
-    "id": "block-827a79ea-4f5e-478c-9ff2-d1b53ac62760",
     "parents": [],
     "metadata": {
       "name": "mNeoGreen",
@@ -1937,7 +1936,8 @@
       "id": "EGF_ML_21_mneogreen"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1947,7 +1947,6 @@
     }
   },
   {
-    "id": "block-9c384279-4fa9-4d87-b123-5e9b75dc41d0",
     "parents": [],
     "metadata": {
       "name": "mRuby2",
@@ -1970,7 +1969,8 @@
       "id": "EGF_ML_21_mruby2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -1980,7 +1980,6 @@
     }
   },
   {
-    "id": "block-d93fd366-28b4-4cea-a893-bbbcf0a990a1",
     "parents": [],
     "metadata": {
       "name": "mTagBFP2",
@@ -2003,7 +2002,8 @@
       "id": "EGF_ML_21_mtagbfp2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -2013,7 +2013,6 @@
     }
   },
   {
-    "id": "block-4d797a30-35d5-4b37-96d1-8f167810a3e7",
     "parents": [],
     "metadata": {
       "name": "PuroR",
@@ -2036,7 +2035,8 @@
       "id": "EGF_ML_21_puror"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -2046,7 +2046,6 @@
     }
   },
   {
-    "id": "block-b53c5ae8-d1a9-4439-a4dc-e77c169d9884",
     "parents": [],
     "metadata": {
       "name": "PGK polyA",
@@ -2069,7 +2068,8 @@
       "id": "EGF_ML_22_pgkpolya"
     },
     "rules": {
-      "role": "terminator"
+      "role": "terminator",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -2079,7 +2079,6 @@
     }
   },
   {
-    "id": "block-ac490387-ab86-48d9-ba85-5bd7ede3cb70",
     "parents": [],
     "metadata": {
       "name": "Insulator_FB",
@@ -2102,7 +2101,8 @@
       "id": "EGF_ML_23_insulatorfb"
     },
     "rules": {
-      "role": "insulator"
+      "role": "insulator",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -2112,7 +2112,6 @@
     }
   },
   {
-    "id": "block-60050480-eccc-4b21-a62c-8daf79110f57",
     "parents": [],
     "metadata": {
       "name": "3'HA-hAAVS1",
@@ -2135,7 +2134,8 @@
       "id": "EGF_ML_24_3hahaavs1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -2145,7 +2145,6 @@
     }
   },
   {
-    "id": "block-e778c09f-9a15-4bd3-8aa4-914d3143fe02",
     "parents": [],
     "metadata": {
       "name": "3'-ITR-PB",
@@ -2168,7 +2167,8 @@
       "id": "EGF_ML_24_3itrpb"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},
@@ -2178,7 +2178,6 @@
     }
   },
   {
-    "id": "block-2e7a5180-5ac3-4caf-bbfc-24182325828f",
     "parents": [],
     "metadata": {
       "name": "SV40-ORI",
@@ -2201,7 +2200,8 @@
       "id": "EGF_ML_25_sv40ori"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "frozen": true
     },
     "components": [],
     "options": {},

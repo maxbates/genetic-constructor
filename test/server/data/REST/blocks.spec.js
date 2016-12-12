@@ -1,9 +1,10 @@
 import { assert, expect } from 'chai';
 import request from 'supertest';
 import { testUserId } from '../../../constants';
+import Rollup from '../../../../src/models/Rollup';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
-import * as persistence from '../../../../server/data/persistence';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
 import devServer from '../../../../server/server';
 import { merge } from 'lodash';
 
@@ -26,9 +27,10 @@ describe('Server', () => {
         const blockPatch = { some: 'field' };
         const patchedBlock = merge({}, blockData, blockPatch);
 
+        const roll = Rollup.fromArray(projectData, blockData);
+
         before(() => {
-          return persistence.projectCreate(projectId, projectData, userId)
-            .then(() => persistence.blockWrite(projectId, blockData));
+          return projectPersistence.projectWrite(projectId, roll, userId);
         });
 
         beforeEach('server setup', () => {
@@ -73,7 +75,7 @@ describe('Server', () => {
               }
               expect(result.body).to.eql(blockData);
 
-              persistence.blocksGet(projectId, false, blockId)
+              projectPersistence.blocksGet(projectId, blockId)
                 .then(blockMap => {
                   const result = blockMap[blockId];
                   expect(result).to.eql(blockData);
@@ -97,7 +99,7 @@ describe('Server', () => {
               expect(result.body).to.eql(patchedBlock);
               expect(result.body).to.not.eql(blockData);
 
-              persistence.blocksGet(projectId, false, blockId)
+              projectPersistence.blocksGet(projectId, blockId)
                 .then((blockMap) => {
                   const result = blockMap[blockId];
                   expect(result).to.eql(patchedBlock);
@@ -135,7 +137,7 @@ describe('Server', () => {
               expect(result.body).to.eql(newBlock);
               expect(result.body).to.not.eql(blockData);
 
-              persistence.blocksGet(projectId, false, blockId)
+              projectPersistence.blocksGet(projectId)
                 .then((blockMap) => {
                   const result = blockMap[blockId];
                   expect(result).to.eql(newBlock);
@@ -156,7 +158,7 @@ describe('Server', () => {
           request(server)
             .put(url)
             .send(newBlock)
-            .expect(400, done);
+            .expect(422, done);
         });
 
         it('PUT validates the block', (done) => {
@@ -164,23 +166,14 @@ describe('Server', () => {
           request(server)
             .put(url)
             .send(invalidDataBlock)
-            .expect(400, done);
+            .expect(422, done);
         });
 
-        it('DELETE deletes the block and returns ID', (done) => {
+        it('DELETE is 405', (done) => {
           const url = `/data/${projectId}/${blockId}`;
           request(server)
             .delete(url)
-            .expect(200)
-            .end((err, result) => {
-              if (err) {
-                done(err);
-              }
-
-              persistence.blocksExist(projectId, false, blockId)
-                .then(() => done(new Error('shouldnt exist')))
-                .catch(() => done());
-            });
+            .expect(405, done);
         });
       });
     });

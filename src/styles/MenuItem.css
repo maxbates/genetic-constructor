@@ -1,7 +1,7 @@
 @import './variables.css';
 
 .menu-item {
-  color: var(--colors-blueBlack);
+  color: var(--colors-nearlyBlack);
   font-size: 1em;
   user-select: none;
   position: relative;

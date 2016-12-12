@@ -15,7 +15,7 @@
  */
 const cp = require('child_process');
 
-console.log('Initiated genbank converter slave');
+console.log('[Genbank Extension] initiated genbank converter slave');
 
 process.on('message', (message) => {
   //whether we are importing or exporting

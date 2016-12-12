@@ -28,12 +28,14 @@ export default class InspectorGroup extends Component {
   static propTypes = {
     tabInfo: PropTypes.object.isRequired,
     projectId: PropTypes.string.isRequired,
+    project: PropTypes.object,
+    construct: PropTypes.object,
   };
 
   inspectorGroupTypeToComponent = (type) => {
     switch (type) {
     case 'information' :
-      return (<InspectorGroupInformation projectId={this.props.projectId} />);
+      return (<InspectorGroupInformation project={this.props.project} construct={this.props.construct} />);
     case 'help' :
       return (<InspectorGroupHelp />);
     case 'feedback' :

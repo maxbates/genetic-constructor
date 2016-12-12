@@ -14,9 +14,9 @@ module.exports = {
       .click('.InventoryListGroup-title')
       .waitForElementPresent('.InventoryItem-item', 5000, 'expected inventory items');
     browser
-      .assert.countelements('[data-inventory~="template"]', 29)
-      .assert.countelements('.construct-viewer', 29)
-      .assert.countelements('[data-nodetype="block"]', 277)
+      .assert.countelements('[data-inventory~="template"]', 14)
+      .assert.countelements('.construct-viewer', 14)
+      .assert.countelements('[data-nodetype="block"]', 143)
       .saveScreenshot('./test-e2e/current-screenshots/templates-basic.png')
       .end();
   }

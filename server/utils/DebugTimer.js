@@ -22,7 +22,8 @@ const toReadable = (float) => {
   return String(float).substr(0, precision + 2);
 };
 
-const realtime = process.env.DEBUG === 'realtime';
+const active = process.env.DEBUG && process.env.DEBUG.indexOf('timer') >= 0;
+const realtime = active && process.env.DEBUG.indexOf('timer:realtime') >= 0;
 
 export default class DebugTimer {
   constructor(name, options = {}) {
@@ -50,11 +51,11 @@ export default class DebugTimer {
   shouldLog() {
     const disabled = this.options.disabled === true;
     const cond = typeof this.options.condition === 'function' ? this.options.condition() : this.options.condition !== false;
-    return process.env.DEBUG && !disabled && cond;
+    return active && !disabled && cond;
   }
 
   log() {
-    if (process.env.DEBUG) {
+    if (active) {
       if (this.shouldLog() && !realtime) {
         console.log('\n' + this.name);
         //console.log('Diff Last | Diff Start | Message');
@@ -77,21 +78,21 @@ export default class DebugTimer {
 
   //run by constructor, or if delayed
   start(msg) {
-    if (process.env.DEBUG) {
+    if (active) {
       this.init = process.hrtime();
       this.addTime(msg, this.init);
     }
   }
 
   time(msg) {
-    if (process.env.DEBUG) {
+    if (active) {
       invariant(this.init, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
     }
   }
 
   end(msg = 'complete') {
-    if (process.env.DEBUG) {
+    if (active) {
       invariant(this.init, 'must have start()-ed');
       this.addTime(msg, process.hrtime());
       if (!realtime) {

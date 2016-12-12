@@ -7,7 +7,7 @@
 
   .Section {
     font-family: var(--font-family-bold);
-    color: var(--colors-blueBlack);
+    color: var(--colors-nearlyBlack);
     display: block;
     text-indent: 1.5rem;
     margin-bottom: 2px;

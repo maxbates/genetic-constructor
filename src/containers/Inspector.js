@@ -20,6 +20,8 @@ import {
   inspectorToggleVisibility,
   inspectorSelectTab,
 } from '../actions/ui';
+import { _getFocused } from '../selectors/focus';
+
 import InspectorGroup from '../components/Inspector/InspectorGroup';
 
 import '../styles/Inspector.css';
@@ -32,6 +34,8 @@ export class Inspector extends Component {
     inspectorToggleVisibility: PropTypes.func.isRequired,
     inspectorSelectTab: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
+    project: PropTypes.object,
+    construct: PropTypes.object,
   };
 
   setActive = (group) => {
@@ -74,7 +78,7 @@ export class Inspector extends Component {
   };
 
   render() {
-    const { isVisible, projectId } = this.props;
+    const { isVisible, projectId, project, construct } = this.props;
     // classes for content area
     const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
     // classes for vertical menu
@@ -95,7 +99,7 @@ export class Inspector extends Component {
     const tabInfo = this.sections[this.props.currentTab];
     let tab;
     if (tabInfo) {
-      tab = <InspectorGroup tabInfo={tabInfo} projectId={projectId} />;
+      tab = <InspectorGroup tabInfo={tabInfo} projectId={projectId} project={project} construct={construct} />;
     }
 
     return (
@@ -116,11 +120,16 @@ export class Inspector extends Component {
 
 function mapStateToProps(state, props) {
   const { isVisible, currentTab } = state.ui.inspector;
+  const { level, blockIds, constructId } = state.focus;
   const projectId = props.projectId;
+  const currentProject = state.projects[projectId];
+  const currentConstruct = state.blocks[constructId];
   return {
     isVisible,
     currentTab,
     projectId,
+    project: currentProject,
+    construct: currentConstruct,
   };
 }
 

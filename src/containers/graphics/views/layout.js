@@ -346,13 +346,12 @@ export default class Layout {
    */
   fillColor(part) {
     const block = this.blocks[part];
-    if (block.isFiller()) return '#4B505E';
-    // allow an optional blockColor method to override the block color
+
     if (this.blockColor) {
       return this.blockColor(part);
     }
-    // use color in meta data
-    return block.metadata.color || 'lightgray';
+
+    return block.getColor(this.palette);
   }
 
   /**
@@ -610,6 +609,7 @@ export default class Layout {
   update(options) {
     this.options = options;
     this.construct = options.construct;
+    this.palette = this.construct.metadata.palette;
     this.blocks = options.blocks;
     this.currentConstructId = options.currentConstructId;
     this.currentBlocks = options.currentBlocks;
@@ -617,7 +617,7 @@ export default class Layout {
     this.blockColor = options.blockColor;
     invariant(this.construct && this.blocks && this.currentBlocks && this.focusedOptions, 'missing required options');
 
-    this.baseColor = this.construct.metadata.color;
+    this.baseColor = this.construct.getColor();
 
     // get collapsed state, if present from local storage
     this.collapsed = getLocal(`${this.construct.id}-collapsed`, false);
@@ -826,7 +826,7 @@ export default class Layout {
         nestedConstructs.push(nestedLayout);
 
         // update base color of nested construct skeleton
-        nestedLayout.baseColor = block.metadata.color || this.baseColor;
+        nestedLayout.baseColor = block.getColor() || this.baseColor;
 
         // update minimum x extent of first rowH
         nestedLayout.initialRowXLimit = this.getConnectionRowLimit(part);
@@ -1001,7 +1001,7 @@ export default class Layout {
     const sourceRectangle = cnodes.sourceNode.getAABB();
     const destinationRectangle = cnodes.destinationNode.getAABB();
     connector.line.set({
-      stroke: this.partMeta(cnodes.sourceBlock.id, 'color'),
+      stroke: this.fillColor(cnodes.sourceBlock.id),
       line: new Line2D(sourceRectangle.center, new Vector2D(sourceRectangle.center.x, destinationRectangle.y)),
     });
     // ensure the connectors are always behind the blocks

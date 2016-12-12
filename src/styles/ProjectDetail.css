@@ -3,7 +3,7 @@
 .ProjectDetail {
 
   &-open {
-    color: var(--colors-greyMedLight);
+    color: var(--colors-mediumLightGrey);
     position: relative;
 
     &-resizeHandle {
@@ -14,20 +14,20 @@
       position: absolute;
       top: 0;
       z-index: 10;
-      background-color: var(--colors-blueGreyMed);
+      background-color: var(--colors-mediumDarkGrey);
 
       &:hover {
-        background-color: var(--colors-blueGreyLighter);
+        background-color: var(--colors-lightGrey);
       }
 
       &.dragging {
-        background-color: var(--colors-blueGreyLighter);
+        background-color: var(--colors-lightGrey);
       }
     }
 
     &-header {
       height: var(--projectDetailHeaderHeight);
-      background-color: var(--colors-blueGreyMed);
+      background-color: var(--colors-mediumDarkGrey);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -40,7 +40,7 @@
         transform: translateY(4px);
 
         &-extension {
-          color: var(--colors-greyMedLight);
+          color: var(--colors-mediumLightGrey);
           cursor: pointer;
           user-select: none;
           padding: 0.5rem 1rem;
@@ -70,14 +70,14 @@
 
 
   &-closed {
-    background-color: var(--colors-blueGreyMed);
+    background-color: var(--colors-mediumDarkGrey);
     display: flex;
     align-items: center;
     min-height: var(--projectDetailFooterHeight);
     padding-left: 0.5rem;
 
     &-extension {
-      color: var(--colors-greyMedLight);
+      color: var(--colors-mediumLightGrey);
       padding: 0.4rem;
       margin-right: 0.5rem;
       cursor: pointer;

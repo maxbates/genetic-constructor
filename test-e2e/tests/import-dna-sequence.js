@@ -39,6 +39,7 @@ module.exports = {
       .assert.countelements('[data-nodetype="block"]', 1);
 
     browser.pause(5000)
+      .waitForElementNotPresent('.ribbongrunt');
 
     var blockBounds = openNthBlockContextMenu(browser, '.sceneGraph', 0);
     clickNthContextMenuItem(browser, 3);

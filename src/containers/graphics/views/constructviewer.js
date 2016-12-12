@@ -624,7 +624,7 @@ export class ConstructViewer extends Component {
   }
 
   isSampleProject() {
-    return this.props.projectGet(this.props.currentProjectId).isSample;
+    return this.props.projectGet(this.props.currentProjectId).rules.frozen;
   }
 
   /**
@@ -645,10 +645,10 @@ export class ConstructViewer extends Component {
       <div className={classes}>
         <RoleSvg
           symbolName="lock"
-          color={this.props.construct.metadata.color}
+          color={this.props.construct.getColor()}
           width="14px"
           height="14px"
-          fill={this.props.construct.metadata.color}
+          fill={this.props.construct.getColor()}
         />
       </div>
     );

@@ -10,8 +10,8 @@
   height: calc(100vh - var(--GlobalNav-height-chrome));
   top: 0;
   bottom: 0;
-  background: var(--colors-blueBlack);
-  color: var(--colors-greyLight);
+  background: var(--colors-nearlyBlack);
+  color: var(--colors-lighterGrey);
   transition-property: width, opacity;
   transition-duration: var(--timing-fast);
   transition-timing: var(--SidePanel-ease);

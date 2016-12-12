@@ -5,7 +5,7 @@
   flex-shrink: 0;
 
   &-back {
-    color: var(--colors-grey);
+    color: var(--colors-slightlyDarkGrey);
     transition: background-color var(--timing-fast) ease-out;
     padding: 0.5em 4px;
     margin-bottom: 0.5em;
@@ -42,7 +42,7 @@
       }
 
       &-sources {
-        color: var(--colors-grey);
+        color: var(--colors-slightlyDarkGrey);
       }
     }
   }

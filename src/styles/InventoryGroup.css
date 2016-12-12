@@ -36,7 +36,7 @@
   }
 
   &-placeholderContent {
-    color: var(--colors-greyMedLight);
+    color: var(--colors-mediumLightGrey);
     text-align: center;
     margin: 10px auto;
   }

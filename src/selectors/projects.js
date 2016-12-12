@@ -19,6 +19,8 @@
  */
 import invariant from 'invariant';
 import * as blockSelectors from './blocks';
+import * as projectFilesApi from '../middleware/projectFiles';
+import Rollup from '../models/Rollup';
 
 const _getCurrentProjectId = () => {
   const match = /^\/project\/(.*?)\??$/gi.exec(window.location.pathname);
@@ -60,7 +62,7 @@ export const projectGetCurrentId = () => {
  * Get current project version
  * @function
  * @param {UUID} projectId
- * @returns {SHA} latest project version
+ * @returns {number} latest project version
  */
 export const projectGetVersion = (projectId) => {
   return (dispatch, getState) => {
@@ -182,9 +184,40 @@ export const projectCreateRollup = (projectId) => {
     const blocks = dispatch(projectListAllBlocks(projectId))
       .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 
-    return {
+    return new Rollup({
       project,
       blocks,
-    };
+    });
+  };
+};
+
+// PROJECT FILES
+
+/**
+ * Read a project file
+ * @function
+ * @param {UUID} projectId
+ * @param {String} namespace Namespace
+ * @param {String} fileName Name of File
+ * @param {String} [format='text']
+ * @param {String} [version] Default is return latest, or specify a specific version
+ */
+export const projectFileRead = (projectId, namespace, fileName, format, version) => {
+  return (dispatch, getState) => {
+    const oldProject = getState().projects[projectId];
+
+    return oldProject.fileRead(namespace, fileName, format, version);
+  };
+};
+
+/**
+ * List files associated with a specific namespace
+ * @function
+ * @param {UUID} projectId
+ * @param {String} namespace
+ */
+export const projectFileList = (projectId, namespace) => {
+  return (dispatch, getState) => {
+    return projectFilesApi.projectFileList(projectId, namespace);
   };
 };

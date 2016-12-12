@@ -23,6 +23,11 @@ if (process.env.NODE_ENV === 'test') {
   defaultOptions = { headers: { Cookie: 'sess=mock-auth' } };
 }
 
+export const headersHead = (overrides) => merge({}, defaultOptions, {
+  method: 'HEAD',
+  credentials: 'same-origin',
+}, overrides);
+
 export const headersGet = (overrides) => merge({}, defaultOptions, {
   method: 'GET',
   credentials: 'same-origin',

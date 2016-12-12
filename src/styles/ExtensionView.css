@@ -9,7 +9,7 @@
 
   &.visible {
     display: block;
-    background-color: var(--colors-blueGreyMed);
+    background-color: var(--colors-mediumDarkGrey);
   }
 
   &-content {

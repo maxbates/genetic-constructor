@@ -1,27 +1,31 @@
 import cp from 'child_process';
-import { serverConfig } from './webpack.config';
+//import { serverConfig } from './webpack.config';
 
 // Should match the text string used in `src/server.js/server.listen(...)`
 const RUNNING_REGEXP = /Server listening at http:\/\/(.*?)\//;
 
 let server;
-const { output } = serverConfig;
-const serverPath = './server/devServerBabel.js'; //for running with node (unbunbled with babel stuff)
-//const serverPath = path.join(output.path, output.filename); //todo - run bundled server
+
+//for running with node (unbunbled with babel stuff)
+const serverPath = './server/devServerBabel.js';
+
+//todo - run bundled server
+//const { output } = serverConfig;
+//const serverPath = path.join(output.path, output.filename);
 
 // Launch or restart the Node.js server
 function runServer(cb) {
   function defaultWriteOut(data) {
     const time = new Date().toTimeString();
-    process.stderr.write(time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
-    process.stderr.write(data);
+    process.stdout.write(time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
+    process.stdout.write(data);
   }
 
   function onStdOut(data) {
     const time = new Date().toTimeString();
     const match = data.toString('utf8').match(RUNNING_REGEXP);
 
-    process.stdout.write(`[PID=${server.pid}]` + time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
+    process.stdout.write(time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
     process.stdout.write(data);
 
     if (match) {
@@ -38,7 +42,7 @@ function runServer(cb) {
     server.kill('SIGTERM');
   }
 
-  server = cp.spawn('node', ['--max_old_space_size=4096', '--trace-gc', serverPath], {
+  server = cp.spawn('node', ['--max_old_space_size=4096', serverPath], {
     env: Object.assign({ NODE_ENV: 'dev' }, process.env),
     silent: false,
   });
@@ -48,7 +52,6 @@ function runServer(cb) {
 }
 
 process.on('exit', () => {
-  console.log(JSON.stringify(process.memoryUsage(), null, 2));
   if (server) {
     console.log('killing server');
     server.kill('SIGTERM');

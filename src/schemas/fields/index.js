@@ -115,6 +115,11 @@ const fields = mapValues({
     typeDescription: 'An IUPAC compliant sequence',
     scaffold: () => '',
   },
+  sequenceMd5: {
+    baseValidator: validatorFunctions.sequenceMd5,
+    typeDescription: 'either an md5, or md5 with range: md5[start:end]',
+    scaffold: () => null,
+  },
   email: {
     baseValidator: validatorFunctions.email,
     typeDescription: 'A valid email address',
@@ -135,8 +140,13 @@ const fields = mapValues({
 
   arrayOf: {
     baseValidator: validatorFunctions.arrayOf,
-    typeDescription: 'An array, where each item passes the passed validation function',
+    typeDescription: 'An array, where each item passes the passed validation function (value) => {}',
     scaffold: () => [],
+  },
+  objectOf: {
+    baseValidator: validatorFunctions.objectOf,
+    typeDescription: 'An object, where each value passes the passed validation function (value, key) => {}',
+    scaffold: () => ({}),
   },
   shape: {
     baseValidator: validatorFunctions.shape,
@@ -164,8 +174,5 @@ const fields = mapValues({
     scaffold: () => null, //todo - ideally would take an input
   },
 }, createFieldType);
-
-export const fieldNames = Object.keys(fields);
-export const fieldDescriptions = mapValues(fields, val => val.typeDescription);
 
 export default fields;

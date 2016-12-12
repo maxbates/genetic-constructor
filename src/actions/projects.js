@@ -19,7 +19,8 @@
  */
 import invariant from 'invariant';
 import * as ActionTypes from '../constants/ActionTypes';
-import { saveProject, loadProject, snapshot, listProjects, deleteProject } from '../middleware/data';
+import { saveProject, loadProject, listProjects, deleteProject } from '../middleware/projects';
+import { snapshot } from '../middleware/snapshots';
 import * as projectSelectors from '../selectors/projects';
 import * as blockActions from '../actions/blocks';
 import * as blockSelectors from '../selectors/blocks';
@@ -30,6 +31,7 @@ import { uniq, values, merge } from 'lodash';
 import * as instanceMap from '../store/instanceMap';
 import Block from '../models/Block';
 import Project from '../models/Project';
+import Rollup from '../models/Rollup';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 import { getLocal, setLocal } from '../utils/ui/localstorage';
@@ -109,7 +111,7 @@ export const projectDelete = (projectId) => {
  * @param {UUID} [inputProjectId] Omit to save the current project
  * @param {boolean} [forceSave=false] Force saving, even if the project has not changed since last save
  * @returns {Promise}
- * @resolve {sha|null} SHA of save, or null if save was unnecessary
+ * @resolve {number|null} version of save, or null if save was unnecessary
  * @reject {string|Response} Error message
  */
 export const projectSave = (inputProjectId, forceSave = false) => {
@@ -133,7 +135,7 @@ export const projectSave = (inputProjectId, forceSave = false) => {
     instanceMap.saveRollup(roll);
 
     return saveProject(projectId, roll)
-      .then(commitInfo => {
+      .then(versionInfo => {
         setLocal(recentProjectKey, projectId);
 
         //if no version => first time saving, show a grunt
@@ -145,14 +147,15 @@ export const projectSave = (inputProjectId, forceSave = false) => {
           setLocal(saveMessageKey, true);
         }
 
-        const { sha, time } = commitInfo;
+        const { version, time } = versionInfo;
         dispatch({
           type: ActionTypes.PROJECT_SAVE,
           projectId,
-          sha,
+          version,
           time,
         });
-        return sha;
+
+        return version;
       });
   };
 };
@@ -161,13 +164,15 @@ export const projectSave = (inputProjectId, forceSave = false) => {
  * Snapshots are saves of the project at an important point, creating an explicit commit with a user-specified message.
  * @function
  * @param {UUID} projectId
+ * @param {number} version project version, or null to default to latest
  * @param {string} message Commit message
+ * @param {object} tags Metadata tags to include in the snapshot
  * @param {boolean} [withRollup=true] Save the current version of the project
  * @returns {Promise}
- * @resolve {sha} SHA of snapshot
+ * @resolve {number} version for snapshot
  * @reject {string|Response} Error message
  */
-export const projectSnapshot = (projectId, message, withRollup = true) => {
+export const projectSnapshot = (projectId, version = null, message, tags = {}, withRollup = true) => {
   return (dispatch, getState) => {
     const roll = withRollup ?
       dispatch(projectSelectors.projectCreateRollup(projectId)) :
@@ -181,19 +186,19 @@ export const projectSnapshot = (projectId, message, withRollup = true) => {
       }
     }
 
-    return snapshot(projectId, message, roll)
+    return snapshot(projectId, version, message, tags, roll)
       .then(commitInfo => {
         if (!commitInfo) {
           return null;
         }
 
-        const { sha } = commitInfo;
+        const { version } = commitInfo;
         dispatch({
           type: ActionTypes.PROJECT_SNAPSHOT,
           projectId,
-          sha,
+          version,
         });
-        return sha;
+        return version;
       });
   };
 };
@@ -201,7 +206,7 @@ export const projectSnapshot = (projectId, message, withRollup = true) => {
 /**
  * Create a project
  * @function
- * @param {Object} initialModel Data to merge onto scaffold
+ * @param {Object} [initialModel={}] Data to merge onto scaffold
  * @returns {Project} New project
  */
 export const projectCreate = (initialModel) => {
@@ -244,10 +249,10 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
         .map((blockObject) => new Block(blockObject))
         .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 
-      return {
+      return new Rollup({
         project: projectModel,
         blocks: blockMap,
-      };
+      });
     })
     .catch(resp => {
       if ((resp === null || resp.status === 404) && loadMoreOnFail !== true && !Array.isArray(loadMoreOnFail)) {
@@ -264,7 +269,7 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
           .filter(manifest => !(ignores.indexOf(manifest.id) >= 0))
           //first sort descending by created date (i.e. if never saved) then descending by saved date (so it takes precedence)
           .sort((one, two) => two.metadata.created - one.metadata.created)
-          .sort((one, two) => two.lastSaved - one.lastSaved)
+          .sort((one, two) => two.metadata.updated - one.metadata.updated)
         )
         .then(manifests => {
           if (manifests.length) {
@@ -275,7 +280,7 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
           //if no manifests, create a new rollup
           //note - this shouldnt happen while users have sample projects
           //todo - may want to hit the server to re-setup the user's account
-          return emptyProjectWithConstruct();
+          return emptyProjectWithConstruct(true);
         });
     });
 };
@@ -481,5 +486,24 @@ export const projectRemoveConstruct = (projectId, constructId) => {
     dispatch(resumeAction());
 
     return project;
+  };
+};
+
+// PROJECT FILES
+
+export const projectFileWrite = (projectId, namespace, fileName, contents) => {
+  return (dispatch, getState) => {
+    const oldProject = getState().projects[projectId];
+
+    return oldProject.fileWrite(namespace, fileName, contents)
+      .then(project => {
+        //should this be undoable?
+        dispatch({
+          type: ActionTypes.PROJECT_FILE_WRITE,
+          project,
+        });
+
+        return project;
+      });
   };
 };

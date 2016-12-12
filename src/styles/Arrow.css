@@ -1,7 +1,7 @@
 @import './variables.css';
 
 :root {
-  --arrow-color: var(--colors-blueBlack);
+  --arrow-color: var(--colors-nearlyBlack);
   --arrow-size: 5px;
 }
 

@@ -69,7 +69,7 @@
   }
 
   &.disabled {
-    color: var(--colors-grey);
+    color: var(--colors-slightlyDarkGrey);
 
     > .InventoryListGroup-heading {
       .InventoryListGroup-title,

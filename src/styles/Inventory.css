@@ -18,7 +18,7 @@
     transition: background-color var(--timing-fast) var(--SidePanel-ease);
   }
   .vertical-menu.open {
-    background-color: var(--colors-blueBlack);
+    background-color: var(--colors-nearlyBlack);
   }
 
   .content {
@@ -27,7 +27,7 @@
     width: calc(var(--width-SidePanel-open) - var(--width-SidePanel-closed));
     height: 100%;
     background-color: var(--colors-white);
-    color: var(--colors-blueBlack);
+    color: var(--colors-nearlyBlack);
     transform: translateX(0);
     transition: transform var(--timing-fast) var(--SidePanel-ease);
   }

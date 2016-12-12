@@ -9,7 +9,7 @@
   }
 
   .content-dropdown {
-    background-color: var(--colors-blueGreyLighter);
+    background-color: var(--colors-lightGrey);
     margin: 0.5rem 0 0 -6px;
     padding-bottom: 0.5rem;
     width: calc(100% + 12px);
@@ -27,7 +27,7 @@
       }
       .value {
         width: 60%;
-        color: var(--colors-blueBlack);
+        color: var(--colors-nearlyBlack);
         font-family: var(--font-family-bold);
       }
     }

@@ -36,7 +36,7 @@ router.use(errorHandlingMiddleware);
 //dummy route, registered with Github
 router.route('/githubOAuth')
   .all((req, res, next) => {
-    //todo
+    //this doesnt need to do anything, unless we want to oauth with github
   });
 
 router.route('/githubIssue/:id?')

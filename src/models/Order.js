@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
 import Instance from '../models/Instance';
 import { cloneDeep } from 'lodash';
@@ -35,12 +35,13 @@ const idValidator = (id) => safeValidate(validators.id(), true, id);
 export default class Order extends Instance {
   /**
    * @constructor
-   * @param {Object} [input={}]
+   * @param {Object} [input={}] Must include projectId. projectVersion not necessary. constructIds must be array.
    * @returns {Order}
    */
   constructor(input = {}) {
     invariant(input.projectId, 'project Id is required to make an order');
-    invariant(input.constructIds, 'constructIDs are required on creation for generating number of constructs');
+    invariant(Array.isArray(input.constructIds), 'constructIDs are required on creation for generating number of constructs');
+    invariant(input.constructIds.length > 0, 'constructIDs are required on creation for generating number of constructs');
 
     super(input, OrderDefinition.scaffold());
   }
@@ -55,7 +56,7 @@ export default class Order extends Instance {
   }
 
   /**
-   * validate a complete order (with a project ID, which is after submission)
+   * validate a complete order (after submitted)
    * @method validate
    * @memberOf Order
    * @static
@@ -65,27 +66,11 @@ export default class Order extends Instance {
   }
 
   /**
-   * validate order prior to submission - should have parameters, constructs, user, projectId
-   * @method validateSetup
-   * @memberOf Order
-   * @param input
-   * @param throwOnError
-   * @throws if throwOnError === true
-   * @returns {boolean}
-   */
-  static validateSetup(input, throwOnError = false) {
-    return idValidator(input.projectId) &&
-      input.constructIds.length > 0 &&
-      input.constructIds.every(id => idValidator(id)) &&
-      OrderParametersSchema.validate(input.parameters, throwOnError);
-  }
-
-  /**
    * Validate the parameters of an order
    * @method validateParameters
    * @memberOf Order
    * @static
-   * @param input
+   * @param input Order.parameters
    * @param throwOnError
    * @throws if throwOnError ==== true
    * @returns {*}
@@ -94,7 +79,39 @@ export default class Order extends Instance {
     return OrderParametersSchema.validate(input, throwOnError);
   }
 
+  /**
+   * validate order prior to submission (ready to hand off to server/foundry)
+   * needed: parameters, constructIds, projectId
+   * not needed: user, projectVersion, status
+   * @method validateSetup
+   * @memberOf Order
+   * @param input
+   * @param throwOnError
+   * @throws if throwOnError === true
+   * @returns {boolean}
+   */
+  static validateSetup(input, throwOnError = false) {
+    try {
+      invariant(idValidator(input.projectId), 'must pass valid projectId');
+      invariant(
+        Array.isArray(input.constructIds) &&
+        input.constructIds.length > 0 &&
+        input.constructIds.every(id => idValidator(id)),
+        'must pass 1+ valid constructIds'
+      );
+      OrderParametersSchema.validate(input.parameters, true);
+    } catch (err) {
+      if (throwOnError === true) {
+        throw err;
+      }
+      return false;
+    }
+
+    return true;
+  }
+
   clone() {
+    //todo - enable this, but remove order-specifics (e.g. status)
     invariant(false, 'cannot clone an order');
   }
 
@@ -211,7 +228,8 @@ export default class Order extends Instance {
     return getQuote(foundry, this);
   }
 
-  //todo - should not need to pass this to the server. should be able to generated deterministically. Set up better code shsraing between client + server
+  //todo - should not need to pass combos to the server. should be able to generated deterministically. Set up better code shsraing between client + server
+  //todo - this should update the order itself, not just on the server
   /**
    * Submit the order
    * @method submit
@@ -221,6 +239,7 @@ export default class Order extends Instance {
    */
   submit(foundry, positionalCombinations) {
     //may want to just set the foundry on the order directly?
-    return submitOrder(this, foundry, positionalCombinations);
+    return submitOrder(this, foundry, positionalCombinations)
+      .then(result => new Order(result));
   }
 }

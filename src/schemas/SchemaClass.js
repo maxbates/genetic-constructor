@@ -123,7 +123,10 @@ export default class Schema {
       const isValid = validator(instanceFieldValue);
 
       if (!isValid) {
-        const errorMessage = `Invalid: Field ${field.name} of type ${field.type}. Got ${instanceFieldValue} (${typeof instanceFieldValue}). [${field.description || field.typeDescription}]`;
+        const errorMessage = `Validation Failed:
+Field ${field.name} of type ${field.type}.
+Got ${instanceFieldValue} (type ${typeof instanceFieldValue}).
+[${field.description || field.typeDescription}]`;
 
         if (shouldThrow) {
           throw Error(errorMessage);

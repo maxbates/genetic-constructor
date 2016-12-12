@@ -6,11 +6,11 @@
     user-select: text;
 
     &-title {
-      color: var(--colors-grey);
+      color: var(--colors-slightlyDarkGrey);
     }
 
     &-value {
-      color: var(--colors-blueBlack);
+      color: var(--colors-nearlyBlack);
       padding-left: 1em;
     }
   }

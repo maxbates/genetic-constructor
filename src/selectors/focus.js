@@ -53,7 +53,7 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
 
   if (level === 'project' || (!construct && !blocks.length)) {
     focused = project;
-    readOnly = !!forceProject || !!project.isSample;
+    readOnly = !!forceProject || !!project.rules.frozen;
     type = 'project'; //override in case here because construct / blocks unspecified
   } else if (level === 'construct' && construct || (defaultToConstruct === true && construct && !blocks.length)) {
     focused = [construct];
