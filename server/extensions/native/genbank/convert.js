@@ -240,7 +240,7 @@ export const importProject = (inputFilePath, fileUrl) => {
 
       logger(`[Import] Project handled:
 Project ${resProject.id}
-# blocks: ${Object.keys(blocks).length}
+# blocks: ${Object.keys(result.blocks).length}
 # sequences: ${result.sequences.length}`);
 
       //const outputFile = filePaths.createStorageUrl('imported_from_genbank.json');

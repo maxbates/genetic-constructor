@@ -25,7 +25,7 @@ import { dbHeadRaw, dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../mi
 import Rollup from '../../../src/models/Rollup';
 import debug from 'debug';
 
-const logger = debug('constructor:data:projects');
+const logger = debug('constructor:data:persistence:projects');
 
 //TODO - consistent naming. projects in this module are generally rollups
 //we have classes for blocks and projects, and this persistence module conflates the two. lets use rollup to be consistent. rename after this stuff is working...
