@@ -15,8 +15,6 @@
  */
 const cp = require('child_process');
 
-console.log('[Genbank Extension] initiated genbank converter slave');
-
 process.on('message', (message) => {
   //whether we are importing or exporting
   const conversion = message.type === 'import' ? 'from_genbank' : 'to_genbank';
@@ -25,8 +23,9 @@ process.on('message', (message) => {
 
   cp.exec(command, function runPython(err, stdout) {
     if (err) {
-      console.log('ERROR IN CHILD PROCESS');
+      console.log('Python childProcess error: ' + command);
       console.log(err);
+      console.log(err.stack);
       return process.send({ id: message.id, success: false, error: err, result: stdout });
     }
 

@@ -1,6 +1,7 @@
 import path from 'path';
 import invariant from 'invariant';
 import _, { merge, cloneDeep } from 'lodash';
+import debug from 'debug';
 import uuid from 'node-uuid';
 import { fork } from 'child_process';
 
@@ -10,8 +11,7 @@ import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import Annotation from '../../../../src/models/Annotation';
 
-import DebugTimer from '../../../utils/DebugTimer';
-const timer = new DebugTimer('Genbank', { delayed: true });
+const logger = debug('constructor:extension:genbank');
 
 //////////////////////////////////////////////////////////////
 // COMMON
@@ -23,7 +23,10 @@ const createTempFilePath = () => `/tmp/${uuid.v4()}`;
 const importFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
 const exportFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
 
+logger(`Creating Genbank forks: ${importFork.pid} ${exportFork.pid}`);
+
 process.on('exit', () => {
+  logger('Killing Genbank forks');
   importFork.kill('SIGHUP');
   exportFork.kill('SIGHUP');
 });
@@ -50,11 +53,11 @@ const runCommand = (command, inputFile, outputFile) => {
 
   return new Promise((resolve, reject) => {
     const procId = uuid.v4();
-    timer.time('starting fork ' + procId);
+    logger('[Fork] starting ' + procId);
 
     const onMessage = (message) => {
-      timer.time('fork completed ' + procId);
-      //console.log('proc completed', message);
+      logger('[Fork] completed ' + procId);
+      logger(message);
 
       if (message.success) {
         return resolve(message.result);
@@ -163,13 +166,13 @@ const handleProject = (outputProject, rootBlockIds) => {
 const readGenbankFile = (inputFilePath) => {
   const outputFilePath = createTempFilePath();
 
-  timer.time('starting conversion');
+  logger('[Read File] starting conversion');
 
   return runCommand('import', inputFilePath, outputFilePath)
     .then(resStr => {
-      timer.time('ran python');
+      logger('ran python');
 
-      if (!process.env.DEBUG) {
+      if (!logger.enabled) {
         fileSystem.fileDelete(outputFilePath);
       }
 
@@ -181,9 +184,9 @@ const readGenbankFile = (inputFilePath) => {
       }
     })
     .catch(err => {
-      console.log('ERROR IN PYTHON');
-      console.log(err);
-      if (!process.env.DEBUG) {
+      logger('[Read File] Python error: ');
+      logger(err);
+      if (!logger.enabled) {
         fileSystem.fileDelete(outputFilePath);
       }
       return Promise.reject(err);
@@ -195,12 +198,12 @@ const readGenbankFile = (inputFilePath) => {
 const handleBlocks = (inputFilePath, fileUrl) => {
   return readGenbankFile(inputFilePath)
     .then(result => {
-      timer.time('file read');
+      logger('file read');
 
       if (result && result.project && result.blocks &&
         result.project.components && result.project.components.length > 0) {
         const blocksWithOldIds = createAllBlocks(result.blocks, fileUrl);
-        timer.time('blocks created');
+        logger('blocks created');
 
         const idMap = _.zipObject(
           _.map(blocksWithOldIds, 'oldId'),
@@ -215,7 +218,7 @@ const handleBlocks = (inputFilePath, fileUrl) => {
           blocks: _.mapKeys(sequence.blocks, (value, oldId) => idMap[oldId]),
         }));
 
-        timer.time('blocks remapped');
+        logger('blocks + sequences remapped');
 
         return { project: result.project, rootBlocks: newRootBlocks, blocks: blockMap, sequences: newSequences };
       }
@@ -226,19 +229,19 @@ const handleBlocks = (inputFilePath, fileUrl) => {
 // Import project and construct/s from genbank
 // Returns a project structure and the list of all blocks
 export const importProject = (inputFilePath, fileUrl) => {
-  timer.start('start');
+  logger('[Import] project from ' + inputFilePath);
 
   return handleBlocks(inputFilePath, fileUrl)
     .then((result) => {
-      timer.time('blocks handled');
-
       if (_.isString(result)) {
         return result;
       }
       const resProject = handleProject(result.project, result.rootBlocks);
 
-      timer.log();
-      timer.clear();
+      logger(`[Import] Project handled:
+Project ${resProject.id}
+# blocks: ${Object.keys(blocks).length}
+# sequences: ${result.sequences.length}`);
 
       //const outputFile = filePaths.createStorageUrl('imported_from_genbank.json');
       //fileSystem.fileWrite(outputFile, {project: resProject, blocks: result.blocks});
@@ -282,6 +285,8 @@ const exportProjectStructure = (project, blocks) => {
     blocks,
   };
 
+  logger(`[Export] Input file: ${inputFilePath}\nOutput file: ${outputFilePath}`);
+
   //const outputFile2 = filePaths.createStorageUrl('exported_to_genbank.json');
   //fileSystem.fileWrite(outputFile2, input);
   //console.log(JSON.stringify(input));
@@ -289,22 +294,21 @@ const exportProjectStructure = (project, blocks) => {
   return fileSystem.fileWrite(inputFilePath, input)
     .then(() => runCommand('export', inputFilePath, outputFilePath))
     .then(resStr => {
-      if (!process.env.DEBUG) {
+      if (!logger.enabled) {
         fileSystem.fileDelete(inputFilePath);
       }
       return outputFilePath;
     })
     .catch(err => {
       //dont need to wait for promises to resolve
-      if (!process.env.DEBUG) {
+      if (!logger.enabled) {
         fileSystem.fileDelete(inputFilePath);
         fileSystem.fileDelete(outputFilePath);
       }
-      console.log('ERROR IN PYTHON');
-      console.log('Command');
-      console.log(`python ${path.resolve(__dirname, 'convert.py')} to_genbank ${inputFilePath} ${outputFilePath}`);
-      console.log('Error');
-      console.log(err);
+      const command = `python ${path.resolve(__dirname, 'convert.py')} to_genbank ${inputFilePath} ${outputFilePath}`;
+      logger('Python error: ' + command);
+      logger(err);
+      logger(err.stack);
       return Promise.reject(err);
     });
 };

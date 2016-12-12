@@ -12,7 +12,9 @@ import { filter } from 'lodash';
 import { projectPermissionMiddleware } from '../../../data/permissions';
 import * as projectPesistence from '../../../data/persistence/projects';
 import * as sequencePersistence from '../../../data/persistence/sequence';
-import DebugTimer from '../../../utils/DebugTimer';
+import debug from 'debug';
+
+const logger = debug('constructor:extension:genbank');
 
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
 
@@ -72,7 +74,7 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
   const { projectId, blockIdList } = req.params;
   const blockIds = blockIdList.split(',');
 
-  console.log(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
+  logger(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
 
   projectPesistence.projectGet(projectId)
     .then(roll => sequencePersistence.assignSequencesToRollup(roll))
@@ -110,7 +112,9 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
         });
     })
     .catch(err => {
-      console.log('Error!', err);
+      logger('Error exporting blocks');
+      logger(err);
+      logger(err.stack);
       res.status(500).send(err);
     });
 });
@@ -122,10 +126,10 @@ router.all('/export/:projectId/:constructId?',
     const { projectId, constructId } = req.params;
 
     //todo - use this for genbank, to export specific blocks
-    //const options = req.body;
+    const options = req.body;
 
-    console.log(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
-    //console.log(options);
+    logger(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
+    logger(options);
 
     projectPesistence.projectGet(projectId)
       .then(roll => sequencePersistence.assignSequencesToRollup(roll))
@@ -147,8 +151,9 @@ router.all('/export/:projectId/:constructId?',
           });
       })
       .catch(err => {
-        console.log('Error!', err);
-        console.log(err.stack);
+        logger('Error exporting');
+        logger(err);
+        logger(err.stack);
         res.status(500).send(err);
       });
   });
@@ -162,9 +167,7 @@ router.post('/import/:projectId?',
     const { noSave, returnRoll, projectId, files } = req; //eslint-disable-line no-unused-vars
     const { constructsOnly } = req.body;
 
-    const timer = new DebugTimer(`Genbank Import (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
-
-    console.log(`importing genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
+    logger(`importing genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
     const { name, string, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
@@ -179,7 +182,7 @@ router.post('/import/:projectId?',
           { roots, blocks: rootBlocks } :
             converted;
 
-          timer.end('converted');
+          logger('converted');
 
           return res.status(200).json(payload);
         })
@@ -189,10 +192,10 @@ router.post('/import/:projectId?',
     return importProject(filePath, fileUrl)
     //wrap all the childless blocks in a construct (so they dont appear as top-level constructs), update rollup with construct Ids
       .then(roll => {
-        timer.time('imported');
+        logger('imported');
 
         if (!roll || typeof roll !== 'object') {
-          console.log('error retrieving roll ' + filePath);
+          logger('error retrieving roll ' + filePath);
           return Promise.reject('error retrieving roll');
         }
 
@@ -230,14 +233,15 @@ router.post('/import/:projectId?',
         //dont care about timing
         fileSystem.fileWrite(filePath + '-converted', roll);
 
-        timer.end('remapped');
+        logger('remapped');
 
         Object.assign(req, { roll });
         next();
       })
       .catch((err) => {
-        console.log('error in Genbank conversion', err);
-        console.log(err.stack);
+        logger('error in Genbank conversion');
+        logger(err);
+        logger(err.stack);
         next(err);
       });
   },
