@@ -63,6 +63,7 @@
     "express": "^4.13.3",
     "fast-csv": "^1.0.0",
     "file-loader": "^0.8.5",
+    "find-versions": "^2.0.0",
     "formidable": "^1.0.17",
     "fs-extra": "^0.30.0",
     "gctor-storage": "./storage-ext",
