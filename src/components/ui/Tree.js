@@ -47,11 +47,17 @@ export default class Tree extends Component {
   }
 
   render() {
+    // calculate width of expand
+    const expandoWidth = 12 * this.props.depth;
+
     return (
       <div className="tree">
         {(this.props.items || []).map((item, index) => {
           return (
-            <div key={index} style={{paddingLeft: this.props.depth ? '12px' : '0'}}>
+            <div key={index} style={{
+              paddingLeft: `${expandoWidth}px`,
+              width: `calc(100% - ${expandoWidth}px)`,
+            }}>
               <Expando
                 showArrowWhenEmpty={this.props.depth === 0}
                 onExpand={this.onExpandBranch.bind(this, item)}
