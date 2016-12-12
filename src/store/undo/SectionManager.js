@@ -18,7 +18,13 @@ import debug from 'debug';
 
 const logger = debug('constructor:store:undo');
 
-/* eslint-disable no-console */
+const backupLog = (...args) => {
+  if (logger.enabled) {
+    logger(...args);
+  } else {
+    console.log(...args); /* eslint-disable-line no-console */
+  }
+};
 
 export default class SectionManager {
   constructor(initialState, config = {}) {
@@ -51,8 +57,8 @@ export default class SectionManager {
   };
 
   //todo - verify behavior of patching then inserting... currently, does not create a node
-  patch = (state, action) => {
-    logger(`SectionManager: patching (not undoable)`, action);
+  patch = (state, action = {}) => {
+    logger(`SectionManager: patching (not undoable)`, action.type);
 
     if (this.transactionDepth > 0) {
       return this.setTransactionState(state);
@@ -62,19 +68,19 @@ export default class SectionManager {
     return this.getCurrentState();
   };
 
-  insert = (state, action) => {
+  insert = (state, action = {}) => {
     //if same state, ignore it
     if (state === this.getPresent()) {
       return state;
     }
 
     if (this.transactionDepth > 0) {
-      logger('SectionManager insert(): updating transaction state' + (this.transactionDepth > 0 ? ' (in transaction)' : ''), action);
+      logger('SectionManager insert(): updating transaction state' + (this.transactionDepth > 0 ? ' (in transaction)' : ''), action.type);
 
       return this.setTransactionState(state);
     }
 
-    logger('SectionManager: insert() updating state' + (this.transactionDepth > 0 ? ' (in transaction)' : ''), action);
+    logger('SectionManager: insert() updating state' + (this.transactionDepth > 0 ? ' (in transaction)' : ''), action.type);
 
     this.history.insert(state);
 
@@ -123,7 +129,7 @@ export default class SectionManager {
 
   commit = (action) => {
     if (!this.transactionDepth > 0) {
-      console.warn('[Undo] commit() called outside transaction');
+      backupLog('[Undo] commit() called outside transaction');
       return this.getCurrentState();
     }
 
@@ -145,7 +151,7 @@ export default class SectionManager {
 
   abort = (action) => {
     if (!this.transactionDepth > 0) {
-      console.warn('[Undo] abort() called outside transaction');
+      backupLog('[Undo] abort() called outside transaction');
       return this.getCurrentState();
     }
 
@@ -168,5 +174,3 @@ export default class SectionManager {
 
   inTransaction = () => (this.transactionDepth > 0);
 }
-
-/* eslint-enable no-console */

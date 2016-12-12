@@ -33,11 +33,9 @@ const defaultOpts = {
 
 //wrap, so can force output
 const log = (output = '', forceOutput = false) => {
-  if (forceOutput === true) {
+  if (forceOutput === true || logger.enabled) {
     console.log(output.trim());
-    return;
   }
-  logger(output.trim());
 };
 
 export const promisedExec = (cmd, opts, {

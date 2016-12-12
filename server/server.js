@@ -70,6 +70,7 @@ app.use(morgan(logLevel, {
     if (req.path.indexOf('browser-sync') >= 0 || req.path.indexOf('__webpack') >= 0) {
       return true;
     }
+    //skip logging in test environment, unless DEBUG is set
     if (process.env.NODE_ENV === 'test' && !process.env.DEBUG) {
       return true;
     }
