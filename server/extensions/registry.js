@@ -41,8 +41,9 @@ fs.readdirSync(nodeModulesDir).forEach(packageName => {
       [packageName]: depManifest,
     });
   } catch (err) {
-    console.warn('\n\nerror loading extension: ' + packageName);
+    console.warn('\n\nerror loading extension, omitting: ' + packageName);
     console.error(err);
+    console.error(err.stack);
   }
 });
 

@@ -16,6 +16,7 @@
 import colors from 'colors/safe';
 import { exec, spawn } from 'child_process';
 import debug from 'debug';
+import { merge } from 'lodash';
 
 const logger = debug('constructor:tools');
 
@@ -23,10 +24,18 @@ if (!logger.enabled) {
   console.log('Enable build tool with env var DEBUG=constructor:tools');
 }
 
+const defaultOpts = {
+  silent: false,
+  env: Object.assign({
+    DEBUG_COLORS: true,
+  }, process.env),
+};
+
 //wrap, so can force output
 const log = (output = '', forceOutput = false) => {
   if (forceOutput === true) {
     console.log(output.trim());
+    return;
   }
   logger(output.trim());
 };
@@ -38,7 +47,7 @@ export const promisedExec = (cmd, opts, {
   console.log(colors.blue(comment || 'running ' + cmd));
 
   return new Promise((resolve, reject) => {
-    exec(cmd, opts, (err, stdout, stderr) => {
+    exec(cmd, merge({}, defaultOpts, opts), (err, stdout, stderr) => {
       if (err) {
         console.error(err);
         return reject(err);
@@ -67,12 +76,16 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
   failOnStderr = false,
   comment = null,
 } = {}) => {
-  console.log(colors.blue(comment || '\nrunning: ' + cmd + ' ' + args.join(' ')));
+  const runText = `running: ${cmd} ${args.join(' ')}`;
+  console.log(colors.blue(comment || runText)); //always log something
+  if (comment) {
+    console.log(runText); //log if debugging
+  }
 
   return new Promise((resolve, reject) => {
     //const [ command, ...args ] = cmd.split(' ');
 
-    const spawned = spawn(cmd, args, Object.assign({ silent: false }, opts));
+    const spawned = spawn(cmd, args, merge({}, defaultOpts, opts));
 
     //stdio only defined when piped, not if inherited / ignored
     if (spawned.stdout) {

@@ -24,7 +24,7 @@ const pathProjectRoot = path.resolve(__dirname, '../');
 const pathBioNanoPlatform = process.env.PLATFORM_PATH || path.resolve(pathProjectRoot, '../bio-user-platform');
 const PGPASSWORD = process.env.PGPASSWORD || 'storageGCTOR'; // TODO export this default from `gctor-storage`
 
-console.log('path for bio-user-platform is ' + pathBioNanoPlatform + '. Set by passing env var PLATFORM_PATH=/your/path');
+console.log('bio-user-platform PLATFORM_PATH=' + pathBioNanoPlatform);
 
 /** scripts **/
 
@@ -47,7 +47,7 @@ const startAuthServer = () => {
   return spawnAsync('npm', ['start'],
     {
       cwd: pathBioNanoPlatform,
-      env: Object.assign({ PGPASSWORD: PGPASSWORD }, process.env),
+      env: Object.assign({ PGPASSWORD }, process.env),
     },
     {
       comment: 'Starting User Module...',
