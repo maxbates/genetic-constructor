@@ -16,35 +16,39 @@
 
 import * as projectPersistence from '../data/persistence/projects';
 import onboardNewUser from './onboardNewUser';
-import DebugTimer from '../utils/DebugTimer';
+import debug from 'debug';
+
+const logger = debug('constructor:auth:onboarding');
 
 //if user has been setup, then return true
 const checkUserSetup = (user) => {
   /*
+   //re-enable if we want to assume that once a user has used constructor, they can't get into a bad state and never need to check them again
    if (user && user.data && user.data.constructor === true) {
    return Promise.resolve(true);
    }
    */
 
-  const timer = new DebugTimer('checkUserSetup ' + user.uuid, { disabled: true });
+  logger('checkUserSetup ' + user.uuid);
 
   return projectPersistence.getUserLastProjectId(user.uuid)
     .then(projectId => {
-      timer.end('query complete, already onboarded');
+      logger('checkUserSetup() query complete, already onboarded');
       return projectId;
     })
     .catch(err => {
-      timer.time('query complete, onboarding');
+      logger('checkUserSetup() query complete, onboarding...');
       return onboardNewUser(user)
         .then(rolls => {
-          console.log(`[User Setup] Generated ${rolls.length} projects for user ${user.uuid} (${user.email}):
-${rolls.map(roll => `${roll.project.metadata.name || 'Unnamed'} @ ${roll.project.id}`).join('\n')}`);
-
-          timer.end('onboarded');
+          logger(`checkUserSetup() onboarded ${user.uuid} (${user.email}) - ${rolls.length} projects`);
+          logger(rolls.map(roll => `${roll.project.metadata.name || 'Unnamed'} @ ${roll.project.id}`));
           return rolls[0].project.id;
         })
         .catch(err => {
-          console.log('error onboarding user', user);
+          logger('checkUserSetup() error onboarding');
+          logger(user);
+          logger(err);
+          logger(err.stack);
           return Promise.reject(err);
         });
     });
