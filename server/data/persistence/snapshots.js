@@ -15,6 +15,9 @@
  */
 import { errorDoesNotExist } from '../../utils/errors';
 import { dbGet, dbPost } from '../middleware/db';
+import debug from 'debug';
+
+const logger = debug('constructor:data:persistence:snapshots');
 
 // Snapshotting is special information about a version.
 
@@ -39,7 +42,7 @@ export const snapshotWrite = (projectId, userId, version, message = defaultMessa
     projectVersion = parseInt(version, 10);
   }
 
-  console.log(`writing shapshot @ V${Number.isInteger(projectVersion) ? projectVersion : '[latest]'} on ${projectId} - ${message}`);
+  logger(`[snapshotWrite] writing @ V${Number.isInteger(projectVersion) ? projectVersion : '[latest]'} on ${projectId} - ${message}`);
 
   //signature is weird - no data to pass, just several body parameters
   return dbPost(`snapshots/`, userId, {}, {}, {
@@ -63,6 +66,8 @@ export const snapshotList = (projectId, userId, tags = {}) => {
 };
 
 export const snapshotGet = (projectId, userId, version) => {
+  logger(`[snapshotGet] ${projectId} @ ${version}`);
+
   return dbGet(`snapshots/${projectId}?version=${version}`)
     .then(results => (Array.isArray(results) && results.length > 0) ? results[0] : Promise.reject(errorDoesNotExist))
     .then(transformDbVersion);

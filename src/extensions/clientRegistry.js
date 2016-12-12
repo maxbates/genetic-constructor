@@ -264,6 +264,7 @@ export const isRegistered = (key) => {
   return !!registry[key];
 };
 
+//we can remove it from the registry, but there is no meaningful way to remove the script from the page...
 export const clearRegistry = () => {
   if (process.env.NODE_ENV !== 'production') {
     console.warn('not actually clearning the registry, or doing anything');

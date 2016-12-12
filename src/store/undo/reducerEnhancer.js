@@ -46,7 +46,6 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
     initTypes: ['@@redux/INIT', '@@INIT'],
     purgeOn: () => false,
     filter: () => false,
-    debug: (process && process.env && process.env.DEBUGMODE),
   }, config);
 
   return (reducer, key = reducer.name) => {

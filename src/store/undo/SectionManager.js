@@ -14,6 +14,9 @@
  limitations under the License.
  */
 import StoreHistory from './storeHistory';
+import debug from 'debug';
+
+const logger = debug('constructor:store:undo');
 
 /* eslint-disable no-console */
 
@@ -49,9 +52,7 @@ export default class SectionManager {
 
   //todo - verify behavior of patching then inserting... currently, does not create a node
   patch = (state, action) => {
-    if (this.debug) {
-      console.log(`SectionManager: patching (not undoable)`, action);
-    }
+    logger(`SectionManager: patching (not undoable)`, action);
 
     if (this.transactionDepth > 0) {
       return this.setTransactionState(state);
@@ -68,16 +69,12 @@ export default class SectionManager {
     }
 
     if (this.transactionDepth > 0) {
-      if (this.debug) {
-        console.log('SectionManager insert(): updating transaction state' + (this.transactionDepth > 0 ? ' (in transaction)' : ''), action);
-      }
+      logger('SectionManager insert(): updating transaction state' + (this.transactionDepth > 0 ? ' (in transaction)' : ''), action);
 
       return this.setTransactionState(state);
     }
 
-    if (this.debug) {
-      console.log('SectionManager: insert() updating state' + (this.transactionDepth > 0 ? ' (in transaction)' : ''), action);
-    }
+    logger('SectionManager: insert() updating state' + (this.transactionDepth > 0 ? ' (in transaction)' : ''), action);
 
     this.history.insert(state);
 
@@ -85,9 +82,7 @@ export default class SectionManager {
   };
 
   undo = () => {
-    if (this.debug) {
-      console.log(`SectionManager: undo()`);
-    }
+    logger(`SectionManager: undo()`);
 
     this.history.undo();
     this.setTransactionState(null, true);
@@ -95,9 +90,7 @@ export default class SectionManager {
   };
 
   redo = () => {
-    if (this.debug) {
-      console.log(`SectionManager: redo()`);
-    }
+    logger(`SectionManager: redo()`);
 
     this.history.redo();
     this.setTransactionState(null, true);
@@ -105,9 +98,7 @@ export default class SectionManager {
   };
 
   jump = (number) => {
-    if (this.debug) {
-      console.log(`SectionManager: jump()`);
-    }
+    logger(`SectionManager: jump()`);
 
     this.history.jump(number);
     this.setTransactionState(null, true);
@@ -122,11 +113,7 @@ export default class SectionManager {
   transact = (action) => {
     this.transactionDepth++;
 
-    if (this.debug) {
-      if (console.group) {
-        console.group(`SectionManager: Beginning Transaction (depth = ${this.transactionDepth})`);
-      }
-    }
+    logger(`SectionManager: Beginning Transaction (depth = ${this.transactionDepth})`);
 
     //use current state (opposed to present) in case in a Transaction
     this.setTransactionState(this.getCurrentState());
@@ -136,21 +123,15 @@ export default class SectionManager {
 
   commit = (action) => {
     if (!this.transactionDepth > 0) {
-      console.warn('commit() called outside transaction');
+      console.warn('[Undo] commit() called outside transaction');
       return this.getCurrentState();
     }
 
     this.transactionDepth--;
 
-    if (this.debug) {
-      console.log('SectionManager: commit() ' +
-        (this.transactionFailure ? 'failed (aborted).' : 'committing...') +
-        (this.transactionDepth === 0 ? 'all transactions complete' : 'nested transaction'));
-
-      if (console.groupEnd) {
-        console.groupEnd();
-      }
-    }
+    logger('SectionManager: commit() ' +
+      (this.transactionFailure ? 'failed (aborted).' : 'committing...') +
+      (this.transactionDepth === 0 ? 'all transactions complete' : 'nested transaction'));
 
     if (this.transactionDepth === 0) {
       if (!this.transactionFailure) {
@@ -164,26 +145,19 @@ export default class SectionManager {
 
   abort = (action) => {
     if (!this.transactionDepth > 0) {
-      console.warn('abort() called outside transaction');
+      console.warn('[Undo] abort() called outside transaction');
       return this.getCurrentState();
     }
 
-    //todo - need to handle nested transactions... do we just go back to the start of all of them?
     if (this.transactionDepth > 1) {
-      console.warn('SectionManager will handle nested transactions with depth greater than one by reverting to the state at start of all transactions, when all of the transactions abort / commit');
+      logger('SectionManager will handle nested transactions with depth greater than one by reverting to the state at start of all transactions, when all of the transactions abort / commit. Currently still in nested transations');
     }
 
     this.transactionFailure = true;
     this.transactionDepth--;
 
-    if (this.debug) {
-      console.log('SectionManager: aborting transaction. ' +
-        (this.transactionDepth === 0 ? 'all transactions complete' : 'nested transaction'));
-
-      if (console.groupEnd) {
-        console.groupEnd();
-      }
-    }
+    logger('SectionManager: aborting transaction. ' +
+      (this.transactionDepth === 0 ? 'all transactions complete' : 'nested transaction'));
 
     if (this.transactionDepth === 0) {
       this.setTransactionState(null);

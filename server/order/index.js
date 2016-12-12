@@ -33,7 +33,7 @@ import saveCombinations from '../../src/utils/generators/orderConstructs';
 import debug from 'debug';
 
 const router = express.Router(); //eslint-disable-line new-cap
-const log = debug('constructor:order');
+const logger = debug('constructor:order');
 
 //in theory, we could get rid of this part of the route, and just assign the projectID basic on the project that is posted
 router.param('projectId', (req, res, next, id) => {
@@ -46,12 +46,12 @@ const validateOrderMiddleware = (req, res, next) => {
 
   const { foundry, order, positionalCombinations } = req.body;
   if (order.status.foundry && order.status.remoteId) {
-    log(`[Middleware] order already submitted: ${order.id} `);
+    logger(`[Middleware] order already submitted: ${order.id} `);
     return res.status(422).send('cannot submit an already submitted order');
   }
 
   if (!Order.validateSetup(order)) {
-    log(`[Middleware] setup invalid: ${order.id}`);
+    logger(`[Middleware] setup invalid: ${order.id}`);
     return res.status(422).send('error validating order setup');
   }
 
@@ -88,7 +88,7 @@ const validateOrderMiddleware = (req, res, next) => {
         },
       });
 
-      log('[Middleware] Generating combinations...');
+      logger('[Middleware] Generating combinations...');
 
       //note - this code is not very memory efficient and should be optimized more
 
@@ -142,8 +142,8 @@ router.post('/validate', validateOrderMiddleware, (req, res, next) => {
       res.status(200).send(true);
     })
     .catch(err => {
-      log(`[Validate] error validating order ${order.id} at ${foundry}`);
-      log(err);
+      logger(`[Validate] error validating order ${order.id} at ${foundry}`);
+      logger(err);
       res.status(422).send(err);
     });
 });
@@ -185,7 +185,7 @@ router.route('/:projectId/:orderId?')
       return res.status(422).send('project ID and order.projectId must match');
     }
 
-    log(`
+    logger(`
 Order request:
 Order ID ${order.id}
 Project ID ${order.projectId}
@@ -204,8 +204,8 @@ User ${user.uuid}
       .catch(err => {
         //probably want more consistent error handling across foundries, once we add more + decide how they are integrated
 
-        log(`[Submit] error submitting order ${order.id} to ${foundry}`);
-        log(err);
+        logger(`[Submit] error submitting order ${order.id} to ${foundry}`);
+        logger(err);
         return Promise.reject(errorInvalidModel);
       })
       .then(orderResponse => {
@@ -249,8 +249,8 @@ User ${user.uuid}
 
                 //final validation before writing - if hit an error here, our fault
                 if (!Order.validate(order)) {
-                  log('[Submit] submitted order did not validate');
-                  log(order);
+                  logger('[Submit] submitted order did not validate');
+                  logger(order);
 
                   return Promise.reject(errorInvalidModel);
                 }
@@ -264,9 +264,9 @@ User ${user.uuid}
         res.status(200).send(order);
       })
       .catch(err => {
-        log('[Submit] Order failed:');
-        log(err);
-        log(err.stack);
+        logger('[Submit] Order failed:');
+        logger(err);
+        logger(err.stack);
 
         if (err === errorInvalidModel) {
           res.status(422).send(errorInvalidModel);

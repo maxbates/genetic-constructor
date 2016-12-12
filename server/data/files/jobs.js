@@ -19,6 +19,9 @@ import * as s3 from '../middleware/s3';
 import * as filePaths from '../middleware/filePaths';
 import * as agnosticFs from './agnosticFs';
 import { HOST_URL } from '../../urlConstants';
+import debug from 'debug';
+
+const logger = debug('constructor:data:files:projectFiles');
 
 //note - this module is incredibly similar to project files...
 //notable, filename not required to write - will be generated and returned
@@ -33,8 +36,10 @@ export const bucketName = 'bionano-gctor-jobs';
 let s3bucket;
 if (s3.useRemote) {
   s3bucket = s3.getBucket(bucketName);
+  logger(`Bucket: ${bucketName}`);
 } else {
   s3bucket = filePaths.createJobFilePath();
+  logger(`File Path: ${s3bucket}`);
 }
 
 // IO platform dependent paths
@@ -60,6 +65,7 @@ export const jobFileRead = (projectId, namespace, path) => {
   invariant(path, 'need to pass a namespace + path');
 
   const filePath = getFilePath(projectId, namespace, path);
+  logger(`[jobFileRead] ${filePath}`);
 
   return agnosticFs.fileRead(s3bucket, filePath);
 };
@@ -72,6 +78,7 @@ export const jobFileWrite = (projectId, namespace, contents, fileName) => {
 
   const name = fileName || jobFileName(contents);
   const filePath = getFilePath(projectId, namespace, name);
+  logger(`[jobFileWrite] ${filePath}`);
 
   return agnosticFs.fileWrite(s3bucket, filePath, contents)
     .then(result => Object.assign(result, {
@@ -85,6 +92,7 @@ export const jobFileDelete = (projectId, namespace, path) => {
   invariant(path, 'need to pass a namespace + path');
 
   const filePath = getFilePath(projectId, namespace, path);
+  logger(`[jobFileDelete] ${filePath}`);
 
   return agnosticFs.fileDelete(s3bucket, filePath);
 };
@@ -97,6 +105,7 @@ export const jobFileList = (projectId, namespace) => {
   invariant(namespace, 'must pass a namespace');
 
   const dirPath = getFilePath(projectId, namespace);
+  logger(`[jobFileList] ${dirPath}`);
 
   return agnosticFs.fileList(s3bucket, dirPath);
 };
