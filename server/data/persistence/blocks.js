@@ -33,6 +33,7 @@ export const getAllBlocksWithName = (userId, name) => {
     .then(reduceToMap);
 };
 
+//note - 'none' will get blocks with no role
 export const getAllPartsWithRole = (userId, role) => {
   return dbGet(`blocks/role/${userId}/${role}`)
     .then(reduceToMap);
