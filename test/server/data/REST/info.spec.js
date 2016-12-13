@@ -12,7 +12,7 @@ import { deleteUser } from '../../../../server/data/persistence/admin';
 describe('Server', () => {
   describe('Data', () => {
     describe('REST', () => {
-      describe.only('Info', () => {
+      describe('Info', () => {
         let server;
         const randomUser = uuid.v1();
 
