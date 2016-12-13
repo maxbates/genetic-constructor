@@ -16,7 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import Block from '../../models/Block';
 import { connect } from 'react-redux';
-import { blockLoad, blockStash } from '../../actions/blocks';
+import { blockClone, blockLoad, blockStash } from '../../actions/blocks';
 import { block as blockDragType } from '../../constants/DragTypes';
 import { getBlockRoles, getBlocksWithRole } from '../../middleware/querying';
 import { symbolMap } from '../../inventory/roles';
@@ -32,6 +32,7 @@ import Spinner from '../ui/Spinner';
 export class InventoryRoleMap extends Component {
   static propTypes = {
     blockStash: PropTypes.func.isRequired,
+    blockClone: PropTypes.func.isRequired,
     blockLoad: PropTypes.func.isRequired,
   };
 
@@ -98,8 +99,8 @@ export class InventoryRoleMap extends Component {
   onBlockDrop = (item, target) => {
     //get components if its a construct and add blocks to the store
     //note - this may be a very large query
-    return this.props.blockLoad(item.id, item.projectId, true, true)
-      .then(() => item.setRule('hidden', false));
+    //note - used to unhide blocks but lets see what desired behavior is
+    return this.props.blockLoad(item.id, item.projectId, true, true);
   };
 
   //false is for loading
@@ -144,4 +145,5 @@ export class InventoryRoleMap extends Component {
 export default connect(() => ({}), {
   blockStash,
   blockLoad,
+  blockClone,
 })(InventoryRoleMap);
