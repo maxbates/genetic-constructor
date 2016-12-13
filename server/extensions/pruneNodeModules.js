@@ -17,6 +17,7 @@
 //run this script with node to clear our extensions which are not listed in server/extensions/package.json
 const fs = require('fs');
 const path = require('path');
+const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 
 //pass this CLI flag to only delete extensions not in extensions package.json -- e.g. if you are symlinked or have a hefty install
@@ -26,17 +27,22 @@ export default function pruneNodeModules(inputPath) {
   //expects to be run from root, or explicit path so path doesnt exist if called from elsewhere
   const nodeModulePath = inputPath || path.resolve(__dirname, 'server', 'extensions', 'node_modules');
 
-  console.log('pass env var EXTENSIONS_PRUNE=true to prune extensions not in package.json, not delete them all');
+  if (onlyDeleteOutersection) {
+    console.log('pruning extensions not in package.json...');
+  } else {
+    console.log('(set env var EXTENSIONS_PRUNE=true to prune extensions not in package.json, not delete them all)');
+  }
 
   return new Promise((resolve) => {
     fs.stat(nodeModulePath, function checkDirExists(err, stat) {
       if (err) {
         if (err.code === 'ENOENT') {
-          console.log(`Directory ${nodeModulePath} does not exist`);
+          console.log(`Directory ${nodeModulePath} does not exist, creating...`);
+          mkdirp.sync(nodeModulePath);
         } else {
           console.error(`error checking for directory ${nodeModulePath}`);
+          throw err;
         }
-        throw err;
       }
 
       const pkg = require(path.resolve(__dirname, 'package.json'));
