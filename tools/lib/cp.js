@@ -76,7 +76,7 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
 } = {}) => {
   const runText = `running: ${cmd} ${args.join(' ')}`;
   console.log(colors.blue(comment || runText)); //always log something
-  if (comment) {
+  if (logger.enabled) {
     console.log(runText); //log if debugging
   }
 

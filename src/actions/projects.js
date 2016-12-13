@@ -498,9 +498,9 @@ export const projectFileWrite = (projectId, namespace, fileName, contents) => {
 
     return oldProject.fileWrite(namespace, fileName, contents)
       .then(project => {
-        //should this be undoable?
         dispatch({
           type: ActionTypes.PROJECT_FILE_WRITE,
+          undoable: true,
           project,
         });
 

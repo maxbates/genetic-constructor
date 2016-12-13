@@ -229,7 +229,7 @@ export const oneOfType = (types, { required = false } = {}) => input => {
 
   const checker = type => {
     return isFunction(type) ?
-      safeValidate(type, required, input, true) :
+      safeValidate(type, required, input) :
     input instanceof type;
   };
 
@@ -269,7 +269,7 @@ export const objectOf = (validator, { required = false } = {}) => input => {
     return new Error(`this objectOf requires values, but got an empty object: ${input}`);
   }
 
-  if (_.some(input, (value, key) => !safeValidate(validator, required, value, false, key))) {
+  if (_.some(input, (value, key) => !safeValidate(validator, required, value, key))) {
     return new Error(`input ${input} passed to objectOf did not pass validation`);
   }
 };

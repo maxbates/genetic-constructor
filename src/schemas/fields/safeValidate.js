@@ -14,6 +14,9 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+import debug from 'debug';
+
+const logger = debug('constructor:schemas');
 
 /**
  * wraps a validator function to handle errors. Errors will log in non-production environments.
@@ -25,11 +28,10 @@ import invariant from 'invariant';
  * 2) throws an error for invalid, and returns anything but false otherwise
  * @param required {Boolean=} pass `true` if required, otherwise undefined / null will validate
  * @param input {*} The input value to validate
- * @param skipLogs {boolean} Force skipping of logs
  * @param args {...*} More args to validator
  * @return {Boolean} true if validation did not return an Error or false
  */
-export default function safeValidate(validator, required = false, input, skipLogs = false, ...args) {
+export default function safeValidate(validator, required = false, input, ...args) {
   invariant(typeof validator === 'function', 'must pass a function');
 
   if (required === false && (input === undefined || input === null)) {
@@ -45,10 +47,7 @@ export default function safeValidate(validator, required = false, input, skipLog
 
     return result !== false;
   } catch (err) {
-    if (process.env.NODE_ENV !== 'production' && skipLogs !== true) {
-      /* eslint no-console: [0] */
-      console.error(err, input, ...args);
-    }
+    logger(err, input, ...args);
     return false;
   }
 }

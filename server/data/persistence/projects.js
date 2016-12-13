@@ -209,7 +209,8 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
     try {
       Rollup.validate(roll, true, true);
     } catch (err) {
-      console.log(err);
+      logger('[projectWrite] validation failed');
+      logger(err);
       return Promise.reject(errorInvalidModel);
     }
     logger('[projectWrite] validated');

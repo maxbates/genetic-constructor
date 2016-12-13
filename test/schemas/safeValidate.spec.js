@@ -19,7 +19,5 @@ describe('Schema', () => {
       expect(safeValidate(stringValidator, true)).to.equal(false);
       expect(safeValidate(stringValidator, true, 'blah')).to.equal(true);
     });
-
-    it('should log errors when not in production'); //unclear how to only stub in this scope
   });
 });

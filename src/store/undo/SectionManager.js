@@ -18,14 +18,6 @@ import debug from 'debug';
 
 const logger = debug('constructor:store:undo');
 
-const backupLog = (...args) => {
-  if (logger.enabled) {
-    logger(...args);
-  } else {
-    console.log(...args); /* eslint-disable-line no-console */
-  }
-};
-
 export default class SectionManager {
   constructor(initialState, config = {}) {
     this.history = new StoreHistory(initialState);
@@ -129,7 +121,7 @@ export default class SectionManager {
 
   commit = (action) => {
     if (!this.transactionDepth > 0) {
-      backupLog('[Undo] commit() called outside transaction');
+      logger('commit() called outside transaction');
       return this.getCurrentState();
     }
 
@@ -151,7 +143,7 @@ export default class SectionManager {
 
   abort = (action) => {
     if (!this.transactionDepth > 0) {
-      backupLog('[Undo] abort() called outside transaction');
+      logger('abort() called outside transaction');
       return this.getCurrentState();
     }
 
