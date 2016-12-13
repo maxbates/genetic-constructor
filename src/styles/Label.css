@@ -32,11 +32,11 @@
     .lock {
       width: 12px;
       height: 12px;
-      display: inline-block;
       background-image: url('/images/ui/lock.svg');
       background-repeat: no-repeat;
       background-size: contain;
-      margin-right: 4px;
+      margin-right: 2px;
+      flex-shrink: 0;
     }
     span.primary {
       white-space: nowrap;

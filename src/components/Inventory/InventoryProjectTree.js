@@ -110,9 +110,10 @@ export class InventoryProjectTree extends Component {
    * @param projectId
    */
   onExpandBlock(block, item) {
-    this.props.focusForceBlocks([block]);
-    this.props.inspectorToggleVisibility(true);
-    this.props.inspectorSelectTab('Information');
+    // TODO, this should work but is broken in DEV currently as well
+    // this.props.focusForceBlocks([block]);
+    // this.props.inspectorToggleVisibility(true);
+    // this.props.inspectorSelectTab('Information');
   }
 
   /**
@@ -172,14 +173,14 @@ export class InventoryProjectTree extends Component {
           const hasSequence = block.sequence && block.sequence.length > 0;
           items.push({
             block,
-            text       : block.getName(),
+            text: block.getName(),
             textWidgets: [
               hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }}/> : null,
             ],
-            onExpand   : this.onExpandBlock.bind(this, block),
-            items      : this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
-            startDrag  : this.onBlockDrag.bind(this, block),
-            locked     : block.isFrozen(),
+            onExpand: this.onExpandBlock.bind(this, block),
+            items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
+            startDrag: this.onBlockDrag.bind(this, block),
+            locked: block.isFrozen(),
           });
         }
       });
@@ -236,7 +237,7 @@ export class InventoryProjectTree extends Component {
    * perform the actual deletion.
    */
   deleteProject(project) {
-    if (project.isSample) {
+    if (project.rules.frozen) {
       this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
     } else {
       //load another project, avoiding this one
@@ -291,11 +292,11 @@ export class InventoryProjectTree extends Component {
     if (isLoading) {
       return <Spinner />;
     }
-    // filter on isSample to separate templates from projects and also match to the current search filter
+    // filter on frozen rule to separate templates from projects and also match to the current search filter
     const filtered = {};
     Object.keys(projects).forEach(projectId => {
       const project = projects[projectId];
-      if (this.props.templates === !!project.isSample) {
+      if (this.props.templates === !!project.rules.frozen) {
         const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
         const filter = this.state.filter.toLowerCase();
         if (name.indexOf(filter) >= 0) {
@@ -315,7 +316,7 @@ export class InventoryProjectTree extends Component {
         selected: project.id === currentProjectId,
         onExpand: this.onExpandProject.bind(this, project),
         onContextMenu: this.onProjectContextMenu.bind(this, project),
-        items: this.getProjectBlocksRecursive(project.components, 0, project.isSample ? 1 : Number.MAX_VALUE),
+        items: this.getProjectBlocksRecursive(project.components, 0, project.rules.frozen ? 1 : Number.MAX_VALUE),
         labelWidgets: [
           <img
             key="open"
@@ -334,7 +335,7 @@ export class InventoryProjectTree extends Component {
                          placeholder="Filter projects"
                          onSearchChange={this.handleFilterChange}/>
         <div className="inventory-project-tree">
-          <Tree items={treeItems} />
+          <Tree items={treeItems}/>
         </div>
       </div>);
   }

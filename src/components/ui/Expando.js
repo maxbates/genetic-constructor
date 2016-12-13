@@ -105,7 +105,7 @@ export default class Expando extends Component {
             showLock={this.props.showLock}
             textWidgets={this.props.textWidgets}
             styles={{
-              marginLeft: '0.5rem',
+              marginLeft: '2px',
               marginRight: this.props.headerWidgets && this.props.headerWidgets.length ? '0.5rem' : '0',
               flexGrow: 1,
               userSelect: 'none',
