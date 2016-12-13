@@ -352,7 +352,7 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
       :
       dispatch(projectSave(currentProjectId))
         .catch(err => {
-          if (!!currentProjectId && currentProjectId !== null && currentProjectId !== 'null') {
+          if (!!currentProjectId && currentProjectId !== 'null' && currentProjectId !== 'undefined') {
             dispatch({
               type: ActionTypes.UI_SET_GRUNT,
               gruntMessage: `Project ${currentProjectId} couldn't be saved, but navigating anyway...`,
