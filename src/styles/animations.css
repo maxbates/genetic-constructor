@@ -13,3 +13,10 @@
   50% { opacity: 0.8; }
   100% { opacity: 1; }
 }
+
+@keyframes fadeInOut {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  85% { opacity: 0; }
+  100% { opacity: 1; }
+}

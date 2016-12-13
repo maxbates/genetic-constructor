@@ -19,8 +19,7 @@ import '../../styles/Spinner.css';
 
 export default function Spinner({ hidden, styles }) {
   if (hidden) {
-    //todo - in React v15, can return null
-    return <noscript />;
+    return null;
   }
 
   return (<div className="Spinner" style={styles}/>);
