@@ -20,12 +20,18 @@ const NO_DOCKER = !!process.env.NO_DOCKER;
 
 export const checkNodeVersion = () => {
   const ver = process.version;
+  console.log(colors.blue('Checking Node Version... ' + process.version));
 
-  console.log(colors.blue('Checking Node Version...'));
+  if (/v4/.test(ver)) {
+    console.warn(colors.yellow('\n\nYou have version 4 of node. Node v6 is recommended.\n\n'));
+    return;
+  }
 
-  if (!/v4/.test(ver)) {
-    console.error('\n\nConstructor requires node version 4.x - you have: ' + ver + '\n\n');
-    throw new Error('Constructor requires node version 4.x - you have: ' + ver);
+  //todo - any reason to support v5?
+
+  if (!/v6/.test(ver)) {
+    console.error('\n\nConstructor requires node version 6.x - you have: ' + ver + '\n\n');
+    throw new Error('Constructor requires node version 6.x - you have: ' + ver);
   }
 };
 
@@ -33,7 +39,7 @@ export const checkNodeVersion = () => {
 export const checkNpmVersion = () => {};
 
 export const checkDockerInstalled = () => {
-  return promisedExec('docker ps', {}, {comment: 'Checking if Docker installed...'})
+  return promisedExec('docker ps', {}, { comment: 'Checking if Docker installed...' })
     .catch(err => {
       console.error('\n\nDocker is required to run Constructor\n\n');
       throw err;
@@ -43,7 +49,7 @@ export const checkDockerInstalled = () => {
 async function checks() {
   try {
     await checkNodeVersion();
-    if (! NO_DOCKER) {
+    if (!NO_DOCKER) {
       await checkDockerInstalled();
     }
   } catch (err) {
