@@ -203,7 +203,7 @@ export class InspectorBlock extends Component {
     const isConstruct = singleInstance && instances[0].isConstruct();
     const inputKey = instances.map(inst => inst.id).join(',');
     const anyIsConstructOrTemplateOrList = instances.some(instance => instance.isConstruct() || instance.isTemplate() || instance.isList());
-    const palette = construct.metadata.palette;
+    const palette = construct ? construct.metadata.palette : null;
 
     const defaultType = forceIsConstruct ? 'Construct' : 'Block';
     const type = singleInstance ? instances[0].getType(defaultType) : 'Blocks';

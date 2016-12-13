@@ -1,7 +1,6 @@
 @import './variables.css';
 
 .dropdown-container {
-
 }
 
 .dropdown {
@@ -9,6 +8,7 @@
   position: relative;
   cursor: pointer;
   width: 20rem;
+  z-index: 1;
 
   .selector-menu {
     width: 20rem;
@@ -20,7 +20,7 @@
     border: 1px solid #ddd;
     box-shadow: 2px 2px 11px -2px rgba(82,82,82,1);
     width: auto !important;
-    background-color: white;
+    background-color: var(--colors-white);
     .menu-item {
       width: 20rem;
       white-space: nowrap;
@@ -30,7 +30,7 @@
   .selector-arrow {
     border-left: 2px solid var(--colors-mediumLightGrey);
     border-top: 2px solid var(--colors-mediumLightGrey);
-    width: 10px;
+    width: 10px !important;
     height: 10px;
     border-radius: 0px;
     margin: 0;
@@ -47,7 +47,7 @@
 .selector-arrow {
   border-left: 2px solid var(--colors-mediumLightGrey);
   border-top: 2px solid var(--colors-mediumLightGrey);
-  width: 10px;
+  width: 10px !important;
   height: 10px;
   border-radius: 0px;
   margin: 0;

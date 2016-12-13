@@ -68,10 +68,9 @@ class InspectorGroupInformation extends Component {
 
 function mapStateToProps(state, props) {
   const { level, blockIds } = state.focus;
-  const currentProject = state.projects[props.projectId];
 
   //delegate handling of focus state handling to selector
-  const { type, readOnly, focused } = _getFocused(state, true, props.projectId);
+  const { type, readOnly, focused } = _getFocused(state, true, props.project.id);
 
   //handle overrides if a list option
   const overrides = {};
@@ -87,13 +86,13 @@ function mapStateToProps(state, props) {
   }
 
   const forceIsConstruct = (level === 'construct') ||
-    blockIds.some(blockId => currentProject.components.indexOf(blockId) >= 0);
+    blockIds.some(blockId => this.props.project.components.indexOf(blockId) >= 0);
 
   const isAuthoring = !!state.focus.constructId && state.blocks[state.focus.constructId].isAuthoring() && focused.length === 1 && type !== 'project' && !readOnly;
 
   const orders = Object.keys(state.orders)
   .map(orderId => state.orders[orderId])
-  .filter(order => order.projectId === currentProject.id && order.isSubmitted())
+  .filter(order => order.projectId === this.props.project.id && order.isSubmitted())
   .sort((one, two) => one.status.timeSent - two.status.timeSent);
 
   return {

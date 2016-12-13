@@ -48,6 +48,7 @@ import {
   uiShowOkCancel,
   uiSetGrunt,
 } from '../../actions/ui';
+import { block as blockDragType } from '../../constants/DragTypes';
 
 import '../../styles/InventoryProjectTree.css';
 
@@ -111,9 +112,9 @@ export class InventoryProjectTree extends Component {
    */
   onExpandBlock(block, item) {
     // TODO, this should work but is broken in DEV currently as well
-    // this.props.focusForceBlocks([block]);
-    // this.props.inspectorToggleVisibility(true);
-    // this.props.inspectorSelectTab('Information');
+    this.props.focusForceBlocks([block]);
+    this.props.inspectorToggleVisibility(true);
+    this.props.inspectorSelectTab('Information');
   }
 
   /**
@@ -155,7 +156,7 @@ export class InventoryProjectTree extends Component {
   onBlockDrag(block, globalPoint) {
     DnD.startDrag(this.makeDnDProxy(block), globalPoint, {
       item: block,
-      type: 'block',
+      type: blockDragType,
       source: 'inventory',
     });
   }
