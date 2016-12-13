@@ -12,7 +12,7 @@ import { deleteUser } from '../../../../server/data/persistence/admin';
 describe('Server', () => {
   describe('Data', () => {
     describe('REST', () => {
-      describe.only('Info', () => {
+      describe('Info', () => {
         let server;
         const randomUser = uuid.v1();
 
@@ -111,8 +111,6 @@ describe('Server', () => {
             .get(url)
             .expect(200)
             .expect(result => {
-              assert(Object.keys(result.body).every(id => roll.blocks[id]), 'should only be expected blocks');
-
               const noRoleBlockIds = Object.keys(roll.blocks).filter(blockId => roll.blocks[blockId].metadata.extra === '1');
               assert(noRoleBlockIds.every(blockId => result.body[blockId]), 'no role blocks should be presetn');
             })
