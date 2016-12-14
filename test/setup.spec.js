@@ -29,20 +29,24 @@ import { deleteUser } from '../server/data/persistence/admin';
 
 before(() => {
   return listenSafely()
+    .catch(err => {
+      console.log('error listening to server... terminating'); //eslint-disable-line no-console
+      process.exit(1);
+    })
     .then(() => {
-      console.log('deleting all testUser data from DB...'); //eslint-disable-line
+      console.log('deleting all testUser data from DB...'); //eslint-disable-line no-console
       return deleteUser(testUserId);
     })
     .then(() => {
       if (s3.useRemote) {
         return Promise.all(s3.buckets.map(bucketName => {
-          console.log('clearing S3 bucket ' + bucketName); //eslint-disable-line
+          console.log('clearing S3 bucket ' + bucketName); //eslint-disable-line no-console
           const bucket = s3.getBucket(bucketName);
           return s3.emptyBucketTests(bucket);
         }));
       }
     })
     .then(() => {
-      console.log('Test setup complete, beginning suite:\n'); //eslint-disable-line
+      console.log('Test setup complete, beginning suite:\n'); //eslint-disable-line no-console
     });
 });

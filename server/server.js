@@ -18,7 +18,7 @@ import fs from 'fs';
 import express from 'express';
 import morgan from 'morgan';
 import compression from 'compression';
-import colors from 'colors';
+import colors from 'colors/safe';
 
 import pkg from '../package.json';
 import { registrationHandler } from './user/updateUserHandler';
@@ -196,12 +196,19 @@ app.get('*', (req, res) => {
 /*** running ***/
 /* eslint-disable no-console */
 
+function handleError(err) {
+  console.log(colors.bgRed('Error starting server. Terminating...'));
+  console.log(colors.red(err));
+  console.log(err.stack);
+  //87 is totally arbitrary, but listen for it in runServer.js
+  process.exit(87);
+}
+
 function startServer() {
   return new Promise((resolve, reject) => {
     app.listen(HOST_PORT, HOST_NAME, (err) => {
       if (err) {
-        console.log(colors.bgRed('Error starting server', err.stack));
-        return reject(err);
+        handleError(err);
       }
 
       console.log(colors.bgGreen(`Server listening at ${hostPath}`));
@@ -228,7 +235,8 @@ export const listenSafely = () => {
   //first check if the port is in use -- e.g. tests are running, or some other reason
   return checkPortFree(HOST_PORT, HOST_NAME)
     .then(initDb)
-    .then(startServer);
+    .then(startServer)
+    .catch(handleError);
 };
 
 //attempt start the server by default

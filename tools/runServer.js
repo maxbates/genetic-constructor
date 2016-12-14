@@ -5,6 +5,8 @@ import colors from 'colors';
 // Should match the text string used in `src/server.js/server.listen(...)`
 const RUNNING_REGEXP = /Server listening at http:\/\/(.*?)\//;
 
+const terminationSignal = 'SIGTERM';
+
 let server;
 
 //for running with node (unbunbled with babel stuff)
@@ -43,7 +45,7 @@ function runServer(cb) {
 
   if (server) {
     console.log(colors.blue('Restarting server...'));
-    server.kill('SIGTERM');
+    server.kill(terminationSignal);
   }
 
   //--color so colors module will use colors even when piping to spawn
@@ -58,6 +60,23 @@ function runServer(cb) {
 
   server.stdout.on('data', onStdOut);
   server.stderr.on('data', defaultWriteOut);
+
+  //if the server exits unhappily kill this process too
+  //on certain errors not explicitly triggered we could start it up again
+  server.on('exit', (code, signal) => {
+    //if we explicitly terminated the server (e.g. rebuild)
+    if (signal === terminationSignal) {
+      return;
+    }
+
+    //we trigger 87 on build failure in server.js
+    if (code === 87) {
+      process.exit(1);
+      return; //in case not sync...
+    }
+
+    console.log(`Server exited with code ${code} and signal ${signal}`);
+  });
 }
 
 process.on('exit', () => {
