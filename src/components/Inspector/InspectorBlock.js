@@ -22,12 +22,12 @@ import {
   blockSetColor,
   blockSetPalette,
   blockSetRole,
-  blockRename
+  blockRename,
 } from '../../actions/blocks';
 import InputSimple from './../InputSimple';
-import ColorPicker from './../ui/ColorPicker';
 import ColorAndPalettePicker from './../ui/ColorAndPalettePicker';
 import SymbolPicker from './../ui/SymbolPicker';
+import Expando from './../ui/Expando';
 import BlockSource from './BlockSource';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
@@ -219,9 +219,6 @@ export class InspectorBlock extends Component {
     const hasSequence = this.allBlocksWithSequence();
     const hasNotes = singleInstance && Object.keys(instances[0].notes).length > 0;
 
-    console.log("Current Color: ", this.currentColor());
-    console.log("Palette:", palette);
-
     return (
       <div className="InspectorContent InspectorContentBlock">
 
@@ -260,23 +257,25 @@ export class InspectorBlock extends Component {
           <p><strong>{this.currentSequenceLength()}</strong></p>
         </InspectorRow>
 
-        {/* todo - this should have its own component */}
-        <InspectorRow heading={ type + ' Metadata'}
-                      hasToggle
-                      condition={hasNotes}>
-          <div className="InspectorContent-section">
-            <BlockNotes notes={instances[0].notes}/>
-          </div>
-        </InspectorRow>
 
-        <InspectorRow heading="Palette and Color">
-          <ColorAndPalettePicker current={this.currentColor()}
-                                 readOnly={readOnly}
-                                 palette={palette}
-                                 onSelectColor={this.selectColor}
-                                 onSelectPalette={this.selectPalette}/>
-        </InspectorRow>
-        <InspectorRow heading="Symbol" condition={true}>
+        { hasNotes
+          ? <Expando text={ type + ' Metadata'}
+                   content={<div className="InspectorContent-section">
+                              <BlockNotes notes={instances[0].notes}/>
+                            </div>}
+            />
+          : null
+        }
+        <Expando
+          text="Palette and Color"
+          content={<ColorAndPalettePicker current={this.currentColor()}
+                                          readOnly={readOnly}
+                                          palette={palette}
+                                          onSelectColor={this.selectColor}
+                                          onSelectPalette={this.selectPalette}
+                   />}
+        />
+        <InspectorRow heading="Symbol" condition>
           <div className="InspectorContent-pickerWrap">
             <SymbolPicker current={this.currentRoleSymbol()}
                           readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList)) }

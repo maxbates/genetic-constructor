@@ -61,24 +61,24 @@ export default class ColorPicker extends Component {
         <div className="ribbon">
           {palettes.map(paletteName => {
             const classes = `tab${paletteName === currentPaletteName ? ' active' : ''}`;
-            return <div className={classes} onClick={this.onSelectPalette.bind(this, paletteName)}>{paletteName}</div>
+            return <div className={classes} onClick={this.onSelectPalette.bind(this, paletteName)}>{paletteName}</div>;
           })}
         </div>
         <div className="color-picker-content">
           <div className="color-picker">
             {currentPalette.map((color, index) => {
               const classes = `color${index === this.props.current ? ' active' : ''}`;
-              return <div
+              return (<div
                 key={index}
                 className={classes}
                 title={color.name}
                 onClick={this.onSelectColor.bind(this, index)}
                 style={{ backgroundColor: color.hex }}>
-              </div>
+              </div>);
             })}
           </div>
         </div>
       </div>
-    )
+    );
   }
 }

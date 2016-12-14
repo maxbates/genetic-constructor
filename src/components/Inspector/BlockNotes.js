@@ -25,13 +25,10 @@ export default function BlockNotes({ notes }) {
         if (!value) {
           return null;
         }
-        return (
-          <div className="BlockNotes-group"
-               key={key}>
-            <div className="BlockNotes-group-title">{key}</div>
-            <div className="BlockNotes-group-value">{value}</div>
-          </div>
-        );
+        return (<div>
+                  <div className="key">{key}</div>
+                  <div className="value">{value}</div>
+                </div>);
       })}
     </div>
   );
