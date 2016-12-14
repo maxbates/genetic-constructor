@@ -1,28 +1,20 @@
 # Inherit from ubuntu docker image
-FROM ubuntu:14.04
+FROM node:boron
 
-MAINTAINER bionanodevops@autodesk.com # 2016-08-15
+MAINTAINER bionanodevops@autodesk.com # 2016-12-13
+
 ENV CXX g++-4.9
 RUN apt-get dist-upgrade -y
 RUN apt-get update -y
 RUN apt-get upgrade -y
 
 RUN apt-get install -y software-properties-common
-RUN add-apt-repository ppa:ubuntu-toolchain-r/test
-RUN apt-get update -y
-
-# Explicit set of apt-get commands to workaround issue https://github.com/nodegit/nodegit/issues/886 . Workaround instructions here: http://stackoverflow.com/questions/16605623/where-can-i-get-a-copy-of-the-file-libstdc-so-6-0-15
-RUN apt-get install -y curl gcc-4.9 g++-4.9 libstdc++-4.9-dev
-
-RUN apt-get install -y python python-dev python-pip git build-essential wget && \
-	curl -sL https://deb.nodesource.com/setup_4.x | bash - && \
-	apt-get -y install nodejs && \
-	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-#everything needed by extensions
-RUN yes | pip install biopython
-
+RUN apt-get install -y curl git build-essential wget
+RUN apt-get install -y python python-dev python-pip
 RUN pip install awscli
+RUN pip install biopython
+
+RUN	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 EXPOSE 3000
 ENV PORT=3000
@@ -33,7 +25,7 @@ WORKDIR /app
 #setup node
 ADD package.json /app/package.json
 ADD storage-ext /app/storage-ext
-RUN npm update -g npm && npm install
+RUN npm install
 
 ADD . /app
 
