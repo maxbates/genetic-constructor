@@ -36,7 +36,8 @@ fs.readdirSync(nodeModulesDir).forEach(packageName => {
     }
 
     //if we have had an error in npm, log is written, don't try to include it
-    if (packageName === 'npm-debug.log') {
+    //also skip the diretory node modules
+    if (packageName === 'npm-debug.log' || packageName === 'node_modules') {
       return;
     }
 
