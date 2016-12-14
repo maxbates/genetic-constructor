@@ -58,6 +58,18 @@ function runServer(cb) {
 
   server.stdout.on('data', onStdOut);
   server.stderr.on('data', defaultWriteOut);
+
+  //if the server exits unhappily kill this process too
+  //on certain errors not explicitly triggered we could start it up again
+  server.on('exit', (code, signal) => {
+    //we trigger 87 on build failure in server.js
+    if (code === 87) {
+      process.exit(1);
+      return; //in case not sync...
+    }
+
+    console.log(`Server exited with code ${code} and signal ${signal}`);
+  });
 }
 
 process.on('exit', () => {
