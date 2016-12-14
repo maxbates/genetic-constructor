@@ -35,4 +35,20 @@
       font-family: monospace;
     }
   }
+
+  &-loading {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     z-index: 10;
+     position: absolute;
+     top: 0; left: 0; right: 0; bottom:0;
+
+    &-text {
+      font-color: var(--colors-lightGrey);
+      font-size: 24px;
+      font-family: "ArtifaktElementBold";
+      animation: fadeInOut 2.5s infinite;
+    }
+  }
 }

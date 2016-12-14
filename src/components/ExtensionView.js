@@ -17,8 +17,6 @@ import React, { Component, PropTypes } from 'react';
 import extensionRegistry, { validRegion, downloadAndRender } from '../extensions/clientRegistry';
 import { isEqual } from 'lodash';
 
-import Spinner from './ui/Spinner';
-
 import '../styles/ExtensionView.css';
 
 export default class ExtensionView extends Component {
@@ -142,7 +140,9 @@ export default class ExtensionView extends Component {
     let overlayContent = null;
 
     if (!downloaded) {
-      overlayContent = <Spinner />;
+      overlayContent = (<div className="ExtensionView-loading">
+        <div className="ExtensionView-loading-text">Loading...</div>
+      </div>);
     } else if (!!hasError) {
       overlayContent = (<div className="ExtensionView-error">
         <p>There was an error rendering the extension</p>
