@@ -276,13 +276,8 @@ export class InspectorBlock extends Component {
                                  onSelectColor={this.selectColor}
                                  onSelectPalette={this.selectPalette}/>
         </InspectorRow>
-        <InspectorRow heading="Color & Symbol" condition={true}>
+        <InspectorRow heading="Symbol" condition={true}>
           <div className="InspectorContent-pickerWrap">
-            <ColorPicker current={this.currentColor()}
-                         readOnly={readOnly}
-                         palette={palette}
-                         onSelect={this.selectColor}/>
-
             <SymbolPicker current={this.currentRoleSymbol()}
                           readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList)) }
                           onSelect={this.selectSymbol}/>
