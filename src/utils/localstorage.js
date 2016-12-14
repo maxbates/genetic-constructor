@@ -14,15 +14,30 @@
  limitations under the License.
  */
 
+const getPrefix = () => {
+  try {
+    //this only works after the page has loaded... fails when the reducers are loading for example since store not initiated
+    return window.constructor.store.getState().user.userid;
+  } catch (err) {
+    //since we refresh when we log the user out, this should be fine
+    return window.flashedUser.userid;
+  }
+};
+
+const getKey = (key, shouldPrefix = true) => {
+  const prefix = getPrefix();
+  return (shouldPrefix && prefix) ? `${prefix}_${key}` : key;
+};
+
 /**
  * get the object with the given key. If the key is not present
  * return the defaultObject.
  * @return {Object}
  */
-export function getLocal(key, defaultObject) {
+export function getLocal(key, defaultObject, shouldPrefix = true) {
   // many things could go wrong here, no localStorage, unserializable object etc.
   try {
-    let item = localStorage.getItem(key);
+    let item = localStorage.getItem(getKey(key, shouldPrefix));
     if (item) {
       item = JSON.parse(item);
     }
@@ -43,9 +58,9 @@ export function getLocal(key, defaultObject) {
 /**
  * write JSON object to local storage
  */
-export function setLocal(key, value) {
+export function setLocal(key, value, shouldPrefix = true) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(getKey(key, shouldPrefix), JSON.stringify(value));
   } catch (error) {
     console.error('Error setting localStorage item:', key);//eslint-disable-line no-console
   }

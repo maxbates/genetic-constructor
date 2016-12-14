@@ -34,7 +34,7 @@ import Project from '../models/Project';
 import Rollup from '../models/Rollup';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
-import { getLocal, setLocal } from '../utils/ui/localstorage';
+import { getLocal, setLocal } from '../utils/localstorage';
 
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
@@ -352,7 +352,7 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
       :
       dispatch(projectSave(currentProjectId))
         .catch(err => {
-          if (!!currentProjectId && currentProjectId !== null && currentProjectId !== 'null') {
+          if (!!currentProjectId && currentProjectId !== 'null' && currentProjectId !== 'undefined') {
             dispatch({
               type: ActionTypes.UI_SET_GRUNT,
               gruntMessage: `Project ${currentProjectId} couldn't be saved, but navigating anyway...`,

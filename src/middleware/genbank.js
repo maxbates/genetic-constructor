@@ -17,6 +17,7 @@ import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
 import { headersPost } from './utils/headers';
 import { extensionApiPath } from './utils/paths';
+import timeLimit from '../utils/timeLimit';
 import uploadFiles from './utils/uploadFiles';
 
 const extensionKey = 'genbank';
@@ -37,15 +38,17 @@ function parseResponseIfText(resp) {
 export function importFile(projectId = null, ...files) {
   const url = extensionApiPath(extensionKey, `import${!!projectId ? ('/' + projectId) : ''}`);
 
-  return uploadFiles(url, {}, ...files)
-    .then(resp => resp.json())
-    .then(json => {
-      if (projectId === 'convert') {
-        return json;
-      }
-      invariant(json && json.projectId, 'expect a project ID');
-      return json.projectId;
-    });
+  return timeLimit(10000)(
+    uploadFiles(url, {}, ...files)
+      .then(resp => resp.json())
+      .then(json => {
+        if (projectId === 'convert') {
+          return json;
+        }
+        invariant(json && json.projectId, 'expect a project ID');
+        return json.projectId;
+      })
+  );
 }
 
 function importStringBase(payload, projectId) {

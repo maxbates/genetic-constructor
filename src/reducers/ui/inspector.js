@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as ActionTypes from '../../constants/ActionTypes';
-import { getLocal, setLocal } from '../../utils/ui/localstorage';
+import { getLocal, setLocal } from '../../utils/localstorage';
 
 export const initialState = {
   isVisible: getLocal('inspectorVisibility', false),

@@ -31,15 +31,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/autodesk-bionano/genome-designer.git"
+    "url": "git+https://github.com/Autodesk/genetic-constructor.git"
   },
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/autodesk-bionano/genome-designer/issues"
+    "url": "https://github.com/Autodesk/genetic-constructor/issues"
   },
   "styleguide": "https://github.com/airbnb/javascript",
-  "homepage": "https://github.com/autodesk-bionano/genome-designer#readme",
+  "homepage": "https://github.com/Autodesk/genetic-constructor#readme",
   "engines": {
     "node": "6.9.2",
     "npm": "3.10.8"
