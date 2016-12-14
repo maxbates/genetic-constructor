@@ -24,7 +24,7 @@ import LineNode2D from '../scenegraph2d/line2d';
 import kT from './layoutconstants';
 import { values as objectValues } from 'lodash';
 import invariant from 'invariant';
-import { getLocal, setLocal } from '../../../utils/ui/localstorage';
+import { getLocal, setLocal } from '../../../utils/localstorage';
 
 /**
  * layout and scene graph manager for the construct viewer

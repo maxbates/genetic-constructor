@@ -34,7 +34,7 @@ import Project from '../models/Project';
 import Rollup from '../models/Rollup';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import { pauseAction, resumeAction } from '../store/pausableStore';
-import { getLocal, setLocal } from '../utils/ui/localstorage';
+import { getLocal, setLocal } from '../utils/localstorage';
 
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
