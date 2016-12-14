@@ -1,4 +1,5 @@
 import cp from 'child_process';
+import colors from 'colors';
 //import { serverConfig } from './webpack.config';
 
 // Should match the text string used in `src/server.js/server.listen(...)`
@@ -15,18 +16,21 @@ const serverPath = './server/devServerBabel.js';
 
 // Launch or restart the Node.js server
 function runServer(cb) {
+  let lastTime = new Date();
+
   function defaultWriteOut(data) {
-    const time = new Date().toTimeString();
-    process.stdout.write(time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
+    const time = new Date();
+    if (time.valueOf() > lastTime.valueOf() + 1000) {
+      lastTime = time;
+      process.stdout.write(time.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1]\n'));
+    }
     process.stdout.write(data);
   }
 
   function onStdOut(data) {
-    const time = new Date().toTimeString();
     const match = data.toString('utf8').match(RUNNING_REGEXP);
 
-    process.stdout.write(time.replace(/.*(\d{2}:\d{2}:\d{2}).*/, '[$1] '));
-    process.stdout.write(data);
+    defaultWriteOut(data);
 
     if (match) {
       server.stdout.removeListener('data', onStdOut);
@@ -38,12 +42,17 @@ function runServer(cb) {
   }
 
   if (server) {
-    console.log('server exists, killing');
+    console.log(colors.blue('Restarting server...'));
     server.kill('SIGTERM');
   }
 
-  server = cp.spawn('node', ['--max_old_space_size=4096', serverPath], {
-    env: Object.assign({ NODE_ENV: 'dev' }, process.env),
+  //--color so colors module will use colors even when piping to spawn
+  //DEBUG_COLORS so debug module will use colors and not ugly timestamps
+  server = cp.spawn('node', ['--max_old_space_size=4096', serverPath, '--color'], {
+    env: Object.assign({
+      NODE_ENV: 'dev',
+      DEBUG_COLORS: 'true',
+    }, process.env),
     silent: false,
   });
 

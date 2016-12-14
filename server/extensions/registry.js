@@ -17,19 +17,31 @@ import path from 'path';
 import fs from 'fs';
 import { pickBy } from 'lodash';
 import { validateManifest, manifestIsServer, manifestIsClient } from './manifestUtils';
+import debug from 'debug';
+
+const logger = debug('constructor:extensions');
 
 const nodeModulesDir = process.env.BUILD ? 'gd_extensions' : path.resolve(__dirname, './node_modules');
 
 const registry = {};
 
-//todo - this should include the 'native' extensions -- these wont show up in registry currently
+//note - this should include the 'native' extensions -- these wont show up in registry currently
 
 fs.readdirSync(nodeModulesDir).forEach(packageName => {
   try {
     //skip the test extensions unless we're in the test environment
     if (packageName.startsWith('test') && process.env.NODE_ENV !== 'test') {
+      logger('skipping ' + packageName);
       return;
     }
+
+    //if we have had an error in npm, log is written, don't try to include it
+    //also skip the diretory node modules
+    if (packageName === 'npm-debug.log' || packageName === 'node_modules') {
+      return;
+    }
+
+    logger('loading ' + packageName + '...');
 
     //future process.env.BUILD support (if not already handled by line above)
     const filePath = path.resolve(nodeModulesDir, packageName + '/package.json');
@@ -41,12 +53,17 @@ fs.readdirSync(nodeModulesDir).forEach(packageName => {
       [packageName]: depManifest,
     });
   } catch (err) {
-    console.warn('\n\nerror loading extension: ' + packageName);
-    console.error(err);
+    console.warn('\n\nerror loading extension, omitting: ' + packageName);
+    console.log(err);
+
+    if (!logger.enabled) {
+      console.log('(set env var DEBUG=constructor:extensions to see error stack)');
+    }
+    logger(err.stack);
   }
 });
 
-console.log('[Extensions Loaded] ' + Object.keys(registry));
+console.log('[Extensions] Extensions included:' + Object.keys(registry));
 
 export const isRegistered = (name) => {
   return registry.hasOwnProperty(name);

@@ -18,7 +18,7 @@ import invariant from 'invariant';
 import * as s3 from '../middleware/s3';
 import * as fileSystem from '../middleware/fileSystem';
 
-console.log(s3.useRemote ? '[S3] Using S3 for file persistence' : '[S3] Using file system for file persistence');
+console.log(s3.useRemote ? '[Files] Using S3 for file persistence, not file system' : '[Files] Using file system for file persistence, not S3');
 
 // when using S3, s3bucket is actually the S3 bucket
 // when using local, s3bucket is prefix

@@ -78,7 +78,8 @@ class App extends Component {
   }
 
   render() {
-    const DevTools = (!!process.env.DEBUGMODE) ? require('./DevTools') : 'noscript';
+    //set by webpack
+    const DevTools = (!!process.env.DEBUG_REDUX) ? require('./DevTools') : 'noscript';
     const onProjectPage = this.props.location.pathname.indexOf('project/') >= 0;
 
     return (

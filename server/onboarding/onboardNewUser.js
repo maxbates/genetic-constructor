@@ -21,11 +21,14 @@
 import invariant from 'invariant';
 import * as projectPersistence from '../data/persistence/projects';
 import { getConfigFromUser } from '../user/utils';
-import DebugTimer from '../utils/DebugTimer';
 
 //NOTE - egf_parts vs egf_templates
 import makeEgfRollup from '../../data/egf_parts/index';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
+
+import debug from 'debug';
+
+const logger = debug('constructor:auth:onboarding');
 
 // while we are using imports, do this statically
 // todo - use require() for dynamic (will need to reconcile with build eventually, but whatever)
@@ -59,31 +62,29 @@ const createGeneratorsInitialProjects = (user) => {
 export default function onboardNewUser(user) {
   invariant(user && user.email && user.uuid, 'must pass valid user');
 
-  console.log('[User Setup] Onboarding ' + user.uuid + ' - ' + user.email);
-  const timer = new DebugTimer('Onboarding ' + user.uuid + ' ' + user.email);
+  logger('Onboarding ' + user.uuid + ' ' + user.email);
 
   const initialProjectGenerators = createGeneratorsInitialProjects(user);
   const [firstRollGen, ...restRollGens] = initialProjectGenerators;
-  timer.time('made generators');
 
   //generate the firstRoll last, so that it has the most recent timestamp, and is opened first
   return Promise.all(
       restRollGens.map(generator => {
         const roll = generator();
-        timer.time('non-primary rolls generated');
+        logger('non-primary rolls generated');
         return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
           .then(info => info.data);
       })
     )
     .then((restRolls) => {
-      timer.time('non-primary rolls wrote');
+      logger('non-primary rolls wrote');
       const roll = firstRollGen();
-      timer.time('second roll generated');
+      logger('second roll generated');
 
       return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
         .then(info => info.data)
         .then(firstRoll => {
-          timer.end('onboarding complete');
+          logger('onboarding complete');
           return [firstRoll, ...restRolls];
         });
     });

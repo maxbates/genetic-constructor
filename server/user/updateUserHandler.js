@@ -20,6 +20,9 @@ import { INTERNAL_HOST, API_END_POINT } from '../urlConstants';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
 import { pruneUserObject, validateConfig, updateUserAll, updateUserConfig, mergeConfigToUserData } from './utils';
 import { headersPost } from '../../src/middleware/utils/headers';
+import debug from 'debug';
+
+const logger = debug('constructor:auth');
 
 //todo - share fetch handling with config / register routes
 
@@ -27,6 +30,7 @@ import { headersPost } from '../../src/middleware/utils/headers';
 //note - expects JSON parser ahead of it
 export function registrationHandler(req, res, next) {
   if (!req.body || typeof req.body !== 'object') {
+    logger('[User Register] invalid body for registration');
     next('must pass object to login handler, use json parser');
   }
 
@@ -35,9 +39,11 @@ export function registrationHandler(req, res, next) {
 
   //basic checks before we hand off to auth/register
   if (!email || !EmailValidator.validate(email)) {
+    logger(`[User Register] email invalid: ${email}`);
     return res.status(422).json({ message: 'invalid email' });
   }
   if (!password || password.length < 6) {
+    logger(`[User Register] password invalid: ${password}`);
     return res.status(422).json({ message: 'invalid password' });
   }
 
@@ -46,9 +52,9 @@ export function registrationHandler(req, res, next) {
   try {
     validateConfig(mergedConfig);
   } catch (err) {
-    console.log('[User Register] Error in input config');
-    console.log(err);
-    console.log(err.stack);
+    logger('[User Register] Error in input config');
+    logger(err);
+    logger(err.stack);
     return res.status(422).send({ err });
   }
 
@@ -58,6 +64,9 @@ export function registrationHandler(req, res, next) {
     firstName,
     lastName,
   }, mergedConfig);
+
+  logger('[User Register] registering...');
+  logger(mappedUser);
 
   //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
   const url = INTERNAL_HOST + '/auth/register';
@@ -88,10 +97,10 @@ export function registrationHandler(req, res, next) {
       res.json(pruned);
     })
     .catch(err => {
-      console.log('[User Register] got error registering');
-      console.log(req.body);
-      console.log(err);
-      console.log(err.stack);
+      logger('[User Register] Error registering');
+      logger(req.body);
+      logger(err);
+      logger(err.stack);
       res.status(500).json({ err });
     });
 }
@@ -102,21 +111,22 @@ export function loginHandler(req, res, next) {
   }
 
   const { email, password } = req.body;
-  console.log(email, password);
 
   //basic checks before we hand off to auth/register
   if (!email || !EmailValidator.validate(email)) {
+    logger(`[User Login] email invalid: ${email}`);
     return res.status(422).json({ message: 'invalid email' });
   }
-  if (!password || password.length < 6) {
+  if (!password) {
+    logger(`[User Login] password required, got: ${password}`);
     return res.status(422).json({ message: 'invalid password' });
   }
 
   //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
   const url = INTERNAL_HOST + '/auth/login';
 
-  console.log('hit login');
-  console.log(email, password, url);
+  logger('[User Login] Logging in:');
+  logger(email, password, url);
 
   return fetch(url, headersPost(JSON.stringify(req.body)))
     .then(resp => {
@@ -129,8 +139,8 @@ export function loginHandler(req, res, next) {
       return resp.json();
     })
     .then(userPayload => {
-      console.log('userPayload');
-      console.log(userPayload);
+      logger('[User Login] received payload');
+      logger(userPayload);
 
       if (!!userPayload.message) {
         return Promise.reject(userPayload);
@@ -138,16 +148,16 @@ export function loginHandler(req, res, next) {
 
       const pruned = pruneUserObject(userPayload);
 
-      //console.log('sending pruned');
-      //console.log(pruned);
+      logger('[User Login] sending pruned:');
+      logger(pruned);
 
       res.json(pruned);
     })
     .catch(err => {
-      console.log('[User Login] got error logging in');
-      console.log(req.body);
-      console.log(err);
-      console.log(err.stack);
+      logger('[User Login] Error logging in');
+      logger(req.body);
+      logger(err);
+      logger(err.stack);
       res.status(500).json({ err });
     });
 }
@@ -160,7 +170,10 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
   return (req, res, next) => {
     const { user: userInput, config: configInput, userPatch } = req;
 
-    //console.log(userInput, userPatch, configInput);
+    logger('[User Config]');
+    logger(userInput);
+    logger(userPatch);
+    logger(configInput);
 
     if (!userInput) next('req.user must be set');
     if (wholeUser && !userPatch) next('if updating user, set req.userPatch');
@@ -175,9 +188,9 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         user = updateUserConfig(userInput, configInput);
       }
     } catch (err) {
-      console.log('[User Config Handler] Error Updating config');
-      console.log(err);
-      console.log(err.stack);
+      logger('[User Config] Error Updating config:');
+      logger(err);
+      logger(err.stack);
       return res.status(422).json({ err });
     }
 
@@ -198,8 +211,8 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
           res.json(toSend);
         })
         .catch(err => {
-          console.log('[User Config Handler] error setting user config');
-          console.log(err);
+          logger('[User Config] error setting user config');
+          logger(err);
           res.status(501).json({ err });
         });
     }
@@ -219,8 +232,8 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         return resp.json();
       })
       .then(userPayload => {
-        //console.log('userPayload');
-        //console.log(userPayload);
+        logger('[User Config] received payload');
+        logger(userPayload);
 
         if (!!userPayload.message) {
           return Promise.reject(userPayload);
@@ -229,15 +242,12 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         const pruned = pruneUserObject(userPayload);
         const toSend = wholeUser ? pruned : pruned.config;
 
-        //console.log('sending pruned');
-        //console.log(toSend);
-
         res.json(toSend);
       })
       .catch(err => {
-        console.log('[User Config Handler] got error setting user config');
-        console.log(err);
-        console.log(err.stack);
+        logger('[User Config] got error setting user config');
+        logger(err);
+        logger(err.stack);
         res.status(500).json({ err });
       });
   };

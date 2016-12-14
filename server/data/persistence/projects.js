@@ -21,9 +21,11 @@ import invariant from 'invariant';
 import { merge, forEach } from 'lodash';
 import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../utils/errors';
 import { validateId, validateProject } from '../../utils/validation';
-import DebugTimer from '../../utils/DebugTimer';
 import { dbHeadRaw, dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
 import Rollup from '../../../src/models/Rollup';
+import debug from 'debug';
+
+const logger = debug('constructor:data:persistence:projects');
 
 //TODO - consistent naming. projects in this module are generally rollups
 //we have classes for blocks and projects, and this persistence module conflates the two. lets use rollup to be consistent. rename after this stuff is working...
@@ -179,7 +181,7 @@ export const blockGet = (projectId, blockId) => {
 //todo - should userId be the first argument? update orders if so
 // see mergeMetadataOntoProject() above to see what is returned
 export const projectWrite = (projectId, roll = {}, userId, bypassValidation = false) => {
-  const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
+  logger(`[projectWrite] ${projectId} (${userId})`);
 
   invariant(projectId && validateId(projectId), 'must pass a projectId to write project');
   invariant(typeof roll === 'object', 'project is required');
@@ -201,16 +203,17 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
   //force projectId, and ensure block Id matches block data
   forEach(roll.blocks, (block, blockId) => Object.assign(block, { id: blockId, projectId }));
 
-  timer.time('models updated');
+  logger('[projectWrite] models updated');
 
   if (bypassValidation !== true) {
     try {
       Rollup.validate(roll, true, true);
     } catch (err) {
-      console.log(err);
+      logger('[projectWrite] validation failed');
+      logger(err);
       return Promise.reject(errorInvalidModel);
     }
-    timer.time('validated');
+    logger('[projectWrite] validated');
   }
 
   //if it doesn't exist, create the project
@@ -234,7 +237,7 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
       return Promise.reject(err);
     })
     .then(data => {
-      timer.end('project written');
+      logger('[projectWrite] written');
       return data;
     });
 };
@@ -283,6 +286,8 @@ export const blocksPatch = (projectId, userId, blockMap) => {
 //DELETE
 
 const _projectDelete = (projectId, userId) => {
+  logger('[_projectDelete] Deleting ' + projectId);
+
   return dbDelete(`projects/${projectId}`)
     .then(resp => resp.json());
 };

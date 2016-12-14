@@ -15,7 +15,10 @@ import { promisedExec } from './lib/cp';
 
 async function installDependencies() {
   try {
-    await promisedExec('pip install --user biopython', {}, { forceOutput: true});
+    await promisedExec('pip install --user biopython', {}, {
+      comment: 'Installing Biopython...',
+      forceOutput: true,
+    });
   } catch (err) {
     console.log('CAUGHT', err);
     throw err;

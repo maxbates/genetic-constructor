@@ -27,6 +27,9 @@ import * as jobFiles from '../../../../server/data/files/jobs';
 import Rollup from '../../../../src/models/Rollup';
 import Project from '../../../../src/models/Project';
 import { resetColorSeed } from '../../../../src/utils/color/index'; //necessary?
+import debug from 'debug';
+
+const logger = debug('constructor:import');
 
 const extensionKey = 'import';
 
@@ -36,16 +39,18 @@ export default function importMiddleware(req, res, next) {
   const noSave = req.query.hasOwnProperty('noSave') || projectId === 'convert'; //dont save sequences or project
   const returnRoll = projectId === 'convert'; //return roll at end instead of projectId
 
+  const alreadyExists = projectId && projectId !== 'convert';
+
   //first check if user has access to projectId, unless it is just a conversion
-  let promise = (!projectId || projectId === 'convert') ?
+  let promise = (!alreadyExists) ?
     Promise.resolve() :
     userOwnsProject(req.user.uuid, projectId);
 
   //mint a project ID if one doesn't exist, to save job File. See also merge middleware (for after conversion)
-  const mintedProjectId = (!projectId || projectId === 'convert') ? Project.classless().id : projectId;
+  const mintedProjectId = (!alreadyExists) ? Project.classless().id : projectId;
   Object.assign(req, { mintedProjectId });
 
-  console.log(`[Import Middleware] created ${mintedProjectId}`);
+  logger(`Importing ${mintedProjectId} (${alreadyExists ? 'exists' : 'new'}) - ${req.user.uuid}`);
 
   //depending on the type, set variables for file urls etc.
 
@@ -64,13 +69,18 @@ export default function importMiddleware(req, res, next) {
         fileSystem.fileWrite(localPath, string, false),
         jobFiles.jobFileWrite(mintedProjectId, extensionKey, string, hash),
       ])
-      .then(([local, job]) => [{
-        name,
-        string,
-        fileName: job.name,
-        filePath: localPath,
-        fileUrl: job.url,
-      }])
+      .then(([local, job]) => {
+        const files = [{
+          name,
+          string,
+          fileName: job.name,
+          filePath: localPath,
+          fileUrl: job.url,
+        }];
+        logger('Received on post body');
+        logger(JSON.stringify(files, null, 2));
+        return files;
+      })
     );
   } else {
     // otherwise, we are expecting a form
@@ -115,9 +125,15 @@ export default function importMiddleware(req, res, next) {
           })
         )
         //resolve with files
-          .then(resolve)
+          .then(files => {
+            logger('Received files');
+            logger(JSON.stringify(files, null, 2));
+            return resolve(files);
+          })
           .catch(err => {
-            console.log('[Import Middleware]', err);
+            logger('[Import Middleware] Error');
+            logger(err);
+            logger(err.stack);
             reject(err);
           });
       });
@@ -149,8 +165,9 @@ export default function importMiddleware(req, res, next) {
         return res.status(403).send(errorNoPermission);
       }
 
-      console.log('[Import Middleware]', err);
-      console.log(err.stack);
+      logger('[Import Middleware] unhandled error');
+      logger(err);
+      logger(err.stack);
       next(err);
     });
 }
@@ -180,6 +197,8 @@ export function mergeRollupMiddleware(req, res, next) {
   const { projectId, mintedProjectId, roll, noSave, returnRoll } = req;
   const { project, blocks, sequences = {} } = roll;
 
+  logger('merging project ' + projectId);
+
   //we write the sequences no matter what right now
   //todo - param to not write sequences (when do we want this?)
 
@@ -208,6 +227,8 @@ export function mergeRollupMiddleware(req, res, next) {
 
   return writeSequencesPromise
     .then(() => {
+      logger(`sequences written (${projectId})`);
+
       if (!projectId || returnRoll) {
         //if we didnt recieve a projectId, we've assigned one already in importMiddleware above (for job file), so use here
         Object.assign(project, { id: mintedProjectId });
@@ -235,6 +256,7 @@ export function mergeRollupMiddleware(req, res, next) {
         .then(() => roll);
     })
     .then((roll) => {
+      logger(`project written, import complete (${projectId}`);
       const response = returnRoll ?
         roll :
         { projectId: roll.project.id };
@@ -242,8 +264,9 @@ export function mergeRollupMiddleware(req, res, next) {
       res.status(200).json(response);
     })
     .catch(err => {
-      console.log('Error in Merge Rollup Middleware: ' + err);
-      console.log(err.stack);
+      logger('Error merging project');
+      logger(err);
+      logger(err.stack);
       res.status(500).send(err);
     });
 }

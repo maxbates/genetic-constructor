@@ -20,8 +20,6 @@
 
 import { listenSafely } from '../server/server';
 import * as s3 from '../server/data/middleware/s3';
-import * as filePaths from '../server/data/middleware/filePaths';
-import * as fileSystem from '../server/data/middleware/fileSystem';
 import { testUserId } from './constants';
 import { deleteUser } from '../server/data/persistence/admin';
 
@@ -45,6 +43,6 @@ before(() => {
       }
     })
     .then(() => {
-      console.log('Test setup complete\n\n'); //eslint-disable-line
+      console.log('Test setup complete, beginning suite:\n'); //eslint-disable-line
     });
 });

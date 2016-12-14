@@ -24,7 +24,7 @@ export default {
     'GC-Sequence-Viewer': {
       active: true,
     },
-    gslEditor: {
+    'GC-GSL-Editor': {
       active: true,
     },
     SequenceDetail: {

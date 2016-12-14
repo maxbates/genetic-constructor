@@ -37,7 +37,9 @@ const middleware = [
 ];
 
 let finalCreateStore;
-if (process.env.DEBUGMODE) {
+
+//set by webpack
+if (process.env.DEBUG_REDUX) {
   const DevTools = require('../containers/DevTools.js');
 
   finalCreateStore = compose(

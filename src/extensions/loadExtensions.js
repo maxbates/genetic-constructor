@@ -22,7 +22,7 @@ export default function loadAllExtensions(loadAll = true, shouldClear = true) {
     clearRegistry();
   }
 
-  getExtensionsInfo(loadAll)
+  return getExtensionsInfo(loadAll)
     .then(manifests => {
       Object.keys(manifests)
         .map(key => manifests[key])

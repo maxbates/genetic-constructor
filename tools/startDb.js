@@ -15,7 +15,7 @@
  */
 import { promisedExec, spawnAsync } from './lib/cp';
 import checkPortFree from '../server/utils/checkPortFree';
-import colors from 'colors';
+import colors from 'colors/safe';
 
 //note - DB holds on the to process, so this will resolve but process will never exit. So, can be used in promise chaining, but not in __ && __ bash syntax
 
@@ -70,14 +70,14 @@ async function startDb() {
         }
 
         //if not free
-        console.log('Port not free - assuming port is occupied by Postgres DB process....');
+        console.log(colors.yellow('Port not free - assuming port is occupied by Postgres DB process....'));
         return null;
       });
 
     console.log('DB started on port:', STORAGE_PORT);
     return dbProcess;
   } catch (err) {
-    console.log('Error starting Storage service...');
+    console.log(colors.red('Error starting Storage service...'));
     throw err;
   }
 }

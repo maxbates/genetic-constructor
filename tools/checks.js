@@ -14,20 +14,20 @@
  limitations under the License.
  */
 import colors from 'colors/safe';
+import findVersions from 'find-versions';
 import { promisedExec } from './lib/cp';
 
 const NO_DOCKER = !!process.env.NO_DOCKER;
 
 export const checkNodeVersion = () => {
   const ver = process.version;
-  console.log(colors.blue('Checking Node Version... ' + process.version));
+  console.log(colors.blue('Checking Node Version... '));
+  console.log('Found version ' + ver);
 
   if (/v4/.test(ver)) {
-    console.warn(colors.yellow('\n\nYou have version 4 of node. Node v6 is recommended.\n\n'));
+    console.warn(colors.yellow('You have version 4 of node. Node v6 is recommended.'));
     return;
   }
-
-  //todo - any reason to support v5?
 
   if (!/v6/.test(ver)) {
     console.error('\n\nConstructor requires node version 6.x - you have: ' + ver + '\n\n');
@@ -39,10 +39,20 @@ export const checkNodeVersion = () => {
 export const checkNpmVersion = () => {};
 
 export const checkDockerInstalled = () => {
-  return promisedExec('docker ps', {}, { comment: 'Checking if Docker installed...' })
+  return promisedExec('docker -v', {}, { comment: 'Checking if Docker installed...' })
     .catch(err => {
-      console.error('\n\nDocker is required to run Constructor\n\n');
+      console.error(colors.red('\nDocker CLI is required to run Constructor\n'));
       throw err;
+    })
+    .then(result => {
+      const version = findVersions(result, { loose: true });
+      console.log('Found version ' + version);
+
+      const [/*match*/, major, minor] = /^(\d+)\.?(\d+)\.?(\*|\d+)$/.exec(version);
+      if (major < 1 || minor < 12) {
+        console.error(colors.red('Docker version > 1.12 is required'));
+        throw Error('Docker > 1.12 required');
+      }
     });
 };
 

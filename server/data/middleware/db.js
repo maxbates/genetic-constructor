@@ -17,6 +17,9 @@ import { STORAGE_URL } from '../../urlConstants';
 import { errorDoesNotExist, errorNoPermission } from '../../utils/errors';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import * as headers from '../../../src/middleware/utils/headers';
+import debug from 'debug';
+
+const logger = debug('constructor:data:db');
 
 const makePath = path => {
   if (path[0] === '/') {
@@ -41,17 +44,17 @@ const defaultErrorHandling = (resp) => {
 
   if (!resp.url) {
     //if we got a fetch error, not > 400 error...
-    console.log('DB error - fetch() did not work');
+    logger('fetch() did not work');
     return Promise.reject(resp);
   }
 
-  console.log('unhandled DB error @ ', resp.url || resp);
+  logger('unhandled DB error @ ', resp.url || resp);
 
   const clone = resp.clone();
 
-  return resp.text().then(text => {
-    console.log(text);
-    return Promise.reject(clone);
+  return clone.text().then(text => {
+    logger(text);
+    return Promise.reject(resp);
   });
 };
 

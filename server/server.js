@@ -35,6 +35,9 @@ import { pruneUserObject } from './user/utils';
 import checkPortFree from './utils/checkPortFree';
 import { HOST_PORT, HOST_NAME, API_END_POINT } from './urlConstants';
 
+//where the server will be listening
+const hostPath = `http://${HOST_NAME}:${HOST_PORT}/`;
+
 //file paths depending on if building or not
 //note that currently, you basically need to use npm run start in order to serve the client bundle + webpack middleware
 const createBuildPath = (isBuild, notBuild = isBuild) => {
@@ -67,6 +70,7 @@ app.use(morgan(logLevel, {
     if (req.path.indexOf('browser-sync') >= 0 || req.path.indexOf('__webpack') >= 0) {
       return true;
     }
+    //skip logging in test environment, unless DEBUG is set
     if (process.env.NODE_ENV === 'test' && !process.env.DEBUG) {
       return true;
     }
@@ -98,7 +102,7 @@ if (!process.env.STORAGE_API) {
 // insert some form of user authentication
 // the auth routes are currently called from the client and expect JSON responses
 if (process.env.BIO_NANO_AUTH) {
-  console.log('real user authentication enabled');
+  console.log('[Auth] Real user authentication enabled');
   const initAuthMiddleware = require('bio-user-platform').initAuthMiddleware;
 
   const authConfig = {
@@ -124,6 +128,7 @@ if (process.env.BIO_NANO_AUTH) {
   };
   app.use(initAuthMiddleware(authConfig));
 } else {
+  console.log('[Auth] Local mocked authentication enabled');
   app.use(require('cookie-parser')());
 
   const localAuth = require('./auth/local');
@@ -136,6 +141,7 @@ if (process.env.BIO_NANO_AUTH) {
   app.use('/auth', localAuth.router);
 
   //do an initial setup of the user's projects on server start
+  //do not run on every call, so if get into a bad state, restart server
   localAuth.prepareUserSetup();
 }
 
@@ -188,6 +194,7 @@ app.get('*', (req, res) => {
 });
 
 /*** running ***/
+/* eslint-disable no-console */
 
 function startServer() {
   return new Promise((resolve, reject) => {
@@ -197,10 +204,8 @@ function startServer() {
         return reject(err);
       }
 
-      /* eslint-disable no-console */
-      const path = `http://${HOST_NAME}:${HOST_PORT}/`;
-      console.log(colors.bgGreen(`\nServer listening at ${path}\n`));
-      resolve(path);
+      console.log(colors.bgGreen(`Server listening at ${hostPath}`));
+      resolve(hostPath);
     });
   });
 }
