@@ -38,6 +38,13 @@ describe('Server', () => {
               projectId,
               rules: { role: (num % 2 === 0) ? esotericRoleAlt : esotericRole },
             }))
+            //add # numberNoRole blocks without any role, to ensure they are there, with an extra flag
+            .concat([Block.classless({
+              metadata: { extra: '1' },
+            }), Block.classless({
+              metadata: { extra: '1' },
+              rules: { role: null },
+            })])
             .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
         };
 
@@ -80,6 +87,8 @@ describe('Server', () => {
               expect(typeof body).to.equal('object');
               expect(typeof body[esotericRole]).to.equal('number');
               expect(body[esotericRole]).to.equal(numberEsotericRole);
+
+              expect(typeof body['none']).to.equal('number');
             })
             .end(done);
         });
@@ -91,7 +100,19 @@ describe('Server', () => {
             .expect(200)
             .expect(result => {
               expect(Object.keys(result.body).length).to.equal(numberEsotericRole);
-              expect(Object.keys(result.body).every(id => roll.blocks[id]));
+              assert(Object.keys(result.body).every(id => roll.blocks[id]), 'should only be expected blocks');
+            })
+            .end(done);
+        });
+
+        it('/info/role/none returns blocks without role', (done) => {
+          const url = `/data/info/role/none`;
+          request(server)
+            .get(url)
+            .expect(200)
+            .expect(result => {
+              const noRoleBlockIds = Object.keys(roll.blocks).filter(blockId => roll.blocks[blockId].metadata.extra === '1');
+              assert(noRoleBlockIds.every(blockId => result.body[blockId]), 'no role blocks should be presetn');
             })
             .end(done);
         });

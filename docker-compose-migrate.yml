@@ -6,7 +6,7 @@ migrate:
   environment:
     STORAGE: /projects
     API_END_POINT: http://auth${BNR_ENV_URL_SUFFIX}.bionano.bio:8080/api
-    STORAGE_API: http://gctor-storage${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
+    STORAGE_API: http://gctor-storage-api${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
     NO_DOCKER: "true"
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}

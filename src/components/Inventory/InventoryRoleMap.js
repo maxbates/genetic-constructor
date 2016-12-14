@@ -29,6 +29,9 @@ import InventoryListGroup from './InventoryListGroup';
 import InventoryList from './InventoryList';
 import Spinner from '../ui/Spinner';
 
+//note - must match storage API
+const noRoleKey = 'none';
+
 export class InventoryRoleMap extends Component {
   static propTypes = {
     blockStash: PropTypes.func.isRequired,
@@ -58,8 +61,8 @@ export class InventoryRoleMap extends Component {
       //usually, not looking at this section when creating new blocks? ignoring for now...
       if (action.type === ActionTypes.BLOCK_SET_ROLE) {
         const { oldRole, block } = action;
-        const oldRoleEff = oldRole || 'none';
-        const newRole = block.rules.role || 'none';
+        const oldRoleEff = oldRole || noRoleKey;
+        const newRole = block.rules.role || noRoleKey;
 
         const newTypeMap = Object.assign({}, this.state.typeMap, {
           [oldRoleEff]: this.state.typeMap[oldRoleEff] - 1,
