@@ -25,7 +25,7 @@ export default function BlockNotes({ notes }) {
         if (!value) {
           return null;
         }
-        return (<div>
+        return (<div key={key}>
                   <div className="key">{key}</div>
                   <div className="value">{value}</div>
                 </div>);

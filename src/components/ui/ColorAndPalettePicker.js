@@ -24,7 +24,7 @@ import '../../styles/ColorAndPalettePicker.css';
 
 //todo - this has a lot of logic shared with Symbol Picker, but some differences in data structure etc. Should probably merge them though.
 
-export default class ColorPicker extends Component {
+export default class ColorAndPalettePicker extends Component {
   static propTypes = {
     readOnly: PropTypes.bool,
     current: PropTypes.number,
@@ -61,7 +61,11 @@ export default class ColorPicker extends Component {
         <div className="ribbon">
           {palettes.map(paletteName => {
             const classes = `tab${paletteName === currentPaletteName ? ' active' : ''}`;
-            return <div className={classes} onClick={this.onSelectPalette.bind(this, paletteName)}>{paletteName}</div>;
+            return (<div
+              className={classes}
+              key={paletteName}
+              onClick={this.onSelectPalette.bind(this, paletteName)}>{paletteName}
+              </div>);
           })}
         </div>
         <div className="color-picker-content">
