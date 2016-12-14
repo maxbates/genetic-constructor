@@ -16,6 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import {
   getPalette,
+  getPaletteName,
   palettes,
 } from '../../utils/color/index';
 
@@ -27,7 +28,8 @@ export default class ColorPicker extends Component {
   static propTypes = {
     readOnly: PropTypes.bool,
     current: PropTypes.number,
-    onSelect: PropTypes.func,
+    onSelectColor: PropTypes.func.isRequired,
+    onSelectPalette: PropTypes.func.isRequired,
     palette: PropTypes.string,
   };
 
@@ -35,19 +37,44 @@ export default class ColorPicker extends Component {
     current: 0,
   };
 
+  /**
+   * color selected by clicking
+   * @param colorIndex
+   */
+  onSelectColor = (colorIndex) => {
+    this.props.onSelectColor(colorIndex);
+  };
+
+  /**
+   * user selected a different palette
+   * @param paletteName
+   */
+  onSelectPalette = (paletteName) => {
+    this.props.onSelectPalette(paletteName);
+  };
+
   render() {
     const currentPalette = getPalette(this.props.palette);
+    const currentPaletteName = getPaletteName(this.props.palette);
     return (
       <div className="color-tabs">
         <div className="ribbon">
           {palettes.map(paletteName => {
-            return <div className="tab">{paletteName}</div>
+            const classes = `tab${paletteName === currentPaletteName ? ' active' : ''}`;
+            return <div className={classes} onClick={this.onSelectPalette.bind(this, paletteName)}>{paletteName}</div>
           })}
         </div>
-        <div className="content">
+        <div className="color-picker-content">
           <div className="color-picker">
             {currentPalette.map((color, index) => {
-              return <div key={index} className="color" title={color.name} style={{backgroundColor: color.hex}}></div>
+              const classes = `color${index === this.props.current ? ' active' : ''}`;
+              return <div
+                key={index}
+                className={classes}
+                title={color.name}
+                onClick={this.onSelectColor.bind(this, index)}
+                style={{ backgroundColor: color.hex }}>
+              </div>
             })}
           </div>
         </div>
