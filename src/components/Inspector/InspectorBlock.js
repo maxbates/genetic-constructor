@@ -21,6 +21,7 @@ import { blockMerge, blockSetColor, blockSetRole, blockRename } from '../../acti
 import { uiShowOrderForm } from '../../actions/ui';
 import InputSimple from './../InputSimple';
 import ColorPicker from './../ui/ColorPicker';
+import ColorAndPalettePicker from './../ui/ColorAndPalettePicker';
 import SymbolPicker from './../ui/SymbolPicker';
 import BlockSource from './BlockSource';
 import ListOptions from './ListOptions';
@@ -74,6 +75,7 @@ export class InspectorBlock extends Component {
   };
 
   selectColor = (color) => {
+    console.log('Color Selected:', color);
     this.startTransaction();
     this.props.instances.forEach((block) => {
       this.props.blockSetColor(block.id, color);
@@ -216,6 +218,9 @@ export class InspectorBlock extends Component {
 
     const relevantOrders = orders.filter(order => singleInstance && order.constructIds.indexOf(instances[0].id) >= 0);
 
+    console.log("Current Color: ", this.currentColor());
+    console.log("Palette:", palette);
+
     return (
       <div className="InspectorContent InspectorContentBlock">
 
@@ -272,6 +277,10 @@ export class InspectorBlock extends Component {
           </div>
         </InspectorRow>
 
+        <ColorAndPalettePicker current={this.currentColor()}
+                               readOnly={readOnly}
+                               palette={palette}
+                               onSelect={this.selectColor}/>
         <InspectorRow heading="Color & Symbol">
           <div className="InspectorContent-pickerWrap">
             <ColorPicker current={this.currentColor()}
