@@ -39,7 +39,10 @@ import { getLocal, setLocal } from '../utils/localstorage';
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
 
+//todo - should move to rollup class?
 const rollupDefined = (roll) => roll && roll.project && roll.blocks;
+
+const projectNotLoadedError = 'Project has not been loaded';
 
 //this is a backup for performing arbitrary mutations
 export const projectMerge = (projectId, toMerge) => {
@@ -124,7 +127,7 @@ export const projectSave = (inputProjectId, forceSave = false) => {
 
     const roll = dispatch(projectSelectors.projectCreateRollup(projectId));
     if (!rollupDefined(roll)) {
-      return Promise.reject('attempting to save project which is not loaded');
+      return Promise.reject(projectNotLoadedError);
     }
 
     //check if project is new, and save only if it is (or forcing the save)
@@ -182,7 +185,7 @@ export const projectSnapshot = (projectId, version = null, message, tags = {}, w
       if (rollupDefined(roll)) {
         instanceMap.saveRollup(roll);
       } else {
-        return Promise.reject('attempting to save project which is not loaded');
+        return Promise.reject(projectNotLoadedError);
       }
     }
 
@@ -352,7 +355,7 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
       :
       dispatch(projectSave(currentProjectId))
         .catch(err => {
-          if (!!currentProjectId && currentProjectId !== 'null' && currentProjectId !== 'undefined') {
+          if (!!currentProjectId && currentProjectId !== 'null' && currentProjectId !== 'undefined' && err !== projectNotLoadedError) {
             dispatch({
               type: ActionTypes.UI_SET_GRUNT,
               gruntMessage: `Project ${currentProjectId} couldn't be saved, but navigating anyway...`,
