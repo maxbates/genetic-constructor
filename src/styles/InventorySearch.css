@@ -9,10 +9,10 @@
     width: calc(100% - (var(--SidePanel-width-padding-content) * 2));
     margin: 0 0 1.5rem var(--SidePanel-width-padding-content);
     outline: 0;
-    border: 1px solid lightgray;
     border-radius: 2px;
+    border: none;
     padding: 0.5em 2em 0.5em 0.4em;
-    background: white;
+    background: var(--colors-lightGrey);
     color: var(--colors-text);
     background-image: url('/images/ui/search.svg');
     background-repeat: no-repeat;
