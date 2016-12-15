@@ -308,7 +308,8 @@ def export_project(filename, project, allblocks):
 
     # There are list blocks. We need to create a zip file with all the combinations. Include in the zip file the non-list-block constructs
     constructs = project["components"]
-    name_prefix = project["metadata"]["name"] + " - "
+    project_name = project["metadata"]["name"] or 'Untitled'
+    name_prefix = project_name + " - "
     construct_number = 1
 
     zf = zipfile.ZipFile(filename, mode='w')
@@ -320,7 +321,7 @@ def export_project(filename, project, allblocks):
         if len(optional_children) > 0:
             build_first_optional_construct(optional_children)
 
-            gb_filename = name_prefix + construct["metadata"]["name"] + " - " + str(construct_number) + ".gb"
+            gb_filename = '/tmp/' + name_prefix + construct["metadata"]["name"] + " - " + str(construct_number) + ".gb"
             construct_number = construct_number + 1
 
             project_to_genbank(gb_filename, project,
@@ -329,7 +330,7 @@ def export_project(filename, project, allblocks):
             os.remove(gb_filename)
 
             while build_next_optional_construct(optional_children):
-                gb_filename = name_prefix + construct["metadata"]["name"] + " - " + str(construct_number) + ".gb"
+                gb_filename = '/tmp/' + name_prefix + construct["metadata"]["name"] + " - " + str(construct_number) + ".gb"
                 construct_number = construct_number + 1
 
                 project_to_genbank(gb_filename, project,
@@ -338,7 +339,7 @@ def export_project(filename, project, allblocks):
                 os.remove(gb_filename)
 
         else:
-            gb_filename = name_prefix + construct["metadata"]["name"] + " - " + str(construct_number) + ".gb"
+            gb_filename = '/tmp/' + name_prefix + construct["metadata"]["name"] + " - " + str(construct_number) + ".gb"
             construct_number = construct_number + 1
             project_to_genbank(gb_filename, project, allblocks, construct_id=construct_id)
             zf.write(gb_filename)

@@ -48,6 +48,7 @@ router.param('projectId', (req, res, next, id) => {
 
 /***** FILES ******/
 
+//todo - DEPRECATE
 //route to download genbank files
 router.get('/file/:fileId', (req, res, next) => {
   const { fileId } = req.params;
@@ -108,6 +109,7 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
 
       return exportConstruct({ roll: partialRoll, constructId: construct.id })
         .then(resultFileName => {
+          logger('wrote file to ' + resultFileName);
           return downloadAndDelete(res, resultFileName, roll.project.id + '.fasta');
         });
     })
@@ -129,7 +131,10 @@ router.all('/export/:projectId/:constructId?',
     const options = req.body;
 
     logger(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
-    logger(options);
+    if (options) {
+      logger('option map:');
+      logger(options);
+    }
 
     projectPesistence.projectGet(projectId)
       .then(roll => sequencePersistence.assignSequencesToRollup(roll))
@@ -142,6 +147,7 @@ router.all('/export/:projectId/:constructId?',
 
         return promise
           .then((resultFileName) => {
+            logger('wrote file to ' + resultFileName);
             return fileSystem.fileRead(resultFileName, false)
               .then(fileOutput => {
                 // We have to disambiguate between zip files and gb files!
