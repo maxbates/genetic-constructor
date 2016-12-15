@@ -12,14 +12,14 @@ import * as s3 from '../server/data/middleware/s3';
 import * as sequencePersistence from '../server/data/persistence/sequence';
 
 async function setupFiles() {
-  console.log('Creating storage directories...');
+  console.log('Creating storage directories');
   await fileSystem.directoryMake(createStorageUrl());
   await fileSystem.directoryMake(createStorageUrl(jobPath));
   await fileSystem.directoryMake(createStorageUrl(sequencePath));
   await fileSystem.directoryMake(createStorageUrl(projectFilesPath));
 
   if (s3.useRemote) {
-    console.log('ensuring S3 buckets provisioned...');
+    console.log('ensuring S3 buckets provisioned');
     await Promise.all(
       s3.buckets.map(bucket => s3.ensureBucketProvisioned(bucket))
     );

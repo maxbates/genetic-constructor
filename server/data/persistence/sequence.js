@@ -24,7 +24,6 @@ import {
   fileWrite,
   fileDelete,
 } from '../middleware/fileSystem';
-import { errorDoesNotExist } from '../../utils/errors';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5, getSequencesFromMap } from '../../../src/utils/sequenceMd5';
 import debug from 'debug';
 
@@ -46,7 +45,9 @@ if (s3.useRemote) {
 
 export const sequenceExists = (pseudoMd5) => {
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
-  const { hash } = parsePseudoMd5(pseudoMd5);
+  const { hash, hasRange } = parsePseudoMd5(pseudoMd5);
+
+  logger(`[sequenceExists] ${hash}` + (hasRange ? `(original: ${pseudoMd5})` : ''));
 
   if (s3.useRemote) {
     return s3.itemExists(s3bucket, hash);
@@ -65,7 +66,7 @@ export const sequenceGet = (pseudoMd5) => {
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash, hasRange, start, end } = parsePseudoMd5(pseudoMd5);
 
-  logger(`[sequenceGet] ${hash} (original: ${pseudoMd5})`);
+  logger(`[sequenceExists] ${hash}` + (hasRange ? `(original: ${pseudoMd5})` : ''));
 
   if (s3.useRemote) {
     //s3 is inclusive, node fs is not, javascript is not
