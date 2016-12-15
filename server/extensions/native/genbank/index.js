@@ -8,7 +8,7 @@ import Block from '../../../../src/models/Block';
 import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
-import { filter } from 'lodash';
+import _ from 'lodash';
 import { projectPermissionMiddleware } from '../../../data/permissions';
 import * as projectPesistence from '../../../data/persistence/projects';
 import * as sequencePersistence from '../../../data/persistence/sequence';
@@ -182,15 +182,23 @@ router.post('/import/:projectId?',
     if (projectId === 'convert') {
       return convert(filePath, fileUrl)
         .then(converted => {
-          const roots = converted.roots;
-          const rootBlocks = filter(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
-          const payload = constructsOnly ?
-          { roots, blocks: rootBlocks } :
-            converted;
-
           logger('converted');
+          logger(converted);
 
-          return res.status(200).json(payload);
+          const roots = converted.roots;
+          const rootBlocks = _.pickBy(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
+
+          Object.assign(req, {
+            constructsOnly,
+            roll: {
+              project: Project.classless({
+                components: roots,
+              }),
+              blocks: rootBlocks,
+            },
+          });
+
+          next();
         })
         .catch(err => next(err));
     }

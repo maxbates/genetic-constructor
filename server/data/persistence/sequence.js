@@ -110,7 +110,8 @@ export const sequenceWrite = (realMd5, sequence) => {
     .then(() => sequence);
 };
 
-//expect object, map of md5 (not pseudoMd5) to sequence
+//expect object { md5 (not pseudoMd5) : sequence }
+//returns { md5 : sequence }
 export const sequenceWriteMany = (map) => {
   invariant(typeof map === 'object', 'must pass an object');
   logger('[sequenceWriteMany] starting... ' + Object.keys(map).length);

@@ -95,7 +95,7 @@ export class RollupSchemaClass extends SchemaClass {
         const keys = Object.keys(instance);
 
         invariant(keys.length <= acceptedKeys.length, 'too many keys: ' + keys.join(', '));
-        invariant(keys.every(key => acceptedKeys.indexOf(key) >= 0), 'unknown key');
+        invariant(keys.every(key => acceptedKeys.indexOf(key) >= 0), 'unknown key: ' + keys.join(', '));
 
         const projectId = instance.project.id;
 
