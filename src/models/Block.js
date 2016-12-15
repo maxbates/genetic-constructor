@@ -19,7 +19,7 @@ import { assign, merge, cloneDeep } from 'lodash';
 import BlockSchema from '../schemas/Block';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
-import { isHex, palettes, getPalette, nextColor, colorFiller } from '../utils/color';
+import { isHex, palettes, getPalette, nextColor, colorFiller } from '../utils/color/index';
 import { dnaStrictRegexp, dnaLooseRegexp } from '../utils/dna';
 import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
@@ -513,6 +513,14 @@ export default class Block extends Instance {
       return colorFiller;
     }
 
+    //backwards compatible / if someone sets hex for some reason  (e.g. a weird import / strong preference)
+    //note that this will not change with the palette
+    //todo - should we try to convert it?
+    if (isHex(this.metadata.color)) {
+      console.warn('todo - migrate and avoid hex as color'); //eslint-disable-line
+      return this.metadata.color;
+    }
+
     //color should always be defined... may happen if defined wrong / is null
     if (!Number.isInteger(this.metadata.color)) {
       return 'lightgray';
@@ -525,12 +533,6 @@ export default class Block extends Instance {
       console.warn('todo - handle color by role'); //eslint-disable-line
       const role = this.getRole(false);
       return role ? palette[0].hex : colorFiller;
-    }
-
-    //backwards compatible / if someone sets hex for some reason (shouldnt happen)
-    if (isHex(this.metadata.color)) {
-      console.warn('todo - migrate and avoid hex as color'); //eslint-disable-line
-      return this.metadata.color;
     }
 
     return palette[this.metadata.color].hex;

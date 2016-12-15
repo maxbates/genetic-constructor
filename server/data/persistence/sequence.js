@@ -24,6 +24,7 @@ import {
   fileWrite,
   fileDelete,
 } from '../middleware/fileSystem';
+import { errorDoesNotExist } from '../../utils/errors';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5, getSequencesFromMap } from '../../../src/utils/sequenceMd5';
 import debug from 'debug';
 
@@ -166,6 +167,16 @@ export const sequenceDelete = (pseudoMd5) => {
 
   if (s3.useRemote) {
     return s3.itemDelete(s3bucket, hash)
+    /*
+      //if we want to hide the fact that it existed.... but this never gets called by the app anyway
+      //note that local version checks for existence and wll return this error as well
+      .catch(err => {
+        if (err === errorDoesNotExist) {
+          //we dont want to tell them
+          return Promise.reject();
+        }
+      })
+      */
       .then(() => pseudoMd5);
   }
 
