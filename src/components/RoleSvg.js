@@ -32,6 +32,10 @@ export default class RoleSvg extends Component {
     styles: PropTypes.object,
     stroke: PropTypes.number,
     strokeWidth: PropTypes.number,
+    classes: PropTypes.string,
+    onClick: PropTypes.func,
+    onMouseEnter: PropTypes.func,
+    onMouseLeave: PropTypes.func,
   };
 
   static defaultProps = {
@@ -39,6 +43,13 @@ export default class RoleSvg extends Component {
     fill: null,
     styles: {},
   };
+
+  /**
+   * reset markup whenever props are changed
+   */
+  componentWillReceiveProps() {
+    this.markup = null;
+  }
 
   render() {
     if (!this.markup) {
@@ -88,6 +99,13 @@ export default class RoleSvg extends Component {
     if (this.props.height) {
       style.height = this.props.height;
     }
-    return <div style={style} className="RoleSvg" dangerouslySetInnerHTML={{__html: this.markup}}/>;
+    const classes = `RoleSvg ${this.props.classes || ''}`;
+    return <div
+      onClick={this.props.onClick}
+      onMouseEnter={this.props.onMouseEnter}
+      onMouseLeave={this.props.onMouseLeave}
+      style={style}
+      className={classes}
+      dangerouslySetInnerHTML={{__html: this.markup}}/>;
   }
 }

@@ -26,7 +26,7 @@ import {
 } from '../../actions/blocks';
 import InputSimple from './../InputSimple';
 import ColorAndPalettePicker from './../ui/ColorAndPalettePicker';
-import SymbolPicker from './../ui/SymbolPicker';
+import SBOLPicker from './../ui/SBOLPicker';
 import Expando from './../ui/Expando';
 import BlockSource from './BlockSource';
 import ListOptions from './ListOptions';
@@ -275,13 +275,12 @@ export class InspectorBlock extends Component {
                                           onSelectPalette={this.selectPalette}
                    />}
         />
-        <InspectorRow heading="Symbol" condition>
-          <div className="InspectorContent-pickerWrap">
-            <SymbolPicker current={this.currentRoleSymbol()}
-                          readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList)) }
-                          onSelect={this.selectSymbol}/>
-          </div>
-        </InspectorRow>
+        <Expando
+          text="Symbol"
+          content={<SBOLPicker current={this.currentRoleSymbol()}
+                               readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList)) }
+                               onSelect={this.selectSymbol}/>}
+        />
 
         <InspectorRow heading={type + ' Rules'}
                       condition={isAuthoring}>
