@@ -23,6 +23,7 @@ const sourcePath = path.resolve(__dirname, '../src');
 const serverSourcePath = path.resolve(__dirname, '../server');
 const pluginsSourcePath = path.resolve(__dirname, '../plugins');
 const buildPath = path.resolve(__dirname, '../build');
+const classesModulePath = path.resolve(__dirname, '../classes');
 
 const GLOBALS = {
   'process.env.NODE_ENV': DEBUG ? '"dev"' : '"production"',
@@ -40,7 +41,7 @@ const nodeModules = fs.readdirSync('node_modules')
   );
 
 //common configuration
-const config = {
+export const config = {
   output: {
     path: buildPath,
     publicPath: '/static/',
@@ -56,6 +57,7 @@ const config = {
         test: /\.jsx?$/,
         loader: 'babel-loader',
         include: [
+          classesModulePath,
           sourcePath,
           serverSourcePath,
           pluginsSourcePath,
@@ -215,6 +217,19 @@ export const serverConfig = merge({}, config, {
   externals: nodeModules,
 
   devtool: 'source-map',
+});
+
+export const classesConfig = merge({}, clientConfig, {
+  context: classesModulePath,
+
+  entry: './bundle.js',
+
+  output: {
+    filename: 'index.js',
+    path: classesModulePath,
+  },
+
+  devtool: 'cheap-module-source-map',
 });
 
 export default [clientConfig, serverConfig];

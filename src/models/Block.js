@@ -19,7 +19,7 @@ import { assign, merge, cloneDeep } from 'lodash';
 import BlockSchema from '../schemas/Block';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
-import { isHex, palettes, getPalette, nextColor, colorFiller } from '../utils/color';
+import { isHex, palettes, getPalette, nextColor, colorFiller } from '../utils/color/index';
 import { dnaStrictRegexp, dnaLooseRegexp } from '../utils/dna';
 import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
