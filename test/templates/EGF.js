@@ -37,7 +37,14 @@ describe('Templates', () => {
           const samples = _.sampleSize(sequenceFiles, 10);
 
           return Promise.all(
-            samples.map(seqMd5 => sequencePersistence.sequenceExists(seqMd5))
+            samples.map(seqMd5 => {
+              return sequencePersistence.sequenceExists(seqMd5)
+                .catch(err => {
+                  console.log('couldnt find sequence ' + seqMd5);
+                  console.log(err);
+                  throw err;
+                });
+            })
           );
         });
     });
