@@ -45,7 +45,11 @@ describe('Templates', () => {
                   throw err;
                 });
             })
-          );
+          )
+            .catch(err => {
+              console.log(samples);
+              throw err;
+            });
         });
     });
 
