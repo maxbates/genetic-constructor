@@ -194,10 +194,10 @@ export default function importMiddleware(req, res, next) {
  * }]
  */
 export function mergeRollupMiddleware(req, res, next) {
-  const { projectId, mintedProjectId, roll, noSave, returnRoll, constructsOnly } = req;
+  const { projectId, mintedProjectId, roll, noSave, returnRoll } = req;
   const { project, blocks, sequences = {} } = roll;
 
-  logger(`merging project (project=${projectId}`);
+  logger(`merging project (project=${projectId})`);
 
   //we write the sequences no matter what right now
   //future - param to not write sequences (e.g. when just want to look at in inspector, and dont care about sequence -- is this ever the case?)

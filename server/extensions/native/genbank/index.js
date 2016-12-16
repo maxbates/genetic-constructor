@@ -192,6 +192,7 @@ router.post('/import/:projectId?',
               components: roots,
             }),
             blocks: constructsOnly ? rootBlocks : converted.blocks,
+            sequences: converted.sequences,
           };
 
           Object.assign(req, { roll });
