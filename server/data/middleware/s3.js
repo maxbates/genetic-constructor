@@ -56,10 +56,14 @@ export const buckets = [
 
 //namespace keys by environment, version, etc.
 export const testPrefix = 'TEST/'; //in test environment, prefix everything so easier to clean up
+
 const storageVersion = '1'; //static, for data migrations
-const environment = !!process.env.BNR_ENVIRONMENT ? (process.env.BNR_ENVIRONMENT + '/') : 'local/'; //environment so data is siloed across environments
+
+//environment so data is siloed across environments, and special handling for travis
+const environment = process.env.BNR_ENVIRONMENT || (!!process.env.TRAVIS ? ('travis/' + process.env.TRAVIS_JOB_ID) : 'local');
+
 const generatePrefix = () => {
-  let prefix = `${environment}${storageVersion}/`;
+  let prefix = `${environment}/${storageVersion}/`;
   if (process.env.NODE_ENV === 'test') {
     //last (so its the first prefix), add test prefix for test environments
     prefix = testPrefix + prefix;
