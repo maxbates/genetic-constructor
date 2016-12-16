@@ -267,6 +267,7 @@ export class InspectorBlock extends Component {
           : null
         }
         <Expando
+          openByDefault
           text="Palette and Color"
           content={<ColorAndPalettePicker current={this.currentColor()}
                                           readOnly={readOnly}
@@ -276,6 +277,7 @@ export class InspectorBlock extends Component {
                    />}
         />
         <Expando
+          openByDefault
           text="Symbol"
           content={<SBOLPicker current={this.currentRoleSymbol()}
                                readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList)) }

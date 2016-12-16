@@ -129,9 +129,9 @@ export default class InventoryGroupRole extends Component {
           {filtered.map(item => {
               return (
                 <div className="sbol-tile">
-                  <RoleSvg strokeWidth={1}
-                           width="50px"
-                           height="50px"
+                  <RoleSvg
+                           width="54px"
+                           height="54px"
                            color={current.id === item.id ? "white" : "black"}
                            classes={current.id === item.id ? "active" : null}
                            symbolName={item.id}

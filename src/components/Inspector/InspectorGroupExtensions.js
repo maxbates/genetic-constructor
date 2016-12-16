@@ -100,6 +100,7 @@ class InspectorGroupExtensions extends Component {
           Region: extensionRegion(extension),
         };
         return (<Expando
+          openByDefault
           key={index}
           text={values.Name}
           headerWidgets={[

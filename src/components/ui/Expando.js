@@ -41,10 +41,10 @@ export default class Expando extends Component {
     showArrowWhenEmpty: true,
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      open: false,
+      open: !!props.openByDefault,
     };
   }
 

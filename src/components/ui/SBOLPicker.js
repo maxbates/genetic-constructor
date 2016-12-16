@@ -68,9 +68,9 @@ export default class SBOLPicker extends Component {
           <div className="sbol-picker">
             {symbols.map(symbolObj => {
               const { id, name } = symbolObj;
-              return (<RoleSvg strokeWidth={1}
-                               width="50px"
-                               height="50px"
+              return (<RoleSvg
+                               width="54px"
+                               height="54px"
                                color={current === id ? "white" : "black"}
                                classes={current === id ? "active" : null}
                                symbolName={id}
