@@ -44,18 +44,19 @@ async function setupFiles() {
         })
         //if fail, write them all
         .catch(() => {
-          console.log('copying all ' + sequenceFiles.length + ' EGF sequences...');
-
           return Promise.all(
             sequenceFiles.map(fileName => {
               const filePath = path.resolve(pathSequences, fileName);
               return fileSystem.fileRead(filePath, false)
                 .then(contents => sequencePersistence.sequenceWrite(fileName, contents));
             })
-          );
+          )
+            .then(sequences => {
+              console.log('copied ' + sequenceFiles.length + ' sequences');
+            });
         })
         .catch(err => {
-          console.log('Error copying EGF sequences, continuing...');
+          console.log('Error copying EGF sequences, continuing anyway...');
           console.log(err.stack);
         });
     });

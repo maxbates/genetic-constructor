@@ -100,11 +100,10 @@ describe('Server', () => {
             });
         });
 
-        it('objectGet() catches when not an object, rejects with contents', (done) => {
+        it('objectGet() catches when not an object, rejects', (done) => {
           s3.objectGet(bucket, stringName)
             .then(done)
-            .catch(result => {
-              expect(result).to.equal(stringContents);
+            .catch(err => {
               done();
             });
         });
