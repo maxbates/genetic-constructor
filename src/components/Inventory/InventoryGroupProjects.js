@@ -14,14 +14,32 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-
-import InventoryProjectList from './InventoryProjectList';
+import { connect } from 'react-redux';
+import InventoryProjectTree from './InventoryProjectTree';
 import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
+import {
+  projectAddConstruct,
+  projectSave,
+  projectOpen,
+  projectDelete,
+  projectList,
+  projectLoad,
+} from '../../actions/projects';
+import {
+  focusConstruct,
+} from '../../actions/focus';
 
-export default class InventoryGroupProjects extends Component {
+class InventoryGroupProjects extends Component {
   static propTypes = {
-    currentProject: PropTypes.string.isRequired,
+    focusConstruct: PropTypes.func.isRequired,
+    projectAddConstruct: PropTypes.func.isRequired,
+    projectSave: PropTypes.func.isRequired,
+    projectDelete: PropTypes.func.isRequired,
+    projectList: PropTypes.func.isRequired,
+    projectLoad: PropTypes.func.isRequired,
+    currentProjectId: PropTypes.string,
+    templates: PropTypes.bool.isRequired,
   };
 
   constructor() {
@@ -42,14 +60,11 @@ export default class InventoryGroupProjects extends Component {
   };
 
   render() {
-    const { currentProject } = this.props;
+    const { currentProjectId } = this.props;
     const { groupBy } = this.state;
-
     const currentList = groupBy === 'type'
-      ?
-      <InventoryRoleMap />
-      :
-      <InventoryProjectList currentProject={currentProject}/>;
+      ? <InventoryRoleMap />
+      : <InventoryProjectTree currentProjectId={currentProjectId} templates={this.props.templates}/>;
 
     return (
       <div className="InventoryGroup-content InventoryGroupProjects">
@@ -63,3 +78,19 @@ export default class InventoryGroupProjects extends Component {
     );
   }
 }
+
+function mapStateToProps(state, props) {
+  return {};
+}
+
+export default connect(mapStateToProps, {
+  focusConstruct,
+  projectAddConstruct,
+  projectSave,
+  projectOpen,
+  projectDelete,
+  projectList,
+  projectLoad,
+})(InventoryGroupProjects);
+
+

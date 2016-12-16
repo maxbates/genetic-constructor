@@ -1,25 +1,25 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { push } from 'react-router-redux';
-import PopupMenu from '../../components/Menu/PopupMenu';
+import Box2D from '../../containers/graphics/geometry/box2d';
 import Vector2D from '../../containers/graphics/geometry/vector2d';
 import { connect } from 'react-redux';
-import { uiShowAuthenticationForm, uiSetGrunt, uiShowExtensionPicker } from '../../actions/ui';
+import { uiShowAuthenticationForm, uiSetGrunt, uiShowMenu } from '../../actions/ui';
 import { userLogout } from '../../actions/user';
 import track from '../../analytics/ga';
 
@@ -29,7 +29,7 @@ class UserWidget extends Component {
 
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
-    uiShowExtensionPicker: PropTypes.func.isRequired,
+    uiShowMenu: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     user: PropTypes.object,
     push: PropTypes.func.isRequired,
@@ -39,10 +39,6 @@ class UserWidget extends Component {
 
   constructor() {
     super();
-    this.state = {
-      menuOpen: false,
-      menuPosition: new Vector2D(),
-    };
   }
 
   onSignIn(evt) {
@@ -50,19 +46,31 @@ class UserWidget extends Component {
     this.props.uiShowAuthenticationForm('signin');
   }
 
-  onShowMenu() {
-    const box = ReactDOM.findDOMNode(this).getBoundingClientRect();
-    this.setState({
-      menuOpen: true,
-      menuPosition: new Vector2D(box.left - 200, box.top + box.height),
-    });
-  }
-
-  closeMenu() {
-    this.setState({
-      menuOpen: false,
-    });
-  }
+  /**
+   * show the content menu
+   */
+  onShowMenu = () => {
+    const box = new Box2D(ReactDOM.findDOMNode(this).getBoundingClientRect());
+    const menuPosition = new Vector2D(box.cx, box.bottom);
+    const name = this.props.user.firstName + ' ' + this.props.user.lastName;
+    this.props.uiShowMenu([
+      {
+        text: name,
+        disabled: true,
+      },
+      {
+        text: 'Account Settings',
+        action: () => {
+          this.props.uiShowAuthenticationForm('account');
+        },
+      },
+      {
+        text: 'Sign Out',
+        action: this.signOut.bind(this),
+      },
+    ],
+    menuPosition, true);
+  };
 
   signOut() {
     this.props.userLogout()
@@ -78,38 +86,6 @@ class UserWidget extends Component {
     });
   }
 
-  contextMenu() {
-    return (<PopupMenu
-      open={this.state.menuOpen}
-      position={this.state.menuPosition}
-      closePopup={this.closeMenu.bind(this)}
-      menuItems={
-        [
-          {
-            text: `${this.props.user.firstName} ${this.props.user.lastName}`,
-            disabled: true,
-            classes: 'blue-menu-items',
-          },
-          {
-            text: 'Extension Settings',
-            action: () => {
-              this.props.uiShowExtensionPicker(true);
-            },
-          },
-          {
-            text: 'Account Settings',
-            action: () => {
-              this.props.uiShowAuthenticationForm('account');
-            },
-          },
-          {
-            text: 'Sign Out',
-            action: this.signOut.bind(this),
-          },
-        ]
-      }/>);
-  }
-
   render() {
     if (!this.props.userWidgetVisible) {
       return null;
@@ -119,9 +95,8 @@ class UserWidget extends Component {
       // signed in user
       return (
         <div className="userwidget">
-          <div onClick={this.onShowMenu.bind(this)} className="signed-in">
+          <div onClick={this.onShowMenu} className="signed-in">
             {this.props.user.firstName ? this.props.user.firstName.substr(0, 1) : '?'}</div>
-          {this.contextMenu()}
         </div>
       );
     }
@@ -143,8 +118,8 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiShowAuthenticationForm,
-  uiShowExtensionPicker,
   uiSetGrunt,
+  uiShowMenu,
   push,
   userLogout,
 })(UserWidget);

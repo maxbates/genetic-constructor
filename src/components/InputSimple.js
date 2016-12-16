@@ -22,7 +22,7 @@ export default class InputSimple extends Component {
   static propTypes = {
     value: PropTypes.string.isRequired,
     refKey: PropTypes.any, //can pass a key, if updating with each change, if key is different then will trigger blur/focus on component change
-    onChange: PropTypes.func.isRequired,
+    onChange: PropTypes.func,
     placeholder: PropTypes.string,
     readOnly: PropTypes.bool,
     default: PropTypes.string,

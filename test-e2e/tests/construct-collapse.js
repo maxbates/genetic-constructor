@@ -1,7 +1,6 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var myProjects = require('../fixtures/myprojects');
 var size = require('../fixtures/size');
-var openTemplates = require('../fixtures/open-templates-sample');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var clickAt = require('../fixtures/clickAt');
 
 module.exports = {
@@ -9,8 +8,7 @@ module.exports = {
 
     size(browser);
     homepageRegister(browser);
-    myProjects(browser);
-    openTemplates(browser);
+    openInventoryPanel(browser, 'Templates');
     clickAt(browser, '.scenegraph-userinterface', 5, 5);
     browser
       .waitForElementPresent('[data-nodetype="moreLabel"]', 5000, 'expect more label to appear');

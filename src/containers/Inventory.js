@@ -16,6 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { inventoryToggleVisibility, inventorySelectTab } from '../actions/ui';
+import SectionIcon from './SectionIcon';
 import InventoryGroup from '../components/Inventory/InventoryGroup';
 
 import '../styles/Inventory.css';
@@ -23,50 +24,110 @@ import '../styles/SidePanel.css';
 
 export class Inventory extends Component {
   static propTypes = {
-    projectId: PropTypes.string,
+    currentProjectId: PropTypes.string,
     isVisible: PropTypes.bool.isRequired,
     currentTab: PropTypes.string,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     inventorySelectTab: PropTypes.func.isRequired,
   };
 
+  constructor(props) {
+    super(props);
+  }
+
+  state = {
+    gslActive: false,
+  };
+
+  setActive = (group) => {
+    this.props.inventorySelectTab(group);
+  };
+
   toggle = (forceVal) => {
     this.props.inventoryToggleVisibility(forceVal);
   };
 
+  sections = {
+    Projects: {
+      type: 'projects',
+      title: 'Projects',
+      search: {
+        placeholder: 'Filter projects',
+      },
+    },
+    Templates: {
+      type: 'templates',
+      title: 'Templates',
+      search: {
+        placeholder: 'Filter templates',
+      },
+    },
+    Sketch: {
+      type: 'role',
+      title: 'Sketch Blocks',
+      search: {
+        placeholder: 'Filter sketch blocks',
+      },
+    },
+    // Commons: null,
+    Ncbi: {
+      type: 'search-ncbi',
+      title: 'NCBI Search',
+      search: {
+        source: 'ncbi',
+        placeholder: 'Keyword, biological function',
+      },
+    },
+    Igem: {
+      type: 'search-igem',
+      title: 'IGEM Search',
+      search: {
+        source: 'igem',
+        placeholder: 'Keyword, biological function',
+      },
+    },
+    Egf: {
+      type: 'search-egf',
+      title: 'EGF Search',
+      search: {
+        source: 'egf',
+        placeholder: 'Part Name',
+      },
+    },
+  };
+
   render() {
-    //may be better way to pass in projectId
-    const { isVisible, projectId, currentTab, inventorySelectTab } = this.props;
+    const { isVisible } = this.props;
+    // classes for content area
+    const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
+    // classes for vertical menu
+    const menuClasses = `vertical-menu${isVisible ? ' open' : ''}`;
+    // map sections to icons
+    const icons = Object.keys(this.sections).map(sectionName => {
+      return (<SectionIcon
+          key={sectionName}
+          open={isVisible}
+          onSelect={this.setActive}
+          onToggle={() => this.toggle(!isVisible)}
+          selected={this.props.currentTab === sectionName}
+          section={sectionName}
+        />);
+    });
+    // setup content area
+    const tabInfo = this.sections[this.props.currentTab];
+    let tab;
+    if (tabInfo) {
+      tab = <InventoryGroup currentProjectId={this.props.currentProjectId} tabInfo={tabInfo} />;
+    }
 
     return (
-      <div className={'SidePanel Inventory' +
-      (isVisible ? ' visible' : '')}>
-        <div className="SidePanel-heading">
-          <span className="SidePanel-heading-trigger Inventory-trigger"
-                onClick={() => this.toggle()}/>
-          <div className="SidePanel-heading-content">
-            <span className="SidePanel-heading-title">Inventory</span>
-            <a className="SidePanel-heading-close"
-               ref="close"
-               onClick={() => this.toggle(false)}/>
+      <div className={'SidePanel Inventory' + (isVisible ? ' visible' : '')}>
+        <div className="container">
+          <div className={menuClasses}>
+            {icons}
           </div>
-        </div>
-
-        <div className="SidePanel-content no-vertical-scroll">
-          <div className="Inventory-groups">
-            <InventoryGroup title="Search"
-                            type="search"
-                            isActive={currentTab === 'search' || !currentTab}
-                            setActive={() => inventorySelectTab('search')}/>
-            <InventoryGroup title="My Projects"
-                            type="projects"
-                            currentProject={projectId}
-                            isActive={currentTab === 'projects'}
-                            setActive={() => inventorySelectTab('projects')}/>
-            <InventoryGroup title="Sketch Library"
-                            type="role"
-                            isActive={currentTab === 'role'}
-                            setActive={() => inventorySelectTab('role')}/>
+          <div className={contentClasses}>
+            {tab}
           </div>
         </div>
       </div>

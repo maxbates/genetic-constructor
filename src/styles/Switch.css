@@ -1,0 +1,38 @@
+@import './variables.css';
+
+:root {
+  --switch-size: 1.5rem;
+  --switch-speed: 150ms;
+}
+
+.slider-switch {
+  position: relative;
+  display: inline-block;
+  width: calc(var(--switch-size) * 2);
+  height: var(--switch-size);
+  background-color: var(--colors-lighterGrey);
+  border-radius: calc(var(--switch-size) / 2);
+  cursor: pointer;
+
+  .slider-switch-nob {
+    position: absolute;
+    background-color: var(--colors-grey);
+    width: var(--switch-size);
+    height: var(--switch-size);
+    border-radius: 100%;
+    transition: transform var(--switch-speed) ease, background-color var(--switch-speed) ease;
+  }
+
+  .slider-switch-nob-on {
+    transform: translateX(var(--switch-size));
+    background-color: var(--colors-selected);
+  }
+}
+
+.slider-switch-disabled {
+  .slider-switch-nob {
+    background-color: var(--colors-grey) !important;
+  }
+  pointer-events: none;
+  cursor: pointer !important;
+}

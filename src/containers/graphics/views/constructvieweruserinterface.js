@@ -310,10 +310,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
 
     // show context menu for blocks if there are selections of the user is over a block
     const showMenu = () => {
-      this.constructViewer.openPopup({
-        blockPopupMenuOpen: true,
-        menuPosition: this.mouseTrap.mouseToGlobal(evt),
-      });
+      this.constructViewer.showBlockContextMenu(this.mouseTrap.mouseToGlobal(evt));
     };
     // if there are no selections try to select the block at the cursor
     if (!this.selections.length) {
@@ -333,10 +330,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
   titleContextMenu(evt, point) {
     const hits = this.sg.findNodesAt(point);
     if (this.isConstructTitleNode(hits.length ? hits.pop() : null)) {
-      this.constructViewer.openPopup({
-        constructPopupMenuOpen: true,
-        menuPosition: this.mouseTrap.mouseToGlobal(evt),
-      });
+      // this.constructViewer.openPopup({
+      //   constructPopupMenuOpen: true,
+      //   menuPosition: this.mouseTrap.mouseToGlobal(evt),
+      // });
+      this.constructViewer.showConstructContextMenu( this.mouseTrap.mouseToGlobal(evt));
       return true;
     }
     return false;

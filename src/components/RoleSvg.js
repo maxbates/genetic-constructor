@@ -31,6 +31,11 @@ export default class RoleSvg extends Component {
     height: PropTypes.string,
     styles: PropTypes.object,
     stroke: PropTypes.number,
+    strokeWidth: PropTypes.number,
+    classes: PropTypes.string,
+    onClick: PropTypes.func,
+    onMouseEnter: PropTypes.func,
+    onMouseLeave: PropTypes.func,
   };
 
   static defaultProps = {
@@ -38,6 +43,13 @@ export default class RoleSvg extends Component {
     fill: null,
     styles: {},
   };
+
+  /**
+   * reset markup whenever props are changed
+   */
+  componentWillReceiveProps() {
+    this.markup = null;
+  }
 
   render() {
     if (!this.markup) {
@@ -64,8 +76,8 @@ export default class RoleSvg extends Component {
           svg.setAttribute('height', this.props.height);
         }
         // if the owner wants to modify the stroke width apply
-        if (this.props.stroke) {
-          setAttribute(svg, 'stroke-width', this.props.stroke, true);
+        if (this.props.strokeWidth) {
+          setAttribute(svg, 'stroke-width', this.props.strokeWidth, true);
         }
         this.markup = serializer.serializeToString(svg);
       } else {
@@ -87,6 +99,13 @@ export default class RoleSvg extends Component {
     if (this.props.height) {
       style.height = this.props.height;
     }
-    return <div style={style} className="RoleSvg" dangerouslySetInnerHTML={{__html: this.markup}}/>;
+    const classes = `RoleSvg ${this.props.classes || ''}`;
+    return <div
+      onClick={this.props.onClick}
+      onMouseEnter={this.props.onMouseEnter}
+      onMouseLeave={this.props.onMouseLeave}
+      style={style}
+      className={classes}
+      dangerouslySetInnerHTML={{__html: this.markup}}/>;
   }
 }

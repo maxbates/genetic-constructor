@@ -3,15 +3,40 @@
 .GlobalNav {
   position: relative;
   display: flex;
+  align-items: center;
   flex-direction: row;
   flex-shrink: 0;
-  background-color: white;
+  background-color: var(--colors-darkerGrey);
 
   &-logo {
     width: 50px;
     height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-
+  &-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 100%;
+    border: 3px solid white;
+    box-sizing: border-box;
+    position: relative;
+  }
+  &-bar {
+    background-color: white;
+    height: 3px;
+    width: 50%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  &-appname {
+    color: white;
+    text-transform: uppercase;
+    font-family: var(--font-family-bold);
+  }
   &-action {
     padding: 0 1rem 0 1rem;
     line-height: var(--GlobalNav-height-chrome);

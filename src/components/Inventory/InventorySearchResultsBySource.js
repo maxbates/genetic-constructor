@@ -18,7 +18,7 @@ import { block as blockDragType } from '../../constants/DragTypes';
 import { registry } from '../../inventory/registry';
 
 import InventoryList from './InventoryList';
-import InventoryListGroup from './InventoryListGroup';
+import '../../styles/InventorySearchResultGroup.css';
 
 export default class InventorySearchResultsBySource extends Component {
   static propTypes = {
@@ -36,7 +36,7 @@ export default class InventorySearchResultsBySource extends Component {
   }
 
   render() {
-    const { searchResults, sourcesVisible, onListGroupToggle, onItemSelect, onItemDrop } = this.props;
+    const { searchResults, sourcesVisible, onItemSelect, onItemDrop } = this.props;
 
     return (
       <div className="InventorySearchResultGroup">
@@ -44,33 +44,27 @@ export default class InventorySearchResultsBySource extends Component {
           const name = registry[key].name;
           const results = searchResults[key];
 
-          //todo - this will not handle case where number results % number entries == 0
           const moreResults = Number.isInteger(results.count) ?
             results.length < results.count :
             results.length % results.parameters.entries === 0;
           const actionVisible = results.length > 0 && moreResults && sourcesVisible[key];
+          const loadMore = actionVisible
+          ? <a
+            onClick={(evt) => {
+              this.handleListGroupAction(evt, key);
+            }}
+            className="InventorySearch-loadmore">Load more...</a>
+          : null;
 
           return (
-            <InventoryListGroup title={`${name} (${results.length})`}
-                                disabled={!results.length}
-                                actionButton={{
-                                  text: 'Load More',
-                                  disabled: !!searchResults[key].loading,
-                                  visible: actionVisible,
-                                  onClick: (evt) => { this.handleListGroupAction(evt, key);},
-                                  'data-inventory': `load-more ${key}`,
-                                }}
-                                manual
-                                isExpanded={sourcesVisible[key]}
-                                onToggle={() => onListGroupToggle(key)}
-                                key={key}
-                                dataAttribute={`searchgroup ${name}`}>
-              <InventoryList inventoryType={blockDragType}
-                             onDrop={(item) => onItemDrop(key, item)}
-                             onSelect={(item) => onItemSelect(key, item)}
-                             items={results}
-                             dataAttributePrefix={`searchresult ${name}`}/>
-            </InventoryListGroup>
+              <div key={key}>
+                {loadMore}
+                <InventoryList inventoryType={blockDragType}
+                               onDrop={(item) => onItemDrop(key, item)}
+                               onSelect={(item) => onItemSelect(key, item)}
+                               items={results}
+                               dataAttributePrefix={`searchresult ${name}`}/>
+              </div>
           );
         })}
       </div>

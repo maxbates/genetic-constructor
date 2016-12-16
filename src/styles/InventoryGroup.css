@@ -3,44 +3,25 @@
 .InventoryGroup {
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   .InventoryGroup-heading {
-    height: 2.5em;
-    padding: 0.5em 1em;
-    margin: 0 -var(--SidePanel-width-padding-content);
+    height: var(--width-SidePanel-closed);
+    line-height: var(--width-SidePanel-closed);
+    text-indent: var(--SidePanel-width-padding-content);
     font-size: var(--font-size-sectionLabel);
     font-weight: 100;
-    background-color: var(--colors-mediumDarkGrey);
-    flex-shrink: 0;
-    cursor: pointer;
     user-select: none;
-    border-top: 1px solid var(--colors-slightlyDarkGrey);
-
-    &:hover {
-      background-color: var(--colors-darkerGrey);
-    }
-  }
-
-  &.active {
-    flex-grow: 1;
-    flex-basis: 0;
-
-    .InventoryGroup-heading {
-      background-color: transparent;
-      border-top-color: transparent;
-    }
-  }
-
-  &.active + & .InventoryGroup-heading,
-  &:first-child .InventoryGroup-heading {
-    border-color: transparent;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   &-content {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    padding: 0 0 0.75em;
     position: relative;
     overflow: hidden;
 

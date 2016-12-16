@@ -15,11 +15,18 @@
   color: var(--color);
   text-align: center;
   position: fixed;
-  top: var(--GlobalNav-height-chrome);
   z-index: 1;
-  width: 70%;
+  width: calc(100% - 100px);
   left: 50%;
   transform: translateX(-50%);
+  border-radius: 0 0 8px 8px;
+  transition: top 250ms ease;
+}
+.ribbongrunt-visible {
+  top: 0;
+}
+.ribbongrunt-hidden {
+  top: calc(0 - var(--grunt-height));
 }
 .ribbongrunt button {
   float: right;

@@ -60,6 +60,14 @@ export const initialState = {
 
 export default function inventory(state = initialState, action) {
   switch (action.type) {
+
+  case ActionTypes.INVENTORY_RESULT_RESET: {
+    const { sourceList } = action;
+    return Object.assign({}, state, {
+      searchResults: createEmptySearchResults(sourceList),
+      searching: false,
+    });
+  }
   case ActionTypes.INVENTORY_SEARCH : {
     const { searchTerm, sourceList } = action;
     return Object.assign({}, state, {

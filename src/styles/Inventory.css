@@ -1,14 +1,37 @@
 @import 'variables.css';
 
 .Inventory {
-  &-trigger {
-    background-image: url('/images/ui/inventory_icon.svg');
+  .container {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
   }
 
-  &-groups {
+  .vertical-menu {
+    position: absolute;
+    width: var(--width-SidePanel-closed);
+    height: 100%;
+    background-color: white;
+    z-index: 1;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
-    width: 100%;
+    transition: background-color var(--timing-fast) var(--SidePanel-ease);
+  }
+  .vertical-menu.open {
+    background-color: var(--colors-nearlyBlack);
+  }
+
+  .content {
+    position: absolute;
+    left: 50px;
+    width: calc(var(--width-SidePanel-open) - var(--width-SidePanel-closed));
+    height: 100%;
+    background-color: var(--colors-white);
+    color: var(--colors-nearlyBlack);
+    transform: translateX(0);
+    transition: transform var(--timing-fast) var(--SidePanel-ease);
+  }
+  .content-closed {
+    transform: translateX(-250px);
   }
 }

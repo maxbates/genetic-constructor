@@ -20,8 +20,9 @@ import AuthenticationForms from './authentication/authenticationforms';
 import AboutForm from '../components/aboutform';
 import ModalSpinner from '../components/modal/modalspinner';
 import InlineEditor from '../components/inline-editor/inline-editor';
-import ExtensionPicker from '../components/modal/ExtensionPicker';
+import MenuOverlay from '../components/Menu/MenuOverlay';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
+import OkCancel from '../components/okcancel';
 import track from '../analytics/ga';
 
 import '../styles/App.css';
@@ -44,6 +45,9 @@ class App extends Component {
   componentDidMount() {
     document.addEventListener('keydown', this.rejectBackspace);
     document.addEventListener('keypress', this.rejectBackspace);
+
+    // disable context menus since the app generates it own
+    document.addEventListener('contextmenu', this.rejectContextMenu);
 
     // in production, track top level, unhandled exceptions in the app
     // not in production, ignore this so we dont garble the callstack
@@ -77,6 +81,20 @@ class App extends Component {
     }
   }
 
+  /**
+   * only allow the default context menu on text edit components
+   * @param evt
+   */
+  rejectContextMenu(evt) {
+    const rx = /INPUT|SELECT|TEXTAREA/i;
+    if (evt.target.hasAttribute('contenteditable')) {
+      return;
+    }
+    if (!rx.test(evt.target.tagName)) {
+      evt.preventDefault();
+    }
+  }
+
   render() {
     //set by webpack
     const DevTools = (!!process.env.DEBUG_REDUX) ? require('./DevTools') : 'noscript';
@@ -88,13 +106,14 @@ class App extends Component {
                    showMenu={onProjectPage}/>
         <AuthenticationForms />
         <AboutForm />
-        <ExtensionPicker />
         <ReportErrorModal />
+        <OkCancel />
         <div className="App-pageContent">
           {this.props.children}
         </div>
         <ModalSpinner spinMessage={this.props.spinMessage}/>
         <InlineEditor/>
+        <MenuOverlay/>
         <DevTools />
       </div>
     );

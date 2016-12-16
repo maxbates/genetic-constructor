@@ -17,15 +17,20 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Block from '../../models/Block';
 import { transact, commit, abort } from '../../store/undo/actions';
-import { blockMerge, blockSetColor, blockSetRole, blockRename } from '../../actions/blocks';
-import { uiShowOrderForm } from '../../actions/ui';
+import {
+  blockMerge,
+  blockSetColor,
+  blockSetPalette,
+  blockSetRole,
+  blockRename,
+} from '../../actions/blocks';
 import InputSimple from './../InputSimple';
-import ColorPicker from './../ui/ColorPicker';
-import SymbolPicker from './../ui/SymbolPicker';
+import ColorAndPalettePicker from './../ui/ColorAndPalettePicker';
+import SBOLPicker from './../ui/SBOLPicker';
+import Expando from './../ui/Expando';
 import BlockSource from './BlockSource';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
-import OrderList from './OrderList';
 import InspectorRow from './InspectorRow';
 import BlockNotes from './BlockNotes';
 
@@ -45,15 +50,14 @@ export class InspectorBlock extends Component {
       color: PropTypes.string,
       role: PropTypes.string,
     }).isRequired,
-    orders: PropTypes.array.isRequired,
     blockSetColor: PropTypes.func.isRequired,
+    blockSetPalette: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
     blockMerge: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
-    uiShowOrderForm: PropTypes.func.isRequired,
     forceIsConstruct: PropTypes.bool,
   };
 
@@ -73,12 +77,16 @@ export class InspectorBlock extends Component {
     });
   };
 
-  selectColor = (color) => {
+  selectColor = (colorIndex) => {
     this.startTransaction();
     this.props.instances.forEach((block) => {
-      this.props.blockSetColor(block.id, color);
+      this.props.blockSetColor(block.id, colorIndex);
     });
     this.endTransaction();
+  };
+
+  selectPalette = (paletteName) => {
+    this.props.blockSetPalette(this.props.construct.id, paletteName);
   };
 
   selectSymbol = (symbol) => {
@@ -101,9 +109,6 @@ export class InspectorBlock extends Component {
     this.props.commit();
   };
 
-  handleOpenOrder = (orderId) => {
-    this.props.uiShowOrderForm(true, orderId);
-  };
 
   /**
    * color of selected instance or null if multiple blocks selected
@@ -196,7 +201,7 @@ export class InspectorBlock extends Component {
   }
 
   render() {
-    const { instances, construct, orders, readOnly, forceIsConstruct, isAuthoring } = this.props;
+    const { instances, construct, readOnly, forceIsConstruct, isAuthoring } = this.props;
     const singleInstance = instances.length === 1;
     const isList = singleInstance && instances[0].isList();
     const isTemplate = singleInstance && instances[0].isTemplate();
@@ -213,8 +218,6 @@ export class InspectorBlock extends Component {
 
     const hasSequence = this.allBlocksWithSequence();
     const hasNotes = singleInstance && Object.keys(instances[0].notes).length > 0;
-
-    const relevantOrders = orders.filter(order => singleInstance && order.constructIds.indexOf(instances[0].id) >= 0);
 
     return (
       <div className="InspectorContent InspectorContentBlock">
@@ -254,36 +257,30 @@ export class InspectorBlock extends Component {
           <p><strong>{this.currentSequenceLength()}</strong></p>
         </InspectorRow>
 
-        {/* todo - this should have its own component */}
-        <InspectorRow heading={ type + ' Metadata'}
-                      hasToggle
-                      condition={hasNotes}>
-          <div className="InspectorContent-section">
-            <BlockNotes notes={instances[0].notes}/>
-          </div>
-        </InspectorRow>
 
-        <InspectorRow heading="Order History"
-                      hasToggle
-                      condition={relevantOrders.length > 0}>
-          <div className="InspectorContent-section">
-            <OrderList orders={relevantOrders}
-                       onClick={(orderId) => this.handleOpenOrder(orderId)}/>
-          </div>
-        </InspectorRow>
-
-        <InspectorRow heading="Color & Symbol">
-          <div className="InspectorContent-pickerWrap">
-            <ColorPicker current={this.currentColor()}
-                         readOnly={readOnly}
-                         palette={palette}
-                         onSelect={this.selectColor}/>
-
-            <SymbolPicker current={this.currentRoleSymbol()}
-                          readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList)) }
-                          onSelect={this.selectSymbol}/>
-          </div>
-        </InspectorRow>
+        { hasNotes
+          ? <Expando text={ type + ' Metadata'}
+                   content={<div className="InspectorContent-section">
+                              <BlockNotes notes={instances[0].notes}/>
+                            </div>}
+            />
+          : null
+        }
+        <Expando
+          text="Palette and Color"
+          content={<ColorAndPalettePicker current={this.currentColor()}
+                                          readOnly={readOnly}
+                                          palette={palette}
+                                          onSelectColor={this.selectColor}
+                                          onSelectPalette={this.selectPalette}
+                   />}
+        />
+        <Expando
+          text="Symbol"
+          content={<SBOLPicker current={this.currentRoleSymbol()}
+                               readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList)) }
+                               onSelect={this.selectSymbol}/>}
+        />
 
         <InspectorRow heading={type + ' Rules'}
                       condition={isAuthoring}>
@@ -319,11 +316,11 @@ export class InspectorBlock extends Component {
 
 export default connect(() => ({}), {
   blockSetColor,
+  blockSetPalette,
   blockSetRole,
   blockRename,
   blockMerge,
   transact,
   commit,
   abort,
-  uiShowOrderForm,
 })(InspectorBlock);

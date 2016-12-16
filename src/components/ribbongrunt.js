@@ -51,14 +51,12 @@ class RibbonGrunt extends Component {
   }
 
   render() {
-    if (this.props.gruntMessage) {
-      return (
-        <div className="ribbongrunt">{this.props.gruntMessage}
-          <button onClick={this.close.bind(this)}>&times;</button>
-        </div>
-      );
-    }
-    return null;
+    const classes = `ribbongrunt ${this.props.gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}`;
+    return (
+      <div className={classes}>{this.props.gruntMessage}
+        <button onClick={this.close.bind(this)}>&times;</button>
+      </div>
+    );
   }
 }
 

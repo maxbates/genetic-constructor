@@ -1,15 +1,14 @@
-var openInventory = require('./open-inventory.js');
+var openInventoryPanel = require('./open-inventory-panel.js');
 
-var searchFor = function(browser, term) {
+var searchFor = function(browser, section, term) {
   // open inventory at search tab
-  openInventory(browser);
+  openInventoryPanel(browser, section);
   browser
-    .click('.InventoryGroup:nth-of-type(1) .InventoryGroup-heading')
     .waitForElementPresent('.InventorySearch-input', 5000, 'expect search box / input to appear')
     // enter search term and wait for results
     .clearValue('.InventorySearch-input')
     .setValue('.InventorySearch-input', term)
-    .waitForElementPresent('.InventoryItem-item', 10000, 'expected results to appear');
+    .waitForElementPresent('.InventoryItem-item', 30000, 'expected results to appear');
 
 };
 

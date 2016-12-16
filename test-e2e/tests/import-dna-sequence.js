@@ -1,14 +1,11 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
 var dragFromTo = require('../fixtures/dragfromto');
-var newConstruct = require('../fixtures/newconstruct');
 var openNthBlockContextMenu = require('../fixtures/open-nth-block-contextmenu');
 var clickNthContextMenuItem = require('../fixtures/click-popmenu-nth-item');
-var openInventory = require('../fixtures/open-inventory');
 var clickMainMenu = require('../fixtures/click-main-menu');
 var newProject = require('../fixtures/newproject');
 var size = require('../fixtures/size');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 
 module.exports = {
   'Import a DNA sequence into a sketch block' : function (browser) {
@@ -16,7 +13,7 @@ module.exports = {
     size(browser);
 
     // register via fixture
-    var credentials = homepageRegister(browser);
+    homepageRegister(browser);
 
     // now we can go to the project page
     browser
@@ -27,12 +24,9 @@ module.exports = {
 
     // start with a fresh project
     newProject(browser);
-    openInventory(browser);
+    openInventoryPanel(browser, 'Sketch');
 
     browser
-      // open the sketch blocks
-      .click('.InventoryGroup:nth-of-type(3) .InventoryGroup-heading')
-
     // double check there are no construct viewers present
       .assert.countelements('.construct-viewer', 1);
 
@@ -67,9 +61,9 @@ module.exports = {
       // submit the form with the valid sequence
       .submitForm('.importdnaform')
       // wait for the grunt ribbon to confirm,
-      .waitForElementPresent('.ribbongrunt', 5000, 'expected a grunt')
-      .assert.containsText('.ribbongrunt', 'Sequence was successfully inserted.');
-
+      .waitForElementPresent('.ribbongrunt-visible', 5000, 'expected a grunt')
+      .assert.containsText('.ribbongrunt-visible', 'Sequence was successfully inserted.');
+0
     // now start a new project and ensure the dialog is no operational with no block selected
     // start with a fresh project
     newProject(browser);
@@ -79,7 +73,7 @@ module.exports = {
 
     browser
       .pause(100)
-      .waitForElementPresent('.ribbongrunt', 1000, 'expect an error message for this case')
+      .waitForElementPresent('.ribbongrunt-visible', 1000, 'expect an error message for this case')
       .end();
   }
 };

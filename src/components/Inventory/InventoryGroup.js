@@ -19,25 +19,52 @@ import InventoryGroupRole from './InventoryGroupRole';
 import InventoryGroupBlocks from './InventoryGroupBlocks';
 import InventoryGroupSearch from './InventoryGroupSearch';
 import InventoryGroupProjects from './InventoryGroupProjects';
+import InventoryProjectHeader from './InventoryProjectHeader';
 
 import '../../styles/InventoryGroup.css';
 
 export default class InventoryGroup extends Component {
   static propTypes = {
-    title: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    isActive: PropTypes.bool.isRequired,
-    setActive: PropTypes.func.isRequired,
+    title: PropTypes.string,
+    type: PropTypes.string,
+    actions: PropTypes.array,
+    tabInfo: PropTypes.object.isRequired,
+    currentProjectId: PropTypes.string,
   };
 
+  /**
+   * returns the current componengt
+   */
+  inventoryGroupTypeToHeaderComponent = (type, props) => {
+    switch (type) {
+
+    case 'projects':
+      return (<InventoryProjectHeader {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
+    case 'templates':
+      return (<InventoryProjectHeader {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
+
+    default:
+      return null;
+    }
+  };
+
+  /**
+   * return component for header area
+   */
   inventoryGroupTypeToComponent = (type, props) => {
     switch (type) {
     case 'role' :
       return (<InventoryGroupRole {...props} />);
-    case 'search' :
-      return (<InventoryGroupSearch {...props} />);
+    case 'search-ncbi' :
+      return (<InventoryGroupSearch source="ncbi" {...props}/>);
+    case 'search-igem' :
+      return (<InventoryGroupSearch source="igem" {...props}/>);
+    case 'search-egf' :
+      return (<InventoryGroupSearch source="egf" {...props}/>);
     case 'projects':
-      return (<InventoryGroupProjects {...props} />);
+      return (<InventoryGroupProjects {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
+    case 'templates':
+      return (<InventoryGroupProjects {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
     case 'block':
       return (<InventoryGroupBlocks {...props} />);
     default:
@@ -46,16 +73,17 @@ export default class InventoryGroup extends Component {
   };
 
   render() {
-    const { title, type, isActive, setActive, ...rest } = this.props;
+    const { ...rest } = this.props;
+    const { title, type } = this.props.tabInfo;
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
-
+    const currentHeaderComponent = this.inventoryGroupTypeToHeaderComponent(type, rest);
     return (
-      <div className={'InventoryGroup' + (isActive ? ' active' : '')}>
-        <div className="InventoryGroup-heading"
-             onClick={setActive}>
+      <div className={'InventoryGroup'}>
+        <div className="InventoryGroup-heading">
           <span className="InventoryGroup-title">{title}</span>
+          {currentHeaderComponent}
         </div>
-        {isActive && currentGroupComponent}
+        {currentGroupComponent}
       </div>
     );
   }

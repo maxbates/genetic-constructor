@@ -1,6 +1,6 @@
 var dragFromTo = require('./dragfromto');
 var clickMainMenu = require('./click-main-menu');
-var openInventory = require('./open-inventory');
+var openInventoryPanel = require('./open-inventory-panel');
 
 var newproject = function(browser) {
   browser
@@ -11,11 +11,9 @@ var newproject = function(browser) {
   clickMainMenu(browser, 1, 5);
   browser
     .waitForElementPresent('.construct-viewer', 5000, 'expect a construct for the new project');
-  // ensure inventory open
-  openInventory(browser);
-    // click the second inventory group 'EGF Parts' to open it
+  // ensure inventory open at sketch blocks
+  openInventoryPanel(browser, 'Sketch');
   browser
-    .click('.InventoryGroup:nth-of-type(3) .InventoryGroup-heading')
     // expect at least one inventory item and one block to drop on
     .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item');
 

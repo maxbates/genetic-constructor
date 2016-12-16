@@ -14,6 +14,7 @@
   ],
   "rules": {
     "spaced-comment" : [0, "always"],
+    "react/sort-comp": [0, "never"],
     "no-use-before-define": [2, "nofunc"],
     "no-unused-vars": [2, {"vars": "all", "args": "none"}],
     "no-shadow": [0], //this is used for Redux in the connect, and need to get from component props this way

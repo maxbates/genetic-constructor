@@ -154,7 +154,7 @@ export class InventoryItem extends Component {
 
     //handler, so if click somewhere else, shouldnt focus selection on resolve
     const onClickHandler = (evt) => {
-      if (!this.itemElement.contains(evt.target)) {
+      if (this.itemElement && !this.itemElement.contains(evt.target)) {
         this.setState({ skipFocus: true });
       }
       document.removeEventListener('click', onClickHandler);
@@ -198,6 +198,7 @@ export class InventoryItem extends Component {
     const itemName = item.metadata.name || defaultName || 'Unnamed';
     const dataAttr = !!dataAttribute ? dataAttribute : `${inventoryType} ${item.id}`;
 
+
     return (
       <div className={'InventoryItem' +
       ((!!image || !!svg) ? ' hasImage' : '') +
@@ -209,7 +210,7 @@ export class InventoryItem extends Component {
         <a className="InventoryItem-item"
            onClick={this.handleClick}>
           {image && (<span className="InventoryItem-image" style={{ backgroundImage: `url(${image})` }}/>)}
-          {(svg && !image) ? <RoleSvg symbolName={svg} color="white" {...svgProps} styles={{}}/> : null}
+          {(svg && !image) ? <RoleSvg symbolName={svg} {...svgProps} styles={{}}/> : null}
           <span className="InventoryItem-text" title={loadError ? 'Error Loading Item' : itemName}>
             {itemName}
           </span>

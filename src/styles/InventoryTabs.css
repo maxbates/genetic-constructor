@@ -3,30 +3,28 @@
 .InventoryTabs {
   display: flex;
   flex-direction: row;
-  margin-bottom: 1em;
   padding-bottom: 0.5em;
-  border-bottom: 1px solid var(--colors-slightlyDarkGrey);
   display: inline-block;
   flex-shrink: 0;
 
   &-tab {
     text-align: center;
-    padding: 0.5em 0.5em;
-    margin: 0 0.75em 0 0.5em;
-    border-bottom: 2px solid transparent;
-    transition-duration: var(--timing-fast);
-    transition-property: color, border;
-    color: var(--colors-white);
     font-size: var(--font-size-text);
+    line-height: calc(var(--font-size-text) + 1rem);
+    padding: 0.25rem;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: var(--SidePanel-width-padding-content);
+    background-color: var(--colors-lighterGrey);
 
     &:hover {
-      color: var(--colors-selected);
-      cursor: pointer;
+      background-color: var(--colors-nearlyBlack);
+      color: var(--colors-white);
     }
 
     &.active {
-      color: var(--colors-selected);
-      border-bottom-color: var(--colors-selected);
+      background-color: var(--colors-nearlyBlack);
+      color: var(--colors-white);
     }
   }
 }

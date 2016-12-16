@@ -431,7 +431,6 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = tru
   return (dispatch, getState) => {
     const oldProject = getState().projects[projectId];
     const project = oldProject.addComponents(constructId);
-
     const component = getState().blocks[constructId];
     const componentProjectId = component.projectId;
 

@@ -1,6 +1,8 @@
 var clickmainmenu = function(browser, menuIndex, menuItemIndex) {
   var selector = '.menu-dropdown:nth-of-type(' + menuIndex + ') .menu-item:nth-of-type(' + menuItemIndex + ')';
   browser
+    .waitForElementPresent('.ribbongrunt-hidden')
+    .pause(500)
     // open the given menu
     .click('.menu-dropdown:nth-of-type(' + menuIndex + ')')
     .waitForElementPresent('.menu-header-open', 5000, 'expected an open menu')

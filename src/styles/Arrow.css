@@ -1,0 +1,42 @@
+@import './variables.css';
+
+:root {
+  --arrow-color: var(--colors-nearlyBlack);
+  --arrow-size: 5px;
+}
+
+.arrow-base {
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  display: inline-block;
+  border-top: var(--arrow-size) solid transparent;
+  border-bottom: var(--arrow-size) solid transparent;
+  border-left: calc(var(--arrow-size) * 1.5px) solid var(--arrow-color);
+  transition: transform 250ms ease;
+}
+.arrow-down {
+  transform: rotate(90deg);
+}
+.arrow-left {
+  transform: rotate(180deg);
+}
+.arrow-up {
+  transform: rotate(270deg);
+}
+.arrow-right {
+  transform: rotate(0deg);
+}
+.arrow-disabled {
+  pointer-events: none;
+}
+.arrow-clickable {
+  cursor: pointer;
+}
+.arrow-clickable:hover {
+  border-left: calc(var(--arrow-size) * 1.5px) solid var(--colors-grey);
+}
+
+.arrow-hidden {
+  visibility: hidden;
+}

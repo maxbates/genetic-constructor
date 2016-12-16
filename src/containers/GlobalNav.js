@@ -17,7 +17,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import invariant from 'invariant';
-import MenuBar from '../components/Menu/MenuBar';
 import UserWidget from '../components/authentication/userwidget';
 import RibbonGrunt from '../components/ribbongrunt';
 import {
@@ -66,12 +65,11 @@ import {
   uiReportError,
 } from '../actions/ui';
 import KeyboardTrap from 'mousetrap';
-import { stringToShortcut } from '../utils/ui/keyboard-translator';
 import {
   sortBlocksByIndexAndDepth,
   sortBlocksByIndexAndDepthExclude,
-  tos,
-  privacy,
+  // tos,
+  // privacy,
 } from '../utils/ui/uiapi';
 import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import OkCancel from '../components/okcancel';
@@ -92,7 +90,6 @@ class GlobalNav extends Component {
     projectLoad: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string,
     blockCreate: PropTypes.func.isRequired,
-    showMenu: PropTypes.bool.isRequired,
     blockGetParents: PropTypes.func.isRequired,
     focusDetailsExist: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
@@ -121,7 +118,7 @@ class GlobalNav extends Component {
     uiShowDNAImport: PropTypes.func.isRequired,
     uiReportError: PropTypes.func.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
-    inspectorVisible: PropTypes.bool.isRequired,
+    inspectorVisible: PropTypes.bool,
     detailViewVisible: PropTypes.bool.isRequired,
     focus: PropTypes.object.isRequired,
     blocks: PropTypes.object,
@@ -480,7 +477,7 @@ class GlobalNav extends Component {
       this.props.focusBlocks(clones.map(clone => clone.id));
     }
   }
-
+/*
   menuBar() {
     return (<MenuBar
       menus={[
@@ -695,22 +692,26 @@ class GlobalNav extends Component {
         },
       ]}/>);
   }
-
+*/
   disgorgeDiscourse(path) {
     const uri = window.discourseDomain + path;
     window.open(uri, '_blank');
   }
 
   render() {
-    const { currentProjectId, showMenu } = this.props;
+    const { currentProjectId } = this.props;
 
     return (
       <div className="GlobalNav">
         <RibbonGrunt />
-        <img className="GlobalNav-logo" src="/images/homepage/app-logo.png"/>
-        {showMenu && this.menuBar()}
+        <div className="GlobalNav-logo">
+          <div className="GlobalNav-circle">
+            <div className="GlobalNav-bar"></div>
+          </div>
+        </div>
+        <div className="GlobalNav-appname">Genetic Constructor</div>
         <span className="GlobalNav-spacer"/>
-        {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId}/>}
+        {currentProjectId && <AutosaveTracking projectId={currentProjectId}/>}
         <UserWidget/>
         <OkCancel
           open={this.state.showDeleteProject}

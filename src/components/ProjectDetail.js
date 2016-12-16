@@ -125,38 +125,62 @@ export class ProjectDetail extends Component {
 
   render() {
     const { isVisible, currentExtension } = this.props;
-
     if (!this.extensions.length) {
       return null;
     }
 
-    return (
-      <div className={'ProjectDetail' + (isVisible ? ' visible' : '')}
-           style={{ height: (isVisible ? `${this.state.openHeight}px` : null) }}>
-        {(isVisible) && (<div ref="resizeHandle"
-                              className="ProjectDetail-resizeHandle"
-                              onMouseDown={this.handleResizableMouseDown}></div>)}
-        <div className="ProjectDetail-heading">
-          {!isVisible && (<a ref="open"
-                             className={'ProjectDetail-heading-toggle' + (isVisible ? ' visible' : '')}
-                             onClick={this.handleClickToggle}/>)}
-          <div className={'ProjectDetail-heading-extensionList' + (isVisible ? ' visible' : '')}>
-            {this.extensions.map(key => {
-              const name = getExtensionName(key);
-              return (
-                <a key={key}
-                   className={'ProjectDetail-heading-extension' + (key === currentExtension ? ' active' : '')}
-                   onClick={() => this.openExtension(key)}>{name}</a>
-              );
-            })}
+    if (isVisible) {
+      return (
+        <div className="ProjectDetail-open" style={{ height: `${this.state.openHeight}px` }}>
+          <div
+            ref="resizeHandle"
+            className="ProjectDetail-open-resizeHandle"
+            onMouseDown={this.handleResizableMouseDown}>
           </div>
-          {isVisible && (<a ref="close"
-                            className={'ProjectDetail-heading-close'}
-                            onClick={() => this.toggle(false)}/>)}
+          <div className="ProjectDetail-open-header">
+            {/* Left side of header, extension tabls */}
+            <div className="ProjectDetail-open-header-left">
+              {this.extensions.map(key => {
+                const name = getExtensionName(key);
+                const active = key === currentExtension ? ' ProjectDetail-open-header-left-active' : '';
+                const className = 'ProjectDetail-open-header-left-extension' + active;
+                return (
+                  <a key={key}
+                     className={className}
+                     onClick={() => this.openExtension(key)}
+                  >{name}
+                  </a>
+                );
+              })}
+            </div>
+            {/* right side of header, toolbar and close button */}
+            <div className="ProjectDetail-open-header-right">
+              <a
+                ref="close"
+                className={'ProjectDetail-open-header-right-close'}
+                onClick={() => this.toggle(false)}
+              />
+            </div>
+          </div>
+          {currentExtension && (<ExtensionView region={projectDetailExtensionRegion}
+                                               isVisible
+                                               extension={currentExtension}/>) }
         </div>
-        {currentExtension && (<ExtensionView region={projectDetailExtensionRegion}
-                                             isVisible={isVisible}
-                                             extension={currentExtension}/>) }
+      );
+    }
+    // just a list of extensions if closed
+    return (
+      <div className="ProjectDetail-closed">
+        {this.extensions.map(key => {
+          const name = getExtensionName(key);
+          return (
+            <a key={key}
+               className="ProjectDetail-closed-extension"
+               onClick={() => this.openExtension(key)}
+            >{name}
+            </a>
+          );
+        })}
       </div>
     );
   }

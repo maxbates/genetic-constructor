@@ -22,7 +22,6 @@ export default class InventorySearch extends Component {
     searchTerm: PropTypes.string.isRequired,
     onSearchChange: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
-    isSearching: PropTypes.bool,
     disabled: PropTypes.bool,
   };
 
@@ -32,7 +31,7 @@ export default class InventorySearch extends Component {
 
   render() {
     return (
-      <div className={'InventorySearch' + (this.props.isSearching ? ' searching' : '')}>
+      <div className="InventorySearch">
         <input className="InventorySearch-input"
                type="text"
                disabled={!!this.props.disabled ? true : null}

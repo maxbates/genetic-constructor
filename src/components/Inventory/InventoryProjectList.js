@@ -17,20 +17,23 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { projectList } from '../../actions/projects';
 import { blockStash } from '../../actions/blocks';
-
+import InventorySearch from './InventorySearch';
 import InventoryProject from './InventoryProject';
 import Spinner from '../ui/Spinner';
 
+
 export class InventoryProjectList extends Component {
   static propTypes = {
-    currentProject: PropTypes.string.isRequired,
+    currentProject: PropTypes.string,
     projects: PropTypes.object.isRequired,
     blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
+    templates: PropTypes.bool.isRequired,
   };
 
   state = {
     isLoading: true,
+    filter: InventoryProjectList.filter || '',
   };
 
   //will retrigger on each load
@@ -39,6 +42,13 @@ export class InventoryProjectList extends Component {
       .then(() => this.setState({ isLoading: false }));
   }
 
+  static filter = '';
+
+  handleFilterChange = (filter) => {
+    InventoryProjectList.filter = filter;
+    this.setState({filter});
+  };
+
   render() {
     const { projects, currentProject } = this.props;
     const { isLoading } = this.state;
@@ -46,27 +56,43 @@ export class InventoryProjectList extends Component {
     if (isLoading) {
       return <Spinner />;
     }
+    // filter on isSample to separate templates from projects and also match
+    // to the current search filter
+    const filtered = {};
+    Object.keys(projects).forEach(projectId => {
+      const project = projects[projectId];
+      if (this.props.templates === !!project.isSample) {
+        const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
+        const filter = this.state.filter.toLowerCase();
+        if (name.indexOf(filter) >= 0) {
+          filtered[projectId] = projects[projectId];
+        }
+      }
+    });
 
-    return (!Object.keys(projects).length)
-      ?
-      (<p>no projects</p>)
-      :
-      <div className="InventoryProjectList">
-        {Object.keys(projects)
-          .map(projectId => projects[projectId])
-          .sort((one, two) => two.metadata.created - one.metadata.created)
-          .map(project => {
-            const projectId = project.id;
-            const isActive = (projectId === currentProject);
+    return (
+      <div>
+        <InventorySearch searchTerm={this.state.filter}
+                         disabled={false}
+                         placeholder="Filter projects"
+                         onSearchChange={this.handleFilterChange}/>
+        <div className="InventoryProjectList">
 
-            return (
-              <InventoryProject key={projectId}
-                                project={project}
-                                isActive={isActive}/>
-            );
-          })}
-      </div>
-      ;
+          {Object.keys(filtered)
+            .map(projectId => filtered[projectId])
+            .sort((one, two) => two.metadata.created - one.metadata.created)
+            .map(project => {
+              const projectId = project.id;
+              const isActive = (projectId === currentProject);
+
+              return (
+                <InventoryProject key={projectId}
+                                  project={project}
+                                  isActive={isActive}/>
+              );
+            })}
+        </div>
+      </div>);
   }
 }
 

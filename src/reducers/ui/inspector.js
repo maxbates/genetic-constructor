@@ -18,6 +18,7 @@ import { getLocal, setLocal } from '../../utils/localstorage';
 
 export const initialState = {
   isVisible: getLocal('inspectorVisibility', false),
+  currentTab: getLocal('inspectorTab', 'Information'),
 };
 
 export default function inspector(state = initialState, action) {
@@ -26,6 +27,11 @@ export default function inspector(state = initialState, action) {
     const { nextState } = action;
     setLocal('inspectorVisibility', nextState);
     return Object.assign({}, state, { isVisible: nextState });
+
+  case ActionTypes.INSPECTOR_SELECT_TAB :
+    const { tab } = action;
+    setLocal('inspectorTab', tab);
+    return Object.assign({}, state, { currentTab: tab });
 
   default :
     return state;

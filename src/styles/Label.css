@@ -1,0 +1,121 @@
+@import './variables.css';
+
+:root {
+  --label-color: var(--colors-nearlyBlack);
+  --label-background: var(--colors-white);
+  --label-hover-background: var(--colors-selected);
+  --label-hover-color: var(--colors-white);
+  --label-selected: var(--colors-selected);
+}
+
+.label-base {
+  border-radius: 3px;
+  padding: 2px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .left {
+
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+
+    .primary-enclosure {
+      display: inline-flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .lock {
+      width: 12px;
+      height: 12px;
+      background-image: url('/images/ui/lock.svg');
+      background-repeat: no-repeat;
+      background-size: contain;
+      margin-right: 2px;
+      flex-shrink: 0;
+    }
+    span.primary {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.5rem;
+      padding-top: 2px;
+    }
+
+    .BasePairCount {
+      margin-left: 0.25rem;
+    }
+  }
+  .right {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    visibility: hidden;
+
+    img:hover {
+      filter: brightness(100%);
+    }
+  }
+}
+.label-base:hover {
+
+  .left {
+    .BasePairCount {
+      color: white !important;
+    }
+    .lock {
+      filter: brightness(1000%);
+    }
+  }
+
+  .right {
+    visibility: visible;
+  }
+}
+
+.label-selected {
+  background-color: var(--label-background);
+  color: var(--label-selected);
+}
+
+.label-selected:hover {
+  background-color: var(--label-hover-background);
+  color: var(--label-hover-color);
+  cursor: pointer;
+}
+
+.label-unselected {
+  background-color: var(--label-background);
+  color: var(--label-color);
+}
+
+.label-unselected:hover {
+  background-color: var(--label-hover-background);
+  color: var(--label-hover-color);
+  cursor: pointer;
+}
+
+.label-disabled {
+  background-color: var(--colors-white);
+  color: var(--colors-lighterGrey);
+}
+
+.label-hover-bright {
+  padding: 3px;
+  border-radius: 3px;
+
+  &:hover {
+    filter: brightness(1000%);
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+}
+
+.label-bold {
+  .left {
+    font-family: var(--font-family-bold);
+  }
+}

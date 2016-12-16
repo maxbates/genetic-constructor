@@ -1,9 +1,7 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var openInventory = require('../fixtures/open-inventory');
 var newProject = require('../fixtures/newproject');
-var myProjects = require('../fixtures/myprojects');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var size = require('../fixtures/size');
-var openTemplates = require('../fixtures/open-templates-sample');
 var dragFromTo = require('../fixtures/dragfromto.js');
 
 module.exports = {
@@ -11,9 +9,11 @@ module.exports = {
 
     size(browser);
     homepageRegister(browser);
-    myProjects(browser);
-    openTemplates(browser);
+    openInventoryPanel(browser, 'Templates');
     newProject(browser);
+    browser
+      .click('.Toggler')
+      .waitForElementPresent('.InventoryItem-item', 5000, 'expected inventory items');
     dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
     browser
       .click('.order-button')
