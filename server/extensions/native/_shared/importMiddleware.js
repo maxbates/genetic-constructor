@@ -260,16 +260,6 @@ export function mergeRollupMiddleware(req, res, next) {
     .then((roll) => {
       logger(`project written, import complete (${projectId}`);
 
-      //on conversions, sometimes we only want the constructs, and not all the children blocks
-      if (constructsOnly) {
-        logger('only returning constructs: ' + roll.project.components);
-        //todo - return an object for blocks, not array
-        return res.status(200).json({
-          roots: roll.project.components,
-          blocks: _.filter(roll.blocks, (block, blockId) => roll.project.components.indexOf(blockId) >= 0),
-        });
-      }
-
       if (returnRoll) {
         return res.status(200).json(roll);
       }

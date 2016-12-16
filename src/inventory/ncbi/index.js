@@ -16,7 +16,7 @@
 import rejectingFetch from '../../middleware/utils/rejectingFetch';
 import queryString from 'query-string';
 import Block from '../../models/Block';
-import { merge } from 'lodash';
+import _, { merge } from 'lodash';
 import { convert } from '../../middleware/genbank';
 
 const fetchOpts = {
@@ -36,9 +36,10 @@ const makeFastaUrl = (id) => `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efet
 const genbankToBlock = (gb, onlyConstruct) => {
   return convert(gb, onlyConstruct)
     .then(result => {
-      const { blocks, roots } = result;
-      const blockArray = Object.keys(blocks).map(blockId => blocks[blockId]);
-      const constructIndex = blockArray.findIndex(block => block.id === roots[0]);
+      const { project, blocks } = result;
+      //put the construct first in a sorted array
+      const blockArray = _.values(blocks);
+      const constructIndex = blockArray.findIndex(block => block.id === project.components[0]);
       const construct = blockArray.splice(constructIndex, 1);
       return [...construct, ...blockArray];
     });

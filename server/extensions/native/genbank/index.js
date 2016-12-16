@@ -178,25 +178,23 @@ router.post('/import/:projectId?',
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
     const { name, string, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
 
-    //todo - unify rather than just returning (esp once convert does not save sequences)
+    //could probably unify this better...
+    //on conversions, project is irrelevant, sometimes we only want the construct blocks, never wrap
     if (projectId === 'convert') {
       return convert(filePath, fileUrl)
         .then(converted => {
           logger('converted');
-          logger(converted);
 
           const roots = converted.roots;
           const rootBlocks = _.pickBy(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
+          const roll = {
+            project: Project.classless({
+              components: roots,
+            }),
+            blocks: constructsOnly ? rootBlocks : converted.blocks,
+          };
 
-          Object.assign(req, {
-            constructsOnly,
-            roll: {
-              project: Project.classless({
-                components: roots,
-              }),
-              blocks: rootBlocks,
-            },
-          });
+          Object.assign(req, { roll });
 
           next();
         })
