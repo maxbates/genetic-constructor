@@ -205,7 +205,9 @@ export function mergeRollupMiddleware(req, res, next) {
   const writeSequencesPromise = Array.isArray(sequences)
     ?
     Promise.all(
-      sequences.map((seqObj) => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks))
+      sequences
+        .filter(seqObj => seqObj && seqObj.sequence && seqObj.sequence.length > 0)
+        .map((seqObj) => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks))
     )
       .then(blockMd5Maps => {
         //make simgle object with all blockId : md5 map
