@@ -16,9 +16,6 @@ RUN pip install biopython
 
 RUN	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-EXPOSE 3000
-ENV PORT=3000
-
 RUN mkdir /app
 WORKDIR /app
 
