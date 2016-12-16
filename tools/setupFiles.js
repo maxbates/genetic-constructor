@@ -33,7 +33,11 @@ async function setupFiles() {
     .then(sequenceFiles => {
       //check if a few exist, and if they dont, then write them all
       //check because this step will be slow e.g. on travis
-      const samples = _.sampleSize(sequenceFiles, 5);
+      const samples = _.sampleSize(sequenceFiles, 10);
+
+      //TEMP
+      console.log(sequenceFiles);
+      console.log(samples);
 
       return Promise.all(
         samples.map(seqMd5 => sequencePersistence.sequenceExists(seqMd5))
