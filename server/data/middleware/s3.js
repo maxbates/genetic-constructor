@@ -398,8 +398,12 @@ export const itemDelete = (bucket, key, version) => {
 //this is kinda hardwired so you dont make mistakes
 //clears everything prefixed with testPrefix in the bucket
 export const emptyBucketTests = (bucket) => {
+  const Prefix = setupKey();
+
   return new Promise((resolve, reject) => {
-    const req = { Prefix: testPrefix };
+    log(`[clear] Clearing Test Data ${Prefix} @ ${bucket.config.params.Bucket}`);
+
+    const req = { Prefix };
     bucket.listObjects(req, (err, results) => {
       if (!results.Contents) {
         return resolve();

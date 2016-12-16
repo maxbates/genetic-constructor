@@ -16,9 +16,8 @@ async function clean() {
   await del([filePaths.createStorageUrl()], { force: true, dot: true });
 
   if (s3.useRemote) {
-    console.log('clearing s3 buckets...');
+    console.log('clearing s3 buckets...'); //eslint-disable-line no-console
     await Promise.all(s3.buckets.map(bucketName => {
-      console.log('clearing S3 bucket: ' + bucketName); //eslint-disable-line no-console
       const bucket = s3.getBucket(bucketName);
       return s3.emptyBucketTests(bucket);
     }));

@@ -330,6 +330,12 @@ const loadSequences = (blockMap) => {
         blockMap[blockId].sequence.sequence = sequence;
       });
       return _.values(blockMap);
+    })
+    .catch(err => {
+      logger('[loadSequences] Could not load all sequences');
+      logger(blockMap);
+      logger(err);
+      throw err;
     });
 };
 
