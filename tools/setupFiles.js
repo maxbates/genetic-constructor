@@ -35,10 +35,6 @@ async function setupFiles() {
       //check because this step will be slow e.g. on travis
       const samples = _.sampleSize(sequenceFiles, 10);
 
-      //TEMP
-      console.log(sequenceFiles);
-      console.log(samples);
-
       return Promise.all(
         samples.map(seqMd5 => sequencePersistence.sequenceExists(seqMd5))
       )

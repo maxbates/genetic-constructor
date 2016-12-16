@@ -47,6 +47,7 @@ describe('Templates', () => {
             })
           )
             .catch(err => {
+              console.log('could not find:');
               console.log(samples);
               throw err;
             });
