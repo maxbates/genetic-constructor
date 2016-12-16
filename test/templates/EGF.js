@@ -13,15 +13,47 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import path from 'path';
 import { expect, assert } from 'chai';
 import makeEgfRollup from '../../data/egf_parts/index';
 import Rollup from '../../src/models/Rollup';
 import _ from 'lodash';
+import * as fileSystem from '../../server/data/middleware/fileSystem';
+import * as sequencePersistence from '../../server/data/persistence/sequence';
 
 const withJenkins = !!process.env.JENKINS;
 
 describe('Templates', () => {
   describe('EGF', () => {
+    it('sequences should have been written for test suite to run properly', () => {
+      const pathSequences = path.resolve(__dirname, '../../data/egf_parts/sequences');
+
+      return fileSystem.directoryExists(pathSequences)
+        .catch(err => {
+          throw Error('sequence path is wrong');
+        })
+        .then(() => fileSystem.directoryContents(pathSequences))
+        .then(sequenceFiles => {
+          const samples = _.sampleSize(sequenceFiles, 10);
+
+          return Promise.all(
+            samples.map(seqMd5 => {
+              return sequencePersistence.sequenceExists(seqMd5)
+                .catch(err => {
+                  console.log('couldnt find sequence ' + seqMd5);
+                  console.log(err);
+                  throw err;
+                });
+            })
+          )
+            .catch(err => {
+              console.log('could not find:');
+              console.log(samples);
+              throw err;
+            });
+        });
+    });
+
     it('should create a valid rollup, blocks with correct projectId', () => {
       const roll = makeEgfRollup();
       Rollup.validate(roll, true);

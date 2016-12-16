@@ -52,6 +52,7 @@ const fieldDefs = {
   initialBases: [
     fields.sequence({ loose: true }),
     `Initial 5 bases of the block, which can be displayed e.g. if a filler block`,
+    { avoidScaffold: true },
   ],
 
   download: [

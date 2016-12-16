@@ -8,7 +8,7 @@ import Block from '../../../../src/models/Block';
 import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as filePaths from '../../../data/middleware/filePaths';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
-import { filter } from 'lodash';
+import _ from 'lodash';
 import { projectPermissionMiddleware } from '../../../data/permissions';
 import * as projectPesistence from '../../../data/persistence/projects';
 import * as sequencePersistence from '../../../data/persistence/sequence';
@@ -48,6 +48,7 @@ router.param('projectId', (req, res, next, id) => {
 
 /***** FILES ******/
 
+//todo - DEPRECATE
 //route to download genbank files
 router.get('/file/:fileId', (req, res, next) => {
   const { fileId } = req.params;
@@ -108,6 +109,7 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
 
       return exportConstruct({ roll: partialRoll, constructId: construct.id })
         .then(resultFileName => {
+          logger('wrote file to ' + resultFileName);
           return downloadAndDelete(res, resultFileName, roll.project.id + '.fasta');
         });
     })
@@ -129,7 +131,10 @@ router.all('/export/:projectId/:constructId?',
     const options = req.body;
 
     logger(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
-    logger(options);
+    if (options) {
+      logger('option map:');
+      logger(options);
+    }
 
     projectPesistence.projectGet(projectId)
       .then(roll => sequencePersistence.assignSequencesToRollup(roll))
@@ -142,6 +147,7 @@ router.all('/export/:projectId/:constructId?',
 
         return promise
           .then((resultFileName) => {
+            logger('wrote file to ' + resultFileName);
             return fileSystem.fileRead(resultFileName, false)
               .then(fileOutput => {
                 // We have to disambiguate between zip files and gb files!
@@ -172,19 +178,26 @@ router.post('/import/:projectId?',
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
     const { name, string, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
 
-    //todo - unify rather than just returning (esp once convert does not save sequences)
+    //could probably unify this better...
+    //on conversions, project is irrelevant, sometimes we only want the construct blocks, never wrap
     if (projectId === 'convert') {
       return convert(filePath, fileUrl)
         .then(converted => {
-          const roots = converted.roots;
-          const rootBlocks = filter(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
-          const payload = constructsOnly ?
-          { roots, blocks: rootBlocks } :
-            converted;
-
           logger('converted');
 
-          return res.status(200).json(payload);
+          const roots = converted.roots;
+          const rootBlocks = _.pickBy(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
+          const roll = {
+            project: Project.classless({
+              components: roots,
+            }),
+            blocks: constructsOnly ? rootBlocks : converted.blocks,
+            sequences: converted.sequences,
+          };
+
+          Object.assign(req, { roll });
+
+          next();
         })
         .catch(err => next(err));
     }

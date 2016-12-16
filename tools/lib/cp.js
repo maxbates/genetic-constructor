@@ -21,7 +21,7 @@ import { merge } from 'lodash';
 const logger = debug('constructor:tools');
 
 if (!logger.enabled) {
-  console.log('Enable build tool with env var DEBUG=constructor:tools');
+  console.log('Enable build tool debugging with env var DEBUG=constructor:tools');
 }
 
 const defaultOpts = {

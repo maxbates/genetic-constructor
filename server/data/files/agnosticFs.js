@@ -24,6 +24,8 @@ console.log(s3.useRemote ? '[Files] Using S3 for file persistence, not file syst
 // when using local, s3bucket is prefix
 // use this scheme so the filePath (e.g. on write) returned is the same across platforms
 
+//todo - file exists, reject if not
+
 export const fileRead = (s3bucket, filePath, params) => {
   invariant(filePath, 'file name is required');
 

@@ -53,7 +53,11 @@ const runCommand = (command, inputFile, outputFile) => {
 
   return new Promise((resolve, reject) => {
     const procId = uuid.v4();
-    logger('[Fork] starting ' + procId);
+
+    logger(`[Fork] starting:
+    job: ${procId}
+    input: ${inputFile}
+    output: ${outputFile}`);
 
     const onMessage = (message) => {
       logger('[Fork] completed ' + procId);
@@ -285,7 +289,9 @@ const exportProjectStructure = (project, blocks) => {
     blocks,
   };
 
-  logger(`[Export] Input file: ${inputFilePath}\nOutput file: ${outputFilePath}`);
+  logger(`[Export]
+  input: ${inputFilePath}
+  output: ${outputFilePath}`);
 
   //const outputFile2 = filePaths.createStorageUrl('exported_to_genbank.json');
   //fileSystem.fileWrite(outputFile2, input);
@@ -306,7 +312,7 @@ const exportProjectStructure = (project, blocks) => {
         fileSystem.fileDelete(outputFilePath);
       }
       const command = `python ${path.resolve(__dirname, 'convert.py')} to_genbank ${inputFilePath} ${outputFilePath}`;
-      logger('Python error: ' + command);
+      logger('Python error [Export]: ' + command);
       logger(err);
       logger(err.stack);
       return Promise.reject(err);
@@ -324,6 +330,12 @@ const loadSequences = (blockMap) => {
         blockMap[blockId].sequence.sequence = sequence;
       });
       return _.values(blockMap);
+    })
+    .catch(err => {
+      logger('[loadSequences] Could not load all sequences');
+      logger(blockMap);
+      logger(err);
+      throw err;
     });
 };
 
