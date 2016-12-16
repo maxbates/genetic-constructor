@@ -52,7 +52,6 @@ const createGeneratorsInitialProjects = (user) => {
     .sort((one, two) => one.default ? -1 : 1)
     .filter(projectConfig => typeof projectConfig.generator === 'function')
     .map(projectConfig => () => projectConfig.generator(projectConfig, user));
-
   invariant(projectGenerators.length >= 1, '[User Setup] must have some default projects, got none. check config for user ' + user.uuid + ' -- ' + Object.keys(config.projects).join(', '));
 
   return projectGenerators;

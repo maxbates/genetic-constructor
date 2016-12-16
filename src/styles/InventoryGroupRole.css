@@ -34,3 +34,18 @@
     }
   }
 }
+
+.InventoryRoleGroup-DNDProxy {
+  font-weight: bolder;
+  border: 2px solid white;
+  background-color: black;
+  color: white;
+  padding: 0 1rem 0 1rem;
+  cursor: pointer;
+  pointer-events: none;
+
+  svg {
+    width: 30px;
+    height: 30px;
+  }
+}

@@ -14,10 +14,14 @@
  limitations under the License.
  */
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import inventoryRoles from '../../inventory/roles';
 import InventorySearch from './InventorySearch';
-import InventoryItemRole from './InventoryItemRole';
 import RoleSvg from '../RoleSvg';
+import MouseTrap from '../../containers/graphics/mousetrap';
+import DnD from '../../containers/graphics/dnd/dnd';
+import { role as roleDragType } from '../../constants/DragTypes';
+import Block from '../../models/Block';
 
 import '../../styles/InventoryGroupRole.css';
 
@@ -29,7 +33,7 @@ export default class InventoryGroupRole extends Component {
 
   state = {
     filter: InventoryGroupRole.filter || '',
-    current: null,
+    current: {id: null, name: null},
   };
 
   static filter = '';
@@ -39,13 +43,74 @@ export default class InventoryGroupRole extends Component {
     this.setState({filter});
   };
 
-  onMouseEnter = (id) => {
-    this.setState({current: id});
+  onMouseEnter = (item) => {
+    this.setState({current: item});
   };
 
   onMouseLeave = () => {
-    this.setState({current: null});
+    this.setState({current: {id: null, name: null}});
   };
+
+  componentDidMount() {
+    this.mouseTrap = new MouseTrap({
+      element: ReactDOM.findDOMNode(this),
+      mouseDrag: this.mouseDrag.bind(this),
+    });
+  }
+
+  mouseDrag(event, localPosition, startPosition, distance) {
+
+    // cancel mouse drag and start a drag and drop
+    this.mouseTrap.cancelDrag();
+    // ignore if no block selected
+    if (!this.state.current.id) {
+      return;
+    }
+    // get global point as starting point for drag
+    const globalPoint = this.mouseTrap.mouseToGlobal(event);
+
+    // make a block to drag
+    const roleBlock = new Block({
+      id: this.state.current,
+      metadata: {
+        name: this.state.current.name,
+        color: null,
+      },
+      rules: {
+        role: this.state.current.id === 'null' ? null : this.state.current.id,
+      },
+    });
+    // start DND
+    DnD.startDrag(this.makeDnDProxy(), globalPoint, {
+      item: roleBlock,
+      type: roleDragType,
+      source: 'inventory',
+    }, {
+      onDropFailure: (error, target) => {
+        debugger;
+        this.props.uiSetGrunt(`There was an error creating a block for ${this.state.current.metadata.name}`);
+        this.props.uiSpin();
+      },
+    });
+  }
+
+  /**
+   * make a drag and drop proxy for the item
+   */
+  makeDnDProxy() {
+    const item = this.state.current;
+    const proxy = document.createElement('div');
+    proxy.className = 'InventoryRoleGroup-DNDProxy';
+    proxy.innerHTML = item.name;
+    const element = ReactDOM.findDOMNode(this.refs[item.id]);
+    const svg = element.querySelector('svg');
+    if (svg) {
+      const svgClone = svg.cloneNode(true);
+      svgClone.removeAttribute('data-reactid');
+      proxy.appendChild(svgClone);
+    }
+    return proxy;
+  }
 
   render() {
     const current = this.state.current;
@@ -67,13 +132,14 @@ export default class InventoryGroupRole extends Component {
                   <RoleSvg strokeWidth={1}
                            width="50px"
                            height="50px"
-                           color={current === item.id ? "white" : "black"}
-                           classes={current === item.id ? "active" : null}
+                           color={current.id === item.id ? "white" : "black"}
+                           classes={current.id === item.id ? "active" : null}
                            symbolName={item.id}
-                           onMouseEnter={this.onMouseEnter.bind(this, item.id)}
+                           onMouseEnter={this.onMouseEnter.bind(this, item)}
                            onMouseLeave={this.onMouseLeave}
+                           ref={item.id}
                            key={item.id}/>
-                  <div className={`name${current === item.id ? ' active' : ''}`}>{item.name}</div>
+                  <div className={`name${current.id === item.id ? ' active' : ''}`}>{item.name}</div>
                 </div>);
             })}
           </div>
