@@ -1,5 +1,4 @@
 var dragFromTo = require('./dragfromto');
-var clickMainMenu = require('./click-main-menu');
 var openInventoryPanel = require('./open-inventory-panel');
 
 var newproject = function(browser) {
@@ -7,23 +6,28 @@ var newproject = function(browser) {
     .pause(1000)
     // make sure inventory is present
     .waitForElementPresent('.SidePanel.Inventory', 5000, 'Expected Inventory Groups');
-    // click new project, which adds a new construct
-  clickMainMenu(browser, 1, 5);
+
+  // open projects
+  openInventoryPanel(browser, 'Projects');
   browser
+    .click('[data-testid="NewProjectButton')
+    .pause(1000)
     .waitForElementPresent('.construct-viewer', 5000, 'expect a construct for the new project');
+
   // ensure inventory open at sketch blocks
   openInventoryPanel(browser, 'Sketch');
+
   browser
-    // expect at least one inventory item and one block to drop on
-    .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item');
+    // wait for symbols to appear
+    .waitForElementPresent('.InventoryGroupRole .sbol-tile', 5000, 'expected an inventory item');
 
   // drag 3 role symbols into construct
-  dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryItemRole:nth-of-type(2)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryItemRole:nth-of-type(3)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryItemRole:nth-of-type(4)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryItemRole:nth-of-type(5)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryItemRole:nth-of-type(6)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(2) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(3) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(4) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(5) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(6) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
 
   browser
     .pause(250)

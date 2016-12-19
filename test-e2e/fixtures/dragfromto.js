@@ -4,7 +4,9 @@
  */
 module.exports = function (browser, srcSelector, srcX, srcY, dstSelector, dstX, dstY, steps) {
   // click on source element
-  browser.moveToElement(srcSelector, srcX, srcY)
+  browser
+    .moveToElement(srcSelector, srcX, srcY)
+    .pause(100)
     .mouseButtonDown(0);
 
   // generate mouse move events on body from source to destination

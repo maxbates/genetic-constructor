@@ -78,8 +78,8 @@ class InventoryProjectHeader extends Component {
   render() {
     return (
       <div className="InventoryProjectHeader">
-        <img src="/images/ui/add.svg" title="Add New Project" onClick={this.onAddNewProject}/>
-        <img src="/images/ui/upload.svg" title="Upload Genbank or CSV File" onClick={this.onUpload}/>
+        <img data-testid="NewProjectButton" src="/images/ui/add.svg" title="Add New Project" onClick={this.onAddNewProject}/>
+        <img data-testid="UploadButton" src="/images/ui/upload.svg" title="Upload Genbank or CSV File" onClick={this.onUpload}/>
       </div>
     );
   }
