@@ -118,7 +118,8 @@ ${projects.join(', ')}`);
               const proj = rolls[0];
 
               //if they've changed the project, lets migrate them
-              if (proj.project.components.length > 1 || proj.blocks[proj.project.components[0]].components.length > 0) {
+              if (proj.project.components.length > 1 ||
+                  (proj.project.components.length > 0 && proj.blocks[proj.project.components[0]].components.length > 0)) {
                 console.log('Will migrate', userId);
                 Object.assign(usersToMigrate, { [userId]: users[userId] });
               } else {
