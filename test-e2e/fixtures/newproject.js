@@ -1,13 +1,15 @@
-var clickMainMenu = require('./click-main-menu');
+var openInventoryPanel = require('./open-inventory-panel');
 
 var newproject = function(browser) {
   browser
     .waitForElementNotPresent('.ribbongrunt-visible')
-  clickMainMenu(browser, 1, 5);
+  // open projects
+  openInventoryPanel(browser, 'Projects');
   browser
-    .waitForElementNotPresent('.ribbongrunt-visible')
-    .waitForElementPresent('.construct-viewer', 5000, 'expect a construct for the new project')
-    .assert.countelements('.construct-viewer', 1);
+  .click('[data-testid="NewProjectButton"]')
+  .pause(1000)
+  .waitForElementPresent('.construct-viewer', 5000, 'expect a construct for the new project')
+  .assert.countelements('.construct-viewer', 1);
 };
 
 module.exports = newproject;
