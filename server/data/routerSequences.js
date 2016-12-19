@@ -48,7 +48,7 @@ router.route('/:md5?')
       })
       .catch(err => {
         if (err === errorDoesNotExist) {
-          return res.status(400).send(errorDoesNotExist);
+          return res.status(404).send(errorDoesNotExist);
         }
         return next(err);
       });

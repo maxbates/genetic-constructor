@@ -177,7 +177,7 @@ export class InventoryItem extends Component {
         inspectorToggleVisibility(true);
       }
       if (onSelect) {
-        this.setState({ loaded: result });
+        this.setState({ loadError: false, loaded: result });
       }
     })
       .catch(err => {

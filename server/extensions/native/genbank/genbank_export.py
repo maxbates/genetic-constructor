@@ -308,7 +308,8 @@ def export_project(filename, project, allblocks):
 
     # There are list blocks. We need to create a zip file with all the combinations. Include in the zip file the non-list-block constructs
     constructs = project["components"]
-    name_prefix = project["metadata"]["name"] + " - "
+    project_name = project["metadata"]["name"] or 'Untitled Project'
+    name_prefix = project_name + " - "
     construct_number = 1
 
     zf = zipfile.ZipFile(filename, mode='w')
@@ -321,27 +322,30 @@ def export_project(filename, project, allblocks):
             build_first_optional_construct(optional_children)
 
             gb_filename = name_prefix + construct["metadata"]["name"] + " - " + str(construct_number) + ".gb"
+            gb_filepath = '/tmp/' + gb_filename
             construct_number = construct_number + 1
 
-            project_to_genbank(gb_filename, project,
+            project_to_genbank(gb_filepath, project,
                                allblocks, construct_id=construct_id)
-            zf.write(gb_filename)
-            os.remove(gb_filename)
+            zf.write(gb_filepath, gb_filename)
+            os.remove(gb_filepath)
 
             while build_next_optional_construct(optional_children):
                 gb_filename = name_prefix + construct["metadata"]["name"] + " - " + str(construct_number) + ".gb"
+                gb_filepath = '/tmp/' + gb_filename
                 construct_number = construct_number + 1
 
-                project_to_genbank(gb_filename, project,
+                project_to_genbank(gb_filepath, project,
                                    allblocks, construct_id=construct_id)
-                zf.write(gb_filename)
-                os.remove(gb_filename)
+                zf.write(gb_filepath, gb_filename)
+                os.remove(gb_filepath)
 
         else:
             gb_filename = name_prefix + construct["metadata"]["name"] + " - " + str(construct_number) + ".gb"
+            gb_filepath = '/tmp/' + gb_filename
             construct_number = construct_number + 1
-            project_to_genbank(gb_filename, project, allblocks, construct_id=construct_id)
-            zf.write(gb_filename)
-            os.remove(gb_filename)
+            project_to_genbank(gb_filepath, project, allblocks, construct_id=construct_id)
+            zf.write(gb_filepath, gb_filename)
+            os.remove(gb_filepath)
 
     zf.close()

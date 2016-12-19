@@ -197,15 +197,17 @@ export function mergeRollupMiddleware(req, res, next) {
   const { projectId, mintedProjectId, roll, noSave, returnRoll } = req;
   const { project, blocks, sequences = {} } = roll;
 
-  logger('merging project ' + projectId);
+  logger(`merging project (project=${projectId})`);
 
   //we write the sequences no matter what right now
-  //todo - param to not write sequences (when do we want this?)
+  //future - param to not write sequences (e.g. when just want to look at in inspector, and dont care about sequence -- is this ever the case?)
 
   const writeSequencesPromise = Array.isArray(sequences)
     ?
     Promise.all(
-      sequences.map((seqObj) => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks))
+      sequences
+        .filter(seqObj => seqObj && seqObj.sequence && seqObj.sequence.length > 0)
+        .map((seqObj) => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks))
     )
       .then(blockMd5Maps => {
         //make simgle object with all blockId : md5 map
@@ -223,14 +225,16 @@ export function mergeRollupMiddleware(req, res, next) {
         });
       })
     :
+    //assumes that since we are getting md5s, the blocks already know what their sequences are, and no need to update
     seqPersistence.sequenceWriteMany(sequences);
 
   return writeSequencesPromise
     .then(() => {
-      logger(`sequences written (${projectId})`);
+      logger(`sequences written (project=${projectId})`);
 
-      if (!projectId || returnRoll) {
+      if (!projectId || projectId === 'convert' || returnRoll) {
         //if we didnt recieve a projectId, we've assigned one already in importMiddleware above (for job file), so use here
+        //even if we are running a conversion, we had a dummy project to be rollup-compliant, so make sure blocks are ok
         Object.assign(project, { id: mintedProjectId });
         _.forEach(blocks, (block) => Object.assign(block, { projectId: mintedProjectId }));
 
@@ -257,11 +261,12 @@ export function mergeRollupMiddleware(req, res, next) {
     })
     .then((roll) => {
       logger(`project written, import complete (${projectId}`);
-      const response = returnRoll ?
-        roll :
-        { projectId: roll.project.id };
 
-      res.status(200).json(response);
+      if (returnRoll) {
+        return res.status(200).json(roll);
+      }
+
+      return res.status(200).json({ projectId: roll.project.id });
     })
     .catch(err => {
       logger('Error merging project');

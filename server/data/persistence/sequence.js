@@ -45,7 +45,9 @@ if (s3.useRemote) {
 
 export const sequenceExists = (pseudoMd5) => {
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
-  const { hash } = parsePseudoMd5(pseudoMd5);
+  const { hash, hasRange } = parsePseudoMd5(pseudoMd5);
+
+  logger(`[sequenceExists] ${hash}` + (hasRange ? `(original: ${pseudoMd5})` : ''));
 
   if (s3.useRemote) {
     return s3.itemExists(s3bucket, hash);
@@ -64,7 +66,7 @@ export const sequenceGet = (pseudoMd5) => {
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash, hasRange, start, end } = parsePseudoMd5(pseudoMd5);
 
-  logger(`[sequenceGet] ${hash} (original: ${pseudoMd5})`);
+  logger(`[sequenceExists] ${hash}` + (hasRange ? `(original: ${pseudoMd5})` : ''));
 
   if (s3.useRemote) {
     //s3 is inclusive, node fs is not, javascript is not
@@ -108,7 +110,8 @@ export const sequenceWrite = (realMd5, sequence) => {
     .then(() => sequence);
 };
 
-//expect object, map of md5 (not pseudoMd5) to sequence
+//expect object { md5 (not pseudoMd5) : sequence }
+//returns { md5 : sequence }
 export const sequenceWriteMany = (map) => {
   invariant(typeof map === 'object', 'must pass an object');
   logger('[sequenceWriteMany] starting... ' + Object.keys(map).length);
@@ -166,6 +169,16 @@ export const sequenceDelete = (pseudoMd5) => {
 
   if (s3.useRemote) {
     return s3.itemDelete(s3bucket, hash)
+    /*
+      //if we want to hide the fact that it existed.... but this never gets called by the app anyway
+      //note that local version checks for existence and wll return this error as well
+      .catch(err => {
+        if (err === errorDoesNotExist) {
+          //we dont want to tell them
+          return Promise.reject();
+        }
+      })
+      */
       .then(() => pseudoMd5);
   }
 

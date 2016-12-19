@@ -74,7 +74,8 @@ async function startDb() {
         return null;
       });
 
-    console.log('DB started on port:', STORAGE_PORT);
+    //you could run (on unix) lsof -i :STORAGE_PORT to verify
+    console.log('DB running on port:', STORAGE_PORT);
     return dbProcess;
   } catch (err) {
     console.log(colors.red('Error starting Storage service...'));

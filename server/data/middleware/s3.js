@@ -56,10 +56,14 @@ export const buckets = [
 
 //namespace keys by environment, version, etc.
 export const testPrefix = 'TEST/'; //in test environment, prefix everything so easier to clean up
+
 const storageVersion = '1'; //static, for data migrations
-const environment = !!process.env.BNR_ENVIRONMENT ? (process.env.BNR_ENVIRONMENT + '/') : 'local/'; //environment so data is siloed across environments
+
+//environment so data is siloed across environments, and special handling for travis
+const environment = process.env.BNR_ENVIRONMENT || (!!process.env.TRAVIS ? ('travis/' + process.env.TRAVIS_JOB_ID) : 'local');
+
 const generatePrefix = () => {
-  let prefix = `${environment}${storageVersion}/`;
+  let prefix = `${environment}/${storageVersion}/`;
   if (process.env.NODE_ENV === 'test') {
     //last (so its the first prefix), add test prefix for test environments
     prefix = testPrefix + prefix;
@@ -75,9 +79,9 @@ if (useRemote && !log.enabled) {
 }
 
 //ensure we have consistent fields returned
-const massageResult = (obj, Prefix) => {
-  const prefix = Prefix ?
-    `${Prefix}/` :
+const massageResult = (obj, forcePrefix) => {
+  const prefix = forcePrefix ?
+    `${forcePrefix}/` :
     setupKey('/'); //if no specific prefix provided, hide the stuff we do automatically
 
   //explicitly remap a few fields so we know they are there / fields to expect
@@ -167,16 +171,22 @@ export const itemExists = (bucket, key) => {
   const Key = setupKey(key);
 
   return new Promise((resolve, reject) => {
+    log(`[exists] ${key} (${Key}) @ ${bucket.config.params.Bucket}`);
+
     bucket.headObject({ Key }, (err, result) => {
       if (err) {
         if (err.statusCode === 404) {
-          return resolve(false);
+          log(`[exists] no ${key}`);
+          return reject(false);
         }
 
-        //unhandled
-        console.log(err, err.stack);
+        log(`[exists] Error: ${key}`);
+        log(err);
+        log(err.stack);
         return reject(err);
       }
+      log(`[exists] Success ${key}`);
+
       return resolve(true);
     });
   });
@@ -186,6 +196,8 @@ export const folderContents = (bucket, prefix, params = {}) => {
   const Prefix = setupKey(prefix);
 
   return new Promise((resolve, reject) => {
+    log(`[folderContents] ${prefix} (${Prefix}) @ ${bucket.config.params.Bucket}`);
+
     const req = Object.assign({}, params, { Prefix });
     bucket.listObjects(req, (err, results) => {
       if (err) {
@@ -231,13 +243,16 @@ export const itemVersions = (bucket, Key, params = {}) => {
   const Prefix = setupKey(Key);
 
   return new Promise((resolve, reject) => {
+    log(`[itemVersions] ${Key} (${Prefix}) @ ${bucket.config.params.Bucket}`);
+
     const req = Object.assign({}, params, {
       Prefix,
     });
     bucket.listObjectVersions(req, (err, results) => {
       if (err) {
-        console.log('got error');
-        console.log(err);
+        log('[itemVersions] Error');
+        log(err);
+        log(err.stack);
         return reject(err);
       }
 
@@ -260,18 +275,24 @@ export const itemGetBuffer = (bucket, key, params = {}) => {
       { Key }
     );
 
+    log(`[get] ${key} (${Key}) @ ${bucket.config.params.Bucket}`);
+
     bucket.getObject(req, (err, result) => {
       if (err) {
         if (err.statusCode) {
           if (err.statusCode === 404) {
+            log(`[get] 404 ${key}`);
             return reject(errorDoesNotExist);
           }
         }
-        //unhandled error
-        console.log(err, err.stack);
+        log(`[get] Error: ${key}`);
+        log(err);
+        log(err.stack);
         return reject(err);
       }
+
       //just return the file content (no need yet for file metadata)
+      log(`[get] Success ${key}`);
       return resolve(result.Body);
     });
   });
@@ -281,7 +302,11 @@ export const stringGet = (bucket, Key, params = {}) => {
   const stringParams = Object.assign({}, params, { ResponseContentType: 'text/plain' });
 
   return itemGetBuffer(bucket, Key, stringParams)
-    .then(result => result.toString('utf-8'));
+    .then(result => {
+      const str = result.toString('utf-8');
+      log(`[stringGet] ${Key} = ${str.substr(0, 50)}`);
+      return str;
+    });
 };
 
 export const objectGet = (bucket, Key, params = {}) => {
@@ -293,7 +318,7 @@ export const objectGet = (bucket, Key, params = {}) => {
         return JSON.parse(result);
       } catch (err) {
         console.log('error parsing JSON in objectGet', Key, result.substring(0, 100));
-        return Promise.reject(result);
+        return Promise.reject(err);
       }
     });
 };
@@ -306,6 +331,8 @@ export const itemPutBuffer = (bucket, key, Body, params = {}) => {
   const Key = setupKey(key);
 
   return new Promise((resolve, reject) => {
+    log(`[put] ${key} (${Key}) @ ${bucket.config.params.Bucket}`);
+
     const req = Object.assign({},
       params,
       { Body, Key }
@@ -313,10 +340,13 @@ export const itemPutBuffer = (bucket, key, Body, params = {}) => {
 
     bucket.putObject(req, (err, result) => {
       if (err) {
-        //unhandled error
-        console.log(err, err.stack);
+        log(`[put] Error: ${key}`);
+        log(err);
+        log(err.stack);
         return reject(err);
       }
+
+      log(`[put] Success: ${key}`);
       return resolve(result);
     });
   });
@@ -371,8 +401,12 @@ export const itemDelete = (bucket, key, version) => {
 //this is kinda hardwired so you dont make mistakes
 //clears everything prefixed with testPrefix in the bucket
 export const emptyBucketTests = (bucket) => {
+  const Prefix = setupKey();
+
   return new Promise((resolve, reject) => {
-    const req = { Prefix: testPrefix };
+    log(`[clear] Clearing Test Data ${Prefix} @ ${bucket.config.params.Bucket}`);
+
+    const req = { Prefix };
     bucket.listObjects(req, (err, results) => {
       if (!results.Contents) {
         return resolve();
