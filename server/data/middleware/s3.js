@@ -70,7 +70,7 @@ const generatePrefix = () => {
 const setupKey = (key) => generatePrefix() + key;
 
 log(`[S3 Config] prefix = ${generatePrefix()}`);
-if (useRemote && !logger.enabled) {
+if (useRemote && !log.enabled) {
   console.log('[S3] prefix: ' + generatePrefix()); //eslint-ignore-line
 }
 

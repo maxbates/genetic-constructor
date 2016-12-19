@@ -107,7 +107,7 @@ console.log(files);
 // move project files into s3
 
 batchPromises(_.map(files, (fileObject) => () => {
-  const { filePath, oldExtensionName, extensionName, projectId } = fileObject;
+  const { filePath, fileName, oldExtensionName, extensionName, projectId } = fileObject;
 
   return fileSystem.fileRead(filePath, false)
     .catch(err => {
@@ -121,7 +121,7 @@ batchPromises(_.map(files, (fileObject) => () => {
         return;
       }
 
-      return projectFiles.projectFileWrite(projectId, extensionName, gslFileName, fileContents)
+      return projectFiles.projectFileWrite(projectId, extensionName, fileName, fileContents)
         .then((fileInfo) => {
           console.log('wrote project file for project', oldExtensionName, fileInfo);
           Object.assign(fileObject, fileInfo);
