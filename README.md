@@ -18,6 +18,8 @@ Want to file a bug, contribute some code, or improve documentation? Excellent! R
 
 [Application Documentation](docs/README.md)
 
+[Storage API Documentation](storage-ext/README.md)
+
 [Extensions Documentation](docs/extensions/README.md)
 
 [Client API Documentation](https://geneticconstructor.bionano.autodesk.com/help/docs/)
