@@ -50,6 +50,7 @@ import {
 } from '../../actions/ui';
 import { block as blockDragType } from '../../constants/DragTypes';
 import { undo, redo, transact, commit } from '../../store/undo/actions';
+import { extensionApiPath } from '../../middleware/utils/paths';
 
 import '../../styles/InventoryProjectTree.css';
 
@@ -67,6 +68,7 @@ export class InventoryProjectTree extends Component {
     projectLoad: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
+    focus: PropTypes.object.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
     focusForceBlocks: PropTypes.func.isRequired,
@@ -291,8 +293,7 @@ export class InventoryProjectTree extends Component {
       {},
       {
         text: 'Download Project',
-        disabled: true,
-        action: () => {},
+        action: this.downloadProject.bind(this, project),
       },
       {
         text: 'Duplicate Project',
@@ -308,6 +309,54 @@ export class InventoryProjectTree extends Component {
       y: evt.pageY,
     });
   };
+
+  /**
+   * download the current file as a genbank file
+   *
+   */
+  downloadProject = (project) => {
+    this.props.projectSave(project.id)
+    .then(() => {
+      //todo - maybe this whole complicated bit should go in middleware as its own function
+
+      const url = extensionApiPath('genbank', `export/${project.id}`);
+      const postBody = this.props.focus.options;
+      const iframeTarget = '' + Math.floor(Math.random() * 10000) + +Date.now();
+
+      // for now use an iframe otherwise any errors will corrupt the page
+      const iframe = document.createElement('iframe');
+      iframe.name = iframeTarget;
+      iframe.style.display = 'none';
+      iframe.src = '';
+      document.body.appendChild(iframe);
+
+      //make form to post to iframe
+      const form = document.createElement('form');
+      form.style.display = 'none';
+      form.action = url;
+      form.method = 'post';
+      form.target = iframeTarget;
+
+      //add inputs to the form for each value in postBody
+      Object.keys(postBody).forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = postBody[key];
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+
+      //removing elements will cancel, so give them a nice timeout
+      setTimeout(() => {
+        document.body.removeChild(form);
+        document.body.removeChild(iframe);
+      }, 60 * 1000);
+    });
+  };
+
 
   render() {
     const { projects, currentProjectId } = this.props;
@@ -367,9 +416,10 @@ export class InventoryProjectTree extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { projects, blocks } = state;
+  const { projects, blocks, focus } = state;
 
   return {
+    focus,
     projects,
     blocks,
   };

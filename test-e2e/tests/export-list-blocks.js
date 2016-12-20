@@ -30,34 +30,34 @@ module.exports = {
     // click the my projects inventory tab and expect a project.
     openInventoryPanel(browser, 'Templates');
     browser
-      // expect one project
-      .waitForElementPresent('.InventoryListGroup-heading', 5000, 'expect a list of projects to appear')
-      // click to expand
-      .waitForElementPresent('[data-inventory~="project"]', 30000, 'expected projects to appear')
-      // expect to see 1 template project
-      .assert.countelements('[data-inventory~="project"]', 1)
-      // expand
-      .click('.Toggler')
-      .waitForElementPresent('[data-inventory~="template"]', 5000, 'expected templates')
+      // expand 1st project
+      .pause(2000)
+      .click('.inventory-project-tree .tree div:nth-of-type(1) .expando')
+      .pause(2000)
+      // expect 14 template constructs in expanded project
+      .assert.countelements('.inventory-project-tree [data-testid^="block"]', 14)
+
 
     // drag the first construct into the canvas
-    dragFromTo(browser, '[data-inventory~="template"]', 10, 10, '.cvc-drop-target', 50, 40);
-    browser.pause(500);
+    dragFromTo(browser, '.inventory-project-tree [data-testid^="block"]', 50, 10, '.cvc-drop-target', 50, 40);
+    browser
+      .pause(10000000)
+      .end();
 
-    clickMainMenu(browser, 1, 1);
+    //clickMainMenu(browser, 1, 1);
 
-    // we can't actually download the file but we can ensure the correct header is present at the expected url
-    browser.url(function (response) {
-      // save original project url
-      var projectURL = response.value;
-      var projectId = response.value.split('/').pop();
-      var uri = browser.launchUrl + '/extensions/api/genbank/export/' + projectId;
-      browser
-        .url(uri)
-        .pause(1000)
-        .assert.urlContains(projectId)
-        .saveScreenshot('./test-e2e/current-screenshots/export-list-blocks.png')
-        .end();
-    });
+    // // we can't actually download the file but we can ensure the correct header is present at the expected url
+    // browser.url(function (response) {
+    //   // save original project url
+    //   var projectURL = response.value;
+    //   var projectId = response.value.split('/').pop();
+    //   var uri = browser.launchUrl + '/extensions/api/genbank/export/' + projectId;
+    //   browser
+    //     .url(uri)
+    //     .pause(1000)
+    //     .assert.urlContains(projectId)
+    //     .saveScreenshot('./test-e2e/current-screenshots/export-list-blocks.png')
+    //     .end();
+    // });
   }
 };
