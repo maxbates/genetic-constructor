@@ -72,7 +72,6 @@ import {
   // privacy,
 } from '../utils/ui/uiapi';
 import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
-import OkCancel from '../components/okcancel';
 import * as instanceMap from '../store/instanceMap';
 import { extensionApiPath } from '../middleware/utils/paths';
 
@@ -208,7 +207,6 @@ class GlobalNav extends Component {
   state = {
     showAddProject: false,
     recentProjects: [],
-    showDeleteProject: false,
   };
 
   componentDidMount() {
@@ -260,32 +258,6 @@ class GlobalNav extends Component {
     this.props.projectOpen(project.id);
   }
 
-  /**
-   * show the delete project dialog
-   *
-   */
-  queryDeleteProject() {
-    this.setState({
-      showDeleteProject: true,
-    });
-  }
-
-  /**
-   * delete the current project and open a different one
-   */
-  deleteProject() {
-    if (this.props.project.rules.frozen) {
-      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
-    } else {
-      const projectId = this.props.currentProjectId;
-      //load another project, avoiding this one
-      this.props.projectLoad(null, false, [projectId])
-      //open the new project, skip saving the previous one
-        .then(project => this.props.projectOpen(project.id, true))
-        //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-        .then(() => this.props.projectDelete(projectId));
-    }
-  }
 
   /**
    * add a new construct to the current project
@@ -713,34 +685,6 @@ class GlobalNav extends Component {
         <span className="GlobalNav-spacer"/>
         {currentProjectId && <AutosaveTracking projectId={currentProjectId}/>}
         <UserWidget/>
-        <OkCancel
-          open={this.state.showDeleteProject}
-          titleText="Delete Project"
-          messageHTML={(
-            <div className="message">
-              <br/>
-              <span
-                className="line">{this.props.project ? (`"${this.props.project.getName()}"` || 'Your Project') : ''}</span>
-              <br/>
-              <span className="line">and all related project data will be permanently deleted.</span>
-              <br/>
-              <span className="line">This action cannot be undone.</span>
-              <br/>
-              <br/>
-              <br/>
-              <br/>
-            </div>
-          )}
-          okText="Delete"
-          cancelText="Cancel"
-          ok={() => {
-            this.setState({ showDeleteProject: false });
-            this.deleteProject();
-          }}
-          cancel={() => {
-            this.setState({ showDeleteProject: false });
-          }}
-        />
       </div>
     );
   }

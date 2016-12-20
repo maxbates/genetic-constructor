@@ -116,7 +116,7 @@ export default class Expando extends Component {
           </div>
         </div>
         <div className={this.state.open ? 'content-visible' : 'content-hidden'}>
-          {this.props.content}
+          {this.state.open ? this.props.content : null}
         </div>
       </div>
     );
