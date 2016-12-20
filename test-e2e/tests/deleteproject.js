@@ -16,7 +16,7 @@ module.exports = {
       .assert.countelements('.inventory-project-tree .expando', 1);
 
     rightClickAt(browser, '.inventory-project-tree .expando', 4, 4 );
-    clickMenuNthItem(browser, 5);
+    clickMenuNthItem(browser, 6);
 
     browser
       // wait for confirmation dialog and accept
