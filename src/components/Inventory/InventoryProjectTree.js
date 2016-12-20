@@ -174,6 +174,7 @@ export class InventoryProjectTree extends Component {
           const hasSequence = block.sequence && block.sequence.length > 0;
           items.push({
             block,
+            testid: block.id,
             text: block.getName(),
             textWidgets: [
               hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }}/> : null,
@@ -313,6 +314,7 @@ export class InventoryProjectTree extends Component {
     .map(project => {
       return {
         text: project.getName(),
+        testid: project.id,
         bold: true,
         selected: project.id === currentProjectId,
         onExpand: this.onExpandProject.bind(this, project),

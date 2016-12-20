@@ -35,6 +35,7 @@ export default class Expando extends Component {
     startDrag: PropTypes.func,
     showArrowWhenEmpty: PropTypes.bool,
     showLock: PropTypes.bool,
+    testid: PropTypes.string,
   };
 
   static defaultProps = {
@@ -79,6 +80,7 @@ export default class Expando extends Component {
     const showArrow = this.props.content || this.props.showArrowWhenEmpty;
     return (
       <div
+        data-testid={this.props.testid}
         className="expando" data-expando={this.props.text}
         onContextMenu={(evt) => {
           evt.preventDefault();
