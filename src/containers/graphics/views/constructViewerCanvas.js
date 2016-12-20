@@ -246,7 +246,6 @@ export class ConstructViewerCanvas extends Component {
            onMouseUp={this.onMouseUp}
       >
         <div className={dropClasses} ref="dropTarget" key="dropTarget">Drop blocks here to create a new construct.</div>
-        ;
         {constructViewers}
       </div>
     );
