@@ -19,21 +19,20 @@ module.exports = {
     openInventoryPanel(browser, 'Sketch');
 
     browser
-      // expect at least one inventory item and one block to drop on
-      .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item');
+      .waitForElementPresent('.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 5000, 'expected sketch blocks');
 
     // drag a block to each construct to start them off
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 30, 30);
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(2)', 10, 10, '.construct-viewer:nth-of-type(3) .sceneGraph', 30, 30);
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(3)', 10, 10, '.construct-viewer:nth-of-type(4) .sceneGraph', 30, 30);
+    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 30, 30);
+    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(2) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(3) .sceneGraph', 30, 30);
+    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(3) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(4) .sceneGraph', 30, 30);
 
     // drag an item from the inventory
     for(var j = 1; j <= 3; j += 1) {
       for(var i = 1; i <= 5; i += 1) {
         dragFromTo(
             browser,
-            '.InventoryItemRole:nth-of-type(' + i + ')', 10, 10,
-            '.construct-viewer:nth-of-type(' + (j + 1) + ') .sceneGraph [data-nodetype="block"]', 30, 10);
+            `.InventoryGroupRole .sbol-tile:nth-of-type(${i}) .RoleSvg`, 10, 10,
+            `.construct-viewer:nth-of-type(${j+1}) .sceneGraph [data-nodetype="block"]`, 30, 10);
       }
     }
 

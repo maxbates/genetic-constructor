@@ -49,6 +49,7 @@ import {
   uiSetGrunt,
 } from '../../actions/ui';
 import { block as blockDragType } from '../../constants/DragTypes';
+import { undo, redo, transact, commit } from '../../store/undo/actions';
 
 import '../../styles/InventoryProjectTree.css';
 
@@ -71,6 +72,8 @@ export class InventoryProjectTree extends Component {
     focusForceBlocks: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
     inspectorSelectTab: PropTypes.func.isRequired,
+    transact: PropTypes.func.isRequired,
+    commit: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowOkCancel: PropTypes.func.isRequired,
@@ -139,12 +142,6 @@ export class InventoryProjectTree extends Component {
     const proxy = document.createElement('div');
     proxy.className = 'InventoryItemProxy';
     proxy.innerHTML = block.getName();
-    // const svg = this.itemElement.querySelector('svg');
-    // if (svg) {
-    //   const svgClone = svg.cloneNode(true);
-    //   svgClone.removeAttribute('data-reactid');
-    //   proxy.appendChild(svgClone);
-    // }
     return proxy;
   }
 
@@ -252,6 +249,27 @@ export class InventoryProjectTree extends Component {
   }
 
   /**
+   * add a new construct to the bound project ( initial model used for templates )
+   */
+  onNewConstruct = (project, initialModel = {}) => {
+    this.props.transact();
+    const block = this.props.blockCreate(initialModel);
+    this.props.projectAddConstruct(this.props.currentProjectId, block.id);
+    this.props.commit();
+    this.props.focusConstruct(block.id);
+    return block;
+  };
+
+  /**
+   * new template construct added to bound project
+   * @param project
+   */
+  onNewTemplate = (project) => {
+    return this.onNewConstruct(project, { rules: { authoring: true, fixed: true } });
+  };
+
+
+  /**
    * used want to open the context menu for the project.
    * @param project
    */
@@ -265,6 +283,10 @@ export class InventoryProjectTree extends Component {
       {
         text: 'New Project',
         action: this.onNewProject,
+      },
+      {
+        text: this.props.templates ? 'New Template' : 'New Construct',
+        action: this.props.templates ? this.onNewTemplate.bind(this, project) : this.onNewConstruct.bind(this, project),
       },
       {},
       {
@@ -368,6 +390,8 @@ export default connect(mapStateToProps, {
   focusForceBlocks,
   inspectorToggleVisibility,
   inspectorSelectTab,
+  transact,
+  commit,
   uiShowMenu,
   uiShowOkCancel,
   uiSetGrunt,
