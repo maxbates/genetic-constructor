@@ -26,13 +26,12 @@ module.exports = {
     openInspectorPanel(browser, 'Information');
 
     browser
-      // expect at least one inventory item and one block to drop on
-      .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item')
+      // wait for symbols to appear
+      .waitForElementPresent('.InventoryGroupRole .sbol-tile', 5000, 'expected an inventory item')
       // expect one focused construct viewer
       .assert.countelements(".construct-viewer", 1);
       // drag one block to first construct
-      dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 30, 30);
-
+      dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
     browser
       .pause(250)
       // we should have a single focused block, so changing its text should change the displayed block
