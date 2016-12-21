@@ -31,7 +31,7 @@ module.exports = {
       .assert.countelements('.construct-viewer', 1);
 
     // add block to construct
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 30, 30);
+    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
 
     browser
       // expect one construct view and one block
@@ -39,9 +39,9 @@ module.exports = {
       .assert.countelements('[data-nodetype="block"]', 1);
 
     browser.pause(5000)
-      .waitForElementNotPresent('.ribbongrunt');
+      .waitForElementNotPresent('.ribbongrunt-visible');
 
-    var blockBounds = openNthBlockContextMenu(browser, '.sceneGraph', 0);
+    openNthBlockContextMenu(browser, '.sceneGraph', 0);
     clickNthContextMenuItem(browser, 3);
 
     // wait for the import DNA modal window
@@ -62,18 +62,8 @@ module.exports = {
       .submitForm('.importdnaform')
       // wait for the grunt ribbon to confirm,
       .waitForElementPresent('.ribbongrunt-visible', 5000, 'expected a grunt')
-      .assert.containsText('.ribbongrunt-visible', 'Sequence was successfully inserted.');
-0
-    // now start a new project and ensure the dialog is no operational with no block selected
-    // start with a fresh project
-    newProject(browser);
-
-    // open import DNA from main edit menu
-    clickMainMenu(browser, 2, 7);
-
-    browser
-      .pause(100)
-      .waitForElementPresent('.ribbongrunt-visible', 1000, 'expect an error message for this case')
+      .assert.containsText('.ribbongrunt-visible', 'Sequence was successfully inserted.')
       .end();
+0
   }
 };
