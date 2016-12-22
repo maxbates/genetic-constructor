@@ -35,7 +35,7 @@ const fieldsClearToplevel = {
 };
 
 //merge to clear fields when not a leaf - these belong only to leaves
-const fieldsClearLeaf = {};
+//const fieldsClearLeaf = {};
 
 /**
  * Blocks are the foundational data type for representing DNA constructs in Genetic Constructor. Blocks can be thought of as parts, except they may not specify a sequence, and accommodate many more types of data than just base pairs and annotations.
