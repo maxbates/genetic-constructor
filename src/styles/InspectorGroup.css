@@ -1,7 +1,5 @@
 @import './variables.css';
 
 .InspectorGroup {
-  height: 100%;
-  overflow-y: scroll;
   padding: 0 var(--SidePanel-width-padding-content) 0 var(--SidePanel-width-padding-content);
 }

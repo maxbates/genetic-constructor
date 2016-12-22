@@ -80,7 +80,7 @@ export class Inspector extends Component {
   render() {
     const { isVisible, projectId, project, construct } = this.props;
     // classes for content area
-    const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
+    const contentClasses = `no-vertical-scroll content${isVisible ? '' : ' content-closed'}`;
     // classes for vertical menu
     const menuClasses = `vertical-menu${isVisible ? ' open' : ''}`;
     // map sections to icons
