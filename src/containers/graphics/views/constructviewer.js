@@ -38,6 +38,7 @@ import {
   uiShowOrderForm,
   uiInlineEditor,
   uiShowMenu,
+  uiSetGrunt,
 } from '../../../actions/ui';
 import {
   orderCreate,
@@ -47,6 +48,7 @@ import {
 } from '../../../actions/orders';
 import {
   blockGetParents,
+  blockGetComponentsRecursive,
 } from '../../../selectors/blocks';
 
 import { role as roleDragType } from '../../../constants/DragTypes';
@@ -326,6 +328,18 @@ export class ConstructViewer extends Component {
   }
 
   /**
+   * select all the empty block ( no sequence ) in our construct
+   */
+  selectEmptyBlocks() {
+    const allChildren = this.props.blockGetComponentsRecursive(this.props.focus.constructId);
+    const emptySet = allChildren.filter(block => !block.hasSequence()).map(block => block.id);
+    this.props.focusBlocks(emptySet);
+    if (!emptySet.length) {
+      this.props.uiSetGrunt('There are no empty blocks in the current construct');
+    }
+  }
+
+  /**
    * window resize, update layout and scene graph with new dimensions
    *
    */
@@ -431,6 +445,13 @@ export class ConstructViewer extends Component {
         disabled: !singleBlock || (!isAuthoring && (this.props.construct.isFixed() || this.props.construct.isFrozen())),
         action: () => {
           this.props.uiShowDNAImport(true);
+        },
+      },
+      {
+        text: `Select Empty Blocks`,
+        disabled: false,
+        action: () => {
+          this.selectEmptyBlocks();
         },
       },
       ...authoringListItems,
@@ -690,6 +711,7 @@ export default connect(mapStateToProps, {
   blockAddComponents,
   blockRemoveComponent,
   blockGetParents,
+  blockGetComponentsRecursive,
   blockSetRole,
   blockRename,
   focusBlocks,
@@ -705,6 +727,7 @@ export default connect(mapStateToProps, {
   uiShowDNAImport,
   uiShowOrderForm,
   uiShowMenu,
+  uiSetGrunt,
   uiInlineEditor,
   uiToggleDetailView,
   orderCreate,
