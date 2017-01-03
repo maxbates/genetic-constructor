@@ -36,6 +36,7 @@ export default class Expando extends Component {
     showArrowWhenEmpty: PropTypes.bool,
     showLock: PropTypes.bool,
     testid: PropTypes.string,
+    openByDefault: PropTypes.bool,
   };
 
   static defaultProps = {

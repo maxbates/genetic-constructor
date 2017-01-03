@@ -57,22 +57,19 @@ export default class SBOLPicker extends Component {
   };
 
   render() {
-    const { current, readOnly } = this.props;
-    const noSymbol = 'emptyBlock';
-    const currentSymbol = current || ((current === false) ? null : noSymbol);
-
+    const { current } = this.props;
     return (
       <div className="SBOLPicker">
         <div className="SBOLPicker-content">
           <div className="name">{this.state.hoverText}</div>
           <div className="sbol-picker">
             {symbols.map(symbolObj => {
-              const { id, name } = symbolObj;
+              const { id } = symbolObj;
               return (<RoleSvg
                                width="54px"
                                height="54px"
-                               color={current === id ? "white" : "black"}
-                               classes={current === id ? "active" : null}
+                               color={current === id ? 'white' : 'black'}
+                               classes={current === id ? 'active' : null}
                                symbolName={id}
                                onClick={this.onClick.bind(this, id)}
                                onMouseEnter={this.onMouseEnter.bind(this, id)}

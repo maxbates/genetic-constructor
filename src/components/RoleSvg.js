@@ -100,12 +100,12 @@ export default class RoleSvg extends Component {
       style.height = this.props.height;
     }
     const classes = `RoleSvg ${this.props.classes || ''}`;
-    return <div
+    return (<div
       onClick={this.props.onClick}
       onMouseEnter={this.props.onMouseEnter}
       onMouseLeave={this.props.onMouseLeave}
       style={style}
       className={classes}
-      dangerouslySetInnerHTML={{__html: this.markup}}/>;
+      dangerouslySetInnerHTML={{__html: this.markup}}/>);
   }
 }

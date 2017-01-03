@@ -37,7 +37,7 @@ const getKey = (key, shouldPrefix = true) => {
 export function getLocal(key, defaultObject, shouldPrefix = true) {
   // many things could go wrong here, no localStorage, unserializable object etc.
   try {
-    let item = localStorage.getItem(getKey(key, shouldPrefix));
+    const item = localStorage.getItem(getKey(key, shouldPrefix));
     if (item) {
       return JSON.parse(item);
     }

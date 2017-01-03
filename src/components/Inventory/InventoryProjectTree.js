@@ -49,7 +49,7 @@ import {
   uiSetGrunt,
 } from '../../actions/ui';
 import { block as blockDragType } from '../../constants/DragTypes';
-import { undo, redo, transact, commit } from '../../store/undo/actions';
+import { transact, commit } from '../../store/undo/actions';
 import { extensionApiPath } from '../../middleware/utils/paths';
 
 import '../../styles/InventoryProjectTree.css';

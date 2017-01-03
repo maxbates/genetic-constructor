@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import inventoryRoles from '../../inventory/roles';
 import InventorySearch from './InventorySearch';
@@ -26,6 +26,11 @@ import Block from '../../models/Block';
 import '../../styles/InventoryGroupRole.css';
 
 export default class InventoryGroupRole extends Component {
+  static propTypes = {
+    uiSetGrunt: PropTypes.func.isRequired,
+    uiSpin: PropTypes.func.isRequired,
+  };
+
   constructor(props) {
     super(props);
     this.roleSymbols = inventoryRoles;
@@ -33,22 +38,22 @@ export default class InventoryGroupRole extends Component {
 
   state = {
     filter: InventoryGroupRole.filter || '',
-    current: {id: null, name: null},
+    current: { id: null, name: null },
   };
 
   static filter = '';
 
   handleFilterChange = (filter) => {
     InventoryGroupRole.filter = filter;
-    this.setState({filter});
+    this.setState({ filter });
   };
 
   onMouseEnter = (item) => {
-    this.setState({current: item});
+    this.setState({ current: item });
   };
 
   onMouseLeave = () => {
-    this.setState({current: {id: null, name: null}});
+    this.setState({ current: { id: null, name: null } });
   };
 
   componentDidMount() {
@@ -59,7 +64,6 @@ export default class InventoryGroupRole extends Component {
   }
 
   mouseDrag(event, localPosition, startPosition, distance) {
-
     // cancel mouse drag and start a drag and drop
     this.mouseTrap.cancelDrag();
     // ignore if no block selected
@@ -87,7 +91,6 @@ export default class InventoryGroupRole extends Component {
       source: 'inventory',
     }, {
       onDropFailure: (error, target) => {
-        debugger;
         this.props.uiSetGrunt(`There was an error creating a block for ${this.state.current.metadata.name}`);
         this.props.uiSpin();
       },
@@ -126,19 +129,19 @@ export default class InventoryGroupRole extends Component {
                          onSearchChange={this.handleFilterChange}/>
         <div className="InventoryGroup-contentInner no-vertical-scroll">
           <div className="list">
-          {filtered.map(item => {
+            {filtered.map(item => {
               return (
                 <div className="sbol-tile">
                   <RoleSvg
-                           width="54px"
-                           height="54px"
-                           color={current.id === item.id ? "white" : "black"}
-                           classes={current.id === item.id ? "active" : null}
-                           symbolName={item.id}
-                           onMouseEnter={this.onMouseEnter.bind(this, item)}
-                           onMouseLeave={this.onMouseLeave}
-                           ref={item.id}
-                           key={item.id}/>
+                    width="54px"
+                    height="54px"
+                    color={current.id === item.id ? 'white' : 'black'}
+                    classes={current.id === item.id ? 'active' : null}
+                    symbolName={item.id}
+                    onMouseEnter={this.onMouseEnter.bind(this, item)}
+                    onMouseLeave={this.onMouseLeave}
+                    ref={item.id}
+                    key={item.id}/>
                   <div className={`name${current.id === item.id ? ' active' : ''}`}>{item.name}</div>
                 </div>);
             })}
