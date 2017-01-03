@@ -1,6 +1,6 @@
 var homepageRegister = require('../fixtures/homepage-register');
 var size = require('../fixtures/size');
-var openInventoryPanel = require('../fixtures/open-inventory-panel');
+var openTemplatesProject = require('../fixtures/open-templates-project');
 
 module.exports = {
   'Verify all templates are available' : function (browser) {
@@ -8,14 +8,9 @@ module.exports = {
     // maximize for graphical tests
     size(browser);
     homepageRegister(browser);
-    openInventoryPanel(browser, 'Templates');
+    openTemplatesProject(browser);
+
     browser
-      .waitForElementPresent('.InventoryListGroup-title', 5000, 'expected title for templates list to appear')
-      .click('.InventoryListGroup-title')
-      .waitForElementPresent('.InventoryItem-item', 5000, 'expected inventory items');
-    browser
-      .assert.countelements('[data-inventory~="template"]', 14)
-      .assert.countelements('.construct-viewer', 14)
       .assert.countelements('[data-nodetype="block"]', 143)
       .saveScreenshot('./test-e2e/current-screenshots/templates-basic.png')
       .end();
