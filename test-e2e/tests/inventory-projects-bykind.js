@@ -11,11 +11,11 @@ module.exports = {
     browser
     .pause(3000)
     // start with 1 samples templates 'EGF Sample Templates'
-    .assert.countelements('[data-inventory~="project"]', 1);
+    .assert.countelements('[data-testid^="egf_project"]', 1);
     clickText(browser, 'By Kind', '.InventoryTabs a');
     browser
       .pause(3000)
-      .assert.countelements('.InventoryListGroup', 11, 'expected 11 kinds of blocks')
+      .assert.countelements('.InventoryListGroup', 12, 'expected 12 kinds of blocks')
       .end();
   }
 };
