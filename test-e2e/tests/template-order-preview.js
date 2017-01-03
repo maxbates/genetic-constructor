@@ -1,5 +1,4 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var newProject = require('../fixtures/newproject');
 var size = require('../fixtures/size');
 var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var dragFromTo = require('../fixtures/dragfromto.js');
@@ -10,11 +9,13 @@ module.exports = {
     size(browser);
     homepageRegister(browser);
     openInventoryPanel(browser, 'Templates');
-    newProject(browser);
     browser
-      .click('.Toggler')
-      .waitForElementPresent('.InventoryItem-item', 5000, 'expected inventory items');
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
+    .click('[data-testid="NewProjectButton"]')
+    .click('[data-testid^="egf_project"] .label-base')
+    .waitForElementPresent('[data-testid^="block-"]', 5000, 'expected constructs to appear');
+
+    dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.cvc-drop-target', 50, 40);
+
     browser
       .click('.order-button')
       .waitForElementPresent('.order-form .page1', 10000, 'expected order dialog to appear')
