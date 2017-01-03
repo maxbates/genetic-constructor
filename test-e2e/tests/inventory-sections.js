@@ -9,7 +9,7 @@ module.exports = {
     browser
       .waitForElementPresent('.SectionIcon[data-section="Templates"]', 5000, 'expected a section icon')
       .waitForElementPresent('.SectionIcon[data-section="Sketch"]', 5000, 'expected a section icon')
-      .waitForElementPresent('.SectionIcon[data-section="Commons"]', 5000, 'expected a section icon')
+      //.waitForElementPresent('.SectionIcon[data-section="Commons"]', 5000, 'expected a section icon')
       .waitForElementPresent('.SectionIcon[data-section="Projects"]', 5000, 'expected a section icon')
       .waitForElementPresent('.SectionIcon[data-section="Ncbi"]', 5000, 'expected a section icon')
       .waitForElementPresent('.SectionIcon[data-section="Igem"]', 5000, 'expected a section icon')
