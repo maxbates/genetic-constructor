@@ -11,15 +11,12 @@ module.exports = {
     size(browser);
     homepageRegister(browser);
     openInventoryPanel(browser, 'Templates');
-    newProject(browser);
     browser
-    // expand 1st project
-    .pause(2000)
-    .click('.inventory-project-tree .tree div:nth-of-type(1) .expando')
-    .pause(2000)
-    .waitForElementPresent('.inventory-project-tree [data-testid^="block"]');
+    .click('[data-testid="NewProjectButton"]')
+    .click('[data-testid^="egf_project"] .label-base')
+    .waitForElementPresent('[data-testid^="block-"]', 5000, 'expected constructs to appear');
 
-    dragFromTo(browser, '.inventory-project-tree [data-testid^="block"]', 50, 10, '.cvc-drop-target', 50, 40);
+    dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.cvc-drop-target', 50, 40);
 
     browser
       .click('.order-button')
