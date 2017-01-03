@@ -74,6 +74,9 @@ const generatePrefix = () => {
 const setupKey = (key) => generatePrefix() + key;
 
 log(`[S3 Config] prefix = ${generatePrefix()}`);
+if (useRemote && !log.enabled) {
+  console.log('[S3] prefix: ' + generatePrefix()); //eslint-ignore-line
+}
 
 //ensure we have consistent fields returned
 const massageResult = (obj, forcePrefix) => {
