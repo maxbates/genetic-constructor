@@ -27,17 +27,15 @@ import { symbolMap } from '../inventory/roles';
 
 const idValidator = (id) => safeValidate(validators.id(), true, id);
 
+//merge to clear fields only belonging to top-level constructs
 const fieldsClearToplevel = {
   metadata: {
     palette: null,
   },
 };
 
-const fieldsClearLeaf = {
-  rules: {
-    role: null,
-  },
-};
+//merge to clear fields when not a leaf - these belong only to leaves
+//const fieldsClearLeaf = {};
 
 /**
  * Blocks are the foundational data type for representing DNA constructs in Genetic Constructor. Blocks can be thought of as parts, except they may not specify a sequence, and accommodate many more types of data than just base pairs and annotations.
@@ -866,7 +864,9 @@ export default class Block extends Instance {
    *********/
 
   clearBlockLevelFields() {
-    return this.merge(fieldsClearLeaf);
+    // doesnt do anything at the moment
+    // return this.merge(fieldsClearLeaf);
+    return this;
   }
 
   //when something becomes a not-top level construct, do some cleanup

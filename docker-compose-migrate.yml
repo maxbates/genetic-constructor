@@ -5,11 +5,15 @@ migrate:
     - /storage/genome-designer/projects:/projects
   environment:
     STORAGE: /projects
-    API_END_POINT: http://auth${BNR_ENV_URL_SUFFIX}.bionano.bio:8080/api
-    STORAGE_API: http://gctor-storage-api${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
+    API_END_POINT: http://internal-lb${BNR_ENV_URL_SUFFIX}.bionano.bio:8080/api
+    STORAGE_API: http://internal-lb${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
     NO_DOCKER: "true"
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    BNR_ENVIRONMENT: ${BNR_ENVIRONMENT}
+    BNR_ENV_TAG: ${BNR_ENV_TAG}
+    BNR_ENV_URL_SUFFIX: ${BNR_ENV_URL_SUFFIX}
+    DEBUG: constructor:data:s3
   command:
     ./bin/migrate/infinite-loop.sh
   log_driver: json-file
