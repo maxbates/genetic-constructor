@@ -13,9 +13,14 @@ module.exports = {
     openInventoryPanel(browser, 'Templates');
     newProject(browser);
     browser
-      .click('.Toggler')
-      .waitForElementPresent('.InventoryItem-item', 5000, 'expected inventory items');
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
+    // expand 1st project
+    .pause(2000)
+    .click('.inventory-project-tree .tree div:nth-of-type(1) .expando')
+    .pause(2000)
+    .waitForElementPresent('.inventory-project-tree [data-testid^="block"]');
+
+    dragFromTo(browser, '.inventory-project-tree [data-testid^="block"]', 50, 10, '.cvc-drop-target', 50, 40);
+
     browser
       .click('.order-button')
       .waitForElementPresent('.order-form .page1', 10000, 'expected order dialog to appear')

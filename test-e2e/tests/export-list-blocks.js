@@ -35,7 +35,7 @@ module.exports = {
       .click('.inventory-project-tree .tree div:nth-of-type(1) .expando')
       .pause(2000)
       // expect 14 template constructs in expanded project
-      .assert.countelements('.inventory-project-tree [data-testid^="block"]', 14)
+      .assert.countelements('.inventory-project-tree [data-testid^="block"]', 14);
 
 
     // drag the first construct into the canvas
