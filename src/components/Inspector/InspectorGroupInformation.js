@@ -92,7 +92,7 @@ function mapStateToProps(state, props) {
 
   const orders = Object.keys(state.orders)
   .map(orderId => state.orders[orderId])
-  .filter(order => order.projectId === this.props.project.id && order.isSubmitted())
+  .filter(order => order.projectId === props.project.id && order.isSubmitted())
   .sort((one, two) => one.status.timeSent - two.status.timeSent);
 
   return {

@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import { connect } from "react-redux";
 import ReactDOM from 'react-dom';
 import inventoryRoles from '../../inventory/roles';
 import RoleSvg from '../RoleSvg';
@@ -21,10 +22,14 @@ import MouseTrap from '../../containers/graphics/mousetrap';
 import DnD from '../../containers/graphics/dnd/dnd';
 import { role as roleDragType } from '../../constants/DragTypes';
 import Block from '../../models/Block';
+import {
+  uiSetGrunt,
+  uiSpin,
+} from '../../actions/ui';
 
 import '../../styles/InventoryGroupRole.css';
 
-export default class InventoryGroupRole extends Component {
+class InventoryGroupRole extends Component {
   static propTypes = {
     uiSetGrunt: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
@@ -150,7 +155,7 @@ export default class InventoryGroupRole extends Component {
           <div className="list">
             {sorted.map(item => {
               return (
-                <div className="sbol-tile">
+                <div className="sbol-tile" key={item.id}>
                   <RoleSvg
                     width="54px"
                     height="54px"
@@ -160,7 +165,7 @@ export default class InventoryGroupRole extends Component {
                     onMouseEnter={this.onMouseEnter.bind(this, item)}
                     onMouseLeave={this.onMouseLeave}
                     ref={item.id}
-                    key={item.id}/>
+                  />
                   <div className={`name${current.id === item.id ? ' active' : ''}`}>{item.name}</div>
                 </div>);
             })}
@@ -169,3 +174,12 @@ export default class InventoryGroupRole extends Component {
       </div>);
   }
 }
+
+function mapStateToProps(state, props) {
+  return {};
+}
+
+export default connect(mapStateToProps, {
+  uiSetGrunt,
+  uiSpin,
+})(InventoryGroupRole);
