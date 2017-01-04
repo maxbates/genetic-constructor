@@ -677,9 +677,7 @@ class GlobalNav extends Component {
       <div className="GlobalNav">
         <RibbonGrunt />
         <div className="GlobalNav-logo">
-          <div className="GlobalNav-circle">
-            <div className="GlobalNav-bar"></div>
-          </div>
+          <img src="/images/ui/main_logo.svg"/>
         </div>
         <div className="GlobalNav-appname">Genetic Constructor</div>
         <span className="GlobalNav-spacer"/>
