@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import inventoryRoles from '../../inventory/roles';
 import RoleSvg from '../RoleSvg';

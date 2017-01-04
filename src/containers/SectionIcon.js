@@ -24,9 +24,9 @@ const sectionNameToSVG = {
   Sketch: '/images/ui/inventory_sketch.svg',
   Commons: '/images/ui/inventory_commons.svg',
   Projects: '/images/ui/inventory_projects.svg',
-  Ncbi: '/images/ui/inventory_search_plugin_ncbi.svg',
-  Igem: '/images/ui/inventory_search_plugin_igem.svg',
-  Egf: '/images/ui/inventory_search_plugin_egf.svg',
+  Ncbi: '/images/ui/inventory_search_ncbi.svg',
+  Igem: '/images/ui/inventory_search_igem.svg',
+  Egf: '/images/ui/inventory_search_egf.svg',
   // inspector icons
   Information: '/images/ui/inspector_information.svg',
   Settings: '/images/ui/inspector_settings.svg',
