@@ -14,15 +14,17 @@ Notes can be found at [Installation](docs/installation/installation.md)
 
 Want to file a bug, contribute some code, or improve documentation? Excellent! Read up on our guidelines for [contributions](./CONTRIBUTING.md).
 
-### Developer Documentation
+### Third-party Documentation
 
 [Application Documentation](docs/README.md)
-
-[Storage API Documentation](storage-ext/README.md)
 
 [Extensions Documentation](docs/extensions/README.md)
 
 [Client API Documentation](https://geneticconstructor.bionano.autodesk.com/help/docs/)
+
+### Internal Documentation
+
+[Storage API Documentation](storage-ext/README.md)
 
 ### License
 
