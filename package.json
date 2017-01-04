@@ -9,7 +9,6 @@
     "start-instance": "./node_modules/.bin/babel-node tools/run start-instance",
     "start-docker": "docker build -t genome-designer . && docker run --privileged -v /var/run/docker.sock:/run/docker.sock -i -p 3000:3000 -t genome-designer",
     "start-db": "./node_modules/.bin/babel-node tools/run startDb",
-    "auth": "./bin/local-auth.sh",
     "server-auth": "EMAIL=1 COMMAND='npm run start-instance -- --release' ./bin/server-auth.sh",
     "postinstall": "npm run install-extensions && npm run selenium && npm run jsdoc && ./node_modules/.bin/babel-node tools/run install-dependencies",
     "build": "./node_modules/.bin/babel-node tools/run build",
