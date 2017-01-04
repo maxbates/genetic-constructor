@@ -26,7 +26,7 @@ import Schema from './SchemaClass';
 const fieldDefs = {
   method: [
     fields.string(),
-    `Assembly method to be used`,
+    'Assembly method to be used',
   ],
   onePot: [
     fields.bool().required,

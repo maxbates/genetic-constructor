@@ -43,18 +43,18 @@ export class InventoryList extends Component {
 
     return (
       <div className="InventoryList no-vertical-scroll">
-        {items.map(item => {
-          return (
-            <InventoryItem key={item.id}
-                           inventoryType={inventoryType}
-                           onDragStart={transact}
-                           onDragComplete={commit}
-                           onDrop={onDrop}
-                           onSelect={onSelect}
-                           item={item}
-                           dataAttribute={`${dataAttributePrefix} ${item.id}`}/>
-          );
-        })}
+        {items.map(item => (
+          <InventoryItem
+            key={item.id}
+            inventoryType={inventoryType}
+            onDragStart={transact}
+            onDragComplete={commit}
+            onDrop={onDrop}
+            onSelect={onSelect}
+            item={item}
+            dataAttribute={`${dataAttributePrefix} ${item.id}`}
+          />
+          ))}
       </div>
     );
   }

@@ -45,12 +45,12 @@ if (process.env.DEBUG_REDUX) {
   finalCreateStore = compose(
     applyMiddleware(...middleware),
     pausableStore(),
-    DevTools.instrument()
+    DevTools.instrument(),
   )(createStore);
 } else {
   finalCreateStore = compose(
     applyMiddleware(...middleware),
-    pausableStore()
+    pausableStore(),
   )(createStore);
 }
 

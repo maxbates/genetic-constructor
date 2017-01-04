@@ -51,18 +51,18 @@ const orderFields = {
 
   constructIds: [
     fields.arrayOf(validators.id(), { required: true }).required,
-    `IDs of constructs in project involved in order`,
+    'IDs of constructs in project involved in order',
   ],
 
   //todo - deprecate
   numberCombinations: [
     fields.number().required,
-    `Number of possible combinations, determined when making the order`,
+    'Number of possible combinations, determined when making the order',
   ],
 
   parameters: [
     OrderParametersSchema,
-    `Parameters associated with this order`,
+    'Parameters associated with this order',
   ],
 
   user: [
@@ -78,7 +78,7 @@ const orderFields = {
 
   notes: [
     fields.object().required,
-    `Notes about the Order`,
+    'Notes about the Order',
   ],
 };
 

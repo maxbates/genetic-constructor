@@ -76,7 +76,7 @@ export const search = (term, parameters = {}, sourceKey) => {
     Promise.resolve([]) :
     registry[sourceKey].search(term, parameters);
 
-  return searchPromise.then(results => {
+  return searchPromise.then((results) => {
     invariant(typeof results.parameters === 'object', 'must attach parameters object to results array');
     return { [sourceKey]: results };
   });

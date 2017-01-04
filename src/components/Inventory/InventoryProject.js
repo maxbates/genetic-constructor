@@ -71,15 +71,14 @@ export class InventoryProject extends Component {
     this.props.inspectorToggleVisibility(true);
   };
 
-  loadProject = (projectId) => {
+  loadProject = projectId =>
     //for now, just load the whole project and stick it in the store
     //need to ensure things like blockClone will work on drag. Simplifies browsing of project.
     //could delegate loading of construct components to InventoryConstruct, and load only one level deep
-    return this.props.projectLoad(projectId);
-  };
+     this.props.projectLoad(projectId);
 
   handleToggleProject = (nextState, projectId) => {
-    if (!!nextState) {
+    if (nextState) {
       this.setState({ isLoading: true });
 
       return this.loadProject(projectId)
@@ -107,24 +106,26 @@ export class InventoryProject extends Component {
     const canToggle = true;
 
     return (
-      <InventoryListGroup title={project.getName()}
-                          manual
-                          canToggle={canToggle && !errorLoading}
-                          isLoading={isLoading}
-                          isExpanded={isExpanded && canToggle}
-                          onToggle={(nextState) => this.handleToggleProject(nextState, projectId)}
-                          onSelect={(nextState) => this.onToggleProject(nextState, projectId)}
-                          isActive={isActive}
-                          dataAttribute={`project ${project.id}`}>
+      <InventoryListGroup
+        title={project.getName()}
+        manual
+        canToggle={canToggle && !errorLoading}
+        isLoading={isLoading}
+        isExpanded={isExpanded && canToggle}
+        onToggle={nextState => this.handleToggleProject(nextState, projectId)}
+        onSelect={nextState => this.onToggleProject(nextState, projectId)}
+        isActive={isActive}
+        dataAttribute={`project ${project.id}`}
+      >
         {project.components.length > 0
           ?
-          project.components.map(compId => {
-            return (<InventoryConstruct key={compId}
-                                        depth={0}
-                                        blockId={compId}/>);
-          })
+          project.components.map(compId => (<InventoryConstruct
+            key={compId}
+            depth={0}
+            blockId={compId}
+          />))
           :
-          (<div style={{padding: '0.25em 0.5em', userSelect: 'none', opacity: 0.5}}>No constructs</div>)
+          (<div style={{ padding: '0.25em 0.5em', userSelect: 'none', opacity: 0.5 }}>No constructs</div>)
         }
       </InventoryListGroup>
     );

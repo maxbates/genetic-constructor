@@ -39,7 +39,7 @@ export default class ModalWindow extends Component {
     setTimeout(() => {
       const dom = ReactDOM.findDOMNode(this.refs.window);
       if (dom) {
-        dom.style.transform = `translate(-50%, 0px)`;
+        dom.style.transform = 'translate(-50%, 0px)';
       }
     }, 10);
   }
@@ -59,14 +59,15 @@ export default class ModalWindow extends Component {
     // only render contents if open
     const contents = this.props.open
     ? (<div ref="window" className="modal-window no-vertical-scroll">
-        {this.props.payload}
-      </div>)
+      {this.props.payload}
+    </div>)
     : null;
     return (
       <div
         onMouseDown={this.onMouseDown.bind(this)}
         className={this.props.open ? 'modal-blocker-visible' : 'modal-blocker-hidden'}
-        ref="blocker">
+        ref="blocker"
+      >
         {contents}
       </div>
     );

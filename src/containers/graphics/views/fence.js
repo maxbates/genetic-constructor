@@ -58,10 +58,10 @@ export default class Fence {
     client.x = client.y = 0;
     const final = box.intersectWithBox(client);
     if (final) {
-      this.fenceElement.style.left = final.x + 'px';
-      this.fenceElement.style.top = final.y + 'px';
-      this.fenceElement.style.width = final.w + 'px';
-      this.fenceElement.style.height = final.h + 'px';
+      this.fenceElement.style.left = `${final.x}px`;
+      this.fenceElement.style.top = `${final.y}px`;
+      this.fenceElement.style.width = `${final.w}px`;
+      this.fenceElement.style.height = `${final.h}px`;
     }
   }
 

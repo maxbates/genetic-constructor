@@ -29,7 +29,7 @@ export default function InventorySources({ toggling, sourceList, registry, onSou
     },
     ...(Object.keys(registry)
       .filter(key => typeof registry[key].search === 'function')
-      .map(key => {
+      .map((key) => {
         const source = registry[key];
         return {
           text: source.name,
@@ -43,24 +43,28 @@ export default function InventorySources({ toggling, sourceList, registry, onSou
   ];
 
   return (
-    <div className={'InventorySources' + (toggling ? ' expanded' : '')}
-         onClick={() => onToggleVisible()}
-         ref={(el) => {
-           if (el) {
-             const {top: y, left: x} = el.getBoundingClientRect();
-             position = {x, y};
-           }
-         }}>
+    <div
+      className={`InventorySources${toggling ? ' expanded' : ''}`}
+      onClick={() => onToggleVisible()}
+      ref={(el) => {
+        if (el) {
+          const { top: y, left: x } = el.getBoundingClientRect();
+          position = { x, y };
+        }
+      }}
+    >
       <div className="InventorySources-back">
-        <div className="InventorySources-back-cog"></div>
+        <div className="InventorySources-back-cog" />
         <div className="InventorySources-back-sources">
           <span>{`Sources: ${sourceList.filter(source => registry[source]).map(source => registry[source].name).join(', ')}`}</span>
         </div>
       </div>
-      <PopupMenu open={toggling}
-                 closePopup={() => onToggleVisible()}
-                 position={position}
-                 menuItems={menuItems}/>
+      <PopupMenu
+        open={toggling}
+        closePopup={() => onToggleVisible()}
+        position={position}
+        menuItems={menuItems}
+      />
     </div>
   );
 }

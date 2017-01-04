@@ -37,7 +37,7 @@ router.route('/:md5?')
     }
 
     sequences.sequenceGet(md5)
-      .then(sequence => {
+      .then((sequence) => {
         //not entirely sure what this means... the file is empty?
         if (!sequence) {
           return res.status(204).send('');
@@ -46,7 +46,7 @@ router.route('/:md5?')
           .set('Content-Type', 'text/plain')
           .send(sequence);
       })
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           return res.status(404).send(errorDoesNotExist);
         }
@@ -67,7 +67,7 @@ router.route('/:md5?')
 
     const hash = md5(sequence);
 
-    if (!!req.params.md5) {
+    if (req.params.md5) {
       if (!sequenceUtils.validRealMd5(req.params.md5)) {
         return res.status(422).send('invalid md5 syntax');
       }

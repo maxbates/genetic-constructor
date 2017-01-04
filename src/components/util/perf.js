@@ -55,7 +55,7 @@ export default function perf(Component) {
         const groupName = getDisplayName(Component);
         ReactPerf.stop();
 
-        console.groupCollapsed(groupName + ' - ' + time); //eslint-disable-line no-console
+        console.groupCollapsed(`${groupName} - ${time}`); //eslint-disable-line no-console
 
         const measurements = ReactPerf.getLastMeasurements();
         ReactPerf.printExclusive(measurements);

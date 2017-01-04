@@ -31,9 +31,9 @@ export default class RoleGlyph2D extends Glyph2D {
     this.dot = document.createElement('div');
     this.dot.className = 'listSelected';
 
-    this.dot.style.top = (kT.optionH / 2 - kT.optionDotS / 2) + 'px';
-    this.dot.style.left = kT.optionDotL + 'px';
-    this.dot.style.width = this.dot.style.height = kT.optionDotS + 'px';
+    this.dot.style.top = `${kT.optionH / 2 - kT.optionDotS / 2}px`;
+    this.dot.style.left = `${kT.optionDotL}px`;
+    this.dot.style.width = this.dot.style.height = `${kT.optionDotS}px`;
     this.el.appendChild(this.dot);
     // add our outer container to the node element
     this.node.el.appendChild(this.el);
@@ -45,10 +45,10 @@ export default class RoleGlyph2D extends Glyph2D {
   update() {
     // basic rectangle
     const sw = this.node.strokeWidth;
-    this.el.style.left = -(sw / 2) + 'px';
-    this.el.style.top = -(sw / 2) + 'px';
-    this.el.style.width = (this.node.width + sw) + 'px';
-    this.el.style.height = (this.node.height + sw) + 'px';
+    this.el.style.left = `${-(sw / 2)}px`;
+    this.el.style.top = `${-(sw / 2)}px`;
+    this.el.style.width = `${this.node.width + sw}px`;
+    this.el.style.height = `${this.node.height + sw}px`;
     this.el.style.backgroundColor = this.node.fill;
 
     this.el.style.borderLeft = sw ? `${sw}px solid ${this.node.stroke}` : 'none';

@@ -30,16 +30,16 @@ const withJenkins = !!process.env.JENKINS;
 const forceSuccess = withJenkins;
 
 //default test options for mocha
-const mochaOptions = `--recursive --compilers js:babel-register,css:test/css-null-compiler.js --require ./test/setup.js --timeout 25000`;
+const mochaOptions = '--recursive --compilers js:babel-register,css:test/css-null-compiler.js --require ./test/setup.js --timeout 25000';
 
 //jenkins specific mocha options
-const jenkinsOptions = `-u bdd --reporter mocha-jenkins-reporter --no-colors`;
+const jenkinsOptions = '-u bdd --reporter mocha-jenkins-reporter --no-colors';
 
 //test options to use
 let testOptions = mochaOptions;
 
 if (withJenkins) {
-  testOptions += ' ' + jenkinsOptions;
+  testOptions += ` ${jenkinsOptions}`;
 }
 
 const unitTestCommand = `./node_modules/mocha/bin/mocha ${testOptions}`;
@@ -50,7 +50,7 @@ const unitTestCommand = `./node_modules/mocha/bin/mocha ${testOptions}`;
 const coverageCommand = `node_modules/.bin/babel-node node_modules/.bin/babel-istanbul cover --dir ./coverage --report lcovonly node_modules/.bin/_mocha -- ${testOptions}`;
 
 //report coverage to coveralls (available in travis)
-const coverageReport = `cat ./coverage/lcov.info | coveralls`;
+const coverageReport = 'cat ./coverage/lcov.info | coveralls';
 
 async function test() {
   let processes = [];
@@ -98,7 +98,7 @@ async function test() {
       }
     }
 
-    processes.forEach(proc => {
+    processes.forEach((proc) => {
       if (proc && !Number.isInteger(proc.exitCode)) {
         proc.kill();
       }

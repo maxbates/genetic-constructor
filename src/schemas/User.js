@@ -25,35 +25,35 @@ import Schema from './SchemaClass';
 */
 const fieldDefs = {
   id: [
-    fields.id({prefix: 'user'}).required,
-    `ID of the User`,
+    fields.id({ prefix: 'user' }).required,
+    'ID of the User',
   ],
   email: [
     fields.email().required,
-    `User's Email Address`,
+    'User\'s Email Address',
   ],
   firstName: [
     fields.string(),
-    `First name of user`,
+    'First name of user',
   ],
   lastName: [
     fields.string(),
-    `Last name of user`,
+    'Last name of user',
   ],
   description: [
     fields.string(),
-    `Short biography of the user`,
+    'Short biography of the user',
   ],
   homepage: [
     fields.url(),
-    `URL of personal page`,
+    'URL of personal page',
   ],
   social: [
     fields.arrayOf(validators.shape({
       provider: validators.string(),
       username: validators.string(),
     })),
-    `List of social media accounts`,
+    'List of social media accounts',
   ],
 };
 

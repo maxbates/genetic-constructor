@@ -53,7 +53,7 @@ const createGeneratorsInitialProjects = (user) => {
     .filter(projectConfig => typeof projectConfig.generator === 'function')
     .map(projectConfig => () => projectConfig.generator(projectConfig, user));
 
-  invariant(projectGenerators.length >= 1, '[User Setup] must have some default projects, got none. check config for user ' + user.uuid + ' -- ' + Object.keys(config.projects).join(', '));
+  invariant(projectGenerators.length >= 1, `[User Setup] must have some default projects, got none. check config for user ${user.uuid} -- ${Object.keys(config.projects).join(', ')}`);
 
   return projectGenerators;
 };
@@ -62,19 +62,19 @@ const createGeneratorsInitialProjects = (user) => {
 export default function onboardNewUser(user) {
   invariant(user && user.email && user.uuid, 'must pass valid user');
 
-  logger('Onboarding ' + user.uuid + ' ' + user.email);
+  logger(`Onboarding ${user.uuid} ${user.email}`);
 
   const initialProjectGenerators = createGeneratorsInitialProjects(user);
   const [firstRollGen, ...restRollGens] = initialProjectGenerators;
 
   //generate the firstRoll last, so that it has the most recent timestamp, and is opened first
   return Promise.all(
-      restRollGens.map(generator => {
+      restRollGens.map((generator) => {
         const roll = generator();
         logger('non-primary rolls generated');
         return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
           .then(info => info.data);
-      })
+      }),
     )
     .then((restRolls) => {
       logger('non-primary rolls wrote');
@@ -83,7 +83,7 @@ export default function onboardNewUser(user) {
 
       return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
         .then(info => info.data)
-        .then(firstRoll => {
+        .then((firstRoll) => {
           logger('onboarding complete');
           return [firstRoll, ...restRolls];
         });

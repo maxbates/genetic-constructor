@@ -60,7 +60,7 @@ class ProjectPage extends Component {
     window.onbeforeunload = window.onunload = this.onWindowUnload;
 
     //load extensions (also see componentWillReceiveProps)
-    if (!!this.props.userId) {
+    if (this.props.userId) {
       loadAllExtensions();
     }
   }
@@ -100,45 +100,45 @@ class ProjectPage extends Component {
     //handle project not loaded
     if (!project || !project.metadata) {
       this.props.projectLoad(projectId, false, true)
-        .then(project => {
+        .then((project) => {
           if (project.id !== projectId) {
             this.props.projectOpen(project.id);
           }
         });
-      return (<Spinner styles={{fontSize: '40px', margin: '2em auto'}}/>);
+      return (<Spinner styles={{ fontSize: '40px', margin: '2em auto' }} />);
     }
 
     // build a list of construct viewers
-    const constructViewers = constructs.filter(construct => construct).map(construct => {
-      return (
-        <ConstructViewer key={construct.id}
-                         projectId={projectId}
-                         constructId={construct.id}/>
-      );
-    });
+    const constructViewers = constructs.filter(construct => construct).map(construct => (
+      <ConstructViewer
+        key={construct.id}
+        projectId={projectId}
+        constructId={construct.id}
+      />
+      ));
 
     return (
       <div className="ProjectPage">
-        <ImportGenBankModal currentProjectId={projectId}/>
+        <ImportGenBankModal currentProjectId={projectId} />
         <ImportDNAForm />
         <ImportPartsCSVModal />
         <SaveErrorModal />
         <OrderModal projectId={projectId} />
 
-        <Inventory projectId={projectId}/>
+        <Inventory projectId={projectId} />
 
         <div className="ProjectPage-content">
 
-          <ProjectHeader project={project}/>
+          <ProjectHeader project={project} />
 
           <ConstructViewerCanvas currentProjectId={projectId}>
             {constructViewers}
           </ConstructViewerCanvas>
 
-          <ProjectDetail project={project}/>
+          <ProjectDetail project={project} />
         </div>
 
-        <Inspector projectId={projectId}/>
+        <Inspector projectId={projectId} />
       </div>
     );
   }

@@ -25,14 +25,14 @@ export default class NavLeftRight extends Component {
 
   render() {
     if (!this.props.visible) {
-      return (<div className="nav-left-right disabled"/>);
+      return (<div className="nav-left-right disabled" />);
     }
 
     return (
       <div className="nav-left-right" onClick={this.props.onClick}>
-        {this.props.left ? <div className="angle left"/> : null}
+        {this.props.left ? <div className="angle left" /> : null}
         <div className="text">{this.props.text}</div>
-        {!this.props.left ? <div className="angle right"/> : null}
+        {!this.props.left ? <div className="angle right" /> : null}
       </div>
     );
   }

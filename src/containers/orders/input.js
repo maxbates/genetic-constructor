@@ -25,7 +25,7 @@ export default class Input extends Component {
   render() {
     return (
       <input
-        onChange={evt => {
+        onChange={(evt) => {
           this.props.onChange(evt.target.value);
         }}
         defaultValue={this.props.value}

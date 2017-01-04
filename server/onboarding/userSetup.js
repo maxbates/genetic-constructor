@@ -29,22 +29,22 @@ const checkUserSetup = (user) => {
    }
    */
 
-  logger('checkUserSetup ' + user.uuid);
+  logger(`checkUserSetup ${user.uuid}`);
 
   return projectPersistence.getUserLastProjectId(user.uuid)
-    .then(projectId => {
+    .then((projectId) => {
       logger('checkUserSetup() query complete, already onboarded');
       return projectId;
     })
-    .catch(err => {
+    .catch((err) => {
       logger('checkUserSetup() query complete, onboarding...');
       return onboardNewUser(user)
-        .then(rolls => {
+        .then((rolls) => {
           logger(`checkUserSetup() onboarded ${user.uuid} (${user.email}) - ${rolls.length} projects`);
           logger(rolls.map(roll => `${roll.project.metadata.name || 'Unnamed'} @ ${roll.project.id}`));
           return rolls[0].project.id;
         })
-        .catch(err => {
+        .catch((err) => {
           logger('checkUserSetup() error onboarding');
           logger(user);
           logger(err);

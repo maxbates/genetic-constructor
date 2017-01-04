@@ -108,7 +108,7 @@ export default class UndoManager {
     Object.keys(this.slaves).forEach(key => this.slaves[key].purge());
   };
 
-  undo = (action) => this.doOnce(action, () => {
+  undo = action => this.doOnce(action, () => {
     const lastItem = this.getLastHistoryItem();
     if (lastItem) {
       lastItem.keys.forEach(key => this.slaves[key].undo());
@@ -116,7 +116,7 @@ export default class UndoManager {
     }
   });
 
-  redo = (action) => this.doOnce(action, () => {
+  redo = action => this.doOnce(action, () => {
     const nextItem = this.getFirstFutureItem();
     if (nextItem) {
       nextItem.keys.forEach(key => this.slaves[key].redo());
@@ -130,19 +130,19 @@ export default class UndoManager {
 
   //transactions are just delegated to section reducers to handle
 
-  transact = (action) => this.doOnce(action, () => {
+  transact = action => this.doOnce(action, () => {
     this.transactionDepth++;
     this.transactionAtStart = true;
     Object.keys(this.slaves).forEach(key => this.slaves[key].transact(action));
   });
 
-  commit = (action) => this.doOnce(action, () => {
+  commit = action => this.doOnce(action, () => {
     invariant(this.transactionDepth > 0, 'cant commit outside of a transaction!');
     this.transactionDepth--;
     Object.keys(this.slaves).forEach(key => this.slaves[key].commit(action));
   });
 
-  abort = (action) => this.doOnce(action, () => {
+  abort = action => this.doOnce(action, () => {
     invariant(this.transactionDepth > 0, 'cant abort outside of a transaction!');
     this.transactionDepth--;
     Object.keys(this.slaves).forEach(key => this.slaves[key].abort(action));

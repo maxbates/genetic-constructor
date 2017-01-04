@@ -15,7 +15,7 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import {connect } from 'react-redux';
+import { connect } from 'react-redux';
 import {
   inspectorToggleVisibility,
   uiInlineEditor,
@@ -47,18 +47,18 @@ class ProjectHeader extends Component {
     this.props.focusPrioritize('project');
     const name = this.props.project.metadata.name || 'Untitled Project';
     if (!this.props.project.rules.frozen) {
-      this.props.uiInlineEditor(value => {
+      this.props.uiInlineEditor((value) => {
         this.props.projectRename(this.props.project.id, value);
       }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this));
     }
   };
 
   onMouseEnter = () => {
-    this.setState({hover: true});
+    this.setState({ hover: true });
   }
 
   onMouseLeave = () => {
-    this.setState({hover: false});
+    this.setState({ hover: false });
   }
 
   titleEditorBounds() {
@@ -68,23 +68,24 @@ class ProjectHeader extends Component {
   render() {
     const { project, isFocused } = this.props;
     const hover = this.state.hover && !this.props.project.rules.frozen
-      ? <div className="inline-editor-hover inline-editor-hover-project">
-          <span>{project.metadata.name || 'Untitled Project'}</span>
-          <img src="/images/ui/inline_edit.svg"/>
-        </div>
+      ? (<div className="inline-editor-hover inline-editor-hover-project">
+        <span>{project.metadata.name || 'Untitled Project'}</span>
+        <img src="/images/ui/inline_edit.svg" />
+      </div>)
       : null;
     return (
-      <div className={'ProjectHeader' + (isFocused ? ' focused' : '')}
-           onClick={this.onClick}
-           onMouseEnter={this.onMouseEnter}
-           onMouseLeave={this.onMouseLeave}
+      <div
+        className={`ProjectHeader${isFocused ? ' focused' : ''}`}
+        onClick={this.onClick}
+        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
       >
         <div className="ProjectHeader-info">
           <div ref="title" className="ProjectHeader-title">{project.metadata.name || 'Untitled Project'}</div>
           <div className="ProjectHeader-description">{project.metadata.description}</div>
         </div>
 
-        <div className="ProjectHeader-actions"></div>
+        <div className="ProjectHeader-actions" />
         {hover}
       </div>
     );

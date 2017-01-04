@@ -18,9 +18,7 @@ import Vector2D from './vector2d';
 import Intersection2D from './intersection2d';
 
 //shallow hasOwnProperty check
-const hasProp = (obj, prop) => {
-  return obj.hasOwnProperty(prop);
-};
+const hasProp = (obj, prop) => obj.hasOwnProperty(prop);
 
 export default class Line2D {
 
@@ -32,29 +30,29 @@ export default class Line2D {
    */
   constructor(start, end) {
     switch (arguments.length) {
-    case 0:
-      this._start = new Vector2D();
-      this._end = new Vector2D();
-      break;
+      case 0:
+        this._start = new Vector2D();
+        this._end = new Vector2D();
+        break;
 
-    case 1:
-      invariant(hasProp(start, 'x1') && hasProp(start, 'y1') && hasProp(start, 'x2') && hasProp(start, 'y2'), 'Bad parameter');
-      this._start = new Vector2D(start.x1, start.y1);
-      this._end = new Vector2D(start.x2, start.y2);
-      break;
+      case 1:
+        invariant(hasProp(start, 'x1') && hasProp(start, 'y1') && hasProp(start, 'x2') && hasProp(start, 'y2'), 'Bad parameter');
+        this._start = new Vector2D(start.x1, start.y1);
+        this._end = new Vector2D(start.x2, start.y2);
+        break;
 
-    case 2:
-      this._start = start.clone();
-      this._end = end.clone();
-      break;
+      case 2:
+        this._start = start.clone();
+        this._end = end.clone();
+        break;
 
-    case 4:
-      this._start = new Vector2D(arguments[0], arguments[1]);
-      this._end = new Vector2D(arguments[2], arguments[3]);
-      break;
+      case 4:
+        this._start = new Vector2D(arguments[0], arguments[1]);
+        this._end = new Vector2D(arguments[2], arguments[3]);
+        break;
 
-    default:
-      throw new Error('Bad parameters');
+      default:
+        throw new Error('Bad parameters');
     }
   }
 
@@ -241,19 +239,17 @@ export default class Line2D {
       if (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1) {
         result = new Intersection2D(new Vector2D(
           this.x1 + ua * (this.x2 - this.x1),
-          this.y1 + ua * (this.y2 - this.y1)
+          this.y1 + ua * (this.y2 - this.y1),
         ));
 
         result.status = 'Intersection';
       } else {
         result = new Intersection2D('No Intersection');
       }
+    } else if (uaT === 0 || ubT === 0) {
+      result = new Intersection2D('Coincident');
     } else {
-      if (uaT === 0 || ubT === 0) {
-        result = new Intersection2D('Coincident');
-      } else {
-        result = new Intersection2D('Parallel');
-      }
+      result = new Intersection2D('Parallel');
     }
     return result;
   }

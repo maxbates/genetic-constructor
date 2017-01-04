@@ -73,27 +73,34 @@ export default class SymbolPicker extends Component {
     const currentSymbol = current || ((current === false) ? null : noSymbol);
 
     return (
-      <div className={'Picker SymbolPicker' + (!!readOnly ? ' readOnly' : '')}>
-        <div className="Picker-current"
-             onClick={this.onClickCurrent}>
-          <PickerItem isCurrent={false}
-                      svg={currentSymbol}/>
+      <div className={`Picker SymbolPicker${readOnly ? ' readOnly' : ''}`}>
+        <div
+          className="Picker-current"
+          onClick={this.onClickCurrent}
+        >
+          <PickerItem
+            isCurrent={false}
+            svg={currentSymbol}
+          />
         </div>
         {this.state.showContent && (
-          <div className="Picker-content"
-               onMouseOut={this.onMouseOut}>
+          <div
+            className="Picker-content"
+            onMouseOut={this.onMouseOut}
+          >
             <div className="Picker-currentHovered">{this.state.hoverText}</div>
             <div className="Picker-options">
-              {symbols.map(symbolObj => {
+              {symbols.map((symbolObj) => {
                 const { id, name } = symbolObj;
 
-                return (<PickerItem key={id}
-                                    isCurrent={current === id}
-                                    name={name}
-                                    svg={id}
-                                    onMouseEnter={() => this.onMouseEnter(name)}
-                                    onMouseOut={(evt) => evt.stopPropagation()}
-                                    onClick={() => this.onClick(id)}
+                return (<PickerItem
+                  key={id}
+                  isCurrent={current === id}
+                  name={name}
+                  svg={id}
+                  onMouseEnter={() => this.onMouseEnter(name)}
+                  onMouseOut={evt => evt.stopPropagation()}
+                  onClick={() => this.onClick(id)}
                 />);
               })}
             </div>

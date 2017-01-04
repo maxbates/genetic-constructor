@@ -111,11 +111,13 @@ class OrderModal extends Component {
         <div className="buttons">
           <button
             disabled={!this.props.order.metadata.name}
-            type="submit">Submit Order
+            type="submit"
+          >Submit Order
           </button>
           <button
             type="button"
-            onClick={() => this.onClose()}>Cancel
+            onClick={() => this.onClose()}
+          >Cancel
           </button>
         </div>
       );
@@ -138,7 +140,7 @@ class OrderModal extends Component {
     const titleText = ['Order DNA', 'Review Assemblies', 'Order Details'][this.state.page - 1];
 
     const error = this.state.error ?
-      <label className="error">{'Order Error: ' + this.state.error.substr(0, 1024)}</label> : null;
+      <label className="error">{`Order Error: ${this.state.error.substr(0, 1024)}`}</label> : null;
 
     return (<ModalWindow
       open={this.props.open}
@@ -149,9 +151,9 @@ class OrderModal extends Component {
         <form className="gd-form order-form" onSubmit={this.onSubmit}>
           <div className="title">{titleText}</div>
           <div>
-            <Page1 open={this.state.page === 1} order={this.props.order}/>
-            <Page2 open={this.state.page === 2} order={this.props.order}/>
-            <Page3 open={this.state.page === 3} order={this.props.order}/>
+            <Page1 open={this.state.page === 1} order={this.props.order} />
+            <Page2 open={this.state.page === 2} order={this.props.order} />
+            <Page3 open={this.state.page === 3} order={this.props.order} />
           </div>
           {error}
           <div className="actions">
@@ -159,13 +161,15 @@ class OrderModal extends Component {
               onClick={this.nav.bind(this, -1)}
               left
               text={leftText}
-              visible={this.state.page > 1}/>
+              visible={this.state.page > 1}
+            />
             {this.modalButtons()}
             <NavLeftRight
               onClick={this.nav.bind(this, 1)}
               left={false}
               text={rightText}
-              visible={this.state.page < 3 && !(this.state.page === 2 && !this.props.order.isSubmitted())}/>
+              visible={this.state.page < 3 && !(this.state.page === 2 && !this.props.order.isSubmitted())}
+            />
           </div>
         </form>}
 

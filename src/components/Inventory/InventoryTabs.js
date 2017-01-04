@@ -35,9 +35,11 @@ export default class InventoryTabs extends Component {
         {tabs.map((tab, index) => {
           const isActive = activeTabKey === tab.key || activeTabIndex === index;
           return (
-            <a className={'InventoryTabs-tab' + (isActive ? ' active' : '')}
-               key={tab.name}
-               onClick={() => onTabSelect(tab, index)}>
+            <a
+              className={`InventoryTabs-tab${isActive ? ' active' : ''}`}
+              key={tab.name}
+              onClick={() => onTabSelect(tab, index)}
+            >
               {tab.name}
             </a>
           );

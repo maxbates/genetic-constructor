@@ -21,7 +21,7 @@ export default function readFileText(file) {
   return new Promise((resolve, reject) => {
     const fr = new FileReader();
 
-    fr.onload = (evt) => resolve({
+    fr.onload = evt => resolve({
       name: file.name,
       string: evt.target.result,
       length: evt.target.result.length,

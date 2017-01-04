@@ -23,26 +23,26 @@ export const initialState = {
 
 export default function detailView(state = initialState, action) {
   switch (action.type) {
-  case ActionTypes.DETAIL_VIEW_TOGGLE_VISIBILITY :
-    const { nextState } = action;
-    const next = { isVisible: nextState };
-    if (!nextState) {
-      Object.assign(next, { currentExtension: null });
-    }
-    return Object.assign({}, state, next);
+    case ActionTypes.DETAIL_VIEW_TOGGLE_VISIBILITY :
+      const { nextState } = action;
+      const next = { isVisible: nextState };
+      if (!nextState) {
+        Object.assign(next, { currentExtension: null });
+      }
+      return Object.assign({}, state, next);
 
-  case ActionTypes.DETAIL_VIEW_SELECT_EXTENSION :
-    const { key } = action;
-    if (!key || key === state.currentExtension) {
+    case ActionTypes.DETAIL_VIEW_SELECT_EXTENSION :
+      const { key } = action;
+      if (!key || key === state.currentExtension) {
+        return state;
+      }
+      return Object.assign({}, state, { currentExtension: key });
+
+    case ActionTypes.USER_SET_USER :
+    case LOCATION_CHANGE :
+      return Object.assign({}, initialState);
+
+    default :
       return state;
-    }
-    return Object.assign({}, state, { currentExtension: key });
-
-  case ActionTypes.USER_SET_USER :
-  case LOCATION_CHANGE :
-    return Object.assign({}, initialState);
-
-  default :
-    return state;
   }
 }

@@ -58,16 +58,18 @@ export default class InspectorRow extends Component {
     }
 
     if (!condition) {
-      return (<div className="InspectorRow"></div>);
+      return (<div className="InspectorRow" />);
     }
 
     const isActive = this.getActiveState();
 
     const headingEl = hasToggle ?
       (
-        <h4 className={'InspectorRow-heading toggler' + (isActive ? ' active' : '')}
-            onClick={() => this.handleToggle()}>
-          <Toggler open={isActive}/>
+        <h4
+          className={`InspectorRow-heading toggler${isActive ? ' active' : ''}`}
+          onClick={() => this.handleToggle()}
+        >
+          <Toggler open={isActive} />
           <span>{heading}</span>
         </h4>
       )

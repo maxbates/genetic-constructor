@@ -139,18 +139,14 @@ export class RegisterForm extends Component {
     const { projects, extensions } = params;
     const config = {};
 
-    if (!!projects) {
+    if (projects) {
       const projectNames = projects.split(',');
-      config.projects = projectNames.reduce((acc, projectName) => {
-        return Object.assign(acc, { [projectName]: {} });
-      }, {});
+      config.projects = projectNames.reduce((acc, projectName) => Object.assign(acc, { [projectName]: {} }), {});
       Object.assign(config.projects[projectNames[0]], { default: true });
     }
 
-    if (!!extensions) {
-      config.extensions = extensions.split(',').reduce((acc, projectName) => {
-        return Object.assign(acc, { [projectName]: { active: true } });
-      }, {});
+    if (extensions) {
+      config.extensions = extensions.split(',').reduce((acc, projectName) => Object.assign(acc, { [projectName]: { active: true } }), {});
     }
 
     return config;
@@ -217,9 +213,7 @@ export class RegisterForm extends Component {
     // display appropriate errors
     this.setState(newState);
     // return true if there was an error
-    return Object.keys(newState).find((key) => {
-      return newState[key].visible;
-    });
+    return Object.keys(newState).find(key => newState[key].visible);
   }
 
   /**
@@ -284,52 +278,62 @@ export class RegisterForm extends Component {
     return (
       <form id="auth-register" className="gd-form authentication-form" onSubmit={this.onSubmit.bind(this)}>
         <div className="title">Register</div>
-        <span style={registerStyle}>{"Already have an account? "}
+        <span style={registerStyle}>{'Already have an account? '}
           <a className="blue-link" href="/" onClick={this.onSignIn.bind(this)}>Sign In&nbsp;</a>
         </span>
         <input
           ref="firstName"
           className="input"
           onChange={this.onFormChanged}
-          placeholder="First Name"/>
+          placeholder="First Name"
+        />
         <input
           ref="lastName"
           className="input"
           onChange={this.onFormChanged}
-          placeholder="Last Name"/>
+          placeholder="Last Name"
+        />
         <div className={`error ${this.state.nameError.visible ? 'visible' : ''}`}>{`${this.state.nameError.text}`}</div>
         <div
-          className={`error ${this.state.email1Error.visible ? 'visible' : ''}`}>{`${this.state.email1Error.text}`}</div>
+          className={`error ${this.state.email1Error.visible ? 'visible' : ''}`}
+        >{`${this.state.email1Error.text}`}</div>
         <input
           ref="emailAddress"
           onChange={this.onFormChanged}
           className="input"
-          placeholder="Email Address"/>
+          placeholder="Email Address"
+        />
         <input
           ref="emailConfirm"
           onChange={this.onFormChanged}
           className="input"
-          placeholder="Confirm Email Address"/>
+          placeholder="Confirm Email Address"
+        />
         <div
-          className={`error ${this.state.email2Error.visible ? 'visible' : ''}`}>{`${this.state.email2Error.text}`}</div>
+          className={`error ${this.state.email2Error.visible ? 'visible' : ''}`}
+        >{`${this.state.email2Error.text}`}</div>
         <div
-          className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}>{`${this.state.password1Error.text}`}</div>
+          className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}
+        >{`${this.state.password1Error.text}`}</div>
         <input
           ref="password"
           onChange={this.onFormChanged}
           maxLength={32}
           type="password"
           className="input"
-          placeholder="Password"/>
+          placeholder="Password"
+        />
         <input
           ref="passwordConfirm"
           onChange={this.onFormChanged}
           maxLength={32}
           type="password"
           className="input"
-          placeholder="Confirm Password"/>
+          placeholder="Confirm Password"
+        />
         <div
-          className={`error ${this.state.password2Error.visible ? 'visible' : ''}`}>{`${this.state.password2Error.text}`}</div>
+          className={`error ${this.state.password2Error.visible ? 'visible' : ''}`}
+        >{`${this.state.password2Error.text}`}</div>
         <div className="checkbox">
           <input
             ref="tos"
@@ -339,11 +343,13 @@ export class RegisterForm extends Component {
           <span>I agree to the
             <a
               target="_blank"
-              href={tos}> Terms of Service</a>
-            <br/>and
+              href={tos}
+            > Terms of Service</a>
+            <br />and
             <a
               target="_blank"
-              href={privacy}> Autodesk Privacy Statement</a>
+              href={privacy}
+            > Autodesk Privacy Statement</a>
           </span>
         </div>
         <div className={`error ${this.state.tosError.visible ? 'visible' : ''}`}>{`${this.state.tosError.text}`}</div>
@@ -356,7 +362,8 @@ export class RegisterForm extends Component {
           type="button"
           onClick={() => {
             this.props.uiShowAuthenticationForm('signin');
-          }}>Cancel
+          }}
+        >Cancel
         </button>
       </form>
     );

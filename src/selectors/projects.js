@@ -40,11 +40,7 @@ const _getProjectFromStore = (projectId, store) => {
  * @param {UUID} projectId
  * @returns {Project}
  */
-export const projectGet = (projectId) => {
-  return (dispatch, getState) => {
-    return _getProjectFromStore(projectId, getState());
-  };
-};
+export const projectGet = projectId => (dispatch, getState) => _getProjectFromStore(projectId, getState());
 
 /**
  * Get current project ID, from the URL
@@ -52,11 +48,7 @@ export const projectGet = (projectId) => {
  * @param {UUID} projectId
  * @returns {UUID} current project ID
  */
-export const projectGetCurrentId = () => {
-  return (dispatch, getState) => {
-    return _getCurrentProjectId();
-  };
-};
+export const projectGetCurrentId = () => (dispatch, getState) => _getCurrentProjectId();
 
 /**
  * Get current project version
@@ -64,11 +56,9 @@ export const projectGetCurrentId = () => {
  * @param {UUID} projectId
  * @returns {number} latest project version
  */
-export const projectGetVersion = (projectId) => {
-  return (dispatch, getState) => {
-    const project = _getProjectFromStore(projectId, getState());
-    return !!project ? project.version : null;
-  };
+export const projectGetVersion = projectId => (dispatch, getState) => {
+  const project = _getProjectFromStore(projectId, getState());
+  return project ? project.version : null;
 };
 
 /**
@@ -78,17 +68,15 @@ export const projectGetVersion = (projectId) => {
  * @param {UUID} projectId
  * @returns {UUID} current project ID
  */
-export const projectListAllComponents = (projectId) => {
-  return (dispatch, getState) => {
-    const project = _getProjectFromStore(projectId, getState());
+export const projectListAllComponents = projectId => (dispatch, getState) => {
+  const project = _getProjectFromStore(projectId, getState());
 
-    return project.components.reduce((acc, componentId) => {
-      acc.push(dispatch(blockSelectors.blockGet(componentId)));
-      const constructChildren = dispatch(blockSelectors.blockGetComponentsRecursive(componentId));
-      acc.push(...constructChildren);
-      return acc;
-    }, []);
-  };
+  return project.components.reduce((acc, componentId) => {
+    acc.push(dispatch(blockSelectors.blockGet(componentId)));
+    const constructChildren = dispatch(blockSelectors.blockGetComponentsRecursive(componentId));
+    acc.push(...constructChildren);
+    return acc;
+  }, []);
 };
 
 /**
@@ -98,12 +86,10 @@ export const projectListAllComponents = (projectId) => {
  * @param {UUID} projectId
  * @returns {Array<Block>}
  */
-export const projectListAllOptions = (projectId) => {
-  return (dispatch, getState) => {
-    const components = dispatch(projectListAllComponents(projectId));
-    const optionIds = components.reduce((acc, comp) => acc.concat(Object.keys(comp.options)), []);
-    return optionIds.map(id => dispatch(blockSelectors.blockGet(id)));
-  };
+export const projectListAllOptions = projectId => (dispatch, getState) => {
+  const components = dispatch(projectListAllComponents(projectId));
+  const optionIds = components.reduce((acc, comp) => acc.concat(Object.keys(comp.options)), []);
+  return optionIds.map(id => dispatch(blockSelectors.blockGet(id)));
 };
 
 /**
@@ -113,12 +99,10 @@ export const projectListAllOptions = (projectId) => {
  * @param {UUID} projectId
  * @returns {Array<Block>}
  */
-export const projectListAllBlocks = (projectId) => {
-  return (dispatch, getState) => {
-    const components = dispatch(projectListAllComponents(projectId));
-    const options = dispatch(projectListAllOptions(projectId));
-    return components.concat(options);
-  };
+export const projectListAllBlocks = projectId => (dispatch, getState) => {
+  const components = dispatch(projectListAllComponents(projectId));
+  const options = dispatch(projectListAllOptions(projectId));
+  return components.concat(options);
 };
 
 /**
@@ -128,11 +112,9 @@ export const projectListAllBlocks = (projectId) => {
  * @param {UUID} blockId
  * @returns {boolean}
  */
-export const projectHasComponent = (projectId, blockId) => {
-  return (dispatch, getState) => {
-    const components = dispatch(projectListAllComponents(projectId));
-    return components.map(comp => comp.id).indexOf(blockId) >= 0;
-  };
+export const projectHasComponent = (projectId, blockId) => (dispatch, getState) => {
+  const components = dispatch(projectListAllComponents(projectId));
+  return components.map(comp => comp.id).indexOf(blockId) >= 0;
 };
 
 /**
@@ -142,11 +124,9 @@ export const projectHasComponent = (projectId, blockId) => {
  * @param {UUID} blockId
  * @returns {boolean}
  */
-export const projectHasOption = (projectId, blockId) => {
-  return (dispatch, getState) => {
-    const options = dispatch(projectListAllOptions(projectId));
-    return options.map(option => option.id).indexOf(blockId) >= 0;
-  };
+export const projectHasOption = (projectId, blockId) => (dispatch, getState) => {
+  const options = dispatch(projectListAllOptions(projectId));
+  return options.map(option => option.id).indexOf(blockId) >= 0;
 };
 
 /**
@@ -159,12 +139,10 @@ export const projectHasOption = (projectId, blockId) => {
  * @param {string} sourceId
  * @returns {Block} Block if it exists, or null
  */
-export const projectGetOptionWithSource = (projectId, sourceKey, sourceId) => {
-  return (dispatch, getState) => {
-    invariant(sourceKey && sourceId, 'source key and ID are required');
-    const options = dispatch(projectListAllOptions(projectId));
-    return options.find(option => option.source.source === sourceKey && option.source.id === sourceId) || null;
-  };
+export const projectGetOptionWithSource = (projectId, sourceKey, sourceId) => (dispatch, getState) => {
+  invariant(sourceKey && sourceId, 'source key and ID are required');
+  const options = dispatch(projectListAllOptions(projectId));
+  return options.find(option => option.source.source === sourceKey && option.source.id === sourceId) || null;
 };
 
 /**
@@ -174,21 +152,19 @@ export const projectGetOptionWithSource = (projectId, sourceKey, sourceId) => {
  * @param {UUID} blockId
  * @returns {Object} { project: Project, blocks: Object.<blockId:Block> }
  */
-export const projectCreateRollup = (projectId) => {
-  return (dispatch, getState) => {
-    const project = _getProjectFromStore(projectId, getState());
-    if (!project) {
-      return null;
-    }
+export const projectCreateRollup = projectId => (dispatch, getState) => {
+  const project = _getProjectFromStore(projectId, getState());
+  if (!project) {
+    return null;
+  }
 
-    const blocks = dispatch(projectListAllBlocks(projectId))
+  const blocks = dispatch(projectListAllBlocks(projectId))
       .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 
-    return new Rollup({
-      project,
-      blocks,
-    });
-  };
+  return new Rollup({
+    project,
+    blocks,
+  });
 };
 
 // PROJECT FILES
@@ -202,12 +178,10 @@ export const projectCreateRollup = (projectId) => {
  * @param {String} [format='text']
  * @param {String} [version] Default is return latest, or specify a specific version
  */
-export const projectFileRead = (projectId, namespace, fileName, format, version) => {
-  return (dispatch, getState) => {
-    const oldProject = getState().projects[projectId];
+export const projectFileRead = (projectId, namespace, fileName, format, version) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
 
-    return oldProject.fileRead(namespace, fileName, format, version);
-  };
+  return oldProject.fileRead(namespace, fileName, format, version);
 };
 
 /**
@@ -216,8 +190,4 @@ export const projectFileRead = (projectId, namespace, fileName, format, version)
  * @param {UUID} projectId
  * @param {String} namespace
  */
-export const projectFileList = (projectId, namespace) => {
-  return (dispatch, getState) => {
-    return projectFilesApi.projectFileList(projectId, namespace);
-  };
-};
+export const projectFileList = (projectId, namespace) => (dispatch, getState) => projectFilesApi.projectFileList(projectId, namespace);

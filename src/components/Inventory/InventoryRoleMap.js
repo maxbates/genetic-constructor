@@ -93,19 +93,18 @@ export class InventoryRoleMap extends Component {
     this.setRoleType(type, false);
 
     getBlocksWithRole(type)
-      .then(blockMap => {
+      .then((blockMap) => {
         const blocks = Object.keys(blockMap).map(blockId => new Block(blockMap[blockId]));
         this.setRoleType(type, blocks);
       });
   };
 
-  onBlockDrop = (item, target) => {
+  onBlockDrop = (item, target) =>
     //get components if its a construct and add blocks to the store
     //note - this may be a very large query
     //note - used to unhide blocks but lets see what desired behavior is
-    return this.props.blockLoad(item.id, item.projectId, true, true)
+     this.props.blockLoad(item.id, item.projectId, true, true)
       .then(blocks => blocks[item.id]);
-  };
 
   //false is for loading
   setRoleType(type, blocks = false) {
@@ -119,21 +118,25 @@ export class InventoryRoleMap extends Component {
 
     const content = loadingMap ?
       <Spinner /> :
-      Object.keys(typeMap).sort().map(type => {
+      Object.keys(typeMap).sort().map((type) => {
         const count = typeMap[type];
         const name = symbolMap[type] || type;
         const items = loadedTypes[type] || [];
         const isLoading = loadedTypes[type] === false;
         return (
-          <InventoryListGroup key={type}
-                              title={name + ` (${count})`}
-                              isLoading={isLoading}
-                              onToggle={(nextState) => this.onToggleType(nextState, type)}
-                              dataAttribute={`roleMap ${name}`}>
-            <InventoryList inventoryType={blockDragType}
-                           onDrop={this.onBlockDrop}
-                           items={items}
-                           dataAttributePrefix={`roleMap ${name}`}/>
+          <InventoryListGroup
+            key={type}
+            title={`${name} (${count})`}
+            isLoading={isLoading}
+            onToggle={nextState => this.onToggleType(nextState, type)}
+            dataAttribute={`roleMap ${name}`}
+          >
+            <InventoryList
+              inventoryType={blockDragType}
+              onDrop={this.onBlockDrop}
+              items={items}
+              dataAttributePrefix={`roleMap ${name}`}
+            />
           </InventoryListGroup>
         );
       });

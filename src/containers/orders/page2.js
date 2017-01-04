@@ -30,7 +30,7 @@ export default class Page2 extends Component {
 
     return (
       <div className="order-page page2">
-      <ConstructPreview order={this.props.order} />
+        <ConstructPreview order={this.props.order} />
       </div>
     );
   }

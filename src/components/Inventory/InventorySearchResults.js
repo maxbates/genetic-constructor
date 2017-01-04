@@ -50,10 +50,10 @@ export default class InventorySearchResults extends Component {
 
     if (registryKey && id) {
       return registry[registryKey].get(id, parameters, item)
-        .then(result => {
+        .then((result) => {
           //if we have an array, first one is construct, and all other blocks should be added to the store
           if (Array.isArray(result)) {
-            const [ construct, ...blocks ] = result;
+            const [construct, ...blocks] = result;
 
             //need to specially handle blocks which are constructs here, add them to the store (not important for showing in the inspector)
             //todo - performance -- this will effectively add everything twice, since will be cloned. Should not clone deep (there is an option for this in blockClone, need to pass to onDrop of construct viewer, somehow diffrentiate from dragging a construct from a project
@@ -88,13 +88,9 @@ export default class InventorySearchResults extends Component {
     this.props.loadMore(key);
   };
 
-  handleItemOnSelect = (registryKey, item) => {
-    return this.getFullItem(registryKey, item, true, false);
-  };
+  handleItemOnSelect = (registryKey, item) => this.getFullItem(registryKey, item, true, false);
 
-  handleItemOnDrop = (registryKey, item, target, position) => {
-    return this.getFullItem(registryKey, item, false, true);
-  };
+  handleItemOnDrop = (registryKey, item, target, position) => this.getFullItem(registryKey, item, false, true);
 
   render() {
     const { searchTerm, sourcesToggling, searching, searchResults, sourcesVisible } = this.props;
@@ -115,18 +111,22 @@ export default class InventorySearchResults extends Component {
     if (!noSearchResults) {
       groupsContent = (groupBy === 'source')
         ?
-        (<InventorySearchResultsBySource searchResults={searchResults}
-                                         sourcesVisible={sourcesVisible}
-                                         onListGroupAction={(key) => this.handleListGroupAction(key)}
-                                         onListGroupToggle={(key) => this.handleListGroupToggle(key)}
-                                         onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
-                                         onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}/>)
+        (<InventorySearchResultsBySource
+          searchResults={searchResults}
+          sourcesVisible={sourcesVisible}
+          onListGroupAction={key => this.handleListGroupAction(key)}
+          onListGroupToggle={key => this.handleListGroupToggle(key)}
+          onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
+          onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}
+        />)
         :
-        (<InventorySearchResultsByKind searchResults={searchResults}
-                                       sourcesVisible={sourcesVisible}
-                                       onListGroupToggle={(key) => this.handleListGroupToggle(key)}
-                                       onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
-                                       onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}/>);
+        (<InventorySearchResultsByKind
+          searchResults={searchResults}
+          sourcesVisible={sourcesVisible}
+          onListGroupToggle={key => this.handleListGroupToggle(key)}
+          onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
+          onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}
+        />);
     }
 
     const showTabs = !(!searchTerm || sourcesToggling || (searching && noSearchResults) || noSearchResults);
@@ -134,9 +134,11 @@ export default class InventorySearchResults extends Component {
     return (
       <div className="InventoryGroup-contentNester InventorySearchResults">
         {showTabs && (
-          <InventoryTabs tabs={inventoryTabs}
-                         activeTabKey={groupBy}
-                         onTabSelect={(tab) => this.handleTabSelect(tab.key)}/>
+          <InventoryTabs
+            tabs={inventoryTabs}
+            activeTabKey={groupBy}
+            onTabSelect={tab => this.handleTabSelect(tab.key)}
+          />
         )}
 
         {!sourcesToggling && (

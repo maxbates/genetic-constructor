@@ -48,7 +48,7 @@ export default class Page3 extends Component {
         <Row text="After Fabrication:">
           <div>{order.parameters.sequenceAssemblies ? 'Sequence' : 'Do Not Sequence'}</div>
         </Row>
-        <br/>
+        <br />
       </div>
     );
   }

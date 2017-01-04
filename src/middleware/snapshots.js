@@ -28,16 +28,16 @@ export const snapshot = (projectId, version = null, msgInput, tags = {}, rollup 
   const message = typeof msgInput === 'string' ? msgInput : 'Project Snapshot';
 
   const stringified = JSON.stringify({ message, tags, rollup });
-  const url = dataApiPath(`snapshots/${projectId}${Number.isInteger(version) ? '/' + version : ''}`);
+  const url = dataApiPath(`snapshots/${projectId}${Number.isInteger(version) ? `/${version}` : ''}`);
 
   return rejectingFetch(url, headersPost(stringified))
     .then(resp => resp.json())
-    .then(snapshot => {
+    .then((snapshot) => {
       const { version } = snapshot;
       noteSave(projectId, version);
       return snapshot;
     })
-    .catch(err => {
+    .catch((err) => {
       noteFailure(projectId, err);
       return Promise.reject(err);
     });

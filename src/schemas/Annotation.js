@@ -42,31 +42,31 @@ const fieldDefs = {
   ],
   color: [
     fields.string(),
-    `Color of the Annotation`,
+    'Color of the Annotation',
   ],
   role: [
     fields.string(),
-    `Role of the Annotation`,
+    'Role of the Annotation',
   ],
   sequence: [
-    fields.sequence({loose: true}),
+    fields.sequence({ loose: true }),
     'IUPAC sequence of the annotation',
   ],
   start: [
-    fields.number({min: 0}),
+    fields.number({ min: 0 }),
     'Location of start of annotation',
   ],
   end: [
-    fields.number({min: 0}),
+    fields.number({ min: 0 }),
     'Location of end of annotation',
   ],
   isForward: [
     fields.bool(),
-    `true if forward (5'-3'), false if reverse`,
+    'true if forward (5\'-3\'), false if reverse',
   ],
   notes: [
     fields.object().required,
-    `Notes about the annotation`,
+    'Notes about the annotation',
   ],
 };
 

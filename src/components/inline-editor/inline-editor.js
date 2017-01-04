@@ -111,12 +111,12 @@ class InlineEditor extends Component {
       return null;
     }
     const styles = {
-      left: this.props.position.left + 'px',
-      top: this.props.position.top + 'px',
-      width: this.props.position.width + 'px',
-      height: this.props.position.height + 'px',
+      left: `${this.props.position.left}px`,
+      top: `${this.props.position.top}px`,
+      width: `${this.props.position.width}px`,
+      height: `${this.props.position.height}px`,
     };
-    const classes = `inline-editor${this.props.extraClassName ? ' ' + this.props.extraClassName : ''}`;
+    const classes = `inline-editor${this.props.extraClassName ? ` ${this.props.extraClassName}` : ''}`;
     return (
       <div>
         <input

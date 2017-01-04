@@ -462,7 +462,8 @@ export class ConstructViewer extends Component {
       open={this.state.blockPopupMenuOpen}
       position={this.state.menuPosition}
       closePopup={this.closePopups.bind(this)}
-      menuItems={this.blockContextMenuItems()}/>);
+      menuItems={this.blockContextMenuItems()}
+    />);
   }
 
   /**
@@ -527,7 +528,8 @@ export class ConstructViewer extends Component {
       open={this.state.constructPopupMenuOpen}
       position={this.state.menuPosition}
       closePopup={this.closePopups.bind(this)}
-      menuItems={items}/>);
+      menuItems={items}
+    />);
   }
 
   /**
@@ -610,7 +612,7 @@ export class ConstructViewer extends Component {
     // add all blocks in the payload
     const blocks = Array.isArray(payload.item) ? payload.item : [payload.item];
     // return the list of newly added blocks so we can select them for example
-    blocks.forEach(block => {
+    blocks.forEach((block) => {
       const newBlock = (payload.source === 'inventory' || payload.copying)
         ? this.props.blockClone(block)
         : this.props.blocks[block];
@@ -629,7 +631,7 @@ export class ConstructViewer extends Component {
    */
   orderButton() {
     if (this.props.construct.isTemplate() && !this.isSampleProject()) {
-      const canOrderFromEGF = this.props.construct.components.every(blockId => {
+      const canOrderFromEGF = this.props.construct.components.every((blockId) => {
         const block = this.props.blocks[blockId];
 
         //check blocks' source
@@ -640,7 +642,7 @@ export class ConstructViewer extends Component {
         //check block options if source not valid
         const optionIds = Object.keys(block.options);
         if (optionIds.length > 0) {
-          return optionIds.every(optionId => {
+          return optionIds.every((optionId) => {
             const option = this.props.blocks[optionId];
             return option.source.source && option.source.source === 'egf';
           });
@@ -694,7 +696,7 @@ export class ConstructViewer extends Component {
     const rendered = (
       <div className="construct-viewer" key={this.props.construct.id}>
         <div className="sceneGraphContainer">
-          <div className="sceneGraph"/>
+          <div className="sceneGraph" />
         </div>
         {this.blockContextMenu()}
         {this.constructContextMenu()}

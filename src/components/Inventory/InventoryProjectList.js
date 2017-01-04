@@ -55,14 +55,16 @@ export class InventoryProjectList extends Component {
         {Object.keys(projects)
           .map(projectId => projects[projectId])
           .sort((one, two) => two.metadata.created - one.metadata.created)
-          .map(project => {
+          .map((project) => {
             const projectId = project.id;
             const isActive = (projectId === currentProject);
 
             return (
-              <InventoryProject key={projectId}
-                                project={project}
-                                isActive={isActive}/>
+              <InventoryProject
+                key={projectId}
+                project={project}
+                isActive={isActive}
+              />
             );
           })}
       </div>

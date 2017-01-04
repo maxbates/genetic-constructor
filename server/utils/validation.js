@@ -21,17 +21,11 @@ import { id as idRegex } from '../../src/utils/regex';
 
 import { errorNoIdProvided, errorInvalidId } from './errors';
 
-export const validateBlock = (instance) => {
-  return Block.validate(instance, false);
-};
+export const validateBlock = instance => Block.validate(instance, false);
 
-export const validateProject = (instance) => {
-  return Project.validate(instance, false);
-};
+export const validateProject = instance => Project.validate(instance, false);
 
-export const validateOrder = instance => {
-  return Order.validate(instance, false);
-};
+export const validateOrder = instance => Order.validate(instance, false);
 
 export const validateId = id => idRegex().test(id);
 

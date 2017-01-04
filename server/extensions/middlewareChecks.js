@@ -19,9 +19,7 @@ import { getConfigFromUser } from '../user/utils';
 import extensionRegistry from './registry';
 import { manifestIsServer, manifestIsClient, manifestClientFiles } from './manifestUtils';
 
-export const manifestIsPrivate = (manifest) => {
-  return manifest.geneticConstructor.private === true || typeof manifest.geneticConstructor.access === 'object';
-};
+export const manifestIsPrivate = manifest => manifest.geneticConstructor.private === true || typeof manifest.geneticConstructor.access === 'object';
 
 //future - clearer checking / clearer defaults, checking beyond just email
 export const checkUserExtensionAccess = (extensionManifest, user) => {
@@ -102,7 +100,7 @@ export const checkUserExtensionAccessMiddleware = (req, res, next) => {
   invariant(extensionManifest, '[auth extensions permissions] no extensionManifest on req');
 
   //config should always exist, at least returning a default
-  invariant(config, '[auth extensions permissions] no user config found for user ' + user.uuid);
+  invariant(config, `[auth extensions permissions] no user config found for user ${user.uuid}`);
 
   if (checkUserExtensionAccess(extensionManifest, config)) {
     return next();
@@ -114,7 +112,7 @@ export const checkExtensionIsClientMiddleware = (req, res, next) => {
   const { extension, extensionManifest } = req;
 
   if (!manifestIsClient(extensionManifest)) {
-    return res.status(404).send('non-client extension: ' + extension);
+    return res.status(404).send(`non-client extension: ${extension}`);
   }
 
   next();
@@ -144,7 +142,7 @@ export const checkClientExtensionFilePath = (req, res, next) => {
 export const checkExtensionIsServerMiddleware = (req, res, next) => {
   const { extension, extensionManifest } = req;
   if (!manifestIsServer(extensionManifest)) {
-    return res.status(404).send('non-server extension: ' + extension);
+    return res.status(404).send(`non-server extension: ${extension}`);
   }
   next();
 };

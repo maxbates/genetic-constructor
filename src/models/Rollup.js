@@ -96,9 +96,7 @@ export default class Rollup {
 
       //compare blocks
       invariant(Object.keys(one.blocks).length === Object.keys(two.blocks).length, 'blocks are different number');
-      invariant(every(one.blocks, (value, key) => {
-        return value === two.blocks[key] || isEqual(value, two.blocks[key]);
-      }), 'blocks do not match');
+      invariant(every(one.blocks, (value, key) => value === two.blocks[key] || isEqual(value, two.blocks[key])), 'blocks do not match');
     } catch (err) {
       if (throwOnError === true) {
         throw err;
@@ -178,7 +176,7 @@ export default class Rollup {
         throw new Error(`Block ${blockId} not in rollup: ${this.project.id}`);
       }
 
-      acc[blockId] = block;
+      acc[blockId] = block; //eslint-disable-line
 
       //recurse
       _.forEach(block.components, compId => this.getComponents(compId, acc));

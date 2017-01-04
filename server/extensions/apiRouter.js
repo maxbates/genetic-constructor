@@ -47,7 +47,7 @@ router.all('/:extension/*',
 /** Route Registering **/
 
 const serverExtensions = getServerExtensions();
-Object.keys(serverExtensions).forEach(key => {
+Object.keys(serverExtensions).forEach((key) => {
   const manifest = serverExtensions[key];
   const routePath = manifest.geneticConstructor.router;
 
@@ -62,7 +62,7 @@ Object.keys(serverExtensions).forEach(key => {
     if (key === 'testErrorServer') {
       return;
     }
-    console.error('there was an error registering extension ' + key);
+    console.error(`there was an error registering extension ${key}`);
     console.log(err);
     console.log(err.stack);
   }

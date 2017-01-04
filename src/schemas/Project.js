@@ -39,22 +39,22 @@ const projectFields = {
 
   components: [
     fields.arrayOf(validators.id()).required,
-    `Constructs associated with this project`,
+    'Constructs associated with this project',
   ],
 
   settings: [
     fields.object().required,
-    `Settings associated with this project`,
+    'Settings associated with this project',
   ],
 
   rules: [
     RulesSchema,
-    `Rules governing the whole Project`,
+    'Rules governing the whole Project',
   ],
 
   files: [
     fields.arrayOf(ProjectFileSchema.validate.bind(ProjectFileSchema)).required,
-    `Files associated with the project`,
+    'Files associated with the project',
   ],
 };
 

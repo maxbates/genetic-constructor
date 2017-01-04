@@ -37,13 +37,17 @@ export default class InspectorRole extends Component {
       <div className="InspectorContent InspectorContentRole">
 
         <InspectorRow heading="Role Name">
-          <InputSimple readOnly={readOnly}
-                       value={instance.name}/>
+          <InputSimple
+            readOnly={readOnly}
+            value={instance.name}
+          />
         </InspectorRow>
 
         <InspectorRow heading="Glyph">
-          <PickerItem readOnly
-                      svg={instance.id}/>
+          <PickerItem
+            readOnly
+            svg={instance.id}
+          />
         </InspectorRow>
 
       </div>

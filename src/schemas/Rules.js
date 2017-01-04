@@ -51,7 +51,7 @@ const rulesFields = {
   ],
   authoring: [
     fields.bool(),
-    `A template is being authored`,
+    'A template is being authored',
     { avoidScaffold: true },
   ],
 };

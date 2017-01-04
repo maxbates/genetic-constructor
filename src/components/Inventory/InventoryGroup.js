@@ -32,16 +32,16 @@ export default class InventoryGroup extends Component {
 
   inventoryGroupTypeToComponent = (type, props) => {
     switch (type) {
-    case 'role' :
-      return (<InventoryGroupRole {...props} />);
-    case 'search' :
-      return (<InventoryGroupSearch {...props} />);
-    case 'projects':
-      return (<InventoryGroupProjects {...props} />);
-    case 'block':
-      return (<InventoryGroupBlocks {...props} />);
-    default:
-      throw new Error(`Type ${type} is not registered in InventoryGroup`);
+      case 'role' :
+        return (<InventoryGroupRole {...props} />);
+      case 'search' :
+        return (<InventoryGroupSearch {...props} />);
+      case 'projects':
+        return (<InventoryGroupProjects {...props} />);
+      case 'block':
+        return (<InventoryGroupBlocks {...props} />);
+      default:
+        throw new Error(`Type ${type} is not registered in InventoryGroup`);
     }
   };
 
@@ -50,9 +50,11 @@ export default class InventoryGroup extends Component {
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
 
     return (
-      <div className={'InventoryGroup' + (isActive ? ' active' : '')}>
-        <div className="InventoryGroup-heading"
-             onClick={setActive}>
+      <div className={`InventoryGroup${isActive ? ' active' : ''}`}>
+        <div
+          className="InventoryGroup-heading"
+          onClick={setActive}
+        >
           <span className="InventoryGroup-title">{title}</span>
         </div>
         {isActive && currentGroupComponent}

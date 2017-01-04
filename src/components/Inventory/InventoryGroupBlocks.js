@@ -44,15 +44,17 @@ export default class InventoryGroupBlocks extends Component {
 
     return (
       <div className="InventoryGroup-content InventoryGroupBlocks">
-        <InventorySearch searchTerm={searchTerm}
-                         placeholder="Filter by name or biological function"
-                         onSearchChange={this.handleSearchChange}/>
+        <InventorySearch
+          searchTerm={searchTerm}
+          placeholder="Filter by name or biological function"
+          onSearchChange={this.handleSearchChange}
+        />
 
         <div className="InventoryGroup-contentInner no-vertical-scroll">
-          {listingItems.map(item => {
-            return (<InventoryItemBlock key={item.id}
-                                        block={item}/>);
-          })}
+          {listingItems.map(item => (<InventoryItemBlock
+            key={item.id}
+            block={item}
+          />))}
         </div>
       </div>
     );

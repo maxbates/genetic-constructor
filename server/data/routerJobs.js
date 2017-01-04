@@ -45,7 +45,7 @@ router.route('/:namespace/:file?')
 
     jobFiles.jobFileRead(projectId, namespace, file)
       .then(data => res.send(data))
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           return res.status(404).send(errorDoesNotExist);
         }
@@ -70,7 +70,7 @@ router.route('/:namespace/:file?')
 
     jobFiles.jobFileDelete(projectId, namespace, file)
       .then(() => res.status(200).send())
-      .catch(err => {
+      .catch((err) => {
         console.log('project file delete err', err, err.stack);
         next(err);
       });
@@ -93,7 +93,7 @@ router.route('/:namespace')
     //future - support query where namespace is optional (need to update s3 support as well)
 
     jobFiles.jobFileList(projectId, namespace)
-      .then(contents => {
+      .then((contents) => {
         //todo - move this to jobFileList itself
         const mapped = contents.map(filename => ({
           name: filename,

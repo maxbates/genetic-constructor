@@ -69,10 +69,10 @@ class RegisterForm extends Component {
           return;
         }
         track('Authentication', 'Reset', 'Success');
-        this.props.uiSetGrunt(`Your password has been reset`);
+        this.props.uiSetGrunt('Your password has been reset');
         // we can sign in the user since we have their password and email
         this.props.userLogin(this.getParameter('e'), this.password)
-          .then(user => {
+          .then((user) => {
             // close the form
             this.props.uiShowAuthenticationForm('none');
             this.props.projectOpen(null);
@@ -93,9 +93,7 @@ class RegisterForm extends Component {
   // return a hash of the query strings
   getQueryStrings() {
     const assoc = {};
-    const decode = (str) => {
-      return decodeURIComponent(str.replace(/\+/g, ' '));
-    };
+    const decode = str => decodeURIComponent(str.replace(/\+/g, ' '));
     const queryString = location.search.substring(1);
     const keyValues = queryString.split('&');
 
@@ -134,9 +132,7 @@ class RegisterForm extends Component {
     // display appropriate errors
     this.setState(newState);
     // return true if there was an error
-    return Object.keys(newState).find((key) => {
-      return newState[key].visible;
-    });
+    return Object.keys(newState).find(key => newState[key].visible);
   }
 
   get password() {
@@ -166,30 +162,36 @@ class RegisterForm extends Component {
       <form
         id="reset-form"
         className="gd-form authentication-form"
-        onSubmit={this.onSubmit.bind(this)}>
+        onSubmit={this.onSubmit.bind(this)}
+      >
         <div className="title">Reset Password</div>
 
         <div
-          className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}>{`${this.state.password1Error.text}`}</div>
+          className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}
+        >{`${this.state.password1Error.text}`}</div>
         <input
           ref="password"
           type="password"
           className="input"
-          placeholder="New password"/>
+          placeholder="New password"
+        />
         <input
           ref="passwordConfirm"
           type="password"
           className="input"
-          placeholder="Confirm new password"/>
+          placeholder="Confirm new password"
+        />
         <div
-          className={`error ${this.state.password2Error.visible ? 'visible' : ''}`}>{`${this.state.password2Error.text}`}</div>
+          className={`error ${this.state.password2Error.visible ? 'visible' : ''}`}
+        >{`${this.state.password2Error.text}`}</div>
 
         <button type="submit">Reset Password</button>
         <button
           type="button"
           onClick={() => {
             this.props.uiShowAuthenticationForm('none');
-          }}>Cancel
+          }}
+        >Cancel
         </button>
       </form>
     );

@@ -30,9 +30,9 @@ const pseudoMd5Regex = /^([a-z0-9]{32})(\[(\d+):(\d+?)\])?$/;
 //checks if a realMd5
 const realMd5Regex = /^[a-f0-9]{32}$/;
 
-export const validRealMd5 = (realMd5) => realMd5Regex.test(realMd5);
+export const validRealMd5 = realMd5 => realMd5Regex.test(realMd5);
 
-export const validPseudoMd5 = (pseudoMd5) => pseudoMd5Regex.test(pseudoMd5);
+export const validPseudoMd5 = pseudoMd5 => pseudoMd5Regex.test(pseudoMd5);
 
 //accepts array or start and end separately
 export const generatePseudoMd5 = (realMd5, start, end) => {
@@ -62,7 +62,7 @@ export const parsePseudoMd5 = (pseudoMd5) => {
     //todo - should return null. need to update all usages expecting object to destructure
     return {};
   }
-  const [ original, hash, byteRange, start, end ] = match;
+  const [original, hash, byteRange, start, end] = match;
   return {
     original,
     hash,
@@ -75,7 +75,7 @@ export const parsePseudoMd5 = (pseudoMd5) => {
 
 // expects { blockId: pseudoMd5 }
 // returns map { blockId: { hash, start, end } }
-const parseBlockToMd5Map = (blockIdsToMd5s) => _.mapValues(blockIdsToMd5s, (pseudoMd5, blockId) => parsePseudoMd5(pseudoMd5));
+const parseBlockToMd5Map = blockIdsToMd5s => _.mapValues(blockIdsToMd5s, (pseudoMd5, blockId) => parsePseudoMd5(pseudoMd5));
 
 // reduce a whole bunch of blocks with pseudoMd5s to fetch inclusive ranges of each file, rather than each range separately
 // expects { blockId: pseudoMd5 }
@@ -158,9 +158,9 @@ export const getSequencesFromMap = (blockIdsToMd5s, retrievalFn) => {
   const hashes = Object.keys(rangeMap);
 
   return Promise.all(
-    hashes.map(hash => retrievalFn(hash, rangeMap[hash]))
+    hashes.map(hash => retrievalFn(hash, rangeMap[hash])),
   )
-    .then(sequences => {
+    .then((sequences) => {
       // { realMd5: sequenceDedupedRange }
       const hashToSequence = _.zipObject(hashes, sequences);
 

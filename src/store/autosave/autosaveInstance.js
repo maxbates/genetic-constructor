@@ -51,13 +51,9 @@ const autosave = autosaveCreator({
     return window.constructor.api.projects.projectSave();
   },
 
-  purgeOn: ({ type }, alreadyDirty, nextState, lastState) => {
-    return purgeEvents.some(eventType => eventType === type);
-  },
+  purgeOn: ({ type }, alreadyDirty, nextState, lastState) => purgeEvents.some(eventType => eventType === type),
 
-  simulateOn: ({ type }, alreadyDirty) => {
-    return simulateEvents.some(eventType => eventType === type);
-  },
+  simulateOn: ({ type }, alreadyDirty) => simulateEvents.some(eventType => eventType === type),
 });
 
 export default autosave;

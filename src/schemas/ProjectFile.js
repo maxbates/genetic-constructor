@@ -24,11 +24,11 @@ const fieldDefs = {
   ],
   namespace: [
     fields.string().required,
-    `Files are namespaced by type of owner (e.g. extension) of the file`,
+    'Files are namespaced by type of owner (e.g. extension) of the file',
   ],
   version: [
     fields.string(),
-    `Specified file version, defaults to latest`,
+    'Specified file version, defaults to latest',
   ],
 
   description: [

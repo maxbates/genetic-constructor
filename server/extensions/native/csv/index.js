@@ -37,7 +37,7 @@ router.get('/file/:fileId', (req, res, next) => {
 
   fileSystem.fileExists(path)
     .then(() => res.download(path))
-    .catch(err => {
+    .catch((err) => {
       if (err === errorDoesNotExist) {
         return res.status(404).send();
       }
@@ -56,10 +56,8 @@ router.post('/import/:projectId?',
     const { name, string, fileName, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
 
     return convertCsv(string, fileName, fileUrl)
-      .then(converted => {
-        return fileSystem.fileWrite(filePath + '-converted', converted)
-          .then(() => converted);
-      })
+      .then(converted => fileSystem.fileWrite(`${filePath}-converted`, converted)
+          .then(() => converted))
       //get maps of sequence hash and blocks, write sequences first
       .then(({ blocks, sequences }) => {
         const blockIds = Object.keys(blocks);
@@ -83,7 +81,7 @@ router.post('/import/:projectId?',
           const allBlocks = blockIds.reduce((acc, blockId) => {
             const row = blocks[blockId].metadata.csv_row;
             const fileName = blocks[blockId].metadata.csv_file;
-            const name = fileName + (row > 0 ? ' - row ' + row : '');
+            const name = fileName + (row > 0 ? ` - row ${row}` : '');
             const construct = Block.classless({
               components: [blockId],
               metadata: {
@@ -111,7 +109,7 @@ router.post('/import/:projectId?',
         next(err);
       });
   },
-  mergeRollupMiddleware
+  mergeRollupMiddleware,
 );
 
 router.get('export/:projectId',

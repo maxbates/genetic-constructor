@@ -25,7 +25,7 @@ import React, { Component } from 'react';
 export default class MenuSeparator extends Component {
   render() {
     return (
-      <hr></hr>
+      <hr />
     );
   }
 }

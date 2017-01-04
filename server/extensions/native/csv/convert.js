@@ -16,7 +16,7 @@ const roleMassageMap = {
 };
 
 const zip = (keys, vals) => keys.reduce(
-  (acc, key, ind) => Object.assign(acc, { [key]: vals[ind] }), {}
+  (acc, key, ind) => Object.assign(acc, { [key]: vals[ind] }), {},
 );
 
 const mapPartFields = (importedObject) => {
@@ -29,7 +29,7 @@ const mapPartFields = (importedObject) => {
     color,
     index = 0,
     fileName = 'CSV Import',
-    ...rest,
+    ...rest
   } = importedObject;
 
   //todo - rest of fields should remove the @ symbol
@@ -49,7 +49,7 @@ const mapPartFields = (importedObject) => {
     notes: {
       ...rest,
     },
-    sequence: sequence, //this field is removed later to conform to schema
+    sequence, //this field is removed later to conform to schema
   };
 };
 
@@ -65,11 +65,11 @@ export function convertCsv(csvContents, fileName, fileUrl) {
       resolve(output);
     });
   })
-    .then(lines => {
+    .then((lines) => {
       //remove top rows
       fields = lines.shift(1);
 
-      console.log('csvjs import - using fields: ' + fields.join(', ') + ' for file ' + fileName);
+      console.log(`csvjs import - using fields: ${fields.join(', ')} for file ${fileName}`);
 
       //todo - ensure these are fields, beyond just making sure a required field is present
       if (!fields.some(fieldName => requiredFields.indexOf(fieldName) >= 0)) {
@@ -96,27 +96,25 @@ export function convertCsv(csvContents, fileName, fileUrl) {
         //map fields to block fields
         .map(part => mapPartFields(part))
         //assign the source
-        .map(part => {
-          return Object.assign(part, {
-            source: {
-              source: 'csv',
-              id: fileName,
-              url: fileUrl,
-            },
-          });
-        })
+        .map(part => Object.assign(part, {
+          source: {
+            source: 'csv',
+            id: fileName,
+            url: fileUrl,
+          },
+        }))
         //update the sequence field
-        .map(part => {
+        .map((part) => {
           const { sequence } = part;
 
           //only assign seqeuence information if we have a sequence
-          if (!!sequence) {
+          if (sequence) {
             const sequenceMd5 = md5(sequence);
             Object.assign(part, {
               sequence: {
                 md5: sequenceMd5,
                 length: sequence.length,
-                initialBases: '' + sequence.substr(0, 6),
+                initialBases: `${sequence.substr(0, 6)}`,
               },
             });
 
@@ -142,5 +140,5 @@ export default function convertFromFile(csvPath, fileName, fileUrl) {
   invariant(csvPath, 'need a csv path');
 
   return fileSystem.fileRead(csvPath, false)
-    .then((contents) => convertCsv(contents, fileName, fileUrl));
+    .then(contents => convertCsv(contents, fileName, fileUrl));
 }

@@ -59,27 +59,27 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
 
     return (state = initialState, action) => {
       switch (action.type) {
-      case ActionTypes.UNDO :
-        undoManager.undo(action);
-        break;
-      case ActionTypes.REDO :
-        undoManager.redo(action);
-        break;
-      case ActionTypes.JUMP :
-        const { number } = action;
-        undoManager.jump(number, action);
-        break;
+        case ActionTypes.UNDO :
+          undoManager.undo(action);
+          break;
+        case ActionTypes.REDO :
+          undoManager.redo(action);
+          break;
+        case ActionTypes.JUMP :
+          const { number } = action;
+          undoManager.jump(number, action);
+          break;
 
-      case ActionTypes.TRANSACT :
-        undoManager.transact(action);
-        break;
-      case ActionTypes.COMMIT :
-        undoManager.commit(action);
-        break;
-      case ActionTypes.ABORT :
-        undoManager.abort(action);
-        break;
-      default:
+        case ActionTypes.TRANSACT :
+          undoManager.transact(action);
+          break;
+        case ActionTypes.COMMIT :
+          undoManager.commit(action);
+          break;
+        case ActionTypes.ABORT :
+          undoManager.abort(action);
+          break;
+        default:
         //no impact on undo manager, compute as normal
       }
 
@@ -129,7 +129,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
   };
 };
 
-export const makeUndoable = (action) => Object.assign(action, { undoable: true });
-export const makePurging = (action) => Object.assign(action, { undoPurge: true });
+export const makeUndoable = action => Object.assign(action, { undoable: true });
+export const makePurging = action => Object.assign(action, { undoPurge: true });
 
 export default undoReducerEnhancerCreator;

@@ -42,7 +42,7 @@ export const loadProject = (projectId) => {
   const url = dataApiPath(`projects/${projectId}`);
   return rejectingFetch(url, headersGet())
     .then(resp => resp.json())
-    .then(rollup => {
+    .then((rollup) => {
       noteSave(rollup.project.id, rollup.project.version);
       return rollup;
     });
@@ -62,12 +62,12 @@ export const saveProject = (projectId, rollup) => {
 
   return rejectingFetch(url, headersPost(stringified))
     .then(resp => resp.json())
-    .then(versionInfo => {
+    .then((versionInfo) => {
       const { version } = versionInfo;
       noteSave(projectId, version);
       return versionInfo;
     })
-    .catch(err => {
+    .catch((err) => {
       noteFailure(projectId, err);
       return Promise.reject(err);
     });

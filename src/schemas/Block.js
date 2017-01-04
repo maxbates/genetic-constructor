@@ -48,32 +48,32 @@ const blockFields = {
 
   sequence: [
     SequenceSchema,
-    `Associated Sequence (link, not the sequence itself), and Annotations etc. associated`,
+    'Associated Sequence (link, not the sequence itself), and Annotations etc. associated',
   ],
 
   source: [
     BlockSourceSchema,
-    `Source (Inventory) ID of the Part`,
+    'Source (Inventory) ID of the Part',
   ],
 
   rules: [
     RulesSchema,
-    `Grammar/rules governing the whole Block and direct descendants`,
+    'Grammar/rules governing the whole Block and direct descendants',
   ],
 
   components: [
     fields.arrayOf(validators.id()).required,
-    `Array of Blocks of which this Block is comprised`,
+    'Array of Blocks of which this Block is comprised',
   ],
 
   options: [
     fields.object().required,
-    `Map of Blocks that form the List Block, if rules.isList === true, where keys are block IDs possible and key is boolean whether selected. Each block MUST be a spec.`,
+    'Map of Blocks that form the List Block, if rules.isList === true, where keys are block IDs possible and key is boolean whether selected. Each block MUST be a spec.',
   ],
 
   notes: [
     fields.object().required,
-    `Notes about the whole Block`,
+    'Notes about the whole Block',
   ],
 };
 

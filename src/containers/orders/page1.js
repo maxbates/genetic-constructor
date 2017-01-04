@@ -112,38 +112,42 @@ export class Page1 extends Component {
       <div className="order-page page1">
         <fieldset disabled={order.isSubmitted()}>
           <Row text="Label:">
-            <Input onChange={this.labelChanged}
-                   value={this.props.order.metadata.name}
+            <Input
+              onChange={this.labelChanged}
+              value={this.props.order.metadata.name}
             />
           </Row>
           <Row text="Assembly Containers:">
-            <Selector disabled={!!order.isSubmitted()}
-                      value={assemblyOptions[order.parameters.onePot ? 0 : 1]}
-                      options={assemblyOptions}
-                      onChange={(val) => this.assemblyContainerChanged(val)}
+            <Selector
+              disabled={!!order.isSubmitted()}
+              value={assemblyOptions[order.parameters.onePot ? 0 : 1]}
+              options={assemblyOptions}
+              onChange={val => this.assemblyContainerChanged(val)}
             />
           </Row>
           <Row text="Number of assemblies:">
-            <Permutations total={this.props.numberConstructs}
-                          value={this.props.order.parameters.permutations}
-                          editable={!order.parameters.onePot}
-                          disabled={!!order.isSubmitted()}
-                          onBlur={(val) => {
-                            this.numberOfAssembliesChanged(val);
-                          }}
+            <Permutations
+              total={this.props.numberConstructs}
+              value={this.props.order.parameters.permutations}
+              editable={!order.parameters.onePot}
+              disabled={!!order.isSubmitted()}
+              onBlur={(val) => {
+                this.numberOfAssembliesChanged(val);
+              }}
             />
           </Row>
           <Row text="Combinatorial method:">
             {method}
           </Row>
           <Row text="After fabrication:">
-            <Checkbox onChange={this.sequenceAssemblies}
-                      label="Sequence Assemblies"
-                      value={order.parameters.sequenceAssemblies}
-                      disabled={!!order.parameters.onePot}
+            <Checkbox
+              onChange={this.sequenceAssemblies}
+              label="Sequence Assemblies"
+              value={order.parameters.sequenceAssemblies}
+              disabled={!!order.parameters.onePot}
             />
           </Row>
-          <br/>
+          <br />
         </fieldset>
       </div>
     );

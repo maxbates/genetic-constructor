@@ -73,34 +73,42 @@ export class InspectorProject extends Component {
       <div className="InspectorContent InspectorContentProject">
 
         <InspectorRow heading="Project">
-          <InputSimple placeholder="Project Name"
-                       onChange={this.setProjectName}
-                       onFocus={this.startTransaction}
-                       onBlur={this.endTransaction}
-                       onEscape={() => this.endTransaction(true)}
-                       readOnly={readOnly}
-                       maxLength={256}
-                       value={instance.metadata.name}/>
+          <InputSimple
+            placeholder="Project Name"
+            onChange={this.setProjectName}
+            onFocus={this.startTransaction}
+            onBlur={this.endTransaction}
+            onEscape={() => this.endTransaction(true)}
+            readOnly={readOnly}
+            maxLength={256}
+            value={instance.metadata.name}
+          />
         </InspectorRow>
 
         <InspectorRow heading="Description">
-          <InputSimple placeholder="Project Description"
-                       useTextarea
-                       onChange={this.setProjectDescription}
-                       onFocus={this.startTransaction}
-                       onBlur={this.endTransaction}
-                       onEscape={() => this.endTransaction(true)}
-                       readOnly={readOnly}
-                       maxLength={2048}
-                       value={instance.metadata.description}/>
+          <InputSimple
+            placeholder="Project Description"
+            useTextarea
+            onChange={this.setProjectDescription}
+            onFocus={this.startTransaction}
+            onBlur={this.endTransaction}
+            onEscape={() => this.endTransaction(true)}
+            readOnly={readOnly}
+            maxLength={2048}
+            value={instance.metadata.description}
+          />
         </InspectorRow>
 
-        <InspectorRow heading="Order History"
-                      hasToggle
-                      condition={orders.length > 0}>
+        <InspectorRow
+          heading="Order History"
+          hasToggle
+          condition={orders.length > 0}
+        >
           <div className="InspectorContent-section">
-            <OrderList orders={orders}
-                       onClick={(orderId) => this.handleOpenOrder(orderId)}/>
+            <OrderList
+              orders={orders}
+              onClick={orderId => this.handleOpenOrder(orderId)}
+            />
           </div>
         </InspectorRow>
 

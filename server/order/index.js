@@ -56,7 +56,7 @@ const validateOrderMiddleware = (req, res, next) => {
   }
 
   //future - this should be dynamic, based on the foundry, pulling from a registry
-  if (!(foundry === 'egf' || (process.env.NODE_ENV === 'test' && foundry === 'test') )) {
+  if (!(foundry === 'egf' || (process.env.NODE_ENV === 'test' && foundry === 'test'))) {
     return res.status(501).send('foundry must be EGF');
   }
 
@@ -69,7 +69,7 @@ const validateOrderMiddleware = (req, res, next) => {
     projectPersistence.projectGet(order.projectId);
 
   getPromise
-    .then(rollup => {
+    .then((rollup) => {
       //block on sample project
       if (rollup.project.rules.frozen) {
         res.status(422);
@@ -97,7 +97,7 @@ const validateOrderMiddleware = (req, res, next) => {
 
       //generate combinations, given positonalCombinations
       let allConstructs = [];
-      order.constructIds.forEach(constructId => {
+      order.constructIds.forEach((constructId) => {
         const constructPositionalCombinations = positionalCombinations[constructId];
         allConstructs = allConstructs.concat(saveCombinations(constructPositionalCombinations));
       });
@@ -122,7 +122,7 @@ const validateOrderMiddleware = (req, res, next) => {
 
       next();
     })
-    .catch(err => {
+    .catch((err) => {
       console.log('[Order Middleware]', err, err.stack);
       res.status(500).send(err);
     });
@@ -141,7 +141,7 @@ router.post('/validate', validateOrderMiddleware, (req, res, next) => {
     .then(() => {
       res.status(200).send(true);
     })
-    .catch(err => {
+    .catch((err) => {
       logger(`[Validate] error validating order ${order.id} at ${foundry}`);
       logger(err);
       res.status(422).send(err);
@@ -154,7 +154,7 @@ router.route('/:projectId/:orderId?')
     const { user, projectId } = req; //eslint-disable-line no-unused-vars
     const { orderId } = req.params;
 
-    if (!!orderId) {
+    if (orderId) {
       return orderPersistence.orderGet(orderId)
         .then(order => res.status(200).json(order))
         .catch(err => next(err));
@@ -162,7 +162,7 @@ router.route('/:projectId/:orderId?')
 
     return orderPersistence.orderList(projectId)
       .then(orders => res.status(200).json(orders))
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           return res.status(200).json([]);
         }
@@ -201,21 +201,20 @@ User ${user.uuid}
       submit(order, prunedUser, constructList, rollup);
 
     return submissionPromise
-      .catch(err => {
+      .catch((err) => {
         //probably want more consistent error handling across foundries, once we add more + decide how they are integrated
 
         logger(`[Submit] error submitting order ${order.id} to ${foundry}`);
         logger(err);
         return Promise.reject(errorInvalidModel);
       })
-      .then(orderResponse => {
+      .then(orderResponse =>
         //check if we have a snapshot, create if we dont / merge if do
-        return snapshots.snapshotGet(projectId, user.uuid, projectVersion)
-          .catch(err => {
+         snapshots.snapshotGet(projectId, user.uuid, projectVersion)
+          .catch(err =>
             //assume the snapshot doesnt exist, and we want to create a new one
-            return null;
-          })
-          .then(snapshot => {
+             null)
+          .then((snapshot) => {
             //use shallow, easy to merge keys...
             //possible that multiple orders happen at the same snapshot
             const snapshotTags = order.constructIds.reduce((acc, id) => Object.assign(acc, { [id]: true }),
@@ -229,7 +228,7 @@ User ${user.uuid}
             //merge tags if snapshot existed
             if (snapshot) {
               merge(snapshotTags, snapshot.tags);
-              message = snapshot.message + ' |  ' + message;
+              message = `${snapshot.message} |  ${message}`;
             }
 
             //write or update the snapshot
@@ -238,7 +237,7 @@ User ${user.uuid}
                 merge(order, {
                   status: {
                     foundry,
-                    numberPermutations: numberPermutations,
+                    numberPermutations,
                     numberOrdered: constructList.length,
                     orderResponse,
                     remoteId: orderResponse.jobId,
@@ -258,12 +257,11 @@ User ${user.uuid}
                 return orderPersistence.orderWrite(order.id, order, user.uuid)
                   .then(info => info.data);
               });
-          });
-      })
-      .then(order => {
+          }))
+      .then((order) => {
         res.status(200).send(order);
       })
-      .catch(err => {
+      .catch((err) => {
         logger('[Submit] Order failed:');
         logger(err);
         logger(err.stack);

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
 import invariant from 'invariant';
 import { userUpdate } from '../../actions/user';
@@ -94,7 +94,7 @@ class AccountForm extends Component {
     }
 
     // most fields are optional except the current password
-    const payload = {password: this.currentPassword};
+    const payload = { password: this.currentPassword };
     if (this.firstName) {
       payload.firstName = this.firstName;
     }
@@ -135,23 +135,21 @@ class AccountForm extends Component {
 
     // parse individual problems and report
     if (!this.currentPassword) {
-      newState.currentPasswordError = { visible: true, text: 'Current password not recognized as entered.'};
+      newState.currentPasswordError = { visible: true, text: 'Current password not recognized as entered.' };
     }
 
     if (this.emailAddress && this.emailAddress !== this.emailConfirm) {
-      newState.email2Error = { visible: true, text: 'The email addresses entered don\’t match.'};
+      newState.email2Error = { visible: true, text: 'The email addresses entered don\’t match.' };
     }
 
     if (this.password && this.password !== this.passwordConfirm) {
-      newState.password2Error = { visible: true, text: 'The passwords entered don\’t match'};
+      newState.password2Error = { visible: true, text: 'The passwords entered don\’t match' };
     }
 
     // display appropriate errors
     this.setState(newState);
     // return true if there was an error
-    return Object.keys(newState).find((key) => {
-      return newState[key].visible;
-    });
+    return Object.keys(newState).find(key => newState[key].visible);
   }
 
   /**
@@ -235,14 +233,16 @@ class AccountForm extends Component {
       <form
         id="account-form"
         className="gd-form authentication-form"
-        onSubmit={this.onSubmit.bind(this)}>
+        onSubmit={this.onSubmit.bind(this)}
+      >
         <div className="title">Account Settings</div>
 
         <input
           ref="currentPassword"
           type="password"
           className="input"
-          placeholder="Enter your current password"/>
+          placeholder="Enter your current password"
+        />
         <div className={`error ${this.state.currentPasswordError.visible ? 'visible' : ''}`}>{`${this.state.currentPasswordError.text}`}</div>
 
         <span className="left-label">Name</span>
@@ -250,12 +250,14 @@ class AccountForm extends Component {
           ref="firstName"
           className="input"
           placeholder="First Name"
-          defaultValue={this.props.user.firstName}/>
+          defaultValue={this.props.user.firstName}
+        />
         <input
           ref="lastName"
           className="input"
           placeholder="Last Name"
-          defaultValue={this.props.user.lastName}/>
+          defaultValue={this.props.user.lastName}
+        />
         <div className={`error ${this.state.nameError.visible ? 'visible' : ''}`}>{`${this.state.nameError.text}`}</div>
 
         <div className={`error ${this.state.email1Error.visible ? 'visible' : ''}`}>{`${this.state.email1Error.text}`}</div>
@@ -263,11 +265,13 @@ class AccountForm extends Component {
         <input
           ref="emailAddress"
           className="input"
-          placeholder="New email address"/>
+          placeholder="New email address"
+        />
         <input
           ref="emailConfirm"
           className="input"
-          placeholder="Confirm new email address"/>
+          placeholder="Confirm new email address"
+        />
         <div className={`error ${this.state.email2Error.visible ? 'visible' : ''}`}>{`${this.state.email2Error.text}`}</div>
 
         <div className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}>{`${this.state.password1Error.text}`}</div>
@@ -276,12 +280,14 @@ class AccountForm extends Component {
           ref="password"
           type="password"
           className="input"
-          placeholder="New password"/>
+          placeholder="New password"
+        />
         <input
           ref="passwordConfirm"
           type="password"
           className="input"
-          placeholder="Confirm new password"/>
+          placeholder="Confirm new password"
+        />
         <div className={`error ${this.state.password2Error.visible ? 'visible' : ''}`}>{`${this.state.password2Error.text}`}</div>
 
         <button type="submit">Update Account</button>
@@ -289,7 +295,8 @@ class AccountForm extends Component {
           type="button"
           onClick={() => {
             this.props.uiShowAuthenticationForm('none');
-          }}>Cancel</button>
+          }}
+        >Cancel</button>
       </form>
     );
   }

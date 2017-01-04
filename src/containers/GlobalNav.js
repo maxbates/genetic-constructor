@@ -317,7 +317,7 @@ class GlobalNav extends Component {
 
         const url = extensionApiPath('genbank', `export/${this.props.currentProjectId}`);
         const postBody = this.props.focus.options;
-        const iframeTarget = '' + Math.floor(Math.random() * 10000) + +Date.now();
+        const iframeTarget = `${Math.floor(Math.random() * 10000)}${+Date.now()}`;
 
         // for now use an iframe otherwise any errors will corrupt the page
         const iframe = document.createElement('iframe');
@@ -334,7 +334,7 @@ class GlobalNav extends Component {
         form.target = iframeTarget;
 
         //add inputs to the form for each value in postBody
-        Object.keys(postBody).forEach(key => {
+        Object.keys(postBody).forEach((key) => {
           const input = document.createElement('input');
           input.type = 'hidden';
           input.name = key;
@@ -396,12 +396,10 @@ class GlobalNav extends Component {
       const sorted = sortBlocksByIndexAndDepthExclude(this.props.focus.blockIds);
       // sorted is an array of array, flatten while retaining order
       const currentProjectVersion = this.props.projectGetVersion(this.props.currentProjectId);
-      const clones = sorted.map(info => {
-        return this.props.blockClone(info.blockId, {
-          projectId: this.props.currentProjectId,
-          version: currentProjectVersion,
-        });
-      });
+      const clones = sorted.map(info => this.props.blockClone(info.blockId, {
+        projectId: this.props.currentProjectId,
+        version: currentProjectVersion,
+      }));
       // put clones on the clipboardparentObjectInput
       this.props.clipboardSetData([clipboardFormats.blocks], [clones]);
     }
@@ -462,9 +460,7 @@ class GlobalNav extends Component {
       invariant(blocks && blocks.length && Array.isArray(blocks), 'expected array of blocks on clipboard for this format');
       // we have to clone the blocks currently on the clipboard since they
       // can't be pasted twice
-      const clones = blocks.map(block => {
-        return this.props.blockClone(block.id);
-      });
+      const clones = blocks.map(block => this.props.blockClone(block.id));
       // insert at end of construct if no blocks selected
       let insertIndex = this.focusedConstruct().components.length;
       let parentId = this.focusedConstruct().id;
@@ -693,7 +689,8 @@ class GlobalNav extends Component {
             },
           ],
         },
-      ]}/>);
+      ]}
+    />);
   }
 
   disgorgeDiscourse(path) {
@@ -707,27 +704,28 @@ class GlobalNav extends Component {
     return (
       <div className="GlobalNav">
         <RibbonGrunt />
-        <img className="GlobalNav-logo" src="/images/homepage/app-logo.png"/>
+        <img className="GlobalNav-logo" src="/images/homepage/app-logo.png" />
         {showMenu && this.menuBar()}
-        <span className="GlobalNav-spacer"/>
-        {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId}/>}
-        <UserWidget/>
+        <span className="GlobalNav-spacer" />
+        {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId} />}
+        <UserWidget />
         <OkCancel
           open={this.state.showDeleteProject}
           titleText="Delete Project"
           messageHTML={(
             <div className="message">
-              <br/>
+              <br />
               <span
-                className="line">{this.props.project ? (`"${this.props.project.getName()}"` || 'Your Project') : ''}</span>
-              <br/>
+                className="line"
+              >{this.props.project ? (`"${this.props.project.getName()}"` || 'Your Project') : ''}</span>
+              <br />
               <span className="line">and all related project data will be permanently deleted.</span>
-              <br/>
+              <br />
               <span className="line">This action cannot be undone.</span>
-              <br/>
-              <br/>
-              <br/>
-              <br/>
+              <br />
+              <br />
+              <br />
+              <br />
             </div>
           )}
           okText="Delete"

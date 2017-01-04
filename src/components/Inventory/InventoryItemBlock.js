@@ -47,14 +47,16 @@ export default class InventoryItemBlock extends Component {
 
     return (
       <div className="InventoryItemBlock">
-        <InventoryItem {...rest}
+        <InventoryItem
+          {...rest}
           dataAttribute={`${type} ${block.id}`}
           inventoryType={blockDragType}
           defaultName={defaultName || block.getName()}
           svg={isFrozen ? 'lock' : null}
-          svgProps={{width: '0.75em', height: '100%', fill: 'rgba(255,255,255,0.75)'}}
+          svgProps={{ width: '0.75em', height: '100%', fill: 'rgba(255,255,255,0.75)' }}
           item={block}
-          itemDetail={isTemplate ? 'Template' : null}/>
+          itemDetail={isTemplate ? 'Template' : null}
+        />
       </div>
     );
   }

@@ -72,7 +72,7 @@ export default class OkCancel extends Component {
 
           )}
           closeOnClickOutside
-          closeModal={buttonText => {
+          closeModal={(buttonText) => {
 
           }}
         />

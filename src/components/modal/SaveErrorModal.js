@@ -36,8 +36,10 @@ class SaveErrorModal extends Component {
         title="Unable to Save"
         closeModal={() => {}}
         payload={(
-          <div style={{padding: '1rem 2em 3rem' }}
-               className="gd-form save-error-form">
+          <div
+            style={{ padding: '1rem 2em 3rem' }}
+            className="gd-form save-error-form"
+          >
             <div className="title">Unable to Save</div>
 
             <p>Genetic Constructor automatically saves every edit you make, but the most recent edit could not be saved, and will be rolled back.</p>
@@ -45,12 +47,14 @@ class SaveErrorModal extends Component {
             <p>If you repeatedly encounter this problem, please <a href="https://forum.bionano.autodesk.com/c/genetic-constructor/support" target="_blank">contact Support.</a></p>
             <br />
             <button
-                type="submit"
-                onClick={() => {document.location.reload();}}>
+              type="submit"
+              onClick={() => { document.location.reload(); }}
+            >
                 Reload
             </button>
           </div>
-        )}/>
+        )}
+      />
     );
   }
 }

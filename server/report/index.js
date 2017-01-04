@@ -56,7 +56,7 @@ router.route('/githubIssue/:id?')
         Accept: 'application/vnd.github.v3.text+json',
       },
     })
-      .catch(resp => {
+      .catch((resp) => {
         res.status(resp.status);
         return resp;
       })
@@ -76,7 +76,7 @@ router.route('/githubIssue/:id?')
       },
       body: payload,
     })
-      .catch(resp => {
+      .catch((resp) => {
         res.status(resp.status);
         return resp;
       })

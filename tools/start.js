@@ -20,10 +20,10 @@ async function start() {
 
     //await run(bundleServer);
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       // Patch the client-side bundle configurations
       // to enable Hot Module Replacement (HMR) and React Transform
-      [clientConfig].forEach(config => {
+      [clientConfig].forEach((config) => {
         /* eslint-disable no-param-reassign */
         if (Array.isArray(config.entry)) {
           config.entry.unshift('webpack/hot/dev-server', 'webpack-hot-middleware/client');

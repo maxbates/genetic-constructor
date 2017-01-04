@@ -36,7 +36,7 @@ async function startDb() {
     await promisedExec(buildDb, {}, { comment: 'Building DB Docker container...' });
 
     const dbProcess = await checkPortFree(STORAGE_PORT)
-      .catch(err => {
+      .catch(err =>
         //ideally, see what is running at the port
         //should be windows friendly
         /*
@@ -57,9 +57,8 @@ async function startDb() {
          throw new Error(`Process running on port ${STORAGE_PORT} does not appear to be Postgres...`);
          });
          */
-        return false;
-      })
-      .then(free => {
+         false)
+      .then((free) => {
         if (free) {
           const [cmd, ...args] = runDb.split(' ');
 

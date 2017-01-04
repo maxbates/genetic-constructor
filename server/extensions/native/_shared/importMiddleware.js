@@ -80,7 +80,7 @@ export default function importMiddleware(req, res, next) {
         logger('Received on post body');
         logger(JSON.stringify(files, null, 2));
         return files;
-      })
+      }),
     );
   } else {
     // otherwise, we are expecting a form
@@ -97,7 +97,7 @@ export default function importMiddleware(req, res, next) {
         }
 
         return Promise.all(
-          [files].map(file => {
+          [files].map((file) => {
             const localPath = (file && file.data) ? file.data.path : null;
 
             if (!localPath) {
@@ -108,29 +108,27 @@ export default function importMiddleware(req, res, next) {
 
             //future - buffer
             return fileSystem.fileRead(localPath, false)
-              .then((string) => {
-                return jobFiles.jobFileWrite(mintedProjectId, extensionKey, string)
+              .then(string => jobFiles.jobFileWrite(mintedProjectId, extensionKey, string)
                   .then(info => ({
                     name,
                     string,
                     fileName: info.name,
                     filePath: localPath,
                     fileUrl: info.url,
-                  }));
-              })
-              .catch(err => {
-                console.log('[Import Middleware] error reading + writing job file ' + localPath);
+                  })))
+              .catch((err) => {
+                console.log(`[Import Middleware] error reading + writing job file ${localPath}`);
                 throw err;
               });
-          })
+          }),
         )
         //resolve with files
-          .then(files => {
+          .then((files) => {
             logger('Received files');
             logger(JSON.stringify(files, null, 2));
             return resolve(files);
           })
-          .catch(err => {
+          .catch((err) => {
             logger('[Import Middleware] Error');
             logger(err);
             logger(err.stack);
@@ -145,7 +143,7 @@ export default function importMiddleware(req, res, next) {
   }
 
   //resolves the files in form { name, string, fileName, filePath, fileUrl }
-  promise.then(files => {
+  promise.then((files) => {
     Object.assign(req, {
       files,
       projectId,
@@ -207,9 +205,9 @@ export function mergeRollupMiddleware(req, res, next) {
     Promise.all(
       sequences
         .filter(seqObj => seqObj && seqObj.sequence && seqObj.sequence.length > 0)
-        .map((seqObj) => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks))
+        .map(seqObj => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks)),
     )
-      .then(blockMd5Maps => {
+      .then((blockMd5Maps) => {
         //make simgle object with all blockId : md5 map
         const blockMd5s = Object.assign({}, ...blockMd5Maps);
 
@@ -236,7 +234,7 @@ export function mergeRollupMiddleware(req, res, next) {
         //if we didnt recieve a projectId, we've assigned one already in importMiddleware above (for job file), so use here
         //even if we are running a conversion, we had a dummy project to be rollup-compliant, so make sure blocks are ok
         Object.assign(project, { id: mintedProjectId });
-        _.forEach(blocks, (block) => Object.assign(block, { projectId: mintedProjectId }));
+        _.forEach(blocks, block => Object.assign(block, { projectId: mintedProjectId }));
 
         return Promise.resolve(new Rollup({
           project,
@@ -251,7 +249,7 @@ export function mergeRollupMiddleware(req, res, next) {
           return existingRoll;
         });
     })
-    .then(roll => {
+    .then((roll) => {
       if (noSave) {
         return Promise.resolve(roll);
       }
@@ -268,7 +266,7 @@ export function mergeRollupMiddleware(req, res, next) {
 
       return res.status(200).json({ projectId: roll.project.id });
     })
-    .catch(err => {
+    .catch((err) => {
       logger('Error merging project');
       logger(err);
       logger(err.stack);

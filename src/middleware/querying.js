@@ -33,9 +33,7 @@ export const getBlockContents = (blockId, projectId) => {
   return infoQuery('contents', blockId, projectId);
 };
 
-export const getBlockRoles = () => {
-  return infoQuery('role');
-};
+export const getBlockRoles = () => infoQuery('role');
 
 export const getBlocksWithRole = (role = null) => {
   invariant(role, 'must provide roll');

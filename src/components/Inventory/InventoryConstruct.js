@@ -113,27 +113,33 @@ export class InventoryConstruct extends Component {
     //use !shouldRenderAsConstruct so short circuit, to avoid calling ref in InventoryListGroup (will be null if never mounted, cause errors when ref clause is called)
     const innerContent = !this.shouldRenderAsConstruct()
       ?
-      <InventoryItemBlock block={block}
-                          defaultName={defaultName}
-                          {...rest} />
+        (<InventoryItemBlock
+          block={block}
+          defaultName={defaultName}
+          {...rest}
+        />)
       :
       //explicitly call connected component to handle recursion
       (
-        <InventoryListGroup title={block.getName(defaultName)}
-                            isActive={isActive}
-                            onSelect={() => focusBlocks([block.id])}
-                            isSelectable
-                            dataAttribute={`construct ${block.id}`}
-                            ref={(el) => {
-                              if (el) {
-                                this.itemElement = el.getHeading();
-                              }
-                            }}>
+        <InventoryListGroup
+          title={block.getName(defaultName)}
+          isActive={isActive}
+          onSelect={() => focusBlocks([block.id])}
+          isSelectable
+          dataAttribute={`construct ${block.id}`}
+          ref={(el) => {
+            if (el) {
+              this.itemElement = el.getHeading();
+            }
+          }}
+        >
           {block.components.map(compId => (
-            <InventoryConstructConnected {...rest}
-                                         key={compId}
-                                         depth={depth + 1}
-                                         blockId={compId}/>
+            <InventoryConstructConnected
+              {...rest}
+              key={compId}
+              depth={depth + 1}
+              blockId={compId}
+            />
           ))}
         </InventoryListGroup>
       );

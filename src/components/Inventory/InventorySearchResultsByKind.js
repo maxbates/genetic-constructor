@@ -43,18 +43,22 @@ export default class InventorySearchResultsByKind extends Component {
       .map((items, group) => {
         const listingItems = items;
         return (
-          <InventoryListGroup title={`${group} (${listingItems.length})`}
-                              disabled={!listingItems.length}
-                              manual
-                              isExpanded={sourcesVisible[group]}
-                              onToggle={() => onListGroupToggle(group)}
-                              key={group}
-                              dataAttribute={`searchgroup-role ${group}`}>
-            <InventoryList inventoryType={blockDragType}
-                           onDrop={(item) => onItemDrop(item.source, item)}
-                           onSelect={(item) => onItemSelect(item.source, item)}
-                           items={listingItems}
-                           dataAttributePrefix={`searchresult ${group}`}/>
+          <InventoryListGroup
+            title={`${group} (${listingItems.length})`}
+            disabled={!listingItems.length}
+            manual
+            isExpanded={sourcesVisible[group]}
+            onToggle={() => onListGroupToggle(group)}
+            key={group}
+            dataAttribute={`searchgroup-role ${group}`}
+          >
+            <InventoryList
+              inventoryType={blockDragType}
+              onDrop={item => onItemDrop(item.source, item)}
+              onSelect={item => onItemSelect(item.source, item)}
+              items={listingItems}
+              dataAttributePrefix={`searchresult ${group}`}
+            />
           </InventoryListGroup>
         );
       });

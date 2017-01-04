@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
 import { forgot } from '../../middleware/auth';
 import track from '../../analytics/ga';
@@ -102,19 +102,22 @@ class ForgotForm extends Component {
       <form
         id="forgot-form"
         className="gd-form authentication-form"
-        onSubmit={this.onSubmit.bind(this)}>
+        onSubmit={this.onSubmit.bind(this)}
+      >
         <div className="title">Forgot Password</div>
         <input
           ref="emailAddress"
           className="input"
-          placeholder="Registered Email Address"/>
+          placeholder="Registered Email Address"
+        />
         <div className={`error ${this.state.emailError.visible ? 'visible' : ''}`}>{`${this.state.emailError.text}`}</div>
         <button type="submit">Send Request</button>
-          <button
-            type="button"
-            onClick={() => {
-              this.props.uiShowAuthenticationForm('none');
-            }}>Cancel</button>
+        <button
+          type="button"
+          onClick={() => {
+            this.props.uiShowAuthenticationForm('none');
+          }}
+        >Cancel</button>
       </form>
     );
   }

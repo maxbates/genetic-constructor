@@ -15,6 +15,4 @@
  */
 import { dbDelete } from '../middleware/db';
 
-export const deleteUser = (userId) => {
-  return dbDelete(`admin/owner/${userId}`);
-};
+export const deleteUser = userId => dbDelete(`admin/owner/${userId}`);

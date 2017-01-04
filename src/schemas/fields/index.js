@@ -68,7 +68,7 @@ const fields = mapValues({
     baseValidator: validatorFunctions.id,
     typeDescription: 'A UUID',
     scaffold: (params) => {
-      const prefix = '' + ((params && params.prefix) ? (params.prefix.toLowerCase() + '-') : '');
+      const prefix = `${(params && params.prefix) ? (`${params.prefix.toLowerCase()}-`) : ''}`;
       return prefix + uuid.v4();
     },
   },
@@ -85,7 +85,7 @@ const fields = mapValues({
   func: {
     baseValidator: validatorFunctions.func,
     typeDescription: 'A function',
-    scaffold: () => { return () => {}; },
+    scaffold: () => () => {},
   },
   array: {
     baseValidator: validatorFunctions.array,
@@ -128,7 +128,7 @@ const fields = mapValues({
   version: {
     baseValidator: validatorFunctions.version,
     typeDescription: 'String representing a git SHA',
-    scaffold: () => sha1('' + Math.floor((Math.random() * 10000000) + 1) + Date.now()),
+    scaffold: () => sha1(`${Math.floor((Math.random() * 10000000) + 1)}${Date.now()}`),
   },
   url: {
     baseValidator: validatorFunctions.url,

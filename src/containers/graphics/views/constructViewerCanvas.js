@@ -213,13 +213,11 @@ export class ConstructViewerCanvas extends Component {
     const edge = Math.max(0, Math.min(100, box.height * 0.25));
     if (local.y < edge) {
       this.autoScroll(-1);
+    } else if (local.y > box.height - edge) {
+      this.autoScroll(1);
     } else {
-      if (local.y > box.height - edge) {
-        this.autoScroll(1);
-      } else {
         // cancel the autoscroll
-        this.autoScroll(0);
-      }
+      this.autoScroll(0);
     }
   }
 
@@ -228,21 +226,21 @@ export class ConstructViewerCanvas extends Component {
    */
   render() {
     // map construct viewers so we can pass down mouseScroll and endMouseScroll as properties
-    const constructViewers = this.props.children.map(constructViewer => {
-      return React.cloneElement(constructViewer, {
-        mouseScroll: this.mouseScroll.bind(this),
-        endMouseScroll: this.endMouseScroll.bind(this),
-        currentProjectId: this.props.currentProjectId,
-      });
-    });
+    const constructViewers = this.props.children.map(constructViewer => React.cloneElement(constructViewer, {
+      mouseScroll: this.mouseScroll.bind(this),
+      endMouseScroll: this.endMouseScroll.bind(this),
+      currentProjectId: this.props.currentProjectId,
+    }));
 
     // get class name for drop target which might hide it
     const dropClasses = `cvc-drop-target${this.isSampleProject() ? ' cvc-hidden' : ''}`;
 
     // map construct viewers so we can propagate projectId and any recently dropped blocks
     return (
-      <div className="ProjectPage-constructs no-vertical-scroll" onMouseDown={this.onMouseDown}
-           onMouseUp={this.onMouseUp}>
+      <div
+        className="ProjectPage-constructs no-vertical-scroll" onMouseDown={this.onMouseDown}
+        onMouseUp={this.onMouseUp}
+      >
         <div className={dropClasses} ref="dropTarget" key="dropTarget">Drop blocks here to create a new construct.</div>
         ;
         {constructViewers}

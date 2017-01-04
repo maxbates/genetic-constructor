@@ -71,26 +71,26 @@ export default class Node2D {
 
     // create our glyph at the same time
     switch (this.glyph) {
-    case 'rectangle':
-      this.glyphObject = new RectangleGlyph2D(this);
-      break;
-    case 'construct-banner':
-      this.glyphObject = new ConstructBanner(this);
-      break;
-    case 'role':
-      this.glyphObject = new RoleGlyph2D(this);
-      break;
-    case 'line':
-      this.glyphObject = new LineGlyph2D(this);
-      break;
-    case 'listitem':
-      this.glyphObject = new ListItemGlyph2D(this);
-      break;
+      case 'rectangle':
+        this.glyphObject = new RectangleGlyph2D(this);
+        break;
+      case 'construct-banner':
+        this.glyphObject = new ConstructBanner(this);
+        break;
+      case 'role':
+        this.glyphObject = new RoleGlyph2D(this);
+        break;
+      case 'line':
+        this.glyphObject = new LineGlyph2D(this);
+        break;
+      case 'listitem':
+        this.glyphObject = new ListItemGlyph2D(this);
+        break;
 
-    case 'none':
-      break;
-    default:
-      throw new Error('unrecognized glyph type');
+      case 'none':
+        break;
+      default:
+        throw new Error('unrecognized glyph type');
     }
     // create our text element
     this.textGlyph = new NodeText2D(this);
@@ -109,39 +109,39 @@ export default class Node2D {
    * @param {Object} props - key / value pairs of properties
    */
   set(props) {
-    Object.keys(props).forEach(key => {
+    Object.keys(props).forEach((key) => {
       // value associated with key
       const value = props[key];
 
       switch (key) {
 
-      case 'parent':
-        value.appendChild(this);
-        break;
+        case 'parent':
+          value.appendChild(this);
+          break;
 
-      case 'bounds':
-        this.translateX = value.cx;
-        this.translateY = value.cy;
-        this.width = value.w;
-        this.height = value.h;
-        break;
+        case 'bounds':
+          this.translateX = value.cx;
+          this.translateY = value.cy;
+          this.width = value.w;
+          this.height = value.h;
+          break;
 
-      case 'glyph':
-        invariant(!this.glyph, 'nodes do not expect their glyph type to change after construction');
-        this.glyph = value;
-        break;
+        case 'glyph':
+          invariant(!this.glyph, 'nodes do not expect their glyph type to change after construction');
+          this.glyph = value;
+          break;
 
         // apply a data-??? attribute with the given value to our element
         // value should be {name:'xyz', value:'123'} which would appear in
         // the dom as data-xyz="123"
-      case 'dataAttribute':
-        this.dataAttribute = value;
-        this.el.setAttribute(`data-${value.name}`, value.value);
-        break;
+        case 'dataAttribute':
+          this.dataAttribute = value;
+          this.el.setAttribute(`data-${value.name}`, value.value);
+          break;
 
         // default behaviour is to just set the property
-      default:
-        this[key] = props[key];
+        default:
+          this[key] = props[key];
       }
     });
   }
@@ -203,9 +203,7 @@ export default class Node2D {
    */
   globalToLocal(point) {
     if (Array.isArray(point)) {
-      return point.map(pt => {
-        return this.globalToLocal(pt);
-      }, this);
+      return point.map(pt => this.globalToLocal(pt), this);
     }
     return this.inverseTransformationMatrix.multiplyVector(point);
   }
@@ -215,9 +213,7 @@ export default class Node2D {
    */
   localToGlobal(point) {
     if (Array.isArray(point)) {
-      return point.map(pt => {
-        return this.localToGlobal(pt);
-      }, this);
+      return point.map(pt => this.localToGlobal(pt), this);
     }
     return this.transformationMatrix.multiplyVector(point);
   }
@@ -303,9 +299,7 @@ export default class Node2D {
    * @return {Box2D}
    */
   getAABBWithChildren() {
-    return this.children.reduce((aabb, child) => {
-      return aabb.union(child.getAABBWithChildren());
-    }, this.getAABB());
+    return this.children.reduce((aabb, child) => aabb.union(child.getAABBWithChildren()), this.getAABB());
   }
 
   /**
@@ -388,8 +382,8 @@ export default class Node2D {
     }
 
     // set width/height and transform
-    this.el.style.width = this.width + 'px';
-    this.el.style.height = this.height + 'px';
+    this.el.style.width = `${this.width}px`;
+    this.el.style.height = `${this.height}px`;
     this.el.style.transform = this.localTransform.toCSSString();
 
     // visibility is controlled with opacity
@@ -437,7 +431,7 @@ export default class Node2D {
    */
   updateBranch() {
     this.update();
-    this.children.forEach(child => {
+    this.children.forEach((child) => {
       child.updateBranch();
     });
     return this.el;

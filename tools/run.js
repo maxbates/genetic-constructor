@@ -19,7 +19,7 @@ function run(fn, options) {
 
   magentaLog(`[${format(start)}] Starting '${task.name}${options ? `(${options})` : ''}'...`);
 
-  return task(options).then(result => {
+  return task(options).then((result) => {
     const end = new Date();
     const time = end.getTime() - start.getTime();
 
@@ -27,7 +27,7 @@ function run(fn, options) {
 
     return result;
   })
-    .catch(err => {
+    .catch((err) => {
       redLog(`Error running task: ${task.name}`);
       redLog(err.stack);
       throw err;
@@ -40,7 +40,7 @@ if (process.mainModule.children.length === 0 && process.argv.length > 2) {
   const theScript = require(`./${process.argv[2]}.js`);
 
   run(theScript)
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       console.error(err.stack);
       process.exit(1);

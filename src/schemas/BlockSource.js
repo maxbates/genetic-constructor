@@ -25,17 +25,17 @@ import Schema from './SchemaClass';
 const blockSourceFields = {
   source: [
     fields.string(),
-    `Source key for where the block came from`,
+    'Source key for where the block came from',
   ],
 
   id: [
     fields.string(),
-    `ID of remote resource`,
+    'ID of remote resource',
   ],
 
   url: [
     fields.string(),
-    `URL to resource, relative paths are relative to genetic construct root URL`,
+    'URL to resource, relative paths are relative to genetic construct root URL',
     { scaffold: false },
   ],
 };

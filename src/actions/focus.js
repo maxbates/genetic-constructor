@@ -26,7 +26,7 @@ import Block from '../models/Block';
 import Project from '../models/Project';
 import { symbolMap } from '../inventory/roles';
 
-const idValidator = (id) => safeValidate(idValidatorCreator(), true, id);
+const idValidator = id => safeValidate(idValidatorCreator(), true, id);
 
 /**
  * Focus a construct by ID, updating block selection if a new construct
@@ -34,30 +34,26 @@ const idValidator = (id) => safeValidate(idValidatorCreator(), true, id);
  * @param {UUID} inputConstructId
  * @returns {UUID} Construct ID
  */
-export const focusConstruct = (inputConstructId) => {
-  return (dispatch, getState) => {
+export const focusConstruct = inputConstructId => (dispatch, getState) => {
     //null is valid to unselect all constructs
-    const constructId = idValidator(inputConstructId) ? inputConstructId : null;
+  const constructId = idValidator(inputConstructId) ? inputConstructId : null;
 
     //prune blocks if outside current construct
-    const currentBlocks = getState().focus.blockIds;
-    if (constructId && currentBlocks.length) {
-      const children = dispatch(BlockSelector.blockGetComponentsRecursive(constructId));
-      const blockIds = currentBlocks.filter(blockId => {
-        return children.some(block => block.id === blockId);
-      });
-      dispatch({
-        type: ActionTypes.FOCUS_BLOCKS,
-        blockIds,
-      });
-    }
-
+  const currentBlocks = getState().focus.blockIds;
+  if (constructId && currentBlocks.length) {
+    const children = dispatch(BlockSelector.blockGetComponentsRecursive(constructId));
+    const blockIds = currentBlocks.filter(blockId => children.some(block => block.id === blockId));
     dispatch({
-      type: ActionTypes.FOCUS_CONSTRUCT,
-      constructId,
+      type: ActionTypes.FOCUS_BLOCKS,
+      blockIds,
     });
-    return constructId;
-  };
+  }
+
+  dispatch({
+    type: ActionTypes.FOCUS_CONSTRUCT,
+    constructId,
+  });
+  return constructId;
 };
 
 //todo - ensure all blocks are from the same construct
@@ -67,38 +63,36 @@ export const focusConstruct = (inputConstructId) => {
  * @param {Array.<UUID>} blockIds
  * @returns {Array.<UUID>} focused block IDs
  */
-export const focusBlocks = (blockIds) => {
-  return (dispatch, getState) => {
-    invariant(Array.isArray(blockIds), 'must pass array to focus blocks');
-    invariant(blockIds.every(block => idValidator(block)), 'must pass array of block IDs');
-    const focusedConstructId = getState().focus.constructId;
+export const focusBlocks = blockIds => (dispatch, getState) => {
+  invariant(Array.isArray(blockIds), 'must pass array to focus blocks');
+  invariant(blockIds.every(block => idValidator(block)), 'must pass array of block IDs');
+  const focusedConstructId = getState().focus.constructId;
 
     //todo - ensure none of the blocks are actually constructs, instead of just the current one (and dipatch an action)
-    if (blockIds.some(blockId => blockId === focusedConstructId)) {
+  if (blockIds.some(blockId => blockId === focusedConstructId)) {
       //focus a construct instead
-      return getState().focus.blockIds;
-    }
+    return getState().focus.blockIds;
+  }
 
-    if (blockIds.length) {
-      const firstBlockId = blockIds[0];
-      const construct = dispatch(BlockSelector.blockGetParentRoot(firstBlockId));
+  if (blockIds.length) {
+    const firstBlockId = blockIds[0];
+    const construct = dispatch(BlockSelector.blockGetParentRoot(firstBlockId));
       // null => no parent => construct (or detached)... undefined could be soething else
       //const constructId = !!construct ? construct.id : (construct !== null ? firstBlockId : undefined);
-      const constructId = construct ? construct.id : null;
-      if (constructId !== focusedConstructId || constructId === firstBlockId) {
-        dispatch({
-          type: ActionTypes.FOCUS_CONSTRUCT,
-          constructId,
-        });
-      }
+    const constructId = construct ? construct.id : null;
+    if (constructId !== focusedConstructId || constructId === firstBlockId) {
+      dispatch({
+        type: ActionTypes.FOCUS_CONSTRUCT,
+        constructId,
+      });
     }
+  }
 
-    dispatch({
-      type: ActionTypes.FOCUS_BLOCKS,
-      blockIds,
-    });
-    return blockIds;
-  };
+  dispatch({
+    type: ActionTypes.FOCUS_BLOCKS,
+    blockIds,
+  });
+  return blockIds;
 };
 
 /**
@@ -107,16 +101,14 @@ export const focusBlocks = (blockIds) => {
  * @param {Array.<UUID>} blocksIdsToAdd
  * @returns {Array.<UUID>} all block IDs focused
  */
-export const focusBlocksAdd = (blocksIdsToAdd) => {
-  return (dispatch, getState) => {
-    invariant(Array.isArray(blocksIdsToAdd), 'must pass array to focus blocks');
-    invariant(blocksIdsToAdd.every(block => idValidator(block)), 'must pass array of block IDs');
+export const focusBlocksAdd = blocksIdsToAdd => (dispatch, getState) => {
+  invariant(Array.isArray(blocksIdsToAdd), 'must pass array to focus blocks');
+  invariant(blocksIdsToAdd.every(block => idValidator(block)), 'must pass array of block IDs');
 
-    const base = getState().focus.blockIds;
-    const blockIds = [...new Set([...base, ...blocksIdsToAdd])];
+  const base = getState().focus.blockIds;
+  const blockIds = [...new Set([...base, ...blocksIdsToAdd])];
 
-    return dispatch(focusBlocks(blockIds));
-  };
+  return dispatch(focusBlocks(blockIds));
 };
 
 /**
@@ -125,24 +117,22 @@ export const focusBlocksAdd = (blocksIdsToAdd) => {
  * @param {Array.<UUID>} blockToToggle
  * @returns {Array.<UUID>} all block IDs focused
  */
-export const focusBlocksToggle = (blocksToToggle) => {
-  return (dispatch, getState) => {
-    invariant(Array.isArray(blocksToToggle), 'must pass array to focus blocks');
+export const focusBlocksToggle = blocksToToggle => (dispatch, getState) => {
+  invariant(Array.isArray(blocksToToggle), 'must pass array to focus blocks');
 
-    const currentBlockIds = getState().focus.blockIds;
-    const blockSet = new Set(currentBlockIds);
+  const currentBlockIds = getState().focus.blockIds;
+  const blockSet = new Set(currentBlockIds);
 
-    blocksToToggle.forEach(block => {
-      if (blockSet.has(block)) {
-        blockSet.delete(block);
-      } else {
-        blockSet.add(block);
-      }
-    });
-    const blockIds = [...blockSet];
+  blocksToToggle.forEach((block) => {
+    if (blockSet.has(block)) {
+      blockSet.delete(block);
+    } else {
+      blockSet.add(block);
+    }
+  });
+  const blockIds = [...blockSet];
 
-    return dispatch(focusBlocks(blockIds));
-  };
+  return dispatch(focusBlocks(blockIds));
 };
 
 /**
@@ -151,16 +141,14 @@ export const focusBlocksToggle = (blocksToToggle) => {
  * @param {Array.<Block>} blocks
  * @returns {Array.<Block>} force-focused blocks
  */
-export const focusForceBlocks = (blocks) => {
-  return (dispatch, getState) => {
-    invariant(blocks.every(block => Block.validate(block, false)), 'each block must pass validation to focus it');
+export const focusForceBlocks = blocks => (dispatch, getState) => {
+  invariant(blocks.every(block => Block.validate(block, false)), 'each block must pass validation to focus it');
 
-    dispatch({
-      type: ActionTypes.FOCUS_FORCE_BLOCKS,
-      blocks,
-    });
-    return blocks;
-  };
+  dispatch({
+    type: ActionTypes.FOCUS_FORCE_BLOCKS,
+    blocks,
+  });
+  return blocks;
 };
 
 /**
@@ -169,16 +157,14 @@ export const focusForceBlocks = (blocks) => {
  * @param {Project} project
  * @returns {Project}
  */
-export const focusForceProject = (project) => {
-  return (dispatch, getState) => {
-    invariant(Project.validate(project, false), 'must pass a valid project');
+export const focusForceProject = project => (dispatch, getState) => {
+  invariant(Project.validate(project, false), 'must pass a valid project');
 
-    dispatch({
-      type: ActionTypes.FOCUS_FORCE_PROJECT,
-      project,
-    });
-    return project;
-  };
+  dispatch({
+    type: ActionTypes.FOCUS_FORCE_PROJECT,
+    project,
+  });
+  return project;
 };
 
 /**
@@ -187,16 +173,14 @@ export const focusForceProject = (project) => {
  * @param level One of `project`, `construct`, `block`, `option`, or `role`
  * @returns {string} focused level
  */
-export const focusPrioritize = (level = 'project') => {
-  return (dispatch, getState) => {
-    invariant(['project', 'construct', 'block', 'option', 'role'].indexOf(level) >= 0, 'must pass a valid type to give priority to');
+export const focusPrioritize = (level = 'project') => (dispatch, getState) => {
+  invariant(['project', 'construct', 'block', 'option', 'role'].indexOf(level) >= 0, 'must pass a valid type to give priority to');
 
-    dispatch({
-      type: ActionTypes.FOCUS_PRIORITIZE,
-      level,
-    });
-    return level;
-  };
+  dispatch({
+    type: ActionTypes.FOCUS_PRIORITIZE,
+    level,
+  });
+  return level;
 };
 
 /**
@@ -205,16 +189,14 @@ export const focusPrioritize = (level = 'project') => {
  * @param {string} roleId
  * @returns {string} roleId
  */
-export const focusRole = (roleId) => {
-  return (dispatch, getState) => {
-    invariant(symbolMap[roleId], 'must pass a valid Role ID');
+export const focusRole = roleId => (dispatch, getState) => {
+  invariant(symbolMap[roleId], 'must pass a valid Role ID');
 
-    dispatch({
-      type: ActionTypes.FOCUS_ROLE,
-      roleId,
-    });
-    return roleId;
-  };
+  dispatch({
+    type: ActionTypes.FOCUS_ROLE,
+    roleId,
+  });
+  return roleId;
 };
 
 /**
@@ -224,17 +206,15 @@ export const focusRole = (roleId) => {
  * @param {UUID} optionId
  * @returns {Object} Map of selected options
  */
-export const focusBlockOption = (blockId, optionId) => {
-  return (dispatch, getState) => {
-    invariant(idValidator(blockId) && idValidator(optionId), 'must pass valid block ID and optionId');
+export const focusBlockOption = (blockId, optionId) => (dispatch, getState) => {
+  invariant(idValidator(blockId) && idValidator(optionId), 'must pass valid block ID and optionId');
 
-    const oldOptions = getState().focus.options;
-    const options = Object.assign({}, oldOptions, { [blockId]: optionId });
+  const oldOptions = getState().focus.options;
+  const options = Object.assign({}, oldOptions, { [blockId]: optionId });
 
-    dispatch({
-      type: ActionTypes.FOCUS_BLOCK_OPTION,
-      options,
-    });
-    return options;
-  };
+  dispatch({
+    type: ActionTypes.FOCUS_BLOCK_OPTION,
+    options,
+  });
+  return options;
 };

@@ -40,9 +40,7 @@ const hostPath = `http://${HOST_NAME}:${HOST_PORT}/`;
 
 //file paths depending on if building or not
 //note that currently, you basically need to use npm run start in order to serve the client bundle + webpack middleware
-const createBuildPath = (isBuild, notBuild = isBuild) => {
-  return path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
-};
+const createBuildPath = (isBuild, notBuild = isBuild) => path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
 const pathContent = createBuildPath('content', '../src/content');
 const pathDocs = createBuildPath('jsdoc', `../docs/jsdoc/genetic-constructor/${pkg.version}`);
 const pathImages = createBuildPath('images', '../src/images');
@@ -111,18 +109,15 @@ if (process.env.BIO_NANO_AUTH) {
     loginFailure: false,
     resetForm: '/homepage/reset',
     apiEndPoint: API_END_POINT,
-    onLogin: (req, res, next) => {
-      return checkUserSetup(req.user)
-        .then((projectId) => {
+    onLogin: (req, res, next) => checkUserSetup(req.user)
+        .then(projectId =>
           //note this expects an abnormal return of req and res to the next function
-          return next(req, res);
-        })
-        .catch(err => {
+           next(req, res))
+        .catch((err) => {
           console.log(err);
           console.log(err.stack);
           res.status(500).end();
-        });
-    },
+        }),
     //onLogin: (req, res, next) => next(req, res), //mock
     registerRedirect: false,
   };
@@ -181,13 +176,13 @@ app.get('*', (req, res) => {
   } else {
     // setup user properties and discourse base url to flash to client
     const discourse = {
-      discourseDomain: process.env.BNR_ENV_URL_SUFFIX || `https://forum.bionano.autodesk.com`,
+      discourseDomain: process.env.BNR_ENV_URL_SUFFIX || 'https://forum.bionano.autodesk.com',
     };
     //so that any routing is delegated to the client
     const prunedUser = pruneUserObject(req.user);
     const config = prunedUser.config ? JSON.stringify(prunedUser.config) : '{}';
     const user = Object.assign({}, prunedUser, { config });
-    res.render(path.join(pathContent + '/index.pug'), Object.assign({}, user, discourse, {
+    res.render(path.join(`${pathContent}/index.pug`), Object.assign({}, user, discourse, {
       productionEnvironment: process.env.NODE_ENV === 'production',
     }));
   }
@@ -223,7 +218,7 @@ function initDb() {
   return new Promise((resolve, reject) => {
     const init = (!process.env.STORAGE_API) ?
       require('gctor-storage').init :
-      (cb) => { return cb(); };
+      cb => cb();
 
     init(resolve);
   });
@@ -231,13 +226,12 @@ function initDb() {
 
 //check if the port is taken, and init the db, and star the server
 //returns a promise, so you can listen and wait until it resolves
-export const listenSafely = () => {
+export const listenSafely = () =>
   //first check if the port is in use -- e.g. tests are running, or some other reason
-  return checkPortFree(HOST_PORT, HOST_NAME)
+   checkPortFree(HOST_PORT, HOST_NAME)
     .then(initDb)
     .then(startServer)
     .catch(handleError);
-};
 
 //attempt start the server by default
 if (process.env.SERVER_MANUAL !== 'true') {

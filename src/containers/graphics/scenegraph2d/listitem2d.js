@@ -33,7 +33,7 @@ export default class ListItem2D extends Node2D {
    * @return {String}
    */
   toString() {
-    return 'LIST: ' + this.text;
+    return `LIST: ${this.text}`;
   }
 
   /**

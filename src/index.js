@@ -26,7 +26,7 @@ render(
   <Provider store={store}>
     {routes}
   </Provider>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );
 
 /**
@@ -52,7 +52,7 @@ Object.assign(exposed, {
   api: orchestrator,
   store: {
     ...store,
-    lastAction: lastAction,
+    lastAction,
     subscribe: (callback, callOnSubscribe) => {
       if (callOnSubscribe === true) {
         callback(store.getState(), lastAction());

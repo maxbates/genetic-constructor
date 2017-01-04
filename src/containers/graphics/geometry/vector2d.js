@@ -87,7 +87,7 @@ export default class Vector2D {
   static pointOnCircumference(xc, yc, radius, degrees) {
     return new Vector2D(
       xc + radius * Math.cos(deg2rad(degrees)),
-      yc + radius * Math.sin(deg2rad(degrees))
+      yc + radius * Math.sin(deg2rad(degrees)),
     );
   }
 

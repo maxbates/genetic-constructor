@@ -79,7 +79,7 @@ export default class Schema {
 
     return new Schema(Object.assign({},
       this.definitions,
-      childDefinitions
+      childDefinitions,
     ));
   }
 
@@ -113,7 +113,7 @@ export default class Schema {
       logger(errorMessage);
     }
 
-    return Object.keys(this.fields).every(fieldName => {
+    return Object.keys(this.fields).every((fieldName) => {
       const instanceFieldValue = instance[fieldName];
       const field = this.fields[fieldName];
 
@@ -208,13 +208,12 @@ Got ${instanceFieldValue} (type: ${typeof instanceFieldValue}).
 
 function createFields(fieldDefinitions) {
   return mapValues(fieldDefinitions,
-    (fieldDefinition, fieldName) => {
+    (fieldDefinition, fieldName) =>
       //note - assign to field to maintain prototype, i.e. validate() function if instanceof Schema
-      return Object.assign(
+       Object.assign(
         createSchemaField(...fieldDefinition),
-        { name: fieldName }
-      );
-    }
+        { name: fieldName },
+      ),
   );
 }
 
@@ -235,7 +234,7 @@ function createSchemaField(inputField, description = '', additional) {
 
   return Object.assign(field,
     { description },
-    additional
+    additional,
   );
 }
 

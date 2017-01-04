@@ -79,13 +79,15 @@ class App extends Component {
 
   render() {
     //set by webpack
-    const DevTools = (!!process.env.DEBUG_REDUX) ? require('./DevTools') : 'noscript';
+    const DevTools = (process.env.DEBUG_REDUX) ? require('./DevTools') : 'noscript';
     const onProjectPage = this.props.location.pathname.indexOf('project/') >= 0;
 
     return (
       <div className="App">
-        <GlobalNav currentProjectId={this.props.currentProjectId}
-                   showMenu={onProjectPage}/>
+        <GlobalNav
+          currentProjectId={this.props.currentProjectId}
+          showMenu={onProjectPage}
+        />
         <AuthenticationForms />
         <AboutForm />
         <ExtensionPicker />
@@ -93,8 +95,8 @@ class App extends Component {
         <div className="App-pageContent">
           {this.props.children}
         </div>
-        <ModalSpinner spinMessage={this.props.spinMessage}/>
-        <InlineEditor/>
+        <ModalSpinner spinMessage={this.props.spinMessage} />
+        <InlineEditor />
         <DevTools />
       </div>
     );

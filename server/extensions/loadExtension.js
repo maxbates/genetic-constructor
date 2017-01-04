@@ -19,16 +19,14 @@ import { errorDoesNotExist } from '../utils/errors';
 import registry from './registry';
 
 //everything is statically avaialbe in the beginning, but other code expects this to be a promise, and may have dynamic extensions in the future
-const loadExtension = (name) => {
-  return new Promise((resolve, reject) => {
-    const manifest = registry[name];
-    if (!!manifest) {
-      resolve(manifest);
-    } else {
-      reject(errorDoesNotExist);
-    }
-  });
-};
+const loadExtension = name => new Promise((resolve, reject) => {
+  const manifest = registry[name];
+  if (manifest) {
+    resolve(manifest);
+  } else {
+    reject(errorDoesNotExist);
+  }
+});
 
 export const getExtensionInternalPath = (name, fileName) => {
   const extensionPath = path.resolve(__dirname, `./node_modules/${name}`);

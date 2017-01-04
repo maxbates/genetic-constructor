@@ -16,7 +16,7 @@
 import { dispatch } from './index.js';
 import { mapValues } from 'lodash';
 
-const dispatchWrapper = (action) => (...args) => dispatch(action(...args));
+const dispatchWrapper = action => (...args) => dispatch(action(...args));
 
 const sections = ['blocks', 'clipboard', 'projects', 'ui', 'focus', 'inventory', 'inspector', 'orders'];
 

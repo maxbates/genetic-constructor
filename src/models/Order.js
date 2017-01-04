@@ -22,7 +22,7 @@ import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
 import { submitOrder, getQuote } from '../middleware/order';
 
-const idValidator = (id) => safeValidate(validators.id(), true, id);
+const idValidator = id => safeValidate(validators.id(), true, id);
 
 /**
  * A construct can be ordered, i.e. synthesized, and the process is saved using an Order. Orders are placed with a foundry.
@@ -97,7 +97,7 @@ export default class Order extends Instance {
         Array.isArray(input.constructIds) &&
         input.constructIds.length > 0 &&
         input.constructIds.every(id => idValidator(id)),
-        'must pass 1+ valid constructIds'
+        'must pass 1+ valid constructIds',
       );
       OrderParametersSchema.validate(input.parameters, true);
     } catch (err) {

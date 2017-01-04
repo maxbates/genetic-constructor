@@ -87,16 +87,16 @@ export default class Layout {
     // always include top left and available width to anchor the bounds
     let aabb = new Box2D(0, 0, this.sceneGraph.availableWidth, 0);
     // we should only autosize the nodes representing parts
-    objectValues(this.parts2nodes).forEach(node => {
+    objectValues(this.parts2nodes).forEach((node) => {
       aabb = aabb.union(node.getAABB());
       // add in any part list items for this block
       const blockId = this.elementFromNode(node);
-      objectValues(this.listNodes[blockId]).forEach(node => {
+      objectValues(this.listNodes[blockId]).forEach((node) => {
         aabb = aabb.union(node.getAABB());
       });
     });
     // add any nested constructs
-    objectValues(this.nestedLayouts).forEach(layout => {
+    objectValues(this.nestedLayouts).forEach((layout) => {
       aabb = layout.getBlocksAABB().union(aabb);
     });
     return aabb;
@@ -125,7 +125,7 @@ export default class Layout {
    */
   dropParts() {
     const keys = Object.keys(this.partUsage);
-    keys.forEach(part => {
+    keys.forEach((part) => {
       if (this.partUsage[part] < this.updateReference) {
         const node = this.parts2nodes[part];
         if (node) {
@@ -247,9 +247,9 @@ export default class Layout {
    */
   dropListItems() {
     // outer loop will iterate over a hash of list node each block with list items
-    Object.keys(this.listNodes).forEach(blockId => {
+    Object.keys(this.listNodes).forEach((blockId) => {
       const nodeHash = this.listNodes[blockId];
-      Object.keys(nodeHash).forEach(key => {
+      Object.keys(nodeHash).forEach((key) => {
         const node = nodeHash[key];
         if (node.updateReference !== this.updateReference) {
           node.parent.removeChild(node);
@@ -294,10 +294,8 @@ export default class Layout {
    * and all nested layouts.
    */
   allNodesAndBlocks() {
-    let list = Object.keys(this.parts2nodes).map(block => {
-      return { block, node: this.parts2nodes[block] };
-    });
-    Object.keys(this.nestedLayouts).forEach(key => {
+    let list = Object.keys(this.parts2nodes).map(block => ({ block, node: this.parts2nodes[block] }));
+    Object.keys(this.nestedLayouts).forEach((key) => {
       list = list.concat(this.nestedLayouts[key].allNodesAndBlocks());
     });
     return list;
@@ -508,7 +506,7 @@ export default class Layout {
       this.titleNodeTextWidth = this.titleNode.measureText(text).x + kT.textPad;
 
       this.titleNode.set({
-        text: text,
+        text,
         color: this.baseColor,
         bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, this.sceneGraph.availableWidth - this.insetX - kT.rightPad, kT.titleH),
         dataAttribute: { name: 'construct-title', value: text },
@@ -547,7 +545,7 @@ export default class Layout {
     }
     // set bounds and update to current color
     row.set({
-      bounds: bounds,
+      bounds,
       fill: this.baseColor,
       strokeWidth: 0,
       updateReference: this.updateReference,
@@ -568,7 +566,7 @@ export default class Layout {
   disposeRows() {
     // keep rows still in use, remove the others
     const keepers = [];
-    this.rows.forEach(row => {
+    this.rows.forEach((row) => {
       if (row.updateReference === this.updateReference) {
         keepers.push(row);
       } else {
@@ -582,7 +580,7 @@ export default class Layout {
    * dispose any nested constructs no longer referenced.
    */
   disposeNestedLayouts() {
-    Object.keys(this.nestedLayouts).forEach(key => {
+    Object.keys(this.nestedLayouts).forEach((key) => {
       this.nestedLayouts[key].dispose();
     });
     this.nestedLayouts = this.newNestedLayouts;
@@ -727,7 +725,7 @@ export default class Layout {
     const components = ct.components.filter(blockId => !this.blockIsHidden(blockId));
 
     // layout all non hidden blocks
-    components.forEach(part => {
+    components.forEach((part) => {
       // create a row bar as necessary
       if (!row) {
         row = this.rowFactory(new Box2D(this.insetX, yp - kT.rowBarH, 0, kT.rowBarH));
@@ -761,7 +759,7 @@ export default class Layout {
       }
 
       // measure the max required width of all list blocks
-      Object.keys(block.options).filter(opt => block.options[opt]).forEach(blockId => {
+      Object.keys(block.options).filter(opt => block.options[opt]).forEach((blockId) => {
         let width = this.measureText(node, this.getListBlock(blockId).metadata.name).x;
         width += kT.optionDotW;
         td.x = Math.max(td.x, width);
@@ -771,7 +769,7 @@ export default class Layout {
       if (xp + td.x > mx) {
         // ensure all nested constructs on the row are updated for list block height
         if (nestedConstructs.length && maxListHeight > 0) {
-          nestedConstructs.forEach(child => {
+          nestedConstructs.forEach((child) => {
             child.insetY += maxListHeight;
             child.update({
               construct: child.construct,
@@ -861,7 +859,7 @@ export default class Layout {
 
       // ensure all nested constructs on the row are updated for list block height
       if (nestedConstructs.length && maxListHeight > 0) {
-        nestedConstructs.forEach(child => {
+        nestedConstructs.forEach((child) => {
           child.insetY += maxListHeight;
           child.update({
             construct: child.construct,
@@ -904,13 +902,9 @@ export default class Layout {
     // filter the selections so that we eliminate those block we don't contain
     let selectedNodes = [];
     if (this.currentBlocks) {
-      const containedBlockIds = this.currentBlocks.filter(blockId => {
-        return !!this.nodeFromElement(blockId);
-      });
+      const containedBlockIds = this.currentBlocks.filter(blockId => !!this.nodeFromElement(blockId));
       // get nodes for selected blocks
-      selectedNodes = containedBlockIds.map(blockId => {
-        return this.nodeFromElement(blockId);
-      });
+      selectedNodes = containedBlockIds.map(blockId => this.nodeFromElement(blockId));
     }
     // apply selections to scene graph
     if (this.sceneGraph.ui) {
@@ -930,7 +924,7 @@ export default class Layout {
   postLayout(layoutResults) {
     if (!this.collapsed) {
       // update / make all the parts
-      this.construct.components.forEach(part => {
+      this.construct.components.forEach((part) => {
         // render children ( nested constructs )
         if (this.hasChildren(part) && !this.blockIsHidden(part) && !this.allChildrenHidden(part) &&
           this.nodeFromElement(part).showChildren) {
@@ -1015,7 +1009,7 @@ export default class Layout {
    * remove any connections that are no longer in use
    */
   disposeConnections() {
-    Object.keys(this.connectors).forEach(key => {
+    Object.keys(this.connectors).forEach((key) => {
       const connector = this.connectors[key];
       if (connector.updateReference !== this.updateReference) {
         this.removeNode(connector.line);
@@ -1034,13 +1028,13 @@ export default class Layout {
     this.removeNode(this.banner);
     this.removeNode(this.titleNode);
     this.removeNode(this.vertical);
-    this.rows.forEach(node => {
+    this.rows.forEach((node) => {
       this.removeNode(node);
     });
-    Object.keys(this.parts2nodes).forEach(part => {
+    Object.keys(this.parts2nodes).forEach((part) => {
       this.removeNode(this.parts2nodes[part]);
     });
-    Object.keys(this.connectors).forEach(key => {
+    Object.keys(this.connectors).forEach((key) => {
       this.removeNode(this.connectors[key].line);
     });
     this.disposeNestedLayouts();

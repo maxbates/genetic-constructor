@@ -23,7 +23,7 @@ limitations under the License.
 import * as ActionTypes from '../constants/ActionTypes';
 import { register, login, logout, updateAccount, setUserConfig } from '../middleware/auth';
 
-const mapUserFromServer = (serverUser) => ({
+const mapUserFromServer = serverUser => ({
   userid: serverUser.uuid,
   firstName: serverUser.firstName,
   lastName: serverUser.lastName,
@@ -34,7 +34,7 @@ const mapUserFromServer = (serverUser) => ({
 /*
  * user = { userid, email, firstName, lastName }
  */
-const _userSetUser = (user) => ({
+const _userSetUser = user => ({
   type: ActionTypes.USER_SET_USER,
   updateConfig: true,
   user,
@@ -50,68 +50,48 @@ const identifyUser = (email) => {
 };
 
 //Promise
-export const userLogin = (email, password) => {
-  return (dispatch, getState) => {
-    return login(email, password)
-      .then(user => {
+export const userLogin = (email, password) => (dispatch, getState) => login(email, password)
+      .then((user) => {
         const mappedUser = mapUserFromServer(user);
         identifyUser(mappedUser.email);
         const setUserPayload = _userSetUser(mappedUser);
         dispatch(setUserPayload);
         return mappedUser;
       });
-  };
-};
 
 //Promise
-export const userLogout = () => {
-  return (dispatch, getState) => {
-    return logout()
+export const userLogout = () => (dispatch, getState) => logout()
       .then(() => {
         const setUserPayload = _userSetUser({});
         dispatch(setUserPayload);
         return true;
       });
-  };
-};
 
 //Promise
 ////email, password, firstName, lastName
 //config is configuration JSON for initial projects + extensions
-export const userRegister = (user, config) => {
-  return (dispatch, getState) => {
-    return register(user, config)
-      .then(user => {
+export const userRegister = (user, config) => (dispatch, getState) => register(user, config)
+      .then((user) => {
         const mappedUser = mapUserFromServer(user);
         identifyUser(mappedUser.email);
         const setUserPayload = _userSetUser(mappedUser);
         dispatch(setUserPayload);
         return user;
       });
-  };
-};
 
-export const userUpdate = (user) => {
-  return (dispatch, getState) => {
-    return updateAccount(user)
-      .then(user => {
+export const userUpdate = user => (dispatch, getState) => updateAccount(user)
+      .then((user) => {
         const mappedUser = mapUserFromServer(user);
         identifyUser(mappedUser.email);
         const setUserPayload = _userSetUser(mappedUser);
         dispatch(setUserPayload);
         return user;
       });
-  };
-};
 
-export const userUpdateConfig = (config) => {
-  return (dispatch, getState) => {
-    return setUserConfig(config)
-      .then(config => {
+export const userUpdateConfig = config => (dispatch, getState) => setUserConfig(config)
+      .then((config) => {
         const user = Object.assign({}, getState().user, { config });
         const setUserPayload = _userSetUser(user);
         dispatch(setUserPayload);
         return user;
       });
-  };
-};

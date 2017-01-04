@@ -42,16 +42,16 @@ export const projectPermissionMiddleware = (req, res, next) => {
   }
 
   if (!projectId) {
-    logger('[projectPermissionMiddleware] no projectId provided @ ' + req.url);
+    logger(`[projectPermissionMiddleware] no projectId provided @ ${req.url}`);
     res.status(400).send(errorNoIdProvided);
     next('projectId not found on route request. This is probably an internal error.');
     return;
   }
 
   if (!idRegex().test(projectId)) {
-    logger('[projectPermissionMiddleware] invalid projectId @ ' + req.url);
+    logger(`[projectPermissionMiddleware] invalid projectId @ ${req.url}`);
     res.status(400).send(errorInvalidId);
-    next('projectId is not valid, got ' + projectId);
+    next(`projectId is not valid, got ${projectId}`);
     return;
   }
 

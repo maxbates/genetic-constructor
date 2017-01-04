@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, {Component, PropTypes} from 'react';
-import {connect} from 'react-redux';
+import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 import ModalWindow from '../../components/modal/modalwindow';
 import RegisterForm from '../../components/authentication/register';
 import SignInForm from '../../components/authentication/signin';
@@ -39,26 +39,28 @@ class AuthenticationForms extends Component {
   render() {
     let form;
     switch (this.props.authenticationForm) {
-    case 'register' : form = <RegisterForm/>; break;
-    case 'signin' : form = <SignInForm/>; break;
-    case 'forgot' : form = <ForgotForm/>; break;
-    case 'reset' : form = <ResetForm/>; break;
-    case 'account' : form = <AccountForm/>; break;
-    default: form = null; break;
+      case 'register' : form = <RegisterForm />; break;
+      case 'signin' : form = <SignInForm />; break;
+      case 'forgot' : form = <ForgotForm />; break;
+      case 'reset' : form = <ResetForm />; break;
+      case 'account' : form = <AccountForm />; break;
+      default: form = null; break;
     }
 
     return !form
       ?
-      <noscript />
+        <noscript />
       :
       (
-        <ModalWindow open
-                     title="Auth Modal"
-                     payload={form}
-                     closeOnClickOutside
-                     closeModal={(buttonText) => {
-                       this.props.uiShowAuthenticationForm('none');
-                     }}/>
+        <ModalWindow
+          open
+          title="Auth Modal"
+          payload={form}
+          closeOnClickOutside
+          closeModal={(buttonText) => {
+            this.props.uiShowAuthenticationForm('none');
+          }}
+        />
       );
   }
 }

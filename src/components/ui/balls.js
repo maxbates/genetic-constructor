@@ -29,11 +29,11 @@ export default class Balls extends Component {
     }
     return (
       <div className="loading-horizontal">
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
       </div>
     );
   }

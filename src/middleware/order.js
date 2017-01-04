@@ -43,9 +43,7 @@ export const submitOrder = (order, foundry = 'egf', positionalCombinations, vali
     .then(resp => resp.json());
 };
 
-export const validateOrder = (order, foundry, positionalCombinations) => {
-  return submitOrder(order, foundry, positionalCombinations, true);
-};
+export const validateOrder = (order, foundry, positionalCombinations) => submitOrder(order, foundry, positionalCombinations, true);
 
 /*
  //future - implement once supported

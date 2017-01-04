@@ -45,17 +45,15 @@ export const getSequence = (md5, range) => {
   //}
 
   return rejectingFetch(url, headersGet())
-    .then((resp) => resp.text())
-    .then(sequence => {
+    .then(resp => resp.text())
+    .then((sequence) => {
       cacheSequence(md5, sequence);
       return sequence;
     });
 };
 
 //expects map in form { blockId: pseudoMd5 }
-export const getSequences = (blockIdsToMd5s) => {
-  return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => getSequence(seqMd5));
-};
+export const getSequences = blockIdsToMd5s => getSequencesFromMap(blockIdsToMd5s, seqMd5 => getSequence(seqMd5));
 
 export const writeSequence = (sequence) => {
   const url = getSequenceUrl();
@@ -63,7 +61,7 @@ export const writeSequence = (sequence) => {
 
   return rejectingFetch(url, headersPost(stringified))
     .then(resp => resp.text())
-    .then(md5 => {
+    .then((md5) => {
       cacheSequence(md5, sequence);
       return md5;
     });

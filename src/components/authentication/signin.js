@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import {
   uiShowAuthenticationForm,
   uiSetGrunt,
@@ -48,7 +48,7 @@ class SignInForm extends Component {
 
   constructor() {
     super();
-    this.state = Object.assign({}, errors, {canSubmit: false});
+    this.state = Object.assign({}, errors, { canSubmit: false });
   }
 
   onForgot(evt) {
@@ -63,7 +63,7 @@ class SignInForm extends Component {
     evt.preventDefault();
     this.props.uiSpin('Signing in... Please wait.');
     this.props.userLogin(this.emailAddress, this.password)
-      .then(user => {
+      .then((user) => {
         track('Authentication', 'Sign In', 'Success');
         // close the form
         this.props.uiSpin();
@@ -122,39 +122,43 @@ class SignInForm extends Component {
       <form
         id="auth-signin"
         className="gd-form authentication-form"
-        onSubmit={this.onSubmit.bind(this)}>
+        onSubmit={this.onSubmit.bind(this)}
+      >
         <div className="title">Sign In</div>
-          <span style={registerStyle}>{"Don't have an account? "}
-            <a className="blue-link" href="/" onClick={this.onRegister.bind(this)}>Register&nbsp;</a>
-            <span>{"- it's free!"}</span>
-          </span>
+        <span style={registerStyle}>{"Don't have an account? "}
+          <a className="blue-link" href="/" onClick={this.onRegister.bind(this)}>Register&nbsp;</a>
+          <span>{"- it's free!"}</span>
+        </span>
         <input
           ref="emailAddress"
           className="input"
           placeholder="Email Address"
           onChange={this.onTextChanged.bind(this)}
-          />
+        />
         <input
           type="password"
           ref="password"
           maxLength={32}
           className="input"
           onChange={this.onTextChanged.bind(this)}
-          placeholder="Password"/>
+          placeholder="Password"
+        />
         <div className="forgot-box">
           <a className="blue-link forgot-link" href="/" onClick={this.onForgot.bind(this)}>Forgot?</a>
         </div>
         <div
-          className={`error ${this.state.signinError.visible ? 'visible' : ''}`}>{`${this.state.signinError.text}`}</div>
+          className={`error ${this.state.signinError.visible ? 'visible' : ''}`}
+        >{`${this.state.signinError.text}`}</div>
         <button
           type="submit"
           disabled={!this.state.canSubmit}
-          >Sign In</button>
+        >Sign In</button>
         <button
           type="button"
           onClick={() => {
             this.props.uiShowAuthenticationForm('none');
-          }}>Cancel</button>
+          }}
+        >Cancel</button>
       </form>
     );
   }

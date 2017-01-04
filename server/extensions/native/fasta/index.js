@@ -30,7 +30,7 @@ router.get('/file/:fileId', (req, res, next) => {
 
   fileSystem.fileExists(path)
     .then(() => res.sendFile(path))
-    .catch(err => {
+    .catch((err) => {
       if (err === errorDoesNotExist) {
         return res.status(404).send();
       }
@@ -57,24 +57,24 @@ router.get('/export/blocks/:projectId/:blockIdList',
     const blockIds = blockIdList.split(',');
 
     projectPersistence.projectGet(projectId)
-      .then(roll => {
+      .then((roll) => {
         const blocks = blockIds.map(blockId => roll.blocks[blockId]);
         if (!blocks.every(block => block.sequence.md5)) {
-          console.warn('[FASTA] some blocks dont have md5: ' + projectId, blockIds);
+          console.warn(`[FASTA] some blocks dont have md5: ${projectId}`, blockIds);
           throw Error('all blocks must have an md5');
         }
 
         return Promise.all(
-          blocks.map(block => sequences.sequenceGet(block.sequence.md5))
+          blocks.map(block => sequences.sequenceGet(block.sequence.md5)),
         )
-          .then(sequences => {
+          .then((sequences) => {
             const fullSeq = sequences.reduce((acc, seq) => acc + seq, '');
             const name = roll.project.metadata.name || 'Constructor Export';
             const fileContents = `>${name} | ${projectId} | ${blockIdList}
 ${fullSeq}`;
 
             res.set({
-              'Content-Disposition': `attachment; filename="sequence.fasta"`,
+              'Content-Disposition': 'attachment; filename="sequence.fasta"',
             });
             res.send(fileContents);
           });

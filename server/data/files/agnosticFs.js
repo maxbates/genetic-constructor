@@ -62,12 +62,10 @@ export const fileWrite = (s3bucket, filePath, contents, params) => {
       }));
   }
 
-  return promise.then(result => {
-    return Object.assign(result, {
-      Key: filePath,
-      name: filePath.substr(filePath.lastIndexOf('/') + 1),
-    });
-  });
+  return promise.then(result => Object.assign(result, {
+    Key: filePath,
+    name: filePath.substr(filePath.lastIndexOf('/') + 1),
+  }));
 };
 
 export const fileDelete = (s3bucket, filePath, params) => {

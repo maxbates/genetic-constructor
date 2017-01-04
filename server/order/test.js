@@ -47,8 +47,8 @@ export const submit = (order, user, constructList, rollup) => {
   }
 
   return Promise.resolve({
-    jobId: '' + Math.random(),
-    cost: `$1,000,000`,
+    jobId: `${Math.random()}`,
+    cost: '$1,000,000',
   });
 };
 

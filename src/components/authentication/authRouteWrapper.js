@@ -25,7 +25,7 @@ class AuthRouteWrapper extends Component {
   };
 
   render() {
-    if (!!this.props.userid) {
+    if (this.props.userid) {
       return React.Children.only(this.props.children);
     }
 

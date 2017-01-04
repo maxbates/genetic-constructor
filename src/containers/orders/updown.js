@@ -39,16 +39,16 @@ export default class UpDown extends Component {
 
     switch (evt.keyCode) {
       // up arrow
-    case 38:
-      this.up();
-      evt.preventDefault();
-      break;
+      case 38:
+        this.up();
+        evt.preventDefault();
+        break;
       // down arrow
-    case 40:
-      this.down();
-      evt.preventDefault();
-      break;
-    default:
+      case 40:
+        this.down();
+        evt.preventDefault();
+        break;
+      default:
     }
   };
 
@@ -121,8 +121,8 @@ export default class UpDown extends Component {
         />
         <div className="updown-spinner">
           <div className="arrow-container">
-            <div className="updown-arrows up" onClick={this.up}/>
-            <div className="updown-arrows down" onClick={this.down}/>
+            <div className="updown-arrows up" onClick={this.up} />
+            <div className="updown-arrows down" onClick={this.down} />
           </div>
         </div>
       </div>

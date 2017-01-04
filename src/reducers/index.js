@@ -40,7 +40,7 @@ const purgingEvents = [LOCATION_CHANGE, USER_SET_USER];
 
 export const createRootReducer = () => {
   const undoReducerEnhancer = undoReducerEnhancerCreator({
-    purgeOn: (action) => purgingEvents.some(type => type === action.type),
+    purgeOn: action => purgingEvents.some(type => type === action.type),
   });
 
   return freezeReducerEnhancer(combineReducers({

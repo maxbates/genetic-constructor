@@ -52,7 +52,7 @@ router.route('/:namespace/:file/:version?')
 
     projectFiles.projectFileRead(projectId, namespace, file)
       .then(data => res.send(data))
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           return res.status(404).send(errorDoesNotExist);
         }
@@ -77,7 +77,7 @@ router.route('/:namespace/:file/:version?')
 
     projectFiles.projectFileDelete(projectId, namespace, file)
       .then(() => res.status(200).send())
-      .catch(err => {
+      .catch((err) => {
         console.log('project file delete err', err, err.stack);
         next(err);
       });
@@ -102,7 +102,7 @@ router.route('/:namespace')
     //todo - move this to projectFilesList directly
 
     projectFiles.projectFilesList(projectId, namespace)
-      .then(contents => {
+      .then((contents) => {
         const mapped = contents.map(filename => ({
           name: filename,
           Key: [projectId, namespace, filename].join('/'),

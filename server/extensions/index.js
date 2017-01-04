@@ -49,23 +49,21 @@ router.get('/listAll/:scope?', (req, res) => {
 
   let scopeFilter;
   switch (scope) {
-  case 'client':
-    scopeFilter = manifestIsClient;
-    break;
-  case 'server':
-    scopeFilter = manifestIsServer;
-    break;
-  default:
-    scopeFilter = () => true;
+    case 'client':
+      scopeFilter = manifestIsClient;
+      break;
+    case 'server':
+      scopeFilter = manifestIsServer;
+      break;
+    default:
+      scopeFilter = () => true;
   }
 
   // in dev, running locally, so dont check - you can see them all.
   // This way, dont need to add extension to user permissions so can just symlink into node_modules without problem.
   const accessFilter = (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') ?
     () => true :
-    (manifest, key) => {
-      return checkUserExtensionAccess(manifest, req.user);
-    };
+    (manifest, key) => checkUserExtensionAccess(manifest, req.user);
 
   res.json(getExtensions(scopeFilter, accessFilter));
 });
@@ -76,19 +74,17 @@ router.get('/list/:scope?', (req, res, next) => {
 
   let scopeFilter;
   switch (scope) {
-  case 'client':
-    scopeFilter = manifestIsClient;
-    break;
-  case 'server':
-    scopeFilter = manifestIsServer;
-    break;
-  default:
-    scopeFilter = () => true;
+    case 'client':
+      scopeFilter = manifestIsClient;
+      break;
+    case 'server':
+      scopeFilter = manifestIsServer;
+      break;
+    default:
+      scopeFilter = () => true;
   }
 
-  const activeFilter = (manifest, key) => {
-    return checkUserExtensionActive(manifest, req.user);
-  };
+  const activeFilter = (manifest, key) => checkUserExtensionActive(manifest, req.user);
 
   res.json(getExtensions(scopeFilter, activeFilter));
 });

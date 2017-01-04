@@ -24,17 +24,15 @@ import { convert, importProject, exportProject, exportConstruct } from './conver
 const extensionKey = 'genbank'; //eslint-disable-line no-unused-vars
 
 // Download a temporary file and delete it afterwards
-const downloadAndDelete = (res, tempFileName, downloadFileName) => {
-  return new Promise((resolve, reject) => {
-    res.download(tempFileName, downloadFileName, (err) => {
-      if (err) {
-        return reject(err);
-      }
-      fileSystem.fileDelete(tempFileName);
-      resolve(downloadFileName);
-    });
+const downloadAndDelete = (res, tempFileName, downloadFileName) => new Promise((resolve, reject) => {
+  res.download(tempFileName, downloadFileName, (err) => {
+    if (err) {
+      return reject(err);
+    }
+    fileSystem.fileDelete(tempFileName);
+    resolve(downloadFileName);
   });
-};
+});
 
 //create the router
 const router = express.Router(); //eslint-disable-line new-cap
@@ -61,7 +59,7 @@ router.get('/file/:fileId', (req, res, next) => {
 
   fileSystem.fileExists(path)
     .then(() => res.download(path))
-    .catch(err => {
+    .catch((err) => {
       if (err === errorDoesNotExist) {
         return res.status(404).send();
       }
@@ -79,11 +77,11 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
 
   projectPesistence.projectGet(projectId)
     .then(roll => sequencePersistence.assignSequencesToRollup(roll))
-    .then(roll => {
+    .then((roll) => {
       const blocks = blockIds.map(blockId => roll.blocks[blockId]);
       invariant(blocks.every(block => block.sequence.md5), 'some blocks dont have md5');
 
-      const name = (roll.project.metadata.name || roll.project.id) + '.gb';
+      const name = `${roll.project.metadata.name || roll.project.id}.gb`;
 
       const construct = Block.classless({
         metadata: {
@@ -98,22 +96,20 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
       //todo - need to merge with flo's stuff to pass in sequence properly
       const partialRoll = {
         project,
-        blocks: blocks.reduce((acc, block) => {
-          return Object.assign(acc, {
-            [block.id]: block,
-          });
-        }, {
+        blocks: blocks.reduce((acc, block) => Object.assign(acc, {
+          [block.id]: block,
+        }), {
           [construct.id]: construct,
         }),
       };
 
       return exportConstruct({ roll: partialRoll, constructId: construct.id })
-        .then(resultFileName => {
-          logger('wrote file to ' + resultFileName);
-          return downloadAndDelete(res, resultFileName, roll.project.id + '.fasta');
+        .then((resultFileName) => {
+          logger(`wrote file to ${resultFileName}`);
+          return downloadAndDelete(res, resultFileName, `${roll.project.id}.fasta`);
         });
     })
-    .catch(err => {
+    .catch((err) => {
       logger('Error exporting blocks');
       logger(err);
       logger(err.stack);
@@ -138,25 +134,25 @@ router.all('/export/:projectId/:constructId?',
 
     projectPesistence.projectGet(projectId)
       .then(roll => sequencePersistence.assignSequencesToRollup(roll))
-      .then(roll => {
+      .then((roll) => {
         const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
 
-        const promise = !!constructId ?
+        const promise = constructId ?
           exportConstruct({ roll, constructId }) :
           exportProject(roll);
 
         return promise
           .then((resultFileName) => {
-            logger('wrote file to ' + resultFileName);
+            logger(`wrote file to ${resultFileName}`);
             return fileSystem.fileRead(resultFileName, false)
-              .then(fileOutput => {
+              .then((fileOutput) => {
                 // We have to disambiguate between zip files and gb files!
                 const fileExtension = (fileOutput.substring(0, 5) !== 'LOCUS') ? '.zip' : '.gb';
                 return downloadAndDelete(res, resultFileName, name + fileExtension);
               });
           });
       })
-      .catch(err => {
+      .catch((err) => {
         logger('Error exporting');
         logger(err);
         logger(err.stack);
@@ -182,7 +178,7 @@ router.post('/import/:projectId?',
     //on conversions, project is irrelevant, sometimes we only want the construct blocks, never wrap
     if (projectId === 'convert') {
       return convert(filePath, fileUrl)
-        .then(converted => {
+        .then((converted) => {
           logger('converted');
 
           const roots = converted.roots;
@@ -204,11 +200,11 @@ router.post('/import/:projectId?',
 
     return importProject(filePath, fileUrl)
     //wrap all the childless blocks in a construct (so they dont appear as top-level constructs), update rollup with construct Ids
-      .then(roll => {
+      .then((roll) => {
         logger('imported');
 
         if (!roll || typeof roll !== 'object') {
-          logger('error retrieving roll ' + filePath);
+          logger(`error retrieving roll ${filePath}`);
           return Promise.reject('error retrieving roll');
         }
 
@@ -221,7 +217,7 @@ router.post('/import/:projectId?',
         const childlessBlockIds = roll.project.components.filter(blockId => roll.blocks[blockId].components.length === 0);
 
         const wrapperConstructs = childlessBlockIds.reduce((acc, blockId, index) => {
-          const constructName = name + (index > 0 ? ' - Construct ' + (index + 1) : '');
+          const constructName = name + (index > 0 ? ` - Construct ${index + 1}` : '');
           const construct = Block.classless({
             components: [blockId],
             metadata: {
@@ -242,9 +238,9 @@ router.post('/import/:projectId?',
 
         return roll;
       })
-      .then(roll => {
+      .then((roll) => {
         //dont care about timing
-        fileSystem.fileWrite(filePath + '-converted', roll);
+        fileSystem.fileWrite(`${filePath}-converted`, roll);
 
         logger('remapped');
 
@@ -258,7 +254,7 @@ router.post('/import/:projectId?',
         next(err);
       });
   },
-  mergeRollupMiddleware
+  mergeRollupMiddleware,
 );
 
 router.all('*', (req, res) => res.status(404).send('route not found'));

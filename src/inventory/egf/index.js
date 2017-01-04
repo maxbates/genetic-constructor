@@ -31,21 +31,19 @@ export const search = (term, options = {}) => {
     options,
     {
       collection,
-    }
+    },
   );
 
   return fetch(`${url}/search/?query_text=${term}&${queryString.stringify(parameters)}`)
     .then(resp => resp.json())
     .then(results => parseResults(results))
     .then(results => Object.assign(results, { parameters }))
-    .catch(err => {
+    .catch((err) => {
       console.error(err); //eslint-disable-line no-console
       return [];
     });
 };
 
-export const get = (id, parameters = {}, searchResult) => {
-  return fetch(`${url}/${collection}/parts/${id}`)
+export const get = (id, parameters = {}, searchResult) => fetch(`${url}/${collection}/parts/${id}`)
     .then(resp => resp.json())
     .then(result => parseFullResult(result, searchResult));
-};

@@ -37,11 +37,11 @@ export class TemplateRules extends Component {
     this.rules = [
       ['hidden',
         'Hidden',
-        (value) => this.props.blockSetHidden(this.props.block.id, value),
-        () => this.props.isConstruct ],
+        value => this.props.blockSetHidden(this.props.block.id, value),
+        () => this.props.isConstruct],
       ['list',
         'List Block',
-        (value) => this.props.blockSetListBlock(this.props.block.id, value),
+        value => this.props.blockSetListBlock(this.props.block.id, value),
         () => this.props.block.isConstruct()],
       /*
       ['frozen',
@@ -59,15 +59,19 @@ export class TemplateRules extends Component {
         {this.rules.map(([rule, name, func, hideIf = () => {}]) => {
           if (hideIf() === true) { return null; }
           return (
-            <div className="TemplateRules-rule"
-                 key={rule}>
-              <Checkbox checked={block.rules[rule]}
-                        disabled={readOnly || (rule === 'frozen' && isConstruct)}
-                        onChange={(value) => {
-                          if (!readOnly) {
-                            func(value);
-                          }
-                        }}/>
+            <div
+              className="TemplateRules-rule"
+              key={rule}
+            >
+              <Checkbox
+                checked={block.rules[rule]}
+                disabled={readOnly || (rule === 'frozen' && isConstruct)}
+                onChange={(value) => {
+                  if (!readOnly) {
+                    func(value);
+                  }
+                }}
+              />
               <span className="TemplateRules-name">{name}</span>
             </div>
           );

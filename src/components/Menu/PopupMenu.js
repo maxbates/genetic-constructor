@@ -51,7 +51,8 @@ export default class PopupMenu extends Component {
         onMouseDown={this.onMouseDown.bind(this)}
         className={this.props.open ? 'menu-popup-blocker-visible' : 'menu-popup-blocker-hidden'}
         style={this.props.style}
-        ref="blocker">
+        ref="blocker"
+      >
         <div className="menu-popup-container" style={position}>
           {this.props.menuItems.map((item, index) => {
             const boundAction = (evt) => {
@@ -62,14 +63,16 @@ export default class PopupMenu extends Component {
             };
             return (
               item.text ?
-                (<MenuItem key={item.text}
-                           disabled={item.disabled}
-                           classes={item.classes}
-                           text={item.text}
-                           action={boundAction}
-                           checked={item.checked}/>)
+                (<MenuItem
+                  key={item.text}
+                  disabled={item.disabled}
+                  classes={item.classes}
+                  text={item.text}
+                  action={boundAction}
+                  checked={item.checked}
+                />)
                 :
-                (<MenuSeparator key={index}/>)
+                (<MenuSeparator key={index} />)
             );
           })}
         </div>

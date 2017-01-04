@@ -116,15 +116,15 @@ class DnD {
     // update monitors
     const monitors = this.findMonitorsAt(globalPosition);
     // any prior monitors not in the current set, we need to call monitorLeave
-    difference(this.lastMonitors, monitors).forEach(monitor => {
+    difference(this.lastMonitors, monitors).forEach((monitor) => {
       monitor.options.monitorLeave.call(this, globalPosition, this.payload);
     });
     // call monitorEnter for any new ones
-    difference(monitors, this.lastMonitors).forEach(monitor => {
+    difference(monitors, this.lastMonitors).forEach((monitor) => {
       monitor.options.monitorEnter.call(this, globalPosition, this.payload);
     });
     this.lastMonitors = monitors;
-    this.lastMonitors.forEach(monitor => {
+    this.lastMonitors.forEach((monitor) => {
       monitor.options.monitorOver.call(this, globalPosition, this.payload);
     });
   }
@@ -139,7 +139,7 @@ class DnD {
     const globalPosition = this.mouseToGlobal(evt);
 
     // send monitor leave to all monitors
-    this.monitors.forEach(monitor => {
+    this.monitors.forEach((monitor) => {
       monitor.options.monitorLeave.call(this, globalPosition, this.payload);
     });
 
@@ -235,11 +235,9 @@ class DnD {
    */
   findTargetAt(globalPoint) {
     // find all targets at the given point
-    const hits = this.targets.filter(options => {
-      return this.getElementBounds(options.element).pointInBox(globalPoint);
-    });
+    const hits = this.targets.filter(options => this.getElementBounds(options.element).pointInBox(globalPoint));
     // sort by zorder and return the one with the highest values
-    hits.sort((aaa, bbb) => {return aaa.options.zorder - bbb.options.zorder;});
+    hits.sort((aaa, bbb) => aaa.options.zorder - bbb.options.zorder);
     return hits.pop();  // undefined on an empty array
   }
 
@@ -247,9 +245,7 @@ class DnD {
    * return all monitors at the given global position as a Set
    */
   findMonitorsAt(globalPoint) {
-    const monitors = [...this.monitors].filter(options => {
-      return this.getElementBounds(options.element).pointInBox(globalPoint);
-    });
+    const monitors = [...this.monitors].filter(options => this.getElementBounds(options.element).pointInBox(globalPoint));
     return new Set(monitors);
   }
 

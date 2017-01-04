@@ -32,18 +32,18 @@ const extensionKey = 'csv';
  * @resolve with projectId on success and rejects with fetch response
  */
 export function importFile(projectId = null, ...files) {
-  const url = extensionApiPath(extensionKey, `import${!!projectId ? ('/' + projectId) : ''}`);
+  const url = extensionApiPath(extensionKey, `import${projectId ? (`/${projectId}`) : ''}`);
 
   return timeLimit(10000)(
     uploadFiles(url, {}, ...files)
       .then(resp => resp.json())
-      .then(json => {
+      .then((json) => {
         if (projectId === 'convert') {
           return json;
         }
         invariant(json && json.projectId, 'expect a project ID');
         return json.projectId;
-      })
+      }),
   );
 }
 
@@ -58,7 +58,7 @@ function importStringBase(payload, projectId) {
   invariant(typeof payload === 'object', 'payload must be object');
   invariant(typeof payload.string === 'string', 'must pass string to import');
 
-  const url = extensionApiPath(extensionKey, `import${projectId ? ('/' + projectId) : ''}`);
+  const url = extensionApiPath(extensionKey, `import${projectId ? (`/${projectId}`) : ''}`);
 
   return rejectingFetch(url, headersPost(JSON.stringify(payload)))
     .then(resp => resp.json());
@@ -77,7 +77,7 @@ export const importString = (csvString, projectId, options = {}) => {
 
   const payload = Object.assign({}, options, { string: csvString });
   return importStringBase(payload, projectId)
-    .then(json => {
+    .then((json) => {
       invariant(json && json.projectId, 'expect a project ID');
       return json.projectId;
     });

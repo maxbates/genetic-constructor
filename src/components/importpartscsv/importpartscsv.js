@@ -113,7 +113,7 @@ class ImportPartsCSVModal extends Component {
         });
         this.props.uiSpin();
       })
-      .catch(reason => {
+      .catch((reason) => {
         this.setState({
           error: reason.statusText,
           processing: false,
@@ -124,9 +124,7 @@ class ImportPartsCSVModal extends Component {
   }
 
   showFiles() {
-    const files = this.state.files.map((file, index) => {
-      return <div className="file-name" key={index}>{file.name}</div>;
-    });
+    const files = this.state.files.map((file, index) => <div className="file-name" key={index}>{file.name}</div>);
     return files;
   }
 
@@ -145,23 +143,25 @@ class ImportPartsCSVModal extends Component {
               disabled={this.state.processing}
               onSubmit={this.onSubmit.bind(this)}
               id="genbank-import-form"
-              className="gd-form genbank-import-form">
+              className="gd-form genbank-import-form"
+            >
               <div className="title">Import Parts into List Block</div>
               <div>
                 <div className="prefix-container">
                   <label>Prefix</label>
-                  <input ref="prefixInput" type="number" defaultValue="0" min="0" max="10000"/>
+                  <input ref="prefixInput" type="number" defaultValue="0" min="0" max="10000" />
                 </div>
                 <div className="prefix-container">
                   <label>Suffix</label>
-                  <input ref="suffixInput" type="number" defaultValue="0" min="0" max="10000"/>
+                  <input ref="suffixInput" type="number" defaultValue="0" min="0" max="10000" />
                 </div>
               </div>
               <Dropzone
                 onDrop={this.onDrop.bind(this)}
                 className="dropzone"
                 activeClassName="dropzone-hot"
-                multiple={false}>
+                multiple={false}
+              >
                 <div className="dropzone-text">Drop Files Here</div>
               </Dropzone>
               {this.showFiles()}
@@ -172,7 +172,8 @@ class ImportPartsCSVModal extends Component {
                 disabled={this.state.processing}
                 onClick={() => {
                   this.props.uiShowPartsCSVImport(false);
-                }}>Cancel
+                }}
+              >Cancel
               </button>
               <div className="link">
                 <span>Format documentation and sample .CSV files can be found
@@ -182,7 +183,7 @@ class ImportPartsCSVModal extends Component {
             </form>
           )}
           closeOnClickOutside
-          closeModal={buttonText => {
+          closeModal={(buttonText) => {
             this.props.uiShowPartsCSVImport(false);
           }}
         />

@@ -67,26 +67,32 @@ export class InventoryGroupSearch extends Component {
 
     return (
       <div className={'InventoryGroup-content InventoryGroupSearch'}>
-        <InventorySearch searchTerm={searchTerm}
-                         isSearching={searching}
-                         disabled={sourcesToggling}
-                         onSearchChange={(value) => this.handleSearchChange(value)}/>
+        <InventorySearch
+          searchTerm={searchTerm}
+          isSearching={searching}
+          disabled={sourcesToggling}
+          onSearchChange={value => this.handleSearchChange(value)}
+        />
 
-        <InventorySources registry={registry}
-                          sourceList={sourceList}
-                          toggling={sourcesToggling}
-                          onToggleVisible={(nextState) => inventoryShowSourcesToggling(nextState)}
-                          onSourceToggle={(source) => this.onSourceToggle(source)}/>
+        <InventorySources
+          registry={registry}
+          sourceList={sourceList}
+          toggling={sourcesToggling}
+          onToggleVisible={nextState => inventoryShowSourcesToggling(nextState)}
+          onSourceToggle={source => this.onSourceToggle(source)}
+        />
 
         {!sourcesToggling && (
-          <InventorySearchResults searchTerm={searchTerm}
-                                  sourcesToggling={sourcesToggling}
-                                  sourcesVisible={sourcesVisible}
-                                  searching={searching}
-                                  searchResults={searchResults}
-                                  blockStash={this.props.blockStash}
-                                  loadMore={(source) => this.handleLoadMore(source)}
-                                  inventoryToggleSourceVisible={this.props.inventoryToggleSourceVisible}/>
+          <InventorySearchResults
+            searchTerm={searchTerm}
+            sourcesToggling={sourcesToggling}
+            sourcesVisible={sourcesVisible}
+            searching={searching}
+            searchResults={searchResults}
+            blockStash={this.props.blockStash}
+            loadMore={source => this.handleLoadMore(source)}
+            inventoryToggleSourceVisible={this.props.inventoryToggleSourceVisible}
+          />
         )}
       </div>
     );

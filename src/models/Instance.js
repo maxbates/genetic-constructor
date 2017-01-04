@@ -91,7 +91,7 @@ export default class Instance extends Immutable {
         version: cloned.version,
       }, inputObject);
 
-      invariant(versionValidator(parentObject.version), 'must pass a valid version (SHA), got ' + parentObject.version);
+      invariant(versionValidator(parentObject.version), `must pass a valid version (SHA), got ${parentObject.version}`);
 
       const parents = [parentObject, ...cloned.parents];
 

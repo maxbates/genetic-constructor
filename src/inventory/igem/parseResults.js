@@ -33,7 +33,7 @@ function parseBasicFields(result) {
 
   return {
     metadata: {
-      name: name,
+      name,
     },
     rules: {
       role: partType,

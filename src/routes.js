@@ -26,7 +26,7 @@ import RouteNotFound from './containers/routenotfound';
 import AuthRouteWrapper from './components/authentication/authRouteWrapper';
 
 const history = syncHistoryWithStore(browserHistory, store, {
-  selectLocationState: (state) => state.router,
+  selectLocationState: state => state.router,
 });
 
 export default (
@@ -36,20 +36,22 @@ export default (
       {/* require authentication */}
 
       <Route component={AuthRouteWrapper}>
-        <Route path="/homepage/account" component={HomePage}/>
-        <Route path="/project/:projectId"
-               component={ProjectPage}/>
+        <Route path="/homepage/account" component={HomePage} />
+        <Route
+          path="/project/:projectId"
+          component={ProjectPage}
+        />
       </Route>
 
       {/* do not require authentication */}
 
       <Route path="/homepage">
-        <Route path=":comp" component={HomePage}/>
-        <IndexRoute component={HomePage}/>
+        <Route path=":comp" component={HomePage} />
+        <IndexRoute component={HomePage} />
       </Route>
-      <Route path="*" component={RouteNotFound}/>
+      <Route path="*" component={RouteNotFound} />
 
-      <IndexRedirect to="/homepage"/>
+      <IndexRedirect to="/homepage" />
 
     </Route>
   </Router>

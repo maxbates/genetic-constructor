@@ -65,7 +65,7 @@ export default class ColorPicker extends Component {
 
   onMouseEnter = (str) => {
     //this.setState({ hoverText: this.nameColor(hoverText) });
-    this.setState({ hoverText: str});
+    this.setState({ hoverText: str });
   };
 
   onMouseOut = () => {
@@ -85,25 +85,31 @@ export default class ColorPicker extends Component {
     const { current, readOnly, onSelect } = this.props;
 
     return (
-      <div className={'Picker ColorPicker' + (!!readOnly ? ' readOnly' : '')}>
-        <div ref={ref => this.pickerToggler = ref}
-             className="Picker-current"
-             onClick={this.onClickCurrent}>
-          <PickerItem isCurrent={false}
-                      styles={{ backgroundColor: this.getColor(current).hex }}/>
+      <div className={`Picker ColorPicker${readOnly ? ' readOnly' : ''}`}>
+        <div
+          ref={ref => this.pickerToggler = ref}
+          className="Picker-current"
+          onClick={this.onClickCurrent}
+        >
+          <PickerItem
+            isCurrent={false}
+            styles={{ backgroundColor: this.getColor(current).hex }}
+          />
         </div>
         {this.state.showContent && (
-          <div className="Picker-content"
-               onMouseOut={this.onMouseOut}>
+          <div
+            className="Picker-content"
+            onMouseOut={this.onMouseOut}
+          >
             <div className="Picker-currentHovered">{this.state.hoverText}</div>
             <div className="Picker-options">
-              {this.palette.map((obj, index) => {
-                return (<PickerItem key={obj.hex}
-                                    isCurrent={current === index}
-                                    onMouseEnter={() => this.onMouseEnter(obj.name)}
-                                    onClick={() => !readOnly && onSelect(index)}
-                                    styles={{ backgroundColor: obj.hex }}/>);
-              })}
+              {this.palette.map((obj, index) => (<PickerItem
+                key={obj.hex}
+                isCurrent={current === index}
+                onMouseEnter={() => this.onMouseEnter(obj.name)}
+                onClick={() => !readOnly && onSelect(index)}
+                styles={{ backgroundColor: obj.hex }}
+              />))}
             </div>
           </div>
         )}

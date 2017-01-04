@@ -33,7 +33,7 @@ router.route('/config')
       Object.assign(req, { config });
       next();
     },
-    updateUserHandler({})
+    updateUserHandler({}),
   );
 
 router.route('/info')
@@ -48,7 +48,7 @@ router.route('/info')
       Object.assign(req, { config, userPatch });
       next();
     },
-    updateUserHandler({ updateWholeUser: true })
+    updateUserHandler({ updateWholeUser: true }),
   );
 
 router.route('/login')

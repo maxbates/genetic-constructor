@@ -57,7 +57,7 @@ export const makeJobFileLink = (...paths) => {
   return `${HOST_URL}/data/jobs/${paths.join('/')}`;
 };
 
-export const jobFileName = (contents) => md5(contents);
+export const jobFileName = contents => md5(contents);
 
 export const jobFileRead = (projectId, namespace, path) => {
   invariant(projectId, 'projectId is required');

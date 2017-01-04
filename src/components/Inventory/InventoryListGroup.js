@@ -102,21 +102,27 @@ export default class InventoryListGroup extends Component {
 
     const rightSide = actionButton ?
       <InventoryListGroupAction {...actionButton} /> :
-      <span className="InventoryListGroup-heading-filler"/>;
+      <span className="InventoryListGroup-heading-filler" />;
 
     return (
-      <div className={'InventoryListGroup' +
-      (isSelectable ? ' isSelectable' : '') +
-      (expanded ? ' expanded' : '') +
-      (disabled ? ' disabled' : '') +
-      (isActive ? ' active' : '')}
-           data-inventory={dataAttribute}>
-        <div className="InventoryListGroup-heading"
-             ref={(el) => this.headingElement = el}
-             onClick={this.handleSelect}>
-          <Toggler hidden={hideToggle}
-                   onClick={this.handleToggle}
-                   open={expanded}/>
+      <div
+        className={`InventoryListGroup${
+      isSelectable ? ' isSelectable' : ''
+      }${expanded ? ' expanded' : ''
+      }${disabled ? ' disabled' : ''
+      }${isActive ? ' active' : ''}`}
+        data-inventory={dataAttribute}
+      >
+        <div
+          className="InventoryListGroup-heading"
+          ref={el => this.headingElement = el}
+          onClick={this.handleSelect}
+        >
+          <Toggler
+            hidden={hideToggle}
+            onClick={this.handleToggle}
+            open={expanded}
+          />
           <a className="InventoryListGroup-title">
             <span>{title}</span>
           </a>

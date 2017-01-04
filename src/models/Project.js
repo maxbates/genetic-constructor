@@ -188,7 +188,7 @@ export default class Project extends Instance {
    */
   fileWrite(namespace, name, contents) {
     return projectFileWrite(this.id, namespace, name, contents)
-      .then(result => {
+      .then((result) => {
         const version = result.VersionId;
         const fileIndex = this.files.findIndex(fileObj => fileObj.namespace === namespace && fileObj.name === name);
 
@@ -218,7 +218,7 @@ export default class Project extends Instance {
    */
   fileRead(namespace, name, format = 'text', version) {
     return projectFileRead(this.id, namespace, name)
-      .then(resp => {
+      .then((resp) => {
         if (format === 'text') {
           return resp.text();
         } else if (format === 'json') {

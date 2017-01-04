@@ -36,11 +36,13 @@ export default class Checkbox extends Component {
   render() {
     const { checked, onChange, disabled, ...rest } = this.props;
     return (
-      <div {...rest}
-           className={'Checkbox' +
-      (checked ? ' checked' : '') +
-      (disabled ? ' disabled' : '')}
-           onClick={(evt) => this.onClick(evt)} />
+      <div
+        {...rest}
+        className={`Checkbox${
+      checked ? ' checked' : ''
+      }${disabled ? ' disabled' : ''}`}
+        onClick={evt => this.onClick(evt)}
+      />
     );
   }
 }

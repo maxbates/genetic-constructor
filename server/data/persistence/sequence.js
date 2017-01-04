@@ -37,7 +37,7 @@ export const bucketName = 'bionano-gctor-sequences';
 
 let s3bucket;
 if (s3.useRemote) {
-  logger('Bucket: ' + bucketName);
+  logger(`Bucket: ${bucketName}`);
   s3bucket = s3.getBucket(bucketName);
 }
 
@@ -47,7 +47,7 @@ export const sequenceExists = (pseudoMd5) => {
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash, hasRange } = parsePseudoMd5(pseudoMd5);
 
-  logger(`[sequenceExists] ${hash}` + (hasRange ? `(original: ${pseudoMd5})` : ''));
+  logger(`[sequenceExists] ${hash}${hasRange ? `(original: ${pseudoMd5})` : ''}`);
 
   if (s3.useRemote) {
     return s3.itemExists(s3bucket, hash);
@@ -66,7 +66,7 @@ export const sequenceGet = (pseudoMd5) => {
   invariant(validPseudoMd5(pseudoMd5), 'must pass a valid md5 with optional byte range');
   const { hash, hasRange, start, end } = parsePseudoMd5(pseudoMd5);
 
-  logger(`[sequenceExists] ${hash}` + (hasRange ? `(original: ${pseudoMd5})` : ''));
+  logger(`[sequenceExists] ${hash}${hasRange ? `(original: ${pseudoMd5})` : ''}`);
 
   if (s3.useRemote) {
     //s3 is inclusive, node fs is not, javascript is not
@@ -82,9 +82,7 @@ export const sequenceGet = (pseudoMd5) => {
 //expects map { blockId: pseudoMd5 }
 //returns map { blockId: sequence }
 //dedupes requests across multiple files and fetches union byte range
-export const sequenceGetMany = (blockIdToMd5Map) => {
-  return getSequencesFromMap(blockIdToMd5Map, (seqMd5) => sequenceGet(seqMd5));
-};
+export const sequenceGetMany = blockIdToMd5Map => getSequencesFromMap(blockIdToMd5Map, seqMd5 => sequenceGet(seqMd5));
 
 export const sequenceWrite = (realMd5, sequence) => {
   invariant(validPseudoMd5(realMd5), 'must pass a valid md5 with optional byte range');
@@ -114,22 +112,20 @@ export const sequenceWrite = (realMd5, sequence) => {
 //returns { md5 : sequence }
 export const sequenceWriteMany = (map) => {
   invariant(typeof map === 'object', 'must pass an object');
-  logger('[sequenceWriteMany] starting... ' + Object.keys(map).length);
+  logger(`[sequenceWriteMany] starting... ${Object.keys(map).length}`);
   //logger(JSON.stringify(map, null, 2));
 
   const batches = chunk(Object.keys(map), 50);
 
-  return batches.reduce((acc, batch) => {
+  return batches.reduce((acc, batch) =>
     //promise for each batch
-    return acc.then((allWrites) => {
+     acc.then(allWrites =>
       //sequenceWrite for each member of batch
-      return Promise.all(batch.map(pseudoMd5 => sequenceWrite(pseudoMd5, map[pseudoMd5])))
+       Promise.all(batch.map(pseudoMd5 => sequenceWrite(pseudoMd5, map[pseudoMd5])))
         .then((createdBatch) => {
           logger('[sequenceWriteMany] batch completed');
           return allWrites.concat(createdBatch);
-        });
-    });
-  }, Promise.resolve([]))
+        })), Promise.resolve([]))
     .then((allWrites) => {
       logger('[sequenceWriteMany] all batches completed');
       return map;
@@ -141,24 +137,22 @@ export const sequenceWriteMany = (map) => {
 export const sequenceWriteChunks = (sequence, rangeMap) => {
   invariant(sequence && sequence.length > 0, 'must pass a sequence with length');
   invariant(typeof rangeMap === 'object', 'range map must be an object');
-  invariant(every(rangeMap, (range) => range === true || (Array.isArray(range) && Number.isInteger(range[0]) && Number.isInteger(range[1]))), 'every range should be null (for whole thing), an array: [start:end]');
+  invariant(every(rangeMap, range => range === true || (Array.isArray(range) && Number.isInteger(range[0]) && Number.isInteger(range[1]))), 'every range should be null (for whole thing), an array: [start:end]');
 
   logger(`[sequenceWriteChunks] starting... ${sequence.length}bp, ${Object.keys(rangeMap).length} ranges`);
 
   const sequenceMd5 = md5(sequence);
 
   return sequenceWrite(sequenceMd5, sequence)
-    .then(() => {
-      return mapValues(rangeMap, (range, blockId) => {
-        if (range === true) {
-          return sequenceMd5;
-        }
-        if (range[0] === 0 && range[1] === sequence.length - 1) {
-          return sequenceMd5;
-        }
-        return generatePseudoMd5(sequenceMd5, range[0], range[1]);
-      });
-    });
+    .then(() => mapValues(rangeMap, (range, blockId) => {
+      if (range === true) {
+        return sequenceMd5;
+      }
+      if (range[0] === 0 && range[1] === sequence.length - 1) {
+        return sequenceMd5;
+      }
+      return generatePseudoMd5(sequenceMd5, range[0], range[1]);
+    }));
 };
 
 //probably dont want to let people do this, since sequence may be referenced by multiple blocks...

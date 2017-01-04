@@ -85,7 +85,7 @@ export class HomePage extends Component {
   signIn(evt) {
     evt.preventDefault();
     if (this.isIE()) {
-      this.props.uiSetGrunt(`Sorry we do not currently support Internet Explorer. We recommend the Chrome browser from Google.`);
+      this.props.uiSetGrunt('Sorry we do not currently support Internet Explorer. We recommend the Chrome browser from Google.');
       return;
     }
     this.props.uiShowAuthenticationForm('signin');
@@ -111,7 +111,7 @@ export class HomePage extends Component {
     return (
       <div className="homepage">
         <div className="homepage-image-area">
-          <img className="homepage-logo" src="/images/homepage/app-logo.png"/>
+          <img className="homepage-logo" src="/images/homepage/app-logo.png" />
           <div className="homepage-cookie-warning" style={{ display: warning }}>
             Genetic Constructor uses cookies to ensure you get the best experience.
             <a href={privacy} target="_blank">More Information</a>
@@ -119,18 +119,18 @@ export class HomePage extends Component {
               Close
             </div>
           </div>
-          <img className="homepage-background" src="/images/homepage/tiles.jpg"/>
+          <img className="homepage-background" src="/images/homepage/tiles.jpg" />
           <div className="homepage-name">
             <div className="lighter">Autodesk&nbsp;</div>
             <div>Genetic Constructor</div>
           </div>
           <div className="homepage-title">
-            <div>Design and manufacture<br/>living things</div>
+            <div>Design and manufacture<br />living things</div>
           </div>
           <div className="homepage-getstarted" onClick={this.signIn.bind(this)}>Get started</div>
         </div>
-        <img className="homepage-autodesk" src="/images/homepage/autodesk-logo.png"/>
-        <img className="homepage-egf" src="/images/homepage/egf-logo.png"/>
+        <img className="homepage-autodesk" src="/images/homepage/autodesk-logo.png" />
+        <img className="homepage-egf" src="/images/homepage/egf-logo.png" />
         <div className="homepage-footer">
           <div className="homepage-footer-title">New in version 0.1:</div>
           <div className="homepage-footer-list">

@@ -95,9 +95,7 @@ class ConstructPreview extends Component {
         blocks: this.props.blocks,
         currentBlocks: [],
         currentConstructId: constructIndex,
-        blockColor: (blockId) => {
-          return this.blockColor(blockId);
-        },
+        blockColor: blockId => this.blockColor(blockId),
       });
       this.sg.update();
     }
@@ -165,7 +163,7 @@ class ConstructPreview extends Component {
           <label className="of">{label}</label>
         </div>
         <div className="container">
-          <div className="scenegraph"></div>
+          <div className="scenegraph" />
         </div>
       </div>
     );

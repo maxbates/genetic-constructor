@@ -28,10 +28,12 @@ export default class Input extends Component {
   render() {
     return (
       <div className="row-checkbox">
-        <input onChange={evt => {this.props.onChange(evt.target.checked);}}
-               type="checkbox"
-               disabled={this.props.disabled}
-               checked={this.props.value} />
+        <input
+          onChange={(evt) => { this.props.onChange(evt.target.checked); }}
+          type="checkbox"
+          disabled={this.props.disabled}
+          checked={this.props.value}
+        />
         {this.props.label}
       </div>
     );

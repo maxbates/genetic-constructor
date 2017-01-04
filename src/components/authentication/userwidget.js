@@ -70,7 +70,7 @@ class UserWidget extends Component {
       track('Authentication', 'Sign Out', 'Success');
       // store is left with previous user projects and other issue. For now do a complete reload
       //this.props.push('/homepage');
-      window.location = `${window.location.protocol}\\\\${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}\\homepage`;
+      window.location = `${window.location.protocol}\\\\${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}\\homepage`;
     })
     .catch((reason) => {
       this.props.uiSetGrunt('There was a problem signing you out');
@@ -84,30 +84,31 @@ class UserWidget extends Component {
       position={this.state.menuPosition}
       closePopup={this.closeMenu.bind(this)}
       menuItems={
-        [
-          {
-            text: `${this.props.user.firstName} ${this.props.user.lastName}`,
-            disabled: true,
-            classes: 'blue-menu-items',
+      [
+        {
+          text: `${this.props.user.firstName} ${this.props.user.lastName}`,
+          disabled: true,
+          classes: 'blue-menu-items',
+        },
+        {
+          text: 'Extension Settings',
+          action: () => {
+            this.props.uiShowExtensionPicker(true);
           },
-          {
-            text: 'Extension Settings',
-            action: () => {
-              this.props.uiShowExtensionPicker(true);
-            },
+        },
+        {
+          text: 'Account Settings',
+          action: () => {
+            this.props.uiShowAuthenticationForm('account');
           },
-          {
-            text: 'Account Settings',
-            action: () => {
-              this.props.uiShowAuthenticationForm('account');
-            },
-          },
-          {
-            text: 'Sign Out',
-            action: this.signOut.bind(this),
-          },
-        ]
-      }/>);
+        },
+        {
+          text: 'Sign Out',
+          action: this.signOut.bind(this),
+        },
+      ]
+      }
+    />);
   }
 
   render() {

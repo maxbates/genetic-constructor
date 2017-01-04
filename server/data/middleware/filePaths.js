@@ -33,18 +33,12 @@ export const createStorageUrl = (...urls) => {
 
 // dont want to allow overriding / race conditions of common names
 // may want to enforce uuid / namespace
-export const createJobFilePath = (...paths) => {
-  return createStorageUrl(jobPath, ...paths);
-};
+export const createJobFilePath = (...paths) => createStorageUrl(jobPath, ...paths);
 
 //SEQUENCE
 
-export const createSequencePath = (md5) => {
-  return createStorageUrl(sequencePath, md5);
-};
+export const createSequencePath = md5 => createStorageUrl(sequencePath, md5);
 
 // PROJECT FILES
 
-export const createProjectFilePath = (...paths) => {
-  return createStorageUrl(projectFilesPath, ...paths);
-};
+export const createProjectFilePath = (...paths) => createStorageUrl(projectFilesPath, ...paths);

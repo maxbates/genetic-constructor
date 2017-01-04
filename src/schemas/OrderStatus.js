@@ -25,37 +25,37 @@ import Schema from './SchemaClass';
 const fieldDefs = {
   foundry: [
     fields.string().required,
-    `key of foundry the Order has been submitted to`,
+    'key of foundry the Order has been submitted to',
     { avoidScaffold: true },
   ],
 
   remoteId: [
     fields.string().required,
-    `ID at remote foundry`,
+    'ID at remote foundry',
     { avoidScaffold: true },
   ],
 
   price: [
     fields.any(),
-    `Quote for the order`,
+    'Quote for the order',
     { avoidScaffold: true },
   ],
 
   numberPermutations: [
     fields.number(),
-    `Number of possible permutations`,
+    'Number of possible permutations',
     { avoidScaffold: true },
   ],
 
   numberOrdered: [
     fields.number(),
-    `Number of potential constructs actually ordered`,
+    'Number of potential constructs actually ordered',
     { avoidScaffold: true },
   ],
 
   timeSent: [
     fields.number(),
-    `Time when the order was sent, in MS`,
+    'Time when the order was sent, in MS',
     { avoidScaffold: true },
   ],
 };

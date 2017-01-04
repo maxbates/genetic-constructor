@@ -39,34 +39,46 @@ export class Inventory extends Component {
     const { isVisible, projectId, currentTab, inventorySelectTab } = this.props;
 
     return (
-      <div className={'SidePanel Inventory' +
-      (isVisible ? ' visible' : '')}>
+      <div
+        className={`SidePanel Inventory${
+      isVisible ? ' visible' : ''}`}
+      >
         <div className="SidePanel-heading">
-          <span className="SidePanel-heading-trigger Inventory-trigger"
-                onClick={() => this.toggle()}/>
+          <span
+            className="SidePanel-heading-trigger Inventory-trigger"
+            onClick={() => this.toggle()}
+          />
           <div className="SidePanel-heading-content">
             <span className="SidePanel-heading-title">Inventory</span>
-            <a className="SidePanel-heading-close"
-               ref="close"
-               onClick={() => this.toggle(false)}/>
+            <a
+              className="SidePanel-heading-close"
+              ref="close"
+              onClick={() => this.toggle(false)}
+            />
           </div>
         </div>
 
         <div className="SidePanel-content no-vertical-scroll">
           <div className="Inventory-groups">
-            <InventoryGroup title="Search"
-                            type="search"
-                            isActive={currentTab === 'search' || !currentTab}
-                            setActive={() => inventorySelectTab('search')}/>
-            <InventoryGroup title="My Projects"
-                            type="projects"
-                            currentProject={projectId}
-                            isActive={currentTab === 'projects'}
-                            setActive={() => inventorySelectTab('projects')}/>
-            <InventoryGroup title="Sketch Library"
-                            type="role"
-                            isActive={currentTab === 'role'}
-                            setActive={() => inventorySelectTab('role')}/>
+            <InventoryGroup
+              title="Search"
+              type="search"
+              isActive={currentTab === 'search' || !currentTab}
+              setActive={() => inventorySelectTab('search')}
+            />
+            <InventoryGroup
+              title="My Projects"
+              type="projects"
+              currentProject={projectId}
+              isActive={currentTab === 'projects'}
+              setActive={() => inventorySelectTab('projects')}
+            />
+            <InventoryGroup
+              title="Sketch Library"
+              type="role"
+              isActive={currentTab === 'role'}
+              setActive={() => inventorySelectTab('role')}
+            />
           </div>
         </div>
       </div>

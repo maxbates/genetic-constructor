@@ -22,7 +22,7 @@ const NO_DOCKER = !!process.env.NO_DOCKER;
 export const checkNodeVersion = () => {
   const ver = process.version;
   console.log(colors.blue('Checking Node Version... '));
-  console.log('Found version ' + ver);
+  console.log(`Found version ${ver}`);
 
   if (/v4/.test(ver)) {
     console.warn(colors.yellow('You have version 4 of node. Node v6 is recommended.'));
@@ -30,23 +30,22 @@ export const checkNodeVersion = () => {
   }
 
   if (!/v6/.test(ver)) {
-    console.error('\n\nConstructor requires node version 6.x - you have: ' + ver + '\n\n');
-    throw new Error('Constructor requires node version 6.x - you have: ' + ver);
+    console.error(`\n\nConstructor requires node version 6.x - you have: ${ver}\n\n`);
+    throw new Error(`Constructor requires node version 6.x - you have: ${ver}`);
   }
 };
 
 //not necessary, but v3 greatly preferred
 export const checkNpmVersion = () => {};
 
-export const checkDockerInstalled = () => {
-  return promisedExec('docker -v', {}, { comment: 'Checking if Docker installed...' })
-    .catch(err => {
+export const checkDockerInstalled = () => promisedExec('docker -v', {}, { comment: 'Checking if Docker installed...' })
+    .catch((err) => {
       console.error(colors.red('\nDocker CLI is required to run Constructor\n'));
       throw err;
     })
-    .then(result => {
+    .then((result) => {
       const version = findVersions(result, { loose: true });
-      console.log('Found version ' + version);
+      console.log(`Found version ${version}`);
 
       const [/*match*/, major, minor] = /^(\d+)\.?(\d+)\.?(\*|\d+)$/.exec(version);
       if (major < 1 || minor < 12) {
@@ -54,7 +53,6 @@ export const checkDockerInstalled = () => {
         throw Error('Docker > 1.12 required');
       }
     });
-};
 
 async function checks() {
   try {

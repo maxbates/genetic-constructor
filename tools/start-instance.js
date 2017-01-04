@@ -10,7 +10,7 @@ async function startInstance() {
 
   await run(bundle);
 
-  await new Promise(resolve => {
+  await new Promise((resolve) => {
     runServer(() => resolve);
   });
 }
