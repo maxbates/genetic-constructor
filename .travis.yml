@@ -2,7 +2,6 @@ sudo: required
 language: node_js
 node_js:
 - '6'
-- '4'
 python:
 - '2.7'
 env:
@@ -24,8 +23,7 @@ addons:
 #    username: bionano
 #    access_key:
 #      secure: Wu6FXPOd3MbsfPzJQHr4hr7afS6r7vncyPyGJ/+bgR0U03oqqi3SxPFzd2vYqLc/ue6XIAmTEkb6Jn5OhN6GdmetF2jBjXwu5m8l2TfllM+hCEKwTc6i9QuZDVcwA6eVAH0Cwo/8aAIRKBaZI5LScepvg/V70gr3b5eWOHyhN4lvhaC4+NW4veMMXA3o/xuIN4rAr1Y0evR+qZbDRPROzo3XIYFQct9Xgl/46p/DYq4C+8ARUeIbjCAnTozf45tvuDyFqV7UiJnmcRYMmJlEK/QKNgB0URbhroC2dLO13jw2y09cDfKNjEV/fiyjvyCxy+7wVcDf5PheU3BTaVgE2DM3Tmixo/6AqTZZepGdF+MPf/R9sS4AMI/HZ8aQkaj9wGNv8CcaGktN+x8xhKlWEm+u5BMMObwI/hqRt6MHIiOdyBiAEG5hMUjR4DFfzyTd/GjY9Pr7mcfzSdhehH2taqlQobybxZ+vcap+RPDgnXoDLjA7Ohkzd8iasRnLb48U2pUPh3Km8DvLEgY+WXwxgnL7AIn46IXA5T2eSe24y+4GnpaMrITNk5X+4y4Zb2NpuGAlKZgMCUSWWP3ERxcwCnKewoOXI5n1IdjuAB83ftdsnu9CBVI8aocSibqDJNz2N2mlq2OMOePi2zWE7Wh/r+IBSxPbPU3l6W4/OjPA5gA=
-before_install:
-- if [[ `npm -v` != 3* ]]; then npm i -g npm@3; fi
+#before_install:
 #- docker build -t gctorstorage_db ./storage-ext/postgres/
 #- docker run -d -p 60914:5432 -l gctorstorage_db gctorstorage_db
 #- docker ps -a
