@@ -22,7 +22,8 @@ export default function checkPortFree(port = HOST_PORT, host = HOST_NAME) {
     const tester = net.createServer()
       .once('error', (err) => {
         if (err.code !== 'EADDRINUSE') {
-          return reject(false);
+          reject(false);
+          return;
         }
         reject(err);
       })

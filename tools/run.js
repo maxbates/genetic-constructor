@@ -37,7 +37,7 @@ function run(fn, options) {
 //e.g. babel-node tools/run script
 if (process.mainModule.children.length === 0 && process.argv.length > 2) {
   delete require.cache[__filename];
-  const theScript = require(`./${process.argv[2]}.js`);
+  const theScript = require(`./${process.argv[2]}.js`); //eslint-disable-line import/no-dynamic-require
 
   run(theScript)
     .catch((err) => {

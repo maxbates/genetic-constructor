@@ -101,7 +101,8 @@ export const pruneUserObjectMiddleware = (req, res, next) => {
 
 export const ensureReqUserMiddleware = (req, res, next) => {
   if (!req.user) {
-    return res.status(401).send('no user found on request. ensure header set - credentials: same-origin');
+    res.status(401).send('no user found on request. ensure header set - credentials: same-origin');
+    return;
   }
   next();
 };

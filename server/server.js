@@ -19,6 +19,7 @@ import express from 'express';
 import morgan from 'morgan';
 import compression from 'compression';
 import colors from 'colors/safe';
+import bodyParser from 'body-parser';
 
 import pkg from '../package.json';
 import { registrationHandler } from './user/updateUserHandler';
@@ -27,13 +28,14 @@ import dataRouter from './data/router';
 import orderRouter from './order/index';
 import extensionsRouter from './extensions/index';
 import reportRouter from './report/index';
-import bodyParser from 'body-parser';
 import errorHandlingMiddleware from './utils/errorHandlingMiddleware';
 import checkUserSetup from './onboarding/userSetup';
 import { pruneUserObject } from './user/utils';
 
 import checkPortFree from './utils/checkPortFree';
 import { HOST_PORT, HOST_NAME, API_END_POINT } from './urlConstants';
+
+/* eslint global-require: 0 */
 
 //where the server will be listening
 const hostPath = `http://${HOST_NAME}:${HOST_PORT}/`;

@@ -1,14 +1,14 @@
 import BrowserSync from 'browser-sync';
 import webpack from 'webpack';
+import colors from 'colors/safe';
+import { debounce } from 'lodash';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import run from './run';
 import runServer from './runServer';
 import { clientConfig } from './webpack.config';
 import setup from './setup';
-import colors from 'colors/safe';
 //import bundleServer from './bundleServer';
-import { debounce } from 'lodash';
 
 const DEBUG = !process.argv.includes('--release');
 
@@ -43,31 +43,31 @@ async function start() {
         config.plugins.push(new webpack.HotModuleReplacementPlugin());
         config.plugins.push(new webpack.NoErrorsPlugin());
         config
-          .module
-          .loaders
-          .filter(x => x.loader === 'babel-loader')
-          .forEach(x => (x.query = {
-            ...x.query,
+        .module
+        .loaders
+        .filter(x => x.loader === 'babel-loader')
+        .forEach(x => (x.query = {
+          ...x.query,
 
-            // Wraps all React components into arbitrary transforms
-            // https://github.com/gaearon/babel-plugin-react-transform
-            plugins: [
-              ...(x.query ? x.query.plugins : []),
-              ['react-transform', {
-                transforms: [
-                  {
-                    transform: 'react-transform-hmr',
-                    imports: ['react'],
-                    locals: ['module'],
-                  }, {
-                    transform: 'react-transform-catch-errors',
-                    imports: ['react', 'redbox-react'],
-                  },
-                ],
-              },
+          // Wraps all React components into arbitrary transforms
+          // https://github.com/gaearon/babel-plugin-react-transform
+          plugins: [
+            ...(x.query ? x.query.plugins : []),
+            ['react-transform', {
+              transforms: [
+                {
+                  transform: 'react-transform-hmr',
+                  imports: ['react'],
+                  locals: ['module'],
+                }, {
+                  transform: 'react-transform-catch-errors',
+                  imports: ['react', 'redbox-react'],
+                },
               ],
+            },
             ],
-          }));
+          ],
+        }));
         /* eslint-enable no-param-reassign */
       });
 
@@ -116,10 +116,11 @@ async function start() {
             }, resolve);
 
             //todo - we want ton only recompile once per batch of changes - currently every single file change will trigger a build. Maybe just debounce?
-            const ignoreDotFilesAndNestedNodeModules = /([\/\\]\.)|(node_modules\/.*?\/node_modules)/gi;
+            const ignoreDotFilesAndNestedNodeModules = /([/\\]\.)|(node_modules\/.*?\/node_modules)/gi;
             const checkSymlinkedNodeModule = /(.*?\/)?extensions\/.*?\/node_modules/;
             const checkIsInServerExtensions = /^server\//;
             const checkTempFile = /temp/gi;
+
             const ignoreFilePathCheck = (path) => {
               if (ignoreDotFilesAndNestedNodeModules.test(path)) {
                 return true;
@@ -141,6 +142,7 @@ async function start() {
               if (checkTempFile.test(path)) {
                 return true;
               }
+              return false;
             };
 
             const eventsCareAbout = ['add', 'change', 'unlink', 'addDir', 'unlinkDir'];

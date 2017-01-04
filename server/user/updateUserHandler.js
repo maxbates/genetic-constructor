@@ -15,12 +15,12 @@
  */
 
 import fetch from 'isomorphic-fetch';
+import debug from 'debug';
 import EmailValidator from 'email-validator';
 import { INTERNAL_HOST, API_END_POINT } from '../urlConstants';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
 import { pruneUserObject, validateConfig, updateUserAll, updateUserConfig, mergeConfigToUserData } from './utils';
 import { headersPost } from '../../src/middleware/utils/headers';
-import debug from 'debug';
 
 const logger = debug('constructor:auth');
 
@@ -200,7 +200,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     //to update user, issues with setting cookies as auth and making a new fetch, so call user update function
     //might want to abstract to same across local + real auth
     if (process.env.BIO_NANO_AUTH) {
-      const userPromises = require('bio-user-platform').userPromises({
+      const userPromises = require('bio-user-platform').userPromises({ //eslint-disable-line
         apiEndPoint: API_END_POINT,
       });
 

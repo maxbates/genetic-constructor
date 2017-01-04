@@ -15,9 +15,9 @@
  */
 
 import invariant from 'invariant';
+import debug from 'debug';
 import Order from '../../src/models/Order';
 import Rollup from '../../src/models/Rollup';
-import debug from 'debug';
 
 //test ordering module, which resolves when the order, user, constructList, blockMap are valid
 

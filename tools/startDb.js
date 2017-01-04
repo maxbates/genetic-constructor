@@ -13,9 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import colors from 'colors/safe';
 import { promisedExec, spawnAsync } from './lib/cp';
 import checkPortFree from '../server/utils/checkPortFree';
-import colors from 'colors/safe';
 
 //note - DB holds on the to process, so this will resolve but process will never exit. So, can be used in promise chaining, but not in __ && __ bash syntax
 
