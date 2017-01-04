@@ -47,22 +47,22 @@ class UserWidget extends Component {
     const menuPosition = new Vector2D(box.cx, box.bottom);
     const name = this.props.user.firstName + ' ' + this.props.user.lastName;
     this.props.uiShowMenu([
-        {
-          text: name,
-          disabled: true,
+      {
+        text: name,
+        disabled: true,
+      },
+      {
+        text: 'Account Settings',
+        action: () => {
+          this.props.uiShowAuthenticationForm('account');
         },
-        {
-          text: 'Account Settings',
-          action: () => {
-            this.props.uiShowAuthenticationForm('account');
-          },
-        },
-        {
-          text: 'Sign Out',
-          action: this.signOut.bind(this),
-        },
-      ],
-      menuPosition, true);
+      },
+      {
+        text: 'Sign Out',
+        action: this.signOut.bind(this),
+      },
+    ],
+    menuPosition, true);
   };
 
   signOut() {
