@@ -67,7 +67,7 @@ Check to see if a project exists
 
 * Same optional query string parameter functionaliy as the `GET` method
 * Returns `404` if the project doesn't exist
-* Response Headers:
+* HTTP Response Headers:
   * `Latest-Version-UUID` -> UUID of the latest version of the project or the specific version if specified
   * `Latest-Version` -> latest version of the project or the spcified version
   * `Owner` -> UUID of the project owner
@@ -159,8 +159,9 @@ Returns `404` if the specified `ownerId` UUID doesn't match any project records.
 
 Returns HTTP headers to the be used for efficient, subsequent project fetches.
 
-* `Last-Project` -> `projectId` of the last project the owner updated
-* `Last-Project-UUID` -> `uuid` of the specifc project record for the last version of the last project the owner updated
+* HTTP Response Headers
+  * `Last-Project` -> `projectId` of the last project the owner updated
+  * `Last-Project-UUID` -> `uuid` of the specifc project record for the last version of the last project the owner updated
 
 #### Fetch Projects with specific Block ID
 
