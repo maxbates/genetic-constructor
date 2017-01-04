@@ -51,10 +51,10 @@ export class Inspector extends Component {
       type: 'information',
       title: 'Information',
     },
-    Settings: {
-      type: 'settings',
-      title: 'Settings',
-    },
+    // Settings: {
+    //   type: 'settings',
+    //   title: 'Settings',
+    // },
     Extensions: {
       type: 'extensions',
       title: 'Plugins',
