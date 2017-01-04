@@ -202,13 +202,13 @@ class InspectorGroupFeedback extends Component {
         <a href="https://twitter.com/home?status=www.geneticconstructor.com" target="_blank">
           <img className="social-button" src="/images/ui/social-twitter.svg"/>
         </a>
-        <a href="https://www.linkedin.com/shareArticle?mini=true&url=www.geneticconstructor.com&title=Autodesk%20-%20Genetic%20Constructor&summary=DNS%20Design%20Tools%20from%20Autodesk&source=www.geneticconstructor.com" target="_blank">
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url=www.geneticconstructor.com&title=Autodesk%20-%20Genetic%20Constructor&summary=DNA%20Design%20Tools%20from%20Autodesk&source=www.geneticconstructor.com" target="_blank">
           <img className="social-button" src="/images/ui/social-linkedin.svg"/>
         </a>
         <a href="https://plus.google.com/share?url=www.geneticconstructor.com" target="_blank">
           <img className="social-button" src="/images/ui/social-google+.svg"/>
         </a>
-        <a href="mailto:?&subject=Autodesk - Genetic Constructor">
+        <a href="mailto:?&subject=Autodesk - Genetic Constructor&body=Check%20out%20Autodesk%20Genetic%20Constructor%3A%20http%3A//geneticconstructor.com">
           <img className="social-button" src="/images/ui/social-email.svg"/>
         </a>
       </div>
