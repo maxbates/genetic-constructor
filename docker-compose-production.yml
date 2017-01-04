@@ -7,7 +7,4 @@ webapp:
     HOST_URL: https://geneticconstructor.bionano.autodesk.com
     REG_ALERT_EMAIL: ${REG_ALERT_EMAIL}
     REG_ALERT_SUBJECT: "Genetic Constructor Registration"
-    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-    STORAGE_API: http://gctor-storage-api.bionano.bio:4747/api
   restart: always
