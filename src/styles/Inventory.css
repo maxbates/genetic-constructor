@@ -9,6 +9,10 @@
     font-family: var(--font-family-panels);
   }
 
+  .container * {
+    font-family: var(--font-family-panels) !important;
+  }
+
   .vertical-menu {
     position: absolute;
     width: var(--width-SidePanel-closed);
@@ -43,6 +47,9 @@
   }
   .label-bold * {
     font-weight: bold !important;
+    font-family: var(--font-family-panels) !important;
+  }
+  .expando * {
     font-family: var(--font-family-panels) !important;
   }
 }
