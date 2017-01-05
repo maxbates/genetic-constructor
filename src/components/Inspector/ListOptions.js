@@ -55,7 +55,7 @@ export class ListOptions extends Component {
   };
 
   handleCSVDrop = (files) => {
-    importCsvFile(files[0], 'convert')
+    importCsvFile('convert', files[0])
       .then(({ project, blocks }) => {
         this.props.blockStash(...Object.keys(blocks).map(blockId => blocks[blockId]));
         this.props.blockOptionsAdd(this.props.block.id, ...Object.keys(blocks));
