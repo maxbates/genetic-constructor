@@ -11,7 +11,7 @@ module.exports = {
     var credentials = homepageRegister(browser);
     browser
       // click user widget to access account dialog
-      .click('div.signed-in')
+      .click('.userwidget')
       .pause(1000);
      clickNthContextMenuItem(browser, 2);
      browser
