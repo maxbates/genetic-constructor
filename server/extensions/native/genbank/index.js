@@ -170,7 +170,7 @@ router.all('/export/:projectId/:constructId?',
 router.post('/import/:projectId?',
   importMiddleware,
   (req, res, next) => {
-    const { noSave, returnRoll, projectId, files } = req; //eslint-disable-line no-unused-vars
+    const { projectId, files } = req;
     const { constructsOnly } = req.body;
 
     logger(`importing genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
