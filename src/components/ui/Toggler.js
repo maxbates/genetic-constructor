@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { PropTypes } from 'react';
-import Arrow from './Arrow'
+import Arrow from './Arrow';
 
 import '../../styles/Toggler.css';
 
@@ -29,8 +29,8 @@ export default function Toggler({ onClick, hidden, open, disabled, style }) {
               direction={open ? 'down' : 'right'}
               disabled={disabled}
               onClick={onClick}
-              hidden={false}>
-            </Arrow>
+              hidden={false}
+            />
           </div>);
 }
 
