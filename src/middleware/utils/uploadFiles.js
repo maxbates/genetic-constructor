@@ -13,9 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './rejectingFetch';
 import invariant from 'invariant';
+
 import { isFile } from './fileReader';
+import rejectingFetch from './rejectingFetch';
 
 export default function uploadFiles(url, headers = {}, ...files) {
   invariant(url && typeof url === 'string', 'first arg is url');

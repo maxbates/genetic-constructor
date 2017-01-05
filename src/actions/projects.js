@@ -18,22 +18,22 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import * as ActionTypes from '../constants/ActionTypes';
-import { saveProject, loadProject, listProjects, deleteProject } from '../middleware/projects';
-import { snapshot } from '../middleware/snapshots';
-import * as projectSelectors from '../selectors/projects';
-import * as blockActions from '../actions/blocks';
-import * as blockSelectors from '../selectors/blocks';
-import * as undoActions from '../store/undo/actions';
+import { merge, uniq, values } from 'lodash';
 import { push } from 'react-router-redux';
-import { uniq, values, merge } from 'lodash';
 
-import * as instanceMap from '../store/instanceMap';
+import emptyProjectWithConstruct from '../../data/emptyProject/index';
+import * as blockActions from '../actions/blocks';
+import * as ActionTypes from '../constants/ActionTypes';
+import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
+import { snapshot } from '../middleware/snapshots';
 import Block from '../models/Block';
 import Project from '../models/Project';
 import Rollup from '../models/Rollup';
-import emptyProjectWithConstruct from '../../data/emptyProject/index';
+import * as blockSelectors from '../selectors/blocks';
+import * as projectSelectors from '../selectors/projects';
+import * as instanceMap from '../store/instanceMap';
 import { pauseAction, resumeAction } from '../store/pausableStore';
+import * as undoActions from '../store/undo/actions';
 import { getLocal, setLocal } from '../utils/localstorage';
 
 const recentProjectKey = 'mostRecentProject';

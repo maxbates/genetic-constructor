@@ -15,9 +15,9 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { uiSetGrunt } from '../actions/ui';
 
 import '../../src/styles/ribbongrunt.css';
+import { uiSetGrunt } from '../actions/ui';
 
 // MS display time for grunt messages
 const DISPLAY_TIME = 5000;

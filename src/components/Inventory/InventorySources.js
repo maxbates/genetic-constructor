@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { PropTypes } from 'react';
-import PopupMenu from '../Menu/PopupMenu';
+
 import '../../styles/InventorySources.css';
+import PopupMenu from '../Menu/PopupMenu';
 
 //note - this is reset on hot-reloads, but shouldnt matter in production
 let position = {};

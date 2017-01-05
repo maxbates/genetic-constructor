@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import fields from './fields/index';
 import Schema from './SchemaClass';
+import fields from './fields/index';
 
 /**
  * Rules defining a block and its function. See the chart in Rules_notes.png

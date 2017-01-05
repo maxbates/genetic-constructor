@@ -13,14 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
-import { userLogin } from '../../actions/user';
-import { reset } from '../../middleware/auth';
-import invariant from 'invariant';
+
 import { projectOpen } from '../../actions/projects';
+import { uiSetGrunt, uiShowAuthenticationForm } from '../../actions/ui';
+import { userLogin } from '../../actions/user';
 import track from '../../analytics/ga';
+import { reset } from '../../middleware/auth';
 
 /*
  * default visibility and text for error labels

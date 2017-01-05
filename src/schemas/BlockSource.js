@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import fields from './fields/index';
 import Schema from './SchemaClass';
+import fields from './fields/index';
 
 /**
  * BlockSource denotes where a block came from. It is generally set on import / addition to the project

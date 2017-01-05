@@ -16,8 +16,8 @@
 
 import paletteAnime from './paletteAnime';
 import paletteBright from './paletteBright';
-import palettePastel from './palettePastel';
 import paletteNature from './paletteNature';
+import palettePastel from './palettePastel';
 
 const paletteLength = 16;
 

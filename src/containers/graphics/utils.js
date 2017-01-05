@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import * as validators from '../../schemas/fields/validators';
 import safeValidate from '../../schemas/fields/safeValidate';
+import * as validators from '../../schemas/fields/validators';
 
 export const deg2rad = deg => deg * (Math.PI / 180);
 

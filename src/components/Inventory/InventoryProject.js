@@ -15,12 +15,12 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+import { focusForceProject } from '../../actions/focus';
+import { projectList, projectLoad, projectOpen, projectSave } from '../../actions/projects';
+import { inspectorToggleVisibility } from '../../actions/ui';
 import Project from '../../models/Project';
 import { projectGet, projectListAllBlocks } from '../../selectors/projects';
-import { projectList, projectLoad, projectSave, projectOpen } from '../../actions/projects';
-import { focusForceProject } from '../../actions/focus';
-import { inspectorToggleVisibility } from '../../actions/ui';
-
 import InventoryConstruct from './InventoryConstruct';
 import InventoryListGroup from './InventoryListGroup';
 

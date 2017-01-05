@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import fields from './fields/index';
 import Schema from './SchemaClass';
+import fields from './fields/index';
 
 /**
  * Information about a placed order
@@ -67,4 +67,3 @@ export class OrderStatusSchemaClass extends Schema {
 }
 
 export default new OrderStatusSchemaClass();
-

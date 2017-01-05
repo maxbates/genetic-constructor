@@ -19,14 +19,15 @@
  */
 import invariant from 'invariant';
 import { every, filter, uniq, values } from 'lodash';
+
 import * as ActionTypes from '../constants/ActionTypes';
-import BlockSchema from '../schemas/Block';
-import Block from '../models/Block';
 import { loadBlock } from '../middleware/projects';
+import Block from '../models/Block';
+import BlockSchema from '../schemas/Block';
 import * as selectors from '../selectors/blocks';
 import * as projectSelectors from '../selectors/projects';
-import * as undoActions from '../store/undo/actions';
 import { pauseAction, resumeAction } from '../store/pausableStore';
+import * as undoActions from '../store/undo/actions';
 
 //todo - helper to wrap dispatch()'s in a paused transaction - make sure dispatch still runs when passed as arg
 //todo - helper _getBlock() which throws of block doesnt exist

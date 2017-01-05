@@ -13,23 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
-import ModalWindow from '../modal/modalwindow';
-import Dropzone from 'react-dropzone';
-import {
-  uiShowPartsCSVImport,
-  uiSpin,
-} from '../../actions/ui';
-import {
-  blockStash,
-  blockOptionsAdd,
-} from '../../actions/blocks';
-import Block from '../../models/Block';
-import { importFile } from '../../middleware/csv';
 import invariant from 'invariant';
+import React, { Component, PropTypes } from 'react';
+import Dropzone from 'react-dropzone';
+import { connect } from 'react-redux';
 
 import '../../../src/styles/partscsv.css';
+import { blockOptionsAdd, blockStash } from '../../actions/blocks';
+import { uiShowPartsCSVImport, uiSpin } from '../../actions/ui';
+import { importFile } from '../../middleware/csv';
+import Block from '../../models/Block';
+import ModalWindow from '../modal/modalwindow';
 
 /**
  * Genbank import dialog.

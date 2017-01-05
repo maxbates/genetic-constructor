@@ -15,11 +15,10 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { transact, commit } from '../../store/undo/actions';
 
-import InventoryItem from './InventoryItem';
-
+import { commit, transact } from '../../store/undo/actions';
 import '../../styles/InventoryList.css';
+import InventoryItem from './InventoryItem';
 
 export class InventoryList extends Component {
   static propTypes = {

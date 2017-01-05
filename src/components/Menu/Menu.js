@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+
 import MenuItem from './MenuItem';
 import MenuSeparator from './MenuSeparator';
 

@@ -18,8 +18,9 @@
  *
  * Extensions may want to use this for persistence on the constructor server
  */
-import express from 'express';
 import bodyParser from 'body-parser';
+import express from 'express';
+
 import rejectingFetch from '../../src/middleware/utils/rejectingFetch';
 import errorHandlingMiddleware from '../utils/errorHandlingMiddleware';
 

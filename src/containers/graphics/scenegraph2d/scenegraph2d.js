@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import uuid from 'node-uuid';
-import Node2D from './node2d';
 import invariant from 'invariant';
+import uuid from 'node-uuid';
+
 import Vector2D from '../geometry/vector2d';
+import Node2D from './node2d';
 
 export default class SceneGraph2D {
 

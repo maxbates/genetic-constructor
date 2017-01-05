@@ -15,11 +15,11 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { projectList } from '../../actions/projects';
-import { blockStash } from '../../actions/blocks';
 
-import InventoryProject from './InventoryProject';
+import { blockStash } from '../../actions/blocks';
+import { projectList } from '../../actions/projects';
 import Spinner from '../ui/Spinner';
+import InventoryProject from './InventoryProject';
 
 export class InventoryProjectList extends Component {
   static propTypes = {

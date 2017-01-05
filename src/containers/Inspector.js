@@ -15,13 +15,12 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { inspectorToggleVisibility } from '../actions/ui';
-import { _getFocused } from '../selectors/focus';
 
-import InspectorRole from '../components/Inspector/InspectorRole';
+import { inspectorToggleVisibility } from '../actions/ui';
 import InspectorBlock from '../components/Inspector/InspectorBlock';
 import InspectorProject from '../components/Inspector/InspectorProject';
-
+import InspectorRole from '../components/Inspector/InspectorRole';
+import { _getFocused } from '../selectors/focus';
 import '../styles/Inspector.css';
 import '../styles/SidePanel.css';
 

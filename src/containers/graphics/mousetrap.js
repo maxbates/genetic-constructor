@@ -13,8 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import Vector2D from './geometry/vector2d';
 import invariant from 'invariant';
+
+import Vector2D from './geometry/vector2d';
 
 /**
  * MS and pixel thresholds to register a double click

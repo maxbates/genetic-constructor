@@ -13,13 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { assign, merge, isEqual } from 'lodash';
 import invariant from 'invariant';
-import Instance from './Instance';
+import { assign, isEqual, merge } from 'lodash';
+
+import { projectFileRead, projectFileWrite } from '../middleware/projectFiles';
 import ProjectSchema from '../schemas/Project';
 import safeValidate from '../schemas/fields/safeValidate';
 import { id } from '../schemas/fields/validators';
-import { projectFileWrite, projectFileRead } from '../middleware/projectFiles';
+import Instance from './Instance';
 
 const idValidator = (input, required = false) => safeValidate(id(), required, input);
 

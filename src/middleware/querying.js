@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
+
 import { headersGet } from './utils/headers';
 import { dataApiPath } from './utils/paths';
+import rejectingFetch from './utils/rejectingFetch';
 
 //info query - low level API call
 export const infoQuery = (type, detail, additional) => {

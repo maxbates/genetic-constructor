@@ -13,8 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { dispatch } from './index.js';
 import { mapValues } from 'lodash';
+
+import { dispatch } from './index';
 
 const dispatchWrapper = action => (...args) => dispatch(action(...args));
 

@@ -14,13 +14,14 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import Instance from '../models/Instance';
 import { cloneDeep } from 'lodash';
+
+import { getQuote, submitOrder } from '../middleware/order';
+import Instance from '../models/Instance';
 import OrderDefinition from '../schemas/Order';
 import OrderParametersSchema from '../schemas/OrderParameters';
-import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
-import { submitOrder, getQuote } from '../middleware/order';
+import * as validators from '../schemas/fields/validators';
 
 const idValidator = id => safeValidate(validators.id(), true, id);
 

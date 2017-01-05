@@ -14,8 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import { isRealNumber, deg2rad, rad2deg } from '../utils';
+
+import { deg2rad, isRealNumber, rad2deg } from '../utils';
 import Line2D from './line2d';
+
 /**
  * a 2D Vector/Point
  */

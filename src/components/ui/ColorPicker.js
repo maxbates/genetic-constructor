@@ -14,11 +14,11 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+
+import '../../styles/ColorPicker.css';
+import '../../styles/Picker.css';
 import { getPalette } from '../../utils/color/index';
 import PickerItem from './PickerItem';
-
-import '../../styles/Picker.css';
-import '../../styles/ColorPicker.css';
 
 //todo - this has a lot of logic shared with Symbol Picker, but some differences in data structure etc. Should probably merge them though.
 

@@ -13,21 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import express from 'express';
 import bodyParser from 'body-parser';
-import {
-  errorInvalidModel,
-  errorInvalidRoute,
-  errorDoesNotExist,
-} from '../utils/errors';
-import { ensureReqUserMiddleware } from '../user/utils';
-import { projectPermissionMiddleware } from './permissions';
-import * as projectPersistence from './persistence/projects';
-import * as projectVersions from './persistence/projectVersions';
-import * as blockPersistence from './persistence/blocks';
+import express from 'express';
 
-import projectFileRouter from './routerProjectFiles';
+import { ensureReqUserMiddleware } from '../user/utils';
+import { errorDoesNotExist, errorInvalidModel, errorInvalidRoute } from '../utils/errors';
+import { projectPermissionMiddleware } from './permissions';
+import * as blockPersistence from './persistence/blocks';
+import * as projectVersions from './persistence/projectVersions';
+import * as projectPersistence from './persistence/projects';
 import jobFileRouter from './routerJobs';
+import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
 import snapshotRouter from './routerSnapshots';
 

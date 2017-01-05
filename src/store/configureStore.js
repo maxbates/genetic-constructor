@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
-//import createLogger from 'redux-logger';
-import { routerMiddleware } from 'react-router-redux';
 import { browserHistory } from 'react-router';
-import saveLastActionMiddleware from './saveLastActionMiddleware';
+import { routerMiddleware } from 'react-router-redux';
+import { applyMiddleware, compose, createStore } from 'redux';
+import thunk from 'redux-thunk';
+
 import combinedReducerCreator from '../reducers/index';
 import pausableStore from './pausableStore';
+import saveLastActionMiddleware from './saveLastActionMiddleware';
 
 // note that the store loads the routes, which in turn load components
 // Routes are provided to the store. ReduxRouter works with react-router. see routes.js - they are injected as middleware here so they can be provided to components, and route information can be accessed as application state.

@@ -15,16 +15,12 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ListOption from './ListOption';
-import { blockStash, blockOptionsToggle, blockOptionsAdd, blockOptionsRemove } from '../../actions/blocks';
-import { importFile as importCsvFile } from '../../middleware/csv';
-import {
-  uiShowPartsCSVImport,
-} from '../../actions/ui';
-//import CSVFileDrop from './CSVFileDrop';
-//import '../../styles/CSVFileDrop.css';
 
+import { blockOptionsAdd, blockOptionsRemove, blockOptionsToggle, blockStash } from '../../actions/blocks';
+import { uiShowPartsCSVImport } from '../../actions/ui';
+import { importFile as importCsvFile } from '../../middleware/csv';
 import '../../styles/ListOptions.css';
+import ListOption from './ListOption';
 
 export class ListOptions extends Component {
   static propTypes = {

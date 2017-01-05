@@ -15,11 +15,11 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ModalWindow from './modalwindow';
-import { uiReportError } from '../../actions/ui';
-import { reportError } from '../../middleware/reporting';
 
 import '../../../src/styles/ReportErrorModal.css';
+import { uiReportError } from '../../actions/ui';
+import { reportError } from '../../middleware/reporting';
+import ModalWindow from './modalwindow';
 
 const initialState = {
   title: '',

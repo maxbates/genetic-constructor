@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import Project from '../models/Project';
+
 import Block from '../models/Block';
 import Order from '../models/Order';
+import Project from '../models/Project';
 
 //NOTE - this cache is not reset when the user changes. That sucks up some memory. So, we reload the page. User should not be able to access though - this is used by middleware functoins etc., but everything in a newly signed-in user's information will have unique IDs and should not collide (until there is collaboration or something along those lines).
 

@@ -15,11 +15,8 @@
  */
 
 import express from 'express';
-import {
-  errorVersioningSystem,
-  errorInvalidModel,
-  errorDoesNotExist,
-} from './../utils/errors';
+
+import { errorDoesNotExist, errorInvalidModel, errorVersioningSystem } from './../utils/errors';
 import * as projectPersistence from './persistence/projects';
 import * as snapshots from './persistence/snapshots';
 

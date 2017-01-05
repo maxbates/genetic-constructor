@@ -15,16 +15,16 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ModalWindow from '../../components/modal/modalwindow';
-import RegisterForm from '../../components/authentication/register';
-import SignInForm from '../../components/authentication/signin';
-import ForgotForm from '../../components/authentication/forgot';
-import ResetForm from '../../components/authentication/reset';
-import AccountForm from '../../components/authentication/account';
-import { uiShowAuthenticationForm } from '../../actions/ui';
 
-import '../../../src/styles/form.css';
 import '../../../src/styles/authenticationforms.css';
+import '../../../src/styles/form.css';
+import { uiShowAuthenticationForm } from '../../actions/ui';
+import AccountForm from '../../components/authentication/account';
+import ForgotForm from '../../components/authentication/forgot';
+import RegisterForm from '../../components/authentication/register';
+import ResetForm from '../../components/authentication/reset';
+import SignInForm from '../../components/authentication/signin';
+import ModalWindow from '../../components/modal/modalwindow';
 
 class AuthenticationForms extends Component {
   static propTypes = {

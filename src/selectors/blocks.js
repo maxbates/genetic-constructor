@@ -18,8 +18,9 @@
  * @memberOf module:Selectors
  */
 import invariant from 'invariant';
+import { flatten, get as pathGet, pickBy, values } from 'lodash';
+
 import BlockSchema from '../schemas/Block';
-import { values, flatten, get as pathGet, pickBy } from 'lodash';
 import saveCombinations from '../utils/generators/orderConstructs';
 
 const assertBlockExists = (block, blockId) => invariant(block && typeof block.metadata === 'object', `no block exists for block ID ${blockId}`);

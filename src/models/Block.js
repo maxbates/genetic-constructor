@@ -13,17 +13,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import Instance from './Instance';
 import invariant from 'invariant';
-import { assign, merge, cloneDeep } from 'lodash';
-import BlockSchema from '../schemas/Block';
+import { assign, cloneDeep, merge } from 'lodash';
+
+import { symbolMap } from '../inventory/roles';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
-import { isHex, palettes, getPalette, nextColor, colorFiller } from '../utils/color/index';
-import { dnaStrictRegexp, dnaLooseRegexp } from '../utils/dna';
-import * as validators from '../schemas/fields/validators';
+import BlockSchema from '../schemas/Block';
 import safeValidate from '../schemas/fields/safeValidate';
-import { symbolMap } from '../inventory/roles';
+import * as validators from '../schemas/fields/validators';
+import { colorFiller, getPalette, isHex, nextColor, palettes } from '../utils/color/index';
+import { dnaLooseRegexp, dnaStrictRegexp } from '../utils/dna';
+import Instance from './Instance';
 
 const idValidator = id => safeValidate(validators.id(), true, id);
 

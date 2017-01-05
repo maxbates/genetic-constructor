@@ -17,13 +17,14 @@
  * Interface for checking existence / creating / replacing / merging / deleting instances
  * @module persistence
  */
-import invariant from 'invariant';
-import { merge, forEach } from 'lodash';
-import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../utils/errors';
-import { validateId, validateProject } from '../../utils/validation';
-import { dbHeadRaw, dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
-import Rollup from '../../../src/models/Rollup';
 import debug from 'debug';
+import invariant from 'invariant';
+import { forEach, merge } from 'lodash';
+
+import Rollup from '../../../src/models/Rollup';
+import { errorDoesNotExist, errorInvalidModel, errorNoPermission } from '../../utils/errors';
+import { validateId, validateProject } from '../../utils/validation';
+import { dbDelete, dbGet, dbHead, dbHeadRaw, dbPost, dbPruneResult } from '../middleware/db';
 
 const logger = debug('constructor:data:persistence:projects');
 

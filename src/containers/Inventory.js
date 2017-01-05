@@ -15,9 +15,9 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { inventoryToggleVisibility, inventorySelectTab } from '../actions/ui';
-import InventoryGroup from '../components/Inventory/InventoryGroup';
 
+import { inventorySelectTab, inventoryToggleVisibility } from '../actions/ui';
+import InventoryGroup from '../components/Inventory/InventoryGroup';
 import '../styles/Inventory.css';
 import '../styles/SidePanel.css';
 

@@ -15,9 +15,10 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
-import { forgot } from '../../middleware/auth';
+
+import { uiSetGrunt, uiShowAuthenticationForm } from '../../actions/ui';
 import track from '../../analytics/ga';
+import { forgot } from '../../middleware/auth';
 
 /*
  * default visibility and text for error labels

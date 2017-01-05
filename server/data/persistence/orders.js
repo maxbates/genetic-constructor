@@ -14,9 +14,10 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+
 import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateOrder } from '../../utils/validation';
-import { dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+import { dbDelete, dbGet, dbHead, dbPost, dbPruneResult } from '../middleware/db';
 import * as projectVersions from './projectVersions';
 
 //do we need consistent result transformation, like for projects?

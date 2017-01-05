@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import { isOne, isZero, deg2rad, rad2deg } from '../utils';
+
+import { deg2rad, isOne, isZero, rad2deg } from '../utils';
 import Vector2D from './vector2d';
 
 export default class Matrix2D {

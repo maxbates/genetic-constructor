@@ -19,7 +19,10 @@
     "no-shadow": [0], //this is used for Redux in the connect, and need to get from component props this way
     "id-length": [1,  {"properties": "never", "exceptions" : ["_", "x", "y", "w", "h", "i"]}],
     "new-cap": [2, {"capIsNewExceptions": ["DragSource", "DropTarget", "DragDropContext"]}],
-    "max-len": 0,
-    "no-underscore-dangle": 0
+    "max-len": 0, //not picky about our lines ending at 100 char
+    "no-underscore-dangle": 0, //sometimes we use _private variable naming
+    "no-plusplus": 0, //unary operators are chill
+    "no-confusing-arrow": ["error", {"allowParens": false}], // e.g. a => !a ? 0 : 1
+    "consistent-return": 0 //sometimes its nice to eject function in one line (e.g. promise rejection)
   }
 }

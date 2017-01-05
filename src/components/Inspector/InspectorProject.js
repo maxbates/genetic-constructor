@@ -15,13 +15,14 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { transact, commit, abort } from '../../store/undo/actions';
-import { projectRename, projectMerge } from '../../actions/projects';
+
+import { projectMerge, projectRename } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
-import InputSimple from './../InputSimple';
 import Project from '../../models/Project';
-import OrderList from './OrderList';
+import { abort, commit, transact } from '../../store/undo/actions';
+import InputSimple from './../InputSimple';
 import InspectorRow from './InspectorRow';
+import OrderList from './OrderList';
 
 export class InspectorProject extends Component {
   static propTypes = {

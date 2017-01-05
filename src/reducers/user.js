@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+
 import * as ActionTypes from '../constants/ActionTypes';
 import { setExtensionConfig } from '../extensions/clientRegistry';
 import loadAllExtensions from '../extensions/loadExtensions';

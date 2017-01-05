@@ -14,20 +14,18 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import Block from '../../models/Block';
 import { connect } from 'react-redux';
+
 import { blockClone, blockLoad, blockStash } from '../../actions/blocks';
-import { block as blockDragType } from '../../constants/DragTypes';
-import { getBlockRoles, getBlocksWithRole } from '../../middleware/querying';
-import { symbolMap } from '../../inventory/roles';
-
-//bit of a hack, since we are not storing this information in the store (since its really derived data) but need to update it
-import { lastAction, subscribe } from '../../store/index';
 import * as ActionTypes from '../../constants/ActionTypes';
-
-import InventoryListGroup from './InventoryListGroup';
-import InventoryList from './InventoryList';
+import { block as blockDragType } from '../../constants/DragTypes';
+import { symbolMap } from '../../inventory/roles';
+import { getBlockRoles, getBlocksWithRole } from '../../middleware/querying';
+import Block from '../../models/Block';
+import { lastAction, subscribe } from '../../store/index';
 import Spinner from '../ui/Spinner';
+import InventoryList from './InventoryList';
+import InventoryListGroup from './InventoryListGroup';
 
 //note - must match storage API
 const noRoleKey = 'none';

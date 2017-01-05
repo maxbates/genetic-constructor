@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import Menu from './Menu';
 
 import '../../styles/Menu.css';
+import Menu from './Menu';
 
 export default class MenuBar extends Component {
   static propTypes = {

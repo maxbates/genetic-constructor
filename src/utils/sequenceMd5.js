@@ -14,8 +14,8 @@
  limitations under the License.
  */
 
-import _ from 'lodash';
 import invariant from 'invariant';
+import _ from 'lodash';
 
 /*
  terminology

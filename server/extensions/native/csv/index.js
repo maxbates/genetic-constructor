@@ -1,15 +1,13 @@
 import express from 'express';
 
-import { convertCsv } from './convert';
-import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
-
-//GC specific
-import Project from '../../../../src/models/Project';
-import Block from '../../../../src/models/Block';
-import * as fileSystem from '../../../data/middleware/fileSystem';
-import * as filePaths from '../../../data/middleware/filePaths';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
+import Block from '../../../../src/models/Block';
+import Project from '../../../../src/models/Project';
+import * as filePaths from '../../../data/middleware/filePaths';
+import * as fileSystem from '../../../data/middleware/fileSystem';
 import { projectPermissionMiddleware } from '../../../data/permissions';
+import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
+import { convertCsv } from './convert';
 
 const extensionKey = 'csv'; //eslint-disable-line no-unused-vars
 

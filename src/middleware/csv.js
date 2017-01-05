@@ -13,11 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
+
+import timeLimit from '../utils/timeLimit';
 import { headersPost } from './utils/headers';
 import { extensionApiPath } from './utils/paths';
-import timeLimit from '../utils/timeLimit';
+import rejectingFetch from './utils/rejectingFetch';
 import uploadFiles from './utils/uploadFiles';
 
 const extensionKey = 'csv';

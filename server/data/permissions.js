@@ -20,10 +20,11 @@
  *
  * @module permissions
  */
-import { errorInvalidId, errorNoIdProvided, errorNoPermission, errorDoesNotExist } from '../utils/errors';
-import { id as idRegex } from '../../src/utils/regex';
-import { userOwnsProject } from './persistence/projects';
 import debug from 'debug';
+
+import { id as idRegex } from '../../src/utils/regex';
+import { errorDoesNotExist, errorInvalidId, errorNoIdProvided, errorNoPermission } from '../utils/errors';
+import { userOwnsProject } from './persistence/projects';
 
 const logger = debug('constructor:permissions');
 

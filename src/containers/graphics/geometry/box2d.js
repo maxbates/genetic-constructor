@@ -14,8 +14,9 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import Vector2D from './vector2d';
+
 import Line2D from './line2d';
+import Vector2D from './vector2d';
 
 export default class Box2D {
   /**

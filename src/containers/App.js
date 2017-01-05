@@ -15,16 +15,16 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import GlobalNav from './GlobalNav';
-import AuthenticationForms from './authentication/authenticationforms';
+
+import track from '../analytics/ga';
 import AboutForm from '../components/aboutform';
-import ModalSpinner from '../components/modal/modalspinner';
 import InlineEditor from '../components/inline-editor/inline-editor';
 import ExtensionPicker from '../components/modal/ExtensionPicker';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
-import track from '../analytics/ga';
-
+import ModalSpinner from '../components/modal/modalspinner';
 import '../styles/App.css';
+import GlobalNav from './GlobalNav';
+import AuthenticationForms from './authentication/authenticationforms';
 
 class App extends Component {
   static propTypes = {

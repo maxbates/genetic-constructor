@@ -1,8 +1,9 @@
-import * as fileSystem from '../../../data/middleware/fileSystem';
-import invariant from 'invariant';
-import Block from '../../../../src/models/Block';
 import parse from 'csv-parse';
+import invariant from 'invariant';
 import md5 from 'md5';
+
+import Block from '../../../../src/models/Block';
+import * as fileSystem from '../../../data/middleware/fileSystem';
 
 //one of these fields is required for each block attempting to import
 const requiredFields = ['name', 'description', 'role', 'sequence'];

@@ -15,12 +15,11 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 
-import InventoryGroupRole from './InventoryGroupRole';
-import InventoryGroupBlocks from './InventoryGroupBlocks';
-import InventoryGroupSearch from './InventoryGroupSearch';
-import InventoryGroupProjects from './InventoryGroupProjects';
-
 import '../../styles/InventoryGroup.css';
+import InventoryGroupBlocks from './InventoryGroupBlocks';
+import InventoryGroupProjects from './InventoryGroupProjects';
+import InventoryGroupRole from './InventoryGroupRole';
+import InventoryGroupSearch from './InventoryGroupSearch';
 
 export default class InventoryGroup extends Component {
   static propTypes = {

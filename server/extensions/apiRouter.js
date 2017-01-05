@@ -13,16 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import express from 'express';
 import path from 'path';
+
 import bodyParser from 'body-parser';
-import { getServerExtensions } from './registry';
+import express from 'express';
+
 import { pruneUserObjectMiddleware } from '../user/utils';
-import {
-  checkExtensionExistsMiddleware,
-  checkUserExtensionAccessMiddleware,
-  checkExtensionIsServerMiddleware,
-} from './middlewareChecks';
+import { checkExtensionExistsMiddleware, checkExtensionIsServerMiddleware, checkUserExtensionAccessMiddleware } from './middlewareChecks';
+import { getServerExtensions } from './registry';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json();

@@ -13,10 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import AnnotationSchema from './Annotation';
+import Schema from './SchemaClass';
 import fields from './fields/index';
 import * as validators from './fields/validators';
-import Schema from './SchemaClass';
-import AnnotationSchema from './Annotation';
 
 /**
  * Definition of a schema, including metadata about the schema and references to how to retrieve it.

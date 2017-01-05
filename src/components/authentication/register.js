@@ -13,19 +13,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
-import queryString from 'query-string';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
-import {
-  uiShowAuthenticationForm,
-  uiSetGrunt,
-  uiSpin,
-} from '../../actions/ui';
+import queryString from 'query-string';
+import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
+
 import { projectOpen } from '../../actions/projects';
+import { uiSetGrunt, uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userRegister } from '../../actions/user';
-import { tos, privacy } from '../../utils/ui/uiapi';
 import track from '../../analytics/ga';
+import { privacy, tos } from '../../utils/ui/uiapi';
 
 /*
  * default visibility and text for error labels

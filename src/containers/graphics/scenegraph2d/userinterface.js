@@ -13,8 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import MouseTrap from '../mousetrap';
 import invariant from 'invariant';
+
+import MouseTrap from '../mousetrap';
 
 export default class UserInterface {
 

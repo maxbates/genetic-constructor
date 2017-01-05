@@ -13,27 +13,28 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+
+import bodyParser from 'body-parser';
+import compression from 'compression';
 import express from 'express';
 import morgan from 'morgan';
-import compression from 'compression';
+
 import colors from 'colors/safe';
-import bodyParser from 'body-parser';
 
 import pkg from '../package.json';
+import dataRouter from './data/router';
+import extensionsRouter from './extensions/index';
+import checkUserSetup from './onboarding/userSetup';
+import orderRouter from './order/index';
+import reportRouter from './report/index';
+import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
-import dataRouter from './data/router';
-import orderRouter from './order/index';
-import extensionsRouter from './extensions/index';
-import reportRouter from './report/index';
-import errorHandlingMiddleware from './utils/errorHandlingMiddleware';
-import checkUserSetup from './onboarding/userSetup';
 import { pruneUserObject } from './user/utils';
-
 import checkPortFree from './utils/checkPortFree';
-import { HOST_PORT, HOST_NAME, API_END_POINT } from './urlConstants';
+import errorHandlingMiddleware from './utils/errorHandlingMiddleware';
 
 /* eslint global-require: 0 */
 
@@ -103,7 +104,7 @@ if (!process.env.STORAGE_API) {
 // the auth routes are currently called from the client and expect JSON responses
 if (process.env.BIO_NANO_AUTH) {
   console.log('[Auth] Real user authentication enabled');
-  const initAuthMiddleware = require('bio-user-platform').initAuthMiddleware;
+  const initAuthMiddleware = require('bio-user-platform').initAuthMiddleware; //eslint-disable-line
 
   const authConfig = {
     logoutLanding: false,

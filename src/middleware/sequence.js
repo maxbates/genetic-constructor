@@ -13,10 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
+import { generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
 import { headersGet, headersPost } from './utils/headers';
 import { dataApiPath } from './utils/paths';
-import { generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
+import rejectingFetch from './utils/rejectingFetch';
 
 const getSequenceUrl = (md5, range) => {
   if (range) {

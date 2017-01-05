@@ -13,12 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import fields from './fields/index';
-import * as validators from './fields/validators';
-import Schema from './SchemaClass';
 import MetadataSchema from './Metadata';
 import OrderParametersSchema from './OrderParameters';
 import OrderStatusSchema from './OrderStatus';
+import Schema from './SchemaClass';
+import fields from './fields/index';
+import * as validators from './fields/validators';
 
 /**
  * Orders are intended / placed orders of DNA with a remote foundry.

@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import Toggler from '../ui/Toggler';
-
-//todo - update classes
 
 import '../../styles/InspectorRow.css';
+import Toggler from '../ui/Toggler';
 
 export default class InspectorRow extends Component {
   static propTypes = {

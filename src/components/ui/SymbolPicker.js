@@ -14,11 +14,11 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import symbols, { symbolMap } from '../../inventory/roles';
-import PickerItem from './PickerItem';
 
+import symbols, { symbolMap } from '../../inventory/roles';
 import '../../styles/Picker.css';
 import '../../styles/SymbolPicker.css';
+import PickerItem from './PickerItem';
 
 export default class SymbolPicker extends Component {
   static propTypes = {

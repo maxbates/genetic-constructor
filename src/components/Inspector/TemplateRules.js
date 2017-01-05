@@ -16,10 +16,10 @@
 
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { blockMerge, blockSetListBlock, blockFreeze, blockSetHidden } from '../../actions/blocks';
-import Checkbox from '../ui/Checkbox';
 
+import { blockFreeze, blockMerge, blockSetHidden, blockSetListBlock } from '../../actions/blocks';
 import '../../styles/TemplateRules.css';
+import Checkbox from '../ui/Checkbox';
 
 export class TemplateRules extends Component {
   static propTypes = {

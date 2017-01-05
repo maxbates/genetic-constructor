@@ -13,9 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import debug from 'debug';
+
 import { errorDoesNotExist } from '../../utils/errors';
 import { dbGet, dbPost } from '../middleware/db';
-import debug from 'debug';
 
 const logger = debug('constructor:data:persistence:snapshots');
 

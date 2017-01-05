@@ -13,12 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
-import { headersGet, headersPost, headersDelete } from './utils/headers';
-import { dataApiPath } from './utils/paths';
-import { noteSave, noteFailure } from '../store/saveState';
+
+import { noteFailure, noteSave } from '../store/saveState';
 import { getBlockContents } from './querying';
+import { headersDelete, headersGet, headersPost } from './utils/headers';
+import { dataApiPath } from './utils/paths';
+import rejectingFetch from './utils/rejectingFetch';
 
 /******
  API requests

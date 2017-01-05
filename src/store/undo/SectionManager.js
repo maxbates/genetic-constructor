@@ -13,8 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import StoreHistory from './storeHistory';
 import debug from 'debug';
+
+import StoreHistory from './storeHistory';
 
 const logger = debug('constructor:store:undo');
 

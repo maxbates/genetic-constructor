@@ -13,66 +13,28 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
+import debounce from 'lodash.debounce';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import SceneGraph2D from '../scenegraph2d/scenegraph2d';
-import Vector2D from '../geometry/vector2d';
-import Layout from './layout.js';
-import PopupMenu from '../../../components/Menu/PopupMenu';
 import { connect } from 'react-redux';
-import {
-  blockCreate,
-  blockDelete,
-  blockDetach,
-  blockSetAuthoring,
-  blockSetListBlock,
-  blockAddComponent,
-  blockAddComponents,
-  blockClone,
-  blockSetRole,
-  blockRename,
-  blockRemoveComponent,
-} from '../../../actions/blocks';
-import {
-  uiShowDNAImport,
-  uiToggleDetailView,
-  inspectorToggleVisibility,
-  uiShowOrderForm,
-  uiInlineEditor,
-} from '../../../actions/ui';
-import {
-  orderCreate,
-  orderGenerateConstructs,
-  orderList,
-  orderSetName,
-} from '../../../actions/orders';
-import {
-  blockGetParents,
-} from '../../../selectors/blocks';
 
-import { role as roleDragType } from '../../../constants/DragTypes';
-import debounce from 'lodash.debounce';
-import UserInterface from './constructvieweruserinterface';
-import {
-  focusBlocks,
-  focusBlocksAdd,
-  focusBlocksToggle,
-  focusConstruct,
-  focusBlockOption,
-} from '../../../actions/focus';
-import invariant from 'invariant';
-import {
-  projectGetVersion,
-  projectGet,
-} from '../../../selectors/projects';
-import {
-  projectRemoveConstruct,
-  projectAddConstruct,
-} from '../../../actions/projects';
+import { blockAddComponent, blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename, blockSetAuthoring, blockSetListBlock, blockSetRole } from '../../../actions/blocks';
+import { focusBlockOption, focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../../actions/focus';
+import { orderCreate, orderGenerateConstructs, orderList, orderSetName } from '../../../actions/orders';
+import { projectAddConstruct, projectRemoveConstruct } from '../../../actions/projects';
+import { inspectorToggleVisibility, uiInlineEditor, uiShowDNAImport, uiShowOrderForm, uiToggleDetailView } from '../../../actions/ui';
+import PopupMenu from '../../../components/Menu/PopupMenu';
 import RoleSvg from '../../../components/RoleSvg';
-
+import { role as roleDragType } from '../../../constants/DragTypes';
+import { blockGetParents } from '../../../selectors/blocks';
+import { projectGet, projectGetVersion } from '../../../selectors/projects';
 import '../../../styles/constructviewer.css';
 import '../../../styles/inline-editor.css';
+import Vector2D from '../geometry/vector2d';
+import SceneGraph2D from '../scenegraph2d/scenegraph2d';
+import UserInterface from './constructvieweruserinterface';
+import Layout from './layout.js';
 
 // static hash for matching viewers to constructs
 const idToViewer = {};

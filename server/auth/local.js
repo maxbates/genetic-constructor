@@ -22,18 +22,20 @@
  *
  * This user is used in unit testing.
  */
-import express from 'express';
-import uuid from 'node-uuid';
 import fs from 'fs';
 import path from 'path';
-import { testUserId } from '../../test/constants';
+
 import bodyParser from 'body-parser';
+import debug from 'debug';
 import EmailValidator from 'email-validator';
-import checkUserSetup from '../onboarding/userSetup';
+import express from 'express';
+import uuid from 'node-uuid';
+
+import { testUserId } from '../../test/constants';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
+import checkUserSetup from '../onboarding/userSetup';
 import { userConfigKey } from '../user/userConstants';
 import { getConfigFromUser, mergeConfigToUserData } from '../user/utils';
-import debug from 'debug';
 
 const log = debug('constructor:auth:local');
 

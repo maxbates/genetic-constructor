@@ -18,15 +18,13 @@
 
  NOTE - create instances using Block.classless and Project.classless - the server is expect JSON blobs that it can assign to, and instances of classes are frozen.
  */
+import debug from 'debug';
 import invariant from 'invariant';
-import * as projectPersistence from '../data/persistence/projects';
-import { getConfigFromUser } from '../user/utils';
 
-//NOTE - egf_parts vs egf_templates
 import makeEgfRollup from '../../data/egf_parts/index';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
-
-import debug from 'debug';
+import * as projectPersistence from '../data/persistence/projects';
+import { getConfigFromUser } from '../user/utils';
 
 const logger = debug('constructor:auth:onboarding');
 
@@ -89,4 +87,3 @@ export default function onboardNewUser(user) {
         });
     });
 }
-

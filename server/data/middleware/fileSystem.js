@@ -13,13 +13,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import fs from 'fs';
+
 import invariant from 'invariant';
 import merge from 'lodash.merge';
-import { errorDoesNotExist, errorFileSystem } from '../../utils/errors';
 import mkpath from 'mkpath';
-import rimraf from 'rimraf';
-import fs from 'fs';
 import mv from 'mv';
+import rimraf from 'rimraf';
+
+import { errorDoesNotExist, errorFileSystem } from '../../utils/errors';
 
 const parser = (string) => {
   if (typeof string !== 'string') {

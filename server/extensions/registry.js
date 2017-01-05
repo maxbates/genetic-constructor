@@ -13,11 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import path from 'path';
 import fs from 'fs';
-import { pickBy } from 'lodash';
-import { validateManifest, manifestIsServer, manifestIsClient } from './manifestUtils';
+import path from 'path';
+
 import debug from 'debug';
+import { pickBy } from 'lodash';
+
+import { manifestIsClient, manifestIsServer, validateManifest } from './manifestUtils';
 
 const logger = debug('constructor:extensions');
 

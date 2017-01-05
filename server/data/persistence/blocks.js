@@ -14,9 +14,10 @@
  limitations under the License.
  */
 import _ from 'lodash';
+import * as urlSafeBase64 from 'urlsafe-base64';
+
 import { dbGet } from '../middleware/db';
 import { getUserProjects } from './projects';
-import * as urlSafeBase64 from 'urlsafe-base64';
 
 const reduceToMap = array => _.keyBy(array, block => block.id);
 

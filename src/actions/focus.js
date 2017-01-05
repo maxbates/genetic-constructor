@@ -17,14 +17,15 @@
  * @module Actions_Focus
  * @memberOf module:Actions
  */
-import * as ActionTypes from '../constants/ActionTypes';
-import * as BlockSelector from '../selectors/blocks';
 import invariant from 'invariant';
-import safeValidate from '../schemas/fields/safeValidate';
-import { id as idValidatorCreator } from '../schemas/fields/validators';
+
+import * as ActionTypes from '../constants/ActionTypes';
+import { symbolMap } from '../inventory/roles';
 import Block from '../models/Block';
 import Project from '../models/Project';
-import { symbolMap } from '../inventory/roles';
+import safeValidate from '../schemas/fields/safeValidate';
+import { id as idValidatorCreator } from '../schemas/fields/validators';
+import * as BlockSelector from '../selectors/blocks';
 
 const idValidator = id => safeValidate(idValidatorCreator(), true, id);
 

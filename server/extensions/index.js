@@ -13,28 +13,20 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import express from 'express';
 import bodyParser from 'body-parser';
-import { errorDoesNotExist } from '../utils/errors';
-import { getExtensions } from './registry';
-import { getExtensionInternalPath } from './loadExtension';
-import errorHandlingMiddleware from '../utils/errorHandlingMiddleware';
-import extensionApiRouter from './apiRouter';
-import {
-  checkUserExtensionActive,
-  checkUserExtensionAccess,
-  checkExtensionExistsMiddleware,
-  checkUserExtensionAccessMiddleware,
-  checkExtensionIsClientMiddleware,
-  checkClientExtensionFilePath,
-} from './middlewareChecks';
-import { manifestIsServer, manifestIsClient } from './manifestUtils';
-import { ensureReqUserMiddleware } from '../user/utils';
+import express from 'express';
 
-//native extensions
+import { ensureReqUserMiddleware } from '../user/utils';
+import errorHandlingMiddleware from '../utils/errorHandlingMiddleware';
+import { errorDoesNotExist } from '../utils/errors';
+import extensionApiRouter from './apiRouter';
+import { getExtensionInternalPath } from './loadExtension';
+import { manifestIsClient, manifestIsServer } from './manifestUtils';
+import { checkClientExtensionFilePath, checkExtensionExistsMiddleware, checkExtensionIsClientMiddleware, checkUserExtensionAccess, checkUserExtensionAccessMiddleware, checkUserExtensionActive } from './middlewareChecks';
 import csvRouter from './native/csv/index';
 import fastaRouter from './native/fasta/index';
 import genbankRouter from './native/genbank/index';
+import { getExtensions } from './registry';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json();

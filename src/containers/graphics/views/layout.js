@@ -13,18 +13,19 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
+import { values as objectValues } from 'lodash';
+
+import { getLocal, setLocal } from '../../../utils/localstorage';
 import Box2D from '../geometry/box2d';
-import Vector2D from '../geometry/vector2d';
 import Line2D from '../geometry/line2d';
-import Node2D from '../scenegraph2d/node2d';
-import Role2D from '../scenegraph2d/role2d';
-import ListItem2D from '../scenegraph2d/listitem2d';
+import Vector2D from '../geometry/vector2d';
 import EmptyListItem2D from '../scenegraph2d/emptylistitem2d';
 import LineNode2D from '../scenegraph2d/line2d';
+import ListItem2D from '../scenegraph2d/listitem2d';
+import Node2D from '../scenegraph2d/node2d';
+import Role2D from '../scenegraph2d/role2d';
 import kT from './layoutconstants';
-import { values as objectValues } from 'lodash';
-import invariant from 'invariant';
-import { getLocal, setLocal } from '../../../utils/localstorage';
 
 /**
  * layout and scene graph manager for the construct viewer

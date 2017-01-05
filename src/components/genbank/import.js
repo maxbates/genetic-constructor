@@ -14,19 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
-import ModalWindow from '../modal/modalwindow';
 import Dropzone from 'react-dropzone';
-import {
-  uiShowGenBankImport,
-  uiSpin,
-} from '../../actions/ui';
-import { projectGet, projectListAllBlocks } from '../../selectors/projects';
-import { projectSave, projectList, projectLoad, projectOpen } from '../../actions/projects';
-import { importFile as importGenbankFile } from '../../middleware/genbank';
-import { importFile as importCsvFile } from '../../middleware/csv';
+import { connect } from 'react-redux';
 
 import '../../../src/styles/genbank.css';
+import { projectList, projectLoad, projectOpen, projectSave } from '../../actions/projects';
+import { uiShowGenBankImport, uiSpin } from '../../actions/ui';
+import { importFile as importCsvFile } from '../../middleware/csv';
+import { importFile as importGenbankFile } from '../../middleware/genbank';
+import { projectGet, projectListAllBlocks } from '../../selectors/projects';
+import ModalWindow from '../modal/modalwindow';
 
 /**
  * Genbank import dialog.

@@ -15,23 +15,15 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+import { focusForceBlocks, focusRole } from '../../actions/focus';
+import { inspectorToggleVisibility, uiSetGrunt, uiSpin } from '../../actions/ui';
+import { block as blockDragType, role as roleDragType } from '../../constants/DragTypes';
 import DnD from '../../containers/graphics/dnd/dnd';
 import MouseTrap from '../../containers/graphics/mousetrap';
+import '../../styles/InventoryItem.css';
 import RoleSvg from '../RoleSvg';
 import BasePairCount from '../ui/BasePairCount';
-import {
-  block as blockDragType,
-  role as roleDragType,
-} from '../../constants/DragTypes';
-
-import {
-  inspectorToggleVisibility,
-  uiSetGrunt,
-  uiSpin,
-} from '../../actions/ui';
-import { focusForceBlocks, focusRole } from '../../actions/focus';
-
-import '../../styles/InventoryItem.css';
 
 export class InventoryItem extends Component {
   static propTypes = {

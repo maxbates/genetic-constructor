@@ -15,12 +15,11 @@
  */
 import express from 'express';
 import md5 from 'md5';
-import {
-  errorDoesNotExist,
-} from './../utils/errors';
-import * as sequences from './persistence/sequence';
-import * as sequenceUtils from '../../src/utils/sequenceMd5';
+
 import { dnaLooseRegexp } from '../../src/utils/dna';
+import * as sequenceUtils from '../../src/utils/sequenceMd5';
+import { errorDoesNotExist } from './../utils/errors';
+import * as sequences from './persistence/sequence';
 
 const router = express.Router(); //eslint-disable-line new-cap
 

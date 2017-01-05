@@ -14,8 +14,9 @@
  limitations under the License.
  */
 
-import invariant from 'invariant';
 import debug from 'debug';
+import invariant from 'invariant';
+
 import Order from '../../src/models/Order';
 import Rollup from '../../src/models/Rollup';
 

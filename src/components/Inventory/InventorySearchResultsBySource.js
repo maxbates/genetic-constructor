@@ -14,9 +14,9 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+
 import { block as blockDragType } from '../../constants/DragTypes';
 import { registry } from '../../inventory/registry';
-
 import InventoryList from './InventoryList';
 import InventoryListGroup from './InventoryListGroup';
 

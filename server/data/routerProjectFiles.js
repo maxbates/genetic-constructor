@@ -13,13 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import express from 'express';
 import bodyParser from 'body-parser';
-import {
-  errorInvalidRoute,
-  errorDoesNotExist,
-  errorFileNotFound,
-} from './../utils/errors';
+import express from 'express';
+
+import { errorDoesNotExist, errorFileNotFound, errorInvalidRoute } from './../utils/errors';
 import * as projectFiles from './files/projectFiles';
 
 const router = express.Router(); //eslint-disable-line new-cap

@@ -16,14 +16,11 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import {
-  inspectorToggleVisibility,
-  uiInlineEditor,
-} from '../actions/ui';
+
 import { focusPrioritize } from '../actions/focus';
 import { projectRename } from '../actions/projects';
+import { inspectorToggleVisibility, uiInlineEditor } from '../actions/ui';
 import Box2D from '../containers/graphics/geometry/box2d';
-
 import '../styles/ProjectHeader.css';
 import '../styles/inline-editor.css';
 

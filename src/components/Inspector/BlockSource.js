@@ -14,8 +14,8 @@
  limitations under the License.
  */
 import React, { PropTypes } from 'react';
-import { registry } from '../../inventory/registry';
 
+import { registry } from '../../inventory/registry';
 import '../../styles/BlockSource.css';
 
 export default function BlockSource({ block, ...rest }) {

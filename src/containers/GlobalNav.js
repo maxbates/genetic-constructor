@@ -14,71 +14,31 @@
  limitations under the License.
  */
 /* global flashedUser:false, heap:false */
+import invariant from 'invariant';
+import KeyboardTrap from 'mousetrap';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import invariant from 'invariant';
+
+import { blockAddComponent, blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename } from '../actions/blocks';
+import { clipboardSetData } from '../actions/clipboard';
+import { focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../actions/focus';
+import { projectAddConstruct, projectCreate, projectDelete, projectList, projectLoad, projectOpen, projectSave } from '../actions/projects';
+import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiReportError, uiSetGrunt, uiShowAbout, uiShowDNAImport, uiShowGenBankImport, uiToggleDetailView } from '../actions/ui';
+import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import MenuBar from '../components/Menu/MenuBar';
 import UserWidget from '../components/authentication/userwidget';
-import RibbonGrunt from '../components/ribbongrunt';
-import {
-  projectCreate,
-  projectAddConstruct,
-  projectSave,
-  projectOpen,
-  projectDelete,
-  projectList,
-  projectLoad,
-} from '../actions/projects';
-import {
-  focusBlocks,
-  focusBlocksAdd,
-  focusBlocksToggle,
-  focusConstruct,
-} from '../actions/focus';
-import { clipboardSetData } from '../actions/clipboard';
-import * as clipboardFormats from '../constants/clipboardFormats';
-import {
-  blockCreate,
-  blockDelete,
-  blockDetach,
-  blockClone,
-  blockRemoveComponent,
-  blockAddComponent,
-  blockAddComponents,
-  blockRename,
-} from '../actions/blocks';
-import {
-  blockGetParents,
-  blockGetComponentsRecursive,
-} from '../selectors/blocks';
-import { projectGetVersion } from '../selectors/projects';
-import { focusDetailsExist } from '../selectors/focus';
-import { undo, redo, transact, commit } from '../store/undo/actions';
-import {
-  uiShowGenBankImport,
-  uiToggleDetailView,
-  uiSetGrunt,
-  uiShowAbout,
-  inventorySelectTab,
-  inspectorToggleVisibility,
-  inventoryToggleVisibility,
-  uiShowDNAImport,
-  uiReportError,
-} from '../actions/ui';
-import KeyboardTrap from 'mousetrap';
-import { stringToShortcut } from '../utils/ui/keyboard-translator';
-import {
-  sortBlocksByIndexAndDepth,
-  sortBlocksByIndexAndDepthExclude,
-  tos,
-  privacy,
-} from '../utils/ui/uiapi';
-import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import OkCancel from '../components/okcancel';
-import * as instanceMap from '../store/instanceMap';
+import RibbonGrunt from '../components/ribbongrunt';
+import * as clipboardFormats from '../constants/clipboardFormats';
 import { extensionApiPath } from '../middleware/utils/paths';
-
+import { blockGetComponentsRecursive, blockGetParents } from '../selectors/blocks';
+import { focusDetailsExist } from '../selectors/focus';
+import { projectGetVersion } from '../selectors/projects';
+import * as instanceMap from '../store/instanceMap';
+import { commit, redo, transact, undo } from '../store/undo/actions';
 import '../styles/GlobalNav.css';
+import { stringToShortcut } from '../utils/ui/keyboard-translator';
+import { privacy, sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude, tos } from '../utils/ui/uiapi';
 
 class GlobalNav extends Component {
   static propTypes = {

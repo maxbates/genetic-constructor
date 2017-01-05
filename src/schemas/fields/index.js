@@ -13,11 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import * as validatorFunctions from './validators';
-import createFieldType from './createFieldType';
 import { mapValues } from 'lodash';
 import uuid from 'node-uuid';
 import sha1 from 'sha1';
+
+import createFieldType from './createFieldType';
+import * as validatorFunctions from './validators';
 
 /**
  * Exports a dictionary of field types to unparameterized fieldType functions. These are called with parameters passed to the baseValidator, and return a fully defined fieldType object.

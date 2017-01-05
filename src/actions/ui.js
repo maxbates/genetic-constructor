@@ -17,8 +17,9 @@ limitations under the License.
  * @module Actions_UI
  * @memberOf module:Actions
  */
-import * as ActionTypes from '../constants/ActionTypes';
 import invariant from 'invariant';
+
+import * as ActionTypes from '../constants/ActionTypes';
 import extensionRegistry from '../extensions/clientRegistry';
 
 //hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 2!
@@ -233,4 +234,3 @@ export const uiShowExtensionPicker = (nextState = true) => (dispatch, getState) 
   });
   return nextState;
 };
-

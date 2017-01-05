@@ -13,11 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import debug from 'debug';
+
+import * as headers from '../../../src/middleware/utils/headers';
+import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import { STORAGE_URL } from '../../urlConstants';
 import { errorDoesNotExist, errorNoPermission } from '../../utils/errors';
-import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
-import * as headers from '../../../src/middleware/utils/headers';
-import debug from 'debug';
 
 const logger = debug('constructor:data:db');
 

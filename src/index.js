@@ -16,11 +16,12 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import routes from './routes';
+
 import * as actionTypes from './constants/ActionTypes';
-import store, { lastAction } from './store/index';
-import orchestrator from './store/api';
 import extensions from './extensions/_expose';
+import routes from './routes';
+import orchestrator from './store/api';
+import store, { lastAction } from './store/index';
 
 render(
   <Provider store={store}>

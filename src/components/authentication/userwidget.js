@@ -15,14 +15,14 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { push } from 'react-router-redux';
-import PopupMenu from '../../components/Menu/PopupMenu';
-import Vector2D from '../../containers/graphics/geometry/vector2d';
 import { connect } from 'react-redux';
-import { uiShowAuthenticationForm, uiSetGrunt, uiShowExtensionPicker } from '../../actions/ui';
+import { push } from 'react-router-redux';
+
+import { uiSetGrunt, uiShowAuthenticationForm, uiShowExtensionPicker } from '../../actions/ui';
 import { userLogout } from '../../actions/user';
 import track from '../../analytics/ga';
-
+import PopupMenu from '../../components/Menu/PopupMenu';
+import Vector2D from '../../containers/graphics/geometry/vector2d';
 import '../../styles/userwidget.css';
 
 class UserWidget extends Component {

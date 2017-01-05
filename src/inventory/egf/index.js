@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import fetch from 'isomorphic-fetch';
-import { parseResults, parseFullResult } from './parseResults';
 import queryString from 'query-string';
+
+import { parseFullResult, parseResults } from './parseResults';
 
 export const url = 'https://gc-inventory.dev.bionano.autodesk.com/collections';
 

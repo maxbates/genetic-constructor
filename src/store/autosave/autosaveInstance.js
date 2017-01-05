@@ -13,9 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import autosaveCreator from './autosaveCreator';
-import * as ActionTypes from '../../constants/ActionTypes';
 import { LOCATION_CHANGE } from 'react-router-redux';
+
+import * as ActionTypes from '../../constants/ActionTypes';
+import autosaveCreator from './autosaveCreator';
 
 const purgeEvents = [
   //ActionTypes.PROJECT_SAVE, //dont purge on this, since call it on save, will never throttle

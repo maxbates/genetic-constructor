@@ -14,9 +14,10 @@
  limitations under the License.
  */
 
+import debug from 'debug';
+
 import * as projectPersistence from '../data/persistence/projects';
 import onboardNewUser from './onboardNewUser';
-import debug from 'debug';
 
 const logger = debug('constructor:auth:onboarding');
 

@@ -13,11 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { chain } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 
 import { block as blockDragType } from '../../constants/DragTypes';
-import { chain } from 'lodash';
-
 import InventoryList from './InventoryList';
 import InventoryListGroup from './InventoryListGroup';
 

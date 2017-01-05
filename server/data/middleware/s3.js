@@ -13,9 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import invariant from 'invariant';
-import { errorDoesNotExist } from '../../utils/errors';
 import debug from 'debug';
+import invariant from 'invariant';
+
+import { errorDoesNotExist } from '../../utils/errors';
 
 const log = debug('constructor:data:s3');
 
@@ -415,4 +416,3 @@ export const emptyBucketTests = (bucket) => {
     });
   });
 };
-

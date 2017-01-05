@@ -15,28 +15,27 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ImportGenBankModal from '../components/genbank/import';
-import ImportPartsCSVModal from '../components/importpartscsv/importpartscsv';
-import ImportDNAForm from '../components/importdna/importdnaform';
-import OrderModal from '../containers/orders/ordermodal';
-import SaveErrorModal from '../components/modal/SaveErrorModal';
 
-import ConstructViewer from './graphics/views/constructviewer';
-import ConstructViewerCanvas from './graphics/views/constructViewerCanvas';
-import ProjectDetail from '../components/ProjectDetail';
-import ProjectHeader from '../components/ProjectHeader';
-import Spinner from '../components/ui/Spinner';
-import Inventory from './Inventory';
-import Inspector from './Inspector';
-import { projectList, projectLoad, projectCreate, projectOpen } from '../actions/projects';
-import { uiSetGrunt } from '../actions/ui';
 import { focusConstruct } from '../actions/focus';
 import { orderList } from '../actions/orders';
-import autosaveInstance from '../store/autosave/autosaveInstance';
+import { projectCreate, projectList, projectLoad, projectOpen } from '../actions/projects';
+import { uiSetGrunt } from '../actions/ui';
+import ProjectDetail from '../components/ProjectDetail';
+import ProjectHeader from '../components/ProjectHeader';
+import ImportGenBankModal from '../components/genbank/import';
+import ImportDNAForm from '../components/importdna/importdnaform';
+import ImportPartsCSVModal from '../components/importpartscsv/importpartscsv';
+import SaveErrorModal from '../components/modal/SaveErrorModal';
+import Spinner from '../components/ui/Spinner';
+import OrderModal from '../containers/orders/ordermodal';
 import loadAllExtensions from '../extensions/loadExtensions';
-
+import autosaveInstance from '../store/autosave/autosaveInstance';
 import '../styles/ProjectPage.css';
 import '../styles/SceneGraphPage.css';
+import Inspector from './Inspector';
+import Inventory from './Inventory';
+import ConstructViewerCanvas from './graphics/views/constructViewerCanvas';
+import ConstructViewer from './graphics/views/constructviewer';
 
 class ProjectPage extends Component {
   static propTypes = {

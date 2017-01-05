@@ -14,10 +14,11 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import rejectingFetch from './utils/rejectingFetch';
+
+import { noteFailure, noteSave } from '../store/saveState';
 import { headersGet, headersPost } from './utils/headers';
 import { dataApiPath } from './utils/paths';
-import { noteSave, noteFailure } from '../store/saveState';
+import rejectingFetch from './utils/rejectingFetch';
 
 //rollup is optional, will be saved if provided
 //version recommended, otherwise defaults to latest

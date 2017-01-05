@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import Vector2D from './vector2d';
+
 import Intersection2D from './intersection2d';
+import Vector2D from './vector2d';
 
 //shallow hasOwnProperty check
 const hasProp = (obj, prop) => obj.hasOwnProperty(prop);

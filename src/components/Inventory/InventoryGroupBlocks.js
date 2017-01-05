@@ -13,13 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import { escapeRegExp } from 'lodash';
 import React, { Component } from 'react';
+
 import BlockSchema from '../../schemas/Block';
 import * as validators from '../../schemas/fields/validators';
-import { escapeRegExp } from 'lodash';
-
-import InventorySearch from './InventorySearch';
 import InventoryItemBlock from './InventoryItemBlock';
+import InventorySearch from './InventorySearch';
 
 export default class InventoryGroupBlocks extends Component {
   static propTypes = {
@@ -60,4 +60,3 @@ export default class InventoryGroupBlocks extends Component {
     );
   }
 }
-

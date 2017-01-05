@@ -13,12 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
 import invariant from 'invariant';
-import Spinner from '../ui/Spinner';
-import Toggler from '../ui/Toggler';
+import React, { Component, PropTypes } from 'react';
 
 import '../../styles/InventoryListGroup.css';
+import Spinner from '../ui/Spinner';
+import Toggler from '../ui/Toggler';
 import InventoryListGroupAction from './InventoryListGroupAction';
 
 export default class InventoryListGroup extends Component {

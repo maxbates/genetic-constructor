@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { dbGet, dbHead, dbPruneResult } from '../middleware/db';
 import { mergeMetadataOntoProject } from './projects';
-import { dbHead, dbGet, dbPruneResult } from '../middleware/db';
 
 // note that versions are already generated on project writing, so use projectWrite() to create one
 

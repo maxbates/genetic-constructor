@@ -14,10 +14,11 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { errorNoPermission, errorExtensionNotFound } from '../utils/errors';
+
 import { getConfigFromUser } from '../user/utils';
+import { errorExtensionNotFound, errorNoPermission } from '../utils/errors';
+import { manifestClientFiles, manifestIsClient, manifestIsServer } from './manifestUtils';
 import extensionRegistry from './registry';
-import { manifestIsServer, manifestIsClient, manifestClientFiles } from './manifestUtils';
 
 export const manifestIsPrivate = manifest => manifest.geneticConstructor.private === true || typeof manifest.geneticConstructor.access === 'object';
 

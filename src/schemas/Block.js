@@ -14,12 +14,13 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+
+import BlockSourceSchema from './BlockSource';
+import { InstanceSchemaClass } from './Instance';
+import RulesSchema from './Rules';
+import SequenceSchema from './Sequence';
 import fields from './fields/index';
 import * as validators from './fields/validators';
-import { InstanceSchemaClass } from './Instance';
-import SequenceSchema from './Sequence';
-import RulesSchema from './Rules';
-import BlockSourceSchema from './BlockSource';
 
 /**
  * A component of a construct, or construct itself.

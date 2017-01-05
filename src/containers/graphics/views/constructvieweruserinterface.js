@@ -13,14 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import UserInterface from '../scenegraph2d/userinterface';
-import DnD from '../dnd/dnd';
-import Vector2D from '../geometry/vector2d';
-import Box2D from '../geometry/box2d';
-import { transact } from '../../../store/undo/actions';
-import Fence from './fence';
 import { dispatch } from '../../../store/index';
+import { transact } from '../../../store/undo/actions';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
+import DnD from '../dnd/dnd';
+import Box2D from '../geometry/box2d';
+import Vector2D from '../geometry/vector2d';
+import UserInterface from '../scenegraph2d/userinterface';
+import Fence from './fence';
 
 // # of pixels of mouse movement before a drag is triggered.
 const dragThreshold = 8;

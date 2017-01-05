@@ -17,8 +17,9 @@ limitations under the License.
  * @module Actions_Clipboard
  * @memberOf module:Actions
  */
-import * as ActionTypes from '../constants/ActionTypes';
 import invariant from 'invariant';
+
+import * as ActionTypes from '../constants/ActionTypes';
 
 //hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
 const spaceFiller = 10; //eslint-disable-line no-unused-vars

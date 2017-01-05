@@ -14,10 +14,11 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import InputSimple from './../InputSimple';
+
 import symbols, { symbolMap } from '../../inventory/roles';
-import InspectorRow from './InspectorRow';
 import PickerItem from '../ui/PickerItem';
+import InputSimple from './../InputSimple';
+import InspectorRow from './InspectorRow';
 
 export default class InspectorRole extends Component {
   static propTypes = {
@@ -54,4 +55,3 @@ export default class InspectorRole extends Component {
     );
   }
 }
-

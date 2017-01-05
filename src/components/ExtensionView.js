@@ -13,13 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
-import extensionRegistry, { validRegion, downloadAndRender } from '../extensions/clientRegistry';
 import { isEqual } from 'lodash';
+import React, { Component, PropTypes } from 'react';
 
-import Spinner from './ui/Spinner';
-
+import extensionRegistry, { downloadAndRender, validRegion } from '../extensions/clientRegistry';
 import '../styles/ExtensionView.css';
+import Spinner from './ui/Spinner';
 
 export default class ExtensionView extends Component {
   static propTypes = {

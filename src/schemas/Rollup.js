@@ -16,12 +16,13 @@
 
 import invariant from 'invariant';
 import _ from 'lodash';
+
+import { id as idRegex } from '../utils/regex';
+import BlockSchema from './Block';
+import ProjectSchema from './Project';
+import SchemaClass from './SchemaClass';
 import fields from './fields/index';
 import * as validators from './fields/validators';
-import SchemaClass from './SchemaClass';
-import ProjectSchema from './Project';
-import BlockSchema from './Block';
-import { id as idRegex } from '../utils/regex';
 
 const sequenceMd5Validator = validators.sequenceMd5({ real: true });
 const sequenceValidator = validators.sequence();

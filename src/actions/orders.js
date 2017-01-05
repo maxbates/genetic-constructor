@@ -18,12 +18,13 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import Order from '../models/Order';
-import { getOrder, getOrders } from '../middleware/order';
-import * as ActionTypes from '../constants/ActionTypes';
+import { cloneDeep, flatten, merge, range, shuffle } from 'lodash';
+
 import * as projectActions from '../actions/projects';
+import * as ActionTypes from '../constants/ActionTypes';
+import { getOrder, getOrders } from '../middleware/order';
+import Order from '../models/Order';
 import * as blockSelectors from '../selectors/blocks';
-import { cloneDeep, merge, flatten, range, shuffle } from 'lodash';
 import * as instanceMap from '../store/instanceMap';
 
 //hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!

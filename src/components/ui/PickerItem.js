@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { PropTypes } from 'react';
+
 import RoleSvg from '../RoleSvg';
 
 export default function PickerItem(props) {

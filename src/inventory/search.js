@@ -14,7 +14,8 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { registry, getSources } from './registry';
+
+import { getSources, registry } from './registry';
 
 /**
  * Searching across inventories loaded in Constructor.

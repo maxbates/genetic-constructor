@@ -13,24 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import debug from 'debug';
 import express from 'express';
 import { merge } from 'lodash';
-import debug from 'debug';
 
-import {
-  errorDoesNotExist,
-  errorInvalidModel,
-} from './../utils/errors';
-import * as projectPersistence from './../data/persistence/projects';
-import * as projectVersions from './../data/persistence/projectVersions';
-import * as orderPersistence from './../data/persistence/orders';
-import * as snapshots from './../data/persistence/snapshots';
+import Order from '../../src/models/Order';
+import saveCombinations from '../../src/utils/generators/orderConstructs';
 import { pruneUserObject } from '../user/utils';
 import { projectPermissionMiddleware } from './../data/permissions';
-import Order from '../../src/models/Order';
-import { submit as testSubmit, validate as testValidate } from './test';
+import * as orderPersistence from './../data/persistence/orders';
+import * as projectVersions from './../data/persistence/projectVersions';
+import * as projectPersistence from './../data/persistence/projects';
+import * as snapshots from './../data/persistence/snapshots';
+import { errorDoesNotExist, errorInvalidModel } from './../utils/errors';
 import { submit, validate } from './egf';
-import saveCombinations from '../../src/utils/generators/orderConstructs';
+import { submit as testSubmit, validate as testValidate } from './test';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const logger = debug('constructor:order');

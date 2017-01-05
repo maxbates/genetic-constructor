@@ -14,10 +14,11 @@
  limitations under the License.
  */
 
-import _, { every, isEqual } from 'lodash';
 import invariant from 'invariant';
-import RollupSchema from '../schemas/Rollup';
+import _, { every, isEqual } from 'lodash';
+
 import Project from '../models/Project';
+import RollupSchema from '../schemas/Rollup';
 
 //note - not immutable, this is just a helper, primarily on the server
 

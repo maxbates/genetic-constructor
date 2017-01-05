@@ -15,20 +15,12 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import {
-  uiShowAuthenticationForm,
-  uiSetGrunt,
-  uiShowUserWidget,
-} from '../actions/ui';
-import '../styles/homepage.css';
+
 import { projectOpen } from '../actions/projects';
-import {
-  privacy,
-} from '../utils/ui/uiapi';
-import {
-  getLocal,
-  setLocal,
-} from '../utils/localstorage';
+import { uiSetGrunt, uiShowAuthenticationForm, uiShowUserWidget } from '../actions/ui';
+import '../styles/homepage.css';
+import { getLocal, setLocal } from '../utils/localstorage';
+import { privacy } from '../utils/ui/uiapi';
 
 
 export class HomePage extends Component {

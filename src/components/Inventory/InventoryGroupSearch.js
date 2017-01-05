@@ -15,21 +15,13 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import {
-  inventorySearch,
-  inventorySearchPaginate,
-  inventoryShowSourcesToggling,
-  inventorySetSources,
-  inventoryToggleSource,
-  inventoryToggleSourceVisible,
-} from '../../actions/inventory';
+
 import { blockStash } from '../../actions/blocks';
-
+import { inventorySearch, inventorySearchPaginate, inventorySetSources, inventoryShowSourcesToggling, inventoryToggleSource, inventoryToggleSourceVisible } from '../../actions/inventory';
 import { registry } from '../../inventory/registry';
-
-import InventorySources from './InventorySources';
 import InventorySearch from './InventorySearch';
 import InventorySearchResults from './InventorySearchResults';
+import InventorySources from './InventorySources';
 
 export class InventoryGroupSearch extends Component {
   static propTypes = {

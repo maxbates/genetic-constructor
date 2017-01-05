@@ -13,11 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from '../../middleware/utils/rejectingFetch';
-import queryString from 'query-string';
-import Block from '../../models/Block';
 import _, { merge } from 'lodash';
+import queryString from 'query-string';
+
 import { convert } from '../../middleware/genbank';
+import rejectingFetch from '../../middleware/utils/rejectingFetch';
+import Block from '../../models/Block';
 
 const fetchOpts = {
   mode: 'cors',

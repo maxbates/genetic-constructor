@@ -15,6 +15,7 @@ limitations under the License.
 */
 import invariant from 'invariant';
 import { debounce, throttle } from 'lodash';
+
 import { FORCE_SAVE } from './ActionTypes';
 
 export default function autosavingCreator(config) {

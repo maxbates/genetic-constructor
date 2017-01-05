@@ -13,11 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import fields from './fields/index';
-import * as validators from './fields/validators';
+import { InstanceSchemaClass } from './Instance';
 import ProjectFileSchema from './ProjectFile';
 import RulesSchema from './Rules';
-import { InstanceSchemaClass } from './Instance';
+import fields from './fields/index';
+import * as validators from './fields/validators';
 
 /**
  * Project is the container for a body of work. It consists primarily of constructs, but also orders, settings, etc.

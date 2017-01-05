@@ -13,17 +13,19 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 import uuid from 'node-uuid';
-import Vector2D from '../geometry/vector2d';
+
 import Box2D from '../geometry/box2d';
 import Transform2D from '../geometry/transform2d';
-import invariant from 'invariant';
-import NodeText2D from './nodetext2d';
+import Vector2D from '../geometry/vector2d';
+import ConstructBanner from './glyphs/canvas/constructbanner';
+import LineGlyph2D from './glyphs/html/lineglyph2d';
+import ListItemGlyph2D from './glyphs/html/listitemglyph2d';
 import RectangleGlyph2D from './glyphs/html/rectangleglyph2d';
 import RoleGlyph2D from './glyphs/html/roleglyph2d';
-import ListItemGlyph2D from './glyphs/html/listitemglyph2d';
-import LineGlyph2D from './glyphs/html/lineglyph2d';
-import ConstructBanner from './glyphs/canvas/constructbanner';
+import NodeText2D from './nodetext2d';
+
 /**
  * shared DIV for measuring text,
  */

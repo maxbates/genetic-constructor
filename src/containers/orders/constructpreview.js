@@ -13,18 +13,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+
+import '../../../src/styles/SceneGraphPage.css';
+import '../../../src/styles/ordermodal.css';
+import { orderGenerateConstructs } from '../../actions/orders';
 import SceneGraph2D from '../../containers/graphics/scenegraph2d/scenegraph2d';
 import Layout from '../../containers/graphics/views/layout';
-import { orderGenerateConstructs } from '../../actions/orders';
-import invariant from 'invariant';
-import UpDown from './updown';
 import Block from '../../models/Block';
-
-import '../../../src/styles/ordermodal.css';
-import '../../../src/styles/SceneGraphPage.css';
+import UpDown from './updown';
 
 class ConstructPreview extends Component {
   static propTypes = {

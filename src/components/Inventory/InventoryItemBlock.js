@@ -13,11 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { Component, PropTypes } from 'react';
 import invariant from 'invariant';
-import Block from '../../models/Block';
-import { block as blockDragType } from '../../constants/DragTypes';
+import React, { Component, PropTypes } from 'react';
 
+import { block as blockDragType } from '../../constants/DragTypes';
+import Block from '../../models/Block';
 import InventoryItem from './InventoryItem';
 
 //note - Supports templates - assumes that no additional work is needed when cloning templates than just blocks. Right now, this assumption is true because the whole project is loaded when you toggle it (and therefore all template options + components will be in the store)

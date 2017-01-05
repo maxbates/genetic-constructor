@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { mapValues } from 'lodash';
 import debug from 'debug';
+import { mapValues } from 'lodash';
 
 const logger = debug('constructor:schemas');
 

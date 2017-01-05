@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
+
 import * as ActionTypes from './ActionTypes';
 import SectionManager from './SectionManager';
 import UndoManager from './UndoManager';

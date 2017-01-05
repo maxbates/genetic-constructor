@@ -1,13 +1,12 @@
 import express from 'express';
 import invariant from 'invariant';
 
-//GC specific
-import * as fileSystem from '../../../data/middleware/fileSystem';
-import * as filePaths from '../../../data/middleware/filePaths';
-import * as sequences from '../../../../server/data/persistence/sequence';
 import { projectPermissionMiddleware } from '../../../../server/data/permissions';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
+import * as sequences from '../../../../server/data/persistence/sequence';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
+import * as filePaths from '../../../data/middleware/filePaths';
+import * as fileSystem from '../../../data/middleware/fileSystem';
 
 const extensionKey = 'fasta';
 

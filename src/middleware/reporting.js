@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
+
 import { headersPost } from './utils/headers';
 import { reportApiPath } from './utils/paths';
+import rejectingFetch from './utils/rejectingFetch';
 
 export const reportError = (title, description, url, user) => {
   invariant(title, 'title is required');

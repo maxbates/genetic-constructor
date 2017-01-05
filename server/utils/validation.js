@@ -14,12 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import Block from '../../src/models/Block';
-import Project from '../../src/models/Project';
 import Order from '../../src/models/Order';
+import Project from '../../src/models/Project';
 import * as validators from '../../src/schemas/fields/validators';
 import { id as idRegex } from '../../src/utils/regex';
-
-import { errorNoIdProvided, errorInvalidId } from './errors';
+import { errorInvalidId, errorNoIdProvided } from './errors';
 
 export const validateBlock = instance => Block.validate(instance, false);
 

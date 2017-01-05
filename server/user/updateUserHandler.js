@@ -14,13 +14,14 @@
  limitations under the License.
  */
 
-import fetch from 'isomorphic-fetch';
 import debug from 'debug';
 import EmailValidator from 'email-validator';
-import { INTERNAL_HOST, API_END_POINT } from '../urlConstants';
-import userConfigDefaults from '../onboarding/userConfigDefaults';
-import { pruneUserObject, validateConfig, updateUserAll, updateUserConfig, mergeConfigToUserData } from './utils';
+import fetch from 'isomorphic-fetch';
+
 import { headersPost } from '../../src/middleware/utils/headers';
+import userConfigDefaults from '../onboarding/userConfigDefaults';
+import { API_END_POINT, INTERNAL_HOST } from '../urlConstants';
+import { mergeConfigToUserData, pruneUserObject, updateUserAll, updateUserConfig, validateConfig } from './utils';
 
 const logger = debug('constructor:auth');
 

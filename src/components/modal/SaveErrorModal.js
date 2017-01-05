@@ -15,9 +15,9 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ModalWindow from './modalwindow';
 
 import '../../../src/styles/SaveErrorModal.css';
+import ModalWindow from './modalwindow';
 
 class SaveErrorModal extends Component {
   static propTypes = {

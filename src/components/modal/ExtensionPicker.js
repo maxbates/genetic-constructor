@@ -13,24 +13,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { merge } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { merge } from 'lodash';
-import ModalWindow from './modalwindow';
+
+import { extensionAuthor, extensionDescription, extensionName, extensionRegion, extensionType, manifestIsClient, manifestIsServer } from '../../../server/extensions/manifestUtils';
 import { uiShowExtensionPicker } from '../../actions/ui';
 import { userUpdateConfig } from '../../actions/user';
 import registry from '../../extensions/clientRegistry';
-import {
-  extensionName,
-  extensionAuthor,
-  extensionRegion,
-  extensionType,
-  extensionDescription,
-  manifestIsClient,
-  manifestIsServer,
-} from '../../../server/extensions/manifestUtils';
-
 import '../../styles/ExtensionPicker.css';
+import ModalWindow from './modalwindow';
 
 export class ExtensionPicker extends Component {
   static propTypes = {

@@ -13,12 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import safeValidate from './safeValidate';
-import urlRegex from 'url-regex';
 import _ from 'lodash';
-import { dnaStrictRegexp, dnaLooseRegexp } from '../../utils/dna';
+import urlRegex from 'url-regex';
+
+import { dnaLooseRegexp, dnaStrictRegexp } from '../../utils/dna';
 import { id as idRegex } from '../../utils/regex';
-import { validRealMd5, validPseudoMd5 } from '../../utils/sequenceMd5';
+import { validPseudoMd5, validRealMd5 } from '../../utils/sequenceMd5';
+import safeValidate from './safeValidate';
 
 //any additions to this file should be tested, and everything will be exported, so only export real validators
 

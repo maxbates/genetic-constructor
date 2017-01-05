@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
+
 import { isRealNumber } from '../utils';
-import Vector2D from './vector2d';
 import Matrix2D from './matrix2d';
+import Vector2D from './vector2d';
 
 export default class Transform2D {
   /**

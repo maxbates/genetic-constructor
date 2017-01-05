@@ -15,14 +15,11 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Box2D from '../../containers/graphics/geometry/box2d';
 
 import '../../../src/styles/Modal.css';
 import '../../../src/styles/inline-editor.css';
-
-import {
-  uiInlineEditor,
-} from '../../actions/ui';
+import { uiInlineEditor } from '../../actions/ui';
+import Box2D from '../../containers/graphics/geometry/box2d';
 
 /**
  * modal window with user supplied payload and user defined ( optional )

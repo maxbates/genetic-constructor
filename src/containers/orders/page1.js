@@ -13,22 +13,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import debounce from 'lodash.debounce';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Row from './row';
-import Selector from './selector';
-import Input from './input';
-import Checkbox from './checkbox';
-import Permutations from './permutations';
-import debounce from 'lodash.debounce';
-import {
-  orderSetName,
-  orderSetParameters,
-  orderList,
-} from '../../actions/orders';
 
 import '../../../src/styles/form.css';
 import '../../../src/styles/ordermodal.css';
+import { orderList, orderSetName, orderSetParameters } from '../../actions/orders';
+import Checkbox from './checkbox';
+import Input from './input';
+import Permutations from './permutations';
+import Row from './row';
+import Selector from './selector';
 
 const assemblyOptions = [
   'All in a single container',

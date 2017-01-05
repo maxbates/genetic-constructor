@@ -13,12 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import Vector2D from '../geometry/vector2d';
-import Box2D from '../geometry/box2d';
 import invariant from 'invariant';
-import { commit, abort } from '../../../store/undo/actions';
+
 import { dispatch } from '../../../store/index';
+import { abort, commit } from '../../../store/undo/actions';
 import { difference } from '../../../utils/set/set';
+import Box2D from '../geometry/box2d';
+import Vector2D from '../geometry/vector2d';
 
 /**
  * Drag and Drop manager. Creates a singleton which allows registration of drag targets and drop targets

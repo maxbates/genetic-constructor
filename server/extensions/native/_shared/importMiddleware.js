@@ -13,21 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import formidable from 'formidable';
-import md5 from 'md5';
-import _ from 'lodash';
-
-import { errorNoPermission, errorDoesNotExist } from '../../../utils/errors';
-import { userOwnsProject } from '../../../data/persistence/projects';
-import * as fileSystem from '../../../data/middleware/fileSystem';
-import * as filePaths from '../../../data/middleware/filePaths';
-import * as seqPersistence from '../../../../server/data/persistence/sequence';
-import * as projectPersistence from '../../../../server/data/persistence/projects';
-import * as jobFiles from '../../../../server/data/files/jobs';
-import Rollup from '../../../../src/models/Rollup';
-import Project from '../../../../src/models/Project';
-import { resetColorSeed } from '../../../../src/utils/color/index'; //necessary?
 import debug from 'debug';
+import formidable from 'formidable';
+import _ from 'lodash';
+import md5 from 'md5';
+
+import * as jobFiles from '../../../../server/data/files/jobs';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
+import * as seqPersistence from '../../../../server/data/persistence/sequence';
+import Project from '../../../../src/models/Project';
+import Rollup from '../../../../src/models/Rollup';
+import { resetColorSeed } from '../../../../src/utils/color/index';
+import * as filePaths from '../../../data/middleware/filePaths';
+import * as fileSystem from '../../../data/middleware/fileSystem';
+import { userOwnsProject } from '../../../data/persistence/projects';
+import { errorDoesNotExist, errorNoPermission } from '../../../utils/errors';
 
 const logger = debug('constructor:import');
 

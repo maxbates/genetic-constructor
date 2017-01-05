@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+
 import TransactionManager from './SectionManager';
 
 export default class UndoManager {

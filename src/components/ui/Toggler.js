@@ -15,11 +15,11 @@ limitations under the License.
 */
 import React, { PropTypes } from 'react';
 
+import '../../styles/Toggler.css';
+
 const serializer = navigator.userAgent.indexOf('Node.js') < 0 ? new XMLSerializer() : {
   serializeToString: () => '<SVG/>',
 };
-
-import '../../styles/Toggler.css';
 
 export default function Toggler({ onClick, hidden, open, disabled, style }) {
   if (hidden) {

@@ -13,16 +13,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { throttle } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { uiToggleDetailView, detailViewSelectExtension } from '../actions/ui';
-import { focusDetailsExist } from '../selectors/focus';
+
+import { detailViewSelectExtension, uiToggleDetailView } from '../actions/ui';
 import { extensionsByRegion, getExtensionName, onRegister } from '../extensions/clientRegistry';
-import { throttle } from 'lodash';
-
-import ExtensionView from './ExtensionView';
-
+import { focusDetailsExist } from '../selectors/focus';
 import '../styles/ProjectDetail.css';
+import ExtensionView from './ExtensionView';
 
 const projectDetailExtensionRegion = 'projectDetail';
 

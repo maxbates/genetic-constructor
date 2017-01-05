@@ -14,8 +14,9 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import fields from './fields/index';
+
 import Schema from './SchemaClass';
+import fields from './fields/index';
 
 /**
  * Parameters for Order

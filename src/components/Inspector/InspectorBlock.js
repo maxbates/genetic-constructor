@@ -15,19 +15,20 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Block from '../../models/Block';
-import { transact, commit, abort } from '../../store/undo/actions';
-import { blockMerge, blockSetColor, blockSetRole, blockRename } from '../../actions/blocks';
+
+import { blockMerge, blockRename, blockSetColor, blockSetRole } from '../../actions/blocks';
 import { uiShowOrderForm } from '../../actions/ui';
+import Block from '../../models/Block';
+import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
 import ColorPicker from './../ui/ColorPicker';
 import SymbolPicker from './../ui/SymbolPicker';
-import BlockSource from './BlockSource';
-import ListOptions from './ListOptions';
-import TemplateRules from './TemplateRules';
-import OrderList from './OrderList';
-import InspectorRow from './InspectorRow';
 import BlockNotes from './BlockNotes';
+import BlockSource from './BlockSource';
+import InspectorRow from './InspectorRow';
+import ListOptions from './ListOptions';
+import OrderList from './OrderList';
+import TemplateRules from './TemplateRules';
 
 export class InspectorBlock extends Component {
   static propTypes = {

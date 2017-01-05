@@ -15,14 +15,14 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+import { focusBlocks } from '../../actions/focus';
+import { block as blockDragType } from '../../constants/DragTypes';
 import DnD from '../../containers/graphics/dnd/dnd';
 import MouseTrap from '../../containers/graphics/mousetrap';
-import { focusBlocks } from '../../actions/focus';
-import InventoryListGroup from './InventoryListGroup';
-import InventoryItemBlock from './InventoryItemBlock';
 import * as instanceMap from '../../store/instanceMap';
-
-import { block as blockDragType } from '../../constants/DragTypes';
+import InventoryItemBlock from './InventoryItemBlock';
+import InventoryListGroup from './InventoryListGroup';
 
 /*
  InventoryConstruct takes a blockId of a block in a loaded project (i.e. block and components recursively are in the store), and delegates between inventoryItemBlock for blocks and InventoryListGroup to recursively lay out constructs. Use this component if you are unsure whether you have a block or a construct.

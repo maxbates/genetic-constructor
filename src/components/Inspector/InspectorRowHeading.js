@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+
 import Toggler from '../ui/Toggler';
 
 //todo - update classes

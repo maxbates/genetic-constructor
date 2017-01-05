@@ -13,29 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import invariant from 'invariant';
 import { connect } from 'react-redux';
-import { projectAddConstruct } from '../../../actions/projects';
-import {
-  blockCreate,
-  blockAddComponent,
-  blockClone,
-  blockRename,
-} from '../../../actions/blocks';
-import { uiSpin } from '../../../actions/ui';
-import { focusConstruct, focusBlocks } from '../../../actions/focus';
-import {
-  projectGetVersion,
-  projectGet,
-} from '../../../selectors/projects';
-import DnD from '../dnd/dnd';
-import ConstructViewer from './constructviewer';
-import MouseTrap from '../mousetrap';
-import { block as blockDragType } from '../../../constants/DragTypes';
 
+import { blockAddComponent, blockClone, blockCreate, blockRename } from '../../../actions/blocks';
+import { focusBlocks, focusConstruct } from '../../../actions/focus';
+import { projectAddConstruct } from '../../../actions/projects';
+import { uiSpin } from '../../../actions/ui';
+import { block as blockDragType } from '../../../constants/DragTypes';
+import { projectGet, projectGetVersion } from '../../../selectors/projects';
 import '../../../styles/constructviewercanvas.css';
+import DnD from '../dnd/dnd';
+import MouseTrap from '../mousetrap';
+import ConstructViewer from './constructviewer';
 
 const defaultDropMessage = 'Drop blocks here to create a new construct.';
 const droppingMessage = 'Building new construct...';

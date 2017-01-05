@@ -21,7 +21,7 @@ limitations under the License.
  */
 //This module is not exported on the window, so marked as private
 import * as ActionTypes from '../constants/ActionTypes';
-import { register, login, logout, updateAccount, setUserConfig } from '../middleware/auth';
+import { login, logout, register, setUserConfig, updateAccount } from '../middleware/auth';
 
 const mapUserFromServer = serverUser => ({
   userid: serverUser.uuid,

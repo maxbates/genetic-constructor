@@ -13,12 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { PropTypes, Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+import { uiSaveFailure } from '../../actions/ui';
 import autosaveInstance from '../../store/autosave/autosaveInstance';
 import { getProjectSaveState } from '../../store/saveState';
-import { uiSaveFailure } from '../../actions/ui';
-
 import '../../styles/AutosaveTracking.css';
 
 export class autosaveTracking extends Component {

@@ -14,12 +14,12 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import { registry } from '../../inventory/registry';
 
 import Spinner from '../../components/ui/Spinner';
-import InventoryTabs from './InventoryTabs';
-import InventorySearchResultsBySource from './InventorySearchResultsBySource';
+import { registry } from '../../inventory/registry';
 import InventorySearchResultsByKind from './InventorySearchResultsByKind';
+import InventorySearchResultsBySource from './InventorySearchResultsBySource';
+import InventoryTabs from './InventoryTabs';
 
 const inventoryTabs = [
   { key: 'source', name: 'By Source' },

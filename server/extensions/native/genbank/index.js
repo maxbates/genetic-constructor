@@ -1,25 +1,21 @@
-import express from 'express';
 import bodyParser from 'body-parser';
+import debug from 'debug';
+import express from 'express';
 import invariant from 'invariant';
-
-//GC specific
-import Project from '../../../../src/models/Project';
-import Block from '../../../../src/models/Block';
-import * as fileSystem from '../../../data/middleware/fileSystem';
-import * as filePaths from '../../../data/middleware/filePaths';
-import { errorDoesNotExist } from '../../../../server/utils/errors';
 import _ from 'lodash';
+
+import { errorDoesNotExist } from '../../../../server/utils/errors';
+import Block from '../../../../src/models/Block';
+import Project from '../../../../src/models/Project';
+import * as filePaths from '../../../data/middleware/filePaths';
+import * as fileSystem from '../../../data/middleware/fileSystem';
 import { projectPermissionMiddleware } from '../../../data/permissions';
 import * as projectPesistence from '../../../data/persistence/projects';
 import * as sequencePersistence from '../../../data/persistence/sequence';
-import debug from 'debug';
+import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
+import { convert, exportConstruct, exportProject, importProject } from './convert';
 
 const logger = debug('constructor:extension:genbank');
-
-import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
-
-//genbank specific
-import { convert, importProject, exportProject, exportConstruct } from './convert';
 
 const extensionKey = 'genbank'; //eslint-disable-line no-unused-vars
 

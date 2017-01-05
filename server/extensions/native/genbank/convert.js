@@ -1,15 +1,16 @@
-import path from 'path';
-import invariant from 'invariant';
-import _, { merge, cloneDeep } from 'lodash';
-import debug from 'debug';
-import uuid from 'node-uuid';
 import { fork } from 'child_process';
+import path from 'path';
 
+import debug from 'debug';
+import invariant from 'invariant';
+import _, { cloneDeep, merge } from 'lodash';
+import uuid from 'node-uuid';
+
+import Annotation from '../../../../src/models/Annotation';
+import Block from '../../../../src/models/Block';
+import Project from '../../../../src/models/Project';
 import * as fileSystem from '../../../data/middleware/fileSystem';
 import * as sequences from '../../../data/persistence/sequence';
-import Project from '../../../../src/models/Project';
-import Block from '../../../../src/models/Block';
-import Annotation from '../../../../src/models/Annotation';
 
 const logger = debug('constructor:extension:genbank');
 

@@ -14,13 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React from 'react';
-
-// Exported from redux-devtools
-import { createDevTools } from 'redux-devtools';
-
-// Monitors are separate packages, and you can make a custom one
-import LogMonitor from 'redux-devtools-log-monitor';
 import DockMonitor from 'redux-devtools-dock-monitor';
+import LogMonitor from 'redux-devtools-log-monitor';
+
+import { createDevTools } from 'redux-devtools';
 
 // createDevTools takes a monitor and produces a DevTools component
 const DevTools = createDevTools(

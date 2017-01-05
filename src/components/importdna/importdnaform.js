@@ -15,16 +15,14 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { uiShowDNAImport } from '../../actions/ui';
-import { blockGetSequence, blockSetSequence } from '../../actions/blocks';
-import { focusBlocks } from '../../actions/focus';
-import { uiSetGrunt } from '../../actions/ui';
-import ModalWindow from '../modal/modalwindow';
-import { blockCreate, blockAddComponent } from '../../actions/blocks';
-import { dnaLoose, dnaLooseRegexp } from '../../utils/dna';
 
 import '../../../src/styles/form.css';
 import '../../../src/styles/importdnaform.css';
+import { blockAddComponent, blockCreate, blockGetSequence, blockSetSequence } from '../../actions/blocks';
+import { focusBlocks } from '../../actions/focus';
+import { uiSetGrunt, uiShowDNAImport } from '../../actions/ui';
+import { dnaLoose, dnaLooseRegexp } from '../../utils/dna';
+import ModalWindow from '../modal/modalwindow';
 
 class DNAImportForm extends Component {
 

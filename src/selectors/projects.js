@@ -18,9 +18,10 @@
  * @memberOf module:Selectors
  */
 import invariant from 'invariant';
-import * as blockSelectors from './blocks';
+
 import * as projectFilesApi from '../middleware/projectFiles';
 import Rollup from '../models/Rollup';
+import * as blockSelectors from './blocks';
 
 const _getCurrentProjectId = () => {
   const match = /^\/project\/(.*?)\??$/gi.exec(window.location.pathname);

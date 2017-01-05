@@ -14,8 +14,8 @@
  limitations under the License.
  */
 
-import fields from './fields/index';
 import Schema from './SchemaClass';
+import fields from './fields/index';
 
 const fieldDefs = {
   name: [

@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import Block from '../../models/Block';
-import Annotation from '../../models/Annotation';
 import { merge } from 'lodash';
+
+import Annotation from '../../models/Annotation';
+import Block from '../../models/Block';
 
 function normalizePartType(inputType) {
   let partType = inputType.toLowerCase();
