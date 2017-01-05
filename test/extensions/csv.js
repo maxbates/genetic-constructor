@@ -1,11 +1,12 @@
 import path from 'path';
 import fs from 'fs';
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import request from 'supertest';
 import { convertCsv } from '../../server/extensions/native/csv/convert';
 import { extensionApiPath } from '../../src/middleware/utils/paths';
-import { callExtensionApi } from '../../src/middleware/extensions'
+import { callExtensionApi } from '../../src/middleware/extensions';
 import rejectingFetch from '../../src/middleware/utils/rejectingFetch';
+import { convert } from '../../src/middleware/csv';
 
 describe('Extensions', () => {
   describe('CSV', () => {
@@ -31,6 +32,26 @@ describe('Extensions', () => {
           //check case of fields too
           expect(block.notes.customField).to.eql('woogity!');
         });
+    });
+
+    it('conversion blocks should not have blockId', () => {
+      return convertCsv(fileContents)
+      .then(({ blocks, sequences }) => {
+        Object.keys(blocks).forEach((blockId) => {
+          const block = blocks[blockId];
+          assert(!block.projectId, 'block shouldnt have a project iD');
+        });
+      });
+    });
+
+    it('middleware conversion of file shouldnt have blockIds', () => {
+      return convert(fileContents, {})
+      .then(({ blocks, sequences }) => {
+        Object.keys(blocks).forEach((blockId) => {
+          const block = blocks[blockId];
+          assert(!block.projectId, 'block shouldnt have a project iD');
+        });
+      });
     });
 
     it.skip('should work via REST', () => {

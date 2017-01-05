@@ -65,8 +65,7 @@ function importStringBase(payload, projectId) {
 }
 
 export const convert = (csvString, options = {}) => {
-  invariant(false, 'forthcoming');
-  invariant(typeof csvString === 'string', 'must pass a csv file as text. to use a file, use importCsvFile.');
+  invariant(typeof csvString === 'string', 'must pass a csv file as text. to use a file, use importFile.');
 
   const payload = Object.assign({}, options, { string: csvString });
   return importStringBase(payload, 'convert');
