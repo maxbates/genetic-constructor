@@ -8,12 +8,13 @@
 
   &-heading {
     flex-shrink: 0;
+    font-weight: bold;
     display: flex;
     flex-direction: row;
     flex-wrap: no-wrap;
     justify-content: space-between;
     user-select: none;
-    padding: 5px var(--SidePanel-width-padding-content);
+    padding: 5px 0;
     border-radius: 3px;
     position: relative;
 
@@ -37,7 +38,7 @@
   &-contents {
     flex-grow: 1;
     margin: 0 1em 0 1em;
-    padding: 0.25em 0;
+    padding: 0;
     overflow-y: scroll;
 
     > *:last-child > .InventoryListGroup {
