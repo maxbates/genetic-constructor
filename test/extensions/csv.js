@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import request from 'supertest';
 import { convertCsv } from '../../server/extensions/native/csv/convert';
 import { extensionApiPath } from '../../src/middleware/utils/paths';
@@ -31,6 +31,16 @@ describe('Extensions', () => {
           //check case of fields too
           expect(block.notes.customField).to.eql('woogity!');
         });
+    });
+
+    it('conversion blocks should not have blockId', () => {
+      return convertCsv(fileContents)
+      .then(({ blocks, sequences }) => {
+        Object.keys(blocks).forEach((blockId) => {
+          const block = blocks[blockId];
+          assert(!block.projectId, 'block shouldnt have a project iD');
+        })
+      });
     });
 
     it.skip('should work via REST', () => {
