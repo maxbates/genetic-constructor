@@ -8,7 +8,6 @@
   .InventoryGroup-heading {
     height: var(--width-SidePanel-closed);
     line-height: var(--width-SidePanel-closed);
-    text-indent: var(--SidePanel-width-padding-content);
     font-size: var(--font-size-sectionLabel);
     font-weight: 100;
     user-select: none;
@@ -31,7 +30,7 @@
     overflow: hidden;
 
     &Inner {
-      overflow-y: scroll;
+      overflow-y: auto;
     }
 
     &Nester {

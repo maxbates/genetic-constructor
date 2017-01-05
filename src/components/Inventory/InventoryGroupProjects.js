@@ -71,7 +71,7 @@ class InventoryGroupProjects extends Component {
         <InventoryTabs tabs={this.inventoryTabs}
                        activeTabKey={groupBy}
                        onTabSelect={(tab) => this.onTabSelect(tab.key)}/>
-        <div className="InventoryGroup-contentInner no-vertical-scroll">
+        <div className="InventoryGroup-contentInner">
           {currentList}
         </div>
       </div>

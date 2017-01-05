@@ -35,6 +35,7 @@
     color: var(--colors-nearlyBlack);
     transform: translateX(0);
     transition: transform var(--timing-fast) var(--SidePanel-ease);
+    padding: 0 var(--SidePanel-width-padding-content);
   }
   .content-closed {
     transform: translateX(-250px);
