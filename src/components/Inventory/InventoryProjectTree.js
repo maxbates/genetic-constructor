@@ -406,7 +406,7 @@ export class InventoryProjectTree extends Component {
       <div>
         <InventorySearch searchTerm={this.state.filter}
                          disabled={false}
-                         placeholder="Filter projects"
+                         placeholder="Search"
                          onSearchChange={this.handleFilterChange}/>
         <div className="inventory-project-tree">
           <Tree items={treeItems}/>

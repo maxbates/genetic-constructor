@@ -12,7 +12,8 @@
     border-radius: 2px;
     border: none;
     padding: 0.5em 2em 0.5em 0.4em;
-    background: var(--colors-lightGrey);
+    background: var(--colors-white);
+    border: 1px solid var(--colors-lightGrey);
     color: var(--colors-text);
     background-image: url('/images/ui/search.svg');
     background-repeat: no-repeat;
