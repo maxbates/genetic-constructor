@@ -1,7 +1,7 @@
 @import 'variables.css';
 
 .Toggler {
-  margin-right: 4px;
+  margin-right: 2px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
