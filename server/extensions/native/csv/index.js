@@ -48,7 +48,7 @@ router.get('/file/:fileId', (req, res, next) => {
 router.post('/import/:projectId?',
   importMiddleware,
   (req, res, next) => {
-    const { noSave, returnRoll, projectId, files } = req; //eslint-disable-line no-unused-vars
+    const { projectId, files } = req;
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
     const { name, string, fileName, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars

@@ -36,8 +36,8 @@ const extensionKey = 'import';
 //projectId is optional, or may be convert
 export default function importMiddleware(req, res, next) {
   const { projectId } = req.params;
-  const noSave = req.query.hasOwnProperty('noSave') || projectId === 'convert'; //dont save sequences or project
-  const returnRoll = projectId === 'convert'; //return roll at end instead of projectId
+  const conversion = projectId === 'convert'; //do a conversion, return roll at end
+  const noSave = req.query.hasOwnProperty('noSave') || conversion; //dont save sequences or project
 
   const alreadyExists = projectId && projectId !== 'convert';
 
@@ -147,7 +147,7 @@ export default function importMiddleware(req, res, next) {
     Object.assign(req, {
       files,
       projectId,
-      returnRoll,
+      conversion,
       noSave,
     });
 
@@ -171,7 +171,7 @@ export default function importMiddleware(req, res, next) {
 }
 
 /**
- * expects on req: roll, noSave, returnRoll, :projectId?
+ * expects on req: roll, noSave, conversion, :projectId?
  *
  * roll can contain project { project } , blocks {blockId : block} , sequences and will be merged / written appropriately
  *
@@ -192,7 +192,7 @@ export default function importMiddleware(req, res, next) {
  * }]
  */
 export function mergeRollupMiddleware(req, res, next) {
-  const { projectId, mintedProjectId, roll, noSave, returnRoll } = req;
+  const { projectId, mintedProjectId, roll, noSave, conversion } = req;
   const { project, blocks, sequences = {} } = roll;
 
   logger(`merging project (project=${projectId})`);
@@ -230,9 +230,10 @@ export function mergeRollupMiddleware(req, res, next) {
     .then(() => {
       logger(`sequences written (project=${projectId})`);
 
-      if (!projectId || projectId === 'convert' || returnRoll) {
+      if (!projectId || conversion) {
         //if we didnt recieve a projectId, we've assigned one already in importMiddleware above (for job file), so use here
         //even if we are running a conversion, we had a dummy project to be rollup-compliant, so make sure blocks are ok
+        // if we are converting, ultimately we remove the project ID, but to generate the rollup (and run initial validation), a project ID is necessary
         Object.assign(project, { id: mintedProjectId });
         _.forEach(blocks, block => Object.assign(block, { projectId: mintedProjectId }));
 
@@ -260,7 +261,9 @@ export function mergeRollupMiddleware(req, res, next) {
     .then((roll) => {
       logger(`project written, import complete (${projectId}`);
 
-      if (returnRoll) {
+      //if we did a conversion, we don't want a project ID on the blocks
+      if (conversion) {
+        _.forEach(roll.blocks, block => Object.assign(block, { projectId: null }));
         return res.status(200).json(roll);
       }
 

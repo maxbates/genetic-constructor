@@ -17,6 +17,7 @@ import path from 'path';
 import run from './run';
 import setup from './setup';
 import { spawnAsync, promisedExec } from './lib/cp';
+import HOST_URL from '../server/urlConstants';
 
 /** paths **/
 
@@ -65,12 +66,12 @@ const startRunAuth = () => {
     { cwd: pathProjectRoot,
       env: Object.assign({
         BIO_NANO_AUTH: 1,
-        HOST_URL: 'http://localhost:3000',
+        HOST_URL: HOST_URL,
       }, process.env),
     },
     {
       comment: 'Starting Constructor with Authentication...',
-      waitUntil: 'Server listening at http://0.0.0.0:3000/',
+      waitUntil: 'Server listening at ' + HOST_URL + '/',
       forceOutput: true,
       failOnStderr: false,
     },

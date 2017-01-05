@@ -29,6 +29,7 @@ function run(fn, options) {
   })
     .catch((err) => {
       redLog(`Error running task: ${task.name}`);
+      redLog(err);
       redLog(err.stack);
       throw err;
     });
