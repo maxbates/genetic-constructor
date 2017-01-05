@@ -9,7 +9,7 @@ import rejectingFetch from '../../src/middleware/utils/rejectingFetch';
 import { convert } from '../../src/middleware/csv';
 
 describe('Extensions', () => {
-  describe.only('CSV', () => {
+  describe('CSV', () => {
     const fileName = 'simplecsv.csv';
     const filePath = path.resolve(__dirname, '../res/' + fileName);
     const fileContents = fs.readFileSync(filePath, 'utf8');
