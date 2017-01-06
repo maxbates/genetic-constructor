@@ -16,7 +16,6 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import inventoryRoles from '../../inventory/roles';
-import InventorySearch from './InventorySearch';
 import RoleSvg from '../RoleSvg';
 import MouseTrap from '../../containers/graphics/mousetrap';
 import DnD from '../../containers/graphics/dnd/dnd';
@@ -37,15 +36,7 @@ export default class InventoryGroupRole extends Component {
   }
 
   state = {
-    filter: InventoryGroupRole.filter || '',
     current: { id: null, name: null },
-  };
-
-  static filter = '';
-
-  handleFilterChange = (filter) => {
-    InventoryGroupRole.filter = filter;
-    this.setState({ filter });
   };
 
   onMouseEnter = (item) => {
@@ -115,21 +106,49 @@ export default class InventoryGroupRole extends Component {
     return proxy;
   }
 
+  /**
+   * dictates the sort order of sbol tiles
+
+   */
+  static sortOrder = [
+    'promoter',
+    'cds',
+    'rbs',
+    'terminator',
+    'protease',
+    'ribonuclease',
+    'rna stability',
+    'protein stability',
+    'origin of replication',
+    'operator',
+    'insulator',
+    'restriction site',
+    'structural',
+    'bidrectional promoter',
+    'plasmin backbone',
+    'combinatorial list',
+    'no symbol',
+  ];
+
   render() {
     const current = this.state.current;
-    const filtered = this.roleSymbols.filter(item => {
-      return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0;
+
+    // sort items by order given by sortOrder
+    const sorted = this.roleSymbols.slice();
+    sorted.sort((itemA, itemB) => {
+      return InventoryGroupRole.sortOrder.indexOf(itemA.name.toLowerCase()) -
+        InventoryGroupRole.sortOrder.indexOf(itemB.name.toLowerCase());
     });
 
     return (
       <div className="InventoryGroup-content InventoryGroupRole">
-        <InventorySearch searchTerm={this.state.filter}
-                         disabled={false}
-                         placeholder="Filter sketch blocks"
-                         onSearchChange={this.handleFilterChange}/>
         <div className="InventoryGroup-contentInner no-vertical-scroll">
+          <p>
+            Drag a sketch block to the canvas to add it to your project. Hold down the option ( alt ) key
+            to reverse the direction of the block.
+          </p>
           <div className="list">
-            {filtered.map(item => {
+            {sorted.map(item => {
               return (
                 <div className="sbol-tile">
                   <RoleSvg

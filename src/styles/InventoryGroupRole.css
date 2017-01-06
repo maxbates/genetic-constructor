@@ -2,6 +2,11 @@
 
 .InventoryGroupRole {
 
+  p {
+    color: var(--colors-grey);
+    margin: 0 1rem 1rem 1rem;
+  }
+
   .list {
     display: flex;
     align-items: center;
