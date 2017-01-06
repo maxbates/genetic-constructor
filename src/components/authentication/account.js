@@ -72,7 +72,7 @@ class AccountForm extends Component {
 
   // on form submission, first perform client side validation then submit
   // to the server if that goes well.
-  onSubmit(evt) {
+  onSubmit = (evt) => {
     // submission occurs via REST not form submission
     evt.preventDefault();
 
@@ -140,11 +140,11 @@ class AccountForm extends Component {
     }
 
     if (this.emailAddress && this.emailAddress !== this.emailConfirm) {
-      newState.email2Error = { visible: true, text: 'The email addresses entered don\’t match.' };
+      newState.email2Error = { visible: true, text: 'The email addresses entered don\'t match.' };
     }
 
     if (this.password && this.password !== this.passwordConfirm) {
-      newState.password2Error = { visible: true, text: 'The passwords entered don\’t match' };
+      newState.password2Error = { visible: true, text: 'The passwords entered don\'t match' };
     }
 
     // display appropriate errors
@@ -234,7 +234,7 @@ class AccountForm extends Component {
       <form
         id="account-form"
         className="gd-form authentication-form"
-        onSubmit={this.onSubmit.bind(this)}
+        onSubmit={this.onSubmit}
       >
         <div className="title">Account Settings</div>
 

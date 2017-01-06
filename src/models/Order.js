@@ -111,6 +111,7 @@ export default class Order extends Instance {
     return true;
   }
 
+  //eslint-disable-next-line class-methods-use-this
   clone() {
     //todo - enable this, but remove order-specifics (e.g. status)
     invariant(false, 'cannot clone an order');

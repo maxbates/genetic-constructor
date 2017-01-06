@@ -15,6 +15,7 @@
  */
 import debug from 'debug';
 import invariant from 'invariant';
+import AWS from 'aws-sdk';
 
 import { errorDoesNotExist } from '../../utils/errors';
 
@@ -94,12 +95,9 @@ const massageResult = (obj, forcePrefix) => {
   });
 };
 
-let AWS;
 if (useRemote) {
   invariant(!!process.env.AWS_ACCESS_KEY_ID, 'production environment uses AWS, unless specify env var FORCE_LOCAL=true. expected env var AWS_ACCESS_KEY_ID');
   invariant(!!process.env.AWS_SECRET_ACCESS_KEY, 'production environment uses AWS, unless specify env var FORCE_LOCAL=true. expected env var AWS_SECRET_ACCESS_KEY');
-
-  AWS = require('aws-sdk');
 
   AWS.config.update({
     region: process.env.AWS_S3_LOCATION || 'us-west-1',

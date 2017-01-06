@@ -227,10 +227,10 @@ export const saveProjectOrders = (projectId, ...orders) => {
 
 export const getProjectOrders = (projectId) => {
   const relevant = [];
-  for (const order of orderMap.values()) {
+  orderMap.forEach((order) => {
     if (order.projectId === projectId) {
       relevant.push(order);
     }
-  }
+  });
   return relevant;
 };

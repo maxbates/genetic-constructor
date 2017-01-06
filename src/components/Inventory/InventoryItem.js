@@ -188,7 +188,7 @@ export class InventoryItem extends Component {
 
     const hasSequence = item.sequence && item.sequence.length > 0;
     const itemName = item.metadata.name || defaultName || 'Unnamed';
-    const dataAttr = dataAttribute ? dataAttribute : `${inventoryType} ${item.id}`;
+    const dataAttr = dataAttribute || `${inventoryType} ${item.id}`;
 
     return (
       <div
@@ -197,7 +197,7 @@ export class InventoryItem extends Component {
       }${(!!loading && !skipFocus) ? ' loading' : ''
       }${(loadError) ? ' loadError' : ''
       }${isSelected ? ' selected' : ''}`}
-        ref={el => this.itemElement = el}
+        ref={(el) => { this.itemElement = el; }}
         data-inventory={dataAttr}
       >
         <a

@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 
 import { detailViewSelectExtension, uiToggleDetailView } from '../actions/ui';
 import { extensionsByRegion, getExtensionName, onRegister } from '../extensions/clientRegistry';
-import { focusDetailsExist } from '../selectors/focus';
 import '../styles/ProjectDetail.css';
 import ExtensionView from './ExtensionView';
 
@@ -29,10 +28,8 @@ export class ProjectDetail extends Component {
   static propTypes = {
     uiToggleDetailView: PropTypes.func.isRequired,
     detailViewSelectExtension: PropTypes.func.isRequired,
-    focusDetailsExist: PropTypes.func.isRequired,
     isVisible: PropTypes.bool.isRequired,
     currentExtension: PropTypes.any, //todo - allow null or key
-    project: PropTypes.object.isRequired,
   };
 
   constructor() {
@@ -175,18 +172,13 @@ export class ProjectDetail extends Component {
 
 const mapStateToProps = (state, props) => {
   const { isVisible, currentExtension } = state.ui.detailView;
-  //const { constructId, forceBlocks, blockIds } = state.focus; //to force rendering (check for if details exist) on focus change
   return {
     isVisible,
     currentExtension,
-    //blockIds,
-    //constructId,
-    //forceBlocks,
   };
 };
 
 export default connect(mapStateToProps, {
   uiToggleDetailView,
   detailViewSelectExtension,
-  focusDetailsExist,
 })(ProjectDetail);

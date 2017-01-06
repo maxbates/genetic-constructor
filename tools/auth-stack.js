@@ -66,12 +66,12 @@ const startRunAuth = () => {
     { cwd: pathProjectRoot,
       env: Object.assign({
         BIO_NANO_AUTH: 1,
-        HOST_URL: HOST_URL,
+        HOST_URL,
       }, process.env),
     },
     {
       comment: 'Starting Constructor with Authentication...',
-      waitUntil: 'Server listening at ' + HOST_URL + '/',
+      waitUntil: `Server listening at ${HOST_URL}/`,
       forceOutput: true,
       failOnStderr: false,
     },

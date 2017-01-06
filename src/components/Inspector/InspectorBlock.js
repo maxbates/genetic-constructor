@@ -39,7 +39,6 @@ export class InspectorBlock extends Component {
         return new Error(`Must pass valid instances of blocks to the inspector, got ${JSON.stringify(instance)}`);
       }
     }).isRequired,
-    project: PropTypes.object.isRequired,
     construct: PropTypes.object.isRequired, //top-level
     isAuthoring: PropTypes.bool.isRequired,
     overrides: PropTypes.shape({

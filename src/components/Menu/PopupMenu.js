@@ -33,12 +33,12 @@ export default class PopupMenu extends Component {
   };
 
   // mouse down on the blocker closes the modal
-  onMouseDown(evt) {
-    const blockEl = ReactDOM.findDOMNode(this.refs.blocker);
+  onMouseDown = (evt) => {
+    const blockEl = ReactDOM.findDOMNode(this.blocker);
     if (evt.target === blockEl) {
       this.props.closePopup();
     }
-  }
+  };
 
   render() {
     // set position from properties
@@ -48,10 +48,10 @@ export default class PopupMenu extends Component {
     };
     return (
       <div
-        onMouseDown={this.onMouseDown.bind(this)}
+        onMouseDown={this.onMouseDown}
         className={this.props.open ? 'menu-popup-blocker-visible' : 'menu-popup-blocker-hidden'}
         style={this.props.style}
-        ref="blocker"
+        ref={(el) => { this.blocker = el; }}
       >
         <div className="menu-popup-container" style={position}>
           {this.props.menuItems.map((item, index) => {

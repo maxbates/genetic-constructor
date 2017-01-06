@@ -47,7 +47,7 @@ fs.readdirSync(nodeModulesDir).forEach((packageName) => {
 
     //future process.env.BUILD support (if not already handled by line above)
     const filePath = path.resolve(nodeModulesDir, `${packageName}/package.json`);
-    const depManifest = require(filePath);
+    const depManifest = require(filePath); //eslint-disable-line import/no-dynamic-require
 
     validateManifest(depManifest);
 
@@ -67,7 +67,7 @@ fs.readdirSync(nodeModulesDir).forEach((packageName) => {
 
 console.log(`[Extensions] Extensions included:${Object.keys(registry)}`);
 
-export const isRegistered = name => registry.hasOwnProperty(name);
+export const isRegistered = name => Object.prototype.hasOwnProperty.call(registry, name);
 
 //each filter takes arguments (manifest, key), should return true or false
 export const getExtensions = (...filters) => filters.reduce((acc, filter) => pickBy(acc, filter), registry);

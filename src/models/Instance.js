@@ -43,6 +43,8 @@ export default class Instance extends Immutable {
   constructor(input = {}, subclassBase, frozen) {
     invariant(typeof input === 'object', 'must pass an object (or leave undefined) to model constructor');
 
+    //not sure why this is complaining...
+    //eslint-disable-next-line constructor-super
     return super(merge(
       assign(InstanceSchema.scaffold(), subclassBase), //perf. NB - this is only valid so long as no overlapping fields
       input,

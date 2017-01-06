@@ -19,10 +19,10 @@ import KeyboardTrap from 'mousetrap';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { blockAddComponent, blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename } from '../actions/blocks';
+import { blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename } from '../actions/blocks';
 import { clipboardSetData } from '../actions/clipboard';
 import { focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../actions/focus';
-import { projectAddConstruct, projectCreate, projectDelete, projectList, projectLoad, projectOpen, projectSave } from '../actions/projects';
+import { projectAddConstruct, projectCreate, projectDelete, projectLoad, projectOpen, projectSave } from '../actions/projects';
 import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiReportError, uiSetGrunt, uiShowAbout, uiShowDNAImport, uiShowGenBankImport, uiToggleDetailView } from '../actions/ui';
 import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import MenuBar from '../components/Menu/MenuBar';
@@ -48,7 +48,6 @@ class GlobalNav extends Component {
     projectAddConstruct: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
-    projectList: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string,
     blockCreate: PropTypes.func.isRequired,
@@ -75,7 +74,6 @@ class GlobalNav extends Component {
       data: PropTypes.any,
     }).isRequired,
     blockGetComponentsRecursive: PropTypes.func.isRequired,
-    blockAddComponent: PropTypes.func.isRequired,
     blockAddComponents: PropTypes.func.isRequired,
     uiShowAbout: PropTypes.func.isRequired,
     uiShowDNAImport: PropTypes.func.isRequired,
@@ -93,6 +91,11 @@ class GlobalNav extends Component {
       metadata: PropTypes.object,
     }),
   };
+
+  static disgorgeDiscourse(path) {
+    const uri = window.discourseDomain + path;
+    window.open(uri, '_blank');
+  }
 
   constructor(props) {
     super(props);
@@ -610,7 +613,7 @@ class GlobalNav extends Component {
             },
             {
               text: 'Forums',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
+              action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
             },
             {
               text: 'Get Support',
@@ -623,7 +626,7 @@ class GlobalNav extends Component {
             },
             {
               text: 'Give Us Feedback',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
+              action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
             },
             {},
             {
@@ -653,18 +656,13 @@ class GlobalNav extends Component {
     />);
   }
 
-  disgorgeDiscourse(path) {
-    const uri = window.discourseDomain + path;
-    window.open(uri, '_blank');
-  }
-
   render() {
     const { currentProjectId, showMenu } = this.props;
 
     return (
       <div className="GlobalNav">
         <RibbonGrunt />
-        <img className="GlobalNav-logo" src="/images/homepage/app-logo.png" />
+        <img className="GlobalNav-logo" role="presentation" src="/images/homepage/app-logo.png" />
         {showMenu && this.menuBar()}
         <span className="GlobalNav-spacer" />
         {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId} />}
@@ -722,7 +720,6 @@ export default connect(mapStateToProps, {
   projectSave,
   projectOpen,
   projectDelete,
-  projectList,
   projectLoad,
   projectGetVersion,
   blockCreate,
@@ -752,6 +749,5 @@ export default connect(mapStateToProps, {
   focusConstruct,
   focusDetailsExist,
   clipboardSetData,
-  blockAddComponent,
   blockAddComponents,
 })(GlobalNav);

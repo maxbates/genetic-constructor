@@ -49,7 +49,6 @@ ListOption.propTypes = {
     metadata: PropTypes.object.isRequired,
     source: PropTypes.object.isRequired,
   }).isRequired,
-  defaultName: PropTypes.string,
   onClick: PropTypes.func,
   onDelete: PropTypes.func,
   selected: PropTypes.bool,

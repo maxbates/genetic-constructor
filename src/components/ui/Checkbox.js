@@ -34,7 +34,7 @@ export default class Checkbox extends Component {
   };
 
   render() {
-    const { checked, onChange, disabled, ...rest } = this.props;
+    const { checked, disabled, ...rest } = this.props;
     return (
       <div
         {...rest}

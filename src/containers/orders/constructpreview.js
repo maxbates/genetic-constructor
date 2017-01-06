@@ -143,8 +143,8 @@ class ConstructPreview extends Component {
     return 'lightgray';
   }
 
-  generateConstructs(props = this.props) {
-    this.constructs = props.orderGenerateConstructs(props.order.id);
+  generateConstructs() {
+    this.constructs = this.props.orderGenerateConstructs(this.props.order.id);
   }
 
   render() {
@@ -152,7 +152,7 @@ class ConstructPreview extends Component {
     return (
       <div className="preview">
         <div className="top-row">
-          <label className="review">Reviewing assembly</label>
+          <p className="review">Reviewing assembly</p>
           <UpDown
             min={1}
             max={this.constructs ? this.constructs.length : 1}
@@ -160,7 +160,7 @@ class ConstructPreview extends Component {
             enabled={!!(this.constructs && this.constructs.length)}
             onChange={this.onChangeConstruct}
           />
-          <label className="of">{label}</label>
+          <p className="of">{label}</p>
         </div>
         <div className="container">
           <div className="scenegraph" />

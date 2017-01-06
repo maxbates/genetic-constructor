@@ -43,20 +43,26 @@ class ProjectPage extends Component {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object, //if have a project (not fetching)
     constructs: PropTypes.array, //if have a project (not fetching)
-    orders: PropTypes.array, //if have a project (not fetching)
-    projectCreate: PropTypes.func.isRequired,
-    projectList: PropTypes.func.isRequired,
+    //orders: PropTypes.array, //if have a project (not fetching)
+    //projectCreate: PropTypes.func.isRequired,
+    //projectList: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
-    uiSetGrunt: PropTypes.func.isRequired,
+    //uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
   };
 
+  static onWindowUnload(evt) {
+    if (autosaveInstance.isDirty() && process.env.NODE_ENV === 'production') {
+      return 'Project has unsaved work! Please save before leaving this page';
+    }
+  }
+
   componentDidMount() {
     // todo - use react router History to do this:
     // https://github.com/mjackson/history/blob/master/docs/ConfirmingNavigation.md
-    window.onbeforeunload = window.onunload = this.onWindowUnload;
+    window.onbeforeunload = window.onunload = ProjectPage.onWindowUnload;
 
     //load extensions (also see componentWillReceiveProps)
     if (this.props.userId) {
@@ -85,12 +91,6 @@ class ProjectPage extends Component {
 
   componentWillUnmount() {
     window.onbeforeunload = window.onunload = () => {};
-  }
-
-  onWindowUnload(evt) {
-    if (autosaveInstance.isDirty() && process.env.NODE_ENV === 'production') {
-      return 'Project has unsaved work! Please save before leaving this page';
-    }
   }
 
   render() {

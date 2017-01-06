@@ -13,20 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 
-export default class Row extends Component {
-  static propTypes = {
-    text: PropTypes.string.isRequired,
-    children: PropTypes.any.isRequired,
-  };
-
-  render() {
-    return (
-      <div className="row">
-        <div className="row-left">{this.props.text}</div>
-        <div className="row-right">{this.props.children}</div>
-      </div>
-    );
-  }
+export default function Row(props) {
+  return (
+    <div className="row">
+      <div className="row-left">{props.text}</div>
+      <div className="row-right">{props.children}</div>
+    </div>
+  );
 }
+
+Row.propTypes = {
+  text: PropTypes.string.isRequired,
+  children: PropTypes.any.isRequired,
+};

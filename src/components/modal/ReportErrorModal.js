@@ -110,11 +110,11 @@ class SaveErrorModal extends Component {
             />
 
             {createdUrl && (<div style={{ paddingTop: '1.5rem', textAlign: 'center' }}>
-              Thank you! Your issue has been logged at <a style={{ textDecoration: 'underline' }} href={createdUrl} target="_blank">GitHub (account required)</a>
+              Thank you! Your issue has been logged at <a style={{ textDecoration: 'underline' }} href={createdUrl} target="_blank" rel="noopener noreferrer">GitHub (account required)</a>
             </div>)}
 
             {hasError && (<div style={{ paddingTop: '1.5rem', textAlign: 'center' }}>
-              Something went wrong. <a style={{ textDecoration: 'underline' }} href={'https://forum.bionano.autodesk.com/c/genetic-constructor'} target="_blank">Post to our forums</a> instead?
+              Something went wrong. <a style={{ textDecoration: 'underline' }} href={'https://forum.bionano.autodesk.com/c/genetic-constructor'} target="_blank" rel="noopener noreferrer">Post to our forums</a> instead?
             </div>)}
 
             <div style={{ width: '200px', paddingTop: '1.5rem', textAlign: 'center' }}>

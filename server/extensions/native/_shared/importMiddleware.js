@@ -26,7 +26,6 @@ import Rollup from '../../../../src/models/Rollup';
 import { resetColorSeed } from '../../../../src/utils/color/index';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as fileSystem from '../../../data/middleware/fileSystem';
-import { userOwnsProject } from '../../../data/persistence/projects';
 import { errorDoesNotExist, errorNoPermission } from '../../../utils/errors';
 
 const logger = debug('constructor:import');
@@ -37,14 +36,14 @@ const extensionKey = 'import';
 export default function importMiddleware(req, res, next) {
   const { projectId } = req.params;
   const conversion = projectId === 'convert'; //do a conversion, return roll at end
-  const noSave = req.query.hasOwnProperty('noSave') || conversion; //dont save sequences or project
+  const noSave = conversion || !!req.query.noSave; //dont save sequences or project
 
   const alreadyExists = projectId && projectId !== 'convert';
 
   //first check if user has access to projectId, unless it is just a conversion
   let promise = (!alreadyExists) ?
     Promise.resolve() :
-    userOwnsProject(req.user.uuid, projectId);
+    projectPersistence.userOwnsProject(req.user.uuid, projectId);
 
   //mint a project ID if one doesn't exist, to save job File. See also merge middleware (for after conversion)
   const mintedProjectId = (!alreadyExists) ? Project.classless().id : projectId;
@@ -56,7 +55,7 @@ export default function importMiddleware(req, res, next) {
 
   //if we have an object, expect a string to have been passed
   if (typeof req.body === 'object' && req.body.string) {
-    const { name, string, ...rest } = req.body;
+    const { name, string } = req.body;
 
     //calc md5 and write locally to /tmp, so available to extensions
     //future - tee to S3 and locally to extension

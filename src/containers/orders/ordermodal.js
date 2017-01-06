@@ -16,8 +16,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import '../../../src/styles/form.css';
-import '../../../src/styles/ordermodal.css';
 import { orderDetach, orderSubmit } from '../../actions/orders';
 import { projectSave } from '../../actions/projects';
 import { uiShowOrderForm, uiSpin } from '../../actions/ui';
@@ -26,6 +24,9 @@ import NavLeftRight from './nav-left-right';
 import Page1 from './page1';
 import Page2 from './page2';
 import Page3 from './page3';
+
+import '../../../src/styles/form.css';
+import '../../../src/styles/ordermodal.css';
 
 class OrderModal extends Component {
   static propTypes = {
@@ -92,12 +93,12 @@ class OrderModal extends Component {
     }
   };
 
-  nav(inc) {
+  nav = (inc) => {
     let page = this.state.page + inc;
     if (page < 1) page = 3;
     if (page > 3) page = 1;
     this.setState({ page });
-  }
+  };
 
   modalButtons() {
     if (!this.props.order.isSubmitted()) {
@@ -134,7 +135,7 @@ class OrderModal extends Component {
     const titleText = ['Order DNA', 'Review Assemblies', 'Order Details'][this.state.page - 1];
 
     const error = this.state.error ?
-      <label className="error">{`Order Error: ${this.state.error.substr(0, 1024)}`}</label> : null;
+      <p className="error">{`Order Error: ${this.state.error.substr(0, 1024)}`}</p> : null;
 
     return (<ModalWindow
       open={this.props.open}
@@ -152,14 +153,14 @@ class OrderModal extends Component {
           {error}
           <div className="actions">
             <NavLeftRight
-              onClick={this.nav.bind(this, -1)}
+              onClick={this.nav(-1)}
               left
               text={leftText}
               visible={this.state.page > 1}
             />
             {this.modalButtons()}
             <NavLeftRight
-              onClick={this.nav.bind(this, 1)}
+              onClick={this.nav(1)}
               left={false}
               text={rightText}
               visible={this.state.page < 3 && !(this.state.page === 2 && !this.props.order.isSubmitted())}

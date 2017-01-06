@@ -25,7 +25,7 @@ export class InventoryProjectList extends Component {
   static propTypes = {
     currentProject: PropTypes.string.isRequired,
     projects: PropTypes.object.isRequired,
-    blockStash: PropTypes.func.isRequired,
+    //blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
   };
 

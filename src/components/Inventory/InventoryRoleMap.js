@@ -32,8 +32,8 @@ const noRoleKey = 'none';
 
 export class InventoryRoleMap extends Component {
   static propTypes = {
-    blockStash: PropTypes.func.isRequired,
-    blockClone: PropTypes.func.isRequired,
+    //blockStash: PropTypes.func.isRequired,
+    //blockClone: PropTypes.func.isRequired,
     blockLoad: PropTypes.func.isRequired,
   };
 

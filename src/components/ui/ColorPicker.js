@@ -87,7 +87,7 @@ export default class ColorPicker extends Component {
     return (
       <div className={`Picker ColorPicker${readOnly ? ' readOnly' : ''}`}>
         <div
-          ref={ref => this.pickerToggler = ref}
+          ref={(ref) => { this.pickerToggler = ref; }}
           className="Picker-current"
           onClick={this.onClickCurrent}
         >

@@ -66,10 +66,11 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
         case ActionTypes.REDO :
           undoManager.redo(action);
           break;
-        case ActionTypes.JUMP :
+        case ActionTypes.JUMP : {
           const { number } = action;
           undoManager.jump(number, action);
           break;
+        }
 
         case ActionTypes.TRANSACT :
           undoManager.transact(action);
@@ -106,7 +107,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
       }
 
       //if marked to purge, lets clear the history
-      if (!!action.undoPurge || params.purgeOn(action, nextState, state)) {
+      if (action.undoPurge || params.purgeOn(action, nextState, state)) {
         undoManager.purge(action);
       }
 
@@ -116,7 +117,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
       }
 
       //if we make it this far, then this reducer has been affected and we can assume the action is specific to this section of reducers
-      if (!!action.undoable || params.filter(action, nextState, state)) {
+      if (action.undoable || params.filter(action, nextState, state)) {
         //shouldnt have undoPurge and undoable on same action
         undoManager.insert(key, nextState, action);
       } else {

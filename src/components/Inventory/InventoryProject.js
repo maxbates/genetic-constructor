@@ -36,7 +36,7 @@ export class InventoryProject extends Component {
     isActive: PropTypes.bool.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectGet: PropTypes.func.isRequired,
-    projectSave: PropTypes.func.isRequired,
+    //projectSave: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,

@@ -34,7 +34,7 @@ export class InventoryGroupSearch extends Component {
     inventorySearch: PropTypes.func.isRequired,
     inventorySearchPaginate: PropTypes.func.isRequired,
     inventoryShowSourcesToggling: PropTypes.func.isRequired,
-    inventorySetSources: PropTypes.func.isRequired,
+    //inventorySetSources: PropTypes.func.isRequired,
     inventoryToggleSource: PropTypes.func.isRequired,
     inventoryToggleSourceVisible: PropTypes.func.isRequired,
     blockStash: PropTypes.func.isRequired,

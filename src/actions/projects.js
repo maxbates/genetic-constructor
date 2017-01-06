@@ -109,7 +109,7 @@ export const projectDelete = projectId => (dispatch, getState) => deleteProject(
  */
 export const projectSave = (inputProjectId, forceSave = false) => (dispatch, getState) => {
   const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
-  const projectId = inputProjectId ? inputProjectId : currentProjectId;
+  const projectId = inputProjectId || currentProjectId;
   if (!projectId) {
     return Promise.resolve(null);
   }

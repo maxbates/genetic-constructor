@@ -107,7 +107,7 @@ export class InventoryConstruct extends Component {
   }
 
   render() {
-    const { blockId, depth, block, isConstruct, isTemplate, isActive, focusBlocks, ...rest } = this.props;
+    const { depth, block, isActive, focusBlocks, ...rest } = this.props;
     const defaultName = depth < 1 ? 'New Construct' : 'New Block';
 
     //use !shouldRenderAsConstruct so short circuit, to avoid calling ref in InventoryListGroup (will be null if never mounted, cause errors when ref clause is called)

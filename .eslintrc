@@ -16,13 +16,58 @@
     "spaced-comment" : [0, "always"],
     "no-use-before-define": [2, "nofunc"],
     "no-unused-vars": [2, {"vars": "all", "args": "none"}],
-    "no-shadow": [0], //this is used for Redux in the connect, and need to get from component props this way
+    "no-lonely-if": 0,
     "id-length": [1,  {"properties": "never", "exceptions" : ["_", "x", "y", "w", "h", "i"]}],
     "new-cap": [2, {"capIsNewExceptions": ["DragSource", "DropTarget", "DragDropContext"]}],
-    "max-len": 0, //not picky about our lines ending at 100 char
-    "no-underscore-dangle": 0, //sometimes we use _private variable naming
-    "no-plusplus": 0, //unary operators are chill
-    "no-confusing-arrow": ["error", {"allowParens": false}], // e.g. a => !a ? 0 : 1
-    "consistent-return": 0 //sometimes its nice to eject function in one line (e.g. promise rejection)
+
+    //we dont care 100% about accessibility
+    "jsx-a11y/anchor-has-content": 0,
+
+    //we never shadow Object.prototype
+    "no-prototype-builtins": 0,
+
+    //todo - enable once codemod is available
+    "react/no-string-refs": 1,
+
+    //todo - enable. forces better component documentation, but takes time to update
+    "react/forbid-prop-types": 0,
+
+    //allow changing properties of a param, but not the param itself... even though this may be confusing
+    "no-param-reassign": ["error", { "props": false }],
+
+    //using arguments is ok
+    "prefer-rest-params": 0,
+
+    //this is used for Redux in the connect, and need to get from component props this way
+    "no-shadow": [0],
+
+    //not picky about our lines ending at 100 char
+    "max-len": 0,
+
+    //sometimes we use _private variable naming
+    "no-underscore-dangle": 0,
+
+    //unary operators are chill
+    "no-plusplus": 0,
+
+    // I like this rule. e.g. a => (a.length > 1) ? 0 : 1
+    "no-confusing-arrow": 0,
+
+    //sometimes its nice to eject function in one line (e.g. promise rejection)
+    "consistent-return": 0,
+
+    //growing modules may prefer named exports even if only have one
+    "import/prefer-default-export": 0,
+
+    //connected components are exported as default, but without exact name match
+    "import/no-named-as-default": 0,
+
+    //we use .js not .jsx file extensions (we might want to change this)
+    "react/jsx-filename-extension": 0,
+
+    "jsx-a11y/no-static-element-interactions": 0,
+
+    //meh
+    "jsx-a11y/img-has-alt": 1
   }
 }

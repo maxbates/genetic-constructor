@@ -13,45 +13,43 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 
 import symbols, { symbolMap } from '../../inventory/roles';
 import PickerItem from '../ui/PickerItem';
 import InputSimple from './../InputSimple';
 import InspectorRow from './InspectorRow';
 
-export default class InspectorRole extends Component {
-  static propTypes = {
-    roleId: (props, propName) => {
-      if (!symbolMap[props[propName]]) {
-        return new Error('must pass a valid Role Operator');
-      }
-    },
-    readOnly: PropTypes.bool.isRequired,
-  };
+export default function InspectorRole(props) {
+  const { roleId, readOnly } = props;
+  const instance = symbols.find(symbol => symbol.id === roleId);
 
-  render() {
-    const { roleId, readOnly } = this.props;
-    const instance = symbols.find(symbol => symbol.id === roleId);
+  return (
+    <div className="InspectorContent InspectorContentRole">
 
-    return (
-      <div className="InspectorContent InspectorContentRole">
+      <InspectorRow heading="Role Name">
+        <InputSimple
+          readOnly={readOnly}
+          value={instance.name}
+        />
+      </InspectorRow>
 
-        <InspectorRow heading="Role Name">
-          <InputSimple
-            readOnly={readOnly}
-            value={instance.name}
-          />
-        </InspectorRow>
+      <InspectorRow heading="Glyph">
+        <PickerItem
+          readOnly
+          svg={instance.id}
+        />
+      </InspectorRow>
 
-        <InspectorRow heading="Glyph">
-          <PickerItem
-            readOnly
-            svg={instance.id}
-          />
-        </InspectorRow>
-
-      </div>
-    );
-  }
+    </div>
+  );
 }
+
+InspectorRole.propTypes = {
+  roleId: (props, propName) => {
+    if (!symbolMap[props[propName]]) {
+      return new Error('must pass a valid Role Operator');
+    }
+  },
+  readOnly: PropTypes.bool.isRequired,
+};

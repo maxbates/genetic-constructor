@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import '../../../src/styles/authenticationforms.css';
@@ -26,44 +26,48 @@ import ResetForm from '../../components/authentication/reset';
 import SignInForm from '../../components/authentication/signin';
 import ModalWindow from '../../components/modal/modalwindow';
 
-class AuthenticationForms extends Component {
-  static propTypes = {
-    uiShowAuthenticationForm: PropTypes.func.isRequired,
-    authenticationForm: PropTypes.string,
-  };
-
-  constructor() {
-    super();
+function AuthenticationForms(props) {
+  let form;
+  switch (props.authenticationForm) {
+    case 'register' :
+      form = <RegisterForm />;
+      break;
+    case 'signin' :
+      form = <SignInForm />;
+      break;
+    case 'forgot' :
+      form = <ForgotForm />;
+      break;
+    case 'reset' :
+      form = <ResetForm />;
+      break;
+    case 'account' :
+      form = <AccountForm />;
+      break;
+    default:
+      form = null;
+      break;
   }
 
-  render() {
-    let form;
-    switch (this.props.authenticationForm) {
-      case 'register' : form = <RegisterForm />; break;
-      case 'signin' : form = <SignInForm />; break;
-      case 'forgot' : form = <ForgotForm />; break;
-      case 'reset' : form = <ResetForm />; break;
-      case 'account' : form = <AccountForm />; break;
-      default: form = null; break;
-    }
-
-    return !form
-      ?
-        <noscript />
-      :
-      (
-        <ModalWindow
-          open
-          title="Auth Modal"
-          payload={form}
-          closeOnClickOutside
-          closeModal={(buttonText) => {
-            this.props.uiShowAuthenticationForm('none');
-          }}
-        />
-      );
-  }
+  return !form
+    ?
+      <noscript />
+    :
+      <ModalWindow
+        open
+        title="Auth Modal"
+        payload={form}
+        closeOnClickOutside
+        closeModal={(buttonText) => {
+          props.uiShowAuthenticationForm('none');
+        }}
+      />;
 }
+
+AuthenticationForms.propTypes = {
+  uiShowAuthenticationForm: PropTypes.func.isRequired,
+  authenticationForm: PropTypes.string,
+};
 
 function mapStateToProps(state) {
   return {

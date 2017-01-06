@@ -47,7 +47,7 @@ const createGeneratorsInitialProjects = (user) => {
       ...config.projects[projectKey],
       generator: projectMap[projectKey],
     }))
-    .sort((one, two) => one.default ? -1 : 1)
+    .sort((one, two) => one.default ? -1 : 1) //eslint-disable-line no-confusing-arrow
     .filter(projectConfig => typeof projectConfig.generator === 'function')
     .map(projectConfig => () => projectConfig.generator(projectConfig, user));
 

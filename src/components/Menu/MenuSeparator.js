@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { Component } from 'react';
+import React from 'react';
 
 /**
  * Popup window class. Accepts any component as it client.
@@ -23,10 +23,8 @@ import React, { Component } from 'react';
  * {Function} onClose - function to call when the window is closed
  * {ReactElement} client - element to place in the client area
  */
-export default class MenuSeparator extends Component {
-  render() {
-    return (
-      <hr />
-    );
-  }
+export default function MenuSeparator() {
+  return (
+    <hr />
+  );
 }

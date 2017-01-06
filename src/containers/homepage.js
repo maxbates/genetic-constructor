@@ -22,7 +22,6 @@ import '../styles/homepage.css';
 import { getLocal, setLocal } from '../utils/localstorage';
 import { privacy } from '../utils/ui/uiapi';
 
-
 export class HomePage extends Component {
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
@@ -36,8 +35,19 @@ export class HomePage extends Component {
     user: PropTypes.object,
   };
 
+  // truthy if the cookie warning must be shown
+  static showCookieWarning() {
+    return !getLocal('cookie-warning', false);
+  }
+
+  static isIE() {
+    const ua = window.navigator.userAgent;
+    const msie = ua.indexOf('MSIE ');
+    return msie > 0 || !!navigator.userAgent.match(/Trident.*rv:11\./);
+  }
+
   state = {
-    showCookieWarning: this.showCookieWarning(),
+    showCookieWarning: HomePage.showCookieWarning(),
   };
 
   // this route can result from path like 'homepage/signin', 'homepage', 'homepage/register' etc.
@@ -46,14 +56,13 @@ export class HomePage extends Component {
     const authForm = this.props.params.comp;
     if (['signin', 'register', 'account', 'reset', 'forgot'].indexOf(authForm) >= 0) {
       this.props.uiShowAuthenticationForm(authForm);
-    } else {
+    } else if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
       // if not showing an auth form goto most recent project or demo project
       // NOTE: the nodirect query string prevents redirection
-      if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
-        // revisit last project
-        this.props.projectOpen(null, true);
-        return;
-      }
+
+      // revisit last project
+      this.props.projectOpen(null, true);
+      return;
     }
 
     // user widget is hidden on homepage
@@ -68,50 +77,39 @@ export class HomePage extends Component {
     this.props.uiShowUserWidget(true);
   }
 
-  isIE() {
-    const ua = window.navigator.userAgent;
-    const msie = ua.indexOf('MSIE ');
-    return msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./);
-  }
-
-  signIn(evt) {
+  signIn = (evt) => {
     evt.preventDefault();
-    if (this.isIE()) {
+    if (HomePage.isIE()) {
       this.props.uiSetGrunt('Sorry we do not currently support Internet Explorer. We recommend the Chrome browser from Google.');
       return;
     }
     this.props.uiShowAuthenticationForm('signin');
-  }
+  };
 
   /**
    * used is closing the cookie warnig so update local storage as seen
    */
-  cookieWarningClosed() {
+  cookieWarningClosed = () => {
     setLocal('cookie-warning', 'acknowledged');
     this.setState({
       showCookieWarning: false,
     });
-  }
-
-  // truthy if the cookie warning must be shown
-  showCookieWarning() {
-    return !getLocal('cookie-warning', false);
-  }
+  };
 
   render() {
     const warning = this.state.showCookieWarning ? 'block' : 'none';
     return (
       <div className="homepage">
         <div className="homepage-image-area">
-          <img className="homepage-logo" src="/images/homepage/app-logo.png" />
+          <img className="homepage-logo" role="presentation" src="/images/homepage/app-logo.png" />
           <div className="homepage-cookie-warning" style={{ display: warning }}>
             Genetic Constructor uses cookies to ensure you get the best experience.
-            <a href={privacy} target="_blank">More Information</a>
-            <div onClick={this.cookieWarningClosed.bind(this)} className="homepage-cookie-close">
+            <a href={privacy} target="_blank" rel="noopener noreferrer">More Information</a>
+            <div onClick={this.cookieWarningClosed} className="homepage-cookie-close">
               Close
             </div>
           </div>
-          <img className="homepage-background" src="/images/homepage/tiles.jpg" />
+          <img className="homepage-background" role="presentation" src="/images/homepage/tiles.jpg" />
           <div className="homepage-name">
             <div className="lighter">Autodesk&nbsp;</div>
             <div>Genetic Constructor</div>
@@ -119,10 +117,10 @@ export class HomePage extends Component {
           <div className="homepage-title">
             <div>Design and manufacture<br />living things</div>
           </div>
-          <div className="homepage-getstarted" onClick={this.signIn.bind(this)}>Get started</div>
+          <div className="homepage-getstarted" onClick={this.signIn}>Get started</div>
         </div>
-        <img className="homepage-autodesk" src="/images/homepage/autodesk-logo.png" />
-        <img className="homepage-egf" src="/images/homepage/egf-logo.png" />
+        <img className="homepage-autodesk" role="presentation" src="/images/homepage/autodesk-logo.png" />
+        <img className="homepage-egf" role="presentation" src="/images/homepage/egf-logo.png" />
         <div className="homepage-footer">
           <div className="homepage-footer-title">New in version 0.1:</div>
           <div className="homepage-footer-list">

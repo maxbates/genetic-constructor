@@ -29,7 +29,6 @@ import AuthenticationForms from './authentication/authenticationforms';
 class App extends Component {
   static propTypes = {
     children: PropTypes.node, // Injected by React Router
-    user: PropTypes.object,
     currentProjectId: PropTypes.string,
     location: PropTypes.shape({
       pathname: PropTypes.string.isRequired,
@@ -37,35 +36,7 @@ class App extends Component {
     spinMessage: PropTypes.string.isRequired,
   };
 
-  /**
-   * attempt to eat backspace keys ( to prevent navigation ) unless an interactive
-   * element is the target
-   */
-  componentDidMount() {
-    document.addEventListener('keydown', this.rejectBackspace);
-    document.addEventListener('keypress', this.rejectBackspace);
-
-    // in production, track top level, unhandled exceptions in the app
-    // not in production, ignore this so we dont garble the callstack
-    if (process.env.NODE_ENV === 'production') {
-      window.onerror = function trackError() {
-        const args = Array.from(arguments);
-        const json = {};
-        args.forEach((arg, index) => {
-          // we except strings as arguments or stringable object. toString ensures
-          // things like functions won't cause problems with JSON.stringify
-          json[index] = arg.toString();
-        });
-        const str = JSON.stringify(json, null, 2);
-        track('Errors', 'Unhandled Exception', str);
-
-        // rethrow the error :(
-        throw new Error(arguments[0]);
-      };
-    }
-  }
-
-  rejectBackspace(evt) {
+  static rejectBackspace(evt) {
     const rx = /INPUT|SELECT|TEXTAREA/i;
     if (evt.which === 8) { // 8 == backspace
       if (evt.target.hasAttribute('contenteditable')) {
@@ -77,9 +48,36 @@ class App extends Component {
     }
   }
 
+  /**
+   * attempt to eat backspace keys ( to prevent navigation ) unless an interactive
+   * element is the target
+   */
+  componentDidMount() {
+    document.addEventListener('keydown', App.rejectBackspace);
+    document.addEventListener('keypress', App.rejectBackspace);
+
+    // in production, track top level, unhandled exceptions in the app
+    // not in production, ignore this so we dont garble the callstack
+    if (process.env.NODE_ENV === 'production') {
+      window.onerror = function trackError(...args) {
+        const json = {};
+        args.forEach((arg, index) => {
+          // we except strings as arguments or stringable object. toString ensures
+          // things like functions won't cause problems with JSON.stringify
+          json[index] = arg.toString();
+        });
+        const str = JSON.stringify(json, null, 2);
+        track('Errors', 'Unhandled Exception', str);
+
+        // rethrow the error :(
+        throw new Error(args[0]);
+      };
+    }
+  }
+
   render() {
     //set by webpack
-    const DevTools = (process.env.DEBUG_REDUX) ? require('./DevTools') : 'noscript';
+    const DevTools = (process.env.DEBUG_REDUX) ? require('./DevTools') : 'noscript'; //eslint-disable-line global-require
     const onProjectPage = this.props.location.pathname.indexOf('project/') >= 0;
 
     return (
@@ -106,9 +104,8 @@ class App extends Component {
 function mapStateToProps(state, ownProps) {
   return {
     currentProjectId: ownProps.params.projectId,
-    user: state.user,
     spinMessage: state.ui.modals.spinMessage,
   };
 }
 
-export default connect(mapStateToProps, {})(App);
+export default connect(mapStateToProps)(App);

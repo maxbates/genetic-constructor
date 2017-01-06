@@ -21,7 +21,7 @@ import * as actionTypes from './constants/ActionTypes';
 import extensions from './extensions/_expose';
 import routes from './routes';
 import orchestrator from './store/api';
-import store, { lastAction } from './store/index';
+import store, { getState, subscribe as storeSubscribe, lastAction } from './store/index';
 
 render(
   <Provider store={store}>
@@ -56,11 +56,11 @@ Object.assign(exposed, {
     lastAction,
     subscribe: (callback, callOnSubscribe) => {
       if (callOnSubscribe === true) {
-        callback(store.getState(), lastAction());
+        callback(getState(), lastAction());
       }
 
-      return store.subscribe(() => {
-        callback(store.getState(), lastAction());
+      return storeSubscribe(() => {
+        callback(getState(), lastAction());
       });
     },
     replaceReducer: () => {}, //hide from 3rd party

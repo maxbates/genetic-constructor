@@ -57,7 +57,7 @@ export default class InventoryListGroup extends Component {
   };
 
   componentWillMount() {
-    invariant(!this.props.manual || (this.props.hasOwnProperty('isExpanded') && this.props.hasOwnProperty('onToggle')), 'If the component is manual, you must pass isExpanded and onToggle to handle state changes');
+    invariant(!this.props.manual || (this.props.hasOwnProperty('isExpanded') && this.props.hasOwnProperty('onToggle')), 'If the component is manual, you must pass isExpanded and onToggle to handle state changes'); //eslint-disable-line no-prototype-builtins
   }
 
   //e.g. for registering mouse drag handler, only on header
@@ -115,7 +115,7 @@ export default class InventoryListGroup extends Component {
       >
         <div
           className="InventoryListGroup-heading"
-          ref={el => this.headingElement = el}
+          ref={(el) => { this.headingElement = el; }}
           onClick={this.handleSelect}
         >
           <Toggler

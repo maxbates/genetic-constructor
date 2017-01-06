@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import Dropzone from 'react-dropzone';
 import { connect } from 'react-redux';
@@ -59,11 +59,11 @@ class ImportGenBankModal extends Component {
     }
   }
 
-  onDrop(files) {
+  onDrop = (files) => {
     this.setState({ files });
-  }
+  };
 
-  onSubmit(evt) {
+  onSubmit = (evt) => {
     evt.preventDefault();
     this.setState({
       error: null,
@@ -86,29 +86,29 @@ class ImportGenBankModal extends Component {
         Promise.resolve();
 
       savePromise
-        .then(() => importer(projectId, file))
-        .then((projectId) => {
-          this.props.uiSpin();
-          if (projectId === this.props.currentProjectId) {
-            //true to forcibly reload the project, avoid our cache
-            this.props.projectLoad(projectId, true);
-          } else {
-            this.props.projectOpen(projectId);
-          }
-          this.setState({
-            processing: false,
-          });
-          this.props.uiShowGenBankImport(false);
-        })
-        .catch((error) => {
-          this.props.uiSpin();
-          this.setState({
-            error: `Error uploading file: ${error}`,
-            processing: false,
-          });
+      .then(() => importer(projectId, file))
+      .then((projectId) => {
+        this.props.uiSpin();
+        if (projectId === this.props.currentProjectId) {
+          //true to forcibly reload the project, avoid our cache
+          this.props.projectLoad(projectId, true);
+        } else {
+          this.props.projectOpen(projectId);
+        }
+        this.setState({
+          processing: false,
         });
+        this.props.uiShowGenBankImport(false);
+      })
+      .catch((error) => {
+        this.props.uiSpin();
+        this.setState({
+          error: `Error uploading file: ${error}`,
+          processing: false,
+        });
+      });
     }
-  }
+  };
 
   showFiles() {
     const files = this.state.files.map((file, index) => <div className="file-name" key={index}>{file.name}</div>);
@@ -127,7 +127,7 @@ class ImportGenBankModal extends Component {
           payload={(
             <form
               disabled={this.state.processing}
-              onSubmit={this.onSubmit.bind(this)}
+              onSubmit={this.onSubmit}
               id="genbank-import-form"
               className="gd-form genbank-import-form"
             >
@@ -155,7 +155,7 @@ class ImportGenBankModal extends Component {
                 <div>Current Project</div>
               </div>
               <Dropzone
-                onDrop={this.onDrop.bind(this)}
+                onDrop={this.onDrop}
                 className="dropzone"
                 activeClassName="dropzone-hot"
                 multiple={false}
@@ -175,7 +175,12 @@ class ImportGenBankModal extends Component {
               </button>
               <div className="link">
                 <span>Format documentation and sample .CSV files can be found
-                    <a className="blue-link" href="https://geneticconstructor.readme.io/docs/csv-upload" target="_blank"> here</a>
+                    <a
+                      className="blue-link"
+                      href="https://geneticconstructor.readme.io/docs/csv-upload"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >here</a>
                 </span>
               </div>
             </form>

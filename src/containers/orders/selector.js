@@ -67,9 +67,10 @@ export default class Selector extends Component {
         >
           {item}
         </div>
-        ));
+      ));
+
       menu = (
-        <div className="selector-menu" children={items} />
+        <div className="selector-menu">{items}</div>
       );
     }
 

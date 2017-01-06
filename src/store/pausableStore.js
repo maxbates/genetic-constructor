@@ -66,11 +66,12 @@ const patchSubscribe = (options = {}, reducer, createStore, initialState, ...sto
 
   const makePausableReducer = (options, reducer) => (state, action, ...args) => {
     switch (action.type) {
-      case PAUSE_ACTION :
+      case PAUSE_ACTION : {
         pause();
         return state;
+      }
 
-      case RESUME_ACTION :
+      case RESUME_ACTION : {
         const { preventDispatch = false, reset } = action;
         const wasPaused = isPaused();
 
@@ -81,6 +82,7 @@ const patchSubscribe = (options = {}, reducer, createStore, initialState, ...sto
           return state;
         }
         return reducer(state, action, ...args);
+      }
 
       default :
         return reducer(state, action, ...args);

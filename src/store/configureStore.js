@@ -40,7 +40,7 @@ let finalCreateStore;
 
 //set by webpack
 if (process.env.DEBUG_REDUX) {
-  const DevTools = require('../containers/DevTools.js');
+  const DevTools = require('../containers/DevTools.js'); //eslint-disable-line global-require
 
   finalCreateStore = compose(
     applyMiddleware(...middleware),
@@ -62,7 +62,7 @@ export default function configureStore(initialState, reducer = combinedReducerCr
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
     module.hot.accept('../reducers', () => {
-      const nextRootReducerCreator = require('../reducers');
+      const nextRootReducerCreator = require('../reducers'); //eslint-disable-line global-require
       const nextRootReducer = nextRootReducerCreator();
       store.replaceReducer(nextRootReducer);
     });

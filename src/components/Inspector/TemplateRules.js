@@ -26,8 +26,8 @@ export class TemplateRules extends Component {
     block: PropTypes.object.isRequired,
     readOnly: PropTypes.bool.isRequired,
     isConstruct: PropTypes.bool.isRequired,
-    blockMerge: PropTypes.func.isRequired,
-    blockFreeze: PropTypes.func.isRequired,
+    //blockMerge: PropTypes.func.isRequired,
+    //blockFreeze: PropTypes.func.isRequired,
     blockSetListBlock: PropTypes.func.isRequired,
     blockSetHidden: PropTypes.func.isRequired,
   };

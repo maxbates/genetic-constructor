@@ -45,7 +45,7 @@ export default function pruneNodeModules(inputPath) {
         }
       }
 
-      const pkg = require(path.resolve(__dirname, 'package.json'));
+      const pkg = require(path.resolve(__dirname, 'package.json')); //eslint-disable-line import/no-dynamic-require
       const deps = pkg.dependencies;
       const dirContents = fs.readdirSync(nodeModulePath);
 

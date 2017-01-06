@@ -57,16 +57,16 @@ class ImportPartsCSVModal extends Component {
     }
   }
 
-  onDrop(files) {
+  onDrop = (files) => {
     this.setState({ files });
-  }
+  };
 
-  onSubmit(evt) {
+  onSubmit = (evt) => {
     evt.preventDefault();
 
     // validate the prefix
-    const prefix = parseInt(this.refs.prefixInput.value, 10);
-    const suffix = parseInt(this.refs.suffixInput.value, 10);
+    const prefix = parseInt(this.prefixInput.value, 10);
+    const suffix = parseInt(this.suffixInput.value, 10);
 
     if (!isFinite(prefix) || prefix < 0 || prefix >= 10000) {
       this.setState({
@@ -135,23 +135,23 @@ class ImportPartsCSVModal extends Component {
           payload={(
             <form
               disabled={this.state.processing}
-              onSubmit={this.onSubmit.bind(this)}
+              onSubmit={this.onSubmit}
               id="genbank-import-form"
               className="gd-form genbank-import-form"
             >
               <div className="title">Import Parts into List Block</div>
               <div>
                 <div className="prefix-container">
-                  <label>Prefix</label>
-                  <input ref="prefixInput" type="number" defaultValue="0" min="0" max="10000" />
+                  <label htmlFor="prefix">Prefix</label>
+                  <input name="prefix" ref={(el) => { this.prefixInput = el; }} type="number" defaultValue="0" min="0" max="10000" />
                 </div>
                 <div className="prefix-container">
-                  <label>Suffix</label>
-                  <input ref="suffixInput" type="number" defaultValue="0" min="0" max="10000" />
+                  <label htmlFor="suffix">Suffix</label>
+                  <input name="suffix" ref={(el) => { this.suffixInput = el; }} type="number" defaultValue="0" min="0" max="10000" />
                 </div>
               </div>
               <Dropzone
-                onDrop={this.onDrop.bind(this)}
+                onDrop={this.onDrop}
                 className="dropzone"
                 activeClassName="dropzone-hot"
                 multiple={false}
@@ -171,7 +171,7 @@ class ImportPartsCSVModal extends Component {
               </button>
               <div className="link">
                 <span>Format documentation and sample .CSV files can be found
-                    <a className="blue-link" href="https://geneticconstructor.readme.io/docs/csv-upload" target="_blank"> here</a>
+                    <a className="blue-link" href="https://geneticconstructor.readme.io/docs/csv-upload" target="_blank" rel="noopener noreferrer"> here</a>
                 </span>
               </div>
             </form>

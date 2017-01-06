@@ -42,8 +42,8 @@ export class Page1 extends Component {
     order: PropTypes.object.isRequired,
     orderSetName: PropTypes.func.isRequired,
     orderSetParameters: PropTypes.func.isRequired,
-    orderList: PropTypes.func.isRequired,
-    blocks: PropTypes.object.isRequired,
+    //orderList: PropTypes.func.isRequired,
+    //blocks: PropTypes.object.isRequired,
     numberConstructs: PropTypes.number.isRequired,
   };
 
@@ -95,7 +95,9 @@ export class Page1 extends Component {
 
     const { order } = this.props;
 
-    let method = <label>All Combinations</label>;
+    //why is this a label?
+    let method = <label>All Combinations</label>; //eslint-disable-line jsx-a11y/label-has-for
+
     if (!order.parameters.onePot) {
       method = (<Selector
         disabled={!!order.isSubmitted()}
@@ -104,6 +106,7 @@ export class Page1 extends Component {
         onChange={this.methodChanged}
       />);
     }
+
     return (
       <div className="order-page page1">
         <fieldset disabled={order.isSubmitted()}>

@@ -38,6 +38,8 @@ export default class Annotation extends Immutable {
   constructor(input, frozen = true) {
     const scaff = AnnotationSchema.scaffold();
     scaff.color = nextColorHex();
+    //not sure why lint is complaining...
+    //eslint-disable-next-line constructor-super
     return super(merge(scaff, input), frozen);
   }
 

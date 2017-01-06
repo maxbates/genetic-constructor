@@ -51,7 +51,7 @@ Object.keys(serverExtensions).forEach((key) => {
 
   try {
     //future - build dependent path lookup
-    const extensionRouter = require(path.resolve(__dirname, 'node_modules', key, routePath));
+    const extensionRouter = require(path.resolve(__dirname, 'node_modules', key, routePath)); //eslint-disable-line import/no-dynamic-require
 
     //todo - Put in own process?
     router.use(`/${key}/`, extensionRouter);

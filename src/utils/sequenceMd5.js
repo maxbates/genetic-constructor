@@ -24,8 +24,8 @@ import _ from 'lodash';
  pseudoMd5 - hash and range specified -  e.g. 'c31e41940cd12cf9b24b0e528ab955bc[23:958]'
  */
 
-//parses pseudoMd5 in form acde79489cad6a8da9cea[10:900]
-const pseudoMd5Regex = /^([a-z0-9]{32})(\[(\d+):(\d+?)\])?$/;
+//parses pseudoMd5 in form c31e41940cd12cf9b24b0e528ab955bc[10:900]
+const pseudoMd5Regex = /^([a-z0-9]{32})(\[(\d+):(\d+?)])?$/;
 
 //checks if a realMd5
 const realMd5Regex = /^[a-f0-9]{32}$/;

@@ -1,7 +1,8 @@
 {
   "rules" : {
     "max-len" : 0,
-    "react/jsx-filename-extension": 0,
-    "jsx-a11y/no-static-element-interactions": 0
+
+    //we often need to pierce component abstraction and get DOM element, e.g. for drag-drop interactions
+    "react/no-find-dom-node": 0
   }
 }

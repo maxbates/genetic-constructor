@@ -27,11 +27,15 @@ export default class SymbolPicker extends Component {
     onSelect: PropTypes.func,
   };
 
+  static makeHoverText(symbolId) {
+    return symbolMap[symbolId] || symbolId || 'No Symbol';
+  }
+
   constructor(props) {
     super(props);
     this.state = {
       showContent: false,
-      hoverText: this.makeHoverText(props.current),
+      hoverText: SymbolPicker.makeHoverText(props.current),
     };
   }
 
@@ -51,7 +55,7 @@ export default class SymbolPicker extends Component {
   };
 
   onMouseOut = () => {
-    this.setState({ hoverText: this.makeHoverText(this.props.current) });
+    this.setState({ hoverText: SymbolPicker.makeHoverText(this.props.current) });
   };
 
   onClick = (id) => {
@@ -62,10 +66,6 @@ export default class SymbolPicker extends Component {
       onSelect(next);
     }
   };
-
-  makeHoverText(symbolId) {
-    return symbolMap[symbolId] || symbolId || 'No Symbol';
-  }
 
   render() {
     const { current, readOnly } = this.props;

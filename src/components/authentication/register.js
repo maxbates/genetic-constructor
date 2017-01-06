@@ -19,7 +19,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { projectOpen } from '../../actions/projects';
-import { uiSetGrunt, uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
+import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userRegister } from '../../actions/user';
 import track from '../../analytics/ga';
 import { privacy, tos } from '../../utils/ui/uiapi';
@@ -58,20 +58,34 @@ const errors = {
 export class RegisterForm extends Component {
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
-    uiSetGrunt: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
     userRegister: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
   };
 
-  constructor() {
-    super();
-    this.state = Object.assign({}, errors, { canSubmit: false });
+  static getConfig() {
+    const params = queryString.parse(window.location.search);
+    const { projects, extensions } = params;
+    const config = {};
+
+    if (projects) {
+      const projectNames = projects.split(',');
+      config.projects = projectNames.reduce((acc, projectName) => Object.assign(acc, { [projectName]: {} }), {});
+      Object.assign(config.projects[projectNames[0]], { default: true });
+    }
+
+    if (extensions) {
+      config.extensions = extensions.split(',').reduce((acc, projectName) => Object.assign(acc, { [projectName]: { active: true } }), {});
+    }
+
+    return config;
   }
+
+  state = { ...errors, canSubmit: false };
 
   // on form submission, first perform client side validation then submit
   // to the server if that goes well.
-  onSubmit(evt) {
+  onSubmit = (evt) => {
     // submission occurs via REST not form submission
     evt.preventDefault();
     // client side validation first
@@ -85,7 +99,7 @@ export class RegisterForm extends Component {
       password: this.password,
       firstName: this.firstName,
       lastName: this.lastName,
-    }, this.getConfig())
+    }, RegisterForm.getConfig())
       .then((json) => {
         track('Authentication', 'Register', 'Success');
         // close the form / wait message
@@ -104,7 +118,7 @@ export class RegisterForm extends Component {
       });
   }
 
-  onSignIn(evt) {
+  onSignIn = (evt) => {
     evt.preventDefault();
     this.props.uiShowAuthenticationForm('signin');
   }
@@ -129,25 +143,7 @@ export class RegisterForm extends Component {
       this.passwordConfirm &&
       this.tos,
     });
-  }
-
-  getConfig() {
-    const params = queryString.parse(window.location.search);
-    const { projects, extensions } = params;
-    const config = {};
-
-    if (projects) {
-      const projectNames = projects.split(',');
-      config.projects = projectNames.reduce((acc, projectName) => Object.assign(acc, { [projectName]: {} }), {});
-      Object.assign(config.projects[projectNames[0]], { default: true });
-    }
-
-    if (extensions) {
-      config.extensions = extensions.split(',').reduce((acc, projectName) => Object.assign(acc, { [projectName]: { active: true } }), {});
-    }
-
-    return config;
-  }
+  };
 
   // syntactic suger for fetcing values from inputs
   get firstName() {
@@ -273,10 +269,10 @@ export class RegisterForm extends Component {
     };
 
     return (
-      <form id="auth-register" className="gd-form authentication-form" onSubmit={this.onSubmit.bind(this)}>
+      <form id="auth-register" className="gd-form authentication-form" onSubmit={this.onSubmit}>
         <div className="title">Register</div>
         <span style={registerStyle}>{'Already have an account? '}
-          <a className="blue-link" href="/" onClick={this.onSignIn.bind(this)}>Sign In&nbsp;</a>
+          <a className="blue-link" href="/" onClick={this.onSignIn}>Sign In&nbsp;</a>
         </span>
         <input
           ref="firstName"
@@ -340,11 +336,13 @@ export class RegisterForm extends Component {
           <span>I agree to the
             <a
               target="_blank"
+              rel="noopener noreferrer"
               href={tos}
             > Terms of Service</a>
             <br />and
             <a
               target="_blank"
+              rel="noopener noreferrer"
               href={privacy}
             > Autodesk Privacy Statement</a>
           </span>
@@ -372,7 +370,6 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiShowAuthenticationForm,
-  uiSetGrunt,
   uiSpin,
   userRegister,
   projectOpen,

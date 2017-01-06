@@ -56,4 +56,4 @@ export function resetColorSeed() {
 
 export function isHex(val) { return /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(val); }
 
-export function randomHex() { return `#${Math.floor(Math.random() * Math.pow(2, 24)).toString(16)}`; }
+export function randomHex() { return `#${Math.floor(Math.random() * (2 ** 24)).toString(16)}`; }

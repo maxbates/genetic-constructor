@@ -25,7 +25,6 @@ export default class InputSimple extends Component {
     onChange: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
     readOnly: PropTypes.bool,
-    default: PropTypes.string,
     updateOnBlur: PropTypes.bool, //its probably best to not update on blur... see midupdate caveat below
     useTextarea: PropTypes.bool,
     onFocus: PropTypes.func,

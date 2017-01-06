@@ -23,15 +23,11 @@ import { uiSetGrunt } from '../actions/ui';
 const DISPLAY_TIME = 5000;
 
 class RibbonGrunt extends Component {
-
   static propTypes = {
     gruntMessage: PropTypes.string,
     uiSetGrunt: PropTypes.func.isRequired,
   };
 
-  constructor() {
-    super();
-  }
 
   // if we going to show a message then start or extend the close timer
   componentWillReceiveProps(nextProps) {
@@ -41,10 +37,10 @@ class RibbonGrunt extends Component {
     }
   }
 
-  close() {
+  close = () => {
     window.clearTimeout(this.closeTimer);
     this.props.uiSetGrunt('');
-  }
+  };
 
   cancelTimer() {
     window.clearTimeout(this.closeTimer);
@@ -54,7 +50,7 @@ class RibbonGrunt extends Component {
     if (this.props.gruntMessage) {
       return (
         <div className="ribbongrunt">{this.props.gruntMessage}
-          <button onClick={this.close.bind(this)}>&times;</button>
+          <button onClick={this.close}>&times;</button>
         </div>
       );
     }
