@@ -15,27 +15,12 @@
     align-items: center;
     justify-content: center;
   }
-  &-circle {
-    width: 24px;
-    height: 24px;
-    border-radius: 100%;
-    border: 3px solid white;
-    box-sizing: border-box;
-    position: relative;
-  }
-  &-bar {
-    background-color: white;
-    height: 3px;
-    width: 50%;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-  }
+
   &-appname {
     color: white;
     text-transform: uppercase;
     font-family: var(--font-family-bold);
+    font-size: 16px;
   }
   &-action {
     padding: 0 1rem 0 1rem;

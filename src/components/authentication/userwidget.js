@@ -15,7 +15,6 @@
  */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { push } from 'react-router-redux';
 import Box2D from '../../containers/graphics/geometry/box2d';
 import Vector2D from '../../containers/graphics/geometry/vector2d';
 import { connect } from 'react-redux';
@@ -32,18 +31,12 @@ class UserWidget extends Component {
     uiShowMenu: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     user: PropTypes.object,
-    push: PropTypes.func.isRequired,
     userLogout: PropTypes.func.isRequired,
     userWidgetVisible: PropTypes.bool.isRequired,
   };
 
   constructor() {
     super();
-  }
-
-  onSignIn(evt) {
-    evt.preventDefault();
-    this.props.uiShowAuthenticationForm('signin');
   }
 
   /**
@@ -77,7 +70,6 @@ class UserWidget extends Component {
     .then(() => {
       track('Authentication', 'Sign Out', 'Success');
       // store is left with previous user projects and other issue. For now do a complete reload
-      //this.props.push('/homepage');
       window.location = `${window.location.protocol}\\\\${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}\\homepage`;
     })
     .catch((reason) => {
@@ -91,19 +83,9 @@ class UserWidget extends Component {
       return null;
     }
 
-    if (this.props.user.userid) {
-      // signed in user
-      return (
-        <div className="userwidget">
-          <div onClick={this.onShowMenu} className="signed-in">
-            {this.props.user.firstName ? this.props.user.firstName.substr(0, 1) : '?'}</div>
-        </div>
-      );
-    }
-    // signed out user
     return (
       <div className="userwidget">
-        <a className="signed-out" onClick={this.onSignIn.bind(this)}>SIGN IN</a>
+        <img onClick={this.onShowMenu} src="/images/ui/user.svg"/>
       </div>
     );
   }
@@ -120,6 +102,5 @@ export default connect(mapStateToProps, {
   uiShowAuthenticationForm,
   uiSetGrunt,
   uiShowMenu,
-  push,
   userLogout,
 })(UserWidget);
