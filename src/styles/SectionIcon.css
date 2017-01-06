@@ -1,18 +1,17 @@
 @import 'variables.css';
 
 .SectionIcon {
-  background-color: white;
-  transition: background-color var(--timing-fast) var(--SidePanel-ease);
   cursor: pointer;
   img {
     width: var(--width-SidePanel-closed);
     height: var(--width-SidePanel-closed);
-    transition: filter var(--timing-fast) var(--SidePanel-ease);
-  }
-  img.open {
     filter: brightness(1000%);
   }
 }
-.SectionIcon.open {
-  background-color: var(--colors-darkerGrey);
+.SectionIcon.Highlighted {
+  background-color: var(--colors-white);
+  img {
+    filter: brightness(100%);
+  }
 }
+

@@ -79,13 +79,8 @@ export default class SectionIcon extends Component {
   };
 
   render() {
-    // display in open or closed state ( reversed when hovered ).
-    let open = this.state.hover ? !this.props.open : this.props.open;
-    // if this is the selected icon then always show closed
-    open = this.props.selected ? !this.props.open : open;
-
-    const containerClass = open ? 'SectionIcon open' : 'SectionIcon';
-    const imgClass = open ? 'open' : '';
+    const highlight = this.props.selected || this.state.hover;
+    const containerClass = highlight ? 'SectionIcon Highlighted' : 'SectionIcon';
     return (
       <div
         data-section={this.props.section}
@@ -94,7 +89,7 @@ export default class SectionIcon extends Component {
         onMouseLeave={this.onLeave}
         data-selected={this.props.selected}
         onClick={this.onClick}>
-        <img className={imgClass} title={this.props.section} src={sectionNameToSVG[this.props.section]}/>
+        <img title={this.props.section} src={sectionNameToSVG[this.props.section]}/>
       </div>
     );
   }

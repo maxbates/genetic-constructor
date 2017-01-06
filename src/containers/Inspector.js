@@ -81,8 +81,6 @@ export class Inspector extends Component {
     const { isVisible, projectId, project, construct } = this.props;
     // classes for content area
     const contentClasses = `no-vertical-scroll content${isVisible ? '' : ' content-closed'}`;
-    // classes for vertical menu
-    const menuClasses = `vertical-menu${isVisible ? ' open' : ''}`;
     // map sections to icons
     const icons = Object.keys(this.sections).map(sectionName => {
       return (<SectionIcon
@@ -90,7 +88,7 @@ export class Inspector extends Component {
         open={isVisible}
         onSelect={this.setActive}
         onToggle={() => this.toggle(!isVisible)}
-        selected={this.props.currentTab === sectionName}
+        selected={this.props.currentTab === sectionName && isVisible}
         section={sectionName}
       />);
     });
@@ -105,7 +103,7 @@ export class Inspector extends Component {
     return (
       <div className={'SidePanel Inspector' + (isVisible ? ' visible' : '')}>
         <div className="container">
-          <div className={menuClasses}>
+          <div className="vertical-menu">
             {icons}
           </div>
           <div className={contentClasses}>

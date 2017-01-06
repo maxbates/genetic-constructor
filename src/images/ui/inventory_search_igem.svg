@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="a" width="7.485" height="2" x="7.611" y="11.354"/>
+    <mask id="b" width="7.485" height="2" x="0" y="0" fill="white">
+      <use xlink:href="#a"/>
+    </mask>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <text fill="#1D222D" font-family="ArtifaktElement-Bold, Artifakt Element" font-size="12" font-weight="bold">
+      <tspan x="10.336" y="38">iGEM</tspan>
+    </text>
+    <g transform="translate(19 9)">
+      <path fill="#1D222D" d="M6,12 C9.3137085,12 12,9.3137085 12,6 C12,2.6862915 9.3137085,0 6,0 C2.6862915,0 0,2.6862915 0,6 C0,9.3137085 2.6862915,12 6,12 Z M6,10 C8.209139,10 10,8.209139 10,6 C10,3.790861 8.209139,2 6,2 C3.790861,2 2,3.790861 2,6 C2,8.209139 3.790861,10 6,10 Z"/>
+      <use fill="#D8D8D8" stroke="#1D222D" stroke-width="2" mask="url(#b)" transform="rotate(45 11.354 12.354)" xlink:href="#a"/>
+    </g>
+  </g>
+</svg>

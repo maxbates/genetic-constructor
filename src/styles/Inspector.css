@@ -24,15 +24,10 @@
     width: var(--width-SidePanel-closed);
     height: 100%;
     right: 0;
-    background-color: white;
+    background-color: var(--colors-darkerGrey);
     z-index: 1;
     display: flex;
     flex-direction: column;
-    transition: background-color var(--timing-fast) var(--SidePanel-ease);
-  }
-
-  .vertical-menu.open {
-    background-color: var(--colors-nearlyBlack);
   }
 
   .content {
