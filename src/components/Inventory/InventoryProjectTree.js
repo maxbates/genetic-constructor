@@ -35,6 +35,7 @@ import {
   focusForceProject,
   focusForceBlocks,
   focusConstruct,
+  focusBlocks,
 } from '../../actions/focus';
 import {
   inspectorToggleVisibility,
@@ -69,6 +70,7 @@ export class InventoryProjectTree extends Component {
     projectOpen: PropTypes.func.isRequired,
     focus: PropTypes.object.isRequired,
     focusConstruct: PropTypes.func.isRequired,
+    focusBlocks: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
     focusForceBlocks: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
@@ -111,8 +113,17 @@ export class InventoryProjectTree extends Component {
    * @param projectId
    */
   onExpandBlock(block, item) {
-    // TODO, this should work but is broken in DEV currently as well
-    this.props.focusForceBlocks([block]);
+    // if block/construct is from the current project focus the block/construct...
+    if (block.projectId === this.props.currentProjectId) {
+      if (block.isConstruct()) {
+        this.props.focusConstruct(block.id);
+      } else {
+        this.props.focusBlocks([block.id]);
+      }
+    } else {
+      // ...otherwise just show in inspector
+      this.props.focusForceBlocks([block]);
+    }
     this.props.inspectorToggleVisibility(true);
     this.props.inspectorSelectTab('Information');
   }
@@ -427,6 +438,7 @@ export default connect(mapStateToProps, {
   focusConstruct,
   focusForceProject,
   focusForceBlocks,
+  focusBlocks,
   inspectorToggleVisibility,
   inspectorSelectTab,
   transact,
