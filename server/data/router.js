@@ -30,7 +30,9 @@ import projectFileRouter from './routerProjectFiles';
 import jobFileRouter from './routerJobs';
 import sequenceRouter from './routerSequences';
 import snapshotRouter from './routerSnapshots';
-import mostRecentProject from './persistence/util/mostRecentProject'
+import loaderSupportRouter from './routerLoaderSupport';
+
+import mostRecentProject from '../utils/mostRecentProject'
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json({
@@ -68,6 +70,9 @@ router.use('/file/:projectId', projectPermissionMiddleware, projectFileRouter);
 /* sequence */
 //todo - throttle? enforce user present on req?
 router.use('/sequence', sequenceRouter);
+
+/* Load Testing Support */
+router.use('/loadersupport', projectPermissionMiddleware, loaderSupportRouter);
 
 /* versioning */
 
