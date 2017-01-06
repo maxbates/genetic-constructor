@@ -19,6 +19,26 @@ import { deg2rad, isOne, isZero, rad2deg } from '../utils';
 import Vector2D from './vector2d';
 
 export default class Matrix2D {
+  /**
+   * ensure all the numbers in the matrix are reasonable
+   */
+  static validate() {
+    return true;
+    // if (this._v && this._v.length === 9) {
+    //   for (let i = 0; i < 9; i += 1) {
+    //     // all 9 elements should be numbers and not NaN or Infinity or -Infinity
+    //     if (!isRealNumber(this._v[i])) {
+    //       return false;
+    //     }
+    //   }
+    //   // bottom row should always be identity, or very close
+    //   if (!isZero(this._v[6]) || !isZero(this._v[7]) || !isOne(this._v[8])) {
+    //     return false;
+    //   }
+    //   return true;
+    // }
+    // return false;
+  }
 
   /**
    * a 3x3 matrix designed to perform transformations in 2D space.
@@ -34,7 +54,7 @@ export default class Matrix2D {
       // matrix defaults to the identity matrix with 1,1,1, from top left to bottom right
       this._v = [1, 0, 0, 0, 1, 0, 0, 0, 1];
     }
-    invariant(this.validate(), 'Bad Matrix');
+    invariant(Matrix2D.validate(), 'Bad Matrix');
   }
 
   /**
@@ -58,27 +78,6 @@ export default class Matrix2D {
       isZero(this._v[6]) &&
       isZero(this._v[7]) &&
       isOne(this._v[8]);
-  }
-
-  /**
-   * ensure all the numbers in the matrix are reasonable
-   */
-  validate() {
-    return true;
-    // if (this._v && this._v.length === 9) {
-    //   for (let i = 0; i < 9; i += 1) {
-    //     // all 9 elements should be numbers and not NaN or Infinity or -Infinity
-    //     if (!isRealNumber(this._v[i])) {
-    //       return false;
-    //     }
-    //   }
-    //   // bottom row should always be identity, or very close
-    //   if (!isZero(this._v[6]) || !isZero(this._v[7]) || !isOne(this._v[8])) {
-    //     return false;
-    //   }
-    //   return true;
-    // }
-    // return false;
   }
 
   /**

@@ -18,10 +18,9 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import { blockAddComponent, blockClone, blockCreate, blockRename } from '../../../actions/blocks';
+import { blockAddComponent, blockClone, blockCreate } from '../../../actions/blocks';
 import { focusBlocks, focusConstruct } from '../../../actions/focus';
 import { projectAddConstruct } from '../../../actions/projects';
-import { uiSpin } from '../../../actions/ui';
 import { block as blockDragType } from '../../../constants/DragTypes';
 import { projectGet, projectGetVersion } from '../../../selectors/projects';
 import '../../../styles/constructviewercanvas.css';
@@ -34,10 +33,8 @@ const droppingMessage = 'Building new construct...';
 
 export class ConstructViewerCanvas extends Component {
   static propTypes = {
-    uiSpin: PropTypes.func.isRequired,
     blockCreate: PropTypes.func.isRequired,
     blockClone: PropTypes.func.isRequired,
-    blockRename: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
@@ -156,9 +153,9 @@ export class ConstructViewerCanvas extends Component {
   /**
    * end mouse scrolling
    */
-  endMouseScroll() {
+  endMouseScroll = () => {
     this.autoScroll(0);
-  }
+  };
 
   /**
    * auto scroll in the given direction -1, towards top, 0 stop, 1 downwards.
@@ -197,7 +194,7 @@ export class ConstructViewerCanvas extends Component {
   /**
    * start, continue or stop autoscroll based on given global mouse position
    */
-  mouseScroll(globalPosition) {
+  mouseScroll = (globalPosition) => {
     const local = this.mouseTrap.globalToLocal(globalPosition, ReactDOM.findDOMNode(this));
     const box = this.mouseTrap.element.getBoundingClientRect();
     // autoscroll threshold is clamped at a percentage of height otherwise when the window is short
@@ -211,7 +208,7 @@ export class ConstructViewerCanvas extends Component {
         // cancel the autoscroll
       this.autoScroll(0);
     }
-  }
+  };
 
   /**
    * render the component, the scene graph will render later when componentDidUpdate is called
@@ -219,8 +216,8 @@ export class ConstructViewerCanvas extends Component {
   render() {
     // map construct viewers so we can pass down mouseScroll and endMouseScroll as properties
     const constructViewers = this.props.children.map(constructViewer => React.cloneElement(constructViewer, {
-      mouseScroll: this.mouseScroll.bind(this),
-      endMouseScroll: this.endMouseScroll.bind(this),
+      mouseScroll: this.mouseScroll,
+      endMouseScroll: this.endMouseScroll,
       currentProjectId: this.props.currentProjectId,
     }));
 
@@ -248,12 +245,10 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  uiSpin,
   focusConstruct,
   focusBlocks,
   projectAddConstruct,
   blockCreate,
-  blockRename,
   blockAddComponent,
   projectGetVersion,
   projectGet,

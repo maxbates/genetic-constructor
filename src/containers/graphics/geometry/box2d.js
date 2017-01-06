@@ -65,6 +65,7 @@ export default class Box2D {
    * renaming them to the given target property name
    */
   extend(from, props) {
+    //eslint-disable-next-line no-restricted-syntax
     for (const key in props) {
       // hasOwnProperty fails on ClientRect, plus this ensures its a number
       if (from[key] === +from[key]) {

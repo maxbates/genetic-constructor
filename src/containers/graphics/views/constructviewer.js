@@ -34,7 +34,7 @@ import '../../../styles/inline-editor.css';
 import Vector2D from '../geometry/vector2d';
 import SceneGraph2D from '../scenegraph2d/scenegraph2d';
 import UserInterface from './constructvieweruserinterface';
-import Layout from './layout.js';
+import Layout from './layout';
 
 // static hash for matching viewers to constructs
 const idToViewer = {};
@@ -51,10 +51,10 @@ export class ConstructViewer extends Component {
     focusBlocksToggle: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     focusBlockOption: PropTypes.func.isRequired,
-    currentBlock: PropTypes.array,
-    blockSetRole: PropTypes.func,
+    //currentBlock: PropTypes.array, //todo - remove
+    //blockSetRole: PropTypes.func, //todo - remove
     blockCreate: PropTypes.func,
-    blockGetParent: PropTypes.func,
+    //blockGetParent: PropTypes.func, //todo - remove
     blockClone: PropTypes.func,
     blockRename: PropTypes.func,
     blockSetAuthoring: PropTypes.func,
@@ -66,19 +66,26 @@ export class ConstructViewer extends Component {
     uiShowOrderForm: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
     orderCreate: PropTypes.func.isRequired,
-    orderGenerateConstructs: PropTypes.func.isRequired,
+    //orderGenerateConstructs: PropTypes.func.isRequired, //todo - remove
     orderList: PropTypes.func.isRequired,
     orderSetName: PropTypes.func.isRequired,
     blockRemoveComponent: PropTypes.func,
     blockGetParents: PropTypes.func,
-    projectGetVersion: PropTypes.func,
+    //projectGetVersion: PropTypes.func, //todo - remove
     projectGet: PropTypes.func,
     projectRemoveConstruct: PropTypes.func,
     projectAddConstruct: PropTypes.func,
     blocks: PropTypes.object,
     focus: PropTypes.object,
-    constructPopupMenuOpen: PropTypes.bool,
+    //constructPopupMenuOpen: PropTypes.bool, //todo - remove
   };
+
+  /**
+   * given a construct ID return the current viewer if there is one
+   */
+  static getViewerForConstruct(id) {
+    return idToViewer[id];
+  }
 
   constructor(props) {
     super(props);
@@ -186,13 +193,6 @@ export class ConstructViewer extends Component {
         this.props.uiShowOrderForm(true, order.id);
       });
   };
-
-  /**
-   * given a construct ID return the current viewer if there is one
-   */
-  static getViewerForConstruct(id) {
-    return idToViewer[id];
-  }
 
   /**
    * get the parent of the given block, which is either the construct or the parents
@@ -338,12 +338,12 @@ export class ConstructViewer extends Component {
   /**
    * close all popup menus
    */
-  closePopups() {
+  closePopups = () => {
     this.setState({
       blockPopupMenuOpen: false,
       constructPopupMenuOpen: false,
     });
-  }
+  };
 
   /**
    * open any popup menu by apply the appropriate state and global position
@@ -423,7 +423,7 @@ export class ConstructViewer extends Component {
     return (<PopupMenu
       open={this.state.blockPopupMenuOpen}
       position={this.state.menuPosition}
-      closePopup={this.closePopups.bind(this)}
+      closePopup={this.closePopups}
       menuItems={this.blockContextMenuItems()}
     />);
   }
@@ -489,7 +489,7 @@ export class ConstructViewer extends Component {
     return (<PopupMenu
       open={this.state.constructPopupMenuOpen}
       position={this.state.menuPosition}
-      closePopup={this.closePopups.bind(this)}
+      closePopup={this.closePopups}
       menuItems={items}
     />);
   }

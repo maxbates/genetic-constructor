@@ -37,6 +37,14 @@ const doubleClickSpatialThreshold = 4;
  * Call dispose to end all mouse captures. Do not use the instance after this.
  */
 export default class MouseTrap {
+  /**
+   * return the top/left of the element relative to the document. Includes any scrolling.
+   */
+  static documentOffset(element) {
+    invariant(element && arguments.length === 1, 'Bad parameter');
+    const domRECT = element.getBoundingClientRect();
+    return new Vector2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY);
+  }
 
   /**
    * owner is any object that will get the callbacks. Element is
@@ -214,26 +222,19 @@ export default class MouseTrap {
    * @param element
    * @returns {G.Vector2D}
    */
+  //eslint-disable-next-line class-methods-use-this
   globalToLocal(vector, element) {
     invariant(vector && element && arguments.length === 2, 'Needs a vector and an element');
-    return vector.sub(this.documentOffset(element));
+    return vector.sub(MouseTrap.documentOffset(element));
   }
 
   /**
    * x-browser solution for the global mouse position
    */
+  //eslint-disable-next-line class-methods-use-this
   mouseToGlobal(event) {
     invariant(arguments.length === 1, 'expect only an event for this method');
-    const parentPosition = this.documentOffset(event.target);
+    const parentPosition = MouseTrap.documentOffset(event.target);
     return new Vector2D(event.offsetX + parentPosition.x, event.offsetY + parentPosition.y);
-  }
-
-  /**
-   * return the top/left of the element relative to the document. Includes any scrolling.
-   */
-  documentOffset(element) {
-    invariant(element && arguments.length === 1, 'Bad parameter');
-    const domRECT = element.getBoundingClientRect();
-    return new Vector2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY);
   }
 }

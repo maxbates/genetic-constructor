@@ -32,6 +32,16 @@ const edgeThreshold = 20;
  * user interface overlay for construct viewer
  */
 export default class ConstructViewerUserInterface extends UserInterface {
+  static checkOS() {
+    let osType = 'unknown';
+    if (navigator.userAgent.indexOf('Windows', 0) >= 0) osType = 'win';
+    else if (navigator.userAgent.indexOf('Mac', 0) >= 0) osType = 'mac';
+    else if (navigator.userAgent.indexOf('Linux', 0) >= 0) osType = 'linux';
+    else if (navigator.userAgent.indexOf('X11', 0) >= 0) osType = 'unix';
+
+    return osType;
+  }
+
   constructor(sg) {
     super(sg);
     // register ourselves as a drop target
@@ -43,7 +53,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
       zorder: 0,
     });
 
-    this.osType = this.checkOS();
+    this.osType = ConstructViewerUserInterface.checkOS();
   }
 
   /**
@@ -187,10 +197,12 @@ export default class ConstructViewerUserInterface extends UserInterface {
   get construct() {
     return this.constructViewer.props.construct;
   }
+
   // syntax sugar to determine if collapsed
   get collapsed() {
     return this.layout.collapsed;
   }
+
   /**
    * mouse enter/leave are used to ensure no block is in the hover state
    */
@@ -201,7 +213,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
   mouseLeave(event) {
     this.setTitleHover();
   }
-
 
   /**
    * set hover state for title node
@@ -260,8 +271,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * mouse down handler, selection occurs on up since we have to wait to
    * see if a drag occurs first.
    */
-  mouseDown(evt, point) {
-  }
+  //eslint-disable-next-line class-methods-use-this
+  mouseDown(evt, point) {}
 
   /**
    * Might signal the end of fence drag or just a normal click
@@ -280,16 +291,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     } else {
       this.mouseSelect(evt, point);
     }
-  }
-
-  checkOS() {
-    let osType = 'unknown';
-    if (navigator.userAgent.indexOf('Windows', 0) >= 0) osType = 'win';
-    else if (navigator.userAgent.indexOf('Mac', 0) >= 0) osType = 'mac';
-    else if (navigator.userAgent.indexOf('Linux', 0) >= 0) osType = 'linux';
-    else if (navigator.userAgent.indexOf('X11', 0) >= 0) osType = 'unix';
-
-    return osType;
   }
 
   metaKey(evt) {
@@ -341,6 +342,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     }
     return false;
   }
+
   /**
    * true if the point is in the title expander node ( looks like a triangle )
    * @param  {[type]} evt   [description]
@@ -400,20 +402,21 @@ export default class ConstructViewerUserInterface extends UserInterface {
       // act according to region clicked
       const globalPoint = this.mouseTrap.mouseToGlobal(evt);
       const region = this.getBlockRegion(block, globalPoint);
-      switch (region.where) {
 
-        case 'triangle':
+      switch (region.where) {
+        case 'triangle': {
           const node = this.layout.nodeFromElement(block);
           node.showChildren = !node.showChildren;
           this.constructViewer.update();
-        // change replace to add if opening the menu
+          // change replace to add if opening the menu
           if (action === 'replace') {
             action = 'add';
           }
           break;
+        }
 
         case 'option':
-        // user might have clicked an 'empty list' placeholder, otherwise select the option
+          // user might have clicked an 'empty list' placeholder, otherwise select the option
           if (region.optionId) {
             this.constructViewer.optionSelected(region.blockId, region.optionId);
             action = 'optionSelect';
@@ -517,8 +520,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
   /**
    * return an indication of where in the block this point lies.
    * {
-   * 	where: ['none', 'main, 'dots', 'option']
-   * 	// with additional properties as per the region hit
+   *  where: ['none', 'main, 'dots', 'option']
+   *  // with additional properties as per the region hit
    * }
    */
   getBlockRegion(block, globalPoint) {
@@ -579,6 +582,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
   blockIsFocused(blockId) {
     return this.constructViewer.props.focus.blockIds.indexOf(blockId) >= 0;
   }
+
   /**
    * move drag handler, if the user initiates a drag of a block hand over
    * to the DND manager to handle
@@ -635,20 +639,19 @@ export default class ConstructViewerUserInterface extends UserInterface {
         }, {
           undoRedoTransaction: true,
         });
-      } else {
+      } else if (!this.fence) {
         // start a fence drag if not over a part
-        if (!this.fence) {
-          this.constructViewer.constructSelected(this.constructViewer.props.constructId);
-          // clear current selections unless shift pressed
-          if (!evt.shiftKey) {
-            this.constructViewer.blockSelected([]);
-          }
-          this.fence = new Fence(this, point);
+
+        this.constructViewer.constructSelected(this.constructViewer.props.constructId);
+        // clear current selections unless shift pressed
+        if (!evt.shiftKey) {
+          this.constructViewer.blockSelected([]);
         }
+        this.fence = new Fence(this, point);
       }
     } else if (this.fence) {
-        // mousetrap sends local mouse position but we want the global one for
-        // autoscrolling in the canvas
+      // mousetrap sends local mouse position but we want the global one for
+      // autoscrolling in the canvas
       this.constructViewer.props.mouseScroll(this.mouseTrap.mouseToGlobal(evt));
       this.fence.update(point);
     }

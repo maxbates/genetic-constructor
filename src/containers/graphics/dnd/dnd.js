@@ -27,6 +27,24 @@ import Vector2D from '../geometry/vector2d';
  * @module DnD
  */
 class DnD {
+  /**
+   * return the bounds of the element in document coordinates.
+   */
+  static getElementBounds(element) {
+    invariant(element, 'Bad parameter');
+    const domRECT = element.getBoundingClientRect();
+    return new Box2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY, domRECT.width, domRECT.height);
+  }
+
+  /**
+   * return the top/left of the element relative to the document. Includes any scrolling.
+   */
+  static getElementPosition(element) {
+    invariant(element && arguments.length === 1, 'Bad parameter');
+    const domRECT = element.getBoundingClientRect();
+    return new Vector2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY);
+  }
+
   constructor() {
     this.targets = [];
     this.monitors = new Set();
@@ -192,12 +210,11 @@ class DnD {
             dispatch(commit());
           }
         });
-    } else {
+    } else if (this.undoCommit) {
       // abort the undo/redo transaction since nothing is going to change
-      if (this.undoCommit) {
-        dispatch(abort());
-      }
+      dispatch(abort());
     }
+
     this.cancelDrag();
   }
 
@@ -236,7 +253,7 @@ class DnD {
    */
   findTargetAt(globalPoint) {
     // find all targets at the given point
-    const hits = this.targets.filter(options => this.getElementBounds(options.element).pointInBox(globalPoint));
+    const hits = this.targets.filter(options => DnD.getElementBounds(options.element).pointInBox(globalPoint));
     // sort by zorder and return the one with the highest values
     hits.sort((aaa, bbb) => aaa.options.zorder - bbb.options.zorder);
     return hits.pop();  // undefined on an empty array
@@ -246,7 +263,7 @@ class DnD {
    * return all monitors at the given global position as a Set
    */
   findMonitorsAt(globalPoint) {
-    const monitors = [...this.monitors].filter(options => this.getElementBounds(options.element).pointInBox(globalPoint));
+    const monitors = [...this.monitors].filter(options => DnD.getElementBounds(options.element).pointInBox(globalPoint));
     return new Set(monitors);
   }
 
@@ -301,30 +318,13 @@ class DnD {
   }
 
   /**
-   * return the bounds of the element in document coordinates.
-   */
-  getElementBounds(element) {
-    invariant(element, 'Bad parameter');
-    const domRECT = element.getBoundingClientRect();
-    return new Box2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY, domRECT.width, domRECT.height);
-  }
-
-  /**
    * x-browser solution for the global mouse position
    */
+  //eslint-disable-next-line class-methods-use-this
   mouseToGlobal(event) {
     invariant(arguments.length === 1, 'expect only an event for this method');
-    const parentPosition = this.getElementPosition(event.target);
+    const parentPosition = DnD.getElementPosition(event.target);
     return new Vector2D(event.offsetX + parentPosition.x, event.offsetY + parentPosition.y);
-  }
-
-  /**
-   * return the top/left of the element relative to the document. Includes any scrolling.
-   */
-  getElementPosition(element) {
-    invariant(element && arguments.length === 1, 'Bad parameter');
-    const domRECT = element.getBoundingClientRect();
-    return new Vector2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY);
   }
 }
 

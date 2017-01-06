@@ -17,8 +17,9 @@ import invariant from 'invariant';
 
 import MouseTrap from '../mousetrap';
 
-export default class UserInterface {
+/* eslint-disable class-methods-use-this */
 
+export default class UserInterface {
   constructor(sg) {
     // the scenegraph we are on top of.
     this.sg = sg;
@@ -194,3 +195,5 @@ export default class UserInterface {
     this.el.style.height = `${this.sg.height}px`;
   }
 }
+
+/* eslint-enable class-methods-use-this */

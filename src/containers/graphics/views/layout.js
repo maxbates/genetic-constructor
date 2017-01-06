@@ -31,6 +31,21 @@ import kT from './layoutconstants';
  * layout and scene graph manager for the construct viewer
  */
 export default class Layout {
+  /**
+   * remove a node
+   */
+  static removeNode(node) {
+    if (node && node.parent) {
+      node.parent.removeChild(node);
+    }
+  }
+
+  /**
+   */
+  static measureText(node, str) {
+    return node.getPreferredSize(str);
+  }
+
   constructor(constructViewer, sceneGraph, options) {
     // we need a construct viewer, a scene graph, a construct and options
     this.constructViewer = constructViewer;
@@ -654,13 +669,6 @@ export default class Layout {
   }
 
   /**
-   */
-
-  measureText(node, str) {
-    return node.getPreferredSize(str);
-  }
-
-  /**
    * return the point where layout of actual blocks begins
    *
    */
@@ -752,7 +760,7 @@ export default class Layout {
       });
 
       // measure element text or used condensed spacing
-      const td = this.measureText(node, name);
+      const td = Layout.measureText(node, name);
 
       // if collapsed and this isn't the first row then this block will be clipped
       if (rowIndex > 0 && this.collapsed) {
@@ -761,7 +769,7 @@ export default class Layout {
 
       // measure the max required width of all list blocks
       Object.keys(block.options).filter(opt => block.options[opt]).forEach((blockId) => {
-        let width = this.measureText(node, this.getListBlock(blockId).metadata.name).x;
+        let width = Layout.measureText(node, this.getListBlock(blockId).metadata.name).x;
         width += kT.optionDotW;
         td.x = Math.max(td.x, width);
       });
@@ -1013,7 +1021,7 @@ export default class Layout {
     Object.keys(this.connectors).forEach((key) => {
       const connector = this.connectors[key];
       if (connector.updateReference !== this.updateReference) {
-        this.removeNode(connector.line);
+        Layout.removeNode(connector.line);
         delete this.connectors[key];
       }
     });
@@ -1026,28 +1034,18 @@ export default class Layout {
   dispose() {
     invariant(!this.disposed, 'Layout already disposed');
     this.disposed = true;
-    this.removeNode(this.banner);
-    this.removeNode(this.titleNode);
-    this.removeNode(this.vertical);
+    Layout.removeNode(this.banner);
+    Layout.removeNode(this.titleNode);
+    Layout.removeNode(this.vertical);
     this.rows.forEach((node) => {
-      this.removeNode(node);
+      Layout.removeNode(node);
     });
     Object.keys(this.parts2nodes).forEach((part) => {
-      this.removeNode(this.parts2nodes[part]);
+      Layout.removeNode(this.parts2nodes[part]);
     });
     Object.keys(this.connectors).forEach((key) => {
-      this.removeNode(this.connectors[key].line);
+      Layout.removeNode(this.connectors[key].line);
     });
     this.disposeNestedLayouts();
   }
-
-  /**
-   * remove a node
-   */
-  removeNode(node) {
-    if (node && node.parent) {
-      node.parent.removeChild(node);
-    }
-  }
-
 }

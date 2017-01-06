@@ -79,13 +79,6 @@ export default class Line2D {
   get end() {
     return this._end.clone();
   }
-  /**
-   * setter for end
-   * @param  {Vector2D} vector
-   */
-  set start(vector) {
-    this._end = vector.clone();
-  }
 
   /**
    * getter for x start
