@@ -65,6 +65,7 @@
     //we use .js not .jsx file extensions (we might want to change this)
     "react/jsx-filename-extension": 0,
 
+    ///e.g. onClick on a div
     "jsx-a11y/no-static-element-interactions": 0,
 
     //meh
