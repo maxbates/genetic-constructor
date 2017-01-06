@@ -48,7 +48,8 @@ export const checkDockerInstalled = () => {
       const version = findVersions(result, { loose: true });
       console.log('Found version ' + version);
 
-      const [/*match*/, major, minor] = /^(\d+)\.?(\d+)\.?(\*|\d+)$/.exec(version);
+      const [/*match*/, major, minor] = /^(\d+?)\.(\d+?)\.(.+)$/.exec(version);
+      // we ignore the 'Z' version of Docker but keep in mind it may not always be an integer
       if (major < 1 || minor < 12) {
         console.error(colors.red('Docker version > 1.12 is required'));
         throw Error('Docker > 1.12 required');
