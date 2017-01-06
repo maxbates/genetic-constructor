@@ -111,7 +111,7 @@ class OrderModal extends Component {
           </button>
           <button
             type="button"
-            onClick={() => this.onClose()}
+            onClick={this.onClose}
           >Cancel
           </button>
         </div>
@@ -141,7 +141,7 @@ class OrderModal extends Component {
       open={this.props.open}
       title="Order DNA"
       closeOnClickOutside
-      closeModal={() => this.onClose()}
+      closeModal={this.onClose}
       payload={
         <form className="gd-form order-form" onSubmit={this.onSubmit}>
           <div className="title">{titleText}</div>
@@ -153,14 +153,14 @@ class OrderModal extends Component {
           {error}
           <div className="actions">
             <NavLeftRight
-              onClick={this.nav(-1)}
+              onClick={() => this.nav(-1)}
               left
               text={leftText}
               visible={this.state.page > 1}
             />
             {this.modalButtons()}
             <NavLeftRight
-              onClick={this.nav(1)}
+              onClick={() => this.nav(1)}
               left={false}
               text={rightText}
               visible={this.state.page < 3 && !(this.state.page === 2 && !this.props.order.isSubmitted())}

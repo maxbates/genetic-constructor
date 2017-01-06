@@ -33,7 +33,9 @@ class DNAImportForm extends Component {
     focusedBlocks: PropTypes.array.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     blocks: PropTypes.object.isRequired,
-    //currentConstruct: PropTypes.object,
+    //used in nextProps, which is not picked up by lint
+    //eslint-disable-next-line react/no-unused-prop-types
+    currentConstruct: PropTypes.object,
   };
 
   state = {
@@ -201,7 +203,7 @@ function mapStateToProps(state) {
   return {
     open: state.ui.modals.showDNAImport,
     focusedBlocks: state.focus.blockIds,
-    //currentConstruct: state.blocks[state.focus.constructId],
+    currentConstruct: state.blocks[state.focus.constructId],
     blocks: state.blocks,
   };
 }

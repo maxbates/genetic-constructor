@@ -34,7 +34,7 @@ class ConstructPreview extends Component {
   };
 
   constructor(props) {
-    super();
+    super(props);
     this.generateConstructs(props);
   }
 
