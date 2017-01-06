@@ -131,7 +131,7 @@ export class ProjectDetail extends Component {
 
     if (isVisible) {
       return (
-        <div className="ProjectDetail-open" style={{ height: `${this.state.openHeight}px` }}>
+        <div className="ProjectDetail ProjectDetail-open" style={{ height: `${this.state.openHeight}px` }}>
           <div
             ref="resizeHandle"
             className="ProjectDetail-open-resizeHandle"
