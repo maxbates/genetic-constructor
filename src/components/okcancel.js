@@ -15,10 +15,11 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ModalWindow from './modal/modalwindow';
+
 import {
   uiShowOkCancel,
 } from '../actions/ui';
+import ModalWindow from './modal/modalwindow';
 
 import '../styles/ok-cancel-form.css';
 
@@ -33,6 +34,7 @@ class OkCancel extends Component {
     cancelText: PropTypes.string,
     onOk: PropTypes.func,
     onCancel: PropTypes.func,
+    uiShowOkCancel: PropTypes.func,
   };
 
   render() {
@@ -70,7 +72,7 @@ class OkCancel extends Component {
 
           )}
           closeOnClickOutside
-          closeModal={buttonText => {
+          closeModal={(buttonText) => {
 
           }}
         />

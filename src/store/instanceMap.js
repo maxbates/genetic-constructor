@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import Project from '../models/Project';
+
 import Block from '../models/Block';
 import Order from '../models/Order';
+import Project from '../models/Project';
 
 //NOTE - this cache is not reset when the user changes. That sucks up some memory. So, we reload the page. User should not be able to access though - this is used by middleware functoins etc., but everything in a newly signed-in user's information will have unique IDs and should not collide (until there is collaboration or something along those lines).
 
@@ -61,7 +62,7 @@ const isRollDifferent = (oldRollup, newRollup) => {
   if (Object.keys(oldRollup.blocks).length !== Object.keys(newRollup.blocks).length) return true;
 
   //check all blocks same
-  return Object.keys(oldRollup.blocks).some(oldBlockId => {
+  return Object.keys(oldRollup.blocks).some((oldBlockId) => {
     const oldBlock = oldRollup.blocks[oldBlockId];
     const analog = newRollup.blocks[oldBlockId];
     return !analog || analog !== oldBlock;
@@ -70,11 +71,11 @@ const isRollDifferent = (oldRollup, newRollup) => {
 
 /* get */
 
-export const getProject = (projectId) => projectMap.get(projectId);
+export const getProject = projectId => projectMap.get(projectId);
 
-export const getBlock = (blockId) => blockMap.get(blockId);
+export const getBlock = blockId => blockMap.get(blockId);
 
-export const getOrder = (orderId) => orderMap.get(orderId);
+export const getOrder = orderId => orderMap.get(orderId);
 
 /* recursing */
 
@@ -83,7 +84,7 @@ const getBlockContents = (acc = {}, ...blockIds) => {
   if (acc === null) {
     return null;
   }
-  blockIds.forEach(blockId => {
+  blockIds.forEach((blockId) => {
     const block = getBlock(blockId);
     Object.assign(acc, { [block.id]: block });
 
@@ -111,28 +112,26 @@ const getProjectContents = (projectId) => {
 };
 
 //recursively check blocks' presence + their components / options
-export const blockLoaded = (...blockIds) => {
-  return blockIds.every(blockId => {
-    const block = getBlock(blockId);
-    if (!block) {
-      return false;
-    }
+export const blockLoaded = (...blockIds) => blockIds.every((blockId) => {
+  const block = getBlock(blockId);
+  if (!block) {
+    return false;
+  }
 
     //check components
-    if (block.components.length) {
-      return blockLoaded(...block.components);
-    }
+  if (block.components.length) {
+    return blockLoaded(...block.components);
+  }
 
     //check options
-    const optionsArray = Object.keys(block.options);
-    if (optionsArray.length) {
-      return blockLoaded(...optionsArray);
-    }
+  const optionsArray = Object.keys(block.options);
+  if (optionsArray.length) {
+    return blockLoaded(...optionsArray);
+  }
 
     //otherwise we're good at the leaf
-    return true;
-  });
-};
+  return true;
+});
 
 //check if whole project is loaded
 export const projectLoaded = (projectId) => {
@@ -157,21 +156,21 @@ export const orderLoaded = (orderId) => {
 /* save */
 
 export const saveProject = (...projects) => {
-  projects.forEach(project => {
+  projects.forEach((project) => {
     invariant(project instanceof Project, 'should only save class instances');
     projectMap.set(project.id, project);
   });
 };
 
 export const saveBlock = (...blocks) => {
-  blocks.forEach(block => {
+  blocks.forEach((block) => {
     invariant(block instanceof Block, 'should only save class instances');
     blockMap.set(block.id, block);
   });
 };
 
 export const saveOrder = (...orders) => {
-  orders.forEach(order => {
+  orders.forEach((order) => {
     invariant(order instanceof Order, 'should only save class instances');
     orderMap.set(order.id, order);
   });
@@ -195,7 +194,7 @@ export const removeOrder = (...orderIds) => {
 /* rollups */
 
 //saved rollups are different than generating the rollup - it has specific objects in it, computing on the fly would return the current versinos of each object and would appear the same even when the prior save used prior states
-const getSavedRollup = (projectId) => rollMap.get(projectId);
+const getSavedRollup = projectId => rollMap.get(projectId);
 
 //should only call after making sure the project has been loaded
 export const getRollup = (projectId) => {
@@ -215,13 +214,11 @@ export const saveRollup = (rollup) => {
   saveBlock(...Object.keys(rollup.blocks).map(blockId => rollup.blocks[blockId]));
 };
 
-export const isRollupNew = (rollup) => {
-  return isRollDifferent(getSavedRollup(rollup.project.id), rollup);
-};
+export const isRollupNew = rollup => isRollDifferent(getSavedRollup(rollup.project.id), rollup);
 
 /* orders */
 
-export const projectOrdersLoaded = (projectId) => projectOrders.get(projectId);
+export const projectOrdersLoaded = projectId => projectOrders.get(projectId);
 
 export const saveProjectOrders = (projectId, ...orders) => {
   projectOrders.set(projectId, true);
@@ -230,10 +227,10 @@ export const saveProjectOrders = (projectId, ...orders) => {
 
 export const getProjectOrders = (projectId) => {
   const relevant = [];
-  for (const order of orderMap.values()) {
+  orderMap.forEach((order) => {
     if (order.projectId === projectId) {
       relevant.push(order);
     }
-  }
+  });
   return relevant;
 };

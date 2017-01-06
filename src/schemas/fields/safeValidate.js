@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import invariant from 'invariant';
 import debug from 'debug';
+import invariant from 'invariant';
 
 const logger = debug('constructor:schemas');
 

@@ -42,7 +42,7 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
   //focus doesnt update on undo, just the blocks... so need to filter / make sure defined
   const project = forceProject || state.projects[defaultProjectId || projectId];
   const construct = state.blocks[constructId];
-  const blocks = !!forceBlocks.length ?
+  const blocks = forceBlocks.length ?
     forceBlocks :
     blockIds.map(blockId => state.blocks[blockId]).filter(block => !!block);
   const option = blockIds.length === 1 ? state.blocks[options[blockIds[0]]] : null;
@@ -53,9 +53,9 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
 
   if (level === 'project' || (!construct && !blocks.length)) {
     focused = project;
-    readOnly = !!forceProject || !!project.rules.frozen;
+    readOnly = !!forceProject || project.rules.frozen;
     type = 'project'; //override in case here because construct / blocks unspecified
-  } else if (level === 'construct' && construct || (defaultToConstruct === true && construct && !blocks.length)) {
+  } else if ((level === 'construct' && construct) || (defaultToConstruct === true && construct && !blocks.length)) {
     focused = [construct];
     readOnly = construct.isFrozen();
   } else if (level === 'option' && option) {
@@ -63,7 +63,7 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
     readOnly = true;
   } else {
     focused = blocks;
-    readOnly = !!forceBlocks.length || focused.some(instance => instance.isFrozen());
+    readOnly = forceBlocks.length > 0 || focused.some(instance => instance.isFrozen());
   }
 
   return {
@@ -83,11 +83,9 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
  * readOnly is if forced, or block is frozen
  * focused may be a project, block
  */
-export const focusGetFocused = (defaultToConstruct = true, defaultProjectId = null) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    return _getFocused(state, defaultToConstruct, defaultProjectId);
-  };
+export const focusGetFocused = (defaultToConstruct = true, defaultProjectId = null) => (dispatch, getState) => {
+  const state = getState();
+  return _getFocused(state, defaultToConstruct, defaultProjectId);
 };
 
 /**
@@ -95,15 +93,13 @@ export const focusGetFocused = (defaultToConstruct = true, defaultProjectId = nu
  * @function
  * @returns {Project} null if no project id is active
  */
-export const focusGetProject = () => {
-  return (dispatch, getState) => {
-    const { forceProject } = getState().focus;
-    if (forceProject) {
-      return forceProject;
-    }
-    const projectId = _getCurrentProjectId();
-    return !!projectId ? getState().projects[projectId] : null;
-  };
+export const focusGetProject = () => (dispatch, getState) => {
+  const { forceProject } = getState().focus;
+  if (forceProject) {
+    return forceProject;
+  }
+  const projectId = _getCurrentProjectId();
+  return projectId ? getState().projects[projectId] : null;
 };
 
 /**
@@ -111,11 +107,9 @@ export const focusGetProject = () => {
  * @function
  * @returns {Block}
  */
-export const focusGetConstruct = () => {
-  return (dispatch, getState) => {
-    const state = getState();
-    return state.blocks[state.focus.constructId];
-  };
+export const focusGetConstruct = () => (dispatch, getState) => {
+  const state = getState();
+  return state.blocks[state.focus.constructId];
 };
 
 /**
@@ -124,18 +118,16 @@ export const focusGetConstruct = () => {
  * @param {boolean} [defaultToConstruct=true]
  * @returns {Array<Block>}
  */
-export const focusGetBlocks = (defaultToConstruct = true) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { forceBlocks, blockIds, constructId } = state.focus;
-    if (forceBlocks.length) {
-      return forceBlocks;
-    }
-    if (!blockIds.length && defaultToConstruct === true) {
-      return [state.blocks[constructId]];
-    }
-    return blockIds.map(blockId => state.blocks[blockId]);
-  };
+export const focusGetBlocks = (defaultToConstruct = true) => (dispatch, getState) => {
+  const state = getState();
+  const { forceBlocks, blockIds, constructId } = state.focus;
+  if (forceBlocks.length) {
+    return forceBlocks;
+  }
+  if (!blockIds.length && defaultToConstruct === true) {
+    return [state.blocks[constructId]];
+  }
+  return blockIds.map(blockId => state.blocks[blockId]);
 };
 
 /**
@@ -143,22 +135,20 @@ export const focusGetBlocks = (defaultToConstruct = true) => {
  * @function
  * @returns {Array<Block>} Array of currently selected blocks, construct if no blocks selected, or empty if neither selected
  */
-export const focusGetBlockRange = () => {
-  return (dispatch, getState) => {
-    const focusedBlocks = dispatch(focusGetBlocks(false));
-    const focusedConstruct = dispatch(focusGetConstruct());
+export const focusGetBlockRange = () => (dispatch, getState) => {
+  const focusedBlocks = dispatch(focusGetBlocks(false));
+  const focusedConstruct = dispatch(focusGetConstruct());
 
-    if (!focusedBlocks.length) {
-      if (focusedConstruct) {
-        return [focusedConstruct];
-      }
-      return [];
+  if (!focusedBlocks.length) {
+    if (focusedConstruct) {
+      return [focusedConstruct];
     }
+    return [];
+  }
 
     //dispatch just in case other construct is in focus for some reason... also assumes that all focused blocks are within the same construct
-    const focusedIds = focusedBlocks.map(block => block.id);
-    return dispatch(BlockSelector.blockGetRange(...focusedIds));
-  };
+  const focusedIds = focusedBlocks.map(block => block.id);
+  return dispatch(BlockSelector.blockGetRange(...focusedIds));
 };
 
 /**
@@ -166,11 +156,9 @@ export const focusGetBlockRange = () => {
  * @function
  * @returns {boolean} true if relevant
  */
-export const focusDetailsExist = () => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { forceBlocks, blockIds, constructId } = state.focus;
-    const construct = state.blocks[constructId];
-    return !!forceBlocks.length || !!blockIds.length || (construct && !!construct.components.length);
-  };
+export const focusDetailsExist = () => (dispatch, getState) => {
+  const state = getState();
+  const { forceBlocks, blockIds, constructId } = state.focus;
+  const construct = state.blocks[constructId];
+  return !!forceBlocks.length || !!blockIds.length || (construct && !!construct.components.length);
 };

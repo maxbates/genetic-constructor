@@ -17,7 +17,7 @@ export const HOST_PORT = process.env.PORT || 3000;
 export const HOST_NAME = '0.0.0.0';
 
 //e.g. to call the server from itself
-export const INTERNAL_HOST = 'http://' + HOST_NAME + ':' + HOST_PORT;
+export const INTERNAL_HOST = `http://${HOST_NAME}:${HOST_PORT}`;
 
 //external URL, locally same as INTERNAL_HOST
 export const HOST_URL = process.env.HOST_URL || INTERNAL_HOST;
@@ -26,4 +26,4 @@ export const HOST_URL = process.env.HOST_URL || INTERNAL_HOST;
 export const API_END_POINT = process.env.API_END_POINT || 'http://localhost:8080/api';
 
 //storage API - mounted locally for local dev, otherwise external
-export const STORAGE_URL = process.env.STORAGE_API || (INTERNAL_HOST + '/api');
+export const STORAGE_URL = process.env.STORAGE_API || (`${INTERNAL_HOST}/api`);

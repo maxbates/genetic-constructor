@@ -28,7 +28,7 @@ async function installExtensions() {
 
     await promisedExec('npm install --global-style --no-optional',
       { cwd: extensionsPath },
-      { comment: 'Running npm install() for extensions' }
+      { comment: 'Running npm install() for extensions' },
     );
   } catch (err) {
     throw err;

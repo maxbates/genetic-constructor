@@ -15,6 +15,7 @@ limitations under the License.
 */
 import invariant from 'invariant';
 import { debounce, throttle } from 'lodash';
+
 import { FORCE_SAVE } from './ActionTypes';
 
 export default function autosavingCreator(config) {
@@ -34,7 +35,7 @@ export default function autosavingCreator(config) {
   let timeStartOfChanges = 0; //0 means no unsaved changes, otherwise time of start of changes
   let dirty = false;
 
-  const getTimeUnsaved = () => { return timeStartOfChanges > 0 ? +Date.now() - timeStartOfChanges : 0; };
+  const getTimeUnsaved = () => timeStartOfChanges > 0 ? +Date.now() - timeStartOfChanges : 0;
   const isDirty = () => dirty;
 
   //we've saved, update relevant internal state
@@ -87,7 +88,7 @@ export default function autosavingCreator(config) {
     handleSave(state);
   };
 
-  const autosaveReducerEnhancer = reducer => {
+  const autosaveReducerEnhancer = (reducer) => {
     //track for reducer initial state because if the reducer e.g. use default prop of an object, reference will be different between initial state we compute here and when the reducer computes initial state as normal, triggering save on store initialization
     let initialized = false;
 

@@ -15,8 +15,8 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
 import { projectList } from '../../actions/projects';
-import { blockStash } from '../../actions/blocks';
 import InventorySearch from './InventorySearch';
 import InventoryProject from './InventoryProject';
 import Spinner from '../ui/Spinner';
@@ -26,10 +26,11 @@ export class InventoryProjectList extends Component {
   static propTypes = {
     currentProject: PropTypes.string,
     projects: PropTypes.object.isRequired,
-    blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
     templates: PropTypes.bool.isRequired,
   };
+
+  static filter = '';
 
   state = {
     isLoading: true,
@@ -41,8 +42,6 @@ export class InventoryProjectList extends Component {
     this.props.projectList()
       .then(() => this.setState({ isLoading: false }));
   }
-
-  static filter = '';
 
   handleFilterChange = (filter) => {
     InventoryProjectList.filter = filter;
@@ -86,13 +85,15 @@ export class InventoryProjectList extends Component {
               const isActive = (projectId === currentProject);
 
               return (
-                <InventoryProject key={projectId}
-                                  project={project}
-                                  isActive={isActive}/>
+                <InventoryProject
+                  key={projectId}
+                  project={project}
+                  isActive={isActive} />
               );
             })}
         </div>
-      </div>);
+      </div>
+    );
   }
 }
 
@@ -105,6 +106,5 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  blockStash,
   projectList,
 })(InventoryProjectList);

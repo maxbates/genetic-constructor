@@ -1,5 +1,5 @@
 import cp from 'child_process';
-import colors from 'colors';
+import colors from 'colors/safe';
 //import { serverConfig } from './webpack.config';
 
 // Should match the text string used in `src/server.js/server.listen(...)`
@@ -75,7 +75,10 @@ function runServer(cb) {
       return; //in case not sync...
     }
 
-    console.log(`Server exited with code ${code} and signal ${signal}`);
+    //otherwise something bad happened and we should we restart
+    //restarting can be tricky, so kill to be save. you could probably recursively call runServer() if you wanted..
+    console.log(colors.red(`Server exited with code ${code} and signal ${signal}`));
+    process.exit(1);
   });
 }
 

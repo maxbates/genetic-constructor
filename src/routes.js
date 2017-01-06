@@ -14,19 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React from 'react';
-import { Router, browserHistory } from 'react-router';
+import { browserHistory, IndexRedirect, IndexRoute, Route, Router } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
-import store from './store/index';
-import { Route, IndexRedirect, IndexRoute } from 'react-router';
 
+import AuthRouteWrapper from './components/authentication/authRouteWrapper';
 import App from './containers/App';
 import ProjectPage from './containers/ProjectPage';
 import HomePage from './containers/homepage';
 import RouteNotFound from './containers/routenotfound';
-import AuthRouteWrapper from './components/authentication/authRouteWrapper';
+import store from './store/index';
 
 const history = syncHistoryWithStore(browserHistory, store, {
-  selectLocationState: (state) => state.router,
+  selectLocationState: state => state.router,
 });
 
 export default (
@@ -36,20 +35,22 @@ export default (
       {/* require authentication */}
 
       <Route component={AuthRouteWrapper}>
-        <Route path="/homepage/account" component={HomePage}/>
-        <Route path="/project/:projectId"
-               component={ProjectPage}/>
+        <Route path="/homepage/account" component={HomePage} />
+        <Route
+          path="/project/:projectId"
+          component={ProjectPage}
+        />
       </Route>
 
       {/* do not require authentication */}
 
       <Route path="/homepage">
-        <Route path=":comp" component={HomePage}/>
-        <IndexRoute component={HomePage}/>
+        <Route path=":comp" component={HomePage} />
+        <IndexRoute component={HomePage} />
       </Route>
-      <Route path="*" component={RouteNotFound}/>
+      <Route path="*" component={RouteNotFound} />
 
-      <IndexRedirect to="/homepage"/>
+      <IndexRedirect to="/homepage" />
 
     </Route>
   </Router>

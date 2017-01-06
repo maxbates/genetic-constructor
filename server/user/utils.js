@@ -24,14 +24,12 @@ import { userConfigKey } from './userConstants';
 //todo - reconcile uuid here and userid on client
 const fields = ['password', 'newPassword', 'config', 'uuid', 'firstName', 'lastName', 'email'];
 
-export const mergeConfigToUserData = (user, config = userConfigDefaults) => {
-  return merge({}, user, {
-    data: {
-      constructor: true,
-      [userConfigKey]: config,
-    },
-  });
-};
+export const mergeConfigToUserData = (user, config = userConfigDefaults) => merge({}, user, {
+  data: {
+    constructor: true,
+    [userConfigKey]: config,
+  },
+});
 
 //validate config on user.data
 //todo - should validate that the projects and extensions exist, here
@@ -78,7 +76,7 @@ export const updateUserConfig = (user, newConfig) => {
 
 //update user, from client form { ...user, config }
 export const updateUserAll = (user, patch) => {
-  invariant(Object.keys(patch).every(key => fields.indexOf(key) >= 0), 'got unexpected key user patch: ' + Object.keys(patch));
+  invariant(Object.keys(patch).every(key => fields.indexOf(key) >= 0), `got unexpected key user patch: ${Object.keys(patch)}`);
 
   const { config, ...rest } = patch;
   return merge({}, updateUserConfig(user, config), rest);
@@ -103,7 +101,8 @@ export const pruneUserObjectMiddleware = (req, res, next) => {
 
 export const ensureReqUserMiddleware = (req, res, next) => {
   if (!req.user) {
-    return res.status(401).send('no user found on request. ensure header set - credentials: same-origin');
+    res.status(401).send('no user found on request. ensure header set - credentials: same-origin');
+    return;
   }
   next();
 };

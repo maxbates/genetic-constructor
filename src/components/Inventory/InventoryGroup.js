@@ -25,26 +25,26 @@ import '../../styles/InventoryGroup.css';
 
 export default class InventoryGroup extends Component {
   static propTypes = {
-    title: PropTypes.string,
-    type: PropTypes.string,
     actions: PropTypes.array,
-    tabInfo: PropTypes.object.isRequired,
+    tabInfo: PropTypes.shape({
+      type: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }).isRequired,
     currentProjectId: PropTypes.string,
   };
 
   /**
-   * returns the current componengt
+   * returns the current component
    */
   inventoryGroupTypeToHeaderComponent = (type, props) => {
     switch (type) {
+      case 'projects':
+        return (<InventoryProjectHeader {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
+      case 'templates':
+        return (<InventoryProjectHeader {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
 
-    case 'projects':
-      return (<InventoryProjectHeader {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
-    case 'templates':
-      return (<InventoryProjectHeader {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
-
-    default:
-      return null;
+      default:
+        return null;
     }
   };
 
@@ -77,6 +77,7 @@ export default class InventoryGroup extends Component {
     const { title, type } = this.props.tabInfo;
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
     const currentHeaderComponent = this.inventoryGroupTypeToHeaderComponent(type, rest);
+
     return (
       <div className={'InventoryGroup'}>
         <div className="InventoryGroup-heading">

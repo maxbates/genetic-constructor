@@ -30,8 +30,8 @@ export default class LineGlyph2D extends Glyph2D {
    */
   update() {
     // update size and color
-    this.el.style.width = this.node.width + 'px';
-    this.el.style.height = this.node.height + 'px';
+    this.el.style.width = `${this.node.width}px`;
+    this.el.style.height = `${this.node.height}px`;
     this.el.style.backgroundColor = this.node.stroke;
   }
 }

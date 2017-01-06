@@ -13,13 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
-import extensionRegistry, { validRegion, downloadAndRender } from '../extensions/clientRegistry';
 import { isEqual } from 'lodash';
+import React, { Component, PropTypes } from 'react';
 
-import Spinner from './ui/Spinner';
-
+import extensionRegistry, { downloadAndRender, validRegion } from '../extensions/clientRegistry';
 import '../styles/ExtensionView.css';
+import Spinner from './ui/Spinner';
 
 export default class ExtensionView extends Component {
   static propTypes = {
@@ -109,7 +108,7 @@ export default class ExtensionView extends Component {
         const boundingBox = this.element.getBoundingClientRect();
 
         downloadAndRender(extension, region, this.element, { boundingBox })
-          .then(unregister => {
+          .then((unregister) => {
             //todo - better handle scenario of extension loaded but not rendered (i.e. callback not yet set) - want to unregister immediately
             this.callback = unregister;
             this.setState({
@@ -117,14 +116,14 @@ export default class ExtensionView extends Component {
               hasError: null,
             });
           })
-          .catch(err => {
+          .catch((err) => {
             this.setState({
               downloaded: true,
               hasError: err,
             });
           });
       } catch (err) {
-        console.error('error loading / rendering extension ' + extension); //eslint-disable-line no-console
+        console.error(`error loading / rendering extension ${extension}`); //eslint-disable-line no-console
         throw err;
       }
     });
@@ -143,7 +142,7 @@ export default class ExtensionView extends Component {
 
     if (!downloaded) {
       overlayContent = <Spinner />;
-    } else if (!!hasError) {
+    } else if (hasError) {
       overlayContent = (<div className="ExtensionView-error">
         <p>There was an error rendering the extension</p>
         <div className="ExtensionView-error-stack">{hasError.stack}</div>
@@ -151,16 +150,17 @@ export default class ExtensionView extends Component {
     }
 
     return (
-      <div className={'ExtensionView' + (isVisible ? ' visible' : '')}>
+      <div className={`ExtensionView${isVisible ? ' visible' : ''}`}>
         {overlayContent}
-        <div className="ExtensionView-content"
-             key={extension}
-             ref={(el) => {
-               if (el) {
-                 this.element = el;
-               }
-             }}>
-        </div>
+        <div
+          className="ExtensionView-content"
+          key={extension}
+          ref={(el) => {
+            if (el) {
+              this.element = el;
+            }
+          }}
+        />
       </div>
     );
   }

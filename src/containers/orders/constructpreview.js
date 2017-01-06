@@ -13,18 +13,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+
+import '../../../src/styles/SceneGraphPage.css';
+import '../../../src/styles/ordermodal.css';
+import { orderGenerateConstructs } from '../../actions/orders';
 import SceneGraph2D from '../../containers/graphics/scenegraph2d/scenegraph2d';
 import Layout from '../../containers/graphics/views/layout';
-import { orderGenerateConstructs } from '../../actions/orders';
-import invariant from 'invariant';
-import UpDown from './updown';
 import Block from '../../models/Block';
-
-import '../../../src/styles/ordermodal.css';
-import '../../../src/styles/SceneGraphPage.css';
+import UpDown from './updown';
 
 class ConstructPreview extends Component {
   static propTypes = {
@@ -34,7 +34,7 @@ class ConstructPreview extends Component {
   };
 
   constructor(props) {
-    super();
+    super(props);
     this.generateConstructs(props);
   }
 
@@ -95,9 +95,7 @@ class ConstructPreview extends Component {
         blocks: this.props.blocks,
         currentBlocks: [],
         currentConstructId: constructIndex,
-        blockColor: (blockId) => {
-          return this.blockColor(blockId);
-        },
+        blockColor: blockId => this.blockColor(blockId),
       });
       this.sg.update();
     }
@@ -145,8 +143,8 @@ class ConstructPreview extends Component {
     return 'lightgray';
   }
 
-  generateConstructs(props = this.props) {
-    this.constructs = props.orderGenerateConstructs(props.order.id);
+  generateConstructs() {
+    this.constructs = this.props.orderGenerateConstructs(this.props.order.id);
   }
 
   render() {
@@ -154,7 +152,7 @@ class ConstructPreview extends Component {
     return (
       <div className="preview">
         <div className="top-row">
-          <label className="review">Reviewing assembly</label>
+          <p className="review">Reviewing assembly</p>
           <UpDown
             min={1}
             max={this.constructs ? this.constructs.length : 1}
@@ -162,10 +160,10 @@ class ConstructPreview extends Component {
             enabled={!!(this.constructs && this.constructs.length)}
             onChange={this.onChangeConstruct}
           />
-          <label className="of">{label}</label>
+          <p className="of">{label}</p>
         </div>
         <div className="container">
-          <div className="scenegraph"></div>
+          <div className="scenegraph" />
         </div>
       </div>
     );

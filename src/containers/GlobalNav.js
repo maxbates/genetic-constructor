@@ -14,9 +14,11 @@
  limitations under the License.
  */
 /* global flashedUser:false, heap:false */
+import invariant from 'invariant';
+import KeyboardTrap from 'mousetrap';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import invariant from 'invariant';
+
 import UserWidget from '../components/authentication/userwidget';
 import RibbonGrunt from '../components/ribbongrunt';
 import {
@@ -64,7 +66,6 @@ import {
   uiShowDNAImport,
   uiReportError,
 } from '../actions/ui';
-import KeyboardTrap from 'mousetrap';
 import {
   sortBlocksByIndexAndDepth,
   sortBlocksByIndexAndDepthExclude,
@@ -85,7 +86,6 @@ class GlobalNav extends Component {
     projectAddConstruct: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
-    projectList: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string,
     blockCreate: PropTypes.func.isRequired,
@@ -111,7 +111,6 @@ class GlobalNav extends Component {
       data: PropTypes.any,
     }).isRequired,
     blockGetComponentsRecursive: PropTypes.func.isRequired,
-    blockAddComponent: PropTypes.func.isRequired,
     blockAddComponents: PropTypes.func.isRequired,
     uiShowAbout: PropTypes.func.isRequired,
     uiShowDNAImport: PropTypes.func.isRequired,
@@ -129,6 +128,11 @@ class GlobalNav extends Component {
       metadata: PropTypes.object,
     }),
   };
+
+  static disgorgeDiscourse(path) {
+    const uri = window.discourseDomain + path;
+    window.open(uri, '_blank');
+  }
 
   constructor(props) {
     super(props);
@@ -286,7 +290,7 @@ class GlobalNav extends Component {
 
         const url = extensionApiPath('genbank', `export/${this.props.currentProjectId}`);
         const postBody = this.props.focus.options;
-        const iframeTarget = '' + Math.floor(Math.random() * 10000) + +Date.now();
+        const iframeTarget = `${Math.floor(Math.random() * 10000)}${+Date.now()}`;
 
         // for now use an iframe otherwise any errors will corrupt the page
         const iframe = document.createElement('iframe');
@@ -303,7 +307,7 @@ class GlobalNav extends Component {
         form.target = iframeTarget;
 
         //add inputs to the form for each value in postBody
-        Object.keys(postBody).forEach(key => {
+        Object.keys(postBody).forEach((key) => {
           const input = document.createElement('input');
           input.type = 'hidden';
           input.name = key;
@@ -365,12 +369,10 @@ class GlobalNav extends Component {
       const sorted = sortBlocksByIndexAndDepthExclude(this.props.focus.blockIds);
       // sorted is an array of array, flatten while retaining order
       const currentProjectVersion = this.props.projectGetVersion(this.props.currentProjectId);
-      const clones = sorted.map(info => {
-        return this.props.blockClone(info.blockId, {
-          projectId: this.props.currentProjectId,
-          version: currentProjectVersion,
-        });
-      });
+      const clones = sorted.map(info => this.props.blockClone(info.blockId, {
+        projectId: this.props.currentProjectId,
+        version: currentProjectVersion,
+      }));
       // put clones on the clipboardparentObjectInput
       this.props.clipboardSetData([clipboardFormats.blocks], [clones]);
     }
@@ -431,9 +433,7 @@ class GlobalNav extends Component {
       invariant(blocks && blocks.length && Array.isArray(blocks), 'expected array of blocks on clipboard for this format');
       // we have to clone the blocks currently on the clipboard since they
       // can't be pasted twice
-      const clones = blocks.map(block => {
-        return this.props.blockClone(block.id);
-      });
+      const clones = blocks.map(block => this.props.blockClone(block.id));
       // insert at end of construct if no blocks selected
       let insertIndex = this.focusedConstruct().components.length;
       let parentId = this.focusedConstruct().id;
@@ -623,7 +623,7 @@ class GlobalNav extends Component {
             },
             {
               text: 'Forums',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
+              action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
             },
             {
               text: 'Get Support',
@@ -636,7 +636,7 @@ class GlobalNav extends Component {
             },
             {
               text: 'Give Us Feedback',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
+              action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
             },
             {},
             {
@@ -665,10 +665,6 @@ class GlobalNav extends Component {
       ]}/>);
   }
 */
-  disgorgeDiscourse(path) {
-    const uri = window.discourseDomain + path;
-    window.open(uri, '_blank');
-  }
 
   render() {
     const { currentProjectId } = this.props;
@@ -677,12 +673,12 @@ class GlobalNav extends Component {
       <div className="GlobalNav">
         <RibbonGrunt />
         <div className="GlobalNav-logo">
-          <img src="/images/ui/main_logo.svg"/>
+          <img src="/images/ui/main_logo.svg"  role="presentation" />
         </div>
         <div className="GlobalNav-appname">Genetic Constructor</div>
-        <span className="GlobalNav-spacer"/>
-        {currentProjectId && <AutosaveTracking projectId={currentProjectId}/>}
-        <UserWidget/>
+        <span className="GlobalNav-spacer" />
+        {currentProjectId && <AutosaveTracking projectId={currentProjectId} />}
+        <UserWidget />
       </div>
     );
   }
@@ -707,7 +703,6 @@ export default connect(mapStateToProps, {
   projectSave,
   projectOpen,
   projectDelete,
-  projectList,
   projectLoad,
   projectGetVersion,
   blockCreate,
@@ -737,6 +732,5 @@ export default connect(mapStateToProps, {
   focusConstruct,
   focusDetailsExist,
   clipboardSetData,
-  blockAddComponent,
   blockAddComponents,
 })(GlobalNav);

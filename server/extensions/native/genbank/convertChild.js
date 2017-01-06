@@ -21,9 +21,9 @@ process.on('message', (message) => {
 
   const command = `python convert.py ${conversion} ${message.input} ${message.output}`;
 
-  cp.exec(command, function runPython(err, stdout) {
+  cp.exec(command, (err, stdout) => {
     if (err) {
-      console.log('Python childProcess error: ' + command);
+      console.log(`Python childProcess error: ${command}`);
       console.log(err);
       console.log(err.stack);
       return process.send({ id: message.id, success: false, error: err, result: stdout });

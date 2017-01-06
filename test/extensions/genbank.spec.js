@@ -53,6 +53,16 @@ describe('Extensions', () => {
         .catch(done);
     });
 
+    it('conversion blocks should not have blockId', () => {
+      return importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
+      .then(({ blocks }) => {
+        Object.keys(blocks).forEach((blockId) => {
+          const block = blocks[blockId];
+          assert(!block.projectId, 'block shouldnt have a project iD');
+        });
+      });
+    });
+
     it('should import Genbank file with holes as a project', function importGB(done) {
       importProject(path.resolve(__dirname, '../res/sampleGenbankContiguousWithHoles.gb'))
         .then(output => {

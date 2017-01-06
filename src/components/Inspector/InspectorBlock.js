@@ -15,8 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Block from '../../models/Block';
-import { transact, commit, abort } from '../../store/undo/actions';
+
 import {
   blockMerge,
   blockSetColor,
@@ -24,6 +23,8 @@ import {
   blockSetRole,
   blockRename,
 } from '../../actions/blocks';
+import Block from '../../models/Block';
+import { transact, commit, abort } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
 import ColorAndPalettePicker from './../ui/ColorAndPalettePicker';
 import SBOLPicker from './../ui/SBOLPicker';
@@ -40,10 +41,9 @@ export class InspectorBlock extends Component {
     instances: PropTypes.arrayOf((propValue, key) => {
       const instance = propValue[key];
       if (!(Block.validate(instance) && instance instanceof Block)) {
-        return new Error('Must pass valid instances of blocks to the inspector, got ' + JSON.stringify(instance));
+        return new Error(`Must pass valid instances of blocks to the inspector, got ${JSON.stringify(instance)}`);
       }
     }).isRequired,
-    project: PropTypes.object.isRequired,
     construct: PropTypes.object.isRequired, //top-level
     isAuthoring: PropTypes.bool.isRequired,
     overrides: PropTypes.shape({
@@ -115,7 +115,7 @@ export class InspectorBlock extends Component {
    */
   currentColor() {
     const { instances, overrides } = this.props;
-    if (!!overrides.color) {
+    if (overrides.color) {
       return overrides.color;
     }
     if (instances.length === 1) {
@@ -129,7 +129,7 @@ export class InspectorBlock extends Component {
    */
   currentRoleSymbol() {
     const { instances, overrides } = this.props;
-    if (!!overrides.role) {
+    if (overrides.role) {
       return overrides.role;
     }
     if (instances.length === 1) {
@@ -167,7 +167,7 @@ export class InspectorBlock extends Component {
   currentSequenceLength() {
     if (this.allBlocksWithSequence()) {
       const reduced = this.props.instances.reduce((acc, instance) => acc + (instance.sequence.length || 0), 0);
-      return reduced + ' bp';
+      return `${reduced} bp`;
     }
     return this.props.instances.length > 1 ?
       'Incomplete Sketch' :
@@ -192,7 +192,7 @@ export class InspectorBlock extends Component {
 
     if (firstHasSource && (lenInstances === 1 ||
       this.props.instances.every(block => block.source.id === firstId && block.source.source === firstName))) {
-      return (<BlockSource block={firstBlock}/>);
+      return (<BlockSource block={firstBlock} />);
     }
     if (lenInstances > 1) {
       return (<p>Multiple Sources</p>);
@@ -223,37 +223,45 @@ export class InspectorBlock extends Component {
       <div className="InspectorContent InspectorContentBlock">
 
         <InspectorRow heading={type}>
-          <InputSimple refKey={inputKey}
-                       placeholder={this.currentName(true) || 'Enter a name'}
-                       readOnly={readOnly}
-                       onChange={this.setBlockName}
-                       onFocus={this.startTransaction}
-                       onBlur={this.endTransaction}
-                       onEscape={() => this.endTransaction(true)}
-                       maxLength={64}
-                       value={this.currentName(false)}/>
+          <InputSimple
+            refKey={inputKey}
+            placeholder={this.currentName(true) || 'Enter a name'}
+            readOnly={readOnly}
+            onChange={this.setBlockName}
+            onFocus={this.startTransaction}
+            onBlur={this.endTransaction}
+            onEscape={() => this.endTransaction(true)}
+            maxLength={64}
+            value={this.currentName(false)}
+          />
         </InspectorRow>
 
         <InspectorRow heading="Description">
-          <InputSimple refKey={inputKey + 'desc'}
-                       placeholder="Enter a description"
-                       useTextarea
-                       readOnly={readOnly}
-                       onChange={this.setBlockDescription}
-                       onFocus={this.startTransaction}
-                       onBlur={this.endTransaction}
-                       onEscape={() => this.endTransaction(true)}
-                       maxLength={1024}
-                       value={this.currentDescription()}/>
+          <InputSimple
+            refKey={`${inputKey}desc`}
+            placeholder="Enter a description"
+            useTextarea
+            readOnly={readOnly}
+            onChange={this.setBlockDescription}
+            onFocus={this.startTransaction}
+            onBlur={this.endTransaction}
+            onEscape={() => this.endTransaction(true)}
+            maxLength={1024}
+            value={this.currentDescription()}
+          />
         </InspectorRow>
 
-        <InspectorRow heading="Source"
-                      condition={!!currentSourceElement}>
+        <InspectorRow
+          heading="Source"
+          condition={!!currentSourceElement}
+        >
           {currentSourceElement}
         </InspectorRow>
 
-        <InspectorRow heading="Sequence Length"
-                      condition={hasSequence}>
+        <InspectorRow
+          heading="Sequence Length"
+          condition={hasSequence}
+        >
           <p><strong>{this.currentSequenceLength()}</strong></p>
         </InspectorRow>
 
@@ -281,34 +289,44 @@ export class InspectorBlock extends Component {
           text="Symbol"
           content={<SBOLPicker current={this.currentRoleSymbol()}
                                readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList)) }
-                               onSelect={this.selectSymbol}/>}
+                               onSelect={this.selectSymbol} />}
         />
 
-        <InspectorRow heading={type + ' Rules'}
-                      condition={isAuthoring}>
-          <TemplateRules block={instances[0]}
-                         readOnly={!isAuthoring}
-                         isConstruct={isTemplate}/>
+        <InspectorRow
+          heading={`${type} Rules`}
+          condition={isAuthoring}
+        >
+          <TemplateRules
+            block={instances[0]}
+            readOnly={!isAuthoring}
+            isConstruct={isTemplate}
+          />
         </InspectorRow>
 
-        <InspectorRow heading="Annotations"
-                      condition={annotations.length > 0}>
+        <InspectorRow
+          heading="Annotations"
+          condition={annotations.length > 0}
+        >
           <div className="InspectorContentBlock-Annotations">
-            {annotations.map((annotation, idx) => {
-              return (
-                <span className="InspectorContentBlock-Annotation"
-                      key={idx}>
+            {annotations.map((annotation, idx) => (
+              <span
+                className="InspectorContentBlock-Annotation"
+                key={idx}
+              >
                 {annotation.name || annotation.description || '?'}
               </span>
-              );
-            })}
+              ))}
           </div>
         </InspectorRow>
 
-        <InspectorRow heading="List Options"
-                      condition={isList}>
-          <ListOptions toggleOnly={!isAuthoring}
-                       block={instances[0]}/>
+        <InspectorRow
+          heading="List Options"
+          condition={isList}
+        >
+          <ListOptions
+            toggleOnly={!isAuthoring}
+            block={instances[0]}
+          />
         </InspectorRow>
 
       </div>

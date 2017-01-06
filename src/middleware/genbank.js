@@ -13,11 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
+
+import timeLimit from '../utils/timeLimit';
 import { headersPost } from './utils/headers';
 import { extensionApiPath } from './utils/paths';
-import timeLimit from '../utils/timeLimit';
+import rejectingFetch from './utils/rejectingFetch';
 import uploadFiles from './utils/uploadFiles';
 
 const extensionKey = 'genbank';
@@ -36,18 +37,18 @@ function parseResponseIfText(resp) {
  * @private
  */
 export function importFile(projectId = null, ...files) {
-  const url = extensionApiPath(extensionKey, `import${!!projectId ? ('/' + projectId) : ''}`);
+  const url = extensionApiPath(extensionKey, `import${projectId ? (`/${projectId}`) : ''}`);
 
   return timeLimit(10000)(
     uploadFiles(url, {}, ...files)
       .then(resp => resp.json())
-      .then(json => {
+      .then((json) => {
         if (projectId === 'convert') {
           return json;
         }
         invariant(json && json.projectId, 'expect a project ID');
         return json.projectId;
-      })
+      }),
   );
 }
 
@@ -55,7 +56,7 @@ function importStringBase(payload, projectId) {
   invariant(typeof payload === 'object', 'payload must be object');
   invariant(typeof payload.string === 'string', 'must pass string to import');
 
-  const url = extensionApiPath(extensionKey, `import${projectId ? ('/' + projectId) : ''}`);
+  const url = extensionApiPath(extensionKey, `import${projectId ? (`/${projectId}`) : ''}`);
 
   return rejectingFetch(url, headersPost(JSON.stringify(payload)))
     .then(resp => resp.json());
@@ -73,7 +74,7 @@ export const importString = (genbankString, projectId, options = {}) => {
   const payload = Object.assign({}, options, { string: genbankString });
 
   return importStringBase(payload, projectId)
-    .then(json => {
+    .then((json) => {
       invariant(json && json.projectId, 'expect a project ID');
       return json.projectId;
     });

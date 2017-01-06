@@ -1,9 +1,9 @@
-import register from './register';
-import { isRegistered, onRegister, validRegion } from './clientRegistry';
-import { callExtensionApi as api } from '../middleware/extensions';
-import { dispatch } from '../store/index';
 import { projectFileWrite as write } from '../actions/projects';
-import { projectFileRead as read, projectFileList as list } from '../selectors/projects';
+import { callExtensionApi as api } from '../middleware/extensions';
+import { projectFileList as list, projectFileRead as read } from '../selectors/projects';
+import { dispatch } from '../store/index';
+import { isRegistered, onRegister, validRegion } from './clientRegistry';
+import register from './register';
 
 /**
  * `window.constructor.extensions`

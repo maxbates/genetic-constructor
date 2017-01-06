@@ -13,14 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import UserInterface from '../scenegraph2d/userinterface';
-import DnD from '../dnd/dnd';
-import Vector2D from '../geometry/vector2d';
-import Box2D from '../geometry/box2d';
-import { transact } from '../../../store/undo/actions';
-import Fence from './fence';
 import { dispatch } from '../../../store/index';
+import { transact } from '../../../store/undo/actions';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
+import DnD from '../dnd/dnd';
+import Box2D from '../geometry/box2d';
+import Vector2D from '../geometry/vector2d';
+import UserInterface from '../scenegraph2d/userinterface';
+import Fence from './fence';
 
 // # of pixels of mouse movement before a drag is triggered.
 const dragThreshold = 8;
@@ -32,6 +32,16 @@ const edgeThreshold = 20;
  * user interface overlay for construct viewer
  */
 export default class ConstructViewerUserInterface extends UserInterface {
+  static checkOS() {
+    let osType = 'unknown';
+    if (navigator.userAgent.indexOf('Windows', 0) >= 0) osType = 'win';
+    else if (navigator.userAgent.indexOf('Mac', 0) >= 0) osType = 'mac';
+    else if (navigator.userAgent.indexOf('Linux', 0) >= 0) osType = 'linux';
+    else if (navigator.userAgent.indexOf('X11', 0) >= 0) osType = 'unix';
+
+    return osType;
+  }
+
   constructor(sg) {
     super(sg);
     // register ourselves as a drop target
@@ -43,7 +53,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
       zorder: 0,
     });
 
-    this.osType = this.checkOS();
+    this.osType = ConstructViewerUserInterface.checkOS();
   }
 
   /**
@@ -52,7 +62,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
   selectNodesByRectangle(box) {
     const hits = this.sg.findNodesWithin(box);
     const parts = [];
-    hits.forEach(node => {
+    hits.forEach((node) => {
       const element = this.layout.elementFromNode(node);
       if (element) {
         parts.push(element);
@@ -125,7 +135,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     // initial test is an intersection test between draggable and blocks...
     let bestItem = null;
     const allNodesAndBlocks = this.layout.allNodesAndBlocks();
-    allNodesAndBlocks.forEach(item => {
+    allNodesAndBlocks.forEach((item) => {
       // bounds of node...
       item.AABB = item.node.getAABB();
       // intersection with dragged object
@@ -142,7 +152,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     });
     // if no intersections then try a proximity test
     if (!bestItem) {
-      allNodesAndBlocks.forEach(item => {
+      allNodesAndBlocks.forEach((item) => {
         // intersection with dragged object
         item.proximityX = item.AABB.proximityX(pbox);
         item.proximityY = item.AABB.proximityY(pbox);
@@ -187,10 +197,12 @@ export default class ConstructViewerUserInterface extends UserInterface {
   get construct() {
     return this.constructViewer.props.construct;
   }
+
   // syntax sugar to determine if collapsed
   get collapsed() {
     return this.layout.collapsed;
   }
+
   /**
    * mouse enter/leave are used to ensure no block is in the hover state
    */
@@ -201,7 +213,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
   mouseLeave(event) {
     this.setTitleHover();
   }
-
 
   /**
    * set hover state for title node
@@ -260,8 +271,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * mouse down handler, selection occurs on up since we have to wait to
    * see if a drag occurs first.
    */
-  mouseDown(evt, point) {
-  }
+  //eslint-disable-next-line class-methods-use-this
+  mouseDown(evt, point) {}
 
   /**
    * Might signal the end of fence drag or just a normal click
@@ -280,16 +291,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     } else {
       this.mouseSelect(evt, point);
     }
-  }
-
-  checkOS() {
-    let osType = 'unknown';
-    if (navigator.userAgent.indexOf('Windows', 0) >= 0) osType = 'win';
-    else if (navigator.userAgent.indexOf('Mac', 0) >= 0) osType = 'mac';
-    else if (navigator.userAgent.indexOf('Linux', 0) >= 0) osType = 'linux';
-    else if (navigator.userAgent.indexOf('X11', 0) >= 0) osType = 'unix';
-
-    return osType;
   }
 
   metaKey(evt) {
@@ -339,6 +340,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     }
     return false;
   }
+
   /**
    * true if the point is in the title expander node ( looks like a triangle )
    * @param  {[type]} evt   [description]
@@ -398,50 +400,51 @@ export default class ConstructViewerUserInterface extends UserInterface {
       // act according to region clicked
       const globalPoint = this.mouseTrap.mouseToGlobal(evt);
       const region = this.getBlockRegion(block, globalPoint);
+
       switch (region.where) {
-
-      case 'triangle':
-        const node = this.layout.nodeFromElement(block);
-        node.showChildren = !node.showChildren;
-        this.constructViewer.update();
-        // change replace to add if opening the menu
-        if (action === 'replace') {
-          action = 'add';
+        case 'triangle': {
+          const node = this.layout.nodeFromElement(block);
+          node.showChildren = !node.showChildren;
+          this.constructViewer.update();
+          // change replace to add if opening the menu
+          if (action === 'replace') {
+            action = 'add';
+          }
+          break;
         }
-        break;
 
-      case 'option':
-        // user might have clicked an 'empty list' placeholder, otherwise select the option
-        if (region.optionId) {
-          this.constructViewer.optionSelected(region.blockId, region.optionId);
-          action = 'optionSelect';
-        }
-        break;
+        case 'option':
+          // user might have clicked an 'empty list' placeholder, otherwise select the option
+          if (region.optionId) {
+            this.constructViewer.optionSelected(region.blockId, region.optionId);
+            action = 'optionSelect';
+          }
+          break;
 
-      default:
-        break;
+        default:
+          break;
       }
       // perform the final selection action using block
       switch (action) {
-      case 'toggle' :
-        this.constructViewer.blockToggleSelected([block]);
-        break;
-      case 'add':
-        this.constructViewer.blockAddToSelectionsRange(block, this.selectedElements);
-        break;
-      case 'optionSelect':
-        break;
-      default:
-        if (this.blockIsFocused(block) && (this.construct.isAuthoring() || !this.construct.isFixed())) {
-          const name = this.layout.partName(block);
-          const bat = this.getBlockEditorBoundsAndTarget(block);
-          this.constructViewer.showInlineEditor(value => {
-            this.constructViewer.renameBlock(block, value);
-          }, name, bat.bounds, 'inline-editor-block', bat.target);
-        } else {
-          this.constructViewer.blockSelected([block]);
-        }
-        break;
+        case 'toggle' :
+          this.constructViewer.blockToggleSelected([block]);
+          break;
+        case 'add':
+          this.constructViewer.blockAddToSelectionsRange(block, this.selectedElements);
+          break;
+        case 'optionSelect':
+          break;
+        default:
+          if (this.blockIsFocused(block) && (this.construct.isAuthoring() || !this.construct.isFixed())) {
+            const name = this.layout.partName(block);
+            const bat = this.getBlockEditorBoundsAndTarget(block);
+            this.constructViewer.showInlineEditor((value) => {
+              this.constructViewer.renameBlock(block, value);
+            }, name, bat.bounds, 'inline-editor-block', bat.target);
+          } else {
+            this.constructViewer.blockSelected([block]);
+          }
+          break;
       }
     } else {
       // clear block selections
@@ -453,7 +456,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         if (this.isConstructTitleNode(topNode)) {
           this.selectConstruct();
           const bat = this.getTitleEditorBoundsAndTarget();
-          this.constructViewer.showInlineEditor(value => {
+          this.constructViewer.showInlineEditor((value) => {
             this.constructViewer.renameBlock(this.construct.id, value);
           }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
           topNode.set({ hover: false });
@@ -470,7 +473,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const node = this.layout.nodeFromElement(blockId);
     const target = node.el;
     const bounds = new Box2D(target.getBoundingClientRect());
-    return {target, bounds};
+    return { target, bounds };
   }
 
   /**
@@ -485,7 +488,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     bounds.width = Math.max(bounds.width, this.layout.sceneGraph.availableWidth / 2);
     bounds.top += 6;
     bounds.height -= 12;
-    return {target, bounds};
+    return { target, bounds };
   }
 
   /**
@@ -515,8 +518,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
   /**
    * return an indication of where in the block this point lies.
    * {
-   * 	where: ['none', 'main, 'dots', 'option']
-   * 	// with additional properties as per the region hit
+   *  where: ['none', 'main, 'dots', 'option']
+   *  // with additional properties as per the region hit
    * }
    */
   getBlockRegion(block, globalPoint) {
@@ -566,9 +569,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
    *
    */
   get selectedElements() {
-    return this.selections.map((node) => {
-      return this.layout.elementFromNode(node);
-    });
+    return this.selections.map(node => this.layout.elementFromNode(node));
   }
 
   /**
@@ -579,6 +580,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
   blockIsFocused(blockId) {
     return this.constructViewer.props.focus.blockIds.indexOf(blockId) >= 0;
   }
+
   /**
    * move drag handler, if the user initiates a drag of a block hand over
    * to the DND manager to handle
@@ -631,28 +633,25 @@ export default class ConstructViewerUserInterface extends UserInterface {
         DnD.startDrag(proxy, globalPoint, {
           item: blockIds,
           source: 'construct-viewer',
-          copying: copying,
+          copying,
         }, {
           undoRedoTransaction: true,
         });
-      } else {
+      } else if (!this.fence) {
         // start a fence drag if not over a part
-        if (!this.fence) {
-          this.constructViewer.constructSelected(this.constructViewer.props.constructId);
-          // clear current selections unless shift pressed
-          if (!evt.shiftKey) {
-            this.constructViewer.blockSelected([]);
-          }
-          this.fence = new Fence(this, point);
+
+        this.constructViewer.constructSelected(this.constructViewer.props.constructId);
+        // clear current selections unless shift pressed
+        if (!evt.shiftKey) {
+          this.constructViewer.blockSelected([]);
         }
+        this.fence = new Fence(this, point);
       }
-    } else {
-      if (this.fence) {
-        // mousetrap sends local mouse position but we want the global one for
-        // autoscrolling in the canvas
-        this.constructViewer.props.mouseScroll(this.mouseTrap.mouseToGlobal(evt));
-        this.fence.update(point);
-      }
+    } else if (this.fence) {
+      // mousetrap sends local mouse position but we want the global one for
+      // autoscrolling in the canvas
+      this.constructViewer.props.mouseScroll(this.mouseTrap.mouseToGlobal(evt));
+      this.fence.update(point);
     }
   }
 
@@ -675,7 +674,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
       const clone = node.cloneNode(true);
       clone.style.position = 'absolute';
       clone.style.left = `${x}px`;
-      clone.style.top = `0px`;
+      clone.style.top = '0px';
       clone.style.transform = null;
       clone.style.opacity = (1 / limit) * (limit - i);
       div.appendChild(clone);
@@ -806,8 +805,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
       this.el.appendChild(this.insertionEdgeEl);
     }
     this.insertionEdgeEl.style.display = 'block';
-    this.insertionEdgeEl.style.left = x + 'px';
-    this.insertionEdgeEl.style.top = y - 10 + 'px';
+    this.insertionEdgeEl.style.left = `${x}px`;
+    this.insertionEdgeEl.style.top = `${y - 10}px`;
   }
 
   /**
@@ -829,10 +828,10 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const node = this.layout.nodeFromElement(block);
     const AABB = node.getAABB();
     // position insertion element at the appropriate edge
-    this.insertionBlockEl.style.left = AABB.x - 6 + 'px';
-    this.insertionBlockEl.style.top = AABB.y - 6 + 'px';
-    this.insertionBlockEl.style.width = AABB.w + 1 + 'px';
-    this.insertionBlockEl.style.height = AABB.h + 1 + 'px';
+    this.insertionBlockEl.style.left = `${AABB.x - 6}px`;
+    this.insertionBlockEl.style.top = `${AABB.y - 6}px`;
+    this.insertionBlockEl.style.width = `${AABB.w + 1}px`;
+    this.insertionBlockEl.style.height = `${AABB.h + 1}px`;
 
     // save the current insertion point
     this.insertion = { block, node };

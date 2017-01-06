@@ -14,24 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import Block from '../../src/models/Block';
-import Project from '../../src/models/Project';
 import Order from '../../src/models/Order';
+import Project from '../../src/models/Project';
 import * as validators from '../../src/schemas/fields/validators';
 import { id as idRegex } from '../../src/utils/regex';
+import { errorInvalidId, errorNoIdProvided } from './errors';
 
-import { errorNoIdProvided, errorInvalidId } from './errors';
+export const validateBlock = instance => Block.validate(instance, false);
 
-export const validateBlock = (instance) => {
-  return Block.validate(instance, false);
-};
+export const validateProject = instance => Project.validate(instance, false);
 
-export const validateProject = (instance) => {
-  return Project.validate(instance, false);
-};
-
-export const validateOrder = instance => {
-  return Order.validate(instance, false);
-};
+export const validateOrder = instance => Order.validate(instance, false);
 
 export const validateId = id => idRegex().test(id);
 

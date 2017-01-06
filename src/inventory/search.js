@@ -14,7 +14,8 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { registry, getSources } from './registry';
+
+import { getSources, registry } from './registry';
 
 /**
  * Searching across inventories loaded in Constructor.
@@ -76,7 +77,7 @@ export const search = (term, parameters = {}, sourceKey) => {
     Promise.resolve([]) :
     registry[sourceKey].search(term, parameters);
 
-  return searchPromise.then(results => {
+  return searchPromise.then((results) => {
     invariant(typeof results.parameters === 'object', 'must attach parameters object to results array');
     return { [sourceKey]: results };
   });

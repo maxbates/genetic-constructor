@@ -16,12 +16,13 @@
 
 import invariant from 'invariant';
 import _ from 'lodash';
+
+import { id as idRegex } from '../utils/regex';
+import BlockSchema from './Block';
+import ProjectSchema from './Project';
+import SchemaClass from './SchemaClass';
 import fields from './fields/index';
 import * as validators from './fields/validators';
-import SchemaClass from './SchemaClass';
-import ProjectSchema from './Project';
-import BlockSchema from './Block';
-import { id as idRegex } from '../utils/regex';
 
 const sequenceMd5Validator = validators.sequenceMd5({ real: true });
 const sequenceValidator = validators.sequence();
@@ -65,15 +66,11 @@ const rollupFields = {
 
   sequences: [
     fields.oneOfType([
-      validators.arrayOf((value) => {
-        return sequenceValidator(value.sequence) || seqObjectBlocksValidator(value.blocks);
-      }),
+      validators.arrayOf(value => sequenceValidator(value.sequence) || seqObjectBlocksValidator(value.blocks)),
       //todo - deprecate this one in the future
-      validators.objectOf((value, key) => {
-        return sequenceMd5Validator(key) || sequenceValidator(value);
-      }),
+      validators.objectOf((value, key) => sequenceMd5Validator(key) || sequenceValidator(value)),
     ]),
-    `Sequences, transiently part of the rollup, e.g. to batch write`,
+    'Sequences, transiently part of the rollup, e.g. to batch write',
     { avoidScaffold: true },
   ],
 };
@@ -94,8 +91,8 @@ export class RollupSchemaClass extends SchemaClass {
         const acceptedKeys = ['schema', 'blocks', 'project', 'sequences'];
         const keys = Object.keys(instance);
 
-        invariant(keys.length <= acceptedKeys.length, 'too many keys: ' + keys.join(', '));
-        invariant(keys.every(key => acceptedKeys.indexOf(key) >= 0), 'unknown key: ' + keys.join(', '));
+        invariant(keys.length <= acceptedKeys.length, `too many keys: ${keys.join(', ')}`);
+        invariant(keys.every(key => acceptedKeys.indexOf(key) >= 0), `unknown key: ${keys.join(', ')}`);
 
         const projectId = instance.project.id;
 

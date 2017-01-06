@@ -15,10 +15,10 @@ limitations under the License.
 */
 import { combineReducers } from 'redux';
 
-import modals from './ui/modals';
+import detailView from './ui/detailView';
 import inspector from './ui/inspector';
 import inventory from './ui/inventory';
-import detailView from './ui/detailView';
+import modals from './ui/modals';
 
 export default combineReducers({
   modals,

@@ -16,8 +16,8 @@
 
 import paletteAnime from './paletteAnime';
 import paletteBright from './paletteBright';
-import palettePastel from './palettePastel';
 import paletteNature from './paletteNature';
+import palettePastel from './palettePastel';
 
 const paletteLength = 16;
 
@@ -28,16 +28,16 @@ export const palettes = ['anime', 'bright', 'pastel', 'nature'];
 
 export function getPalette(name) {
   switch (name) {
-  case 'bright':
-    return paletteBright;
-  case 'pastel':
-    return palettePastel;
-  case 'nature':
-    return paletteNature;
-  case 'anime':
-  case 'default':
-  default:
-    return paletteAnime;
+    case 'bright':
+      return paletteBright;
+    case 'pastel':
+      return palettePastel;
+    case 'nature':
+      return paletteNature;
+    case 'anime':
+    case 'default':
+    default:
+      return paletteAnime;
   }
 }
 
@@ -65,4 +65,4 @@ export function resetColorSeed() {
 
 export function isHex(val) { return /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(val); }
 
-export function randomHex() { return '#' + Math.floor(Math.random() * Math.pow(2, 24)).toString(16); }
+export function randomHex() { return `#${Math.floor(Math.random() * (2 ** 24)).toString(16)}`; }

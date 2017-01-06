@@ -13,11 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import path from 'path';
 import fs from 'fs';
-import { pickBy } from 'lodash';
-import { validateManifest, manifestIsServer, manifestIsClient } from './manifestUtils';
+import path from 'path';
+
 import debug from 'debug';
+import { pickBy } from 'lodash';
+
+import { manifestIsClient, manifestIsServer, validateManifest } from './manifestUtils';
 
 const logger = debug('constructor:extensions');
 
@@ -27,11 +29,11 @@ const registry = {};
 
 //note - this should include the 'native' extensions -- these wont show up in registry currently
 
-fs.readdirSync(nodeModulesDir).forEach(packageName => {
+fs.readdirSync(nodeModulesDir).forEach((packageName) => {
   try {
     //skip the test extensions unless we're in the test environment
     if (packageName.startsWith('test') && process.env.NODE_ENV !== 'test') {
-      logger('skipping ' + packageName);
+      logger(`skipping ${packageName}`);
       return;
     }
 
@@ -41,11 +43,11 @@ fs.readdirSync(nodeModulesDir).forEach(packageName => {
       return;
     }
 
-    logger('loading ' + packageName + '...');
+    logger(`loading ${packageName}...`);
 
     //future process.env.BUILD support (if not already handled by line above)
-    const filePath = path.resolve(nodeModulesDir, packageName + '/package.json');
-    const depManifest = require(filePath);
+    const filePath = path.resolve(nodeModulesDir, `${packageName}/package.json`);
+    const depManifest = require(filePath); //eslint-disable-line import/no-dynamic-require
 
     validateManifest(depManifest);
 
@@ -53,7 +55,7 @@ fs.readdirSync(nodeModulesDir).forEach(packageName => {
       [packageName]: depManifest,
     });
   } catch (err) {
-    console.warn('\n\nerror loading extension, omitting: ' + packageName);
+    console.warn(`\n\nerror loading extension, omitting: ${packageName}`);
     console.log(err);
 
     if (!logger.enabled) {
@@ -63,25 +65,15 @@ fs.readdirSync(nodeModulesDir).forEach(packageName => {
   }
 });
 
-console.log('[Extensions] Extensions included:' + Object.keys(registry));
+console.log(`[Extensions] Extensions included:${Object.keys(registry)}`);
 
-export const isRegistered = (name) => {
-  return registry.hasOwnProperty(name);
-};
+export const isRegistered = name => Object.prototype.hasOwnProperty.call(registry, name);
 
 //each filter takes arguments (manifest, key), should return true or false
-export const getExtensions = (...filters) => {
-  return filters.reduce((acc, filter) => {
-    return pickBy(acc, filter);
-  }, registry);
-};
+export const getExtensions = (...filters) => filters.reduce((acc, filter) => pickBy(acc, filter), registry);
 
-export const getClientExtensions = (...filters) => {
-  return getExtensions(manifestIsClient, ...filters);
-};
+export const getClientExtensions = (...filters) => getExtensions(manifestIsClient, ...filters);
 
-export const getServerExtensions = (...filters) => {
-  return getExtensions(manifestIsServer, ...filters);
-};
+export const getServerExtensions = (...filters) => getExtensions(manifestIsServer, ...filters);
 
 export default registry;

@@ -48,14 +48,12 @@ function debouncer(wait = 250, immediate = false) {
  * @param {string} searchTerm
  * @returns {string} Search term
  */
-export const inventorySetSearchTerm = (searchTerm) => {
-  return (dispatch, getState) => {
-    dispatch({
-      type: ActionTypes.INVENTORY_SET_SEARCH_TERM,
-      searchTerm,
-    });
-    return searchTerm;
-  };
+export const inventorySetSearchTerm = searchTerm => (dispatch, getState) => {
+  dispatch({
+    type: ActionTypes.INVENTORY_SET_SEARCH_TERM,
+    searchTerm,
+  });
+  return searchTerm;
 };
 
 export const inventorySearchReset = () => {
@@ -81,33 +79,31 @@ export const inventorySearchReset = () => {
  * @resolve {Object} Search results, keyed by search Source
  * @reject {null}
  */
-export const inventorySearch = (inputTerm = '', options = null, skipDebounce = false, waitForAll = false) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { sourceList } = state.inventory;
-    const searchTerm = (typeof inputTerm !== 'undefined') ? inputTerm : state.inventory.searchTerm;
+export const inventorySearch = (inputTerm = '', options = null, skipDebounce = false, waitForAll = false) => (dispatch, getState) => {
+  const state = getState();
+  const { sourceList } = state.inventory;
+  const searchTerm = (typeof inputTerm !== 'undefined') ? inputTerm : state.inventory.searchTerm;
     //note -- not documented
-    const callback = (typeof waitForAll === 'function') ? waitForAll : () => {};
+  const callback = (typeof waitForAll === 'function') ? waitForAll : () => {};
 
-    dispatch({
-      type: ActionTypes.INVENTORY_SEARCH,
-      sourceList,
-      searchTerm,
-    });
+  dispatch({
+    type: ActionTypes.INVENTORY_SEARCH,
+    sourceList,
+    searchTerm,
+  });
 
-    if (!inputTerm.length) {
-      return Promise.resolve();
-    }
+  if (!inputTerm.length) {
+    return Promise.resolve();
+  }
 
     //debounce initiation of searches
-    return debouncer(500, skipDebounce)
+  return debouncer(500, skipDebounce)
       .then(() => {
         //if passed a callback, use callback for updates as each source resolves
         if (!waitForAll) {
           const results = {};
-          const promises = sourceList.map(source => {
-            return searchApi.search(searchTerm, options, source)
-              .then(resultObject => {
+          const promises = sourceList.map(source => searchApi.search(searchTerm, options, source)
+              .then((resultObject) => {
                 //update the result object
                 dispatch({
                   type: ActionTypes.INVENTORY_SEARCH_RESOLVE_PARTIAL,
@@ -120,8 +116,7 @@ export const inventorySearch = (inputTerm = '', options = null, skipDebounce = f
                 callback(getState().inventory.searchResults, source);
 
                 return resultObject;
-              });
-          });
+              }));
 
           //call callback at start
           callback(results, null);
@@ -134,7 +129,7 @@ export const inventorySearch = (inputTerm = '', options = null, skipDebounce = f
         //otherwise, just execute and wait for all to resolve
         return searchApi.searchMultiple(searchTerm, options, sourceList);
       })
-      .then(searchResults => {
+      .then((searchResults) => {
         dispatch({
           type: ActionTypes.INVENTORY_SEARCH_RESOLVE,
           searchResults,
@@ -143,64 +138,60 @@ export const inventorySearch = (inputTerm = '', options = null, skipDebounce = f
         });
         return searchResults;
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch({
           type: ActionTypes.INVENTORY_SEARCH_REJECT,
           searchTerm,
         });
         return null;
       });
-  };
 };
 
-export const inventorySearchPaginate = (source) => {
-  return (dispatch, getState) => {
-    const state = getState().inventory;
-    const { searchTerm, searchResults, searching } = state;
-    const results = searchResults[source];
+export const inventorySearchPaginate = source => (dispatch, getState) => {
+  const state = getState().inventory;
+  const { searchTerm, searchResults, searching } = state;
+  const results = searchResults[source];
 
-    if (!searchTerm || !!searching || !results.length) {
-      return false;
-    }
+  if (!searchTerm || !!searching || !results.length) {
+    return false;
+  }
 
-    const lastParameters = results.parameters;
+  const lastParameters = results.parameters;
 
-    const moreResults = Number.isInteger(results.count) ?
+  const moreResults = Number.isInteger(results.count) ?
     results.length < results.count :
     results.length % lastParameters.entries === 0;
 
-    if (!moreResults) {
-      return false;
-    }
+  if (!moreResults) {
+    return false;
+  }
 
-    const parameters = {
-      start: results.length,
-      entries: lastParameters.entries,
-    };
-
-    dispatch({
-      type: ActionTypes.INVENTORY_SEARCH_PAGINATE,
-      source,
-      parameters,
-      searchTerm,
-    });
-
-    return searchApi.search(searchTerm, parameters, source)
-    .catch(err => {
-      console.error(err); //eslint-disable-line no-console
-      return Object.assign([], { parameters });
-    })
-    .then((resultObject) => {
-      dispatch({
-        type: ActionTypes.INVENTORY_SEARCH_PAGINATE_RESOLVE,
-        source,
-        patch: resultObject,
-        searchTerm,
-      });
-    });
+  const parameters = {
+    start: results.length,
+    entries: lastParameters.entries,
   };
-};
 
+  dispatch({
+    type: ActionTypes.INVENTORY_SEARCH_PAGINATE,
+    source,
+    parameters,
+    searchTerm,
+  });
+
+  return searchApi.search(searchTerm, parameters, source)
+      .catch((err) => {
+        console.error(err); //eslint-disable-line no-console
+        return Object.assign([], { parameters });
+      })
+      .then((resultObject) => {
+        dispatch({
+          type: ActionTypes.INVENTORY_SEARCH_PAGINATE_RESOLVE,
+          source,
+          patch: resultObject,
+          searchTerm,
+        });
+      });
+};
 
 /**
  * Toggle whether the sources view is open
@@ -209,26 +200,24 @@ export const inventorySearchPaginate = (source) => {
  * @param {boolean} [waitForAll=false] See inventorySearch
  * @returns {boolean} Whether showing now
  */
-export const inventoryShowSourcesToggling = (forceState, waitForAll) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { sourcesToggling, sourceList, lastSearch, searchTerm } = state.inventory;
+export const inventoryShowSourcesToggling = (forceState, waitForAll) => (dispatch, getState) => {
+  const state = getState();
+  const { sourcesToggling, sourceList, lastSearch, searchTerm } = state.inventory;
 
-    const nextState = (forceState !== undefined) ? !!forceState : !sourcesToggling;
-    dispatch({
-      type: ActionTypes.INVENTORY_SOURCES_VISIBILITY,
-      nextState,
-    });
+  const nextState = (forceState !== undefined) ? !!forceState : !sourcesToggling;
+  dispatch({
+    type: ActionTypes.INVENTORY_SOURCES_VISIBILITY,
+    nextState,
+  });
 
     //if not toggling any more, check if need to run a new search
-    if (!nextState) {
-      if (sourceList.some(source => lastSearch.sourceList.indexOf(source) < 0)) {
-        dispatch(inventorySearch(searchTerm, null, true, waitForAll));
-      }
+  if (!nextState) {
+    if (sourceList.some(source => lastSearch.sourceList.indexOf(source) < 0)) {
+      dispatch(inventorySearch(searchTerm, null, true, waitForAll));
     }
+  }
 
-    return nextState;
-  };
+  return nextState;
 };
 
 /**
@@ -237,19 +226,17 @@ export const inventoryShowSourcesToggling = (forceState, waitForAll) => {
  * @param {Array} sourceList List of sources
  * @returns {Array} Sources now using
  */
-export const inventorySetSources = (sourceList = []) => {
-  return (dispatch, getState) => {
-    if (!(sourceList.length && sourceList.every(source => searchSources.indexOf(source) >= 0))) {
-      return getState().inventory.sourceList;
-    }
+export const inventorySetSources = (sourceList = []) => (dispatch, getState) => {
+  if (!(sourceList.length && sourceList.every(source => searchSources.indexOf(source) >= 0))) {
+    return getState().inventory.sourceList;
+  }
 
-    dispatch({
-      type: ActionTypes.INVENTORY_SET_SOURCES,
-      sourceList,
-    });
+  dispatch({
+    type: ActionTypes.INVENTORY_SET_SOURCES,
+    sourceList,
+  });
 
-    return sourceList;
-  };
+  return sourceList;
 };
 
 /**
@@ -258,27 +245,25 @@ export const inventorySetSources = (sourceList = []) => {
  * @param {string} source
  * @returns {Array} List of active sources
  */
-export const inventoryToggleSource = (source) => {
-  return (dispatch, getState) => {
-    if (searchSources.indexOf(source) < 0) {
-      return null;
-    }
+export const inventoryToggleSource = source => (dispatch, getState) => {
+  if (searchSources.indexOf(source) < 0) {
+    return null;
+  }
 
-    const sourceList = getState().inventory.sourceList.slice();
+  const sourceList = getState().inventory.sourceList.slice();
 
     //xor, reset if empty
-    const indexOfSource = sourceList.indexOf(source);
-    if (indexOfSource >= 0) {
-      sourceList.splice(indexOfSource, 1);
-      if (sourceList.length === 0) {
-        sourceList.push(...getSources('search'));
-      }
-    } else {
-      sourceList.push(source);
+  const indexOfSource = sourceList.indexOf(source);
+  if (indexOfSource >= 0) {
+    sourceList.splice(indexOfSource, 1);
+    if (sourceList.length === 0) {
+      sourceList.push(...getSources('search'));
     }
+  } else {
+    sourceList.push(source);
+  }
 
-    return dispatch(inventorySetSources(sourceList));
-  };
+  return dispatch(inventorySetSources(sourceList));
 };
 
 /**
@@ -289,16 +274,14 @@ export const inventoryToggleSource = (source) => {
  * @param {string} source
  * @returns {Object} Map of sources to whether they are visible
  */
-export const inventoryToggleSourceVisible = (source) => {
-  return (dispatch, getState) => {
-    const { sourcesVisible } = getState().inventory;
-    const nextState = Object.assign({}, sourcesVisible, { [source]: !sourcesVisible[source] });
+export const inventoryToggleSourceVisible = source => (dispatch, getState) => {
+  const { sourcesVisible } = getState().inventory;
+  const nextState = Object.assign({}, sourcesVisible, { [source]: !sourcesVisible[source] });
 
-    dispatch({
-      type: ActionTypes.INVENTORY_SOURCES_VISIBLE,
-      sourcesVisible: nextState,
-    });
+  dispatch({
+    type: ActionTypes.INVENTORY_SOURCES_VISIBLE,
+    sourcesVisible: nextState,
+  });
 
-    return nextState;
-  };
+  return nextState;
 };

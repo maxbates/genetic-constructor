@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
+
 import { uiSetGrunt } from '../actions/ui';
 
 import '../../src/styles/ribbongrunt.css';
@@ -23,15 +24,11 @@ import '../../src/styles/ribbongrunt.css';
 const DISPLAY_TIME = 5000;
 
 class RibbonGrunt extends Component {
-
   static propTypes = {
     gruntMessage: PropTypes.string,
     uiSetGrunt: PropTypes.func.isRequired,
   };
 
-  constructor() {
-    super();
-  }
 
   // if we going to show a message then start or extend the close timer
   componentWillReceiveProps(nextProps) {
@@ -41,10 +38,10 @@ class RibbonGrunt extends Component {
     }
   }
 
-  close() {
+  close = () => {
     window.clearTimeout(this.closeTimer);
     this.props.uiSetGrunt('');
-  }
+  };
 
   cancelTimer() {
     window.clearTimeout(this.closeTimer);
@@ -54,7 +51,7 @@ class RibbonGrunt extends Component {
     const classes = `ribbongrunt ${this.props.gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}`;
     return (
       <div className={classes}>{this.props.gruntMessage}
-        <button onClick={this.close.bind(this)}>&times;</button>
+        <button onClick={this.close}>&times;</button>
       </div>
     );
   }

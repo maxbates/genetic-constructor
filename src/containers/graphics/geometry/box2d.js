@@ -14,8 +14,9 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import Vector2D from './vector2d';
+
 import Line2D from './line2d';
+import Vector2D from './vector2d';
 
 export default class Box2D {
   /**
@@ -35,31 +36,27 @@ export default class Box2D {
       this.y = y;
       this.w = w;
       this.h = h;
-    } else {
-      if (arguments.length === 1) {
+    } else if (arguments.length === 1) {
         // map the properties ( keys ), if present, to our
         // named property ( the values )
-        this.extend(arguments[0], {
-          x: 'x',
-          left: 'x',
-          y: 'y',
-          top: 'y',
-          w: 'w',
-          h: 'h',
-          width: 'w',
-          height: 'h',
-          right: 'r',
-          bottom: 'b',
-          r: 'r',
-          b: 'b',
-        });
-      } else {
-        if (arguments.length === 0) {
-          this.x = this.y = this.w = this.h = 0;
-        } else {
-          throw new Error('Bad parameters');
-        }
-      }
+      this.extend(arguments[0], {
+        x: 'x',
+        left: 'x',
+        y: 'y',
+        top: 'y',
+        w: 'w',
+        h: 'h',
+        width: 'w',
+        height: 'h',
+        right: 'r',
+        bottom: 'b',
+        r: 'r',
+        b: 'b',
+      });
+    } else if (arguments.length === 0) {
+      this.x = this.y = this.w = this.h = 0;
+    } else {
+      throw new Error('Bad parameters');
     }
   }
 
@@ -68,6 +65,7 @@ export default class Box2D {
    * renaming them to the given target property name
    */
   extend(from, props) {
+    //eslint-disable-next-line no-restricted-syntax
     for (const key in props) {
       // hasOwnProperty fails on ClientRect, plus this ensures its a number
       if (from[key] === +from[key]) {
@@ -244,7 +242,7 @@ export default class Box2D {
       Math.min(this.x, this.right),
       Math.min(this.y, this.bottom),
       Math.abs(this.w),
-      Math.abs(this.h)
+      Math.abs(this.h),
     );
   }
 
@@ -310,7 +308,7 @@ export default class Box2D {
     const uni = new Box2D(
       Math.min(this.x, box.x),
       Math.min(this.y, box.y),
-      0, 0
+      0, 0,
     );
 
     uni.right = Math.max(this.right, box.x + box.w);
@@ -330,14 +328,14 @@ export default class Box2D {
   getEdge(nth) {
     invariant(nth >= 0 && nth < 4, 'Bad parameter');
     switch (nth) {
-    case 0:
-      return new Line2D(new Vector2D(this.x, this.y), new Vector2D(this.right, this.y));
-    case 1:
-      return new Line2D(new Vector2D(this.right, this.y), new Vector2D(this.right, this.bottom));
-    case 2:
-      return new Line2D(new Vector2D(this.right, this.bottom), new Vector2D(this.x, this.bottom));
-    default:
-      return new Line2D(new Vector2D(this.x, this.bottom), new Vector2D(this.x, this.y));
+      case 0:
+        return new Line2D(new Vector2D(this.x, this.y), new Vector2D(this.right, this.y));
+      case 1:
+        return new Line2D(new Vector2D(this.right, this.y), new Vector2D(this.right, this.bottom));
+      case 2:
+        return new Line2D(new Vector2D(this.right, this.bottom), new Vector2D(this.x, this.bottom));
+      default:
+        return new Line2D(new Vector2D(this.x, this.bottom), new Vector2D(this.x, this.y));
     }
   }
 

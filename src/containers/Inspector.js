@@ -15,13 +15,13 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
 import SectionIcon from './SectionIcon';
 import {
   inspectorToggleVisibility,
   inspectorSelectTab,
 } from '../actions/ui';
 import { _getFocused } from '../selectors/focus';
-
 import InspectorGroup from '../components/Inspector/InspectorGroup';
 
 import '../styles/Inspector.css';
@@ -101,7 +101,7 @@ export class Inspector extends Component {
     }
 
     return (
-      <div className={'SidePanel Inspector' + (isVisible ? ' visible' : '')}>
+      <div className={`SidePanel Inspector${isVisible ? ' visible' : ''}`}>
         <div className="container">
           <div className="vertical-menu">
             {icons}
@@ -133,7 +133,7 @@ function mapStateToProps(state, props) {
   if (type === 'option') {
     const blockId = state.focus.blockIds[0];
     const block = state.blocks[blockId];
-    if (!!block) {
+    if (block) {
       Object.assign(overrides, {
         color: block.getColor(),
         role: block.getRole(false),

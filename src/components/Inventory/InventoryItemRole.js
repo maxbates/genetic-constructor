@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+
 import { role as roleDragType } from '../../constants/DragTypes';
 import Block from '../../models/Block';
 import InventoryItem from './InventoryItem';
@@ -48,7 +49,7 @@ export default class InventoryItemRole extends Component {
 
   state = {
     inside: false,
-  }
+  };
 
   render() {
     const { role, ...rest } = this.props;

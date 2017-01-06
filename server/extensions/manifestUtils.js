@@ -13,7 +13,7 @@ export function validateManifest(manifest) {
 
   invariant(!!client || !!router, 'must specify client or router for extension');
 
-  if (!!client) {
+  if (client) {
     invariant(Array.isArray(client), 'geneticConstructor.client must be array');
     invariant(client.every(clientObj => typeof clientObj.file === 'string'), 'each client extension object must have a file');
     invariant(client.every(clientObj => typeof clientObj.region === 'string' || clientObj.region === null), 'each client extension object must have a region, or define region as null');
@@ -24,7 +24,7 @@ export function validateManifest(manifest) {
     invariant(regions.length === [...regionSet].length, 'can only have one client extension per region');
   }
 
-  if (!!router) {
+  if (router) {
     invariant(typeof router === 'string' && router.endsWith('.js'), 'must specify javascript router as file');
   }
 
@@ -73,7 +73,7 @@ export function manifestClientRegions(manifest) {
 //given a manifest (where only one file for a given region) and a region, find the file
 export function getClientFileFromRegion(manifest, region) {
   invariant(manifestIsClient(manifest), 'must pass client manifest');
-  const finder = (clientObj) => clientObj.region === region;
+  const finder = clientObj => clientObj.region === region;
   const found = manifest.geneticConstructor.client.find(finder);
 
   return found ? found.file : null;

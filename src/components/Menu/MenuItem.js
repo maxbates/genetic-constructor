@@ -77,7 +77,7 @@ export default class MenuItem extends Component {
     const indent = this.props.checked === true || this.props.checked === false;
     let check = null;
     if (indent) {
-      check = <div className={this.props.checked ? 'menu-item-checked' : 'menu-item-unchecked'}></div>;
+      check = <div className={this.props.checked ? 'menu-item-checked' : 'menu-item-unchecked'} />;
     }
     // short cut if any
     const shortcut = this.props.shortcut && (
@@ -104,7 +104,7 @@ export default class MenuItem extends Component {
       );
     }
 
-    let classes = 'menu-item' + (this.props.disabled ? ' disabled' : '');
+    let classes = `menu-item${this.props.disabled ? ' disabled' : ''}`;
     if (this.props.classes) {
       classes += ` ${this.props.classes}`;
     }
