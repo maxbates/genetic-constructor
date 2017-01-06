@@ -4,11 +4,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  margin-right: 0.5rem;
 
   img {
     cursor: pointer;
-    width: 43pt;
-    height: 43pt;
+    filter: brightness(20%);
   }
 }

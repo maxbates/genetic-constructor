@@ -1,6 +1,6 @@
 
 var openInspectorPanel= function(browser, sectionName) {
-  var sectionSelector = `.SidePanel.Inspector.visible .open [data-section="${sectionName}"][data-selected="true"]`;
+  var sectionSelector = `.SidePanel.Inspector.visible [data-section="${sectionName}"][data-selected="true"]`;
   browser
   // make sure inspector is present
   .waitForElementPresent('.SidePanel.Inspector', 5000, 'Expected Inspector');

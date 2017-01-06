@@ -55,12 +55,14 @@ export default class Expando extends Component {
       this.mouseTrap = new MouseTrap({
         element: ReactDOM.findDOMNode(this.refs.label),
         mouseDrag: (event, localPosition, startPosition, distance) => {
-          // cancel mouse drag and start a drag and drop
-          this.mouseTrap.cancelDrag();
-          // get global point as starting point for drag
-          const globalPoint = this.mouseTrap.mouseToGlobal(event);
-          // callback to owner
-          this.props.startDrag(globalPoint);
+          if (distance > 12) {
+            // cancel mouse drag and start a drag and drop
+            this.mouseTrap.cancelDrag();
+            // get global point as starting point for drag
+            const globalPoint = this.mouseTrap.mouseToGlobal(event);
+            // callback to owner
+            this.props.startDrag(globalPoint);
+          }
         },
       });
     }

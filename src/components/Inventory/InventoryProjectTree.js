@@ -16,7 +16,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { blockStash } from '../../actions/blocks';
-import InventorySearch from './InventorySearch';
 import {
   projectCreate,
   projectAddConstruct,
@@ -80,11 +79,11 @@ export class InventoryProjectTree extends Component {
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowOkCancel: PropTypes.func.isRequired,
     blocks: PropTypes.object.isRequired,
+    filter: PropTypes.string.isRequired,
   };
 
   state = {
     isLoading: true,
-    filter: InventoryProjectTree.filter || '',
   };
 
   //will retrigger on each load
@@ -93,10 +92,6 @@ export class InventoryProjectTree extends Component {
     .then(() => this.setState({ isLoading: false }));
   }
 
-  handleFilterChange = (filter) => {
-    InventoryProjectTree.filter = filter;
-    this.setState({ filter });
-  };
 
   /**
    * when a project is expanded, we need to load to get the blocks and also inspect it
@@ -188,8 +183,6 @@ export class InventoryProjectTree extends Component {
     }
     return items;
   }
-
-  static filter = '';
 
   /**
    * create a new project and navigate to it.
@@ -371,7 +364,7 @@ export class InventoryProjectTree extends Component {
       const project = projects[projectId];
       if (this.props.templates === !!project.rules.frozen) {
         const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
-        const filter = this.state.filter.toLowerCase();
+        const filter = this.props.filter.toLowerCase();
         if (name.indexOf(filter) >= 0) {
           filtered[projectId] = projects[projectId];
         }
@@ -404,10 +397,6 @@ export class InventoryProjectTree extends Component {
 
     return (
       <div>
-        <InventorySearch searchTerm={this.state.filter}
-                         disabled={false}
-                         placeholder="Filter projects"
-                         onSearchChange={this.handleFilterChange}/>
         <div className="inventory-project-tree">
           <Tree items={treeItems}/>
         </div>

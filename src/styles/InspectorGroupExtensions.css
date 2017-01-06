@@ -28,7 +28,7 @@
       .value {
         width: 60%;
         color: var(--colors-nearlyBlack);
-        font-family: var(--font-family-bold);
+        font-weight: bold;
       }
     }
   }

@@ -26,7 +26,6 @@
     text-overflow: ellipsis;
 
     .InventoryItem-text {
-      margin-left: 0.5em;
     }
   }
 
@@ -37,8 +36,7 @@
     justify-content: flex-start;
     align-items: center;
     cursor: pointer;
-    padding: 2px 5px;
-    margin: 1px 0;
+    padding-top: 4px;
     width: 100%;
     max-width: 100%;
   }

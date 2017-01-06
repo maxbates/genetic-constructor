@@ -48,7 +48,7 @@ export default class InventoryGroupBlocks extends Component {
                          placeholder="Filter by name or biological function"
                          onSearchChange={this.handleSearchChange}/>
 
-        <div className="InventoryGroup-contentInner no-vertical-scroll">
+        <div className="InventoryGroup-contentInner">
           {listingItems.map(item => {
             return (<InventoryItemBlock key={item.id}
                                         block={item}/>);

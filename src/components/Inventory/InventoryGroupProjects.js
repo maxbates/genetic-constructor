@@ -18,6 +18,7 @@ import { connect } from 'react-redux';
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
+import InventorySearch from './InventorySearch';
 import {
   projectAddConstruct,
   projectSave,
@@ -53,10 +54,19 @@ class InventoryGroupProjects extends Component {
 
   state = {
     groupBy: 'project',
+    filter: '',
   };
 
   onTabSelect = (key) => {
     this.setState({ groupBy: key });
+  };
+
+  /**
+   * project filter changed
+   * @param filter
+   */
+  handleFilterChange = (filter) => {
+    this.setState({ filter });
   };
 
   render() {
@@ -64,14 +74,20 @@ class InventoryGroupProjects extends Component {
     const { groupBy } = this.state;
     const currentList = groupBy === 'type'
       ? <InventoryRoleMap />
-      : <InventoryProjectTree currentProjectId={currentProjectId} templates={this.props.templates}/>;
+      : <InventoryProjectTree filter={this.state.filter} currentProjectId={currentProjectId} templates={this.props.templates}/>;
 
     return (
       <div className="InventoryGroup-content InventoryGroupProjects">
         <InventoryTabs tabs={this.inventoryTabs}
                        activeTabKey={groupBy}
                        onTabSelect={(tab) => this.onTabSelect(tab.key)}/>
-        <div className="InventoryGroup-contentInner no-vertical-scroll">
+        {groupBy !== 'type' ?
+        <InventorySearch searchTerm={this.state.filter}
+                         disabled={false}
+                         placeholder="Search"
+                         onSearchChange={this.handleFilterChange}/>
+        : null }
+        <div className="InventoryGroup-contentInner">
           {currentList}
         </div>
       </div>
