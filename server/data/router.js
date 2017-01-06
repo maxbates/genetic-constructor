@@ -30,6 +30,7 @@ import projectFileRouter from './routerProjectFiles';
 import jobFileRouter from './routerJobs';
 import sequenceRouter from './routerSequences';
 import snapshotRouter from './routerSnapshots';
+import mostRecentProject from './persistence/util/mostRecentProject'
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json({
@@ -199,6 +200,10 @@ router.route('/projects')
 
     return projectPersistence.getUserProjects(user.uuid, false)
       .then(rolls => rolls.map(roll => roll.project))
+      .then(manifests => {
+        res.set('Last-Project-ID', mostRecentProject(manifests).id)
+        return manifests;
+      })
       .then(manifests => res.status(200).json(manifests))
       .catch(err => next(err));
   });

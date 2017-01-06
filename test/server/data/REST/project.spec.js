@@ -71,6 +71,20 @@ describe('Server', () => {
             .end(done);
         });
 
+        it('GET all projects returns last updated project ID in response header', (done) => {
+          const url = '/data/projects';
+          request(server)
+            .get(url)
+            .expect(200)
+            .expect('Content-Type', /json/)
+            .expect(result => {
+              assert(result.get('Last-Project-ID') != null, '\'Last-Project-Id\' not found in response header');
+              assert(result.get('Last-Project-ID') === projectData.id, 'incorrect \'Last-Project-Id\' value');
+              assert(Array.isArray(result.body));
+            })
+            .end(done);
+        });
+
         //future
         //it('GET supports a depth query parameter');
 
