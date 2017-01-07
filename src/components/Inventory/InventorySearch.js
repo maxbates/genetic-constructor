@@ -32,13 +32,14 @@ export default class InventorySearch extends Component {
   render() {
     return (
       <div className="InventorySearch">
-        <input className="InventorySearch-input"
-               type="text"
-               disabled={this.props.disabled ? true : null}
-               value={this.props.searchTerm}
-               maxLength={100}
-               placeholder={this.props.placeholder || 'Keyword, biological function'}
-               onChange={this.handleSearchChange}
+        <input
+          className="InventorySearch-input"
+          type="text"
+          disabled={this.props.disabled ? true : null}
+          value={this.props.searchTerm}
+          maxLength={100}
+          placeholder={this.props.placeholder || 'Keyword, biological function'}
+          onChange={this.handleSearchChange}
         />
         <div className="InventorySearch-progress" />
       </div>

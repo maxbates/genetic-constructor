@@ -131,19 +131,20 @@ export class ProjectDetail extends Component {
           <div
             ref="resizeHandle"
             className="ProjectDetail-open-resizeHandle"
-            onMouseDown={this.handleResizableMouseDown}>
-          </div>
+            onMouseDown={this.handleResizableMouseDown}
+          />
           <div className="ProjectDetail-open-header">
             {/* Left side of header, extension tabls */}
             <div className="ProjectDetail-open-header-left">
-              {this.extensions.map(key => {
+              {this.extensions.map((key) => {
                 const name = getExtensionName(key);
                 const active = key === currentExtension ? ' ProjectDetail-open-header-left-active' : '';
-                const className = 'ProjectDetail-open-header-left-extension' + active;
+                const className = `ProjectDetail-open-header-left-extension${active}`;
                 return (
-                  <a key={key}
-                     className={className}
-                     onClick={() => this.openExtension(key)}
+                  <a
+                    key={key}
+                    className={className}
+                    onClick={() => this.openExtension(key)}
                   >{name}
                   </a>
                 );
@@ -158,21 +159,24 @@ export class ProjectDetail extends Component {
               />
             </div>
           </div>
-          {currentExtension && (<ExtensionView region={projectDetailExtensionRegion}
-                                               isVisible
-                                               extension={currentExtension}/>) }
+          {currentExtension && (<ExtensionView
+            region={projectDetailExtensionRegion}
+            isVisible
+            extension={currentExtension}
+          />) }
         </div>
       );
     }
     // just a list of extensions if closed
     return (
       <div className="ProjectDetail-closed">
-        {this.extensions.map(key => {
+        {this.extensions.map((key) => {
           const name = getExtensionName(key);
           return (
-            <a key={key}
-               className="ProjectDetail-closed-extension"
-               onClick={() => this.openExtension(key)}
+            <a
+              key={key}
+              className="ProjectDetail-closed-extension"
+              onClick={() => this.openExtension(key)}
             >{name}
             </a>
           );

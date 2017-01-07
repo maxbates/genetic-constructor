@@ -17,9 +17,9 @@ import { chain } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 
 import { block as blockDragType } from '../../constants/DragTypes';
+import '../../styles/InventorySearchResultGroup.css';
 import InventoryList from './InventoryList';
 import InventoryListGroup from './InventoryListGroup';
-import '../../styles/InventorySearchResultGroup.css';
 
 export default class InventorySearchResultsByKind extends Component {
   static propTypes = {

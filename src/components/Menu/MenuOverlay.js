@@ -16,11 +16,12 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import Box2D from '../../containers/graphics/geometry/box2d';
-import SubMenu from './SubMenu';
-import { uiShowMenu } from '../../actions/ui';
 
 import '../../../src/styles/MenuOverlay.css';
+import { uiShowMenu } from '../../actions/ui';
+import Box2D from '../../containers/graphics/geometry/box2d';
+import SubMenu from './SubMenu';
+
 /**
  * Elements that holds the active menu and blocks access to the page behind it.
  */
@@ -118,14 +119,14 @@ class MenuOverlay extends Component {
     // size and position hat and menu
     const psize = this.props.menuHat ? 20 : 0;
     const pointerPosition = {
-      width: psize + 'px',
-      height: psize + 'px',
-      left: pos.x - 10 + 'px',
-      top: pos.y + 'px',
+      width: `${psize}px`,
+      height: `${psize}px`,
+      left: `${pos.x - 10}px`,
+      top: `${pos.y}px`,
     };
     const menuPosition = {
-      left: pos.x - 10 + 'px',
-      top: pos.y + psize / 2 + 'px',
+      left: `${pos.x - 10}px`,
+      top: `${pos.y + (psize / 2)}px`,
     };
     // to be called after render, react sucks
     if (!this.measured) {
@@ -149,7 +150,7 @@ class MenuOverlay extends Component {
         onMouseDown={this.mouseOverlay}
       >
         {this.props.menuHat
-          ? <div className="menu-overlay-pointer" style={pointerPosition}></div>
+          ? <div className="menu-overlay-pointer" style={pointerPosition} />
           : null
         }
         <SubMenu

@@ -56,16 +56,14 @@ export const inventorySetSearchTerm = searchTerm => (dispatch, getState) => {
   return searchTerm;
 };
 
-export const inventorySearchReset = () => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { sourceList } = state.inventory;
-    dispatch({
-      type: ActionTypes.INVENTORY_SEARCH_RESET,
-      sourceList,
-    });
-    return Promise.resolve();
-  };
+export const inventorySearchReset = () => (dispatch, getState) => {
+  const state = getState();
+  const { sourceList } = state.inventory;
+  dispatch({
+    type: ActionTypes.INVENTORY_SEARCH_RESET,
+    sourceList,
+  });
+  return Promise.resolve();
 };
 
 /**

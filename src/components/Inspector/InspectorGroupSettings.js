@@ -15,9 +15,9 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
-import { userLogout } from '../../actions/user';
 
+import { uiSetGrunt, uiShowAuthenticationForm } from '../../actions/ui';
+import { userLogout } from '../../actions/user';
 import '../../styles/InspectorGroupSettings.css';
 
 class InspectorGroupSettings extends Component {
@@ -47,8 +47,8 @@ class InspectorGroupSettings extends Component {
 
   render() {
     return (<div className="InspectorGroupSettings">
-      <a onClick={this.onAccountSettings} href="#">Account Settings</a>
-      <a onClick={this.onLogOut} href="#">Sign Out</a>
+      <a onClick={this.onAccountSettings}>Account Settings</a>
+      <a onClick={this.onLogOut}>Sign Out</a>
     </div>);
   }
 }
@@ -62,4 +62,3 @@ export default connect(mapStateToProps, {
   userLogout,
   uiSetGrunt,
 })(InspectorGroupSettings);
-

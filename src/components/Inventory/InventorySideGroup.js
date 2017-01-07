@@ -14,30 +14,31 @@
  limitations under the License.
  */
 
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 
 import '../../styles/InventorySideGroup.css';
 
-export default class InventorySideGroup extends Component {
-  static propTypes = {
-    title: PropTypes.string.isRequired,
-    icon: PropTypes.string.isRequired, //todo
-    type: PropTypes.string.isRequired,
-    isActive: PropTypes.bool.isRequired,
-    setActive: PropTypes.func.isRequired,
-  };
+export default function InventorySideGroup(props) {
+  const { title, icon, isActive, setActive } = props;
 
-  render() {
-    const { title, type, icon, isActive, setActive, ...rest } = this.props;
-
-    return (
-      <div className={'InventorySideGroup' + (isActive ? ' active' : '')}
-           onClick={setActive}>
-        <div className="InventorySideGroup-icon"
-             title={title}>
-          {icon}
-        </div>
+  return (
+    <div
+      className={`InventorySideGroup${isActive ? ' active' : ''}`}
+      onClick={setActive}
+    >
+      <div
+        className="InventorySideGroup-icon"
+        title={title}
+      >
+        {icon}
       </div>
-    );
-  }
+    </div>
+  );
 }
+
+InventorySideGroup.propTypes = {
+  title: PropTypes.string.isRequired,
+  icon: PropTypes.string.isRequired, //todo
+  isActive: PropTypes.bool.isRequired,
+  setActive: PropTypes.func.isRequired,
+};

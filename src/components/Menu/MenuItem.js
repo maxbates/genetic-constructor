@@ -14,11 +14,11 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import SubMenu from './SubMenu';
-import Arrow from '../ui/Arrow';
-import { stringToShortcut } from '../../utils/ui/keyboard-translator';
 
 import '../../styles/MenuItem.css';
+import { stringToShortcut } from '../../utils/ui/keyboard-translator';
+import Arrow from '../ui/Arrow';
+import SubMenu from './SubMenu';
 
 /**
  * Popup window class. Accepts any component as it client.
@@ -64,11 +64,11 @@ export default class MenuItem extends Component {
    * delicate switch around opening and closing
    */
   onMouseEnter = () => {
-    this.setState({inside: true});
+    this.setState({ inside: true });
   };
 
   onMouseLeave = () => {
-    this.setState({inside: false});
+    this.setState({ inside: false });
   };
 
 
@@ -81,10 +81,11 @@ export default class MenuItem extends Component {
     }
     // short cut if any
     const shortcut = this.props.shortcut && (
-        <div
-          className="menu-item-shortcut"
-          disabled={this.props.disabled}>{stringToShortcut(this.props.shortcut)}
-        </div>);
+    <div
+      className="menu-item-shortcut"
+      disabled={this.props.disabled}
+    >{stringToShortcut(this.props.shortcut)}
+    </div>);
     // text
     const text = (<div className="text">{this.props.text}</div>);
     // arrow
@@ -92,7 +93,7 @@ export default class MenuItem extends Component {
     if (this.props.menuItems && this.props.menuItems.length) {
       subMenu = (
         <div className="arrow">
-          <Arrow direction="right" disabled={false}/>
+          <Arrow direction="right" disabled={false} />
           {this.state.inside &&
           <SubMenu
             menuItems={this.props.menuItems}

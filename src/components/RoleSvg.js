@@ -31,7 +31,6 @@ export default class RoleSvg extends Component {
     width: PropTypes.string,
     height: PropTypes.string,
     styles: PropTypes.object,
-    stroke: PropTypes.number,
     strokeWidth: PropTypes.number,
     classes: PropTypes.string,
     onClick: PropTypes.func,
@@ -107,6 +106,7 @@ export default class RoleSvg extends Component {
       onMouseLeave={this.props.onMouseLeave}
       style={style}
       className={classes}
-      dangerouslySetInnerHTML={{ __html: this.markup }} />);
+      dangerouslySetInnerHTML={{ __html: this.markup }}
+    />);
   }
 }

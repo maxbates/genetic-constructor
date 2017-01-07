@@ -19,64 +19,23 @@ import KeyboardTrap from 'mousetrap';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
+import { blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename } from '../actions/blocks';
+import { clipboardSetData } from '../actions/clipboard';
+import { focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../actions/focus';
+import { projectAddConstruct, projectCreate, projectOpen, projectSave } from '../actions/projects';
+import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiSetGrunt, uiShowGenBankImport, uiToggleDetailView } from '../actions/ui';
+import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import UserWidget from '../components/authentication/userwidget';
 import RibbonGrunt from '../components/ribbongrunt';
-import {
-  projectCreate,
-  projectAddConstruct,
-  projectSave,
-  projectOpen,
-  projectDelete,
-  projectList,
-  projectLoad,
-} from '../actions/projects';
-import {
-  focusBlocks,
-  focusBlocksAdd,
-  focusBlocksToggle,
-  focusConstruct,
-} from '../actions/focus';
-import { clipboardSetData } from '../actions/clipboard';
 import * as clipboardFormats from '../constants/clipboardFormats';
-import {
-  blockCreate,
-  blockDelete,
-  blockDetach,
-  blockClone,
-  blockRemoveComponent,
-  blockAddComponent,
-  blockAddComponents,
-  blockRename,
-} from '../actions/blocks';
-import {
-  blockGetParents,
-  blockGetComponentsRecursive,
-} from '../selectors/blocks';
-import { projectGetVersion } from '../selectors/projects';
-import { focusDetailsExist } from '../selectors/focus';
-import { undo, redo, transact, commit } from '../store/undo/actions';
-import {
-  uiShowGenBankImport,
-  uiToggleDetailView,
-  uiSetGrunt,
-  uiShowAbout,
-  inventorySelectTab,
-  inspectorToggleVisibility,
-  inventoryToggleVisibility,
-  uiShowDNAImport,
-  uiReportError,
-} from '../actions/ui';
-import {
-  sortBlocksByIndexAndDepth,
-  sortBlocksByIndexAndDepthExclude,
-  // tos,
-  // privacy,
-} from '../utils/ui/uiapi';
-import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
-import * as instanceMap from '../store/instanceMap';
 import { extensionApiPath } from '../middleware/utils/paths';
-
+import Rollup from '../models/Rollup';
+import { blockGetComponentsRecursive, blockGetParents } from '../selectors/blocks';
+import { projectGetVersion } from '../selectors/projects';
+import * as instanceMap from '../store/instanceMap';
+import { commit, redo, transact, undo } from '../store/undo/actions';
 import '../styles/GlobalNav.css';
+import { sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude } from '../utils/ui/uiapi';
 
 class GlobalNav extends Component {
   static propTypes = {
@@ -85,12 +44,9 @@ class GlobalNav extends Component {
     projectCreate: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
-    projectDelete: PropTypes.func.isRequired,
-    projectLoad: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string,
     blockCreate: PropTypes.func.isRequired,
     blockGetParents: PropTypes.func.isRequired,
-    focusDetailsExist: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     uiToggleDetailView: PropTypes.func.isRequired,
@@ -112,21 +68,8 @@ class GlobalNav extends Component {
     }).isRequired,
     blockGetComponentsRecursive: PropTypes.func.isRequired,
     blockAddComponents: PropTypes.func.isRequired,
-    uiShowAbout: PropTypes.func.isRequired,
-    uiShowDNAImport: PropTypes.func.isRequired,
-    uiReportError: PropTypes.func.isRequired,
-    inventoryVisible: PropTypes.bool.isRequired,
-    inspectorVisible: PropTypes.bool,
-    detailViewVisible: PropTypes.bool.isRequired,
     focus: PropTypes.object.isRequired,
     blocks: PropTypes.object,
-    project: PropTypes.shape({
-      rules: PropTypes.shape({
-        frozen: PropTypes.bool,
-      }),
-      getName: PropTypes.func,
-      metadata: PropTypes.object,
-    }),
   };
 
   static disgorgeDiscourse(path) {
@@ -251,12 +194,12 @@ class GlobalNav extends Component {
 
     //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
     //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
-    instanceMap.saveRollup({
+    instanceMap.saveRollup(new Rollup({
       project: projectWithConstruct,
       blocks: {
         [block.id]: block,
       },
-    });
+    }));
 
     this.props.focusConstruct(block.id);
     this.props.projectOpen(project.id);
@@ -673,7 +616,7 @@ class GlobalNav extends Component {
       <div className="GlobalNav">
         <RibbonGrunt />
         <div className="GlobalNav-logo">
-          <img src="/images/ui/main_logo.svg"  role="presentation" />
+          <img src="/images/ui/main_logo.svg" role="presentation" />
         </div>
         <div className="GlobalNav-appname">Genetic Constructor</div>
         <span className="GlobalNav-spacer" />
@@ -689,10 +632,6 @@ function mapStateToProps(state, props) {
     focus: state.focus,
     blocks: state.blocks,
     clipboard: state.clipboard,
-    inspectorVisible: state.ui.inspector.isVisible,
-    inventoryVisible: state.ui.inventory.isVisible,
-    detailViewVisible: state.ui.detailView.isVisible,
-    project: state.projects[props.currentProjectId],
     currentConstruct: state.blocks[state.focus.constructId],
   };
 }
@@ -702,8 +641,6 @@ export default connect(mapStateToProps, {
   projectCreate,
   projectSave,
   projectOpen,
-  projectDelete,
-  projectLoad,
   projectGetVersion,
   blockCreate,
   blockClone,
@@ -715,7 +652,6 @@ export default connect(mapStateToProps, {
   blockRemoveComponent,
   blockGetParents,
   blockGetComponentsRecursive,
-  uiShowDNAImport,
   inventorySelectTab,
   undo,
   redo,
@@ -723,14 +659,11 @@ export default connect(mapStateToProps, {
   commit,
   uiShowGenBankImport,
   uiToggleDetailView,
-  uiShowAbout,
   uiSetGrunt,
-  uiReportError,
   focusBlocks,
   focusBlocksAdd,
   focusBlocksToggle,
   focusConstruct,
-  focusDetailsExist,
   clipboardSetData,
   blockAddComponents,
 })(GlobalNav);

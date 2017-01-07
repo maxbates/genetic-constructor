@@ -14,10 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React from 'react';
+import { createDevTools } from 'redux-devtools';
 import DockMonitor from 'redux-devtools-dock-monitor';
 import LogMonitor from 'redux-devtools-log-monitor';
-
-import { createDevTools } from 'redux-devtools';
 
 // createDevTools takes a monitor and produces a DevTools component
 const DevTools = createDevTools(

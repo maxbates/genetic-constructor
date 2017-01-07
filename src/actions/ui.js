@@ -90,14 +90,12 @@ export const inventorySelectTab = tab => (dispatch, getState) => {
  * @param {string} tab Key of tab to be active
  * @returns {string} Tab active
  */
-export const inspectorSelectTab = (tab) => {
-  return (dispatch, getState) => {
-    dispatch({
-      type: ActionTypes.INSPECTOR_SELECT_TAB,
-      tab,
-    });
-    return tab;
-  };
+export const inspectorSelectTab = tab => (dispatch, getState) => {
+  dispatch({
+    type: ActionTypes.INSPECTOR_SELECT_TAB,
+    tab,
+  });
+  return tab;
 };
 
 /* detail view */
@@ -208,41 +206,35 @@ export const uiSetGrunt = gruntMessage => (dispatch, getState) => {
   return gruntMessage;
 };
 
-export const uiShowMenu = (menuItems, menuPosition, menuHat) => {
-  return (dispatch, getState) => {
-    dispatch({
-      type: ActionTypes.UI_SHOW_MENU,
-      menuItems,
-      menuPosition,
-      menuHat,
-    });
-    return {menuItems, menuPosition};
-  };
+export const uiShowMenu = (menuItems, menuPosition, menuHat) => (dispatch, getState) => {
+  dispatch({
+    type: ActionTypes.UI_SHOW_MENU,
+    menuItems,
+    menuPosition,
+    menuHat,
+  });
+  return { menuItems, menuPosition };
 };
 
-export const uiShowOkCancel = (title, message, onOk, onCancel = null, okText = 'Ok', cancelText = 'Cancel') => {
-  return (dispatch, getState) => {
-    dispatch({
-      type: ActionTypes.UI_OK_CANCEL,
-      title,
-      message,
-      onOk,
-      onCancel,
-      okText,
-      cancelText,
-    });
-    return title;
-  };
+export const uiShowOkCancel = (title, message, onOk, onCancel = null, okText = 'Ok', cancelText = 'Cancel') => (dispatch, getState) => {
+  dispatch({
+    type: ActionTypes.UI_OK_CANCEL,
+    title,
+    message,
+    onOk,
+    onCancel,
+    okText,
+    cancelText,
+  });
+  return title;
 };
 
-export const uiSpin = (spinMessage = '') => {
-  return (dispatch, getState) => {
-    dispatch({
-      type: ActionTypes.UI_SPIN,
-      spinMessage,
-    });
-    return spinMessage;
-  };
+export const uiSpin = (spinMessage = '') => (dispatch, getState) => {
+  dispatch({
+    type: ActionTypes.UI_SPIN,
+    spinMessage,
+  });
+  return spinMessage;
 };
 
 export const uiInlineEditor = (commit, value, position, className, target) => (dispatch, getState) => {
@@ -272,5 +264,4 @@ export const uiReportError = nextState => (dispatch, getState) => {
   });
   return null;
 };
-
 

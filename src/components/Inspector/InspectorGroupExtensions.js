@@ -15,39 +15,29 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Switch from '../ui/Switch';
-import registry from '../../extensions/clientRegistry';
+
 import {
-  extensionName,
   extensionAuthor,
+  extensionDescription,
+  extensionName,
   extensionRegion,
   extensionType,
-  extensionDescription,
   manifestIsClient,
   manifestIsServer,
 } from '../../../server/extensions/manifestUtils';
 import { userUpdateConfig } from '../../actions/user';
-import Expando from '../ui/Expando';
-
-import {
-  uiSetGrunt,
-} from '../../actions/ui';
-
+import registry from '../../extensions/clientRegistry';
 import '../../styles/InspectorGroupExtensions.css';
-
+import Expando from '../ui/Expando';
+import Switch from '../ui/Switch';
 
 class InspectorGroupExtensions extends Component {
   static propTypes = {
     config: PropTypes.object.isRequired,
-    uiSetGrunt: PropTypes.func.isRequired,
     userUpdateConfig: PropTypes.func.isRequired,
   };
 
-  constructor() {
-    super();
-    this.state = {};
-  }
-
+  state = {};
 
   /**
    * there is a delay loading extensions when the app starts. if we find none
@@ -61,9 +51,7 @@ class InspectorGroupExtensions extends Component {
     this.expectExtensions();
   }
 
-  checkExtensionActive = (extension) => {
-    return this.props.config.extensions[extension] && this.props.config.extensions[extension].active;
-  };
+  checkExtensionActive = extension => this.props.config.extensions[extension] && this.props.config.extensions[extension].active;
 
   extensionToggled = (extensionName) => {
     const update = Object.assign({}, this.props.config, {
@@ -107,7 +95,7 @@ class InspectorGroupExtensions extends Component {
             (<Switch
               key={index}
               on={this.checkExtensionActive(extension.name)}
-              switched={this.extensionToggled.bind(this, extension.name)}
+              switched={() => this.extensionToggled(extension.name)}
             />),
           ]}
           content={
@@ -122,7 +110,7 @@ class InspectorGroupExtensions extends Component {
               </div>
               <div className="row">
                 <div className="key">Author</div>
-                <div className="value">{values.Author.name ? values.Author.name + '\n' + values.Author.email : values.Author}</div>
+                <div className="value">{values.Author.name ? `${values.Author.name}\n${values.Author.email}` : values.Author}</div>
               </div>
             </div>
           }
@@ -139,7 +127,5 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  uiSetGrunt,
   userUpdateConfig,
 })(InspectorGroupExtensions);
-

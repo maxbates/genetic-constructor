@@ -17,9 +17,9 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { projectList } from '../../actions/projects';
-import InventorySearch from './InventorySearch';
-import InventoryProject from './InventoryProject';
 import Spinner from '../ui/Spinner';
+import InventoryProject from './InventoryProject';
+import InventorySearch from './InventorySearch';
 
 
 export class InventoryProjectList extends Component {
@@ -45,7 +45,7 @@ export class InventoryProjectList extends Component {
 
   handleFilterChange = (filter) => {
     InventoryProjectList.filter = filter;
-    this.setState({filter});
+    this.setState({ filter });
   };
 
   render() {
@@ -58,7 +58,7 @@ export class InventoryProjectList extends Component {
     // filter on isSample to separate templates from projects and also match
     // to the current search filter
     const filtered = {};
-    Object.keys(projects).forEach(projectId => {
+    Object.keys(projects).forEach((projectId) => {
       const project = projects[projectId];
       if (this.props.templates === !!project.isSample) {
         const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
@@ -71,16 +71,18 @@ export class InventoryProjectList extends Component {
 
     return (
       <div>
-        <InventorySearch searchTerm={this.state.filter}
-                         disabled={false}
-                         placeholder="Filter projects"
-                         onSearchChange={this.handleFilterChange}/>
+        <InventorySearch
+          searchTerm={this.state.filter}
+          disabled={false}
+          placeholder="Filter projects"
+          onSearchChange={this.handleFilterChange}
+        />
         <div className="InventoryProjectList">
 
           {Object.keys(filtered)
             .map(projectId => filtered[projectId])
             .sort((one, two) => two.metadata.created - one.metadata.created)
-            .map(project => {
+            .map((project) => {
               const projectId = project.id;
               const isActive = (projectId === currentProject);
 
@@ -88,7 +90,8 @@ export class InventoryProjectList extends Component {
                 <InventoryProject
                   key={projectId}
                   project={project}
-                  isActive={isActive} />
+                  isActive={isActive}
+                />
               );
             })}
         </div>

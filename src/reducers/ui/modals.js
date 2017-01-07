@@ -80,7 +80,7 @@ export default function modals(state = initialState, action) {
       return Object.assign({}, state, { menuItems, menuPosition, menuHat });
 
     case ActionTypes.UI_OK_CANCEL:
-      const {title, message, onOk, onCancel, okText, cancelText} = action;
+      const { title, message, onOk, onCancel, okText, cancelText } = action;
       return Object.assign({}, state, {
         title,
         message,

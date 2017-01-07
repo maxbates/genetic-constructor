@@ -56,11 +56,13 @@ export default class InventoryItemRole extends Component {
     const highlight = this.props.hover && this.state.inside;
 
     return (
-      <div className="InventoryItemRole"
-           onMouseEnter={() => this.setState({inside: true})}
-           onMouseLeave={() => this.setState({inside: false})}
+      <div
+        className="InventoryItemRole"
+        onMouseEnter={() => this.setState({ inside: true })}
+        onMouseLeave={() => this.setState({ inside: false })}
       >
-        <InventoryItem {...rest}
+        <InventoryItem
+          {...rest}
           inventoryType={roleDragType}
           svg={role.id}
           item={this.roleBlock}
@@ -69,7 +71,8 @@ export default class InventoryItemRole extends Component {
             color: highlight ? this.props.hover : '#1D222D',
             strokeWidth: 1,
           }}
-          dataAttribute={`sbol ${role.id}`}/>
+          dataAttribute={`sbol ${role.id}`}
+        />
       </div>
     );
   }

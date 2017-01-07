@@ -16,24 +16,18 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import {
-  blockMerge,
-  blockSetColor,
-  blockSetPalette,
-  blockSetRole,
-  blockRename,
-} from '../../actions/blocks';
+import { blockMerge, blockRename, blockSetColor, blockSetPalette, blockSetRole } from '../../actions/blocks';
 import Block from '../../models/Block';
-import { transact, commit, abort } from '../../store/undo/actions';
+import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
 import ColorAndPalettePicker from './../ui/ColorAndPalettePicker';
-import SBOLPicker from './../ui/SBOLPicker';
 import Expando from './../ui/Expando';
+import SBOLPicker from './../ui/SBOLPicker';
+import BlockNotes from './BlockNotes';
 import BlockSource from './BlockSource';
+import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
-import InspectorRow from './InspectorRow';
-import BlockNotes from './BlockNotes';
 
 export class InspectorBlock extends Component {
   static propTypes = {
@@ -267,29 +261,33 @@ export class InspectorBlock extends Component {
 
 
         { hasNotes
-          ? <Expando text={ type + ' Metadata'}
-                   content={<div className="InspectorContent-section">
-                              <BlockNotes notes={instances[0].notes}/>
-                            </div>}
-            />
+          ? <Expando
+            text={`${type} Metadata`}
+            content={<div className="InspectorContent-section">
+              <BlockNotes notes={instances[0].notes} />
+            </div>}
+          />
           : null
         }
         <Expando
           openByDefault
           text="Palette and Color"
-          content={<ColorAndPalettePicker current={this.currentColor()}
-                                          readOnly={readOnly}
-                                          palette={palette}
-                                          onSelectColor={this.selectColor}
-                                          onSelectPalette={this.selectPalette}
-                   />}
+          content={<ColorAndPalettePicker
+            current={this.currentColor()}
+            readOnly={readOnly}
+            palette={palette}
+            onSelectColor={this.selectColor}
+            onSelectPalette={this.selectPalette}
+          />}
         />
         <Expando
           openByDefault
           text="Symbol"
-          content={<SBOLPicker current={this.currentRoleSymbol()}
-                               readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList)) }
-                               onSelect={this.selectSymbol} />}
+          content={<SBOLPicker
+            current={this.currentRoleSymbol()}
+            readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList))}
+            onSelect={this.selectSymbol}
+          />}
         />
 
         <InspectorRow

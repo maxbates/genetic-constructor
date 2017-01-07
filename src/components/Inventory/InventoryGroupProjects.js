@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
@@ -48,10 +49,10 @@ export default class InventoryGroupProjects extends Component {
       ?
         <InventoryRoleMap />
       :
-        <InventoryProjectTree
+        (<InventoryProjectTree
           currentProjectId={currentProjectId}
           templates={this.props.templates}
-        />;
+        />);
 
     return (
       <div className="InventoryGroup-content InventoryGroupProjects">

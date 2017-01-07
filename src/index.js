@@ -21,7 +21,7 @@ import * as actionTypes from './constants/ActionTypes';
 import extensions from './extensions/_expose';
 import routes from './routes';
 import orchestrator from './store/api';
-import store, { getState, subscribe as storeSubscribe, lastAction } from './store/index';
+import store, { getState, lastAction, subscribe as storeSubscribe } from './store/index';
 
 render(
   <Provider store={store}>

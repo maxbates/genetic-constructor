@@ -125,7 +125,7 @@ export class InventoryProject extends Component {
             blockId={compId}
           />))
           :
-          (<div style={{padding: '0.25em 0 0 1em', userSelect: 'none', opacity: 0.5}}>No constructs</div>)
+          (<div style={{ padding: '0.25em 0 0 1em', userSelect: 'none', opacity: 0.5 }}>No constructs</div>)
         }
       </InventoryListGroup>
     );

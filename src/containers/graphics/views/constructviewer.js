@@ -19,50 +19,20 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import SceneGraph2D from '../scenegraph2d/scenegraph2d';
-import Layout from './layout.js';
-import {
-  blockCreate,
-  blockDelete,
-  blockDetach,
-  blockSetAuthoring,
-  blockSetListBlock,
-  blockAddComponent,
-  blockAddComponents,
-  blockClone,
-  blockRename,
-  blockRemoveComponent,
-} from '../../../actions/blocks';
-import {
-  uiShowDNAImport,
-  uiToggleDetailView,
-  inspectorToggleVisibility,
-  uiShowOrderForm,
-  uiInlineEditor,
-  uiShowMenu,
-  uiSetGrunt,
-} from '../../../actions/ui';
-import {
-  orderCreate,
-  orderList,
-  orderSetName,
-} from '../../../actions/orders';
-import {
-  blockGetParents,
-  blockGetComponentsRecursive,
-} from '../../../selectors/blocks';
-import { blockAddComponent, blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename, blockSetAuthoring, blockSetListBlock, blockSetRole } from '../../../actions/blocks';
+import { blockAddComponent, blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename, blockSetAuthoring, blockSetListBlock } from '../../../actions/blocks';
 import { focusBlockOption, focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../../actions/focus';
-import { orderCreate, orderGenerateConstructs, orderList, orderSetName } from '../../../actions/orders';
+import { orderCreate, orderList, orderSetName } from '../../../actions/orders';
 import { projectAddConstruct, projectRemoveConstruct } from '../../../actions/projects';
-import { inspectorToggleVisibility, uiInlineEditor, uiShowDNAImport, uiShowOrderForm, uiToggleDetailView } from '../../../actions/ui';
+import { inspectorToggleVisibility, uiInlineEditor, uiSetGrunt, uiShowDNAImport, uiShowMenu, uiShowOrderForm, uiToggleDetailView } from '../../../actions/ui';
 import RoleSvg from '../../../components/RoleSvg';
 import { role as roleDragType } from '../../../constants/DragTypes';
-import { blockGetParents } from '../../../selectors/blocks';
-import { projectGet, projectGetVersion } from '../../../selectors/projects';
+import { blockGetComponentsRecursive, blockGetParents } from '../../../selectors/blocks';
+import { projectGet } from '../../../selectors/projects';
 import '../../../styles/constructviewer.css';
 import '../../../styles/inline-editor.css';
+import SceneGraph2D from '../scenegraph2d/scenegraph2d';
 import UserInterface from './constructvieweruserinterface';
+import Layout from './layout';
 
 // static hash for matching viewers to constructs
 const idToViewer = {};
@@ -79,7 +49,6 @@ export class ConstructViewer extends Component {
     focusBlocksToggle: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     focusBlockOption: PropTypes.func.isRequired,
-    //currentBlock: PropTypes.array, //todo - remove
     blockCreate: PropTypes.func,
     blockClone: PropTypes.func,
     blockRename: PropTypes.func,
@@ -452,7 +421,7 @@ export class ConstructViewer extends Component {
         },
       },
       {
-        text: `Select Empty Blocks`,
+        text: 'Select Empty Blocks',
         disabled: false,
         action: () => {
           this.selectEmptyBlocks();

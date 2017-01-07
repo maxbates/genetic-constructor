@@ -16,12 +16,8 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import {
-  uiShowOkCancel,
-} from '../actions/ui';
-import ModalWindow from './modal/modalwindow';
-
 import '../styles/ok-cancel-form.css';
+import ModalWindow from './modal/modalwindow';
 
 /**
  * generic ok/cancel dialog, available via uiShowOkCancel action
@@ -34,7 +30,6 @@ class OkCancel extends Component {
     cancelText: PropTypes.string,
     onOk: PropTypes.func,
     onCancel: PropTypes.func,
-    uiShowOkCancel: PropTypes.func,
   };
 
   render() {
@@ -56,7 +51,7 @@ class OkCancel extends Component {
             >
               <div className="title">{this.props.title}</div>
               <div className="message">{this.props.message}</div>
-              <br/>
+              <br />
               <button type="submit">{this.props.okText}</button>
               <button
                 type="button"
@@ -72,9 +67,7 @@ class OkCancel extends Component {
 
           )}
           closeOnClickOutside
-          closeModal={(buttonText) => {
-
-          }}
+          closeModal={(buttonText) => {}}
         />
       </div>
     );
@@ -92,7 +85,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-export default connect(mapStateToProps, {
-  uiShowOkCancel,
-})(OkCancel);
-
+export default connect(mapStateToProps)(OkCancel);

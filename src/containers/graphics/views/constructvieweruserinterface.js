@@ -335,7 +335,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
       //   constructPopupMenuOpen: true,
       //   menuPosition: this.mouseTrap.mouseToGlobal(evt),
       // });
-      this.constructViewer.showConstructContextMenu( this.mouseTrap.mouseToGlobal(evt));
+      this.constructViewer.showConstructContextMenu(this.mouseTrap.mouseToGlobal(evt));
       return true;
     }
     return false;

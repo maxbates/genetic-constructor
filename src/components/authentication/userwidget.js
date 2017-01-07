@@ -17,12 +17,11 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import { uiShowAuthenticationForm, uiSetGrunt, uiShowMenu } from '../../actions/ui';
+import { uiSetGrunt, uiShowAuthenticationForm, uiShowMenu } from '../../actions/ui';
 import { userLogout } from '../../actions/user';
 import track from '../../analytics/ga';
-import Vector2D from '../../containers/graphics/geometry/vector2d';
 import Box2D from '../../containers/graphics/geometry/box2d';
-
+import Vector2D from '../../containers/graphics/geometry/vector2d';
 import '../../styles/userwidget.css';
 
 class UserWidget extends Component {
@@ -83,7 +82,7 @@ class UserWidget extends Component {
 
     return (
       <div className="userwidget">
-        <img onClick={this.onShowMenu} src="/images/ui/user.svg"/>
+        <img onClick={this.onShowMenu} src="/images/ui/user.svg" />
       </div>
     );
   }
