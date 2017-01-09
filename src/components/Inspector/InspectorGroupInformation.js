@@ -88,7 +88,7 @@ function mapStateToProps(state, props) {
   }
 
   const forceIsConstruct = (level === 'construct') ||
-    blockIds.some(blockId => this.props.project.components.indexOf(blockId) >= 0);
+    blockIds.some(blockId => props.project.components.indexOf(blockId) >= 0);
 
   const isAuthoring = !!state.focus.constructId && state.blocks[state.focus.constructId].isAuthoring() && focused.length === 1 && type !== 'project' && !readOnly;
 
