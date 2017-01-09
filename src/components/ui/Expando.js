@@ -31,6 +31,7 @@ export default class Expando extends Component {
     headerWidgets: PropTypes.array,
     bold: PropTypes.bool,
     onExpand: PropTypes.func,
+    onClick: PropTypes.func,
     onContextMenu: PropTypes.func,
     startDrag: PropTypes.func,
     showArrowWhenEmpty: PropTypes.bool,
@@ -69,13 +70,18 @@ export default class Expando extends Component {
   }
 
   /**
-   * toggle the open state and invoke the optional onExpand property.
+   * toggle the open state and invoke the optional onExpand / onClick callbacks
    */
-  onToggle = () => {
+  onClick = () => {
+    // toggle open state
     const open = !this.state.open;
     this.setState({ open });
     if (open && this.props.onExpand) {
       this.props.onExpand();
+    }
+    // send click event
+    if (this.props.onClick) {
+      this.props.onClick();
     }
   };
 
@@ -96,7 +102,7 @@ export default class Expando extends Component {
         <div className="header">
           <Arrow
             direction={this.state.open ? 'down' : 'right'}
-            onClick={this.onToggle}
+            onClick={this.onClick}
             hidden={!showArrow}
           />
           <Label
@@ -104,7 +110,7 @@ export default class Expando extends Component {
             text={this.props.text}
             bold={this.props.bold}
             hover
-            onClick={this.onToggle}
+            onClick={this.onClick}
             selected={this.props.selected}
             widgets={this.props.labelWidgets}
             showLock={this.props.showLock}

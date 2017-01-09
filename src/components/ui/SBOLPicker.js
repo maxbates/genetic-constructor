@@ -33,10 +33,6 @@ export default class SBOLPicker extends Component {
     };
   }
 
-  makeHoverText(symbolId) {
-    return symbolMap[symbolId] || symbolId || 'No Symbol';
-  }
-
   /**
    * user clicked on of the symbols identified by the bound id
    */
@@ -55,6 +51,10 @@ export default class SBOLPicker extends Component {
   onMouseLeave = () => {
     this.setState({hoverText: this.makeHoverText(this.props.current)});
   };
+
+  makeHoverText(symbolId) {
+    return symbolMap[symbolId] || symbolId || 'No Symbol';
+  }
 
   render() {
     const { current } = this.props;

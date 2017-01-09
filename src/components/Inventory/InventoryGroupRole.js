@@ -44,6 +44,13 @@ class InventoryGroupRole extends Component {
     current: { id: null, name: null },
   };
 
+  componentDidMount() {
+    this.mouseTrap = new MouseTrap({
+      element: ReactDOM.findDOMNode(this),
+      mouseDrag: this.mouseDrag.bind(this),
+    });
+  }
+
   onMouseEnter = (item) => {
     this.setState({ current: item });
   };
@@ -51,13 +58,6 @@ class InventoryGroupRole extends Component {
   onMouseLeave = () => {
     this.setState({ current: { id: null, name: null } });
   };
-
-  componentDidMount() {
-    this.mouseTrap = new MouseTrap({
-      element: ReactDOM.findDOMNode(this),
-      mouseDrag: this.mouseDrag.bind(this),
-    });
-  }
 
   mouseDrag(event, localPosition, startPosition, distance) {
     // cancel mouse drag and start a drag and drop

@@ -28,6 +28,9 @@ import {
 import {
   blockCreate,
 } from '../../actions/blocks';
+import {
+  blockGetParents,
+} from '../../selectors/blocks';
 import * as instanceMap from '../../store/instanceMap';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
@@ -59,6 +62,7 @@ export class InventoryProjectTree extends Component {
     currentProjectId: PropTypes.string,
     projects: PropTypes.object.isRequired,
     blockCreate: PropTypes.func.isRequired,
+    blockGetParents: PropTypes.func.isRequired,
     blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
     templates: PropTypes.bool.isRequired,
@@ -112,10 +116,10 @@ export class InventoryProjectTree extends Component {
    * when a block is expanded, show it in the inspector
    * @param projectId
    */
-  onExpandBlock(block, item) {
+  onClickBlock(block) {
     // if block/construct is from the current project focus the block/construct...
     if (block.projectId === this.props.currentProjectId) {
-      if (block.isConstruct()) {
+      if (!this.props.blockGetParents(block.id).length) {
         this.props.focusConstruct(block.id);
       } else {
         this.props.focusBlocks([block.id]);
@@ -144,16 +148,6 @@ export class InventoryProjectTree extends Component {
   }
 
   /**
-   * make a drag and drop proxy for the item
-   */
-  makeDnDProxy(block) {
-    const proxy = document.createElement('div');
-    proxy.className = 'InventoryItemProxy';
-    proxy.innerHTML = block.getName();
-    return proxy;
-  }
-
-  /**
    * block dragged from project inventory
    * @param block
    * @param globalPoint
@@ -164,35 +158,6 @@ export class InventoryProjectTree extends Component {
       type: blockDragType,
       source: 'inventory',
     });
-  }
-
-  /**
-   * build a nested set of tree items from the given components array
-   * @param components
-   */
-  getProjectBlocksRecursive(components, depth, maxDepth = Number.MAX_VALUE) {
-    const items = [];
-    if (depth < maxDepth) {
-      (components || []).forEach(blockId => {
-        const block = this.props.blocks[blockId] || instanceMap.getBlock(blockId);
-        if (block) {
-          const hasSequence = block.sequence && block.sequence.length > 0;
-          items.push({
-            block,
-            testid: block.id,
-            text: block.getName(),
-            textWidgets: [
-              hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }}/> : null,
-            ],
-            onExpand: this.onExpandBlock.bind(this, block),
-            items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
-            startDrag: this.onBlockDrag.bind(this, block),
-            locked: block.isFrozen(),
-          });
-        }
-      });
-    }
-    return items;
   }
 
   /**
@@ -237,22 +202,6 @@ export class InventoryProjectTree extends Component {
       'Cancel'
     );
   };
-
-  /**
-   * perform the actual deletion.
-   */
-  deleteProject(project) {
-    if (project.rules.frozen) {
-      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
-    } else {
-      //load another project, avoiding this one
-      this.props.projectLoad(null, false, [project.id])
-      //open the new project, skip saving the previous one
-      .then(openProject => this.props.projectOpen(openProject.id, true))
-      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-      .then(() => this.props.projectDelete(project.id));
-    }
-  }
 
   /**
    * add a new construct to the bound project ( initial model used for templates )
@@ -313,6 +262,63 @@ export class InventoryProjectTree extends Component {
       y: evt.pageY,
     });
   };
+
+
+  /**
+   * build a nested set of tree items from the given components array
+   * @param components
+   */
+  getProjectBlocksRecursive(components, depth, maxDepth = Number.MAX_VALUE) {
+    const items = [];
+    if (depth < maxDepth) {
+      (components || []).forEach(blockId => {
+        const block = this.props.blocks[blockId] || instanceMap.getBlock(blockId);
+        if (block) {
+          const hasSequence = block.sequence && block.sequence.length > 0;
+          items.push({
+            block,
+            testid: block.id,
+            text: block.getName(),
+            textWidgets: [
+              hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }}/> : null,
+            ],
+            onClick: this.onClickBlock.bind(this, block),
+            items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
+            startDrag: this.onBlockDrag.bind(this, block),
+            locked: block.isFrozen(),
+          });
+        }
+      });
+    }
+    return items;
+  }
+
+  /**
+   * make a drag and drop proxy for the item
+   */
+  makeDnDProxy(block) {
+    const proxy = document.createElement('div');
+    proxy.className = 'InventoryItemProxy';
+    proxy.innerHTML = block.getName();
+    return proxy;
+  }
+
+
+  /**
+   * perform the actual deletion.
+   */
+  deleteProject(project) {
+    if (project.rules.frozen) {
+      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
+    } else {
+      //load another project, avoiding this one
+      this.props.projectLoad(null, false, [project.id])
+      //open the new project, skip saving the previous one
+      .then(openProject => this.props.projectOpen(openProject.id, true))
+      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+      .then(() => this.props.projectDelete(project.id));
+    }
+  }
 
   /**
    * download the current file as a genbank file
@@ -428,6 +434,7 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   blockCreate,
   blockStash,
+  blockGetParents,
   projectCreate,
   projectAddConstruct,
   projectSave,

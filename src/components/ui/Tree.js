@@ -46,6 +46,16 @@ export default class Tree extends Component {
     }
   }
 
+  /**
+   * when a branch is clicked
+   * @param item
+   */
+  onClickBlock(item) {
+    if (item.onClick) {
+      item.onClick(item);
+    }
+  }
+
   render() {
     return (
       <div className="tree">
@@ -57,6 +67,7 @@ export default class Tree extends Component {
               <Expando
                 showArrowWhenEmpty={this.props.depth === 0}
                 onExpand={this.onExpandBranch.bind(this, item)}
+                onClick={this.onClickBlock.bind(this, item)}
                 key={index}
                 text={item.text}
                 testid={item.testid}

@@ -12,7 +12,7 @@ module.exports = {
     homepageRegister(browser);
     testProject(browser);
 
-    clickText(browser, "Sequence Viewer", '.ProjectDetail-closed-extension');
+    clickText(browser, "SEQUENCE VIEWER", '.ProjectDetail-closed-extension');
     browser.pause(2000);
     clickConstructTitle(browser, "New Construct");
     browser
