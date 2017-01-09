@@ -374,7 +374,7 @@ export class InventoryProjectTree extends Component {
       if (!one || !two) {
         return 0;
       }
-      return two.metadata.created - one.metadata.created
+      return two.metadata.created - one.metadata.created;
     })
     .map(project => ({
       text: project.getName(),
