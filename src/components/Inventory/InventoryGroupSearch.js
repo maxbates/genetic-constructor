@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { blockStash } from '../../actions/blocks';
-import { inventorySearch, inventorySearchPaginate, inventoryToggleSourceVisible } from '../../actions/inventory';
+import { inventorySearch, inventorySetSources, inventorySearchPaginate, inventoryToggleSourceVisible } from '../../actions/inventory';
 import InventorySearch from './InventorySearch';
 import InventorySearchResults from './InventorySearchResults';
 
@@ -99,6 +99,7 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps, {
   inventorySearch,
   inventorySearchPaginate,
+  inventorySetSources,
   inventoryToggleSourceVisible,
   blockStash,
 })(InventoryGroupSearch);

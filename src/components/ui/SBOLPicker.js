@@ -33,7 +33,7 @@ export default class SBOLPicker extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      hoverText: this.makeHoverText(props.current),
+      hoverText: SBOLPicker.makeHoverText(props.current),
     };
   }
 

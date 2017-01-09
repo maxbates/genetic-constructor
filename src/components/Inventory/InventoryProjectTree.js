@@ -15,6 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import { blockCreate } from '../../actions/blocks';
 import { focusConstruct, focusForceBlocks, focusForceProject } from '../../actions/focus';
@@ -265,7 +266,7 @@ export class InventoryProjectTree extends Component {
             textWidgets: [
               hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }} /> : null,
             ],
-            onExpand: this.onExpandBlock.bind(this, block),
+            onExpand: () => this.onExpandBlock(block),
             items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
             startDrag: () => InventoryProjectTree.onBlockDrag(block),
             locked: block.isFrozen(),
@@ -345,29 +346,36 @@ export class InventoryProjectTree extends Component {
   };
 
   render() {
-    const { projects, currentProjectId } = this.props;
+    const { projects, templates, currentProjectId } = this.props;
     const { isLoading } = this.state;
 
     if (isLoading) {
       return <Spinner />;
     }
-    // filter on frozen rule to separate templates from projects and also match to the current search filter
-    const filtered = {};
-    Object.keys(projects).forEach((projectId) => {
-      const project = projects[projectId];
-      if (this.props.templates === project.rules.frozen) {
-        const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
-        const filter = this.state.filter.toLowerCase();
-        if (name.indexOf(filter) >= 0) {
-          filtered[projectId] = projects[projectId];
-        }
-      }
-    });
 
-    // map projects to items for use in a tree
-    const treeItems = Object.keys(filtered)
-    .map(projectId => filtered[projectId])
-    .sort((one, two) => two.metadata.created - one.metadata.created)
+    const treeItems = _.chain(projects)
+    .pickBy((project) => {
+      //if want template, and dont have frozen project, skip
+      //double bang to handle undefined
+      if (!!templates !== !!project.rules.frozen) {
+        return false;
+      }
+
+      //if filtering, and name doesnt match, skip
+      const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
+      const filter = this.state.filter.toLowerCase();
+      if (!!filter && name.indexOf(filter) >= 0) {
+        return false;
+      }
+
+      return true;
+    })
+    .sortBy((one, two) => {
+      if (!one || !two) {
+        return 0;
+      }
+      return two.metadata.created - one.metadata.created
+    })
     .map(project => ({
       text: project.getName(),
       testid: project.id,
@@ -385,7 +393,8 @@ export class InventoryProjectTree extends Component {
           className="label-hover-bright"
         />,
       ],
-    }));
+    }))
+    .value();
 
     return (
       <div>

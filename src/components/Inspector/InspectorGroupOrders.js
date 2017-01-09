@@ -49,7 +49,7 @@ class InspectorGroupOrders extends Component {
         const flatOrders = orderLists.reduce((acc, orders) => {
           acc.push(...orders);
           return acc;
-        }, {});
+        }, []);
 
         this.setState({
           orders: flatOrders,
