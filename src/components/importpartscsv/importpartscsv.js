@@ -13,23 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
-import ModalWindow from '../modal/modalwindow';
-import Dropzone from 'react-dropzone';
-import {
-  uiShowPartsCSVImport,
-  uiSpin,
-} from '../../actions/ui';
-import {
-  blockStash,
-  blockOptionsAdd,
-} from '../../actions/blocks';
-import Block from '../../models/Block';
-import { importFile } from '../../middleware/csv';
 import invariant from 'invariant';
+import React, { Component, PropTypes } from 'react';
+import Dropzone from 'react-dropzone';
+import { connect } from 'react-redux';
 
 import '../../../src/styles/partscsv.css';
+import { blockOptionsAdd, blockStash } from '../../actions/blocks';
+import { uiShowPartsCSVImport, uiSpin } from '../../actions/ui';
+import { importFile } from '../../middleware/csv';
+import Block from '../../models/Block';
+import ModalWindow from '../modal/modalwindow';
 
 /**
  * Genbank import dialog.
@@ -63,16 +57,16 @@ class ImportPartsCSVModal extends Component {
     }
   }
 
-  onDrop(files) {
+  onDrop = (files) => {
     this.setState({ files });
-  }
+  };
 
-  onSubmit(evt) {
+  onSubmit = (evt) => {
     evt.preventDefault();
 
     // validate the prefix
-    const prefix = parseInt(this.refs.prefixInput.value, 10);
-    const suffix = parseInt(this.refs.suffixInput.value, 10);
+    const prefix = parseInt(this.prefixInput.value, 10);
+    const suffix = parseInt(this.suffixInput.value, 10);
 
     if (!isFinite(prefix) || prefix < 0 || prefix >= 10000) {
       this.setState({
@@ -113,7 +107,7 @@ class ImportPartsCSVModal extends Component {
         });
         this.props.uiSpin();
       })
-      .catch(reason => {
+      .catch((reason) => {
         this.setState({
           error: reason.statusText,
           processing: false,
@@ -121,12 +115,10 @@ class ImportPartsCSVModal extends Component {
         this.props.uiSpin();
       });
     }
-  }
+  };
 
   showFiles() {
-    const files = this.state.files.map((file, index) => {
-      return <div className="file-name" key={index}>{file.name}</div>;
-    });
+    const files = this.state.files.map((file, index) => <div className="file-name" key={index}>{file.name}</div>);
     return files;
   }
 
@@ -143,25 +135,27 @@ class ImportPartsCSVModal extends Component {
           payload={(
             <form
               disabled={this.state.processing}
-              onSubmit={this.onSubmit.bind(this)}
+              onSubmit={this.onSubmit}
               id="genbank-import-form"
-              className="gd-form genbank-import-form">
+              className="gd-form genbank-import-form"
+            >
               <div className="title">Import Parts into List Block</div>
               <div>
                 <div className="prefix-container">
-                  <label>Prefix</label>
-                  <input ref="prefixInput" type="number" defaultValue="0" min="0" max="10000"/>
+                  <label htmlFor="prefix">Prefix</label>
+                  <input name="prefix" ref={(el) => { this.prefixInput = el; }} type="number" defaultValue="0" min="0" max="10000" />
                 </div>
                 <div className="prefix-container">
-                  <label>Suffix</label>
-                  <input ref="suffixInput" type="number" defaultValue="0" min="0" max="10000"/>
+                  <label htmlFor="suffix">Suffix</label>
+                  <input name="suffix" ref={(el) => { this.suffixInput = el; }} type="number" defaultValue="0" min="0" max="10000" />
                 </div>
               </div>
               <Dropzone
-                onDrop={this.onDrop.bind(this)}
+                onDrop={this.onDrop}
                 className="dropzone"
                 activeClassName="dropzone-hot"
-                multiple={false}>
+                multiple={false}
+              >
                 <div className="dropzone-text">Drop Files Here</div>
               </Dropzone>
               {this.showFiles()}
@@ -172,17 +166,18 @@ class ImportPartsCSVModal extends Component {
                 disabled={this.state.processing}
                 onClick={() => {
                   this.props.uiShowPartsCSVImport(false);
-                }}>Cancel
+                }}
+              >Cancel
               </button>
               <div className="link">
                 <span>Format documentation and sample .CSV files can be found
-                    <a className="blue-link" href="https://geneticconstructor.readme.io/v0.1/docs/csv-upload" target="_blank"> here</a>
+                    <a className="blue-link" href="https://geneticconstructor.readme.io/v0.1/docs/csv-upload" target="_blank" rel="noopener noreferrer"> here</a>
                 </span>
               </div>
             </form>
           )}
           closeOnClickOutside
-          closeModal={buttonText => {
+          closeModal={(buttonText) => {
             this.props.uiShowPartsCSVImport(false);
           }}
         />

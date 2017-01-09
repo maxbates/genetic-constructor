@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import invariant from 'invariant';
+
 export default class FiniteStateMachine {
 
   constructor(fsm) {

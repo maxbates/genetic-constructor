@@ -13,9 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import * as ActionTypes from '../constants/ActionTypes';
-import { LOCATION_CHANGE } from 'react-router-redux';
 import invariant from 'invariant';
+import { LOCATION_CHANGE } from 'react-router-redux';
+
+import * as ActionTypes from '../constants/ActionTypes';
 
 export const initialState = {
   forceProject: null, //forced model
@@ -30,90 +31,90 @@ export const initialState = {
 
 export default function inventory(state = initialState, action) {
   switch (action.type) {
-  case ActionTypes.FOCUS_FORCE_PROJECT:
-    const { project } = action;
-    return Object.assign({}, state, {
-      forceBlocks: [],
-      blockIds: [],
-      constructId: null,
-      forceProject: project,
-      roleId: null,
-      level: 'project',
-    });
-
-  case ActionTypes.FOCUS_FORCE_BLOCKS:
-    const { blocks } = action;
-    invariant(Array.isArray(blocks), 'must pass array to FOCUS_FORCE_BLOCKS');
-    return Object.assign({}, state, {
-      forceBlocks: blocks,
-      forceProject: null,
-      blockIds: [],
-      constructId: null,
-      roleId: null,
-      level: 'block',
-    });
-
-  case ActionTypes.FOCUS_CONSTRUCT:
-    const { constructId } = action;
-    return Object.assign({}, state, {
-      forceProject: null,
-      forceBlocks: [],
-      constructId: constructId,
-      roleId: null,
-      level: 'construct',
-    });
-
-  case ActionTypes.FOCUS_BLOCKS :
-    const { blockIds } = action;
-    invariant(Array.isArray(blockIds), 'must pass array to FOCUS_BLOCKS');
-    return Object.assign({}, state, {
-      forceProject: null,
-      forceBlocks: [],
-      blockIds: blockIds,
-      roleId: null,
-      level: 'block',
-    });
-
-  case ActionTypes.FOCUS_PRIORITIZE :
-    const { level } = action;
-    return Object.assign({}, state, {
-      level,
-    });
-
-  case ActionTypes.FOCUS_BLOCK_OPTION :
-    const { options, lastOptionId } = action;
-    return Object.assign({}, state, {
-      level: 'option',
-      roleId: null,
-      lastOptionId,
-      options,
-    });
-
-  case ActionTypes.FOCUS_ROLE :
-    const { roleId } = action;
-    return Object.assign({}, state, {
-      level: 'role',
-      roleId,
-    });
-
-  case ActionTypes.BLOCK_OPTION_TOGGLE :
-    const { block } = action;
-    const currentOption = state.options[block.id];
-    if (currentOption && !block.options[currentOption]) {
-      const nextOptions = Object.assign({}, state.options);
-      delete nextOptions[block.id];
-
+    case ActionTypes.FOCUS_FORCE_PROJECT:
+      const { project } = action;
       return Object.assign({}, state, {
-        options: nextOptions,
+        forceBlocks: [],
+        blockIds: [],
+        constructId: null,
+        forceProject: project,
+        roleId: null,
+        level: 'project',
       });
-    }
-    return state;
 
-  case LOCATION_CHANGE :
+    case ActionTypes.FOCUS_FORCE_BLOCKS:
+      const { blocks } = action;
+      invariant(Array.isArray(blocks), 'must pass array to FOCUS_FORCE_BLOCKS');
+      return Object.assign({}, state, {
+        forceBlocks: blocks,
+        forceProject: null,
+        blockIds: [],
+        constructId: null,
+        roleId: null,
+        level: 'block',
+      });
+
+    case ActionTypes.FOCUS_CONSTRUCT:
+      const { constructId } = action;
+      return Object.assign({}, state, {
+        forceProject: null,
+        forceBlocks: [],
+        constructId,
+        roleId: null,
+        level: 'construct',
+      });
+
+    case ActionTypes.FOCUS_BLOCKS :
+      const { blockIds } = action;
+      invariant(Array.isArray(blockIds), 'must pass array to FOCUS_BLOCKS');
+      return Object.assign({}, state, {
+        forceProject: null,
+        forceBlocks: [],
+        blockIds,
+        roleId: null,
+        level: 'block',
+      });
+
+    case ActionTypes.FOCUS_PRIORITIZE :
+      const { level } = action;
+      return Object.assign({}, state, {
+        level,
+      });
+
+    case ActionTypes.FOCUS_BLOCK_OPTION :
+      const { options, lastOptionId } = action;
+      return Object.assign({}, state, {
+        level: 'option',
+        roleId: null,
+        lastOptionId,
+        options,
+      });
+
+    case ActionTypes.FOCUS_ROLE :
+      const { roleId } = action;
+      return Object.assign({}, state, {
+        level: 'role',
+        roleId,
+      });
+
+    case ActionTypes.BLOCK_OPTION_TOGGLE :
+      const { block } = action;
+      const currentOption = state.options[block.id];
+      if (currentOption && !block.options[currentOption]) {
+        const nextOptions = Object.assign({}, state.options);
+        delete nextOptions[block.id];
+
+        return Object.assign({}, state, {
+          options: nextOptions,
+        });
+      }
+      return state;
+
+    case LOCATION_CHANGE :
     //project page sets project ID properly, running after the state changes
-    return Object.assign({}, initialState);
+      return Object.assign({}, initialState);
 
-  default :
-    return state;
+    default :
+      return state;
   }
 }

@@ -18,44 +18,42 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import * as ActionTypes from '../constants/ActionTypes';
-import { saveProject, loadProject, listProjects, deleteProject } from '../middleware/projects';
-import { snapshot } from '../middleware/snapshots';
-import * as projectSelectors from '../selectors/projects';
-import * as blockActions from '../actions/blocks';
-import * as blockSelectors from '../selectors/blocks';
-import * as undoActions from '../store/undo/actions';
+import { merge, uniq, values } from 'lodash';
 import { push } from 'react-router-redux';
-import { uniq, values, merge } from 'lodash';
 
-import * as instanceMap from '../store/instanceMap';
+import emptyProjectWithConstruct from '../../data/emptyProject/index';
+import * as blockActions from '../actions/blocks';
+import * as ActionTypes from '../constants/ActionTypes';
+import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
+import { snapshot } from '../middleware/snapshots';
 import Block from '../models/Block';
 import Project from '../models/Project';
 import Rollup from '../models/Rollup';
-import emptyProjectWithConstruct from '../../data/emptyProject/index';
+import * as blockSelectors from '../selectors/blocks';
+import * as projectSelectors from '../selectors/projects';
+import * as instanceMap from '../store/instanceMap';
 import { pauseAction, resumeAction } from '../store/pausableStore';
+import * as undoActions from '../store/undo/actions';
 import { getLocal, setLocal } from '../utils/localstorage';
 
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
 
 //todo - should move to rollup class?
-const rollupDefined = (roll) => roll && roll.project && roll.blocks;
+const rollupDefined = roll => roll && roll.project && roll.blocks;
 
 const projectNotLoadedError = 'Project has not been loaded';
 
 //this is a backup for performing arbitrary mutations
-export const projectMerge = (projectId, toMerge) => {
-  return (dispatch, getState) => {
-    const oldProject = getState().projects[projectId];
-    const project = oldProject.merge(toMerge);
-    dispatch({
-      type: ActionTypes.PROJECT_MERGE,
-      undoable: true,
-      project,
-    });
-    return project;
-  };
+export const projectMerge = (projectId, toMerge) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.merge(toMerge);
+  dispatch({
+    type: ActionTypes.PROJECT_MERGE,
+    undoable: true,
+    project,
+  });
+  return project;
 };
 
 /**
@@ -65,10 +63,8 @@ export const projectMerge = (projectId, toMerge) => {
  * @resolve {Array.<Project>}
  * @reject {Response}
  */
-export const projectList = () => {
-  return (dispatch, getState) => {
-    return listProjects()
-      .then(projectManifests => {
+export const projectList = () => (dispatch, getState) => listProjects()
+      .then((projectManifests) => {
         const projects = projectManifests.map(manifest => new Project(manifest));
 
         dispatch({
@@ -78,8 +74,6 @@ export const projectList = () => {
 
         return projects;
       });
-  };
-};
 
 /**
  * Delete a project. THIS CANNOT BE UNDONE.
@@ -87,11 +81,9 @@ export const projectList = () => {
  * @param {UUID} projectId
  * @returns {UUID} project ID deleted
  */
-export const projectDelete = (projectId) => {
-  return (dispatch, getState) => {
-    return deleteProject(projectId)
+export const projectDelete = projectId => (dispatch, getState) => deleteProject(projectId)
     //catch deleting a project that is not saved (will 404)
-      .catch(resp => {
+      .catch((resp) => {
         if (resp.status === 404) {
           return null;
         }
@@ -105,8 +97,6 @@ export const projectDelete = (projectId) => {
         });
         return projectId;
       });
-  };
-};
 
 /**
  * Save the project, e.g. for autosave.
@@ -117,28 +107,27 @@ export const projectDelete = (projectId) => {
  * @resolve {number|null} version of save, or null if save was unnecessary
  * @reject {string|Response} Error message
  */
-export const projectSave = (inputProjectId, forceSave = false) => {
-  return (dispatch, getState) => {
-    const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
-    const projectId = !!inputProjectId ? inputProjectId : currentProjectId;
-    if (!projectId) {
-      return Promise.resolve(null);
-    }
+export const projectSave = (inputProjectId, forceSave = false) => (dispatch, getState) => {
+  const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
+  const projectId = inputProjectId || currentProjectId;
+  if (!projectId) {
+    return Promise.resolve(null);
+  }
 
-    const roll = dispatch(projectSelectors.projectCreateRollup(projectId));
-    if (!rollupDefined(roll)) {
-      return Promise.reject(projectNotLoadedError);
-    }
+  const roll = dispatch(projectSelectors.projectCreateRollup(projectId));
+  if (!rollupDefined(roll)) {
+    return Promise.reject(projectNotLoadedError);
+  }
 
     //check if project is new, and save only if it is (or forcing the save)
-    if (!instanceMap.isRollupNew(roll) && forceSave !== true) {
-      return Promise.resolve(null);
-    }
+  if (!instanceMap.isRollupNew(roll) && forceSave !== true) {
+    return Promise.resolve(null);
+  }
 
-    instanceMap.saveRollup(roll);
+  instanceMap.saveRollup(roll);
 
-    return saveProject(projectId, roll)
-      .then(versionInfo => {
+  return saveProject(projectId, roll)
+      .then((versionInfo) => {
         setLocal(recentProjectKey, projectId);
 
         //if no version => first time saving, show a grunt
@@ -160,7 +149,6 @@ export const projectSave = (inputProjectId, forceSave = false) => {
 
         return version;
       });
-  };
 };
 
 /**
@@ -175,22 +163,21 @@ export const projectSave = (inputProjectId, forceSave = false) => {
  * @resolve {number} version for snapshot
  * @reject {string|Response} Error message
  */
-export const projectSnapshot = (projectId, version = null, message, tags = {}, withRollup = true) => {
-  return (dispatch, getState) => {
-    const roll = withRollup ?
+export const projectSnapshot = (projectId, version = null, message, tags = {}, withRollup = true) => (dispatch, getState) => {
+  const roll = withRollup ?
       dispatch(projectSelectors.projectCreateRollup(projectId)) :
     {};
 
-    if (withRollup) {
-      if (rollupDefined(roll)) {
-        instanceMap.saveRollup(roll);
-      } else {
-        return Promise.reject(projectNotLoadedError);
-      }
+  if (withRollup) {
+    if (rollupDefined(roll)) {
+      instanceMap.saveRollup(roll);
+    } else {
+      return Promise.reject(projectNotLoadedError);
     }
+  }
 
-    return snapshot(projectId, version, message, tags, roll)
-      .then(commitInfo => {
+  return snapshot(projectId, version, message, tags, roll)
+      .then((commitInfo) => {
         if (!commitInfo) {
           return null;
         }
@@ -203,7 +190,6 @@ export const projectSnapshot = (projectId, version = null, message, tags = {}, w
         });
         return version;
       });
-  };
 };
 
 /**
@@ -212,23 +198,21 @@ export const projectSnapshot = (projectId, version = null, message, tags = {}, w
  * @param {Object} [initialModel={}] Data to merge onto scaffold
  * @returns {Project} New project
  */
-export const projectCreate = (initialModel) => {
-  return (dispatch, getState) => {
-    const userId = getState().user.userid;
-    const defaultModel = {
-      metadata: {
-        authors: [userId],
-      },
-    };
-
-    const project = new Project(merge(defaultModel, initialModel));
-    dispatch({
-      type: ActionTypes.PROJECT_CREATE,
-      project,
-    });
-
-    return project;
+export const projectCreate = initialModel => (dispatch, getState) => {
+  const userId = getState().user.userid;
+  const defaultModel = {
+    metadata: {
+      authors: [userId],
+    },
   };
+
+  const project = new Project(merge(defaultModel, initialModel));
+  dispatch({
+    type: ActionTypes.PROJECT_CREATE,
+    project,
+  });
+
+  return project;
 };
 
 /**
@@ -242,14 +226,13 @@ export const projectCreate = (initialModel) => {
  * @resolve {Rollup} loaded Project + Block Map
  * @reject
  */
-const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
-  return loadProject(projectId)
-    .then(rollup => {
+const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => loadProject(projectId)
+    .then((rollup) => {
       const { project, blocks } = rollup;
       const projectModel = new Project(project);
       const blockMap = Object.keys(blocks)
         .map(blockId => blocks[blockId])
-        .map((blockObject) => new Block(blockObject))
+        .map(blockObject => new Block(blockObject))
         .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 
       return new Rollup({
@@ -257,7 +240,7 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
         blocks: blockMap,
       });
     })
-    .catch(resp => {
+    .catch((resp) => {
       if ((resp === null || resp.status === 404) && loadMoreOnFail !== true && !Array.isArray(loadMoreOnFail)) {
         return Promise.reject(resp);
       }
@@ -272,9 +255,9 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
           .filter(manifest => !(ignores.indexOf(manifest.id) >= 0))
           //first sort descending by created date (i.e. if never saved) then descending by saved date (so it takes precedence)
           .sort((one, two) => two.metadata.created - one.metadata.created)
-          .sort((one, two) => two.metadata.updated - one.metadata.updated)
+          .sort((one, two) => two.metadata.updated - one.metadata.updated),
         )
-        .then(manifests => {
+        .then((manifests) => {
           if (manifests.length) {
             const nextId = manifests[0].id;
             //recurse, ignoring this projectId
@@ -286,7 +269,6 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
           return emptyProjectWithConstruct(true);
         });
     });
-};
 
 /**
  * Load a project and add it and its contents to the store
@@ -298,36 +280,34 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => {
  * @resolve {Project}
  * @reject null
  */
-export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = false) => {
-  return (dispatch, getState) => {
-    const isCached = !!projectId && instanceMap.projectLoaded(projectId);
-    const promise = (avoidCache !== true && isCached) ?
+export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = false) => (dispatch, getState) => {
+  const isCached = !!projectId && instanceMap.projectLoaded(projectId);
+  const promise = (avoidCache !== true && isCached) ?
       Promise.resolve(instanceMap.getRollup(projectId)) :
       _projectLoad(projectId, loadMoreOnFail, dispatch);
 
     //rollup by this point has been converted to class instances
-    return promise.then((rollup) => {
-      instanceMap.saveRollup(rollup);
+  return promise.then((rollup) => {
+    instanceMap.saveRollup(rollup);
 
-      dispatch(pauseAction());
-      dispatch(undoActions.transact());
+    dispatch(pauseAction());
+    dispatch(undoActions.transact());
 
-      dispatch({
-        type: ActionTypes.BLOCK_STASH,
-        blocks: Object.keys(rollup.blocks).map(blockId => rollup.blocks[blockId]),
-      });
-
-      dispatch({
-        type: ActionTypes.PROJECT_LOAD,
-        project: rollup.project,
-      });
-
-      dispatch(undoActions.commit());
-      dispatch(resumeAction());
-
-      return rollup.project;
+    dispatch({
+      type: ActionTypes.BLOCK_STASH,
+      blocks: Object.keys(rollup.blocks).map(blockId => rollup.blocks[blockId]),
     });
-  };
+
+    dispatch({
+      type: ActionTypes.PROJECT_LOAD,
+      project: rollup.project,
+    });
+
+    dispatch(undoActions.commit());
+    dispatch(resumeAction());
+
+    return rollup.project;
+  });
 };
 
 /**
@@ -339,22 +319,21 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
  * @resolve {Project} Project that is opened
  * @reject {null}
  */
-export const projectOpen = (inputProjectId, skipSave = false) => {
-  return (dispatch, getState) => {
-    const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
-    const projectId = inputProjectId || getLocal(recentProjectKey);
+export const projectOpen = (inputProjectId, skipSave = false) => (dispatch, getState) => {
+  const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
+  const projectId = inputProjectId || getLocal(recentProjectKey);
 
     //ignore if on a project, and passed the same one
-    if (!!currentProjectId && currentProjectId === projectId) {
-      return Promise.resolve();
-    }
+  if (!!currentProjectId && currentProjectId === projectId) {
+    return Promise.resolve();
+  }
 
-    const promise = (skipSave === true)
+  const promise = (skipSave === true)
       ?
       Promise.resolve()
       :
       dispatch(projectSave(currentProjectId))
-        .catch(err => {
+        .catch((err) => {
           if (!!currentProjectId && currentProjectId !== 'null' && currentProjectId !== 'undefined' && err !== projectNotLoadedError) {
             dispatch({
               type: ActionTypes.UI_SET_GRUNT,
@@ -363,7 +342,7 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
           }
         });
 
-    return promise.then(() => {
+  return promise.then(() => {
       /*
        future - clear the store of blocks from the old project.
        need to consider blocks in the inventory - loaded projects, search results, shown in onion etc. Probably means committing to using the instanceMap for mapping state to props in inventory.
@@ -388,14 +367,13 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
 
       //projectPage will load the project + its blocks
       //change the route
-      dispatch(push(`/project/${projectId}`));
-      dispatch({
-        type: ActionTypes.PROJECT_OPEN,
-        projectId,
-      });
-      return projectId;
+    dispatch(push(`/project/${projectId}`));
+    dispatch({
+      type: ActionTypes.PROJECT_OPEN,
+      projectId,
     });
-  };
+    return projectId;
+  });
 };
 
 /**
@@ -405,17 +383,15 @@ export const projectOpen = (inputProjectId, skipSave = false) => {
  * @param {string} newName
  * @returns {Project}
  */
-export const projectRename = (projectId, newName) => {
-  return (dispatch, getState) => {
-    const oldProject = getState().projects[projectId];
-    const project = oldProject.mutate('metadata.name', newName);
-    dispatch({
-      type: ActionTypes.PROJECT_RENAME,
-      undoable: true,
-      project,
-    });
-    return project;
-  };
+export const projectRename = (projectId, newName) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.mutate('metadata.name', newName);
+  dispatch({
+    type: ActionTypes.PROJECT_RENAME,
+    undoable: true,
+    project,
+  });
+  return project;
 };
 
 /**
@@ -427,38 +403,37 @@ export const projectRename = (projectId, newName) => {
  * @param {boolean} [forceProjectId=true] set the projectId if not set
  * @returns {Project}
  */
-export const projectAddConstruct = (projectId, constructId, forceProjectId = true) => {
-  return (dispatch, getState) => {
-    const oldProject = getState().projects[projectId];
-    const project = oldProject.addComponents(constructId);
-    const component = getState().blocks[constructId];
-    const componentProjectId = component.projectId;
+export const projectAddConstruct = (projectId, constructId, forceProjectId = true) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.addComponents(constructId);
 
-    dispatch(pauseAction());
-    dispatch(undoActions.transact());
+  const component = getState().blocks[constructId];
+  const componentProjectId = component.projectId;
 
-    const contents = dispatch(blockSelectors.blockGetContentsRecursive(constructId));
-    const contentProjectIds = uniq(values(contents).map(block => block.projectId));
+  dispatch(pauseAction());
+  dispatch(undoActions.transact());
 
-    if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId !== projectId)) {
+  const contents = dispatch(blockSelectors.blockGetContentsRecursive(constructId));
+  const contentProjectIds = uniq(values(contents).map(block => block.projectId));
+
+  if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId !== projectId)) {
       //ensure that we are forcing the project ID
       //ensure that Ids are null to ensure we are only adding clones
-      invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
+    invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
-      dispatch(blockActions.blockSetProject(constructId, projectId, false));
-    }
+    dispatch(blockActions.blockSetProject(constructId, projectId, false));
+  }
 
-    dispatch({
-      type: ActionTypes.PROJECT_ADD_CONSTRUCT,
-      undoable: true,
-      project,
-    });
+  dispatch({
+    type: ActionTypes.PROJECT_ADD_CONSTRUCT,
+    undoable: true,
+    project,
+  });
 
-    dispatch(undoActions.commit());
-    dispatch(resumeAction());
+  dispatch(undoActions.commit());
+  dispatch(resumeAction());
 
-    return project;
-  };
+  return project;
 };
 
 /**
@@ -468,38 +443,35 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = tru
  * @param {UUID} constructId
  * @returns {Project}
  */
-export const projectRemoveConstruct = (projectId, constructId) => {
-  return (dispatch, getState) => {
-    const oldProject = getState().projects[projectId];
-    const project = oldProject.removeComponents(constructId);
+export const projectRemoveConstruct = (projectId, constructId) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.removeComponents(constructId);
 
-    dispatch(pauseAction());
-    dispatch(undoActions.transact());
+  dispatch(pauseAction());
+  dispatch(undoActions.transact());
 
     //unset projectId of construct only
-    dispatch(blockActions.blockSetProject(constructId, null, true));
+  dispatch(blockActions.blockSetProject(constructId, null, true));
 
-    dispatch({
-      type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,
-      undoable: true,
-      project,
-    });
+  dispatch({
+    type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,
+    undoable: true,
+    project,
+  });
 
-    dispatch(undoActions.commit());
-    dispatch(resumeAction());
+  dispatch(undoActions.commit());
+  dispatch(resumeAction());
 
-    return project;
-  };
+  return project;
 };
 
 // PROJECT FILES
 
-export const projectFileWrite = (projectId, namespace, fileName, contents) => {
-  return (dispatch, getState) => {
-    const oldProject = getState().projects[projectId];
+export const projectFileWrite = (projectId, namespace, fileName, contents) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
 
-    return oldProject.fileWrite(namespace, fileName, contents)
-      .then(project => {
+  return oldProject.fileWrite(namespace, fileName, contents)
+      .then((project) => {
         dispatch({
           type: ActionTypes.PROJECT_FILE_WRITE,
           undoable: true,
@@ -508,5 +480,4 @@ export const projectFileWrite = (projectId, namespace, fileName, contents) => {
 
         return project;
       });
-  };
 };

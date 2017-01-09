@@ -25,7 +25,6 @@ export default class InputSimple extends Component {
     onChange: PropTypes.func,
     placeholder: PropTypes.string,
     readOnly: PropTypes.bool,
-    default: PropTypes.string,
     updateOnBlur: PropTypes.bool, //its probably best to not update on blur... see midupdate caveat below
     useTextarea: PropTypes.bool,
     onFocus: PropTypes.func,
@@ -124,8 +123,10 @@ export default class InputSimple extends Component {
 
   render() {
     return (
-      <div className={'InputSimple no-vertical-scroll' +
-      (this.props.readOnly ? ' readOnly' : '')}>
+      <div
+        className={`InputSimple no-vertical-scroll${
+      this.props.readOnly ? ' readOnly' : ''}`}
+      >
         {(this.props.useTextarea) &&
         <textarea
           ref="input"
@@ -138,7 +139,8 @@ export default class InputSimple extends Component {
           onChange={this.handleChange}
           onBlur={this.handleBlur}
           onFocus={this.handleFocus}
-          onKeyUp={this.handleKeyUp}/>
+          onKeyUp={this.handleKeyUp}
+        />
         }
         {(!this.props.useTextarea) &&
         <input
@@ -152,7 +154,8 @@ export default class InputSimple extends Component {
           onChange={this.handleChange}
           onBlur={this.handleBlur}
           onFocus={this.handleFocus}
-          onKeyUp={this.handleKeyUp}/>
+          onKeyUp={this.handleKeyUp}
+        />
         }
       </div>
     );

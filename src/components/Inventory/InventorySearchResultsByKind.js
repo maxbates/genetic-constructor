@@ -13,14 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { chain } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 
 import { block as blockDragType } from '../../constants/DragTypes';
-import { chain } from 'lodash';
-
+import '../../styles/InventorySearchResultGroup.css';
 import InventoryList from './InventoryList';
 import InventoryListGroup from './InventoryListGroup';
-import '../../styles/InventorySearchResultGroup.css';
 
 export default class InventorySearchResultsByKind extends Component {
   static propTypes = {
@@ -44,18 +43,22 @@ export default class InventorySearchResultsByKind extends Component {
       .map((items, group) => {
         const listingItems = items;
         return (
-          <InventoryListGroup title={`${group} (${listingItems.length})`}
-                              disabled={!listingItems.length}
-                              manual
-                              isExpanded={sourcesVisible[group]}
-                              onToggle={() => onListGroupToggle(group)}
-                              key={group}
-                              dataAttribute={`searchgroup-role ${group}`}>
-            <InventoryList inventoryType={blockDragType}
-                           onDrop={(item) => onItemDrop(item.source, item)}
-                           onSelect={(item) => onItemSelect(item.source, item)}
-                           items={listingItems}
-                           dataAttributePrefix={`searchresult ${group}`}/>
+          <InventoryListGroup
+            title={`${group} (${listingItems.length})`}
+            disabled={!listingItems.length}
+            manual
+            isExpanded={sourcesVisible[group]}
+            onToggle={() => onListGroupToggle(group)}
+            key={group}
+            dataAttribute={`searchgroup-role ${group}`}
+          >
+            <InventoryList
+              inventoryType={blockDragType}
+              onDrop={item => onItemDrop(item.source, item)}
+              onSelect={item => onItemSelect(item.source, item)}
+              items={listingItems}
+              dataAttributePrefix={`searchresult ${group}`}
+            />
           </InventoryListGroup>
         );
       });

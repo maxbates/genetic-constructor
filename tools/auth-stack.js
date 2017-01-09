@@ -17,6 +17,7 @@ import path from 'path';
 import run from './run';
 import setup from './setup';
 import { spawnAsync, promisedExec } from './lib/cp';
+import HOST_URL from '../server/urlConstants';
 
 /** paths **/
 
@@ -24,44 +25,40 @@ const pathProjectRoot = path.resolve(__dirname, '../');
 const pathBioNanoPlatform = process.env.PLATFORM_PATH || path.resolve(pathProjectRoot, '../bio-user-platform');
 const PGPASSWORD = process.env.PGPASSWORD || 'storageGCTOR'; // TODO export this default from `gctor-storage`
 
-console.log('bio-user-platform PLATFORM_PATH=' + pathBioNanoPlatform);
+console.log(`bio-user-platform PLATFORM_PATH=${pathBioNanoPlatform}`);
 
 /** scripts **/
 
 const setupBioNanoPlatform = (useGenomeDesignerBranch = false) => {
   const checkoutPromise = useGenomeDesignerBranch === true ?
-    promisedExec(`git checkout genome-designer`,
+    promisedExec('git checkout genome-designer',
       { cwd: pathBioNanoPlatform },
-      { comment: 'Checking out \'genome-designer\' branch of User Platform...' }
+      { comment: 'Checking out \'genome-designer\' branch of User Platform...' },
     ) :
     Promise.resolve();
 
   return checkoutPromise
-    .then(() => promisedExec(`npm install`,
+    .then(() => promisedExec('npm install',
       { cwd: pathBioNanoPlatform },
-      { comment: 'Installing User Platform dependencies...' }
+      { comment: 'Installing User Platform dependencies...' },
     ));
 };
 
-const startAuthServer = () => {
-  return spawnAsync('npm', ['start'],
-    {
-      cwd: pathBioNanoPlatform,
-      env: Object.assign({ PGPASSWORD }, process.env),
-    },
-    {
-      comment: 'Starting User Platform...',
-      waitUntil: `{ address: { address: '::', family: 'IPv6', port: 8080 } } 'started'`,
-    });
-};
-
-const installAuthModule = () => {
-  return promisedExec(`npm install ${pathBioNanoPlatform}`, {
-    cwd: pathProjectRoot,
-  }, {
-    comment: 'Installing User Platform Authentication Module...',
+const startAuthServer = () => spawnAsync('npm', ['start'],
+  {
+    cwd: pathBioNanoPlatform,
+    env: Object.assign({ PGPASSWORD }, process.env),
+  },
+  {
+    comment: 'Starting User Platform...',
+    waitUntil: '{ address: { address: \'::\', family: \'IPv6\', port: 8080 } } \'started\'',
   });
-};
+
+const installAuthModule = () => promisedExec(`npm install ${pathBioNanoPlatform}`, {
+  cwd: pathProjectRoot,
+}, {
+  comment: 'Installing User Platform Authentication Module...',
+});
 
 const startRunAuth = () => {
   console.log('\n\n');
@@ -69,15 +66,15 @@ const startRunAuth = () => {
     { cwd: pathProjectRoot,
       env: Object.assign({
         BIO_NANO_AUTH: 1,
-        HOST_URL: 'http://localhost:3000',
+        HOST_URL,
       }, process.env),
     },
     {
       comment: 'Starting Constructor with Authentication...',
-      waitUntil: 'Server listening at http://0.0.0.0:3000/',
+      waitUntil: `Server listening at ${HOST_URL}/`,
       forceOutput: true,
       failOnStderr: false,
-    }
+    },
   );
 };
 

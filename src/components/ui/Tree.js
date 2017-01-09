@@ -14,10 +14,9 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import Expando from './Expando';
 
 import '../../styles/Tree.css';
-
+import Expando from './Expando';
 
 export default class Tree extends Component {
   static propTypes = {
@@ -26,25 +25,19 @@ export default class Tree extends Component {
   };
 
   static defaultProps = {
+    items: [],
     depth: 0,
   };
-
-  constructor() {
-    super();
-    this.state = {
-
-    };
-  }
 
   /**
    * when a branch is expanded
    * @param item
    */
-  onExpandBranch(item) {
+  onExpandBranch = (item) => {
     if (item.onExpand) {
       item.onExpand(item);
     }
-  }
+  };
 
   /**
    * when a branch is clicked
@@ -59,15 +52,17 @@ export default class Tree extends Component {
   render() {
     return (
       <div className="tree">
-        {(this.props.items || []).map((item, index) => {
-          return (
-            <div key={index} style={{
+        {(this.props.items || []).map((item, index) => (
+          <div
+            key={index}
+            style={{
               paddingLeft: this.props.depth === 0 ? '0' : '12px',
-            }}>
+            }}
+          >
               <Expando
                 showArrowWhenEmpty={this.props.depth === 0}
-                onExpand={this.onExpandBranch.bind(this, item)}
-                onClick={this.onClickBlock.bind(this, item)}
+                onExpand={() => this.onExpandBranch(item)}
+                onClick={() => this.onClickBlock(item)}
                 key={index}
                 text={item.text}
                 testid={item.testid}
@@ -82,11 +77,10 @@ export default class Tree extends Component {
                   ? <Tree
                   items={item.items}
                   depth={this.props.depth + 1}
-                  />
-                  : null}
-              />
-            </div>);
-        })}
+                />
+                : null}
+            />
+          </div>))}
       </div>
     );
   }

@@ -15,16 +15,12 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ListOption from './ListOption';
-import { blockStash, blockOptionsToggle, blockOptionsAdd, blockOptionsRemove } from '../../actions/blocks';
-import { importFile as importCsvFile } from '../../middleware/csv';
-import {
-  uiShowPartsCSVImport,
-} from '../../actions/ui';
-//import CSVFileDrop from './CSVFileDrop';
-//import '../../styles/CSVFileDrop.css';
 
+import { blockOptionsAdd, blockOptionsRemove, blockOptionsToggle, blockStash } from '../../actions/blocks';
+import { uiShowPartsCSVImport } from '../../actions/ui';
+import { importFile as importCsvFile } from '../../middleware/csv';
 import '../../styles/ListOptions.css';
+import ListOption from './ListOption';
 
 export class ListOptions extends Component {
   static propTypes = {
@@ -55,7 +51,7 @@ export class ListOptions extends Component {
   };
 
   handleCSVDrop = (files) => {
-    importCsvFile(files[0], 'convert')
+    importCsvFile('convert', files[0])
       .then(({ project, blocks }) => {
         this.props.blockStash(...Object.keys(blocks).map(blockId => blocks[blockId]));
         this.props.blockOptionsAdd(this.props.block.id, ...Object.keys(blocks));
@@ -91,8 +87,8 @@ export class ListOptions extends Component {
 
     //const csvUploadButton = !isFrozen && !toggleOnly ? <CSVFileDrop style={{marginBottom: '1em'}} onDrop={this.handleCSVDrop}/> : null;
     const csvUploadButton = !isFrozen && !toggleOnly ?
-      <div style={{ marginBottom: '1em' }} className="CSVFileDrop" onClick={this.handleCSVImport}>Upload Parts
-        (CSV)</div> : null;
+      (<div style={{ marginBottom: '1em' }} className="CSVFileDrop" onClick={this.handleCSVImport}>Upload Parts
+        (CSV)</div>) : null;
 
     const optionIds = Object.keys(this.props.block.options);
     const activeIds = optionIds.filter(option => options[option]);
@@ -101,7 +97,7 @@ export class ListOptions extends Component {
 
     //todo - rethink scroll location
     return (
-      <div className={'ListOptions no-vertical-scroll' + (isFrozen ? ' isFrozen' : '')}>
+      <div className={`ListOptions no-vertical-scroll${isFrozen ? ' isFrozen' : ''}`}>
         {isFrozen && <div className="ListOptions-explanation">List items cannot be modified after they have been
           frozen. {!toggleOnly ? 'Unfreeze the block to make changes.' : 'Duplicate the template to make changes.'}</div>}
 
@@ -109,24 +105,27 @@ export class ListOptions extends Component {
 
         {(optionBlocks.length > 1) && (
           <div className="ListOptions-toggleAll">
-            <span className={'ListOptions-toggleAll-button' + (someInactive ? '' : ' disabled')}
-                  onClick={() => someInactive && this.toggleAllActive()}>Active</span>
-            <span className={'ListOptions-toggleAll-button' + (someActive ? '' : ' disabled')}
-                  onClick={() => someActive && this.toggleAllInactive()}>Inactive</span>
+            <span
+              className={`ListOptions-toggleAll-button${someInactive ? '' : ' disabled'}`}
+              onClick={() => someInactive && this.toggleAllActive()}
+            >Active</span>
+            <span
+              className={`ListOptions-toggleAll-button${someActive ? '' : ' disabled'}`}
+              onClick={() => someActive && this.toggleAllInactive()}
+            >Inactive</span>
           </div>
         )}
 
-        {optionBlocks.map(item => {
-          return (
-            <ListOption
-              option={item}
-              toggleOnly={isFrozen || toggleOnly}
-              key={item.id}
-              selected={options[item.id]}
-              onDelete={(option) => this.onDeleteOption(option)}
-              onClick={(option) => this.onSelectOption(option)}/>
-          );
-        })}
+        {optionBlocks.map(item => (
+          <ListOption
+            option={item}
+            toggleOnly={isFrozen || toggleOnly}
+            key={item.id}
+            selected={options[item.id]}
+            onDelete={option => this.onDeleteOption(option)}
+            onClick={option => this.onSelectOption(option)}
+          />
+          ))}
       </div>
     );
   }

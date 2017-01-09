@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import {isRealNumber} from '../utils';
-import Vector2D from './vector2d';
+
+import { isRealNumber } from '../utils';
 import Matrix2D from './matrix2d';
+import Vector2D from './vector2d';
 
 export default class Transform2D {
   /**
@@ -164,7 +165,7 @@ export default class Transform2D {
   getTransformationMatrix(w, h) {
     invariant(isRealNumber(w) && isRealNumber(h), 'invalid width and/or height');
     // form a cache key
-    const key = w + ':' + h;
+    const key = `${w}:${h}`;
     // return a copy of our cache if possible
     if (key === this.cacheKey) {
       return new Matrix2D(this.cache._v);

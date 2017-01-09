@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+
 import * as ActionTypes from '../constants/ActionTypes';
 import { setExtensionConfig } from '../extensions/clientRegistry';
 import loadAllExtensions from '../extensions/loadExtensions';
@@ -31,10 +32,10 @@ setExtensionConfig(initialState.config.extensions);
 
 export default function user(state = initialState, action) {
   switch (action.type) {
-  case ActionTypes.USER_SET_USER:
-    const { user, updateConfig = false} = action;
-    invariant(typeof user === 'object', 'user must be object (can be empty)');
-    const {
+    case ActionTypes.USER_SET_USER:
+      const { user, updateConfig = false } = action;
+      invariant(typeof user === 'object', 'user must be object (can be empty)');
+      const {
       userid = null,
       email = null,
       firstName = null,
@@ -42,25 +43,25 @@ export default function user(state = initialState, action) {
       config = {},
     } = user;
 
-    const nextState = Object.assign({}, state, {
-      userid,
-      email,
-      firstName,
-      lastName,
-      config,
-    });
+      const nextState = Object.assign({}, state, {
+        userid,
+        email,
+        firstName,
+        lastName,
+        config,
+      });
 
     //update config in clientRegistry here (before all listeners are called - components, user promises, etc.)
-    if (updateConfig) {
-      setExtensionConfig(nextState.config.extensions);
+      if (updateConfig) {
+        setExtensionConfig(nextState.config.extensions);
 
       //update all listeners by re-fetching extension list + register again
-      loadAllExtensions(true, true);
-    }
+        loadAllExtensions(true, true);
+      }
 
-    return nextState;
+      return nextState;
 
-  default :
-    return state;
+    default :
+      return state;
   }
 }

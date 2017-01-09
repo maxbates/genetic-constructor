@@ -15,11 +15,11 @@
  */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
+
+import MouseTrap from '../../containers/graphics/mousetrap';
+import '../../styles/Expando.css';
 import Arrow from './Arrow';
 import Label from './Label';
-import MouseTrap from '../../containers/graphics/mousetrap';
-
-import '../../styles/Expando.css';
 
 export default class Expando extends Component {
   static propTypes = {

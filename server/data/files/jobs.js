@@ -15,11 +15,11 @@
  */
 import invariant from 'invariant';
 import md5 from 'md5';
+import debug from 'debug';
 import * as s3 from '../middleware/s3';
 import * as filePaths from '../middleware/filePaths';
 import * as agnosticFs from './agnosticFs';
 import { HOST_URL } from '../../urlConstants';
-import debug from 'debug';
 
 const logger = debug('constructor:data:files:projectFiles');
 
@@ -57,7 +57,7 @@ export const makeJobFileLink = (...paths) => {
   return `${HOST_URL}/data/jobs/${paths.join('/')}`;
 };
 
-export const jobFileName = (contents) => md5(contents);
+export const jobFileName = contents => md5(contents);
 
 export const jobFileRead = (projectId, namespace, path) => {
   invariant(projectId, 'projectId is required');

@@ -14,9 +14,10 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+
 import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
 import { validateOrder } from '../../utils/validation';
-import { dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+import { dbDelete, dbGet, dbHead, dbPost, dbPruneResult } from '../middleware/db';
 import * as projectVersions from './projectVersions';
 
 //do we need consistent result transformation, like for projects?
@@ -28,15 +29,11 @@ export const orderList = (projectId, version) => {
     .then(results => results.map(dbPruneResult));
 };
 
-export const orderExists = (orderId, projectId) => {
-  return dbHead(`orders/id/${orderId}`)
+export const orderExists = (orderId, projectId) => dbHead(`orders/id/${orderId}`)
     .then(() => true);
-};
 
-export const orderGet = (orderId, projectId) => {
-  return dbGet(`orders/id/${orderId}`)
+export const orderGet = (orderId, projectId) => dbGet(`orders/id/${orderId}`)
     .then(dbPruneResult);
-};
 
 export const orderWrite = (orderId, order, userId) => {
   invariant(order.projectId, 'must have projectId defined');
@@ -54,21 +51,20 @@ export const orderWrite = (orderId, order, userId) => {
 
   //make sure the given project @ version exists
   return projectVersions.projectVersionExists(idedOrder.projectId, idedOrder.projectVersion)
-    .catch(err => {
+    .catch((err) => {
       if (err === errorDoesNotExist) {
         return Promise.reject(errorInvalidModel);
       }
       return Promise.reject(err);
     })
-    .then(() => {
+    .then(() =>
       //actually write the order
-      return dbPost(`orders/`, userId, idedOrder, {}, {
-        id: idedOrder.id,
-        projectId: order.projectId,
-        projectVersion: order.projectVersion,
-        type: order.status.foundry,
-      });
-    });
+       dbPost('orders/', userId, idedOrder, {}, {
+         id: idedOrder.id,
+         projectId: order.projectId,
+         projectVersion: order.projectVersion,
+         type: order.status.foundry,
+       }));
 };
 
 //not sure why you would do this...

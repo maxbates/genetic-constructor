@@ -14,10 +14,11 @@
  limitations under the License.
  */
 
+import debug from 'debug';
 import invariant from 'invariant';
+
 import Order from '../../src/models/Order';
 import Rollup from '../../src/models/Rollup';
-import debug from 'debug';
 
 //test ordering module, which resolves when the order, user, constructList, blockMap are valid
 
@@ -47,8 +48,8 @@ export const submit = (order, user, constructList, rollup) => {
   }
 
   return Promise.resolve({
-    jobId: '' + Math.random(),
-    cost: `$1,000,000`,
+    jobId: `${Math.random()}`,
+    cost: '$1,000,000',
   });
 };
 

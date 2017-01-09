@@ -24,19 +24,11 @@
  * @function
  * @returns {string} current term
  */
-export const inventoryGetSearchTerm = () => {
-  return (dispatch, getState) => {
-    return getState().inventory.searchTerm;
-  };
-};
+export const inventoryGetSearchTerm = () => (dispatch, getState) => getState().inventory.searchTerm;
 
 /**
  * Get current search results
  * @function
  * @returns {Object.<string,Array>} Results, keyed by source
  */
-export const inventoryGetSearchResults = () => {
-  return (dispatch, getState) => {
-    return getState().inventory.searchResults;
-  };
-};
+export const inventoryGetSearchResults = () => (dispatch, getState) => getState().inventory.searchResults;

@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
+
 import { headersGet, headersPost } from './utils/headers';
 import { jobPath } from './utils/paths';
+import rejectingFetch from './utils/rejectingFetch';
 
 const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
 

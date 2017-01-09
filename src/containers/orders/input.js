@@ -13,24 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 
-export default class Input extends Component {
-  static propTypes = {
-    value: PropTypes.string.isRequired,
-    placeholder: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-  };
-
-  render() {
-    return (
-      <input
-        onChange={evt => {
-          this.props.onChange(evt.target.value);
-        }}
-        defaultValue={this.props.value}
-        placeholder={this.props.placeholder}
-      />
-    );
-  }
+export default function Input(props) {
+  return (
+    <input
+      onChange={(evt) => {
+        props.onChange(evt.target.value);
+      }}
+      defaultValue={props.value}
+      placeholder={props.placeholder}
+    />
+  );
 }
+
+Input.propTypes = {
+  value: PropTypes.string.isRequired,
+  placeholder: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+};

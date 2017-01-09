@@ -13,8 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import registry, { registerRender, validRegion } from './clientRegistry';
 import invariant from 'invariant';
+
+import registry, { registerRender, validRegion } from './clientRegistry';
 
 /**
  * Register a client-side extension with Genetic Constructor.

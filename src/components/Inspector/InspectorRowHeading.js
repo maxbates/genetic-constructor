@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+
 import Toggler from '../ui/Toggler';
 
 //todo - update classes
@@ -55,9 +56,11 @@ export default class InspectorRowHeading extends Component {
     const isActive = this.getActiveState();
 
     return (
-      <h4 className={'InspectorContent-heading toggler' + (isActive ? ' active' : '')}
-          onClick={() => this.handleToggle()}>
-        <Toggler open={isActive}/>
+      <h4
+        className={`InspectorContent-heading toggler${isActive ? ' active' : ''}`}
+        onClick={() => this.handleToggle()}
+      >
+        <Toggler open={isActive} />
         <span>{text}</span>
       </h4>
     );

@@ -13,15 +13,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
-import { headersGet, headersPost } from './utils/headers';
-import { serverPath, authPath, registerPath } from './utils/paths';
 
-const authFetch = (...args) => {
-  return rejectingFetch(...args)
+import { headersGet, headersPost } from './utils/headers';
+import { authPath, registerPath, serverPath } from './utils/paths';
+import rejectingFetch from './utils/rejectingFetch';
+
+const authFetch = (...args) => rejectingFetch(...args)
     .then(resp => resp.json())
-    .catch(resp => {
+    .catch((resp) => {
       if (!resp.status) {
         return Promise.reject(resp);
       }
@@ -30,13 +30,12 @@ const authFetch = (...args) => {
       }
       return Promise.reject(resp.text());
     });
-};
 
 // login with email and password and set the sessionKey (cookie) for later use
 export const login = (user, password) => {
   const body = {
     email: user,
-    password: password,
+    password,
   };
   const stringified = JSON.stringify(body);
 
@@ -68,14 +67,10 @@ export const reset = (email, forgotPasswordHash, newPassword) => {
   return authFetch(authPath('reset-password'), headersPost(stringified));
 };
 
-export const logout = () => {
-  return rejectingFetch(authPath('logout'), headersGet());
-};
+export const logout = () => rejectingFetch(authPath('logout'), headersGet());
 
 // use established sessionKey to get the user object
-export const getUser = () => {
-  return authFetch(serverPath('user/info'), headersGet());
-};
+export const getUser = () => authFetch(serverPath('user/info'), headersGet());
 
 // hack - this hits auth directly, rather than our user routes
 // remove the data object from the request so it is not accidently consumed with the wrong shape
@@ -85,16 +80,14 @@ export const updateAccount = (payload) => {
   const stringified = JSON.stringify(body);
 
   return authFetch(authPath('update-all'), headersPost(stringified))
-    .then(json => {
+    .then((json) => {
       delete json.data;
       return json;
     });
 };
 
-export const getUserConfig = () => {
-  return rejectingFetch(serverPath('user/config'), headersGet())
+export const getUserConfig = () => rejectingFetch(serverPath('user/config'), headersGet())
     .then(resp => resp.json());
-};
 
 export const setUserConfig = (newConfig) => {
   invariant(newConfig && typeof newConfig === 'object', 'must pass a new configuration object');

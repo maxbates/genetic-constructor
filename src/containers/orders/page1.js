@@ -13,22 +13,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import debounce from 'lodash.debounce';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Row from './row';
-import Selector from './selector';
-import Input from './input';
-import Checkbox from './checkbox';
-import Permutations from './permutations';
-import debounce from 'lodash.debounce';
-import {
-  orderSetName,
-  orderSetParameters,
-  orderList,
-} from '../../actions/orders';
 
 import '../../../src/styles/form.css';
 import '../../../src/styles/ordermodal.css';
+import { orderList, orderSetName, orderSetParameters } from '../../actions/orders';
+import Checkbox from './checkbox';
+import Input from './input';
+import Permutations from './permutations';
+import Row from './row';
+import Selector from './selector';
 
 const assemblyOptions = [
   'All in a single container',
@@ -46,8 +42,8 @@ export class Page1 extends Component {
     order: PropTypes.object.isRequired,
     orderSetName: PropTypes.func.isRequired,
     orderSetParameters: PropTypes.func.isRequired,
-    orderList: PropTypes.func.isRequired,
-    blocks: PropTypes.object.isRequired,
+    //orderList: PropTypes.func.isRequired,
+    //blocks: PropTypes.object.isRequired,
     numberConstructs: PropTypes.number.isRequired,
   };
 
@@ -99,7 +95,9 @@ export class Page1 extends Component {
 
     const { order } = this.props;
 
-    let method = <label>All Combinations</label>;
+    //why is this a label?
+    let method = <label>All Combinations</label>; //eslint-disable-line jsx-a11y/label-has-for
+
     if (!order.parameters.onePot) {
       method = (<Selector
         disabled={!!order.isSubmitted()}
@@ -108,42 +106,47 @@ export class Page1 extends Component {
         onChange={this.methodChanged}
       />);
     }
+
     return (
       <div className="order-page page1">
         <fieldset disabled={order.isSubmitted()}>
           <Row text="Label:">
-            <Input onChange={this.labelChanged}
-                   value={this.props.order.metadata.name}
+            <Input
+              onChange={this.labelChanged}
+              value={this.props.order.metadata.name}
             />
           </Row>
           <Row text="Assembly Containers:">
-            <Selector disabled={!!order.isSubmitted()}
-                      value={assemblyOptions[order.parameters.onePot ? 0 : 1]}
-                      options={assemblyOptions}
-                      onChange={(val) => this.assemblyContainerChanged(val)}
+            <Selector
+              disabled={!!order.isSubmitted()}
+              value={assemblyOptions[order.parameters.onePot ? 0 : 1]}
+              options={assemblyOptions}
+              onChange={val => this.assemblyContainerChanged(val)}
             />
           </Row>
           <Row text="Number of assemblies:">
-            <Permutations total={this.props.numberConstructs}
-                          value={this.props.order.parameters.permutations}
-                          editable={!order.parameters.onePot}
-                          disabled={!!order.isSubmitted()}
-                          onBlur={(val) => {
-                            this.numberOfAssembliesChanged(val);
-                          }}
+            <Permutations
+              total={this.props.numberConstructs}
+              value={this.props.order.parameters.permutations}
+              editable={!order.parameters.onePot}
+              disabled={!!order.isSubmitted()}
+              onBlur={(val) => {
+                this.numberOfAssembliesChanged(val);
+              }}
             />
           </Row>
           <Row text="Combinatorial method:">
             {method}
           </Row>
           <Row text="After fabrication:">
-            <Checkbox onChange={this.sequenceAssemblies}
-                      label="Sequence Assemblies"
-                      value={order.parameters.sequenceAssemblies}
-                      disabled={!!order.parameters.onePot}
+            <Checkbox
+              onChange={this.sequenceAssemblies}
+              label="Sequence Assemblies"
+              value={order.parameters.sequenceAssemblies}
+              disabled={!!order.parameters.onePot}
             />
           </Row>
-          <br/>
+          <br />
         </fieldset>
       </div>
     );

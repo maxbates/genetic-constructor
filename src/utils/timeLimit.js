@@ -23,12 +23,10 @@
  * await timeLimit(1000)(fetch(path))
  */
 export default function timeLimit(time = 10000) {
-  return (promise) => {
-    return Promise.race([
-      promise,
-      new Promise((resolve, reject) => {
-        setTimeout(() => reject(`timed out after ${time} ms`), time);
-      }),
-    ]);
-  };
+  return promise => Promise.race([
+    promise,
+    new Promise((resolve, reject) => {
+      setTimeout(() => reject(`timed out after ${time} ms`), time);
+    }),
+  ]);
 }

@@ -29,7 +29,7 @@ export default function saveCombinations(combos) {
 
   const len = combos.reduce((acc, row) => acc * row.length, 1);
 
-  invariant(len <= Math.pow(10, 7), 'too many combinatorials until combination generation is optimized, got ' + len);
+  invariant(len <= (10 ** 7), `too many combinatorials until combination generation is optimized, got ${len}`);
 
   const collector = new Array(len).fill();
   let counter = 0;

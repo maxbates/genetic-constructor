@@ -14,26 +14,47 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
-import inventoryRoles from '../../inventory/roles';
-import RoleSvg from '../RoleSvg';
-import MouseTrap from '../../containers/graphics/mousetrap';
-import DnD from '../../containers/graphics/dnd/dnd';
-import { role as roleDragType } from '../../constants/DragTypes';
-import Block from '../../models/Block';
-import {
-  uiSetGrunt,
-  uiSpin,
-} from '../../actions/ui';
+import { connect } from 'react-redux';
 
+import { uiSetGrunt, uiSpin } from '../../actions/ui';
+import { role as roleDragType } from '../../constants/DragTypes';
+import DnD from '../../containers/graphics/dnd/dnd';
+import MouseTrap from '../../containers/graphics/mousetrap';
+import inventoryRoles from '../../inventory/roles';
+import Block from '../../models/Block';
 import '../../styles/InventoryGroupRole.css';
+import RoleSvg from '../RoleSvg';
 
 class InventoryGroupRole extends Component {
   static propTypes = {
     uiSetGrunt: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
   };
+
+  /**
+   * dictates the sort order of sbol tiles
+   * //todo - should be in roles.js so shared with role picker
+   */
+  static sortOrder = [
+    'promoter',
+    'cds',
+    'rbs',
+    'terminator',
+    'protease',
+    'ribonuclease',
+    'rna stability',
+    'protein stability',
+    'origin of replication',
+    'operator',
+    'insulator',
+    'restriction site',
+    'structural',
+    'bidrectional promoter',
+    'plasmin backbone',
+    'combinatorial list',
+    'no symbol',
+  ];
 
   constructor(props) {
     super(props);
@@ -111,39 +132,13 @@ class InventoryGroupRole extends Component {
     return proxy;
   }
 
-  /**
-   * dictates the sort order of sbol tiles
-
-   */
-  static sortOrder = [
-    'promoter',
-    'cds',
-    'rbs',
-    'terminator',
-    'protease',
-    'ribonuclease',
-    'rna stability',
-    'protein stability',
-    'origin of replication',
-    'operator',
-    'insulator',
-    'restriction site',
-    'structural',
-    'bidrectional promoter',
-    'plasmin backbone',
-    'combinatorial list',
-    'no symbol',
-  ];
-
   render() {
     const current = this.state.current;
 
     // sort items by order given by sortOrder
     const sorted = this.roleSymbols.slice();
-    sorted.sort((itemA, itemB) => {
-      return InventoryGroupRole.sortOrder.indexOf(itemA.name.toLowerCase()) -
-        InventoryGroupRole.sortOrder.indexOf(itemB.name.toLowerCase());
-    });
+    sorted.sort((itemA, itemB) => InventoryGroupRole.sortOrder.indexOf(itemA.name.toLowerCase()) -
+    InventoryGroupRole.sortOrder.indexOf(itemB.name.toLowerCase()));
 
     return (
       <div className="InventoryGroup-content InventoryGroupRole">
@@ -153,33 +148,27 @@ class InventoryGroupRole extends Component {
             to reverse the direction of the block.
           </p>
           <div className="list">
-            {sorted.map(item => {
-              return (
-                <div className="sbol-tile" key={item.id}>
-                  <RoleSvg
-                    width="54px"
-                    height="54px"
-                    color={current.id === item.id ? 'white' : 'black'}
-                    classes={current.id === item.id ? 'active' : null}
-                    symbolName={item.id}
-                    onMouseEnter={this.onMouseEnter.bind(this, item)}
-                    onMouseLeave={this.onMouseLeave}
-                    ref={item.id}
-                  />
-                  <div className={`name${current.id === item.id ? ' active' : ''}`}>{item.name}</div>
-                </div>);
-            })}
+            {sorted.map(item => (
+              <div className="sbol-tile" key={item.id}>
+                <RoleSvg
+                  width="54px"
+                  height="54px"
+                  color={current.id === item.id ? 'white' : 'black'}
+                  classes={current.id === item.id ? 'active' : null}
+                  symbolName={item.id}
+                  onMouseEnter={() => this.onMouseEnter(item)}
+                  onMouseLeave={this.onMouseLeave}
+                  ref={item.id}
+                />
+                <div className={`name${current.id === item.id ? ' active' : ''}`}>{item.name}</div>
+              </div>))}
           </div>
         </div>
       </div>);
   }
 }
 
-function mapStateToProps(state, props) {
-  return {};
-}
-
-export default connect(mapStateToProps, {
+export default connect(null, {
   uiSetGrunt,
   uiSpin,
 })(InventoryGroupRole);

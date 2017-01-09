@@ -15,38 +15,36 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import InspectorGroupInformation from './InspectorGroupInformation';
-import InspectorGroupHelp from './InspectorGroupHelp';
-import InspectorGroupFeedback from './InspectorGroupFeedback';
-import InspectorGroupExtensions from './InspectorGroupExtensions';
-import InspectorGroupSettings from './InspectorGroupSettings';
-import InspectorGroupOrders from './InspectorGroupOrders';
-
 import '../../styles/InspectorGroup.css';
+import InspectorGroupExtensions from './InspectorGroupExtensions';
+import InspectorGroupFeedback from './InspectorGroupFeedback';
+import InspectorGroupHelp from './InspectorGroupHelp';
+import InspectorGroupInformation from './InspectorGroupInformation';
+import InspectorGroupOrders from './InspectorGroupOrders';
+import InspectorGroupSettings from './InspectorGroupSettings';
 
 export default class InspectorGroup extends Component {
   static propTypes = {
     tabInfo: PropTypes.object.isRequired,
-    projectId: PropTypes.string.isRequired,
     project: PropTypes.object,
     construct: PropTypes.object,
   };
 
   inspectorGroupTypeToComponent = (type) => {
     switch (type) {
-    case 'information' :
-      return (<InspectorGroupInformation project={this.props.project} construct={this.props.construct} />);
-    case 'help' :
-      return (<InspectorGroupHelp />);
-    case 'feedback' :
-      return (<InspectorGroupFeedback />);
-    case 'extensions' :
-      return (<InspectorGroupExtensions />);
-    case 'settings' :
-      return (<InspectorGroupSettings />);
-    case 'orders' :
-      return (<InspectorGroupOrders />);
-    default:
+      case 'information' :
+        return (<InspectorGroupInformation project={this.props.project} construct={this.props.construct} />);
+      case 'help' :
+        return (<InspectorGroupHelp />);
+      case 'feedback' :
+        return (<InspectorGroupFeedback />);
+      case 'extensions' :
+        return (<InspectorGroupExtensions />);
+      case 'settings' :
+        return (<InspectorGroupSettings />);
+      case 'orders' :
+        return (<InspectorGroupOrders />);
+      default:
       //throw new Error(`Type ${type} is not registered in InspectorGroup`);
     }
   };

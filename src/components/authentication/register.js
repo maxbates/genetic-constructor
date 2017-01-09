@@ -13,19 +13,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
-import queryString from 'query-string';
-import { connect } from 'react-redux';
 import invariant from 'invariant';
-import {
-  uiShowAuthenticationForm,
-  uiSetGrunt,
-  uiSpin,
-} from '../../actions/ui';
+import queryString from 'query-string';
+import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
+
 import { projectOpen } from '../../actions/projects';
+import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userRegister } from '../../actions/user';
-import { tos, privacy } from '../../utils/ui/uiapi';
 import track from '../../analytics/ga';
+import { privacy, tos } from '../../utils/ui/uiapi';
 
 /*
  * default visibility and text for error labels
@@ -61,20 +58,34 @@ const errors = {
 export class RegisterForm extends Component {
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
-    uiSetGrunt: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
     userRegister: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
   };
 
-  constructor() {
-    super();
-    this.state = Object.assign({}, errors, { canSubmit: false });
+  static getConfig() {
+    const params = queryString.parse(window.location.search);
+    const { projects, extensions } = params;
+    const config = {};
+
+    if (projects) {
+      const projectNames = projects.split(',');
+      config.projects = projectNames.reduce((acc, projectName) => Object.assign(acc, { [projectName]: {} }), {});
+      Object.assign(config.projects[projectNames[0]], { default: true });
+    }
+
+    if (extensions) {
+      config.extensions = extensions.split(',').reduce((acc, projectName) => Object.assign(acc, { [projectName]: { active: true } }), {});
+    }
+
+    return config;
   }
+
+  state = { ...errors, canSubmit: false };
 
   // on form submission, first perform client side validation then submit
   // to the server if that goes well.
-  onSubmit(evt) {
+  onSubmit = (evt) => {
     // submission occurs via REST not form submission
     evt.preventDefault();
     // client side validation first
@@ -88,7 +99,7 @@ export class RegisterForm extends Component {
       password: this.password,
       firstName: this.firstName,
       lastName: this.lastName,
-    }, this.getConfig())
+    }, RegisterForm.getConfig())
       .then((json) => {
         track('Authentication', 'Register', 'Success');
         // close the form / wait message
@@ -107,7 +118,7 @@ export class RegisterForm extends Component {
       });
   }
 
-  onSignIn(evt) {
+  onSignIn = (evt) => {
     evt.preventDefault();
     this.props.uiShowAuthenticationForm('signin');
   }
@@ -132,29 +143,7 @@ export class RegisterForm extends Component {
       this.passwordConfirm &&
       this.tos,
     });
-  }
-
-  getConfig() {
-    const params = queryString.parse(window.location.search);
-    const { projects, extensions } = params;
-    const config = {};
-
-    if (!!projects) {
-      const projectNames = projects.split(',');
-      config.projects = projectNames.reduce((acc, projectName) => {
-        return Object.assign(acc, { [projectName]: {} });
-      }, {});
-      Object.assign(config.projects[projectNames[0]], { default: true });
-    }
-
-    if (!!extensions) {
-      config.extensions = extensions.split(',').reduce((acc, projectName) => {
-        return Object.assign(acc, { [projectName]: { active: true } });
-      }, {});
-    }
-
-    return config;
-  }
+  };
 
   // syntactic suger for fetcing values from inputs
   get firstName() {
@@ -217,9 +206,7 @@ export class RegisterForm extends Component {
     // display appropriate errors
     this.setState(newState);
     // return true if there was an error
-    return Object.keys(newState).find((key) => {
-      return newState[key].visible;
-    });
+    return Object.keys(newState).find(key => newState[key].visible);
   }
 
   /**
@@ -282,54 +269,64 @@ export class RegisterForm extends Component {
     };
 
     return (
-      <form id="auth-register" className="gd-form authentication-form" onSubmit={this.onSubmit.bind(this)}>
+      <form id="auth-register" className="gd-form authentication-form" onSubmit={this.onSubmit}>
         <div className="title">Register</div>
-        <span style={registerStyle}>{"Already have an account? "}
-          <a className="blue-link" href="/" onClick={this.onSignIn.bind(this)}>Sign In&nbsp;</a>
+        <span style={registerStyle}>{'Already have an account? '}
+          <a className="blue-link" href="/" onClick={this.onSignIn}>Sign In&nbsp;</a>
         </span>
         <input
           ref="firstName"
           className="input"
           onChange={this.onFormChanged}
-          placeholder="First Name"/>
+          placeholder="First Name"
+        />
         <input
           ref="lastName"
           className="input"
           onChange={this.onFormChanged}
-          placeholder="Last Name"/>
+          placeholder="Last Name"
+        />
         <div className={`error ${this.state.nameError.visible ? 'visible' : ''}`}>{`${this.state.nameError.text}`}</div>
         <div
-          className={`error ${this.state.email1Error.visible ? 'visible' : ''}`}>{`${this.state.email1Error.text}`}</div>
+          className={`error ${this.state.email1Error.visible ? 'visible' : ''}`}
+        >{`${this.state.email1Error.text}`}</div>
         <input
           ref="emailAddress"
           onChange={this.onFormChanged}
           className="input"
-          placeholder="Email Address"/>
+          placeholder="Email Address"
+        />
         <input
           ref="emailConfirm"
           onChange={this.onFormChanged}
           className="input"
-          placeholder="Confirm Email Address"/>
+          placeholder="Confirm Email Address"
+        />
         <div
-          className={`error ${this.state.email2Error.visible ? 'visible' : ''}`}>{`${this.state.email2Error.text}`}</div>
+          className={`error ${this.state.email2Error.visible ? 'visible' : ''}`}
+        >{`${this.state.email2Error.text}`}</div>
         <div
-          className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}>{`${this.state.password1Error.text}`}</div>
+          className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}
+        >{`${this.state.password1Error.text}`}</div>
         <input
           ref="password"
           onChange={this.onFormChanged}
           maxLength={32}
           type="password"
           className="input"
-          placeholder="Password"/>
+          placeholder="Password"
+        />
         <input
           ref="passwordConfirm"
           onChange={this.onFormChanged}
           maxLength={32}
           type="password"
           className="input"
-          placeholder="Confirm Password"/>
+          placeholder="Confirm Password"
+        />
         <div
-          className={`error ${this.state.password2Error.visible ? 'visible' : ''}`}>{`${this.state.password2Error.text}`}</div>
+          className={`error ${this.state.password2Error.visible ? 'visible' : ''}`}
+        >{`${this.state.password2Error.text}`}</div>
         <div className="checkbox">
           <input
             ref="tos"
@@ -339,11 +336,15 @@ export class RegisterForm extends Component {
           <span>I agree to the
             <a
               target="_blank"
-              href={tos}> Terms of Service</a>
-            <br/>and
+              rel="noopener noreferrer"
+              href={tos}
+            > Terms of Service</a>
+            <br />and
             <a
               target="_blank"
-              href={privacy}> Autodesk Privacy Statement</a>
+              rel="noopener noreferrer"
+              href={privacy}
+            > Autodesk Privacy Statement</a>
           </span>
         </div>
         <div className={`error ${this.state.tosError.visible ? 'visible' : ''}`}>{`${this.state.tosError.text}`}</div>
@@ -356,7 +357,8 @@ export class RegisterForm extends Component {
           type="button"
           onClick={() => {
             this.props.uiShowAuthenticationForm('signin');
-          }}>Cancel
+          }}
+        >Cancel
         </button>
       </form>
     );
@@ -368,7 +370,6 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiShowAuthenticationForm,
-  uiSetGrunt,
   uiSpin,
   userRegister,
   projectOpen,

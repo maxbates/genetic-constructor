@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { registry, registerManifest, clearRegistry } from './clientRegistry';
 import { getExtensionsInfo } from '../middleware/extensions';
+import { clearRegistry, registerManifest, registry } from './clientRegistry';
 
 //for now, build the registry using everything registered on the server, and load automatically
 export default function loadAllExtensions(loadAll = true, shouldClear = true) {

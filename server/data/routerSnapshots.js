@@ -15,11 +15,8 @@
  */
 
 import express from 'express';
-import {
-  errorVersioningSystem,
-  errorInvalidModel,
-  errorDoesNotExist,
-} from './../utils/errors';
+
+import { errorDoesNotExist, errorInvalidModel, errorVersioningSystem } from './../utils/errors';
 import * as projectPersistence from './persistence/projects';
 import * as snapshots from './persistence/snapshots';
 
@@ -43,7 +40,7 @@ router.route('/:version?')
     } else {
       snapshots.snapshotList(projectId, user.uuid, tags)
         .then(log => res.status(200).json(log))
-        .catch(err => {
+        .catch((err) => {
           //return 200 if project exists (implicit, due to prior middleware) but no snapshots found
           if (err === errorDoesNotExist) {
             return res.status(200).json([]);
@@ -71,7 +68,7 @@ router.route('/:version?')
     const rollupDefined = !!roll && roll.project && roll.blocks;
 
     //use version they gave or get latest
-    const getVersionPromise = !!version ?
+    const getVersionPromise = version ?
       Promise.resolve(version) :
       projectPersistence.projectExists(projectId).then(version => version);
 
@@ -85,7 +82,7 @@ router.route('/:version?')
       .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, message, tags))
       .then(snapshot => res.status(200).json(snapshot))
       //may want better error handling here
-      .catch(err => {
+      .catch((err) => {
         if (err === errorInvalidModel) {
           return res.status(422).send(err);
         }
