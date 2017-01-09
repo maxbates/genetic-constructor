@@ -16,7 +16,8 @@
 
 import express from 'express';
 
-import * as lodash from 'lodash';
+import * as uuid from 'uuid';
+import { projectPermissionMiddleware } from './permissions';
 
 import {
   errorDoesNotExist,
@@ -29,6 +30,7 @@ import Block from '../../src/models/Block';
 const router = express.Router(); //eslint-disable-line new-cap
 
 router.route('/savecomponent/:projectId?')
+  .all(projectPermissionMiddleware)
   .get((req, res, next) => {
     const { user } = req;
     const { projectId } = req.params;
@@ -41,14 +43,21 @@ router.route('/savecomponent/:projectId?')
 
         const constructId = rollup.project.components[0];
         const construct = rollup.blocks[constructId];
-        const newBlock = new Block(construct);
+        const newBlockID = 'block-' + uuid.v4();
+        const newBlock = new Block(Object.assign({}, construct, {
+          id: newBlockID,
+        }), false);
+        newBlock.metadata.name = 'loaderCreated-' + Date.now();
         let blocksToMerge = {};
         blocksToMerge[newBlock.id] = newBlock;
         return projectPersistence.blocksMerge(projectId, user.uuid, blocksToMerge)
           .then((updatedRollup) => {
-          console.log("newRollup", updatedRollup);
-          res.status(200).json(updatedRollup);
-        });
+            updatedRollup.project.components = updatedRollup.project.components.concat(newBlockID);
+            return projectPersistence.projectWrite(projectId, updatedRollup, user.uuid)
+              .then((finalRollup) => {
+                res.status(200).json(finalRollup);
+              });
+          });
       })
       .catch(err => next(err));
   });

@@ -72,7 +72,7 @@ router.use('/file/:projectId', projectPermissionMiddleware, projectFileRouter);
 router.use('/sequence', sequenceRouter);
 
 /* Load Testing Support */
-router.use('/loadersupport', projectPermissionMiddleware, loaderSupportRouter);
+router.use('/loadersupport', loaderSupportRouter);
 
 /* versioning */
 
