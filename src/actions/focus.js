@@ -231,12 +231,9 @@ export const focusBlockOption = (blockId, optionId) => {
     const oldOptions = getState().focus.options;
     const options = Object.assign({}, oldOptions, { [blockId]: optionId });
 
-    // options is all the focused blocks and associated selected option. For extensions etc
-    // we need to show which block was most recently selected.
-    options.selectedOptionId = optionId;
-
     dispatch({
       type: ActionTypes.FOCUS_BLOCK_OPTION,
+      lastOptionId: optionId,
       options,
     });
     return options;

@@ -21,6 +21,7 @@ export const initialState = {
   forceProject: null, //forced model
   forceBlocks: [], //forced models
   blockIds: [], //ids of selection
+  lastOptionId: null, // last selection option id
   constructId: null, //id of current
   roleId: null, //ID of focused Role
   level: 'project', //what to give priority to (when defined)
@@ -80,10 +81,11 @@ export default function inventory(state = initialState, action) {
     });
 
   case ActionTypes.FOCUS_BLOCK_OPTION :
-    const { options } = action;
+    const { options, lastOptionId } = action;
     return Object.assign({}, state, {
       level: 'option',
       roleId: null,
+      lastOptionId,
       options,
     });
 
