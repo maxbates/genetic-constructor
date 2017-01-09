@@ -15,17 +15,13 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import SectionIcon from './SectionIcon';
-import {
-  inspectorToggleVisibility,
-  inspectorSelectTab,
-} from '../actions/ui';
-import { _getFocused } from '../selectors/focus';
 
+import { inspectorSelectTab, inspectorToggleVisibility } from '../actions/ui';
 import InspectorGroup from '../components/Inspector/InspectorGroup';
-
+import { _getFocused } from '../selectors/focus';
 import '../styles/Inspector.css';
 import '../styles/SidePanel.css';
+import SectionIcon from './SectionIcon';
 
 export class Inspector extends Component {
   static propTypes = {
@@ -82,16 +78,14 @@ export class Inspector extends Component {
     // classes for content area
     const contentClasses = `no-vertical-scroll content${isVisible ? '' : ' content-closed'}`;
     // map sections to icons
-    const icons = Object.keys(this.sections).map(sectionName => {
-      return (<SectionIcon
-        key={sectionName}
-        open={isVisible}
-        onSelect={this.setActive}
-        onToggle={() => this.toggle(!isVisible)}
-        selected={this.props.currentTab === sectionName && isVisible}
-        section={sectionName}
-      />);
-    });
+    const icons = Object.keys(this.sections).map(sectionName => (<SectionIcon
+      key={sectionName}
+      open={isVisible}
+      onSelect={this.setActive}
+      onToggle={() => this.toggle(!isVisible)}
+      selected={this.props.currentTab === sectionName && isVisible}
+      section={sectionName}
+    />));
 
     // setup content area
     const tabInfo = this.sections[this.props.currentTab];
@@ -101,7 +95,7 @@ export class Inspector extends Component {
     }
 
     return (
-      <div className={'SidePanel Inspector' + (isVisible ? ' visible' : '')}>
+      <div className={`SidePanel Inspector${isVisible ? ' visible' : ''}`}>
         <div className="container">
           <div className="vertical-menu">
             {icons}
@@ -133,7 +127,7 @@ function mapStateToProps(state, props) {
   if (type === 'option') {
     const blockId = state.focus.blockIds[0];
     const block = state.blocks[blockId];
-    if (!!block) {
+    if (block) {
       Object.assign(overrides, {
         color: block.getColor(),
         role: block.getRole(false),

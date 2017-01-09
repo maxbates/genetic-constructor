@@ -13,24 +13,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { routerReducer as router, LOCATION_CHANGE } from 'react-router-redux';
-import { USER_SET_USER } from '../constants/ActionTypes';
+import { LOCATION_CHANGE, routerReducer as router } from 'react-router-redux';
 import { combineReducers } from 'redux';
-import { undoReducer, undoReducerEnhancerCreator } from '../store/undo/reducerEnhancer';
+
+import { USER_SET_USER } from '../constants/ActionTypes';
 import { autosaveReducerEnhancer } from '../store/autosave/autosaveInstance';
 import freezeReducerEnhancer from '../store/freezeReducerEnhancer';
-
-//all the reducers
-
+import { undoReducer, undoReducerEnhancerCreator } from '../store/undo/reducerEnhancer';
 import blocks from './blocks';
-import projects from './projects';
-import inventory from './inventory';
-import inspector from './inspector';
-import ui from './ui';
-import focus from './focus';
-import orders from './orders';
-import user from './user';
 import clipboard from './clipboard';
+import focus from './focus';
+import inspector from './inspector';
+import inventory from './inventory';
+import orders from './orders';
+import projects from './projects';
+import ui from './ui';
+import user from './user';
 
 //undo
 
@@ -40,7 +38,7 @@ const purgingEvents = [LOCATION_CHANGE, USER_SET_USER];
 
 export const createRootReducer = () => {
   const undoReducerEnhancer = undoReducerEnhancerCreator({
-    purgeOn: (action) => purgingEvents.some(type => type === action.type),
+    purgeOn: action => purgingEvents.some(type => type === action.type),
   });
 
   return freezeReducerEnhancer(combineReducers({

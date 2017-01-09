@@ -17,8 +17,9 @@ limitations under the License.
  * @module Actions_Clipboard
  * @memberOf module:Actions
  */
-import * as ActionTypes from '../constants/ActionTypes';
 import invariant from 'invariant';
+
+import * as ActionTypes from '../constants/ActionTypes';
 
 //hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
 const spaceFiller = 10; //eslint-disable-line no-unused-vars
@@ -30,15 +31,13 @@ const spaceFiller = 10; //eslint-disable-line no-unused-vars
  * @param {Array} data
  * @returns {Object} In form {formats, data}
  */
-export const clipboardSetData = (formats, data) => {
-  return (dispatch, getState) => {
-    invariant(Array.isArray(formats), 'expected formats to be an array of formats');
-    invariant(Array.isArray(data), 'expected data to an array of data');
-    dispatch({
-      type: ActionTypes.CLIPBOARD_SET_DATA,
-      formats: formats,
-      data: data,
-    });
-    return {formats, data};
-  };
+export const clipboardSetData = (formats, data) => (dispatch, getState) => {
+  invariant(Array.isArray(formats), 'expected formats to be an array of formats');
+  invariant(Array.isArray(data), 'expected data to an array of data');
+  dispatch({
+    type: ActionTypes.CLIPBOARD_SET_DATA,
+    formats,
+    data,
+  });
+  return { formats, data };
 };

@@ -13,9 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const makeRegexp = (string) => {
-  return new RegExp(`^[${string}]*$`, 'gi');
-};
+const makeRegexp = string => new RegExp(`^[${string}]*$`, 'gi');
 
 //use functions which return a new regex so that .test() and .exec() which use lastIndex should not have effect on multiple calls
 

@@ -15,23 +15,15 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+import { focusForceBlocks, focusRole } from '../../actions/focus';
+import { inspectorToggleVisibility, uiSetGrunt, uiSpin } from '../../actions/ui';
+import { block as blockDragType, role as roleDragType } from '../../constants/DragTypes';
 import DnD from '../../containers/graphics/dnd/dnd';
 import MouseTrap from '../../containers/graphics/mousetrap';
+import '../../styles/InventoryItem.css';
 import RoleSvg from '../RoleSvg';
 import BasePairCount from '../ui/BasePairCount';
-import {
-  block as blockDragType,
-  role as roleDragType,
-} from '../../constants/DragTypes';
-
-import {
-  inspectorToggleVisibility,
-  uiSetGrunt,
-  uiSpin,
-} from '../../actions/ui';
-import { focusForceBlocks, focusRole } from '../../actions/focus';
-
-import '../../styles/InventoryItem.css';
 
 export class InventoryItem extends Component {
   static propTypes = {
@@ -166,7 +158,7 @@ export class InventoryItem extends Component {
       document.addEventListener('click', onClickHandler);
     }
 
-    promise.then(result => {
+    promise.then((result) => {
       if (!this.state.skipFocus) {
         //todo - this shouldnt be responsibility of this generic component. move into specific components.
         if (inventoryType === blockDragType) {
@@ -180,7 +172,7 @@ export class InventoryItem extends Component {
         this.setState({ loadError: false, loaded: result });
       }
     })
-      .catch(err => {
+      .catch((err) => {
         console.log(err); //eslint-disable-line no-console
         if (onSelect) {
           this.setState({ loadError: true });
@@ -196,39 +188,41 @@ export class InventoryItem extends Component {
 
     const hasSequence = item.sequence && item.sequence.length > 0;
     const itemName = item.metadata.name || defaultName || 'Unnamed';
-    const dataAttr = !!dataAttribute ? dataAttribute : `${inventoryType} ${item.id}`;
+    const dataAttr = dataAttribute || `${inventoryType} ${item.id}`;
 
 
     return (
-      <div className={'InventoryItem' +
-      ((!!image || !!svg) ? ' hasImage' : '') +
-      ((!!loading && !skipFocus) ? ' loading' : '') +
-      ((!!loadError) ? ' loadError' : '') +
-      (!!isSelected ? ' selected' : '')}
-           ref={(el) => this.itemElement = el}
-           data-inventory={dataAttr}>
-        <a className="InventoryItem-item"
-           onClick={this.handleClick}>
-          {image && (<span className="InventoryItem-image" style={{ backgroundImage: `url(${image})` }}/>)}
-          {(svg && !image) ? <RoleSvg symbolName={svg} {...svgProps} styles={{}}/> : null}
+      <div
+        className={`InventoryItem${
+      (!!image || !!svg) ? ' hasImage' : ''
+      }${(loading && !skipFocus) ? ' loading' : ''
+      }${(loadError) ? ' loadError' : ''
+      }${isSelected ? ' selected' : ''}`}
+        ref={(el) => { this.itemElement = el; }}
+        data-inventory={dataAttr}
+      >
+        <a
+          className="InventoryItem-item"
+          onClick={this.handleClick}
+        >
+          {image && (<span className="InventoryItem-image" style={{ backgroundImage: `url(${image})` }} />)}
+          {(svg && !image) ? <RoleSvg symbolName={svg} {...svgProps} styles={{}} /> : null}
           <span className="InventoryItem-text" title={loadError ? 'Error Loading Item' : itemName}>
             {itemName}
           </span>
           {itemDetail && <span className="InventoryItem-detail">{itemDetail}</span>}
           {(!itemDetail && hasSequence) &&
-          <span className="InventoryItem-detail"><BasePairCount count={item.sequence.length}/></span>}
+          <span className="InventoryItem-detail"><BasePairCount count={item.sequence.length} /></span>}
         </a>
       </div>
     );
   }
 }
 
-export default connect((state) => {
-  return {
-    focusBlocks: state.focus.blockIds,
-    forceBlocks: state.focus.forceBlocks,
-  };
-}, {
+export default connect(state => ({
+  focusBlocks: state.focus.blockIds,
+  forceBlocks: state.focus.forceBlocks,
+}), {
   focusForceBlocks,
   focusRole,
   inspectorToggleVisibility,

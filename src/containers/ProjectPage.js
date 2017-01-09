@@ -15,28 +15,27 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ImportGenBankModal from '../components/genbank/import';
-import ImportPartsCSVModal from '../components/importpartscsv/importpartscsv';
-import ImportDNAForm from '../components/importdna/importdnaform';
-import OrderModal from '../containers/orders/ordermodal';
-import SaveErrorModal from '../components/modal/SaveErrorModal';
 
-import ConstructViewer from './graphics/views/constructviewer';
-import ConstructViewerCanvas from './graphics/views/constructViewerCanvas';
-import ProjectDetail from '../components/ProjectDetail';
-import ProjectHeader from '../components/ProjectHeader';
-import Spinner from '../components/ui/Spinner';
-import Inventory from './Inventory';
-import Inspector from './Inspector';
-import { projectList, projectLoad, projectCreate, projectOpen } from '../actions/projects';
-import { uiSetGrunt } from '../actions/ui';
 import { focusConstruct } from '../actions/focus';
 import { orderList } from '../actions/orders';
-import autosaveInstance from '../store/autosave/autosaveInstance';
+import { projectCreate, projectList, projectLoad, projectOpen } from '../actions/projects';
+import { uiSetGrunt } from '../actions/ui';
+import ProjectDetail from '../components/ProjectDetail';
+import ProjectHeader from '../components/ProjectHeader';
+import ImportGenBankModal from '../components/genbank/import';
+import ImportDNAForm from '../components/importdna/importdnaform';
+import ImportPartsCSVModal from '../components/importpartscsv/importpartscsv';
+import SaveErrorModal from '../components/modal/SaveErrorModal';
+import Spinner from '../components/ui/Spinner';
+import OrderModal from '../containers/orders/ordermodal';
 import loadAllExtensions from '../extensions/loadExtensions';
-
+import autosaveInstance from '../store/autosave/autosaveInstance';
 import '../styles/ProjectPage.css';
 import '../styles/SceneGraphPage.css';
+import Inspector from './Inspector';
+import Inventory from './Inventory';
+import ConstructViewerCanvas from './graphics/views/constructViewerCanvas';
+import ConstructViewer from './graphics/views/constructviewer';
 
 class ProjectPage extends Component {
   static propTypes = {
@@ -44,23 +43,29 @@ class ProjectPage extends Component {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object, //if have a project (not fetching)
     constructs: PropTypes.array, //if have a project (not fetching)
-    orders: PropTypes.array, //if have a project (not fetching)
-    projectCreate: PropTypes.func.isRequired,
-    projectList: PropTypes.func.isRequired,
+    //orders: PropTypes.array, //if have a project (not fetching)
+    //projectCreate: PropTypes.func.isRequired,
+    //projectList: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
-    uiSetGrunt: PropTypes.func.isRequired,
+    //uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
   };
 
+  static onWindowUnload(evt) {
+    if (autosaveInstance.isDirty() && process.env.NODE_ENV === 'production') {
+      return 'Project has unsaved work! Please save before leaving this page';
+    }
+  }
+
   componentDidMount() {
     // todo - use react router History to do this:
     // https://github.com/mjackson/history/blob/master/docs/ConfirmingNavigation.md
-    window.onbeforeunload = window.onunload = this.onWindowUnload;
+    window.onbeforeunload = window.onunload = ProjectPage.onWindowUnload;
 
     //load extensions (also see componentWillReceiveProps)
-    if (!!this.props.userId) {
+    if (this.props.userId) {
       loadAllExtensions();
     }
   }
@@ -88,57 +93,51 @@ class ProjectPage extends Component {
     window.onbeforeunload = window.onunload = () => {};
   }
 
-  onWindowUnload(evt) {
-    if (autosaveInstance.isDirty() && process.env.NODE_ENV === 'production') {
-      return 'Project has unsaved work! Please save before leaving this page';
-    }
-  }
-
   render() {
     const { project, projectId, constructs } = this.props;
 
     //handle project not loaded
     if (!project || !project.metadata) {
       this.props.projectLoad(projectId, false, true)
-        .then(project => {
+        .then((project) => {
           if (project.id !== projectId) {
             this.props.projectOpen(project.id);
           }
         });
-      return (<Spinner styles={{fontSize: '40px', margin: '2em auto'}}/>);
+      return (<Spinner styles={{ fontSize: '40px', margin: '2em auto' }} />);
     }
 
     // build a list of construct viewers
-    const constructViewers = constructs.filter(construct => construct).map(construct => {
-      return (
-        <ConstructViewer key={construct.id}
-                         projectId={projectId}
-                         constructId={construct.id}/>
-      );
-    });
+    const constructViewers = constructs.filter(construct => construct).map(construct => (
+      <ConstructViewer
+        key={construct.id}
+        projectId={projectId}
+        constructId={construct.id}
+      />
+      ));
 
     return (
       <div className="ProjectPage">
-        <ImportGenBankModal currentProjectId={projectId}/>
+        <ImportGenBankModal currentProjectId={projectId} />
         <ImportDNAForm />
         <ImportPartsCSVModal />
         <SaveErrorModal />
         <OrderModal projectId={projectId} />
 
-        <Inventory currentProjectId={projectId}/>
+        <Inventory currentProjectId={projectId} />
 
         <div className="ProjectPage-content">
 
-          <ProjectHeader project={project}/>
+          <ProjectHeader project={project} />
 
           <ConstructViewerCanvas currentProjectId={projectId}>
             {constructViewers}
           </ConstructViewerCanvas>
 
-          <ProjectDetail project={project}/>
+          <ProjectDetail project={project} />
         </div>
 
-        <Inspector projectId={projectId}/>
+        <Inspector projectId={projectId} />
       </div>
     );
   }

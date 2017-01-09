@@ -13,39 +13,28 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import invariant from 'invariant';
 import { connect } from 'react-redux';
-import { projectAddConstruct } from '../../../actions/projects';
-import {
-  blockCreate,
-  blockAddComponent,
-  blockClone,
-  blockRename,
-} from '../../../actions/blocks';
-import { uiSpin } from '../../../actions/ui';
-import { focusConstruct, focusBlocks } from '../../../actions/focus';
-import {
-  projectGetVersion,
-  projectGet,
-} from '../../../selectors/projects';
-import DnD from '../dnd/dnd';
-import ConstructViewer from './constructviewer';
-import MouseTrap from '../mousetrap';
-import { block as blockDragType } from '../../../constants/DragTypes';
 
+import { blockAddComponent, blockClone, blockCreate } from '../../../actions/blocks';
+import { focusBlocks, focusConstruct } from '../../../actions/focus';
+import { projectAddConstruct } from '../../../actions/projects';
+import { block as blockDragType } from '../../../constants/DragTypes';
+import { projectGet, projectGetVersion } from '../../../selectors/projects';
 import '../../../styles/constructviewercanvas.css';
+import DnD from '../dnd/dnd';
+import MouseTrap from '../mousetrap';
+import ConstructViewer from './constructviewer';
 
 const defaultDropMessage = 'Drop blocks here to create a new construct.';
 const droppingMessage = 'Building new construct...';
 
 export class ConstructViewerCanvas extends Component {
   static propTypes = {
-    uiSpin: PropTypes.func.isRequired,
     blockCreate: PropTypes.func.isRequired,
     blockClone: PropTypes.func.isRequired,
-    blockRename: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
@@ -164,9 +153,9 @@ export class ConstructViewerCanvas extends Component {
   /**
    * end mouse scrolling
    */
-  endMouseScroll() {
+  endMouseScroll = () => {
     this.autoScroll(0);
-  }
+  };
 
   /**
    * auto scroll in the given direction -1, towards top, 0 stop, 1 downwards.
@@ -205,7 +194,7 @@ export class ConstructViewerCanvas extends Component {
   /**
    * start, continue or stop autoscroll based on given global mouse position
    */
-  mouseScroll(globalPosition) {
+  mouseScroll = (globalPosition) => {
     const local = this.mouseTrap.globalToLocal(globalPosition, ReactDOM.findDOMNode(this));
     const box = this.mouseTrap.element.getBoundingClientRect();
     // autoscroll threshold is clamped at a percentage of height otherwise when the window is short
@@ -213,37 +202,34 @@ export class ConstructViewerCanvas extends Component {
     const edge = Math.max(0, Math.min(100, box.height * 0.25));
     if (local.y < edge) {
       this.autoScroll(-1);
+    } else if (local.y > box.height - edge) {
+      this.autoScroll(1);
     } else {
-      if (local.y > box.height - edge) {
-        this.autoScroll(1);
-      } else {
         // cancel the autoscroll
-        this.autoScroll(0);
-      }
+      this.autoScroll(0);
     }
-  }
+  };
 
   /**
    * render the component, the scene graph will render later when componentDidUpdate is called
    */
   render() {
     // map construct viewers so we can pass down mouseScroll and endMouseScroll as properties
-    const constructViewers = this.props.children.map(constructViewer => {
-      return React.cloneElement(constructViewer, {
-        mouseScroll: this.mouseScroll.bind(this),
-        endMouseScroll: this.endMouseScroll.bind(this),
-        currentProjectId: this.props.currentProjectId,
-      });
-    });
+    const constructViewers = this.props.children.map(constructViewer => React.cloneElement(constructViewer, {
+      mouseScroll: this.mouseScroll,
+      endMouseScroll: this.endMouseScroll,
+      currentProjectId: this.props.currentProjectId,
+    }));
 
     // get class name for drop target which might hide it
     const dropClasses = `cvc-drop-target${this.isSampleProject() ? ' cvc-hidden' : ''}`;
 
     // map construct viewers so we can propagate projectId and any recently dropped blocks
     return (
-      <div className="ProjectPage-constructs no-vertical-scroll"
-           onMouseDown={this.onMouseDown}
-           onMouseUp={this.onMouseUp}
+      <div
+        className="ProjectPage-constructs no-vertical-scroll"
+        onMouseDown={this.onMouseDown}
+        onMouseUp={this.onMouseUp}
       >
         <div className={dropClasses} ref="dropTarget" key="dropTarget">Drop blocks here to create a new construct.</div>
         {constructViewers}
@@ -259,16 +245,12 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  uiSpin,
   focusConstruct,
   focusBlocks,
   projectAddConstruct,
   blockCreate,
-  blockRename,
   blockAddComponent,
   projectGetVersion,
   projectGet,
   blockClone,
 })(ConstructViewerCanvas);
-
-

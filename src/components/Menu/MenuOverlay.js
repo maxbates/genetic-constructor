@@ -16,11 +16,12 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import Box2D from '../../containers/graphics/geometry/box2d';
-import SubMenu from './SubMenu';
-import { uiShowMenu } from '../../actions/ui';
 
 import '../../../src/styles/MenuOverlay.css';
+import { uiShowMenu } from '../../actions/ui';
+import Box2D from '../../containers/graphics/geometry/box2d';
+import SubMenu from './SubMenu';
+
 /**
  * Elements that holds the active menu and blocks access to the page behind it.
  */
@@ -118,21 +119,21 @@ class MenuOverlay extends Component {
     // size and position hat and menu
     const psize = this.props.menuHat ? 20 : 0;
     const pointerPosition = {
-      width: psize + 'px',
-      height: psize + 'px',
-      left: pos.x - 10 + 'px',
-      top: pos.y + 'px',
+      width: `${psize}px`,
+      height: `${psize}px`,
+      left: `${pos.x - 10}px`,
+      top: `${pos.y}px`,
     };
     const menuPosition = {
-      left: pos.x - 10 + 'px',
-      top: pos.y + psize / 2 + 'px',
+      left: `${pos.x - 10}px`,
+      top: `${pos.y + (psize / 2)}px`,
     };
     // to be called after render, react sucks
     if (!this.measured) {
       this.measured = true;
       window.setTimeout(() => {
         // determine which side to open sub menus once we have updated.
-        const element = ReactDOM.findDOMNode(this.refs.subMenu);
+        const element = ReactDOM.findDOMNode(this).querySelector('.menu-overlay-menu');
         if (element) {
           const box = new Box2D(element.getBoundingClientRect());
           const openLeft = box.right > document.body.clientWidth / 2;
@@ -149,7 +150,7 @@ class MenuOverlay extends Component {
         onMouseDown={this.mouseOverlay}
       >
         {this.props.menuHat
-          ? <div className="menu-overlay-pointer" style={pointerPosition}></div>
+          ? <div className="menu-overlay-pointer" style={pointerPosition} />
           : null
         }
         <SubMenu
@@ -160,7 +161,6 @@ class MenuOverlay extends Component {
           onMouseLeave={this.mouseLeaveMenu}
           className={this.getSideClass()}
           openLeft={this.state.openLeft}
-          ref="subMenu"
         />
       </div>
     );

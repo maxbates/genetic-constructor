@@ -13,10 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
+import { generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
 import { headersGet, headersPost } from './utils/headers';
 import { dataApiPath } from './utils/paths';
-import { generatePseudoMd5, getSequencesFromMap } from '../utils/sequenceMd5';
+import rejectingFetch from './utils/rejectingFetch';
 
 const getSequenceUrl = (md5, range) => {
   if (range) {
@@ -45,17 +45,15 @@ export const getSequence = (md5, range) => {
   //}
 
   return rejectingFetch(url, headersGet())
-    .then((resp) => resp.text())
-    .then(sequence => {
+    .then(resp => resp.text())
+    .then((sequence) => {
       cacheSequence(md5, sequence);
       return sequence;
     });
 };
 
 //expects map in form { blockId: pseudoMd5 }
-export const getSequences = (blockIdsToMd5s) => {
-  return getSequencesFromMap(blockIdsToMd5s, (seqMd5) => getSequence(seqMd5));
-};
+export const getSequences = blockIdsToMd5s => getSequencesFromMap(blockIdsToMd5s, seqMd5 => getSequence(seqMd5));
 
 export const writeSequence = (sequence) => {
   const url = getSequenceUrl();
@@ -63,7 +61,7 @@ export const writeSequence = (sequence) => {
 
   return rejectingFetch(url, headersPost(stringified))
     .then(resp => resp.text())
-    .then(md5 => {
+    .then((md5) => {
       cacheSequence(md5, sequence);
       return md5;
     });

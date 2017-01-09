@@ -15,51 +15,42 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { blockStash } from '../../actions/blocks';
-import InventorySearch from './InventorySearch';
+import _ from 'lodash';
+
+import { blockCreate } from '../../actions/blocks';
+import { focusConstruct, focusForceBlocks, focusForceProject } from '../../actions/focus';
 import {
-  projectCreate,
   projectAddConstruct,
-  projectSave,
-  projectOpen,
+  projectCreate,
   projectDelete,
   projectList,
   projectLoad,
+  projectOpen,
+  projectSave,
 } from '../../actions/projects';
 import {
-  blockCreate,
-} from '../../actions/blocks';
-import * as instanceMap from '../../store/instanceMap';
-import Spinner from '../ui/Spinner';
-import Tree from '../ui/Tree';
-import {
-  focusForceProject,
-  focusForceBlocks,
-  focusConstruct,
-} from '../../actions/focus';
-import {
-  inspectorToggleVisibility,
   inspectorSelectTab,
-} from '../../actions/ui';
-import BasePairCount from '../ui/BasePairCount';
-import DnD from '../../containers/graphics/dnd/dnd';
-import {
+  inspectorToggleVisibility,
+  uiSetGrunt,
   uiShowMenu,
   uiShowOkCancel,
-  uiSetGrunt,
 } from '../../actions/ui';
 import { block as blockDragType } from '../../constants/DragTypes';
-import { transact, commit } from '../../store/undo/actions';
+import DnD from '../../containers/graphics/dnd/dnd';
 import { extensionApiPath } from '../../middleware/utils/paths';
-
+import * as instanceMap from '../../store/instanceMap';
+import { commit, transact } from '../../store/undo/actions';
 import '../../styles/InventoryProjectTree.css';
+import BasePairCount from '../ui/BasePairCount';
+import Spinner from '../ui/Spinner';
+import Tree from '../ui/Tree';
+import InventorySearch from './InventorySearch';
 
 export class InventoryProjectTree extends Component {
   static propTypes = {
     currentProjectId: PropTypes.string,
     projects: PropTypes.object.isRequired,
     blockCreate: PropTypes.func.isRequired,
-    blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
     templates: PropTypes.bool.isRequired,
     projectCreate: PropTypes.func.isRequired,
@@ -82,6 +73,31 @@ export class InventoryProjectTree extends Component {
     blocks: PropTypes.object.isRequired,
   };
 
+  static filter = '';
+
+  /**
+   * make a drag and drop proxy for the item
+   */
+  static makeDnDProxy(block) {
+    const proxy = document.createElement('div');
+    proxy.className = 'InventoryItemProxy';
+    proxy.innerHTML = block.getName();
+    return proxy;
+  }
+
+  /**
+   * block dragged from project inventory
+   * @param block
+   * @param globalPoint
+   */
+  static onBlockDrag(block, globalPoint) {
+    DnD.startDrag(InventoryProjectTree.makeDnDProxy(block), globalPoint, {
+      item: block,
+      type: blockDragType,
+      source: 'inventory',
+    });
+  }
+
   state = {
     isLoading: true,
     filter: InventoryProjectTree.filter || '',
@@ -92,11 +108,6 @@ export class InventoryProjectTree extends Component {
     this.props.projectList()
     .then(() => this.setState({ isLoading: false }));
   }
-
-  handleFilterChange = (filter) => {
-    InventoryProjectTree.filter = filter;
-    this.setState({ filter });
-  };
 
   /**
    * when a project is expanded, we need to load to get the blocks and also inspect it
@@ -126,7 +137,7 @@ export class InventoryProjectTree extends Component {
    * when a project is opened ( from the open widget in the tree expandos )
    * @param projectId
    */
-  onOpenProject(project, evt) {
+  onOpenProject = (project, evt) => {
     if (evt) {
       evt.preventDefault();
       evt.stopPropagation();
@@ -135,61 +146,7 @@ export class InventoryProjectTree extends Component {
     .then(() => {
       this.props.projectOpen(project.id);
     });
-  }
-
-  /**
-   * make a drag and drop proxy for the item
-   */
-  makeDnDProxy(block) {
-    const proxy = document.createElement('div');
-    proxy.className = 'InventoryItemProxy';
-    proxy.innerHTML = block.getName();
-    return proxy;
-  }
-
-  /**
-   * block dragged from project inventory
-   * @param block
-   * @param globalPoint
-   */
-  onBlockDrag(block, globalPoint) {
-    DnD.startDrag(this.makeDnDProxy(block), globalPoint, {
-      item: block,
-      type: blockDragType,
-      source: 'inventory',
-    });
-  }
-
-  /**
-   * build a nested set of tree items from the given components array
-   * @param components
-   */
-  getProjectBlocksRecursive(components, depth, maxDepth = Number.MAX_VALUE) {
-    const items = [];
-    if (depth < maxDepth) {
-      (components || []).forEach(blockId => {
-        const block = this.props.blocks[blockId] || instanceMap.getBlock(blockId);
-        if (block) {
-          const hasSequence = block.sequence && block.sequence.length > 0;
-          items.push({
-            block,
-            testid: block.id,
-            text: block.getName(),
-            textWidgets: [
-              hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }}/> : null,
-            ],
-            onExpand: this.onExpandBlock.bind(this, block),
-            items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
-            startDrag: this.onBlockDrag.bind(this, block),
-            locked: block.isFrozen(),
-          });
-        }
-      });
-    }
-    return items;
-  }
-
-  static filter = '';
+  };
 
   /**
    * create a new project and navigate to it.
@@ -230,25 +187,9 @@ export class InventoryProjectTree extends Component {
         this.props.uiShowOkCancel();
       },
       'Delete Project',
-      'Cancel'
+      'Cancel',
     );
   };
-
-  /**
-   * perform the actual deletion.
-   */
-  deleteProject(project) {
-    if (project.rules.frozen) {
-      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
-    } else {
-      //load another project, avoiding this one
-      this.props.projectLoad(null, false, [project.id])
-      //open the new project, skip saving the previous one
-      .then(openProject => this.props.projectOpen(openProject.id, true))
-      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-      .then(() => this.props.projectDelete(project.id));
-    }
-  }
 
   /**
    * add a new construct to the bound project ( initial model used for templates )
@@ -266,10 +207,7 @@ export class InventoryProjectTree extends Component {
    * new template construct added to bound project
    * @param project
    */
-  onNewTemplate = (project) => {
-    return this.onNewConstruct(project, { rules: { authoring: true, fixed: true } });
-  };
-
+  onNewTemplate = project => this.onNewConstruct(project, { rules: { authoring: true, fixed: true } });
 
   /**
    * used want to open the context menu for the project.
@@ -311,6 +249,56 @@ export class InventoryProjectTree extends Component {
   };
 
   /**
+   * build a nested set of tree items from the given components array
+   * @param components
+   */
+  getProjectBlocksRecursive(components, depth, maxDepth = Number.MAX_VALUE) {
+    const items = [];
+    if (depth < maxDepth) {
+      (components || []).forEach((blockId) => {
+        const block = this.props.blocks[blockId] || instanceMap.getBlock(blockId);
+        if (block) {
+          const hasSequence = block.sequence && block.sequence.length > 0;
+          items.push({
+            block,
+            testid: block.id,
+            text: block.getName(),
+            textWidgets: [
+              hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }} /> : null,
+            ],
+            onExpand: () => this.onExpandBlock(block),
+            items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
+            startDrag: () => InventoryProjectTree.onBlockDrag(block),
+            locked: block.isFrozen(),
+          });
+        }
+      });
+    }
+    return items;
+  }
+
+  handleFilterChange = (filter) => {
+    InventoryProjectTree.filter = filter;
+    this.setState({ filter });
+  };
+
+  /**
+   * perform the actual deletion.
+   */
+  deleteProject(project) {
+    if (project.rules.frozen) {
+      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
+    } else {
+      //load another project, avoiding this one
+      this.props.projectLoad(null, false, [project.id])
+      //open the new project, skip saving the previous one
+      .then(openProject => this.props.projectOpen(openProject.id, true))
+      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+      .then(() => this.props.projectDelete(project.id));
+    }
+  }
+
+  /**
    * download the current file as a genbank file
    *
    */
@@ -321,7 +309,7 @@ export class InventoryProjectTree extends Component {
 
       const url = extensionApiPath('genbank', `export/${project.id}`);
       const postBody = this.props.focus.options;
-      const iframeTarget = '' + Math.floor(Math.random() * 10000) + +Date.now();
+      const iframeTarget = `${Math.floor(Math.random() * 10000)}${+Date.now()}`;
 
       // for now use an iframe otherwise any errors will corrupt the page
       const iframe = document.createElement('iframe');
@@ -338,7 +326,7 @@ export class InventoryProjectTree extends Component {
       form.target = iframeTarget;
 
       //add inputs to the form for each value in postBody
-      Object.keys(postBody).forEach(key => {
+      Object.keys(postBody).forEach((key) => {
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = key;
@@ -357,59 +345,67 @@ export class InventoryProjectTree extends Component {
     });
   };
 
-
   render() {
-    const { projects, currentProjectId } = this.props;
+    const { projects, templates, currentProjectId } = this.props;
     const { isLoading } = this.state;
 
     if (isLoading) {
       return <Spinner />;
     }
-    // filter on frozen rule to separate templates from projects and also match to the current search filter
-    const filtered = {};
-    Object.keys(projects).forEach(projectId => {
-      const project = projects[projectId];
-      if (this.props.templates === !!project.rules.frozen) {
-        const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
-        const filter = this.state.filter.toLowerCase();
-        if (name.indexOf(filter) >= 0) {
-          filtered[projectId] = projects[projectId];
-        }
-      }
-    });
 
-    // map projects to items for use in a tree
-    const treeItems = Object.keys(filtered)
-    .map(projectId => filtered[projectId])
-    .sort((one, two) => two.metadata.created - one.metadata.created)
-    .map(project => {
-      return {
-        text: project.getName(),
-        testid: project.id,
-        bold: true,
-        selected: project.id === currentProjectId,
-        onExpand: this.onExpandProject.bind(this, project),
-        onContextMenu: this.onProjectContextMenu.bind(this, project),
-        items: this.getProjectBlocksRecursive(project.components, 0, project.rules.frozen ? 1 : Number.MAX_VALUE),
-        labelWidgets: [
-          <img
-            key="open"
-            src="/images/ui/open.svg"
-            onClick={this.onOpenProject.bind(this, project)}
-            className="label-hover-bright"
-          />,
-        ],
-      };
-    });
+    const treeItems = _.chain(projects)
+    .pickBy((project) => {
+      //if want template, and dont have frozen project, skip
+      //double bang to handle undefined
+      if (!!templates !== !!project.rules.frozen) {
+        return false;
+      }
+
+      //if filtering, and name doesnt match, skip
+      const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
+      const filter = this.state.filter.toLowerCase();
+      if (!!filter && name.indexOf(filter) >= 0) {
+        return false;
+      }
+
+      return true;
+    })
+    .sortBy((one, two) => {
+      if (!one || !two) {
+        return 0;
+      }
+      return two.metadata.created - one.metadata.created;
+    })
+    .map(project => ({
+      text: project.getName(),
+      testid: project.id,
+      bold: true,
+      selected: project.id === currentProjectId,
+      onExpand: () => this.onExpandProject(project),
+      onContextMenu: () => this.onProjectContextMenu(project),
+      items: this.getProjectBlocksRecursive(project.components, 0, project.rules.frozen ? 1 : Number.MAX_VALUE),
+      labelWidgets: [
+        <img
+          key="open"
+          role="presentation"
+          src="/images/ui/open.svg"
+          onClick={evt => this.onOpenProject(project, evt)}
+          className="label-hover-bright"
+        />,
+      ],
+    }))
+    .value();
 
     return (
       <div>
-        <InventorySearch searchTerm={this.state.filter}
-                         disabled={false}
-                         placeholder="Filter projects"
-                         onSearchChange={this.handleFilterChange}/>
+        <InventorySearch
+          searchTerm={this.state.filter}
+          disabled={false}
+          placeholder="Filter projects"
+          onSearchChange={this.handleFilterChange}
+        />
         <div className="inventory-project-tree">
-          <Tree items={treeItems}/>
+          <Tree items={treeItems} />
         </div>
       </div>);
   }
@@ -427,7 +423,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   blockCreate,
-  blockStash,
   projectCreate,
   projectAddConstruct,
   projectSave,

@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+
 import '../../styles/balls.css';
 
 export default class Balls extends Component {
@@ -29,11 +30,11 @@ export default class Balls extends Component {
     }
     return (
       <div className="loading-horizontal">
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
-        <div className="loading-ball" style={{backgroundColor: this.props.color}}/>
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
+        <div className="loading-ball" style={{ backgroundColor: this.props.color }} />
       </div>
     );
   }

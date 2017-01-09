@@ -13,21 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import express from 'express';
 import bodyParser from 'body-parser';
-import {
-  errorInvalidModel,
-  errorInvalidRoute,
-  errorDoesNotExist,
-} from '../utils/errors';
-import { ensureReqUserMiddleware } from '../user/utils';
-import { projectPermissionMiddleware } from './permissions';
-import * as projectPersistence from './persistence/projects';
-import * as projectVersions from './persistence/projectVersions';
-import * as blockPersistence from './persistence/blocks';
+import express from 'express';
 
-import projectFileRouter from './routerProjectFiles';
+import { ensureReqUserMiddleware } from '../user/utils';
+import { errorDoesNotExist, errorInvalidModel, errorInvalidRoute } from '../utils/errors';
+import { projectPermissionMiddleware } from './permissions';
+import * as blockPersistence from './persistence/blocks';
+import * as projectVersions from './persistence/projectVersions';
+import * as projectPersistence from './persistence/projects';
 import jobFileRouter from './routerJobs';
+import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
 import snapshotRouter from './routerSnapshots';
 
@@ -98,45 +94,45 @@ router.route('/info/:type/:detail?/:additional?')
     const { type, detail, additional } = req.params;
 
     switch (type) {
-    case 'role' :
-      if (detail) {
-        blockPersistence.getAllPartsWithRole(user.uuid, detail)
+      case 'role' :
+        if (detail) {
+          blockPersistence.getAllPartsWithRole(user.uuid, detail)
           .then(info => res.status(200).json(info))
           .catch(err => next(err));
-      } else {
-        blockPersistence.getAllBlockRoles(user.uuid)
+        } else {
+          blockPersistence.getAllBlockRoles(user.uuid)
           .then(info => res.status(200).json(info))
           .catch(err => next(err));
-      }
-      break;
-    case 'name' :
-      blockPersistence.getAllBlocksWithName(user.uuid, detail)
+        }
+        break;
+      case 'name' :
+        blockPersistence.getAllBlocksWithName(user.uuid, detail)
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
-      break;
-    case 'contents' :
-      projectPersistence.userOwnsProject(user.uuid, additional)
+        break;
+      case 'contents' :
+        projectPersistence.userOwnsProject(user.uuid, additional)
         .then(() => projectPersistence.projectGet(additional))
         .then(rollup => rollup.getContents(detail))
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
-      break;
-    case 'components' :
-      projectPersistence.userOwnsProject(user.uuid, additional)
+        break;
+      case 'components' :
+        projectPersistence.userOwnsProject(user.uuid, additional)
         .then(() => projectPersistence.projectGet(additional))
         .then(rollup => rollup.getComponents(detail))
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
-      break;
-    case 'options' :
-      projectPersistence.userOwnsProject(user.uuid, additional)
+        break;
+      case 'options' :
+        projectPersistence.userOwnsProject(user.uuid, additional)
         .then(() => projectPersistence.projectGet(additional))
         .then(rollup => rollup.getOptions(detail))
         .then(info => res.status(200).json(info))
         .catch(err => next(err));
-      break;
-    default :
-      res.status(404).send(`must specify a valid info type in url, got ${type} (param: ${detail})`);
+        break;
+      default :
+        res.status(404).send(`must specify a valid info type in url, got ${type} (param: ${detail})`);
     }
   });
 
@@ -153,7 +149,7 @@ router.route('/projects/:projectId')
 
     projectPersistence.projectGet(projectId)
       .then(roll => res.status(200).json(roll))
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           return res.status(404).send(err);
         }
@@ -170,7 +166,7 @@ router.route('/projects/:projectId')
         updated: info.updated,
         id: info.id,
       }))
-      .catch(err => {
+      .catch((err) => {
         if (err === errorInvalidModel) {
           return res.status(422).send(errorInvalidModel);
         }
@@ -183,7 +179,7 @@ router.route('/projects/:projectId')
 
     projectPersistence.projectDelete(projectId, user.uuid, forceDelete)
       .then(() => res.status(200).json({ projectId }))
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           //unclear why this would ever happen with project access middleware...
           return res.status(404).send(errorDoesNotExist);
@@ -216,7 +212,7 @@ router.route('/:projectId/:blockId')
     const { projectId, blockId } = req;
 
     projectPersistence.blockGet(projectId, blockId)
-      .then(result => {
+      .then((result) => {
         if (!result) {
           return res.status(204).json(null);
         }
@@ -233,10 +229,10 @@ router.route('/:projectId/:blockId')
     }
 
     projectPersistence.blocksPatch(projectId, user.uuid, { [blockId]: block })
-      .then(result => {
+      .then((result) => {
         res.json(result.blocks[blockId]);
       })
-      .catch(err => {
+      .catch((err) => {
         if (err === errorInvalidModel) {
           return res.status(422).send(errorInvalidModel);
         }
@@ -253,10 +249,10 @@ router.route('/:projectId/:blockId')
     }
 
     projectPersistence.blocksMerge(projectId, user.uuid, { [blockId]: block })
-      .then(result => {
+      .then((result) => {
         res.json(result.blocks[blockId]);
       })
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           return res.status(404).send('project does not exist');
         }
@@ -266,9 +262,7 @@ router.route('/:projectId/:blockId')
         next(err);
       });
   })
-  .delete((req, res, next) => {
-    return res.status(405).send();
-  });
+  .delete((req, res, next) => res.status(405).send());
 
 router.route('/:projectId')
   .all(projectPermissionMiddleware)
@@ -277,10 +271,10 @@ router.route('/:projectId')
     //const { depth } = req.query; //future
 
     projectPersistence.projectGetManifest(projectId)
-      .then(result => {
+      .then((result) => {
         res.json(result);
       })
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           return res.status(404).send('project does not exist');
         }
@@ -300,7 +294,7 @@ router.route('/:projectId')
 
     projectPersistence.projectWriteManifest(projectId, project, user.uuid)
       .then(merged => res.status(200).send(merged))
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           return res.status(404).send(errorDoesNotExist);
         }
@@ -310,9 +304,7 @@ router.route('/:projectId')
         next(err);
       });
   })
-  .delete((req, res, next) => {
-    return res.status(405).send('use DELETE /projects/:id');
-  });
+  .delete((req, res, next) => res.status(405).send('use DELETE /projects/:id'));
 
 //default catch
 router.use('*', (req, res) => {

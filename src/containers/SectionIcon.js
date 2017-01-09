@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+
 import '../styles/SectionIcon.css';
 
 
@@ -72,10 +73,10 @@ export default class SectionIcon extends Component {
   };
 
   onEnter = () => {
-    this.setState({hover: true});
+    this.setState({ hover: true });
   };
   onLeave = () => {
-    this.setState({hover: false});
+    this.setState({ hover: false });
   };
 
   render() {
@@ -88,8 +89,9 @@ export default class SectionIcon extends Component {
         onMouseEnter={this.onEnter}
         onMouseLeave={this.onLeave}
         data-selected={this.props.selected}
-        onClick={this.onClick}>
-        <img title={this.props.section} src={sectionNameToSVG[this.props.section]}/>
+        onClick={this.onClick}
+      >
+        <img title={this.props.section} src={sectionNameToSVG[this.props.section]} />
       </div>
     );
   }

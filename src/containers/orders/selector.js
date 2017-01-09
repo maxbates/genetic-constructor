@@ -55,22 +55,22 @@ export default class Selector extends Component {
   render() {
     let menu = null;
     if (this.state.menuOpen) {
-      const items = this.props.options.map(item => {
-        return (
-          <div
-            className="menu-item"
-            onClick={(evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              this.setState({ menuOpen: false });
-              this.props.onChange(item);
-            }}>
-            {item}
-          </div>
-        );
-      });
+      const items = this.props.options.map(item => (
+        <div
+          className="menu-item"
+          onClick={(evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            this.setState({ menuOpen: false });
+            this.props.onChange(item);
+          }}
+        >
+          {item}
+        </div>
+      ));
+
       menu = (
-        <div className="selector-menu" children={items}/>
+        <div className="selector-menu">{items}</div>
       );
     }
 
@@ -78,11 +78,12 @@ export default class Selector extends Component {
       <div onClick={this.onShowMenu} className="dropdown-container">
         <div
           className="dropdown"
-          onMouseLeave={this.onMouseLeave}>
+          onMouseLeave={this.onMouseLeave}
+        >
           {this.props.value}
           {menu}
         </div>
-        <div className="selector-arrow"/>
+        <div className="selector-arrow" />
       </div>
     );
   }

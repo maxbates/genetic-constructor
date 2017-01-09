@@ -13,20 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import debug from 'debug';
+
+import * as headers from '../../../src/middleware/utils/headers';
+import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import { STORAGE_URL } from '../../urlConstants';
 import { errorDoesNotExist, errorNoPermission } from '../../utils/errors';
-import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
-import * as headers from '../../../src/middleware/utils/headers';
-import debug from 'debug';
 
 const logger = debug('constructor:data:db');
 
-const makePath = path => {
+const makePath = (path) => {
   if (path[0] === '/') {
-    console.warn('makePath: first character should not be a slash, got ' + path);
+    console.warn(`makePath: first character should not be a slash, got ${path}`);
     return STORAGE_URL + path;
   }
-  return STORAGE_URL + '/' + path;
+  return `${STORAGE_URL}/${path}`;
 };
 
 const defaultHeaders = {
@@ -52,7 +53,7 @@ const defaultErrorHandling = (resp) => {
 
   const clone = resp.clone();
 
-  return clone.text().then(text => {
+  return clone.text().then((text) => {
     logger(text);
     return Promise.reject(resp);
   });
@@ -64,38 +65,32 @@ export const dbHeadRaw = (path, params = {}) => {
 };
 
 //does some standardized error handling, does not parse the response
-export const dbHead = (path, params = {}) => {
-  return dbHeadRaw(path, params)
+export const dbHead = (path, params = {}) => dbHeadRaw(path, params)
     .catch(defaultErrorHandling);
-};
 
 export const dbGetRaw = (path, params = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
   return rejectingFetch(makePath(path), headers.headersGet(fetchParams));
 };
 
-export const dbGet = (path, params = {}) => {
-  return dbGetRaw(path, params)
+export const dbGet = (path, params = {}) => dbGetRaw(path, params)
     .then(resp => resp.json())
     .catch(defaultErrorHandling);
-};
 
 export const dbPostRaw = (path, userId, data, params = {}, bodyParams = {}) => {
   const body = JSON.stringify(Object.assign({},
     bodyParams,
     (userId !== null ? { owner: userId } : {}),
-    (data !== null ? { data: data } : {}),
+    (data !== null ? { data } : {}),
   ));
 
   const fetchParams = Object.assign({}, defaultHeaders, params);
   return rejectingFetch(makePath(path), headers.headersPost(body, fetchParams));
 };
 
-export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => {
-  return dbPostRaw(path, userId, data, params, bodyParams)
+export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => dbPostRaw(path, userId, data, params, bodyParams)
     .then(resp => resp.json())
     .catch(defaultErrorHandling);
-};
 
 export const dbDelete = (path, params = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
@@ -104,4 +99,4 @@ export const dbDelete = (path, params = {}) => {
 };
 
 //dont strip the other fields that may be there - most basic CRUD operations include information other than just the data
-export const dbPruneResult = (json) => json.data;
+export const dbPruneResult = json => json.data;

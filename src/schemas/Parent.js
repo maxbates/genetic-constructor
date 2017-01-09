@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import fields from './fields/index';
 import Schema from './SchemaClass';
+import fields from './fields/index';
 
 /**
  * Parents are objects in an Instance's ancestry
@@ -32,7 +32,7 @@ const fieldDefs = {
     'ID of project of parent (if not a project)',
   ],
   version: [
-    fields.number({min: 0}),
+    fields.number({ min: 0 }),
     'Version of project, git SHA',
   ],
 };

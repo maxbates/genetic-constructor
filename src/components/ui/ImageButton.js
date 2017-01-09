@@ -34,7 +34,8 @@ export default class ImageButton extends Component {
     return (
       <div
         src={this.props.uri}
-        onClick={this.onClick}>
+        onClick={this.onClick}
+      >
         style={{
           width: this.props.width,
           height: this.props.height,
