@@ -55,33 +55,16 @@ export class ConstructViewerCanvas extends Component {
    * higher values ( constructviewers ) will get dropped on first
    */
   componentDidMount() {
+    const self = ReactDOM.findDOMNode(this);
     // monitor drag overs to autoscroll the canvas when the mouse is near top or bottom
-    DnD.registerMonitor(ReactDOM.findDOMNode(this), {
+    DnD.registerMonitor(self, {
       monitorOver: this.mouseScroll.bind(this),
       monitorEnter: () => {},
       monitorLeave: this.endMouseScroll.bind(this),
     });
-
-    // drop target drag and drop handlers
-    DnD.registerTarget(ReactDOM.findDOMNode(this.refs.dropTarget), {
-      drop: this.onDrop.bind(this),
-      dragEnter: () => {
-        ReactDOM.findDOMNode(this.refs.dropTarget).classList.add('cvc-hovered');
-      },
-      dragLeave: () => {
-        ReactDOM.findDOMNode(this.refs.dropTarget).classList.remove('cvc-hovered');
-      },
-      dragEnd: () => {
-        this.setState({
-          dropMessage: droppingMessage,
-        });
-      },
-      zorder: -1,
-    });
-
     // mouse trap is used for coordinate transformation
     this.mouseTrap = new MouseTrap({
-      element: ReactDOM.findDOMNode(this),
+      element: self,
     });
   }
 
@@ -93,7 +76,36 @@ export class ConstructViewerCanvas extends Component {
       ReactDOM.findDOMNode(this).scrollTop = 0;
     }
   }
-
+  /**
+   * find all the drop targets after each update
+   */
+  componentDidUpdate() {
+    // unregister old drop targets
+    if (this.dropTargets) {
+      this.dropTargets.forEach((target) => {
+        DnD.unregisterTarget(target);
+      });
+    }
+    const self = ReactDOM.findDOMNode(this);
+    this.dropTargets = Array.from(self.querySelectorAll('.inter-construct-drop-target')).forEach((target) => {
+      // drop target drag and drop handlers
+      DnD.registerTarget(target, {
+        drop: this.onDrop,
+        dragEnter: () => {
+          target.classList.add('inter-construct-drop-target-hovered');
+        },
+        dragLeave: () => {
+          target.classList.remove('inter-construct-drop-target-hovered');
+        },
+        dragEnd: () => {
+          this.setState({
+            dropMessage: droppingMessage,
+          });
+        },
+        zorder: -1,
+      });
+    });
+  }
   /**
    * unregister DND handlers
    */
@@ -107,7 +119,7 @@ export class ConstructViewerCanvas extends Component {
   /**
    * create a new construct, add dropped block to it
    */
-  onDrop(globalPosition, payload, event) {
+  onDrop = (globalPosition, payload, event) => {
     // clone construct and add to project if a construct from inventory otherwise
     // treat as a list of one or more blocks
     //if the block is from the inventory, we've cloned it and dont need to worry about forcing the projectId when we add the components
@@ -205,7 +217,7 @@ export class ConstructViewerCanvas extends Component {
     } else if (local.y > box.height - edge) {
       this.autoScroll(1);
     } else {
-        // cancel the autoscroll
+      // cancel the autoscroll
       this.autoScroll(0);
     }
   };
@@ -215,14 +227,23 @@ export class ConstructViewerCanvas extends Component {
    */
   render() {
     // map construct viewers so we can pass down mouseScroll and endMouseScroll as properties
-    const constructViewers = this.props.children.map(constructViewer => React.cloneElement(constructViewer, {
-      mouseScroll: this.mouseScroll,
-      endMouseScroll: this.endMouseScroll,
-      currentProjectId: this.props.currentProjectId,
-    }));
+    // and inject drop targets before each construct and at the end IF there is more than one construct
 
-    // get class name for drop target which might hide it
-    const dropClasses = `cvc-drop-target${this.isSampleProject() ? ' cvc-hidden' : ''}`;
+    const constructViewers = [];
+    for (let i = 0; i < this.props.children.length; i += 1) {
+      if (!this.isSampleProject()) {
+        constructViewers.push(<div className="inter-construct-drop-target" />);
+      }
+      constructViewers.push(React.cloneElement(this.props.children[i], {
+        mouseScroll: this.mouseScroll,
+        endMouseScroll: this.endMouseScroll,
+        currentProjectId: this.props.currentProjectId,
+      }));
+    }
+    // put a drop target at the end
+    if (!this.isSampleProject()) {
+      constructViewers.push(<div className="inter-construct-drop-target"/>);
+    }
 
     // map construct viewers so we can propagate projectId and any recently dropped blocks
     return (
@@ -231,7 +252,6 @@ export class ConstructViewerCanvas extends Component {
         onMouseDown={this.onMouseDown}
         onMouseUp={this.onMouseUp}
       >
-        <div className={dropClasses} ref="dropTarget" key="dropTarget">Drop blocks here to create a new construct.</div>
         {constructViewers}
       </div>
     );

@@ -53,6 +53,7 @@
   transform-origin: 0 0;
   background-color: transparent;
   cursor: default;
+  box-sizing: border-box;
 
   .scenegraph-userinterface-selection {
     position: absolute;
@@ -79,6 +80,10 @@
     background-color: transparent;
     z-index: 1;
   }
+}
+
+.scenegraph-userinterface-drag-inside {
+  border: 1px solid var(--colors-selected);
 }
 
 .construct-viewer {
