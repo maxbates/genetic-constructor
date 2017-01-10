@@ -13,7 +13,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 import express from 'express';
 
 import * as uuid from 'uuid';
@@ -37,7 +36,7 @@ router.route('/savecomponent/:projectId?')
 
     projectPersistence.projectGet(projectId)
       .then((rollup) => {
-        if (rollup == null) {
+        if (! rollup) {
           return res.status(404).send(errorDoesNotExist);
         }
 
@@ -48,7 +47,7 @@ router.route('/savecomponent/:projectId?')
           id: newBlockID,
         }), false);
         newBlock.metadata.name = 'loaderCreated-' + Date.now();
-        let blocksToMerge = {};
+        const blocksToMerge = {};
         blocksToMerge[newBlock.id] = newBlock;
         return projectPersistence.blocksMerge(projectId, user.uuid, blocksToMerge)
           .then((updatedRollup) => {
