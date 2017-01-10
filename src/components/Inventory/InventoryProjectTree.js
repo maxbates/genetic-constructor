@@ -289,7 +289,9 @@ export class InventoryProjectTree extends Component {
             ],
             onClick: this.onClickBlock.bind(this, block),
             items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
-            startDrag: () => InventoryProjectTree.onBlockDrag(block),
+            startDrag: (globalPosition) => {
+              InventoryProjectTree.onBlockDrag(block, globalPosition);
+            },
             locked: block.isFrozen(),
           });
         }
