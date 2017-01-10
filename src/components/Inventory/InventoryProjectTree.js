@@ -213,6 +213,22 @@ export class InventoryProjectTree extends Component {
   };
 
   /**
+   * perform the actual deletion.
+   */
+  deleteProject(project) {
+    if (project.rules.frozen) {
+      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
+    } else {
+      //load another project, avoiding this one
+      this.props.projectLoad(null, false, [project.id])
+      //open the new project, skip saving the previous one
+      .then(openProject => this.props.projectOpen(openProject.id, true))
+      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+      .then(() => this.props.projectDelete(project.id));
+    }
+  }
+
+  /**
    * add a new construct to the bound project ( initial model used for templates )
    */
   onNewConstruct = (project, initialModel = {}) => {
@@ -261,7 +277,9 @@ export class InventoryProjectTree extends Component {
       },
       {
         text: 'Delete Project',
-        action: this.onDeleteProject.bind(this, project),
+        action: () => {
+          this.onDeleteProject(project)
+        },
       },
     ], {
       x: evt.pageX,
@@ -384,7 +402,9 @@ export class InventoryProjectTree extends Component {
       bold: true,
       selected: project.id === currentProjectId,
       onExpand: () => this.onExpandProject(project),
-      onContextMenu: () => this.onProjectContextMenu(project),
+      onContextMenu: (evt) => {
+        this.onProjectContextMenu(project,evt)
+      },
       items: this.getProjectBlocksRecursive(project.components, 0, project.rules.frozen ? 1 : Number.MAX_VALUE),
       labelWidgets: [
         <img
