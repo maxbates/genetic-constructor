@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { blockCreate, blockStash } from '../../actions/blocks';
+import { blockCreate } from '../../actions/blocks';
 import {
   focusConstruct,
   focusForceBlocks,
@@ -59,7 +59,6 @@ export class InventoryProjectTree extends Component {
     projects: PropTypes.object.isRequired,
     blockCreate: PropTypes.func.isRequired,
     blockGetParents: PropTypes.func.isRequired,
-    blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
     templates: PropTypes.bool.isRequired,
     projectCreate: PropTypes.func.isRequired,
@@ -210,22 +209,6 @@ export class InventoryProjectTree extends Component {
   };
 
   /**
-   * perform the actual deletion.
-   */
-  deleteProject(project) {
-    if (project.rules.frozen) {
-      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
-    } else {
-      //load another project, avoiding this one
-      this.props.projectLoad(null, false, [project.id])
-      //open the new project, skip saving the previous one
-      .then(openProject => this.props.projectOpen(openProject.id, true))
-      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-      .then(() => this.props.projectDelete(project.id));
-    }
-  }
-
-  /**
    * add a new construct to the bound project ( initial model used for templates )
    */
   onNewConstruct = (project, initialModel = {}) => {
@@ -275,7 +258,7 @@ export class InventoryProjectTree extends Component {
       {
         text: 'Delete Project',
         action: () => {
-          this.onDeleteProject(project)
+          this.onDeleteProject(project);
         },
       },
     ], {
@@ -291,7 +274,7 @@ export class InventoryProjectTree extends Component {
   getProjectBlocksRecursive(components, depth, maxDepth = Number.MAX_VALUE) {
     const items = [];
     if (depth < maxDepth) {
-      (components || []).forEach(blockId => {
+      (components || []).forEach((blockId) => {
         const block = this.props.blocks[blockId] || instanceMap.getBlock(blockId);
         if (block) {
           const hasSequence = block.sequence && block.sequence.length > 0;
@@ -300,7 +283,7 @@ export class InventoryProjectTree extends Component {
             testid: block.id,
             text: block.getName(),
             textWidgets: [
-              hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }}/> : null,
+              hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }} /> : null,
             ],
             onClick: this.onClickBlock.bind(this, block),
             items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
@@ -313,6 +296,22 @@ export class InventoryProjectTree extends Component {
       });
     }
     return items;
+  }
+
+  /**
+   * perform the actual deletion.
+   */
+  deleteProject(project) {
+    if (project.rules.frozen) {
+      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
+    } else {
+      //load another project, avoiding this one
+      this.props.projectLoad(null, false, [project.id])
+      //open the new project, skip saving the previous one
+      .then(openProject => this.props.projectOpen(openProject.id, true))
+      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+      .then(() => this.props.projectDelete(project.id));
+    }
   }
 
   /**
@@ -399,7 +398,7 @@ export class InventoryProjectTree extends Component {
       selected: project.id === currentProjectId,
       onExpand: () => this.onExpandProject(project),
       onContextMenu: (evt) => {
-        this.onProjectContextMenu(project,evt)
+        this.onProjectContextMenu(project, evt);
       },
       items: this.getProjectBlocksRecursive(project.components, 0, project.rules.frozen ? 1 : Number.MAX_VALUE),
       labelWidgets: [
@@ -435,7 +434,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   blockCreate,
-  blockStash,
   blockGetParents,
   projectCreate,
   projectAddConstruct,

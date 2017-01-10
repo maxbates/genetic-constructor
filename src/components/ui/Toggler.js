@@ -25,18 +25,17 @@ export default function Toggler({ onClick, hidden, open, disabled }) {
   }
 
   return (<div className="Toggler">
-            <Arrow
-              direction={open ? 'down' : 'right'}
-              disabled={disabled}
-              onClick={onClick}
-              hidden={false}
-            />
-          </div>);
+    <Arrow
+      direction={open ? 'down' : 'right'}
+      disabled={disabled}
+      onClick={onClick}
+      hidden={false}
+    />
+  </div>);
 }
 
 Toggler.propTypes = {
   onClick: PropTypes.func,
-  style: PropTypes.object,
   open: PropTypes.bool,
   disabled: PropTypes.bool,
   hidden: PropTypes.bool,

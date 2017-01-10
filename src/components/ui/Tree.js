@@ -30,6 +30,16 @@ export default class Tree extends Component {
   };
 
   /**
+   * when a branch is clicked
+   * @param item
+   */
+  static onClickBlock(item) {
+    if (item.onClick) {
+      item.onClick(item);
+    }
+  }
+
+  /**
    * when a branch is expanded
    * @param item
    */
@@ -38,16 +48,6 @@ export default class Tree extends Component {
       item.onExpand(item);
     }
   };
-
-  /**
-   * when a branch is clicked
-   * @param item
-   */
-  onClickBlock(item) {
-    if (item.onClick) {
-      item.onClick(item);
-    }
-  }
 
   render() {
     return (
@@ -59,22 +59,22 @@ export default class Tree extends Component {
               paddingLeft: this.props.depth === 0 ? '0' : '12px',
             }}
           >
-              <Expando
-                showArrowWhenEmpty={this.props.depth === 0}
-                onExpand={() => this.onExpandBranch(item)}
-                onClick={() => this.onClickBlock(item)}
-                key={index}
-                text={item.text}
-                testid={item.testid}
-                textWidgets={item.textWidgets}
-                bold={item.bold}
-                labelWidgets={item.labelWidgets}
-                onContextMenu={item.onContextMenu}
-                startDrag={item.startDrag}
-                selected={item.selected}
-                showLock={item.locked}
-                content={item.items && item.items.length
-                  ? <Tree
+            <Expando
+              showArrowWhenEmpty={this.props.depth === 0}
+              onExpand={() => this.onExpandBranch(item)}
+              onClick={() => Tree.onClickBlock(item)}
+              key={index}
+              text={item.text}
+              testid={item.testid}
+              textWidgets={item.textWidgets}
+              bold={item.bold}
+              labelWidgets={item.labelWidgets}
+              onContextMenu={item.onContextMenu}
+              startDrag={item.startDrag}
+              selected={item.selected}
+              showLock={item.locked}
+              content={item.items && item.items.length
+                ? <Tree
                   items={item.items}
                   depth={this.props.depth + 1}
                 />

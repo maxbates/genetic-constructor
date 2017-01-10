@@ -56,10 +56,6 @@ export default class SBOLPicker extends Component {
     this.setState({ hoverText: SBOLPicker.makeHoverText(this.props.current) });
   };
 
-  makeHoverText(symbolId) {
-    return symbolMap[symbolId] || symbolId || 'No Symbol';
-  }
-
   render() {
     const { current } = this.props;
     return (
