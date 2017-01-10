@@ -13,15 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import path from 'path';
+import * as lodash from 'lodash';
 
-export const AUTH_API = process.env.API_END_POINT || "http://54.148.144.244:8080/api";
-console.log('AUTH API:', AUTH_API);
-
-export const storagePath = process.env.STORAGE || path.resolve(__dirname, '../../storage');
-console.log('STORAGE PATH:', storagePath);
-
-export const projectPath = path.resolve(storagePath, 'projects');
-console.log('PROJECT PATH:', projectPath);
-
-export const STORAGE_API = process.env.STORAGE_API || "http://localhost:3000/api";
+export default function mostRecentProject(projects) {
+  return lodash.maxBy(projects, project => project.metadata.updated);
+}
