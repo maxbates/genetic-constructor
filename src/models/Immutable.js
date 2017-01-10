@@ -13,9 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { set as pathSet, unset as pathUnset, cloneDeep, assign, merge } from 'lodash';
-import invariant from 'invariant';
 import deepFreeze from 'deep-freeze';
+import invariant from 'invariant';
+import { assign, cloneDeep, merge, set as pathSet, unset as pathUnset } from 'lodash';
 
 /**
  * The Immutable class creates Immutable objects, whose properties are immutable and cannot be modifed except through their defined API.

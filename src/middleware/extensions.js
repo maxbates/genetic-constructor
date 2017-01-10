@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch, { fetch } from './utils/rejectingFetch';
-import { headersGet } from './utils/headers';
-import { extensionsPath, extensionApiPath } from './utils/paths';
 import invariant from 'invariant';
+
+import { headersGet } from './utils/headers';
+import { extensionApiPath, extensionsPath } from './utils/paths';
+import rejectingFetch, { fetch } from './utils/rejectingFetch';
 
 export const getExtensionsInfo = (listAll = false) => {
   const url = listAll === true ? 'listAll' : 'list';

@@ -15,14 +15,16 @@
  */
 
 import net from 'net';
-import { HOST_PORT, HOST_NAME } from '../urlConstants';
+
+import { HOST_NAME, HOST_PORT } from '../urlConstants';
 
 export default function checkPortFree(port = HOST_PORT, host = HOST_NAME) {
   return new Promise((resolve, reject) => {
     const tester = net.createServer()
       .once('error', (err) => {
         if (err.code !== 'EADDRINUSE') {
-          return reject(false);
+          reject(false);
+          return;
         }
         reject(err);
       })

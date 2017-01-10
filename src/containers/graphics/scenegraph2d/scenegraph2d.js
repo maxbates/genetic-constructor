@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import uuid from 'node-uuid';
-import Node2D from './node2d';
 import invariant from 'invariant';
+import uuid from 'node-uuid';
+
 import Vector2D from '../geometry/vector2d';
+import Node2D from './node2d';
 
 export default class SceneGraph2D {
 
@@ -74,8 +75,8 @@ export default class SceneGraph2D {
    *
    */
   updateSize() {
-    this.parent.style.width = this.width + 'px';
-    this.parent.style.height = this.height + 'px';
+    this.parent.style.width = `${this.width}px`;
+    this.parent.style.height = `${this.height}px`;
     if (this.ui) {
       this.ui.updateSize();
     }
@@ -110,7 +111,7 @@ export default class SceneGraph2D {
    */
   findNodesAt(point) {
     const hits = [];
-    this.traverse(node => {
+    this.traverse((node) => {
       if (node.parent && node.containsGlobalPoint(point)) {
         hits.push(node);
       }
@@ -123,7 +124,7 @@ export default class SceneGraph2D {
    */
   findNodesWithin(box) {
     const hits = [];
-    this.traverse(node => {
+    this.traverse((node) => {
       if (node.parent && node.getAABB().intersectWithBox(box)) {
         hits.push(node);
       }
@@ -138,7 +139,7 @@ export default class SceneGraph2D {
    */
   getAABB() {
     let aabb = null;
-    this.traverse(node => {
+    this.traverse((node) => {
       // ignore the root, which we can identify because it has no parent
       if (node.parent) {
         const nodeAABB = node.getAABB();

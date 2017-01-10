@@ -13,27 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import * as validators from '../../schemas/fields/validators';
 import safeValidate from '../../schemas/fields/safeValidate';
+import * as validators from '../../schemas/fields/validators';
 
-export const deg2rad = (deg) => {
-  return deg * (Math.PI / 180);
-};
+export const deg2rad = deg => deg * (Math.PI / 180);
 
-export const rad2deg = (rad) => {
-  return rad * (180 / Math.PI);
-};
+export const rad2deg = rad => rad * (180 / Math.PI);
 
-export const isRealNumber = safeValidate.bind(null, validators.number({reals: true}), false);
+export const isRealNumber = safeValidate.bind(null, validators.number({ reals: true }), false);
 
 /**
  * true if ~1
  * @param  {number} val
  * @return {boolean}
  */
-export const isOne = (val) => {
-  return Math.abs(1 - val) <= 1e-6;
-};
+export const isOne = val => Math.abs(1 - val) <= 1e-6;
 
 /**
  * index of child in parent
@@ -58,9 +52,7 @@ export const nodeIndex = (node) => {
  * @param  {number} val
  * @return {boolean}
  */
-export const isZero = (val) => {
-  return Math.abs(val) <= 1e-6;
-};
+export const isZero = val => Math.abs(val) <= 1e-6;
 
 /**
  * true if the number v is very close to K
@@ -68,9 +60,7 @@ export const isZero = (val) => {
  * @param  {number} v2
  * @return {boolean}
  */
-export const nearly = (v1, v2) => {
-  return Math.abs(v1 - v2) < 1e-6;
-};
+export const nearly = (v1, v2) => Math.abs(v1 - v2) < 1e-6;
 
 
 /**
@@ -89,7 +79,7 @@ export const setAttribute = (element, attributeName, attributeValue, useNS = fal
   if (useNS ? element.hasAttributeNS(null, attributeName) : element.hasAttribute(attributeName)) {
     matches.push(element);
   }
-  matches.forEach(el => {
+  matches.forEach((el) => {
     if (useNS) {
       el.setAttributeNS(null, attributeName, attributeValue);
     } else {

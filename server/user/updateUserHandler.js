@@ -14,13 +14,14 @@
  limitations under the License.
  */
 
-import fetch from 'isomorphic-fetch';
-import EmailValidator from 'email-validator';
-import { INTERNAL_HOST, API_END_POINT } from '../urlConstants';
-import userConfigDefaults from '../onboarding/userConfigDefaults';
-import { pruneUserObject, validateConfig, updateUserAll, updateUserConfig, mergeConfigToUserData } from './utils';
-import { headersPost } from '../../src/middleware/utils/headers';
 import debug from 'debug';
+import EmailValidator from 'email-validator';
+import fetch from 'isomorphic-fetch';
+
+import { headersPost } from '../../src/middleware/utils/headers';
+import userConfigDefaults from '../onboarding/userConfigDefaults';
+import { API_END_POINT, INTERNAL_HOST } from '../urlConstants';
+import { mergeConfigToUserData, pruneUserObject, updateUserAll, updateUserConfig, validateConfig } from './utils';
 
 const logger = debug('constructor:auth');
 
@@ -69,23 +70,23 @@ export function registrationHandler(req, res, next) {
   logger(mappedUser);
 
   //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
-  const url = INTERNAL_HOST + '/auth/register';
+  const url = `${INTERNAL_HOST}/auth/register`;
 
   return fetch(url, headersPost(JSON.stringify(mappedUser)))
-    .then(resp => {
+    .then((resp) => {
       //re-assign cookies from platform authentication
       const cookies = resp.headers.getAll('set-cookie');
-      cookies.forEach(cookie => {
+      cookies.forEach((cookie) => {
         res.set('set-cookie', cookie);
       });
 
       return resp.json();
     })
-    .then(userPayload => {
+    .then((userPayload) => {
       //console.log('userPayload');
       //console.log(userPayload);
 
-      if (!!userPayload.message) {
+      if (userPayload.message) {
         return Promise.reject(userPayload);
       }
 
@@ -96,7 +97,7 @@ export function registrationHandler(req, res, next) {
 
       res.json(pruned);
     })
-    .catch(err => {
+    .catch((err) => {
       logger('[User Register] Error registering');
       logger(req.body);
       logger(err);
@@ -123,26 +124,26 @@ export function loginHandler(req, res, next) {
   }
 
   //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
-  const url = INTERNAL_HOST + '/auth/login';
+  const url = `${INTERNAL_HOST}/auth/login`;
 
   logger('[User Login] Logging in:');
   logger(email, password, url);
 
   return fetch(url, headersPost(JSON.stringify(req.body)))
-    .then(resp => {
+    .then((resp) => {
       //re-assign cookies from platform authentication
       const cookies = resp.headers.getAll('set-cookie');
-      cookies.forEach(cookie => {
+      cookies.forEach((cookie) => {
         res.set('set-cookie', cookie);
       });
 
       return resp.json();
     })
-    .then(userPayload => {
+    .then((userPayload) => {
       logger('[User Login] received payload');
       logger(userPayload);
 
-      if (!!userPayload.message) {
+      if (userPayload.message) {
         return Promise.reject(userPayload);
       }
 
@@ -153,7 +154,7 @@ export function loginHandler(req, res, next) {
 
       res.json(pruned);
     })
-    .catch(err => {
+    .catch((err) => {
       logger('[User Login] Error logging in');
       logger(req.body);
       logger(err);
@@ -200,17 +201,17 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     //to update user, issues with setting cookies as auth and making a new fetch, so call user update function
     //might want to abstract to same across local + real auth
     if (process.env.BIO_NANO_AUTH) {
-      const userPromises = require('bio-user-platform').userPromises({
+      const userPromises = require('bio-user-platform').userPromises({ //eslint-disable-line
         apiEndPoint: API_END_POINT,
       });
 
       return userPromises.update(user)
-        .then(updatedUser => {
+        .then((updatedUser) => {
           const pruned = pruneUserObject(updatedUser);
           const toSend = wholeUser ? pruned : pruned.config;
           res.json(toSend);
         })
-        .catch(err => {
+        .catch((err) => {
           logger('[User Config] error setting user config');
           logger(err);
           res.status(501).json({ err });
@@ -220,22 +221,22 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     // otherwise, delegate to auth routes
     // Real auth - dont need to worry about passing cookies on fetch, since registering (not authenticated)
     // local auth - just call our mock routes
-    const url = INTERNAL_HOST + '/auth/update-all';
+    const url = `${INTERNAL_HOST}/auth/update-all`;
     return fetch(url, headersPost(JSON.stringify(user)))
-      .then(resp => {
+      .then((resp) => {
         //re-assign cookies from platform authentication
         const cookies = resp.headers.getAll('set-cookie');
-        cookies.forEach(cookie => {
+        cookies.forEach((cookie) => {
           res.set('set-cookie', cookie);
         });
 
         return resp.json();
       })
-      .then(userPayload => {
+      .then((userPayload) => {
         logger('[User Config] received payload');
         logger(userPayload);
 
-        if (!!userPayload.message) {
+        if (userPayload.message) {
           return Promise.reject(userPayload);
         }
 
@@ -244,7 +245,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
 
         res.json(toSend);
       })
-      .catch(err => {
+      .catch((err) => {
         logger('[User Config] got error setting user config');
         logger(err);
         logger(err.stack);

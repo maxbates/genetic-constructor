@@ -13,11 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import * as validatorFunctions from './validators';
-import createFieldType from './createFieldType';
 import { mapValues } from 'lodash';
 import uuid from 'node-uuid';
 import sha1 from 'sha1';
+
+import createFieldType from './createFieldType';
+import * as validatorFunctions from './validators';
 
 /**
  * Exports a dictionary of field types to unparameterized fieldType functions. These are called with parameters passed to the baseValidator, and return a fully defined fieldType object.
@@ -68,7 +69,7 @@ const fields = mapValues({
     baseValidator: validatorFunctions.id,
     typeDescription: 'A UUID',
     scaffold: (params) => {
-      const prefix = '' + ((params && params.prefix) ? (params.prefix.toLowerCase() + '-') : '');
+      const prefix = `${(params && params.prefix) ? (`${params.prefix.toLowerCase()}-`) : ''}`;
       return prefix + uuid.v4();
     },
   },
@@ -85,7 +86,7 @@ const fields = mapValues({
   func: {
     baseValidator: validatorFunctions.func,
     typeDescription: 'A function',
-    scaffold: () => { return () => {}; },
+    scaffold: () => () => {},
   },
   array: {
     baseValidator: validatorFunctions.array,
@@ -128,7 +129,7 @@ const fields = mapValues({
   version: {
     baseValidator: validatorFunctions.version,
     typeDescription: 'String representing a git SHA',
-    scaffold: () => sha1('' + Math.floor((Math.random() * 10000000) + 1) + Date.now()),
+    scaffold: () => sha1(`${Math.floor((Math.random() * 10000000) + 1)}${Date.now()}`),
   },
   url: {
     baseValidator: validatorFunctions.url,

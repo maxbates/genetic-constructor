@@ -13,66 +13,28 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
+import debounce from 'lodash.debounce';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import SceneGraph2D from '../scenegraph2d/scenegraph2d';
-import Vector2D from '../geometry/vector2d';
-import Layout from './layout.js';
-import PopupMenu from '../../../components/Menu/PopupMenu';
 import { connect } from 'react-redux';
-import {
-  blockCreate,
-  blockDelete,
-  blockDetach,
-  blockSetAuthoring,
-  blockSetListBlock,
-  blockAddComponent,
-  blockAddComponents,
-  blockClone,
-  blockSetRole,
-  blockRename,
-  blockRemoveComponent,
-} from '../../../actions/blocks';
-import {
-  uiShowDNAImport,
-  uiToggleDetailView,
-  inspectorToggleVisibility,
-  uiShowOrderForm,
-  uiInlineEditor,
-} from '../../../actions/ui';
-import {
-  orderCreate,
-  orderGenerateConstructs,
-  orderList,
-  orderSetName,
-} from '../../../actions/orders';
-import {
-  blockGetParents,
-} from '../../../selectors/blocks';
 
-import { role as roleDragType } from '../../../constants/DragTypes';
-import debounce from 'lodash.debounce';
-import UserInterface from './constructvieweruserinterface';
-import {
-  focusBlocks,
-  focusBlocksAdd,
-  focusBlocksToggle,
-  focusConstruct,
-  focusBlockOption,
-} from '../../../actions/focus';
-import invariant from 'invariant';
-import {
-  projectGetVersion,
-  projectGet,
-} from '../../../selectors/projects';
-import {
-  projectRemoveConstruct,
-  projectAddConstruct,
-} from '../../../actions/projects';
+import { blockAddComponent, blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename, blockSetAuthoring, blockSetListBlock, blockSetRole } from '../../../actions/blocks';
+import { focusBlockOption, focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../../actions/focus';
+import { orderCreate, orderGenerateConstructs, orderList, orderSetName } from '../../../actions/orders';
+import { projectAddConstruct, projectRemoveConstruct } from '../../../actions/projects';
+import { inspectorToggleVisibility, uiInlineEditor, uiShowDNAImport, uiShowOrderForm, uiToggleDetailView } from '../../../actions/ui';
+import PopupMenu from '../../../components/Menu/PopupMenu';
 import RoleSvg from '../../../components/RoleSvg';
-
+import { role as roleDragType } from '../../../constants/DragTypes';
+import { blockGetParents } from '../../../selectors/blocks';
+import { projectGet, projectGetVersion } from '../../../selectors/projects';
 import '../../../styles/constructviewer.css';
 import '../../../styles/inline-editor.css';
+import Vector2D from '../geometry/vector2d';
+import SceneGraph2D from '../scenegraph2d/scenegraph2d';
+import UserInterface from './constructvieweruserinterface';
+import Layout from './layout';
 
 // static hash for matching viewers to constructs
 const idToViewer = {};
@@ -89,10 +51,10 @@ export class ConstructViewer extends Component {
     focusBlocksToggle: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     focusBlockOption: PropTypes.func.isRequired,
-    currentBlock: PropTypes.array,
-    blockSetRole: PropTypes.func,
+    //currentBlock: PropTypes.array, //todo - remove
+    //blockSetRole: PropTypes.func, //todo - remove
     blockCreate: PropTypes.func,
-    blockGetParent: PropTypes.func,
+    //blockGetParent: PropTypes.func, //todo - remove
     blockClone: PropTypes.func,
     blockRename: PropTypes.func,
     blockSetAuthoring: PropTypes.func,
@@ -104,19 +66,26 @@ export class ConstructViewer extends Component {
     uiShowOrderForm: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
     orderCreate: PropTypes.func.isRequired,
-    orderGenerateConstructs: PropTypes.func.isRequired,
+    //orderGenerateConstructs: PropTypes.func.isRequired, //todo - remove
     orderList: PropTypes.func.isRequired,
     orderSetName: PropTypes.func.isRequired,
     blockRemoveComponent: PropTypes.func,
     blockGetParents: PropTypes.func,
-    projectGetVersion: PropTypes.func,
+    //projectGetVersion: PropTypes.func, //todo - remove
     projectGet: PropTypes.func,
     projectRemoveConstruct: PropTypes.func,
     projectAddConstruct: PropTypes.func,
     blocks: PropTypes.object,
     focus: PropTypes.object,
-    constructPopupMenuOpen: PropTypes.bool,
+    //constructPopupMenuOpen: PropTypes.bool, //todo - remove
   };
+
+  /**
+   * given a construct ID return the current viewer if there is one
+   */
+  static getViewerForConstruct(id) {
+    return idToViewer[id];
+  }
 
   constructor(props) {
     super(props);
@@ -224,13 +193,6 @@ export class ConstructViewer extends Component {
         this.props.uiShowOrderForm(true, order.id);
       });
   };
-
-  /**
-   * given a construct ID return the current viewer if there is one
-   */
-  static getViewerForConstruct(id) {
-    return idToViewer[id];
-  }
 
   /**
    * get the parent of the given block, which is either the construct or the parents
@@ -376,12 +338,12 @@ export class ConstructViewer extends Component {
   /**
    * close all popup menus
    */
-  closePopups() {
+  closePopups = () => {
     this.setState({
       blockPopupMenuOpen: false,
       constructPopupMenuOpen: false,
     });
-  }
+  };
 
   /**
    * open any popup menu by apply the appropriate state and global position
@@ -461,8 +423,9 @@ export class ConstructViewer extends Component {
     return (<PopupMenu
       open={this.state.blockPopupMenuOpen}
       position={this.state.menuPosition}
-      closePopup={this.closePopups.bind(this)}
-      menuItems={this.blockContextMenuItems()}/>);
+      closePopup={this.closePopups}
+      menuItems={this.blockContextMenuItems()}
+    />);
   }
 
   /**
@@ -526,8 +489,9 @@ export class ConstructViewer extends Component {
     return (<PopupMenu
       open={this.state.constructPopupMenuOpen}
       position={this.state.menuPosition}
-      closePopup={this.closePopups.bind(this)}
-      menuItems={items}/>);
+      closePopup={this.closePopups}
+      menuItems={items}
+    />);
   }
 
   /**
@@ -610,7 +574,7 @@ export class ConstructViewer extends Component {
     // add all blocks in the payload
     const blocks = Array.isArray(payload.item) ? payload.item : [payload.item];
     // return the list of newly added blocks so we can select them for example
-    blocks.forEach(block => {
+    blocks.forEach((block) => {
       const newBlock = (payload.source === 'inventory' || payload.copying)
         ? this.props.blockClone(block)
         : this.props.blocks[block];
@@ -629,7 +593,7 @@ export class ConstructViewer extends Component {
    */
   orderButton() {
     if (this.props.construct.isTemplate() && !this.isSampleProject()) {
-      const canOrderFromEGF = this.props.construct.components.every(blockId => {
+      const canOrderFromEGF = this.props.construct.components.every((blockId) => {
         const block = this.props.blocks[blockId];
 
         //check blocks' source
@@ -640,7 +604,7 @@ export class ConstructViewer extends Component {
         //check block options if source not valid
         const optionIds = Object.keys(block.options);
         if (optionIds.length > 0) {
-          return optionIds.every(optionId => {
+          return optionIds.every((optionId) => {
             const option = this.props.blocks[optionId];
             return option.source.source && option.source.source === 'egf';
           });
@@ -694,7 +658,7 @@ export class ConstructViewer extends Component {
     const rendered = (
       <div className="construct-viewer" key={this.props.construct.id}>
         <div className="sceneGraphContainer">
-          <div className="sceneGraph"/>
+          <div className="sceneGraph" />
         </div>
         {this.blockContextMenu()}
         {this.constructContextMenu()}

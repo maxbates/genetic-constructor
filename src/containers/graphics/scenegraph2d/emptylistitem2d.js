@@ -31,6 +31,7 @@ export default class EmptyListItem2D extends Node2D {
   /**
    * List items are sized by parent
    */
+  //eslint-disable-next-line class-methods-use-this
   getPreferredSize(str) {
     throw new Error('Not valid to call on an empty list item');
   }

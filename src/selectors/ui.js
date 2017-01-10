@@ -24,30 +24,18 @@ limitations under the License.
  * @function
  * @returns {boolean} true if the inventory is open
  */
-export const inventoryIsVisible = () => {
-  return (dispatch, getState) => {
-    return getState().inventory.isVisible;
-  };
-};
+export const inventoryIsVisible = () => (dispatch, getState) => getState().inventory.isVisible;
 
 /**
  * Check if the inspector is open
  * @function
  * @returns {boolean} true if the inspector is open
  */
-export const inspectorIsVisible = () => {
-  return (dispatch, getState) => {
-    return getState().inspector.isVisible;
-  };
-};
+export const inspectorIsVisible = () => (dispatch, getState) => getState().inspector.isVisible;
 
 /**
  * Check if the project detail view is open
  * @function
  * @returns {boolean} true if the detail view is open
  */
-export const projectDetailViewIsVisible = () => {
-  return (dispatch, getState) => {
-    return getState().detailView.isVisible;
-  };
-};
+export const projectDetailViewIsVisible = () => (dispatch, getState) => getState().detailView.isVisible;

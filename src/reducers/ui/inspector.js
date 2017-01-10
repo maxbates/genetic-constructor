@@ -22,12 +22,12 @@ export const initialState = {
 
 export default function inspector(state = initialState, action) {
   switch (action.type) {
-  case ActionTypes.INSPECTOR_TOGGLE_VISIBILITY :
-    const { nextState } = action;
-    setLocal('inspectorVisibility', nextState);
-    return Object.assign({}, state, { isVisible: nextState });
+    case ActionTypes.INSPECTOR_TOGGLE_VISIBILITY :
+      const { nextState } = action;
+      setLocal('inspectorVisibility', nextState);
+      return Object.assign({}, state, { isVisible: nextState });
 
-  default :
-    return state;
+    default :
+      return state;
   }
 }

@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+
 import { setAttribute } from '../containers/graphics/utils';
 
 const serializer = navigator.userAgent.indexOf('Node.js') < 0 ? new XMLSerializer() : {
-  serializeToString: () => {return '<SVG/>';},
+  serializeToString: () => '<SVG/>',
 };
 
 //todo - should generalize this class (or wrap the SBOL ones) so that not tied to the sbol-svg namespace (e.g. for lock icon)
@@ -87,6 +88,6 @@ export default class RoleSvg extends Component {
     if (this.props.height) {
       style.height = this.props.height;
     }
-    return <div style={style} className="RoleSvg" dangerouslySetInnerHTML={{__html: this.markup}}/>;
+    return <div style={style} className="RoleSvg" dangerouslySetInnerHTML={{ __html: this.markup }} />;
   }
 }

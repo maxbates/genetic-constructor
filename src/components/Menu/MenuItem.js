@@ -42,21 +42,23 @@ export default class MenuItem extends Component {
     const indent = this.props.checked === true || this.props.checked === false;
     let check = null;
     if (indent) {
-      check = <div className={this.props.checked ? 'menu-item-checked' : 'menu-item-unchecked'}></div>;
+      check = <div className={this.props.checked ? 'menu-item-checked' : 'menu-item-unchecked'} />;
     }
-    let classes = 'menu-item' + (this.props.disabled ? ' disabled' : '');
+    let classes = `menu-item${this.props.disabled ? ' disabled' : ''}`;
     if (this.props.classes) {
       classes += ` ${this.props.classes}`;
     }
 
     return (
-      <div className={classes}
-           onClick={evt => {
-             evt.stopPropagation();
-             if (!this.props.disabled) {
-               this.props.action(evt);
-             }
-           }}>
+      <div
+        className={classes}
+        onClick={(evt) => {
+          evt.stopPropagation();
+          if (!this.props.disabled) {
+            this.props.action(evt);
+          }
+        }}
+      >
         {check}
         {this.props.text}
         {this.props.shortcut && (<div className="menu-item-shortcut" disabled={this.props.disabled}>{this.props.shortcut}</div>)}

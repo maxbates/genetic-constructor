@@ -19,18 +19,24 @@ import '../../styles/ListOption.css';
 
 export default function ListOption({ option, selected, onClick, onDelete, toggleOnly }) {
   return (
-    <div className={'ListOption' +
-                    (selected ? ' selected' : '')}
-         onClick={() => onClick(option)}>
+    <div
+      className={`ListOption${
+                    selected ? ' selected' : ''}`}
+      onClick={() => onClick(option)}
+    >
       <span className="ListOption-check">
         &#x2714;
       </span>
-      <span className="ListOption-name"
-            title={option.metadata.name}>
+      <span
+        className="ListOption-name"
+        title={option.metadata.name}
+      >
         {option.metadata.name}
       </span>
-      {!toggleOnly && (<span className="ListOption-delete"
-            onClick={(evt) => { evt.stopPropagation(); onDelete(option); }}>
+      {!toggleOnly && (<span
+        className="ListOption-delete"
+        onClick={(evt) => { evt.stopPropagation(); onDelete(option); }}
+      >
         &#10006;
       </span>)}
     </div>
@@ -43,7 +49,6 @@ ListOption.propTypes = {
     metadata: PropTypes.object.isRequired,
     source: PropTypes.object.isRequired,
   }).isRequired,
-  defaultName: PropTypes.string,
   onClick: PropTypes.func,
   onDelete: PropTypes.func,
   selected: PropTypes.bool,

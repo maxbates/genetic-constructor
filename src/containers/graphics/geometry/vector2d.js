@@ -14,8 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import { isRealNumber, deg2rad, rad2deg } from '../utils';
+
+import { deg2rad, isRealNumber, rad2deg } from '../utils';
 import Line2D from './line2d';
+
 /**
  * a 2D Vector/Point
  */
@@ -87,7 +89,7 @@ export default class Vector2D {
   static pointOnCircumference(xc, yc, radius, degrees) {
     return new Vector2D(
       xc + radius * Math.cos(deg2rad(degrees)),
-      yc + radius * Math.sin(deg2rad(degrees))
+      yc + radius * Math.sin(deg2rad(degrees)),
     );
   }
 

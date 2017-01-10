@@ -13,12 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import fields from './fields/index';
-import * as validators from './fields/validators';
-import Schema from './SchemaClass';
 import MetadataSchema from './Metadata';
 import OrderParametersSchema from './OrderParameters';
 import OrderStatusSchema from './OrderStatus';
+import Schema from './SchemaClass';
+import fields from './fields/index';
+import * as validators from './fields/validators';
 
 /**
  * Orders are intended / placed orders of DNA with a remote foundry.
@@ -51,18 +51,18 @@ const orderFields = {
 
   constructIds: [
     fields.arrayOf(validators.id(), { required: true }).required,
-    `IDs of constructs in project involved in order`,
+    'IDs of constructs in project involved in order',
   ],
 
   //todo - deprecate
   numberCombinations: [
     fields.number().required,
-    `Number of possible combinations, determined when making the order`,
+    'Number of possible combinations, determined when making the order',
   ],
 
   parameters: [
     OrderParametersSchema,
-    `Parameters associated with this order`,
+    'Parameters associated with this order',
   ],
 
   user: [
@@ -78,7 +78,7 @@ const orderFields = {
 
   notes: [
     fields.object().required,
-    `Notes about the Order`,
+    'Notes about the Order',
   ],
 };
 

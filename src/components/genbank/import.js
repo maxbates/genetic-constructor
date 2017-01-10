@@ -1,32 +1,29 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
-import ModalWindow from '../modal/modalwindow';
 import Dropzone from 'react-dropzone';
-import {
-  uiShowGenBankImport,
-  uiSpin,
-} from '../../actions/ui';
-import { projectGet, projectListAllBlocks } from '../../selectors/projects';
-import { projectSave, projectList, projectLoad, projectOpen } from '../../actions/projects';
-import { importFile as importGenbankFile } from '../../middleware/genbank';
-import { importFile as importCsvFile } from '../../middleware/csv';
+import { connect } from 'react-redux';
 
 import '../../../src/styles/genbank.css';
+import { projectList, projectLoad, projectOpen, projectSave } from '../../actions/projects';
+import { uiShowGenBankImport, uiSpin } from '../../actions/ui';
+import { importFile as importCsvFile } from '../../middleware/csv';
+import { importFile as importGenbankFile } from '../../middleware/genbank';
+import { projectGet, projectListAllBlocks } from '../../selectors/projects';
+import ModalWindow from '../modal/modalwindow';
 
 /**
  * Genbank import dialog.
@@ -62,11 +59,11 @@ class ImportGenBankModal extends Component {
     }
   }
 
-  onDrop(files) {
+  onDrop = (files) => {
     this.setState({ files });
-  }
+  };
 
-  onSubmit(evt) {
+  onSubmit = (evt) => {
     evt.preventDefault();
     this.setState({
       error: null,
@@ -84,39 +81,37 @@ class ImportGenBankModal extends Component {
       const importer = isCSV ? importCsvFile : importGenbankFile;
 
       //if saving into current project, save the current project first (and force the save) so its on the server
-      const savePromise = !!projectId ?
+      const savePromise = projectId ?
         this.props.projectSave(this.props.currentProjectId, true) :
         Promise.resolve();
 
       savePromise
-        .then(() => importer(projectId, file))
-        .then(projectId => {
-          this.props.uiSpin();
-          if (projectId === this.props.currentProjectId) {
-            //true to forcibly reload the project, avoid our cache
-            this.props.projectLoad(projectId, true);
-          } else {
-            this.props.projectOpen(projectId);
-          }
-          this.setState({
-            processing: false,
-          });
-          this.props.uiShowGenBankImport(false);
-        })
-        .catch(error => {
-          this.props.uiSpin();
-          this.setState({
-            error: `Error uploading file: ${error}`,
-            processing: false,
-          });
+      .then(() => importer(projectId, file))
+      .then((projectId) => {
+        this.props.uiSpin();
+        if (projectId === this.props.currentProjectId) {
+          //true to forcibly reload the project, avoid our cache
+          this.props.projectLoad(projectId, true);
+        } else {
+          this.props.projectOpen(projectId);
+        }
+        this.setState({
+          processing: false,
         });
+        this.props.uiShowGenBankImport(false);
+      })
+      .catch((error) => {
+        this.props.uiSpin();
+        this.setState({
+          error: `Error uploading file: ${error}`,
+          processing: false,
+        });
+      });
     }
-  }
+  };
 
   showFiles() {
-    const files = this.state.files.map((file, index) => {
-      return <div className="file-name" key={index}>{file.name}</div>;
-    });
+    const files = this.state.files.map((file, index) => <div className="file-name" key={index}>{file.name}</div>);
     return files;
   }
 
@@ -132,9 +127,10 @@ class ImportGenBankModal extends Component {
           payload={(
             <form
               disabled={this.state.processing}
-              onSubmit={this.onSubmit.bind(this)}
+              onSubmit={this.onSubmit}
               id="genbank-import-form"
-              className="gd-form genbank-import-form">
+              className="gd-form genbank-import-form"
+            >
               <div className="title">Import</div>
               <div className="radio">
                 <div>Import data to:</div>
@@ -143,26 +139,27 @@ class ImportGenBankModal extends Component {
                   type="radio"
                   name="destination"
                   disabled={this.state.processing}
-                  onChange={() => this.setState({destination: 'new project'})}
-                  />
+                  onChange={() => this.setState({ destination: 'new project' })}
+                />
                 <div>New Project</div>
               </div>
               <div className="radio">
-                <div/>
+                <div />
                 <input
                   checked={this.state.destination === 'current project'}
                   type="radio"
                   name="destination"
                   disabled={this.state.processing}
-                  onChange={() => this.setState({destination: 'current project'})}
-                  />
+                  onChange={() => this.setState({ destination: 'current project' })}
+                />
                 <div>Current Project</div>
               </div>
               <Dropzone
-                onDrop={this.onDrop.bind(this)}
+                onDrop={this.onDrop}
                 className="dropzone"
                 activeClassName="dropzone-hot"
-                multiple={false}>
+                multiple={false}
+              >
                 <div className="dropzone-text">Drop File Here</div>
               </Dropzone>
               {this.showFiles()}
@@ -173,17 +170,23 @@ class ImportGenBankModal extends Component {
                 disabled={this.state.processing}
                 onClick={() => {
                   this.props.uiShowGenBankImport(false);
-                }}>Cancel
+                }}
+              >Cancel
               </button>
               <div className="link">
                 <span>Format documentation and sample .CSV files can be found
-                    <a className="blue-link" href="https://geneticconstructor.readme.io/docs/csv-upload" target="_blank"> here</a>
+                    <a
+                      className="blue-link"
+                      href="https://geneticconstructor.readme.io/docs/csv-upload"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >here</a>
                 </span>
               </div>
             </form>
           )}
           closeOnClickOutside
-          closeModal={buttonText => {
+          closeModal={(buttonText) => {
             this.props.uiShowGenBankImport(false);
           }}
         />

@@ -14,9 +14,9 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import ModalWindow from './modal/modalwindow';
 
 import '../styles/ok-cancel-form.css';
+import ModalWindow from './modal/modalwindow';
 
 /**
  * Genbank import dialog.
@@ -72,7 +72,7 @@ export default class OkCancel extends Component {
 
           )}
           closeOnClickOutside
-          closeModal={buttonText => {
+          closeModal={(buttonText) => {
 
           }}
         />

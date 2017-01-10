@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import Schema from './SchemaClass';
 import fields from './fields/index';
 import * as validators from './fields/validators';
-import Schema from './SchemaClass';
 
 /**
  * A user account
@@ -25,35 +25,35 @@ import Schema from './SchemaClass';
 */
 const fieldDefs = {
   id: [
-    fields.id({prefix: 'user'}).required,
-    `ID of the User`,
+    fields.id({ prefix: 'user' }).required,
+    'ID of the User',
   ],
   email: [
     fields.email().required,
-    `User's Email Address`,
+    'User\'s Email Address',
   ],
   firstName: [
     fields.string(),
-    `First name of user`,
+    'First name of user',
   ],
   lastName: [
     fields.string(),
-    `Last name of user`,
+    'Last name of user',
   ],
   description: [
     fields.string(),
-    `Short biography of the user`,
+    'Short biography of the user',
   ],
   homepage: [
     fields.url(),
-    `URL of personal page`,
+    'URL of personal page',
   ],
   social: [
     fields.arrayOf(validators.shape({
       provider: validators.string(),
       username: validators.string(),
     })),
-    `List of social media accounts`,
+    'List of social media accounts',
   ],
 };
 
@@ -64,4 +64,3 @@ export class UserSchemaClass extends Schema {
 }
 
 export default new UserSchemaClass();
-

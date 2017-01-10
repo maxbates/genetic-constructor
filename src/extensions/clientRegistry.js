@@ -14,15 +14,11 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { isEqual, merge, get as getPath } from 'lodash';
-import * as regions from './regions';
-import {
-  manifestIsClient,
-  manifestClientRegions,
-  getClientFileFromRegion,
-  extensionName
-} from '../../server/extensions/manifestUtils';
+import { get as getPath, isEqual, merge } from 'lodash';
+
+import { extensionName, getClientFileFromRegion, manifestClientRegions, manifestIsClient } from '../../server/extensions/manifestUtils';
 import { downloadExtension } from './downloadExtension';
+import * as regions from './regions';
 
 //map of extensions
 export const registry = {};

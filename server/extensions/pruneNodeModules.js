@@ -34,7 +34,7 @@ export default function pruneNodeModules(inputPath) {
   }
 
   return new Promise((resolve) => {
-    fs.stat(nodeModulePath, function checkDirExists(err, stat) {
+    fs.stat(nodeModulePath, (err, stat) => {
       if (err) {
         if (err.code === 'ENOENT') {
           console.log(`Directory ${nodeModulePath} does not exist, creating...`);
@@ -45,20 +45,20 @@ export default function pruneNodeModules(inputPath) {
         }
       }
 
-      const pkg = require(path.resolve(__dirname, 'package.json'));
+      const pkg = require(path.resolve(__dirname, 'package.json')); //eslint-disable-line import/no-dynamic-require
       const deps = pkg.dependencies;
       const dirContents = fs.readdirSync(nodeModulePath);
 
-      return Promise.all(dirContents.map(function checkDir(dir) {
+      return Promise.all(dirContents.map((dir) => {
         if (!onlyDeleteOutersection || !deps[dir]) {
           //todo - should check version and see if newer available as well
 
           return new Promise((resolve, reject) => {
-            rimraf(path.resolve(nodeModulePath, dir), function callback(err) {
+            rimraf(path.resolve(nodeModulePath, dir), (err) => {
               if (err) {
                 return reject(err);
               }
-              console.log('deleted extension ' + dir);
+              console.log(`deleted extension ${dir}`);
               resolve(dir);
             });
           });

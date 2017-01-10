@@ -13,11 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
-import { orderApiPath } from './utils/paths';
-import { headersGet, headersPost } from './utils/headers';
+
 import Order from '../models/Order';
+import { headersGet, headersPost } from './utils/headers';
+import { orderApiPath } from './utils/paths';
+import rejectingFetch from './utils/rejectingFetch';
 
 // future - dont limit foundries statically
 // likely want a registry like for inventory and hit their respective functions for each foundry
@@ -43,9 +44,7 @@ export const submitOrder = (order, foundry = 'egf', positionalCombinations, vali
     .then(resp => resp.json());
 };
 
-export const validateOrder = (order, foundry, positionalCombinations) => {
-  return submitOrder(order, foundry, positionalCombinations, true);
-};
+export const validateOrder = (order, foundry, positionalCombinations) => submitOrder(order, foundry, positionalCombinations, true);
 
 /*
  //future - implement once supported

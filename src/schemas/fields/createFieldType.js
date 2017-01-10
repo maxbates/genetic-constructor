@@ -72,6 +72,6 @@ function createFieldFromValidator(fieldDefinition, baseValidator, params, requir
       params,
       validate: safeValidate.bind(null, definedValidator, required),
       fieldRequired: required,
-    }
+    },
   );
 }

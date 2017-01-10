@@ -15,6 +15,7 @@ limitations under the License.
 */
 import Line2D from '../geometry/line2d';
 import Node2D from './node2d';
+
 /**
  * a simple canvas based line class
  */

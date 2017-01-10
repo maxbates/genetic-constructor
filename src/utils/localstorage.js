@@ -49,7 +49,7 @@ export function getLocal(key, defaultObject, shouldPrefix = true) {
         localStorage.removeItem(key);
       }
     } catch (err) {
-      console.log('error removing ' + key + ' from localStorage'); //eslint-disable-line no-console
+      console.log(`error removing ${key} from localStorage`); //eslint-disable-line no-console
     }
   }
   return defaultObject;

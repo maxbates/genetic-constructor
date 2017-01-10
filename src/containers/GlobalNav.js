@@ -14,71 +14,31 @@
  limitations under the License.
  */
 /* global flashedUser:false, heap:false */
+import invariant from 'invariant';
+import KeyboardTrap from 'mousetrap';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import invariant from 'invariant';
+
+import { blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename } from '../actions/blocks';
+import { clipboardSetData } from '../actions/clipboard';
+import { focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../actions/focus';
+import { projectAddConstruct, projectCreate, projectDelete, projectLoad, projectOpen, projectSave } from '../actions/projects';
+import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiReportError, uiSetGrunt, uiShowAbout, uiShowDNAImport, uiShowGenBankImport, uiToggleDetailView } from '../actions/ui';
+import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import MenuBar from '../components/Menu/MenuBar';
 import UserWidget from '../components/authentication/userwidget';
-import RibbonGrunt from '../components/ribbongrunt';
-import {
-  projectCreate,
-  projectAddConstruct,
-  projectSave,
-  projectOpen,
-  projectDelete,
-  projectList,
-  projectLoad,
-} from '../actions/projects';
-import {
-  focusBlocks,
-  focusBlocksAdd,
-  focusBlocksToggle,
-  focusConstruct,
-} from '../actions/focus';
-import { clipboardSetData } from '../actions/clipboard';
-import * as clipboardFormats from '../constants/clipboardFormats';
-import {
-  blockCreate,
-  blockDelete,
-  blockDetach,
-  blockClone,
-  blockRemoveComponent,
-  blockAddComponent,
-  blockAddComponents,
-  blockRename,
-} from '../actions/blocks';
-import {
-  blockGetParents,
-  blockGetComponentsRecursive,
-} from '../selectors/blocks';
-import { projectGetVersion } from '../selectors/projects';
-import { focusDetailsExist } from '../selectors/focus';
-import { undo, redo, transact, commit } from '../store/undo/actions';
-import {
-  uiShowGenBankImport,
-  uiToggleDetailView,
-  uiSetGrunt,
-  uiShowAbout,
-  inventorySelectTab,
-  inspectorToggleVisibility,
-  inventoryToggleVisibility,
-  uiShowDNAImport,
-  uiReportError,
-} from '../actions/ui';
-import KeyboardTrap from 'mousetrap';
-import { stringToShortcut } from '../utils/ui/keyboard-translator';
-import {
-  sortBlocksByIndexAndDepth,
-  sortBlocksByIndexAndDepthExclude,
-  tos,
-  privacy,
-} from '../utils/ui/uiapi';
-import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import OkCancel from '../components/okcancel';
-import * as instanceMap from '../store/instanceMap';
+import RibbonGrunt from '../components/ribbongrunt';
+import * as clipboardFormats from '../constants/clipboardFormats';
 import { extensionApiPath } from '../middleware/utils/paths';
-
+import { blockGetComponentsRecursive, blockGetParents } from '../selectors/blocks';
+import { focusDetailsExist } from '../selectors/focus';
+import { projectGetVersion } from '../selectors/projects';
+import * as instanceMap from '../store/instanceMap';
+import { commit, redo, transact, undo } from '../store/undo/actions';
 import '../styles/GlobalNav.css';
+import { stringToShortcut } from '../utils/ui/keyboard-translator';
+import { privacy, sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude, tos } from '../utils/ui/uiapi';
 
 class GlobalNav extends Component {
   static propTypes = {
@@ -88,7 +48,6 @@ class GlobalNav extends Component {
     projectAddConstruct: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
-    projectList: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string,
     blockCreate: PropTypes.func.isRequired,
@@ -115,7 +74,6 @@ class GlobalNav extends Component {
       data: PropTypes.any,
     }).isRequired,
     blockGetComponentsRecursive: PropTypes.func.isRequired,
-    blockAddComponent: PropTypes.func.isRequired,
     blockAddComponents: PropTypes.func.isRequired,
     uiShowAbout: PropTypes.func.isRequired,
     uiShowDNAImport: PropTypes.func.isRequired,
@@ -133,6 +91,11 @@ class GlobalNav extends Component {
       metadata: PropTypes.object,
     }),
   };
+
+  static disgorgeDiscourse(path) {
+    const uri = window.discourseDomain + path;
+    window.open(uri, '_blank');
+  }
 
   constructor(props) {
     super(props);
@@ -317,7 +280,7 @@ class GlobalNav extends Component {
 
         const url = extensionApiPath('genbank', `export/${this.props.currentProjectId}`);
         const postBody = this.props.focus.options;
-        const iframeTarget = '' + Math.floor(Math.random() * 10000) + +Date.now();
+        const iframeTarget = `${Math.floor(Math.random() * 10000)}${+Date.now()}`;
 
         // for now use an iframe otherwise any errors will corrupt the page
         const iframe = document.createElement('iframe');
@@ -334,7 +297,7 @@ class GlobalNav extends Component {
         form.target = iframeTarget;
 
         //add inputs to the form for each value in postBody
-        Object.keys(postBody).forEach(key => {
+        Object.keys(postBody).forEach((key) => {
           const input = document.createElement('input');
           input.type = 'hidden';
           input.name = key;
@@ -396,12 +359,10 @@ class GlobalNav extends Component {
       const sorted = sortBlocksByIndexAndDepthExclude(this.props.focus.blockIds);
       // sorted is an array of array, flatten while retaining order
       const currentProjectVersion = this.props.projectGetVersion(this.props.currentProjectId);
-      const clones = sorted.map(info => {
-        return this.props.blockClone(info.blockId, {
-          projectId: this.props.currentProjectId,
-          version: currentProjectVersion,
-        });
-      });
+      const clones = sorted.map(info => this.props.blockClone(info.blockId, {
+        projectId: this.props.currentProjectId,
+        version: currentProjectVersion,
+      }));
       // put clones on the clipboardparentObjectInput
       this.props.clipboardSetData([clipboardFormats.blocks], [clones]);
     }
@@ -462,9 +423,7 @@ class GlobalNav extends Component {
       invariant(blocks && blocks.length && Array.isArray(blocks), 'expected array of blocks on clipboard for this format');
       // we have to clone the blocks currently on the clipboard since they
       // can't be pasted twice
-      const clones = blocks.map(block => {
-        return this.props.blockClone(block.id);
-      });
+      const clones = blocks.map(block => this.props.blockClone(block.id));
       // insert at end of construct if no blocks selected
       let insertIndex = this.focusedConstruct().components.length;
       let parentId = this.focusedConstruct().id;
@@ -654,7 +613,7 @@ class GlobalNav extends Component {
             },
             {
               text: 'Forums',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
+              action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
             },
             {
               text: 'Get Support',
@@ -667,7 +626,7 @@ class GlobalNav extends Component {
             },
             {
               text: 'Give Us Feedback',
-              action: this.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
+              action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
             },
             {},
             {
@@ -693,12 +652,8 @@ class GlobalNav extends Component {
             },
           ],
         },
-      ]}/>);
-  }
-
-  disgorgeDiscourse(path) {
-    const uri = window.discourseDomain + path;
-    window.open(uri, '_blank');
+      ]}
+    />);
   }
 
   render() {
@@ -707,27 +662,28 @@ class GlobalNav extends Component {
     return (
       <div className="GlobalNav">
         <RibbonGrunt />
-        <img className="GlobalNav-logo" src="/images/homepage/app-logo.png"/>
+        <img className="GlobalNav-logo" role="presentation" src="/images/homepage/app-logo.png" />
         {showMenu && this.menuBar()}
-        <span className="GlobalNav-spacer"/>
-        {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId}/>}
-        <UserWidget/>
+        <span className="GlobalNav-spacer" />
+        {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId} />}
+        <UserWidget />
         <OkCancel
           open={this.state.showDeleteProject}
           titleText="Delete Project"
           messageHTML={(
             <div className="message">
-              <br/>
+              <br />
               <span
-                className="line">{this.props.project ? (`"${this.props.project.getName()}"` || 'Your Project') : ''}</span>
-              <br/>
+                className="line"
+              >{this.props.project ? (`"${this.props.project.getName()}"` || 'Your Project') : ''}</span>
+              <br />
               <span className="line">and all related project data will be permanently deleted.</span>
-              <br/>
+              <br />
               <span className="line">This action cannot be undone.</span>
-              <br/>
-              <br/>
-              <br/>
-              <br/>
+              <br />
+              <br />
+              <br />
+              <br />
             </div>
           )}
           okText="Delete"
@@ -764,7 +720,6 @@ export default connect(mapStateToProps, {
   projectSave,
   projectOpen,
   projectDelete,
-  projectList,
   projectLoad,
   projectGetVersion,
   blockCreate,
@@ -794,6 +749,5 @@ export default connect(mapStateToProps, {
   focusConstruct,
   focusDetailsExist,
   clipboardSetData,
-  blockAddComponent,
   blockAddComponents,
 })(GlobalNav);

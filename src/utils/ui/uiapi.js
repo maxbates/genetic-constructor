@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
+
 import { blockGetParents } from '../../selectors/blocks';
 import { dispatch } from '../../store/index';
 
@@ -35,17 +36,11 @@ import { dispatch } from '../../store/index';
  * [F, E, B, D, A, C]
  */
 export function sortBlocksByIndexAndDepth(blockIds) {
-  const getParents = (blockId) => {
-    return dispatch(blockGetParents(blockId));
-  };
+  const getParents = blockId => dispatch(blockGetParents(blockId));
 
-  const getParent = (blockId) => {
-    return getParents(blockId)[0];
-  };
+  const getParent = blockId => getParents(blockId)[0];
 
-  const hasParent = (blockId) => {
-    return dispatch(blockGetParents(blockId)).length;
-  };
+  const hasParent = blockId => dispatch(blockGetParents(blockId)).length;
 
   const getIndex = (blockId) => {
     const parentBlock = getParent(blockId);
@@ -65,7 +60,7 @@ export function sortBlocksByIndexAndDepth(blockIds) {
     const path = [];
     let current = blockId;
     while (hasParent(current)) {
-      path.unshift({blockId: current, index: getIndex(current)});
+      path.unshift({ blockId: current, index: getIndex(current) });
       current = getParent(current).id;
     }
     return path;
@@ -103,10 +98,10 @@ export function sortBlocksByIndexAndDepth(blockIds) {
 export function sortBlocksByIndexAndDepthExclude(blockIds) {
   // get unfiltered list
   const list = sortBlocksByIndexAndDepth(blockIds);
-  return list.filter(info => {
+  return list.filter((info) => {
     const parents = dispatch(blockGetParents(info.blockId));
     let found = false;
-    parents.forEach(parent => {
+    parents.forEach((parent) => {
       if (list.find(info => info.blockId === parent.id)) {
         found = true;
       }

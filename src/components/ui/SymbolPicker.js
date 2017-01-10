@@ -14,11 +14,11 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import symbols, { symbolMap } from '../../inventory/roles';
-import PickerItem from './PickerItem';
 
+import symbols, { symbolMap } from '../../inventory/roles';
 import '../../styles/Picker.css';
 import '../../styles/SymbolPicker.css';
+import PickerItem from './PickerItem';
 
 export default class SymbolPicker extends Component {
   static propTypes = {
@@ -27,11 +27,15 @@ export default class SymbolPicker extends Component {
     onSelect: PropTypes.func,
   };
 
+  static makeHoverText(symbolId) {
+    return symbolMap[symbolId] || symbolId || 'No Symbol';
+  }
+
   constructor(props) {
     super(props);
     this.state = {
       showContent: false,
-      hoverText: this.makeHoverText(props.current),
+      hoverText: SymbolPicker.makeHoverText(props.current),
     };
   }
 
@@ -51,7 +55,7 @@ export default class SymbolPicker extends Component {
   };
 
   onMouseOut = () => {
-    this.setState({ hoverText: this.makeHoverText(this.props.current) });
+    this.setState({ hoverText: SymbolPicker.makeHoverText(this.props.current) });
   };
 
   onClick = (id) => {
@@ -63,37 +67,40 @@ export default class SymbolPicker extends Component {
     }
   };
 
-  makeHoverText(symbolId) {
-    return symbolMap[symbolId] || symbolId || 'No Symbol';
-  }
-
   render() {
     const { current, readOnly } = this.props;
     const noSymbol = 'emptyBlock';
     const currentSymbol = current || ((current === false) ? null : noSymbol);
 
     return (
-      <div className={'Picker SymbolPicker' + (!!readOnly ? ' readOnly' : '')}>
-        <div className="Picker-current"
-             onClick={this.onClickCurrent}>
-          <PickerItem isCurrent={false}
-                      svg={currentSymbol}/>
+      <div className={`Picker SymbolPicker${readOnly ? ' readOnly' : ''}`}>
+        <div
+          className="Picker-current"
+          onClick={this.onClickCurrent}
+        >
+          <PickerItem
+            isCurrent={false}
+            svg={currentSymbol}
+          />
         </div>
         {this.state.showContent && (
-          <div className="Picker-content"
-               onMouseOut={this.onMouseOut}>
+          <div
+            className="Picker-content"
+            onMouseOut={this.onMouseOut}
+          >
             <div className="Picker-currentHovered">{this.state.hoverText}</div>
             <div className="Picker-options">
-              {symbols.map(symbolObj => {
+              {symbols.map((symbolObj) => {
                 const { id, name } = symbolObj;
 
-                return (<PickerItem key={id}
-                                    isCurrent={current === id}
-                                    name={name}
-                                    svg={id}
-                                    onMouseEnter={() => this.onMouseEnter(name)}
-                                    onMouseOut={(evt) => evt.stopPropagation()}
-                                    onClick={() => this.onClick(id)}
+                return (<PickerItem
+                  key={id}
+                  isCurrent={current === id}
+                  name={name}
+                  svg={id}
+                  onMouseEnter={() => this.onMouseEnter(name)}
+                  onMouseOut={evt => evt.stopPropagation()}
+                  onClick={() => this.onClick(id)}
                 />);
               })}
             </div>

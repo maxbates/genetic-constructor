@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import Toggler from '../ui/Toggler';
-
-//todo - update classes
 
 import '../../styles/InspectorRow.css';
+import Toggler from '../ui/Toggler';
 
 export default class InspectorRow extends Component {
   static propTypes = {
@@ -58,16 +56,18 @@ export default class InspectorRow extends Component {
     }
 
     if (!condition) {
-      return (<div className="InspectorRow"></div>);
+      return (<div className="InspectorRow" />);
     }
 
     const isActive = this.getActiveState();
 
     const headingEl = hasToggle ?
       (
-        <h4 className={'InspectorRow-heading toggler' + (isActive ? ' active' : '')}
-            onClick={() => this.handleToggle()}>
-          <Toggler open={isActive}/>
+        <h4
+          className={`InspectorRow-heading toggler${isActive ? ' active' : ''}`}
+          onClick={() => this.handleToggle()}
+        >
+          <Toggler open={isActive} />
           <span>{heading}</span>
         </h4>
       )
