@@ -20,15 +20,15 @@ import '../../styles/BlockNotes.css';
 export default function BlockNotes({ notes }) {
   return (
     <div className="BlockNotes">
-      {Object.keys(notes).map(key => {
+      {Object.keys(notes).map((key) => {
         const value = notes[key];
         if (!value) {
           return null;
         }
         return (<div key={key}>
-                  <div className="key">{key}</div>
-                  <div className="value">{value}</div>
-                </div>);
+          <div className="key">{key}</div>
+          <div className="value">{value}</div>
+        </div>);
       })}
     </div>
   );

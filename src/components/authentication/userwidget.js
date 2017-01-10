@@ -15,17 +15,16 @@
  */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import Box2D from '../../containers/graphics/geometry/box2d';
-import Vector2D from '../../containers/graphics/geometry/vector2d';
 import { connect } from 'react-redux';
-import { uiShowAuthenticationForm, uiSetGrunt, uiShowMenu } from '../../actions/ui';
+
+import { uiSetGrunt, uiShowAuthenticationForm, uiShowMenu } from '../../actions/ui';
 import { userLogout } from '../../actions/user';
 import track from '../../analytics/ga';
-
+import Box2D from '../../containers/graphics/geometry/box2d';
+import Vector2D from '../../containers/graphics/geometry/vector2d';
 import '../../styles/userwidget.css';
 
 class UserWidget extends Component {
-
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
@@ -35,17 +34,14 @@ class UserWidget extends Component {
     userWidgetVisible: PropTypes.bool.isRequired,
   };
 
-  constructor() {
-    super();
-  }
-
   /**
    * show the content menu
    */
   onShowMenu = () => {
     const box = new Box2D(ReactDOM.findDOMNode(this).getBoundingClientRect());
     const menuPosition = new Vector2D(box.cx, box.bottom);
-    const name = this.props.user.firstName + ' ' + this.props.user.lastName;
+    const name = `${this.props.user.firstName} ${this.props.user.lastName}`;
+
     this.props.uiShowMenu([
       {
         text: name,
@@ -59,24 +55,25 @@ class UserWidget extends Component {
       },
       {
         text: 'Sign Out',
-        action: this.signOut.bind(this),
+        action: this.signOut,
       },
     ],
     menuPosition, true);
   };
 
-  signOut() {
+  signOut = () => {
     this.props.userLogout()
     .then(() => {
       track('Authentication', 'Sign Out', 'Success');
       // store is left with previous user projects and other issue. For now do a complete reload
-      window.location = `${window.location.protocol}\\\\${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}\\homepage`;
+      //this.props.push('/homepage');
+      window.location = `${window.location.protocol}\\\\${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}\\homepage`;
     })
     .catch((reason) => {
       this.props.uiSetGrunt('There was a problem signing you out');
       track('Authentication', 'Sign Out', 'Failed');
     });
-  }
+  };
 
   render() {
     if (!this.props.userWidgetVisible) {
@@ -85,7 +82,7 @@ class UserWidget extends Component {
 
     return (
       <div className="userwidget">
-        <img onClick={this.onShowMenu} src="/images/ui/user.svg"/>
+        <img onClick={this.onShowMenu} src="/images/ui/user.svg" />
       </div>
     );
   }

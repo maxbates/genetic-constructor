@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { dispatch } from './index.js';
 import { mapValues } from 'lodash';
 
-const dispatchWrapper = (action) => (...args) => dispatch(action(...args));
+import { dispatch } from './index';
+
+const dispatchWrapper = action => (...args) => dispatch(action(...args));
 
 const sections = ['blocks', 'clipboard', 'projects', 'ui', 'focus', 'inventory', 'inspector', 'orders'];
 
@@ -44,8 +45,8 @@ const sections = ['blocks', 'clipboard', 'projects', 'ui', 'focus', 'inventory',
  */
 export default sections.reduce((acc, section) => {
   //dont need to use static imports so long as we're using babel...
-  const rawActions = require(`../actions/${section}.js`);
-  const rawSelectors = require(`../selectors/${section}.js`);
+  const rawActions = require(`../actions/${section}.js`); //eslint-disable-line import/no-dynamic-require,global-require
+  const rawSelectors = require(`../selectors/${section}.js`); //eslint-disable-line import/no-dynamic-require,global-require
 
   const actions = mapValues(rawActions, dispatchWrapper);
   const selectors = mapValues(rawSelectors, dispatchWrapper);

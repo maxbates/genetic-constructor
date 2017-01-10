@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
+
 import * as ActionTypes from './ActionTypes';
 import SectionManager from './SectionManager';
 import UndoManager from './UndoManager';
@@ -59,27 +60,28 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
 
     return (state = initialState, action) => {
       switch (action.type) {
-      case ActionTypes.UNDO :
-        undoManager.undo(action);
-        break;
-      case ActionTypes.REDO :
-        undoManager.redo(action);
-        break;
-      case ActionTypes.JUMP :
-        const { number } = action;
-        undoManager.jump(number, action);
-        break;
+        case ActionTypes.UNDO :
+          undoManager.undo(action);
+          break;
+        case ActionTypes.REDO :
+          undoManager.redo(action);
+          break;
+        case ActionTypes.JUMP : {
+          const { number } = action;
+          undoManager.jump(number, action);
+          break;
+        }
 
-      case ActionTypes.TRANSACT :
-        undoManager.transact(action);
-        break;
-      case ActionTypes.COMMIT :
-        undoManager.commit(action);
-        break;
-      case ActionTypes.ABORT :
-        undoManager.abort(action);
-        break;
-      default:
+        case ActionTypes.TRANSACT :
+          undoManager.transact(action);
+          break;
+        case ActionTypes.COMMIT :
+          undoManager.commit(action);
+          break;
+        case ActionTypes.ABORT :
+          undoManager.abort(action);
+          break;
+        default:
         //no impact on undo manager, compute as normal
       }
 
@@ -105,7 +107,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
       }
 
       //if marked to purge, lets clear the history
-      if (!!action.undoPurge || params.purgeOn(action, nextState, state)) {
+      if (action.undoPurge || params.purgeOn(action, nextState, state)) {
         undoManager.purge(action);
       }
 
@@ -115,7 +117,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
       }
 
       //if we make it this far, then this reducer has been affected and we can assume the action is specific to this section of reducers
-      if (!!action.undoable || params.filter(action, nextState, state)) {
+      if (action.undoable || params.filter(action, nextState, state)) {
         //shouldnt have undoPurge and undoable on same action
         undoManager.insert(key, nextState, action);
       } else {
@@ -129,7 +131,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
   };
 };
 
-export const makeUndoable = (action) => Object.assign(action, { undoable: true });
-export const makePurging = (action) => Object.assign(action, { undoPurge: true });
+export const makeUndoable = action => Object.assign(action, { undoable: true });
+export const makePurging = action => Object.assign(action, { undoPurge: true });
 
 export default undoReducerEnhancerCreator;

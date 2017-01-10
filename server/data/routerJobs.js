@@ -13,13 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import express from 'express';
 import bodyParser from 'body-parser';
-import {
-  errorInvalidRoute,
-  errorDoesNotExist,
-  errorFileNotFound,
-} from './../utils/errors';
+import express from 'express';
+
+import { errorDoesNotExist, errorFileNotFound, errorInvalidRoute } from './../utils/errors';
 import * as jobFiles from './files/jobs';
 
 const router = express.Router(); //eslint-disable-line new-cap
@@ -45,7 +42,7 @@ router.route('/:namespace/:file?')
 
     jobFiles.jobFileRead(projectId, namespace, file)
       .then(data => res.send(data))
-      .catch(err => {
+      .catch((err) => {
         if (err === errorDoesNotExist) {
           return res.status(404).send(errorDoesNotExist);
         }
@@ -70,7 +67,7 @@ router.route('/:namespace/:file?')
 
     jobFiles.jobFileDelete(projectId, namespace, file)
       .then(() => res.status(200).send())
-      .catch(err => {
+      .catch((err) => {
         console.log('project file delete err', err, err.stack);
         next(err);
       });
@@ -93,7 +90,7 @@ router.route('/:namespace')
     //future - support query where namespace is optional (need to update s3 support as well)
 
     jobFiles.jobFileList(projectId, namespace)
-      .then(contents => {
+      .then((contents) => {
         //todo - move this to jobFileList itself
         const mapped = contents.map(filename => ({
           name: filename,

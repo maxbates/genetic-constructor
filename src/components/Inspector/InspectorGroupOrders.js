@@ -13,48 +13,46 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import moment from 'moment';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { projectList } from '../../actions/projects';
-import { orderList } from '../../actions/orders';
-import {
-  uiSetGrunt,
-  uiShowOrderForm,
-} from '../../actions/ui';
-import Expando from '../ui/Expando';
-import moment from 'moment';
 
+import { orderList } from '../../actions/orders';
+import { projectList } from '../../actions/projects';
+import { uiShowOrderForm } from '../../actions/ui';
 import '../../styles/InspectorGroupOrders.css';
+import Expando from '../ui/Expando';
 
 class InspectorGroupOrders extends Component {
   static propTypes = {
-    uiSetGrunt: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
     uiShowOrderForm: PropTypes.func.isRequired,
   };
 
-  constructor() {
-    super();
-    this.state = {
-      orders: [],
-      loaded: false,
-    };
-  }
+  state = {
+    orders: [],
+    loaded: false,
+  };
 
   /**
    * get all projects and reduce to an array of promises for the orders
    */
+  //todo - this is inefficient... why do we need to get them all?
   componentDidMount() {
     this.props.projectList()
     .then((projects) => {
       this.projects = projects;
-      Promise.all(this.projects.reduce((accumulator, project) => {
-        return accumulator.concat(this.props.orderList(project.id));
-      }, []))
+
+      Promise.all(this.projects.map(project => this.props.orderList(project.id)))
       .then((orderLists) => {
+        const flatOrders = orderLists.reduce((acc, orders) => {
+          acc.push(...orders);
+          return acc;
+        }, []);
+
         this.setState({
-          orders: [].concat.apply([], orderLists),
+          orders: flatOrders,
           loaded: true,
         });
       });
@@ -64,8 +62,8 @@ class InspectorGroupOrders extends Component {
   render() {
     return (<div className="InspectorGroupOrders">
       {this.state.loaded && this.state.orders.length === 0 ? <div className="no-label">No Orders Found</div> : null}
-      {this.state.orders.map((order, index) => {
-        return (<Expando
+      {this.state.orders.map((order, index) => (
+        <Expando
           key={index}
           text={order.metadata.name}
           content={
@@ -73,7 +71,8 @@ class InspectorGroupOrders extends Component {
               <div className="row">
                 <div className="key">Project</div>
                 <div
-                  className="value">{this.projects.find(project => project.id === order.projectId).metadata.name || 'Unnamed Project'}</div>
+                  className="value"
+                >{this.projects.find(project => project.id === order.projectId).metadata.name || 'Unnamed Project'}</div>
               </div>
               <div className="row">
                 <div className="key">Order Created</div>
@@ -93,16 +92,19 @@ class InspectorGroupOrders extends Component {
               </div>
               <div className="row">
                 <div className="value">
-                  <a className="link" href="#" onClick={(event) => {
-                    event.preventDefault();
-                    this.props.uiShowOrderForm(true, order.id);
-                  }}>Review Order</a>
+                  <a
+                    className="link"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      this.props.uiShowOrderForm(true, order.id);
+                    }}
+                  >Review Order</a>
                 </div>
               </div>
             </div>
           }
-        />);
-      })}
+        />
+      ))}
     </div>);
   }
 }
@@ -120,9 +122,7 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  uiSetGrunt,
   uiShowOrderForm,
   projectList,
   orderList,
 })(InspectorGroupOrders);
-

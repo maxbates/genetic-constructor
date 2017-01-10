@@ -36,10 +36,10 @@ export default class RectangleGlyph2D extends Glyph2D {
    */
   update() {
     const sw = this.node.strokeWidth;
-    this.el.style.left = -(sw / 2) + 'px';
-    this.el.style.top = -(sw / 2) + 'px';
-    this.el.style.width = (this.node.width + sw) + 'px';
-    this.el.style.height = (this.node.height + sw) + 'px';
+    this.el.style.left = `${-(sw / 2)}px`;
+    this.el.style.top = `${-(sw / 2)}px`;
+    this.el.style.width = `${this.node.width + sw}px`;
+    this.el.style.height = `${this.node.height + sw}px`;
     this.el.style.backgroundColor = this.node.fill;
     this.el.style.border = sw ? `${sw}px solid ${this.node.stroke}` : 'none';
   }

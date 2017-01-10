@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+
 import { role as roleDragType } from '../../constants/DragTypes';
 import Block from '../../models/Block';
 import InventoryItem from './InventoryItem';
@@ -48,18 +49,20 @@ export default class InventoryItemRole extends Component {
 
   state = {
     inside: false,
-  }
+  };
 
   render() {
     const { role, ...rest } = this.props;
     const highlight = this.props.hover && this.state.inside;
 
     return (
-      <div className="InventoryItemRole"
-           onMouseEnter={() => this.setState({inside: true})}
-           onMouseLeave={() => this.setState({inside: false})}
+      <div
+        className="InventoryItemRole"
+        onMouseEnter={() => this.setState({ inside: true })}
+        onMouseLeave={() => this.setState({ inside: false })}
       >
-        <InventoryItem {...rest}
+        <InventoryItem
+          {...rest}
           inventoryType={roleDragType}
           svg={role.id}
           item={this.roleBlock}
@@ -68,7 +71,8 @@ export default class InventoryItemRole extends Component {
             color: highlight ? this.props.hover : '#1D222D',
             strokeWidth: 1,
           }}
-          dataAttribute={`sbol ${role.id}`}/>
+          dataAttribute={`sbol ${role.id}`}
+        />
       </div>
     );
   }

@@ -15,14 +15,14 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+import { focusBlocks } from '../../actions/focus';
+import { block as blockDragType } from '../../constants/DragTypes';
 import DnD from '../../containers/graphics/dnd/dnd';
 import MouseTrap from '../../containers/graphics/mousetrap';
-import { focusBlocks } from '../../actions/focus';
-import InventoryListGroup from './InventoryListGroup';
-import InventoryItemBlock from './InventoryItemBlock';
 import * as instanceMap from '../../store/instanceMap';
-
-import { block as blockDragType } from '../../constants/DragTypes';
+import InventoryItemBlock from './InventoryItemBlock';
+import InventoryListGroup from './InventoryListGroup';
 
 /*
  InventoryConstruct takes a blockId of a block in a loaded project (i.e. block and components recursively are in the store), and delegates between inventoryItemBlock for blocks and InventoryListGroup to recursively lay out constructs. Use this component if you are unsure whether you have a block or a construct.
@@ -107,33 +107,39 @@ export class InventoryConstruct extends Component {
   }
 
   render() {
-    const { blockId, depth, block, isConstruct, isTemplate, isActive, focusBlocks, ...rest } = this.props;
+    const { depth, block, isActive, focusBlocks, ...rest } = this.props;
     const defaultName = depth < 1 ? 'New Construct' : 'New Block';
 
     //use !shouldRenderAsConstruct so short circuit, to avoid calling ref in InventoryListGroup (will be null if never mounted, cause errors when ref clause is called)
     const innerContent = !this.shouldRenderAsConstruct()
       ?
-      <InventoryItemBlock block={block}
-                          defaultName={defaultName}
-                          {...rest} />
+        (<InventoryItemBlock
+          block={block}
+          defaultName={defaultName}
+          {...rest}
+        />)
       :
       //explicitly call connected component to handle recursion
       (
-        <InventoryListGroup title={block.getName(defaultName)}
-                            isActive={isActive}
-                            onSelect={() => focusBlocks([block.id])}
-                            isSelectable
-                            dataAttribute={`construct ${block.id}`}
-                            ref={(el) => {
-                              if (el) {
-                                this.itemElement = el.getHeading();
-                              }
-                            }}>
+        <InventoryListGroup
+          title={block.getName(defaultName)}
+          isActive={isActive}
+          onSelect={() => focusBlocks([block.id])}
+          isSelectable
+          dataAttribute={`construct ${block.id}`}
+          ref={(el) => {
+            if (el) {
+              this.itemElement = el.getHeading();
+            }
+          }}
+        >
           {block.components.map(compId => (
-            <InventoryConstructConnected {...rest}
-                                         key={compId}
-                                         depth={depth + 1}
-                                         blockId={compId}/>
+            <InventoryConstructConnected
+              {...rest}
+              key={compId}
+              depth={depth + 1}
+              blockId={compId}
+            />
           ))}
         </InventoryListGroup>
       );

@@ -14,15 +14,16 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import Instance from '../models/Instance';
 import { cloneDeep } from 'lodash';
+
+import { getQuote, submitOrder } from '../middleware/order';
+import Instance from '../models/Instance';
 import OrderDefinition from '../schemas/Order';
 import OrderParametersSchema from '../schemas/OrderParameters';
-import * as validators from '../schemas/fields/validators';
 import safeValidate from '../schemas/fields/safeValidate';
-import { submitOrder, getQuote } from '../middleware/order';
+import * as validators from '../schemas/fields/validators';
 
-const idValidator = (id) => safeValidate(validators.id(), true, id);
+const idValidator = id => safeValidate(validators.id(), true, id);
 
 /**
  * A construct can be ordered, i.e. synthesized, and the process is saved using an Order. Orders are placed with a foundry.
@@ -97,7 +98,7 @@ export default class Order extends Instance {
         Array.isArray(input.constructIds) &&
         input.constructIds.length > 0 &&
         input.constructIds.every(id => idValidator(id)),
-        'must pass 1+ valid constructIds'
+        'must pass 1+ valid constructIds',
       );
       OrderParametersSchema.validate(input.parameters, true);
     } catch (err) {
@@ -110,6 +111,7 @@ export default class Order extends Instance {
     return true;
   }
 
+  //eslint-disable-next-line class-methods-use-this
   clone() {
     //todo - enable this, but remove order-specifics (e.g. status)
     invariant(false, 'cannot clone an order');

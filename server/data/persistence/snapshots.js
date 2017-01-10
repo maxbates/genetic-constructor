@@ -13,15 +13,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import debug from 'debug';
+
 import { errorDoesNotExist } from '../../utils/errors';
 import { dbGet, dbPost } from '../middleware/db';
-import debug from 'debug';
 
 const logger = debug('constructor:data:persistence:snapshots');
 
 // Snapshotting is special information about a version.
 
-const transformDbVersion = (result) => ({
+const transformDbVersion = result => ({
   projectId: result.projectId,
   version: parseInt(result.projectVersion, 10),
   type: result.type,
@@ -45,7 +46,7 @@ export const snapshotWrite = (projectId, userId, version, message = defaultMessa
   logger(`[snapshotWrite] writing @ V${Number.isInteger(projectVersion) ? projectVersion : '[latest]'} on ${projectId} - ${message}`);
 
   //signature is weird - no data to pass, just several body parameters
-  return dbPost(`snapshots/`, userId, {}, {}, {
+  return dbPost('snapshots/', userId, {}, {}, {
     projectId,
     projectVersion,
     type,

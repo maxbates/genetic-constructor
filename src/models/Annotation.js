@@ -13,11 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import Immutable from './Immutable';
-import AnnotationSchema from '../schemas/Annotation';
-import { merge, assign } from 'lodash';
-import { nextColorHex } from '../utils/color/index';
+import { assign, merge } from 'lodash';
+
 import { symbolMap } from '../inventory/roles';
+import AnnotationSchema from '../schemas/Annotation';
+import { nextColorHex } from '../utils/color/index';
+import Immutable from './Immutable';
 
 /**
  * Annotations mark regions of sequence with notes, colors, roles, etc.
@@ -37,6 +38,8 @@ export default class Annotation extends Immutable {
   constructor(input, frozen = true) {
     const scaff = AnnotationSchema.scaffold();
     scaff.color = nextColorHex();
+    //not sure why lint is complaining...
+    //eslint-disable-next-line constructor-super
     return super(merge(scaff, input), frozen);
   }
 

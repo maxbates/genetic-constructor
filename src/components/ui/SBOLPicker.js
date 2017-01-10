@@ -14,10 +14,10 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import symbols, { symbolMap } from '../../inventory/roles';
-import RoleSvg from '../RoleSvg';
 
+import symbols, { symbolMap } from '../../inventory/roles';
 import '../../styles/SBOLPicker.css';
+import RoleSvg from '../RoleSvg';
 
 export default class SBOLPicker extends Component {
   static propTypes = {
@@ -26,15 +26,15 @@ export default class SBOLPicker extends Component {
     onSelect: PropTypes.func,
   };
 
+  static makeHoverText(symbolId) {
+    return symbolMap[symbolId] || symbolId || 'No Symbol';
+  }
+
   constructor(props) {
     super(props);
     this.state = {
-      hoverText: this.makeHoverText(props.current),
+      hoverText: SBOLPicker.makeHoverText(props.current),
     };
-  }
-
-  makeHoverText(symbolId) {
-    return symbolMap[symbolId] || symbolId || 'No Symbol';
   }
 
   /**
@@ -49,11 +49,11 @@ export default class SBOLPicker extends Component {
   };
 
   onMouseEnter = (id) => {
-    this.setState({hoverText: this.makeHoverText(id)});
+    this.setState({ hoverText: SBOLPicker.makeHoverText(id) });
   };
 
   onMouseLeave = () => {
-    this.setState({hoverText: this.makeHoverText(this.props.current)});
+    this.setState({ hoverText: SBOLPicker.makeHoverText(this.props.current) });
   };
 
   render() {
@@ -63,18 +63,19 @@ export default class SBOLPicker extends Component {
         <div className="SBOLPicker-content">
           <div className="name">{this.state.hoverText}</div>
           <div className="sbol-picker">
-            {symbols.map(symbolObj => {
+            {symbols.map((symbolObj) => {
               const { id } = symbolObj;
               return (<RoleSvg
-                               width="54px"
-                               height="54px"
-                               color={current === id ? 'white' : 'black'}
-                               classes={current === id ? 'active' : null}
-                               symbolName={id}
-                               onClick={this.onClick.bind(this, id)}
-                               onMouseEnter={this.onMouseEnter.bind(this, id)}
-                               onMouseLeave={this.onMouseLeave}
-                               key={id}/>);
+                width="54px"
+                height="54px"
+                color={current === id ? 'white' : 'black'}
+                classes={current === id ? 'active' : null}
+                symbolName={id}
+                onClick={() => this.onClick(id)}
+                onMouseEnter={() => this.onMouseEnter(id)}
+                onMouseLeave={this.onMouseLeave}
+                key={id}
+              />);
             })}
           </div>
         </div>

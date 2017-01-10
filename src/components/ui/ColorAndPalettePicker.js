@@ -14,19 +14,14 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import {
-  getPalette,
-  getPaletteName,
-  palettes,
-} from '../../utils/color/index';
 
 import '../../styles/ColorAndPalettePicker.css';
+import { getPalette, getPaletteName, palettes } from '../../utils/color/index';
 
 //todo - this has a lot of logic shared with Symbol Picker, but some differences in data structure etc. Should probably merge them though.
 
 export default class ColorAndPalettePicker extends Component {
   static propTypes = {
-    readOnly: PropTypes.bool,
     current: PropTypes.number,
     onSelectColor: PropTypes.func.isRequired,
     onSelectPalette: PropTypes.func.isRequired,
@@ -59,13 +54,14 @@ export default class ColorAndPalettePicker extends Component {
     return (
       <div className="color-tabs">
         <div className="ribbon">
-          {palettes.map(paletteName => {
+          {palettes.map((paletteName) => {
             const classes = `tab${paletteName === currentPaletteName ? ' active' : ''}`;
             return (<div
               className={classes}
               key={paletteName}
-              onClick={this.onSelectPalette.bind(this, paletteName)}>{paletteName}
-              </div>);
+              onClick={() => this.onSelectPalette(paletteName)}
+            >{paletteName}
+            </div>);
           })}
         </div>
         <div className="color-picker-content">
@@ -76,9 +72,9 @@ export default class ColorAndPalettePicker extends Component {
                 key={index}
                 className={classes}
                 title={color.name}
-                onClick={this.onSelectColor.bind(this, index)}
-                style={{ backgroundColor: color.hex }}>
-              </div>);
+                onClick={() => this.onSelectColor(index)}
+                style={{ backgroundColor: color.hex }}
+              />);
             })}
           </div>
         </div>

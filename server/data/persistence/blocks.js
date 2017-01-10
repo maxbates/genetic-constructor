@@ -14,17 +14,16 @@
  limitations under the License.
  */
 import _ from 'lodash';
+import * as urlSafeBase64 from 'urlsafe-base64';
+
 import { dbGet } from '../middleware/db';
 import { getUserProjects } from './projects';
-import * as urlSafeBase64 from 'urlsafe-base64';
 
 const reduceToMap = array => _.keyBy(array, block => block.id);
 
 //expensive
-export const getAllBlocks = (userId) => {
-  return getUserProjects(userId, true)
+export const getAllBlocks = userId => getUserProjects(userId, true)
     .then(rolls => _.reduce(rolls, (acc, roll) => Object.assign(acc, roll.blocks), {}));
-};
 
 export const getAllBlocksWithName = (userId, name) => {
   // block names are the only parameters currently url-encoded
@@ -34,11 +33,7 @@ export const getAllBlocksWithName = (userId, name) => {
 };
 
 //note - 'none' will get blocks with no role
-export const getAllPartsWithRole = (userId, role) => {
-  return dbGet(`blocks/role/${userId}/${role}`)
+export const getAllPartsWithRole = (userId, role) => dbGet(`blocks/role/${userId}/${role}`)
     .then(reduceToMap);
-};
 
-export const getAllBlockRoles = (userId) => {
-  return dbGet(`blocks/role/${userId}`);
-};
+export const getAllBlockRoles = userId => dbGet(`blocks/role/${userId}`);

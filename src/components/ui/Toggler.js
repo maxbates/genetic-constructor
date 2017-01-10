@@ -18,25 +18,24 @@ import Arrow from './Arrow';
 
 import '../../styles/Toggler.css';
 
-export default function Toggler({ onClick, hidden, open, disabled, style }) {
+
+export default function Toggler({ onClick, hidden, open, disabled }) {
   if (hidden) {
-    //todo - in React v15, can return null
-    return <noscript />;
+    return null;
   }
 
   return (<div className="Toggler">
-            <Arrow
-              direction={open ? 'down' : 'right'}
-              disabled={disabled}
-              onClick={onClick}
-              hidden={false}
-            />
-          </div>);
+    <Arrow
+      direction={open ? 'down' : 'right'}
+      disabled={disabled}
+      onClick={onClick}
+      hidden={false}
+    />
+  </div>);
 }
 
 Toggler.propTypes = {
   onClick: PropTypes.func,
-  style: PropTypes.object,
   open: PropTypes.bool,
   disabled: PropTypes.bool,
   hidden: PropTypes.bool,

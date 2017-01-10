@@ -13,31 +13,25 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { dbGet, dbHead, dbPruneResult } from '../middleware/db';
 import { mergeMetadataOntoProject } from './projects';
-import { dbHead, dbGet, dbPruneResult } from '../middleware/db';
 
 // note that versions are already generated on project writing, so use projectWrite() to create one
 
-const transformDbVersion = (result) => ({
+const transformDbVersion = result => ({
   version: parseInt(result.version, 10),
   time: (new Date(result.createdAt)).valueOf(),
   owner: result.owner,
 });
 
-export const projectVersionExists = (projectId, version) => {
-  return dbHead(`projects/${projectId}?version=${version}`)
+export const projectVersionExists = (projectId, version) => dbHead(`projects/${projectId}?version=${version}`)
     .then(() => true);
-};
 
 //returns project at a particular point in time
-export const projectVersionGet = (projectId, version) => {
-  return dbGet(`projects/${projectId}?version=${version}`)
+export const projectVersionGet = (projectId, version) => dbGet(`projects/${projectId}?version=${version}`)
     .then(mergeMetadataOntoProject)
     .then(dbPruneResult);
-};
 
 //list all versions of a project
-export const projectVersionList = (projectId) => {
-  return dbGet(`projects/versions/${projectId}`)
+export const projectVersionList = projectId => dbGet(`projects/versions/${projectId}`)
     .then(results => results.map(transformDbVersion));
-};

@@ -52,12 +52,12 @@ module.exports = {
       // enter a BAD sequence
       .setValue('.importdnaform textarea', 'XXXX')
       // expect to get a zero length sequence
-      .assert.containsText('.importdnaform label:nth-of-type(1)', 'Length: 0')
+      .assert.containsText('.importdnaform .label:nth-of-type(1)', 'Length: 0')
       // set a valid sequence with white space and newlines
       .clearValue('.importdnaform textarea')
       .setValue('.importdnaform textarea', 'acgtu ryswk mbdhv n.-')
       // expect a message about a valid 18 character sequence ( with white space etc removed )
-      .assert.containsText('.importdnaform label:nth-of-type(1)', 'Length: 18')
+      .assert.containsText('.importdnaform .label:nth-of-type(1)', 'Length: 18')
       // submit the form with the valid sequence
       .submitForm('.importdnaform')
       // wait for the grunt ribbon to confirm,

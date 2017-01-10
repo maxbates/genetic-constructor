@@ -13,17 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 
-export default class Link extends Component {
-  static propTypes = {
-    href: PropTypes.string.isRequired,
-    text: PropTypes.string.isRequired,
-  };
-
-  render() {
-    return (
-      <a target="_blank" className="blue-link" href={this.props.href}>{this.props.text}</a>
-    );
-  }
+export default function Link(props) {
+  return (
+    <a
+      target="_blank"
+      rel="noopener noreferrer"
+      className="blue-link"
+      href={props.href}
+    >{props.text}</a>
+  );
 }
+
+Link.propTypes = {
+  href: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+};

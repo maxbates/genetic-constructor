@@ -13,12 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './utils/rejectingFetch';
 import invariant from 'invariant';
-import { headersGet, headersPost, headersDelete } from './utils/headers';
-import { dataApiPath } from './utils/paths';
-import { noteSave, noteFailure } from '../store/saveState';
+
+import { noteFailure, noteSave } from '../store/saveState';
 import { getBlockContents } from './querying';
+import { headersDelete, headersGet, headersPost } from './utils/headers';
+import { dataApiPath } from './utils/paths';
+import rejectingFetch from './utils/rejectingFetch';
 
 /******
  API requests
@@ -42,7 +43,7 @@ export const loadProject = (projectId) => {
   const url = dataApiPath(`projects/${projectId}`);
   return rejectingFetch(url, headersGet())
     .then(resp => resp.json())
-    .then(rollup => {
+    .then((rollup) => {
       noteSave(rollup.project.id, rollup.project.version);
       return rollup;
     });
@@ -62,12 +63,12 @@ export const saveProject = (projectId, rollup) => {
 
   return rejectingFetch(url, headersPost(stringified))
     .then(resp => resp.json())
-    .then(versionInfo => {
+    .then((versionInfo) => {
       const { version } = versionInfo;
       noteSave(projectId, version);
       return versionInfo;
     })
-    .catch(err => {
+    .catch((err) => {
       noteFailure(projectId, err);
       return Promise.reject(err);
     });

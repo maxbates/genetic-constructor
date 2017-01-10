@@ -15,12 +15,12 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { inventoryToggleVisibility, inventorySelectTab } from '../actions/ui';
-import SectionIcon from './SectionIcon';
-import InventoryGroup from '../components/Inventory/InventoryGroup';
 
+import { inventorySelectTab, inventoryToggleVisibility } from '../actions/ui';
+import InventoryGroup from '../components/Inventory/InventoryGroup';
 import '../styles/Inventory.css';
 import '../styles/SidePanel.css';
+import SectionIcon from './SectionIcon';
 
 export class Inventory extends Component {
   static propTypes = {
@@ -30,10 +30,6 @@ export class Inventory extends Component {
     inventoryToggleVisibility: PropTypes.func.isRequired,
     inventorySelectTab: PropTypes.func.isRequired,
   };
-
-  constructor(props) {
-    super(props);
-  }
 
   state = {
     gslActive: false,
@@ -101,16 +97,16 @@ export class Inventory extends Component {
     // classes for content area
     const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
     // map sections to icons
-    const icons = Object.keys(this.sections).map(sectionName => {
-      return (<SectionIcon
-          key={sectionName}
-          open={isVisible}
-          onSelect={this.setActive}
-          onToggle={() => this.toggle(!isVisible)}
-          selected={this.props.currentTab === sectionName && isVisible}
-          section={sectionName}
-        />);
-    });
+    const icons = Object.keys(this.sections).map(sectionName => (
+      <SectionIcon
+        key={sectionName}
+        open={isVisible}
+        onSelect={this.setActive}
+        onToggle={() => this.toggle(!isVisible)}
+        selected={this.props.currentTab === sectionName && isVisible}
+        section={sectionName}
+      />
+      ));
     // setup content area
     const tabInfo = this.sections[this.props.currentTab];
     let tab;
@@ -119,7 +115,7 @@ export class Inventory extends Component {
     }
 
     return (
-      <div className={'SidePanel Inventory' + (isVisible ? ' visible' : '')}>
+      <div className={`SidePanel Inventory${isVisible ? ' visible' : ''}`}>
         <div className="container">
           <div className="vertical-menu">
             {icons}

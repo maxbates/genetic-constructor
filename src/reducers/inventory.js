@@ -31,15 +31,13 @@ import { getLocal, setLocal } from '../utils/localstorage';
  (loading) - whether more results are loading, assigned by app
  */
 
-const createEmptySearchResults = (sourceList) => sourceList.reduce((acc, source) => {
+const createEmptySearchResults = sourceList => sourceList.reduce((acc, source) => {
   const results = [];
   Object.assign(results, { parameters: {}, loading: true });
   return Object.assign(acc, { [source]: results });
 }, {});
 
-const createSourcesVisible = (valueFunction = () => false, sourceList = getSources('search')) => {
-  return sourceList.reduce((acc, source) => Object.assign(acc, { [source]: valueFunction(source) }), {});
-};
+const createSourcesVisible = (valueFunction = () => false, sourceList = getSources('search')) => sourceList.reduce((acc, source) => Object.assign(acc, { [source]: valueFunction(source) }), {});
 
 const searchSources = getSources('search');
 const initialSearchSources = getLocal('searchSources') ? getLocal('searchSources').split(',') : searchSources;
@@ -60,117 +58,116 @@ export const initialState = {
 
 export default function inventory(state = initialState, action) {
   switch (action.type) {
-
-  case ActionTypes.INVENTORY_RESULT_RESET: {
-    const { sourceList } = action;
-    return Object.assign({}, state, {
-      searchResults: createEmptySearchResults(sourceList),
-      searching: false,
-    });
-  }
-  case ActionTypes.INVENTORY_SEARCH : {
-    const { searchTerm, sourceList } = action;
-    return Object.assign({}, state, {
-      searchTerm,
-      searchResults: createEmptySearchResults(sourceList),
-      searching: searchTerm.length > 0,
-    });
-  }
-  case ActionTypes.INVENTORY_SEARCH_RESOLVE_PARTIAL : {
-    const { patch, searchTerm } = action;
-
-    if (searchTerm !== state.searchTerm) {
-      return state;
-    }
-
-    const searchResults = Object.assign({}, state.searchResults, patch);
-    return Object.assign({}, state, {
-      searchResults,
-    });
-  }
-  case ActionTypes.INVENTORY_SEARCH_RESOLVE : {
-    const { searchTerm, sourceList, searchResults } = action;
-
-    if (searchTerm === state.searchTerm) {
+    case ActionTypes.INVENTORY_RESULT_RESET: {
+      const { sourceList } = action;
       return Object.assign({}, state, {
+        searchResults: createEmptySearchResults(sourceList),
         searching: false,
-        searchResults,
-        sourcesVisible: createSourcesVisible((source) => searchResults[source] && searchResults[source].length > 0),
-        lastSearch: {
-          searchTerm,
-          sourceList,
-        },
       });
     }
-    return state;
-  }
-  case ActionTypes.INVENTORY_SEARCH_REJECT : {
-    const { searchTerm } = action;
+    case ActionTypes.INVENTORY_SEARCH : {
+      const { searchTerm, sourceList } = action;
+      return Object.assign({}, state, {
+        searchTerm,
+        searchResults: createEmptySearchResults(sourceList),
+        searching: searchTerm.length > 0,
+      });
+    }
+    case ActionTypes.INVENTORY_SEARCH_RESOLVE_PARTIAL : {
+      const { patch, searchTerm } = action;
 
-    if (searchTerm !== state.searchTerm) {
+      if (searchTerm !== state.searchTerm) {
+        return state;
+      }
+
+      const searchResults = Object.assign({}, state.searchResults, patch);
+      return Object.assign({}, state, {
+        searchResults,
+      });
+    }
+    case ActionTypes.INVENTORY_SEARCH_RESOLVE : {
+      const { searchTerm, sourceList, searchResults } = action;
+
+      if (searchTerm === state.searchTerm) {
+        return Object.assign({}, state, {
+          searching: false,
+          searchResults,
+          sourcesVisible: createSourcesVisible(source => searchResults[source] && searchResults[source].length > 0),
+          lastSearch: {
+            searchTerm,
+            sourceList,
+          },
+        });
+      }
       return state;
     }
+    case ActionTypes.INVENTORY_SEARCH_REJECT : {
+      const { searchTerm } = action;
 
-    return Object.assign({}, state, {
-      searching: false,
-      searchResults: defaultSearchResults,
-    });
-  }
-  case ActionTypes.INVENTORY_SEARCH_PAGINATE : {
-    const { source, parameters } = action;
-    const results = state.searchResults[source];
-    const nextResults = Object.assign([...results], { parameters, loading: true });
-    const nextSearchResults = Object.assign({}, state.searchResults, { [source]: nextResults });
+      if (searchTerm !== state.searchTerm) {
+        return state;
+      }
 
-    return Object.assign({}, state, { searchResults: nextSearchResults });
-  }
-  case ActionTypes.INVENTORY_SEARCH_PAGINATE_RESOLVE : {
-    const { searchTerm, source, patch } = action;
-
-    if (searchTerm !== state.searchTerm) {
-      return state;
+      return Object.assign({}, state, {
+        searching: false,
+        searchResults: defaultSearchResults,
+      });
     }
+    case ActionTypes.INVENTORY_SEARCH_PAGINATE : {
+      const { source, parameters } = action;
+      const results = state.searchResults[source];
+      const nextResults = Object.assign([...results], { parameters, loading: true });
+      const nextSearchResults = Object.assign({}, state.searchResults, { [source]: nextResults });
 
-    const results = patch[source];
-    const oldResults = state.searchResults[source];
+      return Object.assign({}, state, { searchResults: nextSearchResults });
+    }
+    case ActionTypes.INVENTORY_SEARCH_PAGINATE_RESOLVE : {
+      const { searchTerm, source, patch } = action;
+
+      if (searchTerm !== state.searchTerm) {
+        return state;
+      }
+
+      const results = patch[source];
+      const oldResults = state.searchResults[source];
     //if there are no results, still construct the final value the same way
-    const nextResults = Object.assign([...results, ...oldResults], {
-      parameters: results.parameters,
-      count: results.count,
-      loading: false,
-    });
+      const nextResults = Object.assign([...results, ...oldResults], {
+        parameters: results.parameters,
+        count: results.count,
+        loading: false,
+      });
 
-    if (!results.length) {
+      if (!results.length) {
       //dont allow more searches - set length to current
-      Object.assign(nextResults, { count: nextResults.length });
+        Object.assign(nextResults, { count: nextResults.length });
+      }
+
+      const nextSearchResults = Object.assign({}, state.searchResults, { [source]: nextResults });
+      return Object.assign({}, state, { searchResults: nextSearchResults });
+    }
+    case ActionTypes.INVENTORY_SET_SOURCES : {
+      const { sourceList } = action;
+      setLocal('searchSources', sourceList.join(','));
+      return Object.assign({}, state, {
+        sourceList,
+      });
+    }
+    case ActionTypes.INVENTORY_SOURCES_VISIBILITY : {
+      const { nextState } = action;
+      return Object.assign({}, state, { sourcesToggling: nextState });
+    }
+    case ActionTypes.INVENTORY_SOURCES_VISIBLE : {
+      const { sourcesVisible } = action;
+      return Object.assign({}, state, { sourcesVisible });
+    }
+    case ActionTypes.INVENTORY_SET_SEARCH_TERM : {
+      const { searchTerm } = action;
+      return Object.assign({}, state, {
+        searchTerm,
+      });
     }
 
-    const nextSearchResults = Object.assign({}, state.searchResults, { [source]: nextResults });
-    return Object.assign({}, state, { searchResults: nextSearchResults });
-  }
-  case ActionTypes.INVENTORY_SET_SOURCES : {
-    const { sourceList } = action;
-    setLocal('searchSources', sourceList.join(','));
-    return Object.assign({}, state, {
-      sourceList,
-    });
-  }
-  case ActionTypes.INVENTORY_SOURCES_VISIBILITY : {
-    const { nextState } = action;
-    return Object.assign({}, state, { sourcesToggling: nextState });
-  }
-  case ActionTypes.INVENTORY_SOURCES_VISIBLE : {
-    const { sourcesVisible } = action;
-    return Object.assign({}, state, { sourcesVisible });
-  }
-  case ActionTypes.INVENTORY_SET_SEARCH_TERM : {
-    const { searchTerm } = action;
-    return Object.assign({}, state, {
-      searchTerm,
-    });
-  }
-
-  default :
-    return state;
+    default :
+      return state;
   }
 }
