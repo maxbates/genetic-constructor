@@ -84,8 +84,6 @@ export class InventoryProjectTree extends Component {
     filter: PropTypes.string.isRequired,
   };
 
-  static filter = '';
-
   /**
    * make a drag and drop proxy for the item
    */
@@ -111,7 +109,6 @@ export class InventoryProjectTree extends Component {
 
   state = {
     isLoading: true,
-    filter: InventoryProjectTree.filter || '',
   };
 
   //will retrigger on each load
@@ -383,12 +380,11 @@ export class InventoryProjectTree extends Component {
 
       //if filtering, and name doesnt match, skip
       const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
-      const filter = this.state.filter.toLowerCase();
-      if (!!filter && name.indexOf(filter) >= 0) {
-        return false;
+      const filter = this.props.filter.toLowerCase();
+      if (!filter) {
+        return true;
       }
-
-      return true;
+      return name.indexOf(filter) >= 0;
     })
     .sortBy((one, two) => {
       if (!one || !two) {
