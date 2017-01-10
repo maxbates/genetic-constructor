@@ -200,6 +200,7 @@ router.route('/projects/:projectId')
 
 //separate route because dont use project permission middleware
 router.route('/projects')
+  .all(ensureReqUserMiddleware)
   .get((req, res, next) => {
     const { user } = req;
 
