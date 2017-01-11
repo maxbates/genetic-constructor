@@ -114,6 +114,14 @@ describe('Server', () => {
             });
         });
 
+        it('snapshotMerge() updates a snapshot', () => {
+          throw new Error('todo');
+        });
+
+        it('snapshotMerge() throws when snapshot does not exist', () => {
+          throw new Error('todo');
+        });
+
         it('snapshotDelete() with version removes a single snapshot');
 
         it('snapshotDelete() only removes user snapshots');

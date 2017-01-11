@@ -34,11 +34,40 @@ const transformDbVersion = result => ({
 
 export const SNAPSHOT_TYPE_USER = 'SNAPSHOT_USER';
 export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
+
+export const SNAPSHOT_TAG_PUBLIC = 'SNAPSHOT_PUBLIC';
+
 export const defaultMessage = 'Project Snapshot';
 
-export const snapshotWrite = (projectId, userId, version, message = defaultMessage, tags = {}, type = SNAPSHOT_TYPE_USER) => {
+export const snapshotList = (projectId, userId, tags = {}) => {
+  if (Object.keys(tags).length) {
+    return dbPost(`snapshots/tags?project=${projectId}`, null, null, {}, tags)
+    .then(results => results.map(transformDbVersion));
+  }
+
+  return dbGet(`snapshots/${projectId}`)
+  .then(results => results.map(transformDbVersion));
+};
+
+export const snapshotGet = (projectId, userId, version) => {
+  logger(`[snapshotGet] ${projectId} @ ${version}`);
+
+  return dbGet(`snapshots/${projectId}?version=${version}`)
+  .then(results => (Array.isArray(results) && results.length > 0) ? results[0] : Promise.reject(errorDoesNotExist))
+  .then(transformDbVersion);
+};
+
+export const snapshotWrite = (
+  projectId,
+  userId,
+  version,
+  message = defaultMessage,
+  tags = {},
+  type = SNAPSHOT_TYPE_USER,
+) => {
   let projectVersion = version;
 
+  //not necessary this is a number, just used for check
   if (!!version && typeof version === 'string') {
     projectVersion = parseInt(version, 10);
   }
@@ -53,26 +82,27 @@ export const snapshotWrite = (projectId, userId, version, message = defaultMessa
     message,
     tags,
   })
-    .then(transformDbVersion);
+  .then(transformDbVersion);
 };
 
-export const snapshotList = (projectId, userId, tags = {}) => {
-  if (Object.keys(tags).length) {
-    return dbPost(`snapshots/tags?project=${projectId}`, null, null, {}, tags)
-      .then(results => results.map(transformDbVersion));
-  }
+export const snapshotMerge = (
+  projectId,
+  userId,
+  version,
+  message,
+  tags = {},
+  type,
+) => snapshotGet(projectId, userId, version)
+.then(snapshot => {
+  //prefer new things if defined, otherwise default to snapshot (which must have defaults)
+  const newMessage = message || snapshot.message;
+  const newType = type || snapshot.type;
+  const newTags = { ...snapshot.tags, tags };
 
-  return dbGet(`snapshots/${projectId}`)
-    .then(results => results.map(transformDbVersion));
-};
+  logger(`[snapshotMerge] updating @ V${version} on ${projectId} - ${newMessage}, ${newType}, ${JSON.stringify(newTags)}`);
 
-export const snapshotGet = (projectId, userId, version) => {
-  logger(`[snapshotGet] ${projectId} @ ${version}`);
-
-  return dbGet(`snapshots/${projectId}?version=${version}`)
-    .then(results => (Array.isArray(results) && results.length > 0) ? results[0] : Promise.reject(errorDoesNotExist))
-    .then(transformDbVersion);
-};
+  return snapshotWrite(projectId, userId, version, newMessage, newTags, newType);
+});
 
 //if want to support - need to do by uuid, so need to fetch via projectId + version and delete that way, or list and delete
 //export const snapshotDelete = (projectId, userId, version) => {};

@@ -27,6 +27,7 @@ import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
 import snapshotRouter from './routerSnapshots';
 import loaderSupportRouter from './routerLoaderSupport';
+import commonsRouter from './routerCommons';
 
 import mostRecentProject from '../utils/mostRecentProject';
 
@@ -57,21 +58,19 @@ router.param('blockId', (req, res, next, id) => {
 
 /********** ROUTES ***********/
 
+router.use('/commons', commonsRouter);
+
+router.use('/sequence', sequenceRouter);
+
+router.use('/loadersupport', loaderSupportRouter);
+
 /* job files */
 router.use('/jobs/:projectId', projectPermissionMiddleware, jobFileRouter);
 
 /* project files */
 router.use('/file/:projectId', projectPermissionMiddleware, projectFileRouter);
 
-/* sequence */
-//todo - throttle? enforce user present on req?
-router.use('/sequence', sequenceRouter);
-
-/* Load Testing Support */
-router.use('/loadersupport', loaderSupportRouter);
-
 /* versioning */
-
 router.route('/versions/:projectId/:version?')
   .all(projectPermissionMiddleware)
   .get((req, res, next) => {
@@ -202,7 +201,7 @@ router.route('/projects')
 
     return projectPersistence.getUserProjects(user.uuid, false)
       .then(rolls => rolls.map(roll => roll.project))
-      .then(manifests => {
+      .then((manifests) => {
         res.set('Last-Project-ID', mostRecentProject(manifests).id);
         return manifests;
       })
