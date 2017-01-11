@@ -18,7 +18,6 @@ import React, { Component, PropTypes } from 'react';
 
 import extensionRegistry, { downloadAndRender, validRegion } from '../extensions/clientRegistry';
 import '../styles/ExtensionView.css';
-import Spinner from './ui/Spinner';
 
 export default class ExtensionView extends Component {
   static propTypes = {
