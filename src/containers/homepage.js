@@ -31,7 +31,9 @@ export class HomePage extends Component {
     location: PropTypes.shape({
       query: PropTypes.object,
     }).isRequired,
-    params: PropTypes.object.isRequired,
+    params: PropTypes.shape({
+      comp: PropTypes.oneOf(['signin', 'register', 'account', 'reset', 'forgot']),
+    }).isRequired,
     user: PropTypes.object,
   };
 
@@ -54,7 +56,7 @@ export class HomePage extends Component {
   // If the final path is the name of an authorization form we will show it
   componentDidMount() {
     const authForm = this.props.params.comp;
-    if (['signin', 'register', 'account', 'reset', 'forgot'].indexOf(authForm) >= 0) {
+    if (authForm) {
       this.props.uiShowAuthenticationForm(authForm);
     } else if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
       // if not showing an auth form goto most recent project or demo project

@@ -1,0 +1,232 @@
+:root 
+{
+    --black: rgba(0, 0, 0, 0.8);
+    --white: white;
+    --spot: #2FE695;
+    --lightBackground: #EFEFED;
+}
+
+.row 
+{
+    padding-bottom: 30px;
+}
+
+/* ---------------------- FONTS --------------------- */
+
+@font-face{
+   font-family: 'art-thin';
+   src: url('assets/fonts/Artifakt Element Thin.otf');
+}
+
+@font-face{
+   font-family: 'art-light';
+   src: url('assets/fonts/Artifakt Element Light.otf');
+}
+
+@font-face{
+   font-family: 'art-reg';
+   src: url('assets/fonts/Artifakt Element Regular.otf');
+}
+
+@font-face{
+   font-family: 'art-book';
+   src: url('assets/fonts/Artifakt Element Book.otf');
+}
+
+@font-face{
+   font-family: 'art-med';
+   src: url('assets/fonts/Artifakt Element Medium.otf');
+}
+
+@font-face{
+   font-family: 'art-bold';
+   src: url('assets/fonts/Artifakt Element Bold.otf');
+}
+
+@font-face{
+   font-family: 'art-black';
+   src: url('assets/fonts/Artifakt Element Black.otf');
+}
+
+
+
+/* ---------------------- FONTS --------------------- */
+
+h1
+{
+    font-size: 5em;
+    font-family: 'art-thin';
+    cursor: default;
+}
+
+h2
+{
+    font-size: 3em;
+    font-family: 'art-thin';
+    cursor: default;
+}
+
+h3
+{
+    font-size: 1.5em;
+    font-family: 'art-bold';
+    cursor: default;
+}
+
+h4
+{
+    font-size: 1.2em;
+    font-family: 'art-reg';
+    line-height: 1.5;
+    cursor: default;
+}
+
+h5
+{
+    font-size: 1.2em;
+    font-family: 'art-bold';
+    cursor: default;
+}
+
+.fontBold {
+    font-family: 'art-bold';
+}
+
+.fontSuperscript {
+    font-size: 0.9em;
+    opacity: 0.5
+}
+
+p
+{
+    font-family: 'art-med';
+    cursor: default;
+}
+
+.footerLink, footerLink:visited
+{
+    color: white;
+    font-family: "art-med";
+}
+
+#heroText 
+{
+    position: absolute;
+    width: 100%;
+}
+
+/* ---------------------- NAVIGATION --------------------- */
+
+.navbar
+{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: white;
+}
+
+.nav
+{
+    font-family: 'art-med';
+}
+
+/* ---------------------- SECTIONS --------------------- */
+
+.heroSection
+{
+    background-image: url("assets/images/back.png");
+    background-size: cover;
+    color: var(--black);
+    padding-top: 120px;
+    text-align: center;
+}
+
+.valueSection
+{
+    background-image: url("assets/images/leaf.png");
+    background-size: cover;
+    color: var(--white);
+    padding-top: 160px;
+    padding-bottom: 200px;
+    text-align: center;
+}
+
+.interfaceSection
+{
+    color: var(--black);
+    background: var(--white);
+    padding-top: 120px;
+    text-align: center;
+}
+
+.featureSection
+{
+    color: var(--black);
+    background: var(--lightBackground);
+    padding-top: 120px;
+}
+
+.trySection 
+{
+    background-image: url("assets/images/leaf.png");
+    background-size: cover;
+    color: var(--white);
+    padding-top: 120px;
+    text-align: center;
+}
+
+
+
+/* ---------------------- CONTROLS --------------------- */
+
+.bigButton, .bigButton:focus 
+{
+    border-radius: 50px;
+    font-family: 'art-bold';
+    border: none;
+    padding: 15px 30px 15px 30px;
+    width: 100%;
+    max-width: 250px;
+    background-color: var(--spot);
+    color: var(--black);
+    margin: 20px 0 10px 0;
+    outline: none;
+    opacity: 0.9;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+}
+
+.bigButton:hover 
+{
+    opacity: 1;
+    transform: translate3d(0px, -1px, 0px);
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+}
+
+
+
+/* ---------------------- CARDS --------------------- */
+
+.card 
+{
+    background: white;
+    color: var(--black);
+    height: 400px
+}
+
+.cardTop 
+{
+    background: var(--spot);
+    padding: 20px;
+    color: var(--black);
+}
+
+.cardBody 
+{
+    padding: 20px;
+}
+
+
+
+
+

@@ -124,11 +124,12 @@ export const detailViewSelectExtension = key => (dispatch, getState) => {
 
 /* modals */
 
-export const uiShowAuthenticationForm = name => (dispatch, getState) => {
+export const uiShowAuthenticationForm = (name, authFormParams = {}) => (dispatch, getState) => {
   invariant(['signin', 'register', 'forgot', 'reset', 'account', 'none'].indexOf(name) >= 0, 'attempting to show invalid form name');
   dispatch({
     type: ActionTypes.UI_SHOW_AUTHENTICATION_FORM,
     authenticationForm: name,
+    authFormParams,
   });
   return name;
 };
