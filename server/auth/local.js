@@ -22,17 +22,22 @@
  *
  * This user is used in unit testing.
  */
-import express from 'express';
-import uuid from 'node-uuid';
 import fs from 'fs';
 import path from 'path';
-import { testUserId } from '../../test/constants';
+
 import bodyParser from 'body-parser';
+import debug from 'debug';
 import EmailValidator from 'email-validator';
-import checkUserSetup from '../onboarding/userSetup';
+import express from 'express';
+import uuid from 'node-uuid';
+
+import { testUserId } from '../../test/constants';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
+import checkUserSetup from '../onboarding/userSetup';
 import { userConfigKey } from '../user/userConstants';
 import { getConfigFromUser, mergeConfigToUserData } from '../user/utils';
+
+const log = debug('constructor:auth:local');
 
 //note - mocks missing for forgot-password and reset-password
 
@@ -77,27 +82,28 @@ export const defaultUser = Object.assign(
   },
   { data: userData },
   loadedUser,
-  defaultUserForcedFields()
+  defaultUserForcedFields(),
 );
 
 //initial user setup for the default user
-export const ensureUserSetup = () => {
-  return checkUserSetup(defaultUser)
-    .catch(resp => {
-      console.log('error checking user setup in ensureUserSetup', resp);
+export const ensureUserSetup = () => checkUserSetup(defaultUser)
+    .catch((resp) => {
+      log('error checking user setup in ensureUserSetup');
+      log(resp);
 
-      return resp.text().then(text => {
+      return resp.text().then((text) => {
         console.log(`${text}`);
         return Promise.reject(text);
       });
     });
-};
 
 // @ req.user.data[userConfigKey]
 
 //basic auth routes
 
 router.post('/login', (req, res) => {
+  log('Logging in...');
+
   currentCookie = generateMockCookieValue();
   res.cookie('sess', currentCookie);
   res.statusCode = 200;
@@ -123,6 +129,8 @@ router.get('/current-user', (req, res) => {
 });
 
 router.get('/logout', (req, res) => {
+  log('Logging out...');
+
   currentCookie = null;
   res.clearCookie('sess');
   res.status(200).send();
@@ -146,7 +154,9 @@ const handleUpdate = (req, res, next) => {
     Object.assign(defaultUser, defaultUserForcedFields());
   }
 
-  console.log('[Local Auth - User Update]');
+  log('User Update:');
+  log(defaultUser);
+
   fs.writeFileSync(userConfigTempPath, JSON.stringify(defaultUser, null, 2), 'utf8');
 
   res.json(defaultUser);
@@ -170,8 +180,8 @@ const handleRegister = (req, res, next) => {
     Object.assign(defaultUser, { data });
   }
 
-  console.log('[Local Auth - User Register]');
-  //console.log(JSON.stringify(defaultUser, null, 2));
+  log('User Register:');
+  log(defaultUser);
 
   //if not logged in (requireLogin) then mockAuth won't setup user on register, so lets double check here (even though ID not changing)
   checkUserSetup(defaultUser)
@@ -180,7 +190,7 @@ const handleRegister = (req, res, next) => {
       res.cookie('sess', currentCookie);
       res.send(defaultUser);
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err, err.stack);
       res.status(500).send(err);
     });
@@ -215,6 +225,7 @@ export const mockUser = (req, res, next) => {
     Object.assign(req, { user: defaultUser });
 
     if (listeners.length > 0) {
+      log('mockUser() clearing listeners...');
       return Promise.all(listeners.map(listener => listener()))
         .then(() => {
           listeners.length = 0;

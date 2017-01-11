@@ -17,13 +17,16 @@
  * Interface for checking existence / creating / replacing / merging / deleting instances
  * @module persistence
  */
+import debug from 'debug';
 import invariant from 'invariant';
-import { merge, forEach } from 'lodash';
-import { errorDoesNotExist, errorNoPermission, errorInvalidModel } from '../../utils/errors';
-import { validateId, validateProject } from '../../utils/validation';
-import DebugTimer from '../../utils/DebugTimer';
-import { dbHeadRaw, dbHead, dbGet, dbPost, dbDelete, dbPruneResult } from '../middleware/db';
+import { forEach, merge } from 'lodash';
+
 import Rollup from '../../../src/models/Rollup';
+import { errorDoesNotExist, errorInvalidModel, errorNoPermission } from '../../utils/errors';
+import { validateId, validateProject } from '../../utils/validation';
+import { dbDelete, dbGet, dbHead, dbHeadRaw, dbPost, dbPruneResult } from '../middleware/db';
+
+const logger = debug('constructor:data:persistence:projects');
 
 //TODO - consistent naming. projects in this module are generally rollups
 //we have classes for blocks and projects, and this persistence module conflates the two. lets use rollup to be consistent. rename after this stuff is working...
@@ -72,41 +75,35 @@ export const mergeMetadataOntoProject = (data) => {
 
 //LIST
 
-export const getUserLastProjectId = (userId) => {
-  return dbHead(`projects/owner/${userId}`)
+export const getUserLastProjectId = userId => dbHead(`projects/owner/${userId}`)
     .then(resp => resp.headers.get('Last-Project'));
-};
 
 //actually gets rollups
-export const getUserProjects = (userId, fetchBlocks = false) => {
+export const getUserProjects = (userId, fetchBlocks = false) =>
   //dbGet returns { data, id, ... }
-  return dbGet(`projects/owner/${userId}?blocks=${fetchBlocks}`)
-    .then((projectInfos) => projectInfos.map(mergeMetadataOntoProject).map(dbPruneResult))
-    .catch(err => {
+   dbGet(`projects/owner/${userId}?blocks=${fetchBlocks}`)
+    .then(projectInfos => projectInfos.map(mergeMetadataOntoProject).map(dbPruneResult))
+    .catch((err) => {
       if (err === errorDoesNotExist) {
         return [];
       }
       console.log('unexpected error getting users projects');
       return Promise.reject(err);
     });
-};
 
 export const getUserProjectIds = (userId) => {
   invariant(userId, 'user id required for getting project Ids');
 
   return getUserProjects(userId)
-    .then(projects => {
-      return projects.map(project => project.project.id);
-    });
+    .then(projects => projects.map(project => project.project.id));
 };
 
 //EXISTS
 
 //resolves to latest version
-export const projectExists = (projectId) => {
-  return dbHeadRaw(`projects/${projectId}`)
+export const projectExists = projectId => dbHeadRaw(`projects/${projectId}`)
     .then(resp => parseInt(resp.headers.get('Latest-Version'), 10))
-    .catch(resp => {
+    .catch((resp) => {
       if (resp.status === 404) {
         return Promise.reject(errorDoesNotExist);
       }
@@ -114,22 +111,20 @@ export const projectExists = (projectId) => {
       console.log('error retrieving project HEAD');
       return Promise.reject(resp);
     });
-};
 
 //check access to a particular project
 //true if user owns peroject
 // reject errorNoPermission if exists and not users
 // reject errorDoesNotExist if does not exist
-export const userOwnsProject = (userId, projectId) => {
-  return dbHeadRaw(`projects/${projectId}`)
-    .then(resp => {
+export const userOwnsProject = (userId, projectId) => dbHeadRaw(`projects/${projectId}`)
+    .then((resp) => {
       const owner = resp.headers.get('Owner');
       if (owner === userId) {
         return true;
       }
       return Promise.reject(errorNoPermission);
     })
-    .catch(resp => {
+    .catch((resp) => {
       //rethrow
       if (resp === errorNoPermission) {
         return Promise.reject(errorNoPermission);
@@ -141,45 +136,38 @@ export const userOwnsProject = (userId, projectId) => {
       console.log(`unhandled error checking project permission: ${userId} ${projectId}`);
       throw new Error('Error checking project permission');
     });
-};
 
 //GET
 //resolve with null if does not exist
 
-export const projectGet = (projectId) => {
-  return dbGet(`projects/${projectId}`)
+export const projectGet = projectId => dbGet(`projects/${projectId}`)
     .then(mergeMetadataOntoProject)
     .then(dbPruneResult)
-    .catch(err => {
+    .catch((err) => {
       if (err === errorDoesNotExist) {
         return Promise.reject(errorDoesNotExist);
       }
 
       //let the error fall through, or uncaught error
-      console.log('(persistence.projectGet) error reading project ' + projectId, err);
+      console.log(`(persistence.projectGet) error reading project ${projectId}`, err);
       return Promise.reject(err);
     });
-};
 
 //returns map, where blockMap.blockId === undefined if was missing
-export const blocksGet = (projectId, ...blockIds) => {
-  return projectGet(projectId)
+export const blocksGet = (projectId, ...blockIds) => projectGet(projectId)
     .then(rollup => rollup.getBlocks(...blockIds));
-};
 
 //prefer blocksGet, this is for atomic checks
 //rejects if the block is not present, and does not return a map (just the block), or null if doesnt exist
-export const blockGet = (projectId, blockId) => {
-  return projectGet(projectId)
+export const blockGet = (projectId, blockId) => projectGet(projectId)
     .then(roll => roll.getBlock(blockId));
-};
 
 //SET (WRITE + MERGE)
 
 //todo - should userId be the first argument? update orders if so
 // see mergeMetadataOntoProject() above to see what is returned
 export const projectWrite = (projectId, roll = {}, userId, bypassValidation = false) => {
-  const timer = new DebugTimer('projectWrite ' + projectId, { disabled: true });
+  logger(`[projectWrite] ${projectId} (${userId})`);
 
   invariant(projectId && validateId(projectId), 'must pass a projectId to write project');
   invariant(typeof roll === 'object', 'project is required');
@@ -201,21 +189,22 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
   //force projectId, and ensure block Id matches block data
   forEach(roll.blocks, (block, blockId) => Object.assign(block, { id: blockId, projectId }));
 
-  timer.time('models updated');
+  logger('[projectWrite] models updated');
 
   if (bypassValidation !== true) {
     try {
       Rollup.validate(roll, true, true);
     } catch (err) {
-      console.log(err);
+      logger('[projectWrite] validation failed');
+      logger(err);
       return Promise.reject(errorInvalidModel);
     }
-    timer.time('validated');
+    logger('[projectWrite] validated');
   }
 
   //if it doesn't exist, create the project
   return projectExists(projectId)
-    .then(version => {
+    .then((version) => {
       //increment the latest version + 1 as version of this project
       //write the data in the database correctly to match the version
       //we can optimistically set this, since we will always be creating a new one with writes
@@ -228,25 +217,23 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
       if (err === errorDoesNotExist) {
         //NB: should not be called if the project already exists
         //is there any other setup we want to do on creation?
-        return dbPost(`projects/`, userId, roll, {}, { id: projectId })
+        return dbPost('projects/', userId, roll, {}, { id: projectId })
           .then(mergeMetadataOntoProject);
       }
       return Promise.reject(err);
     })
-    .then(data => {
-      timer.end('project written');
+    .then((data) => {
+      logger('[projectWrite] written');
       return data;
     });
 };
 
 //merge a rollup
-export const projectMerge = (projectId, project, userId) => {
-  return projectGet(projectId)
-    .then(oldProject => {
+export const projectMerge = (projectId, project, userId) => projectGet(projectId)
+    .then((oldProject) => {
       const merged = merge({}, oldProject, project, { project: { id: projectId } });
       return projectWrite(projectId, merged, userId);
     });
-};
 
 //overwrite all blocks
 export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
@@ -255,7 +242,7 @@ export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
   invariant(typeof blockMap === 'object', 'block map must be object');
 
   return projectGet(projectId)
-    .then(roll => {
+    .then((roll) => {
       //to overwrite the blocks passed, but not the whole blockMap / project
       if (overwrite === 'patch') {
         return Object.assign(roll, { blocks: Object.assign(roll.blocks, blockMap) });
@@ -264,25 +251,21 @@ export const blocksWrite = (projectId, userId, blockMap, overwrite = true) => {
         return Object.assign(roll, { blocks: blockMap });
       }
       return merge(roll, { blocks: blockMap });
-    }).then(roll => {
-      return projectWrite(projectId, roll, userId)
+    }).then(roll => projectWrite(projectId, roll, userId)
       //return the roll
-        .then(dbPruneResult);
-    });
+        .then(dbPruneResult));
 };
 
 //merge all blocks
-export const blocksMerge = (projectId, userId, blockMap) => {
-  return blocksWrite(projectId, userId, blockMap, false);
-};
+export const blocksMerge = (projectId, userId, blockMap) => blocksWrite(projectId, userId, blockMap, false);
 
-export const blocksPatch = (projectId, userId, blockMap) => {
-  return blocksWrite(projectId, userId, blockMap, 'patch');
-};
+export const blocksPatch = (projectId, userId, blockMap) => blocksWrite(projectId, userId, blockMap, 'patch');
 
 //DELETE
 
 const _projectDelete = (projectId, userId) => {
+  logger(`[_projectDelete] Deleting ${projectId}`);
+
   return dbDelete(`projects/${projectId}`)
     .then(resp => resp.json());
 };
@@ -295,36 +278,30 @@ export const projectDelete = (projectId, userId, forceDelete = false) => {
 
   return projectExists(projectId)
     .then(() => projectGet(projectId))
-    .then(roll => {
+    .then((roll) => {
       if (roll && roll.project.rules.frozen) {
         return Promise.reject('cannot delete sample projects');
       }
     })
-    .then(() => {
-      return _projectDelete(projectId, userId);
-    })
+    .then(() => _projectDelete(projectId, userId))
     //no need to commit... its deleted (and permissions out of scope of data folder)
     .then(() => projectId);
 };
 
 //should not be exposed on router... easy to get into a bad state
-export const blocksDelete = (projectId, userId, ...blockIds) => {
-  return blocksGet(projectId)
-    .then(blockMap => {
-      blockIds.forEach(blockId => {
+export const blocksDelete = (projectId, userId, ...blockIds) => blocksGet(projectId)
+    .then((blockMap) => {
+      blockIds.forEach((blockId) => {
         delete blockMap[blockId];
       });
       return blocksWrite(projectId, userId, blockMap);
     })
     .then(() => blockIds);
-};
 
 // PROJECT MANIFEST
 
-export const projectGetManifest = (projectId) => {
-  return projectGet(projectId)
+export const projectGetManifest = projectId => projectGet(projectId)
     .then(rollup => rollup.getManifest());
-};
 
 export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite = true) => {
   invariant(projectId && validateId(projectId), 'must pass valid projectId');
@@ -340,7 +317,7 @@ export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite
   }
 
   return projectGet(projectId)
-    .then(roll => {
+    .then((roll) => {
       const updated = (overwrite !== true) ?
         merge({}, roll, { project: manifest }) :
         Object.assign({}, roll, { project: manifest });
@@ -356,6 +333,4 @@ export const projectWriteManifest = (projectId, manifest = {}, userId, overwrite
     });
 };
 
-export const projectMergeManifest = (projectId, manifest, userId) => {
-  return projectWriteManifest(projectId, manifest, userId, false);
-};
+export const projectMergeManifest = (projectId, manifest, userId) => projectWriteManifest(projectId, manifest, userId, false);

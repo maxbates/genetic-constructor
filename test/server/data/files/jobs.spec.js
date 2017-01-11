@@ -42,7 +42,6 @@ Contents!`;
         it('jobFileWrite() returns Key, name', () => {
           return jobFiles.jobFileWrite(projectId, namespace, contents)                                     // write #2
             .then(result => {
-              console.log(result);
               assert(typeof result === 'object');
 
               assert(result.name, 'should have a name');

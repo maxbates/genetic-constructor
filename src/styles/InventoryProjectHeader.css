@@ -8,5 +8,7 @@
 
   img {
     cursor: pointer;
+    width: 43pt;
+    height: 43pt;
   }
 }

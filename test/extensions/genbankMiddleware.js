@@ -29,10 +29,11 @@ describe('Extensions', () => {
       it('convert() converts genbank string to blocks directly', () => {
         return convert(fileContents, true)
           .then(json => {
-            expect(json.roots).to.be.defined;
-            expect(json.blocks).to.be.defined;
-            expect(Object.keys(json.roots).length).to.equal(1);
-            assert(Object.keys(json.blocks).every(blockId => Block.validate(json.blocks[blockId])), 'all blocks should be valid');
+            const { project, blocks } = json;
+            expect(project).to.be.defined;
+            expect(blocks).to.be.defined;
+            expect(project.components.length).to.equal(1);
+            assert(Object.keys(blocks).every(blockId => Block.validate(blocks[blockId])), 'all blocks should be valid');
           });
       });
 

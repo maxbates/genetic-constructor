@@ -18,14 +18,15 @@
 
  NOTE - create instances using Block.classless and Project.classless - the server is expect JSON blobs that it can assign to, and instances of classes are frozen.
  */
+import debug from 'debug';
 import invariant from 'invariant';
-import * as projectPersistence from '../data/persistence/projects';
-import { getConfigFromUser } from '../user/utils';
-import DebugTimer from '../utils/DebugTimer';
 
-//NOTE - egf_parts vs egf_templates
 import makeEgfRollup from '../../data/egf_parts/index';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
+import * as projectPersistence from '../data/persistence/projects';
+import { getConfigFromUser } from '../user/utils';
+
+const logger = debug('constructor:auth:onboarding');
 
 // while we are using imports, do this statically
 // todo - use require() for dynamic (will need to reconcile with build eventually, but whatever)
@@ -46,11 +47,11 @@ const createGeneratorsInitialProjects = (user) => {
       ...config.projects[projectKey],
       generator: projectMap[projectKey],
     }))
-    .sort((one, two) => one.default ? -1 : 1)
+    .sort((one, two) => one.default ? -1 : 1) //eslint-disable-line no-confusing-arrow
     .filter(projectConfig => typeof projectConfig.generator === 'function')
     .map(projectConfig => () => projectConfig.generator(projectConfig, user));
 
-  invariant(projectGenerators.length >= 1, '[User Setup] must have some default projects, got none. check config for user ' + user.uuid + ' -- ' + Object.keys(config.projects).join(', '));
+  invariant(projectGenerators.length >= 1, `[User Setup] must have some default projects, got none. check config for user ${user.uuid} -- ${Object.keys(config.projects).join(', ')}`);
 
   return projectGenerators;
 };
@@ -59,33 +60,30 @@ const createGeneratorsInitialProjects = (user) => {
 export default function onboardNewUser(user) {
   invariant(user && user.email && user.uuid, 'must pass valid user');
 
-  console.log('[User Setup] Onboarding ' + user.uuid + ' - ' + user.email);
-  const timer = new DebugTimer('Onboarding ' + user.uuid + ' ' + user.email);
+  logger(`Onboarding ${user.uuid} ${user.email}`);
 
   const initialProjectGenerators = createGeneratorsInitialProjects(user);
   const [firstRollGen, ...restRollGens] = initialProjectGenerators;
-  timer.time('made generators');
 
   //generate the firstRoll last, so that it has the most recent timestamp, and is opened first
   return Promise.all(
-      restRollGens.map(generator => {
+      restRollGens.map((generator) => {
         const roll = generator();
-        timer.time('non-primary rolls generated');
-        return projectPersistence.projectWrite(roll.project.id, roll, user.uuid)
+        logger('non-primary rolls generated');
+        return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
           .then(info => info.data);
-      })
+      }),
     )
     .then((restRolls) => {
-      timer.time('non-primary rolls wrote');
+      logger('non-primary rolls wrote');
       const roll = firstRollGen();
-      timer.time('second roll generated');
+      logger('second roll generated');
 
-      return projectPersistence.projectWrite(roll.project.id, roll, user.uuid)
+      return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
         .then(info => info.data)
-        .then(firstRoll => {
-          timer.end('onboarding complete');
+        .then((firstRoll) => {
+          logger('onboarding complete');
           return [firstRoll, ...restRolls];
         });
     });
 }
-

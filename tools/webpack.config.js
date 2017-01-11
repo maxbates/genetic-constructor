@@ -5,7 +5,7 @@ import webpack from 'webpack';
 
 const DEBUG = !process.argv.includes('--release');
 const VERBOSE = process.argv.includes('--verbose');
-const DEBUGMODE = process.argv.includes('--debugmode'); //hook for devtools etc.
+const DEBUG_REDUX = process.env.DEBUG && process.env.DEBUG.indexOf('redux') >= 0; //hook for devtools etc.
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
   'Android >= 4',
@@ -28,15 +28,15 @@ const GLOBALS = {
   'process.env.NODE_ENV': DEBUG ? '"dev"' : '"production"',
   __DEV__: DEBUG,
   'process.env.BUILD': true,
-  'process.env.DEBUGMODE': !!DEBUGMODE,
+  'process.env.DEBUG_REDUX': DEBUG_REDUX,
 };
 
 //get list of node modules for webpack to avoid bundling on server
 const nodeModules = fs.readdirSync('node_modules')
-  .filter((x) => ['.bin'].indexOf(x) === -1)
+  .filter(x => ['.bin'].indexOf(x) === -1)
   .reduce(
     (acc, mod) => Object.assign(acc, { [mod]: true }),
-    {}
+    {},
   );
 
 //common configuration
@@ -173,8 +173,8 @@ export const serverConfig = merge({}, config, {
   resolve: {
     root: serverSourcePath,
     alias: {
-      gd_plugins: buildPath + '/plugins',
-      gd_extensions: buildPath + '/node_modules',
+      gd_plugins: `${buildPath}/plugins`,
+      gd_extensions: `${buildPath}/node_modules`,
     },
   },
 

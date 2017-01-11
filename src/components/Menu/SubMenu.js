@@ -13,54 +13,58 @@
  See the License for the specific language governing permissions and
  limitations under the License..
  */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
+
 import MenuItem from './MenuItem';
 import MenuSeparator from './MenuSeparator';
 
-export default class SubMenu extends Component {
-  static propTypes = {
-    close: PropTypes.func.isRequired,
-    menuItems: PropTypes.array.isRequired,
-    position: PropTypes.object,
-    onMouseEnter: PropTypes.func,
-    onMouseLeave: PropTypes.func,
-    className: PropTypes.string,
-    openLeft: PropTypes.bool,
-  };
-
-  render() {
-    return (
-      <div
-        className={this.props.className}
-        style={this.props.position}
-        onMouseEnter={() => {if (this.props.onMouseEnter) {this.props.onMouseEnter();}}}
-        onMouseLeave={() => {if (this.props.onMouseLeave) {this.props.onMouseLeave();}}}
-      >
-        { this.props.menuItems.map((item, index) => {
-          const boundAction = () => {
-            if (!item.disabled && item.action) {
-              item.action();
-              this.props.close();
-            }
-          };
-          return (
-            item.text ?
-              (<MenuItem
-                key={item.text}
-                text={item.text}
-                shortcut={item.shortcut}
-                checked={item.checked}
-                disabled={!!item.disabled}
-                classes={item.classes}
-                action={boundAction}
-                menuItems={item.menuItems}
-                close={this.props.close}
-                openLeft={this.props.openLeft}
-              />) :
-              (<MenuSeparator key={index}/>)
-          );
-        })
-        }
-      </div>);
-  }
+export default function SubMenu(props) {
+  return (
+    <div
+      className={props.className}
+      style={props.position}
+      onMouseEnter={props.onMouseEnter}
+      onMouseLeave={props.onMouseLeave}
+    >
+      {props.menuItems.map((item, index) => {
+        const boundAction = () => {
+          if (!item.disabled && item.action) {
+            item.action();
+            props.close();
+          }
+        };
+        return (
+          item.text ?
+            (<MenuItem
+              key={item.text}
+              text={item.text}
+              shortcut={item.shortcut}
+              checked={item.checked}
+              disabled={!!item.disabled}
+              classes={item.classes}
+              action={boundAction}
+              menuItems={item.menuItems}
+              close={props.close}
+              openLeft={props.openLeft}
+            />) :
+            (<MenuSeparator key={index} />)
+        );
+      })}
+    </div>
+  );
 }
+
+SubMenu.propTypes = {
+  close: PropTypes.func.isRequired, //eslint-disable-line react/no-unused-prop-types
+  menuItems: PropTypes.array.isRequired,
+  position: PropTypes.object,
+  onMouseEnter: PropTypes.func,
+  onMouseLeave: PropTypes.func,
+  className: PropTypes.string,
+  openLeft: PropTypes.bool,
+};
+
+SubMenu.defaultProps = {
+  onMouseLeave: () => {},
+  onMouseEnter: () => {},
+};

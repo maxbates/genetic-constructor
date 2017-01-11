@@ -23,35 +23,22 @@ module.exports = {
 
     // start with a new project to ensure no construct viewers are visible
     newProject(browser);
-    browser.pause(1000);
-    openInventoryPanel(browser, 'Sketch');
-
-    // open sketch menu
-    browser
-      // expect at least one inventory item and one block to drop on
-      .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item');
-
-    // put a Promoter
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(2)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 30, 30);
-    // CDS
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(3)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph [data-nodetype="block"]', 300, 10);
-    // Insulator
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(6)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph [data-nodetype="block"]', 300, 30);
-    // Terminator
-    dragFromTo(browser, '.InventoryItemRole:nth-of-type(4)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph [data-nodetype="block"]', 300, 30);
 
     // term matches insulin in the registry
     searchFor(browser, 'Ncbi', 'Runx1');
 
     // drag first result to the Promoter block
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph [data-nodetype="block"]', 30, 30);
+    browser
+      .waitForElementPresent('.InventoryItem[data-inventory^="searchresult NCBI"]', 30000, 'expected search results');
+
+    dragFromTo(browser, '.InventoryItem[data-inventory^="searchresult NCBI"]', 10, 10, '.cvc-drop-target', 20, 20);
 
     browser
     // wait for a block to appear
       .useXpath()
       .waitForElementVisible('//*[contains(text(), "Runx1")]', 5000, 'expected block runx1 to appear')
       .pause(1000)
-      .assert.countelements('//div[@data-nodetype="block"]', 7)
+      .assert.countelements('//div[@data-nodetype="block"]', 2)
       .end();
   }
 };

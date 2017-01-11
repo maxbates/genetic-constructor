@@ -15,14 +15,11 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Box2D from '../../containers/graphics/geometry/box2d';
 
 import '../../../src/styles/Modal.css';
 import '../../../src/styles/inline-editor.css';
-
-import {
-  uiInlineEditor,
-} from '../../actions/ui';
+import { uiInlineEditor } from '../../actions/ui';
+import Box2D from '../../containers/graphics/geometry/box2d';
 
 /**
  * modal window with user supplied payload and user defined ( optional )
@@ -111,12 +108,12 @@ class InlineEditor extends Component {
       return null;
     }
     const styles = {
-      left: this.props.position.left + 'px',
-      top: this.props.position.top + 'px',
-      width: this.props.position.width + 'px',
-      height: this.props.position.height + 'px',
+      left: `${this.props.position.left}px`,
+      top: `${this.props.position.top}px`,
+      width: `${this.props.position.width}px`,
+      height: `${this.props.position.height}px`,
     };
-    const classes = `inline-editor${this.props.extraClassName ? ' ' + this.props.extraClassName : ''}`;
+    const classes = `inline-editor${this.props.extraClassName ? ` ${this.props.extraClassName}` : ''}`;
     return (
       <div>
         <input

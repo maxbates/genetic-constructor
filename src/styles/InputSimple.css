@@ -7,10 +7,10 @@
     height: 2.5rem;
     padding: 0.5em 2em 0.5em 0.4em;
     outline: 0;
-    border: 1px solid lightgray;
-    border-radius: 2px;
-    background: white;
+    border: none;
     color: var(--colors-text);
+    border-radius: 2px;
+    background: var(--colors-lightGrey);
 
     &[disabled] {
       cursor: not-allowed;
@@ -18,9 +18,9 @@
   }
   textarea {
     width: 100%;
-    border: 1px solid lightgray;
+    border: none;
+    background-color: var(--colors-lightGrey);
     border-radius: 2px;
-    background: white;
     color: var(--colors-text);
     outline: 0;
   }

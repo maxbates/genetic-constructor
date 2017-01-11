@@ -19,9 +19,6 @@
 //requires that SERVER_MANUAL=true env var is set
 
 import { listenSafely } from '../server/server';
-import * as s3 from '../server/data/middleware/s3';
-import * as filePaths from '../server/data/middleware/filePaths';
-import * as fileSystem from '../server/data/middleware/fileSystem';
 import { testUserId } from './constants';
 import { deleteUser } from '../server/data/persistence/admin';
 
@@ -31,20 +28,15 @@ import { deleteUser } from '../server/data/persistence/admin';
 
 before(() => {
   return listenSafely()
+    .catch(err => {
+      console.log('error listening to server... terminating'); //eslint-disable-line no-console
+      process.exit(1);
+    })
     .then(() => {
-      console.log('deleting all testUser data from DB...'); //eslint-disable-line
+      console.log('deleting all testUser data from DB...'); //eslint-disable-line no-console
       return deleteUser(testUserId);
     })
     .then(() => {
-      if (s3.useRemote) {
-        return Promise.all(s3.buckets.map(bucketName => {
-          console.log('clearing S3 bucket ' + bucketName); //eslint-disable-line
-          const bucket = s3.getBucket(bucketName);
-          return s3.emptyBucketTests(bucket);
-        }));
-      }
-    })
-    .then(() => {
-      console.log('Test setup complete\n\n'); //eslint-disable-line
+      console.log('Test setup complete, beginning suite:\n'); //eslint-disable-line no-console
     });
 });

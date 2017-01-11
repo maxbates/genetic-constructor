@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as ActionTypes from '../../constants/ActionTypes';
-import { getLocal, setLocal } from '../../utils/ui/localstorage';
+import { getLocal, setLocal } from '../../utils/localstorage';
 
 export const initialState = {
   isVisible: getLocal('inventoryVisibility', true),
@@ -23,17 +23,17 @@ export const initialState = {
 
 export default function inventory(state = initialState, action) {
   switch (action.type) {
-  case ActionTypes.INVENTORY_TOGGLE_VISIBILITY :
-    const { nextState } = action;
-    setLocal('inventoryVisibility', nextState);
-    return Object.assign({}, state, { isVisible: nextState });
+    case ActionTypes.INVENTORY_TOGGLE_VISIBILITY :
+      const { nextState } = action;
+      setLocal('inventoryVisibility', nextState);
+      return Object.assign({}, state, { isVisible: nextState });
 
-  case ActionTypes.INVENTORY_SELECT_TAB :
-    const { tab } = action;
-    setLocal('inventoryTab', tab);
-    return Object.assign({}, state, { currentTab: tab });
+    case ActionTypes.INVENTORY_SELECT_TAB :
+      const { tab } = action;
+      setLocal('inventoryTab', tab);
+      return Object.assign({}, state, { currentTab: tab });
 
-  default :
-    return state;
+    default :
+      return state;
   }
 }

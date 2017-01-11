@@ -15,7 +15,7 @@ module.exports = {
     testProject(browser);
 
     // delete block from second construct viewer
-    openNthBlockContextMenu(browser, '.construct-viewer:nth-of-type(2) .sceneGraph', 0);
+    openNthBlockContextMenu(browser, '.construct-viewer:nth-of-type(1) .sceneGraph', 5);
     clickNthContextMenuItem(browser, 2);
 
     // NOTE: The last item add will be selected. Clicking the first item will group select all blocks

@@ -124,7 +124,7 @@ DEBUG=timer:realtime npm run start
 Run using babel-node directly, and pass in a flag
 
 ```sh
-$ DEBUG=tools babel-node tools/run auth-stack
+$ DEBUG=constructor:tools babel-node tools/run auth-stack
 ```
 
 ## Misc

@@ -189,6 +189,29 @@ describeAppTest("http", function (app) {
         });
     });
 
+    it('should fetch blocks with \'null\' or \'undefined\' role', function fetchBlocksWithNoRole(done) {
+      request(app.proxy)
+        .get('/api/blocks/role/' + owner + '/none')
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          // console.log(res.body);
+          assert(Array.isArray(res.body));
+          // console.log(res.body.length);
+          assert.equal(res.body.length, 28);
+          var seenBlockIds = {};
+          each(res.body, function (block) {
+            assert.notEqual(block, null);
+            assert.equal(seenBlockIds[block.id], null);
+            seenBlockIds[block.id] = 1;
+            assert.equal(objectPath.get(block, 'rules.role'), null);
+          });
+          done();
+        });
+    });
+
     it('should get 501 for unsupported blocks route', function get501(done) {
       request(app.proxy)
         .get('/api/blocks')

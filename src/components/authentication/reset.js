@@ -13,14 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
-import { userLogin } from '../../actions/user';
-import { reset } from '../../middleware/auth';
-import invariant from 'invariant';
+
 import { projectOpen } from '../../actions/projects';
+import { uiSetGrunt, uiShowAuthenticationForm } from '../../actions/ui';
+import { userLogin } from '../../actions/user';
 import track from '../../analytics/ga';
+import { reset } from '../../middleware/auth';
 
 /*
  * default visibility and text for error labels
@@ -37,8 +38,7 @@ const errors = {
   },
 };
 
-class RegisterForm extends Component {
-
+class ResetForm extends Component {
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
@@ -46,14 +46,31 @@ class RegisterForm extends Component {
     userLogin: PropTypes.func.isRequired,
   };
 
-  constructor() {
-    super();
-    this.state = Object.assign({}, errors);
+  // return a hash of the query strings
+  static getQueryStrings() {
+    const decode = str => decodeURIComponent(str.replace(/\+/g, ' '));
+    const queryString = location.search.substring(1);
+    const keyValues = queryString.split('&');
+
+    return keyValues.reduce((acc, keyval) => {
+      const [key, val] = keyval.split('=');
+      if (!key || !val) {
+        return acc;
+      }
+      return Object.assign(acc, { [decode(key)]: decode(val) });
+    }, {});
   }
+
+  // return a single named parameter from the query string
+  static getParameter(name) {
+    return ResetForm.getQueryStrings()[name];
+  }
+
+  state = { ...errors };
 
   // on form submission, first perform client side validation then submit
   // to the server if that goes well.
-  onSubmit(evt) {
+  onSubmit = (evt) => {
     // submission occurs via REST not form submission
     evt.preventDefault();
     // client side validation first
@@ -62,17 +79,17 @@ class RegisterForm extends Component {
       return;
     }
 
-    reset(this.getParameter('e'), this.getParameter('h'), this.password)
+    reset(ResetForm.getParameter('e'), ResetForm.getParameter('h'), this.password)
       .then((json) => {
         if (json.message) {
           this.showServerErrors(json);
           return;
         }
         track('Authentication', 'Reset', 'Success');
-        this.props.uiSetGrunt(`Your password has been reset`);
+        this.props.uiSetGrunt('Your password has been reset');
         // we can sign in the user since we have their password and email
-        this.props.userLogin(this.getParameter('e'), this.password)
-          .then(user => {
+        this.props.userLogin(ResetForm.getParameter('e'), this.password)
+          .then((user) => {
             // close the form
             this.props.uiShowAuthenticationForm('none');
             this.props.projectOpen(null);
@@ -88,32 +105,7 @@ class RegisterForm extends Component {
         });
         track('Authentication', 'Reset', 'Unexpected Error');
       });
-  }
-
-  // return a hash of the query strings
-  getQueryStrings() {
-    const assoc = {};
-    const decode = (str) => {
-      return decodeURIComponent(str.replace(/\+/g, ' '));
-    };
-    const queryString = location.search.substring(1);
-    const keyValues = queryString.split('&');
-
-    for (const i in keyValues) {
-      if (keyValues.hasOwnProperty(i)) {
-        const key = keyValues[i].split('=');
-        if (key.length > 1) {
-          assoc[decode(key[0])] = decode(key[1]);
-        }
-      }
-    }
-    return assoc;
-  }
-
-  // return a single named parameter from the query string
-  getParameter(name) {
-    return this.getQueryStrings()[name];
-  }
+  };
 
   /**
    * basic validation occurs on client i.e. matching email addresses, Passwords
@@ -121,9 +113,9 @@ class RegisterForm extends Component {
    */
   clientValidation() {
     // reset all error messages
-    const newState = Object.assign({}, errors);
-    // parse individual problems and report
+    const newState = { ...errors };
 
+    // parse individual problems and report
     if (!this.password) {
       newState.password1Error = { visible: true, text: 'Please enter a password' };
     }
@@ -134,17 +126,15 @@ class RegisterForm extends Component {
     // display appropriate errors
     this.setState(newState);
     // return true if there was an error
-    return Object.keys(newState).find((key) => {
-      return newState[key].visible;
-    });
+    return Object.keys(newState).find(key => newState[key].visible);
   }
 
   get password() {
-    return this.refs.password.value.trim();
+    return this.passwordEl.value.trim();
   }
 
   get passwordConfirm() {
-    return this.refs.passwordConfirm.value.trim();
+    return this.passwordConfirmEl.value.trim();
   }
 
   /**
@@ -166,30 +156,36 @@ class RegisterForm extends Component {
       <form
         id="reset-form"
         className="gd-form authentication-form"
-        onSubmit={this.onSubmit.bind(this)}>
+        onSubmit={this.onSubmit}
+      >
         <div className="title">Reset Password</div>
 
         <div
-          className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}>{`${this.state.password1Error.text}`}</div>
+          className={`error ${this.state.password1Error.visible ? 'visible' : ''}`}
+        >{`${this.state.password1Error.text}`}</div>
         <input
-          ref="password"
+          ref={(el) => { this.passwordEl = el; }}
           type="password"
           className="input"
-          placeholder="New password"/>
+          placeholder="New password"
+        />
         <input
-          ref="passwordConfirm"
+          ref={(el) => { this.passwordConfirmEl = el; }}
           type="password"
           className="input"
-          placeholder="Confirm new password"/>
+          placeholder="Confirm new password"
+        />
         <div
-          className={`error ${this.state.password2Error.visible ? 'visible' : ''}`}>{`${this.state.password2Error.text}`}</div>
+          className={`error ${this.state.password2Error.visible ? 'visible' : ''}`}
+        >{`${this.state.password2Error.text}`}</div>
 
         <button type="submit">Reset Password</button>
         <button
           type="button"
           onClick={() => {
             this.props.uiShowAuthenticationForm('none');
-          }}>Cancel
+          }}
+        >Cancel
         </button>
       </form>
     );
@@ -204,4 +200,4 @@ export default connect(mapStateToProps, {
   uiSetGrunt,
   userLogin,
   projectOpen,
-})(RegisterForm);
+})(ResetForm);

@@ -22,7 +22,7 @@ import fetch from 'isomorphic-fetch';
  */
 export default function rejectingFetch(...args) {
   return fetch(...args)
-    .then(resp => {
+    .then((resp) => {
       if (resp.status >= 400) {
         return Promise.reject(resp);
       }

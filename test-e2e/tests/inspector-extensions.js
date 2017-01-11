@@ -18,7 +18,7 @@ module.exports = {
     .assert.countelements('[data-expando="Sequence Viewer"] .row', 3)
 
     // open the sequence viewer
-    clickText(browser, "Sequence Viewer", '.ProjectDetail-heading-extension');
+    clickText(browser, "Sequence Viewer", '.ProjectDetail-closed-extension');
     browser
     .waitForElementPresent('.ExtensionView-content .viewer', 5000, 'expected sequence viewer to be present')
     // turn extension off
@@ -29,7 +29,7 @@ module.exports = {
     .pause(2000)
     .click('[data-expando="Sequence Viewer"] .slider-switch')
     .pause(2000)
-    clickText(browser, "Sequence Viewer", '.ProjectDetail-heading-extension');
+    clickText(browser, "Sequence Viewer", '.ProjectDetail-closed-extension');
 
     browser
     .waitForElementPresent('.ExtensionView-content .viewer', 5000, 'expected sequence viewer to come back')

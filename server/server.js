@@ -13,33 +13,37 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+
+import bodyParser from 'body-parser';
+import compression from 'compression';
 import express from 'express';
 import morgan from 'morgan';
-import compression from 'compression';
-import colors from 'colors';
+
+import colors from 'colors/safe';
 
 import pkg from '../package.json';
+import dataRouter from './data/router';
+import extensionsRouter from './extensions/index';
+import checkUserSetup from './onboarding/userSetup';
+import orderRouter from './order/index';
+import reportRouter from './report/index';
+import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
-import dataRouter from './data/router';
-import orderRouter from './order/index';
-import extensionsRouter from './extensions/index';
-import reportRouter from './report/index';
-import bodyParser from 'body-parser';
-import errorHandlingMiddleware from './utils/errorHandlingMiddleware';
-import checkUserSetup from './onboarding/userSetup';
 import { pruneUserObject } from './user/utils';
-
 import checkPortFree from './utils/checkPortFree';
-import { HOST_PORT, HOST_NAME, API_END_POINT } from './urlConstants';
+import errorHandlingMiddleware from './utils/errorHandlingMiddleware';
+
+/* eslint global-require: 0 */
+
+//where the server will be listening
+const hostPath = `http://${HOST_NAME}:${HOST_PORT}/`;
 
 //file paths depending on if building or not
 //note that currently, you basically need to use npm run start in order to serve the client bundle + webpack middleware
-const createBuildPath = (isBuild, notBuild = isBuild) => {
-  return path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
-};
+const createBuildPath = (isBuild, notBuild = isBuild) => path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
 const pathContent = createBuildPath('content', '../src/content');
 const pathDocs = createBuildPath('jsdoc', `../docs/jsdoc/genetic-constructor/${pkg.version}`);
 const pathImages = createBuildPath('images', '../src/images');
@@ -60,11 +64,6 @@ app.use(bodyParser.json({
 
 app.use(errorHandlingMiddleware);
 
-// duck punch console in production so no unexpected security leaks
-if (process.env.NODE_ENV === 'production') {
-  console.log = console.warn = console.error = () => {};
-}
-
 //HTTP logging middleware
 const logLevel = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
 app.use(morgan(logLevel, {
@@ -72,6 +71,7 @@ app.use(morgan(logLevel, {
     if (req.path.indexOf('browser-sync') >= 0 || req.path.indexOf('__webpack') >= 0) {
       return true;
     }
+    //skip logging in test environment, unless DEBUG is set
     if (process.env.NODE_ENV === 'test' && !process.env.DEBUG) {
       return true;
     }
@@ -103,8 +103,8 @@ if (!process.env.STORAGE_API) {
 // insert some form of user authentication
 // the auth routes are currently called from the client and expect JSON responses
 if (process.env.BIO_NANO_AUTH) {
-  console.log('real user authentication enabled');
-  const initAuthMiddleware = require('bio-user-platform').initAuthMiddleware;
+  console.log('[Auth] Real user authentication enabled');
+  const initAuthMiddleware = require('bio-user-platform').initAuthMiddleware; //eslint-disable-line
 
   const authConfig = {
     logoutLanding: false,
@@ -112,23 +112,21 @@ if (process.env.BIO_NANO_AUTH) {
     loginFailure: false,
     resetForm: '/homepage/reset',
     apiEndPoint: API_END_POINT,
-    onLogin: (req, res, next) => {
-      return checkUserSetup(req.user)
-        .then((projectId) => {
+    onLogin: (req, res, next) => checkUserSetup(req.user)
+        .then(projectId =>
           //note this expects an abnormal return of req and res to the next function
-          return next(req, res);
-        })
-        .catch(err => {
+           next(req, res))
+        .catch((err) => {
           console.log(err);
           console.log(err.stack);
           res.status(500).end();
-        });
-    },
+        }),
     //onLogin: (req, res, next) => next(req, res), //mock
     registerRedirect: false,
   };
   app.use(initAuthMiddleware(authConfig));
 } else {
+  console.log('[Auth] Local mocked authentication enabled');
   app.use(require('cookie-parser')());
 
   const localAuth = require('./auth/local');
@@ -141,6 +139,7 @@ if (process.env.BIO_NANO_AUTH) {
   app.use('/auth', localAuth.router);
 
   //do an initial setup of the user's projects on server start
+  //do not run on every call, so if get into a bad state, restart server
   localAuth.prepareUserSetup();
 }
 
@@ -180,32 +179,38 @@ app.get('*', (req, res) => {
   } else {
     // setup user properties and discourse base url to flash to client
     const discourse = {
-      discourseDomain: process.env.BNR_ENV_URL_SUFFIX || `https://forum.bionano.autodesk.com`,
+      discourseDomain: process.env.BNR_ENV_URL_SUFFIX || 'https://forum.bionano.autodesk.com',
     };
     //so that any routing is delegated to the client
     const prunedUser = pruneUserObject(req.user);
     const config = prunedUser.config ? JSON.stringify(prunedUser.config) : '{}';
     const user = Object.assign({}, prunedUser, { config });
-    res.render(path.join(pathContent + '/index.pug'), Object.assign({}, user, discourse, {
+    res.render(path.join(`${pathContent}/index.pug`), Object.assign({}, user, discourse, {
       productionEnvironment: process.env.NODE_ENV === 'production',
     }));
   }
 });
 
 /*** running ***/
+/* eslint-disable no-console */
+
+function handleError(err) {
+  console.log(colors.bgRed('Error starting server. Terminating...'));
+  console.log(colors.red(err));
+  console.log(err.stack);
+  //87 is totally arbitrary, but listen for it in runServer.js
+  process.exit(87);
+}
 
 function startServer() {
   return new Promise((resolve, reject) => {
     app.listen(HOST_PORT, HOST_NAME, (err) => {
       if (err) {
-        console.log(colors.bgRed('Error starting server', err.stack));
-        return reject(err);
+        handleError(err);
       }
 
-      /* eslint-disable no-console */
-      const path = `http://${HOST_NAME}:${HOST_PORT}/`;
-      console.log(colors.bgGreen(`\nServer listening at ${path}\n`));
-      resolve(path);
+      console.log(colors.bgGreen(`Server listening at ${hostPath}`));
+      resolve(hostPath);
     });
   });
 }
@@ -216,7 +221,7 @@ function initDb() {
   return new Promise((resolve, reject) => {
     const init = (!process.env.STORAGE_API) ?
       require('gctor-storage').init :
-      (cb) => { return cb(); };
+      cb => cb();
 
     init(resolve);
   });
@@ -224,12 +229,12 @@ function initDb() {
 
 //check if the port is taken, and init the db, and star the server
 //returns a promise, so you can listen and wait until it resolves
-export const listenSafely = () => {
+export const listenSafely = () =>
   //first check if the port is in use -- e.g. tests are running, or some other reason
-  return checkPortFree(HOST_PORT, HOST_NAME)
+   checkPortFree(HOST_PORT, HOST_NAME)
     .then(initDb)
-    .then(startServer);
-};
+    .then(startServer)
+    .catch(handleError);
 
 //attempt start the server by default
 if (process.env.SERVER_MANUAL !== 'true') {

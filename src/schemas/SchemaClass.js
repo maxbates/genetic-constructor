@@ -13,7 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import debug from 'debug';
 import { mapValues } from 'lodash';
+
+const logger = debug('constructor:schemas');
+
+if (process.env.NODE_ENV !== 'production' && !logger.enabled) {
+  console.log('To enable logging of schema validation errors, set env var DEBUG=constructor:schemas, or localStorage.debug = "constructor:schemas"'); //eslint-disable-line
+}
 
 /**
  * Schemas are used internally for ensure data is consistent and valid, and guarantee the presence of various fields.
@@ -72,7 +79,7 @@ export default class Schema {
 
     return new Schema(Object.assign({},
       this.definitions,
-      childDefinitions
+      childDefinitions,
     ));
   }
 
@@ -102,18 +109,18 @@ export default class Schema {
       const errorMessage = `Instance provided to validate() is not an object, got ${instance}`;
       if (shouldThrow) {
         throw Error(errorMessage);
-      } else if (process.env.NODE_ENV !== 'production') {
-        console.error(errorMessage); //eslint-disable-line
       }
+      logger(errorMessage);
     }
 
-    return Object.keys(this.fields).every(fieldName => {
+    return Object.keys(this.fields).every((fieldName) => {
       const instanceFieldValue = instance[fieldName];
       const field = this.fields[fieldName];
 
-      //check for improperly bound fields
-      if (process.env.NODE_ENV !== 'production' && !field.validate) {
-        console.error(field); //eslint-disable-line no-console
+      //check for improperly bound fields and throw
+      if (!field.validate) {
+        console.log(JSON.stringify(field, null, 2)); //eslint-disable-line
+        throw Error('field lacks validate()');
       }
 
       //need to bind field in case it's a schema
@@ -124,17 +131,18 @@ export default class Schema {
 
       if (!isValid) {
         const errorMessage = `Validation Failed:
-Field ${field.name} of type ${field.type}.
-Got ${instanceFieldValue} (type ${typeof instanceFieldValue}).
+Field "${field.name}" of type "${field.type}"
+Got ${instanceFieldValue} (type: ${typeof instanceFieldValue}).
 [${field.description || field.typeDescription}]`;
 
         if (shouldThrow) {
           throw Error(errorMessage);
-        } else if (process.env.NODE_ENV !== 'production') {
-          console.error(errorMessage); //eslint-disable-line
-          console.log(JSON.stringify(instance, null, 2)); //eslint-disable-line no-console
         }
+
+        logger(errorMessage);
+        logger(instance);
       }
+
       return isValid;
     });
   }
@@ -185,8 +193,8 @@ Got ${instanceFieldValue} (type ${typeof instanceFieldValue}).
 
       //can opt out of scaffolding a field - note will not be valid if required
       if (field.avoidScaffold === true) {
-        if (fieldRequired && process.env.DEBUGMODE) {
-          console.warn(`not scaffolding required field ${fieldName}`, field, scaffold); //eslint-disable-line
+        if (fieldRequired) {
+          logger(`not scaffolding required field ${fieldName}`, field, scaffold);
         }
 
         return scaffold;
@@ -200,13 +208,12 @@ Got ${instanceFieldValue} (type ${typeof instanceFieldValue}).
 
 function createFields(fieldDefinitions) {
   return mapValues(fieldDefinitions,
-    (fieldDefinition, fieldName) => {
+    (fieldDefinition, fieldName) =>
       //note - assign to field to maintain prototype, i.e. validate() function if instanceof Schema
-      return Object.assign(
+       Object.assign(
         createSchemaField(...fieldDefinition),
-        { name: fieldName }
-      );
-    }
+        { name: fieldName },
+      ),
   );
 }
 
@@ -227,7 +234,7 @@ function createSchemaField(inputField, description = '', additional) {
 
   return Object.assign(field,
     { description },
-    additional
+    additional,
   );
 }
 

@@ -17,15 +17,13 @@ import fetch from 'isomorphic-fetch';
 
 const url = 'http://synnp.org:8010/api/order/';
 
-const createPostBody = (body) => {
-  return {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body,
-  };
-};
+const createPostBody = body => ({
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body,
+});
 
 const createOrderPayload = (order, user, constructList, rollup) => {
   const blockMap = rollup.blocks;
@@ -37,7 +35,7 @@ const createOrderPayload = (order, user, constructList, rollup) => {
 
   //for now, only accept EGF Parts -- need to relay this to the client
   if (!constructsWithBlockComponents.every(construct => construct.every(component => component.source.source === 'egf'))) {
-    throw new Error(`invalid part: some part's source is not 'egf'`);
+    throw new Error('invalid part: some part\'s source is not \'egf\'');
   }
 
   const constructs2d = constructsWithBlockComponents
@@ -65,24 +63,24 @@ export const submit = (order, user, constructList, rollup) => {
     const payload = createOrderPayload(order, user, constructList, rollup);
     stringified = JSON.stringify(payload);
   } catch (err) {
-    console.log('[Order] error generating payload');
+    console.log('[EGF Order] error generating payload');
     return Promise.reject(err);
   }
 
   return fetch(url, createPostBody(stringified))
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
-        console.log('[Order] There was an error submitting to egf');
+        console.log('[EGF Order] There was an error submitting to egf');
 
         const clone = response.clone();
-        return clone.text().then(text => {
+        return clone.text().then((text) => {
           console.log(text);
           return Promise.reject(response);
         });
       }
 
-      return response.json().then(json => {
-        console.log('got response from EGF:');
+      return response.json().then((json) => {
+        console.log('[EGF Order] got response from EGF:');
         console.log(json);
 
         return Promise.resolve({
@@ -104,7 +102,7 @@ export const validate = (order, user, constructList, rollup) => {
 
     stringified = JSON.stringify(payload);
   } catch (err) {
-    console.log('[Order] error generating payload');
+    console.log('[EGF Order] error generating payload');
     return Promise.reject(err);
   }
 

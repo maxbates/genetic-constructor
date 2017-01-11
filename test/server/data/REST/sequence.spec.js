@@ -51,11 +51,11 @@ describe('Server', () => {
             .expect(422, done);
         });
 
-        it('GET errors with 400 when sequence doesnt exist', (done) => {
+        it('GET errors with 404 when sequence doesnt exist', (done) => {
           const url = `/data/sequence/${md5(uuid.v4())}`;
           request(server)
             .get(url)
-            .expect(400, done);
+            .expect(404, done);
         });
 
         it('GET an existing sequence returns the sequence', (done) => {

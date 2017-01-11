@@ -28,6 +28,8 @@ import * as s3 from '../../server/data/middleware/s3';
 import * as projectFiles from '../../server/data/files/projectFiles';
 import * as projectPersistence from '../../server/data/persistence/projects';
 
+import Project from '../../src/models/Project';
+
 import batchPromises from './batchPromises';
 import { storagePath, projectPath, AUTH_API } from './config';
 
@@ -35,10 +37,9 @@ if (!s3.useRemote) {
   throw new Error('must use S3 - pass s3 credentials to propcess');
 }
 
-const extensionName = 'GC-GSL-Editor';
-const gslFileName = 'project.gsl'; //upload to s3 and update project
-const gslFileNameAlt = 'project.run.gsl'; //just upload to s3
+const extensionName = 'GC-GSL-Editor'; //this is the current extension name, all GSL files should go under it
 
+//store all the files we want to migrate
 const files = [];
 
 console.log('checking all projects in ', projectPath);
@@ -64,49 +65,40 @@ _.forEach(projects, projectId => {
     return;
   }
 
-  _.forEach(extensions, extension => {
-    const projectFilesExtensionPath = path.resolve(projectFilesPath, extension);
+  _.forEach(extensions, oldExtensionName => {
+    const projectFilesExtensionPath = path.resolve(projectFilesPath, oldExtensionName);
 
     let fileList;
     try {
       fileList = fs.readdirSync(projectFilesExtensionPath);
     } catch (err) {
-      console.log('no files in for extension ' + extension);
+      console.log('no files in for extension ' + oldExtensionName);
       return;
     }
 
-    if (fileList.indexOf(gslFileName) >= 0) {
-      //check project.gsl
-      const gslFilePath = path.resolve(projectFilesExtensionPath, gslFileName);
-      if (files.findIndex(item => item.projectId === projectId && item.fileName === gslFileName) >= 0) {
-        console.log('skipping file for projectId', gslFilePath);
-        return;
-      }
+    //GSL files to migrate
+    const gslFileName = 'project.gsl';
+    const gslFileNameAlt = 'project.run.gsl';
 
-      files.push({
-        projectId,
-        fileName: gslFileName,
-        extension, //the old extension name (should be namespaced into new extension name)
-        gslPath: gslFilePath,
-      });
-    } else if (fileList.indexOf(gslFileNameAlt) >= 0) {
-      //check project.run.gsl
-      const gslFilePath = path.resolve(projectFilesExtensionPath, gslFileNameAlt);
-      if (files.findIndex(item => item.projectId === projectId && item.fileName === gslFileNameAlt) >= 0) {
-        console.log('skipping file for projectId', gslFilePath);
-        return;
-      }
+    _.forEach([gslFileName, gslFileNameAlt], (fileName) => {
+      if (fileList.indexOf(fileName) >= 0) {
+        const filePath = path.resolve(projectFilesExtensionPath, fileName);
+        //make sure we havent already added it e.g. if extensino name change while using
+        if (files.findIndex(item => item.projectId === projectId && item.fileName === fileName) >= 0) {
+          console.log('skipping file for projectId', filePath);
+          return;
+        }
 
-      files.push({
-        projectId,
-        fileName: gslFileNameAlt,
-        extension, //the old extension name (should be namespaced into new extension name)
-        gslPath: gslFilePath,
-      });
-    } else {
-      //expected project.gsl not found
-      console.log('couldnt find expected file for project', projectId, extension, fileList);
-    }
+        console.log('found file ' + fileName + ' for project ' + projectId);
+        files.push({
+          projectId,
+          fileName,
+          extensionName: extensionName, // the new extension name
+          oldExtensionName, //the old extension name (should be namespaced into new extension name)
+          filePath,
+        });
+      }
+    });
   });
 });
 
@@ -115,23 +107,23 @@ console.log(files);
 // move project files into s3
 
 batchPromises(_.map(files, (fileObject) => () => {
-  const { gslPath, extension, projectId } = fileObject;
+  const { filePath, fileName, oldExtensionName, extensionName, projectId } = fileObject;
 
-  return fileSystem.fileRead(gslPath, false)
+  return fileSystem.fileRead(filePath, false)
     .catch(err => {
-      console.log('error reading file', gslPath);
+      console.log('error reading file', filePath);
       throw err;
     })
     .then(fileContents => {
       if (!fileContents) {
-        console.log('no file contents, skipping', projectId, gslPath);
+        console.log('no file contents, skipping', projectId, filePath);
         fileObject.skip = true;
         return;
       }
 
-      return projectFiles.projectFileWrite(projectId, extensionName, gslFileName, fileContents)
+      return projectFiles.projectFileWrite(projectId, extensionName, fileName, fileContents)
         .then((fileInfo) => {
-          console.log('wrote project file for project', extension, fileInfo);
+          console.log('wrote project file for project', oldExtensionName, fileInfo);
           Object.assign(fileObject, fileInfo);
         })
         .catch(err => {
@@ -149,29 +141,34 @@ batchPromises(_.map(files, (fileObject) => () => {
   })
   //now update all the projects so they know about their files
   .then(() => {
-    //only want to update project manifests with project.gsl... let the extension handle update project.run.gsl itself
-    const filtered = _.filter(files, (fileObj) => fileObj.fileName === gslFileName && fileObj.skip !== true);
+    //group the files by their projectIds
+    const grouped = _.groupBy(files, 'projectId');
 
-    console.log(filtered);
-
-    return batchPromises(_.map(filtered, (fileObj) => () => {
-      const { projectId, VersionId } = fileObj;
-
+    return batchPromises(_.map(grouped, (files, projectId) => () => {
       return projectPersistence.projectGetManifest(projectId)
         .then(manifest => {
-          //note - this will overwrite the files section, but that should be fine since only have GSL at this point
+          //scaffold
+          const newManifest = new Project(manifest, false);
 
-          const patch = {
-            files: [{
-              name: gslFileName,
+          //update with the files
+          files.forEach(fileObj => {
+            const { skip, fileName, extensionName, VersionId } = fileObj;
+            //marked to skip if empty
+            if (skip === true) {
+              return Promise.resolve(null);
+            }
+
+            //patch the project
+            newManifest.files.push({
+              name: fileName,
               namespace: extensionName,
               version: VersionId,
-            }],
-          };
+            });
+          });
 
           const userId = manifest.metadata.authors[0];
 
-          return projectPersistence.projectWriteManifest(projectId, patch, userId, false)
+          return projectPersistence.projectWriteManifest(projectId, newManifest, userId)
             .catch(err => {
               console.log('error writing manifest: ' + projectId);
               console.log(err);

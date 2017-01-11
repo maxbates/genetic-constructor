@@ -15,15 +15,25 @@
  */
 import colors from 'colors/safe';
 import { exec, spawn } from 'child_process';
+import debug from 'debug';
+import { merge } from 'lodash';
 
-const DEBUG = process.env.DEBUG && process.env.DEBUG.indexOf('tools') >= 0;
-if (!DEBUG) {
-  console.log('enable build tool debugging by setting env var DEBUG=tools');
+const logger = debug('constructor:tools');
+
+if (!logger.enabled) {
+  console.log('Enable build tool debugging with env var DEBUG=constructor:tools');
 }
 
-//simple wrap around console.log
+const defaultOpts = {
+  silent: false,
+  env: Object.assign({
+    DEBUG_COLORS: true,
+  }, process.env),
+};
+
+//wrap, so can force output
 const log = (output = '', forceOutput = false) => {
-  if (DEBUG || forceOutput === true) {
+  if (forceOutput === true || logger.enabled) {
     console.log(output.trim());
   }
 };
@@ -32,10 +42,10 @@ export const promisedExec = (cmd, opts, {
   forceOutput = false,
   comment = null,
 } = {}) => {
-  console.log(colors.blue(comment || 'running ' + cmd));
+  console.log(colors.blue(comment || `running ${cmd}`));
 
   return new Promise((resolve, reject) => {
-    exec(cmd, opts, (err, stdout, stderr) => {
+    exec(cmd, merge({}, defaultOpts, opts), (err, stdout, stderr) => {
       if (err) {
         console.error(err);
         return reject(err);
@@ -64,16 +74,20 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
   failOnStderr = false,
   comment = null,
 } = {}) => {
-  console.log(colors.blue(comment || '\nrunning: ' + cmd + ' ' + args.join(' ')));
+  const runText = `running: ${cmd} ${args.join(' ')}`;
+  console.log(colors.blue(comment || runText)); //always log something
+  if (logger.enabled) {
+    console.log(runText); //log if debugging
+  }
 
   return new Promise((resolve, reject) => {
     //const [ command, ...args ] = cmd.split(' ');
 
-    const spawned = spawn(cmd, args, Object.assign({ silent: false }, opts));
+    const spawned = spawn(cmd, args, merge({}, defaultOpts, opts));
 
     //stdio only defined when piped, not if inherited / ignored
     if (spawned.stdout) {
-      spawned.stdout.on('data', data => {
+      spawned.stdout.on('data', (data) => {
         log(`${data}`, forceOutput);
         if (`${data}`.indexOf(waitUntil) >= 0) {
           log('Resolved!');
@@ -81,7 +95,7 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
         }
       });
 
-      spawned.stderr.on('data', data => {
+      spawned.stderr.on('data', (data) => {
         log(`${data}`, true);
         if (`${data}`.indexOf(waitUntil) >= 0) {
           return resolve(spawned);

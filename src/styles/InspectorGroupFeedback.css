@@ -4,6 +4,7 @@
   width: 100%;
   height: 100%;
   background-color: white;
+  margin-bottom: 1rem;
 
   .star-box {
     position: relative;
@@ -22,7 +23,7 @@
     border-bottom: 70px  solid gold;
     border-left:   100px solid transparent;
     transform:    rotate(35deg);
-    background-color: var(--colors-white)''
+    background-color: var(--colors-white);
   }
   .star-five:before {
     border-bottom: 80px solid gold;

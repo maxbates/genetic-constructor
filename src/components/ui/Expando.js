@@ -15,11 +15,11 @@
  */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
+
+import MouseTrap from '../../containers/graphics/mousetrap';
+import '../../styles/Expando.css';
 import Arrow from './Arrow';
 import Label from './Label';
-import MouseTrap from '../../containers/graphics/mousetrap';
-
-import '../../styles/Expando.css';
 
 export default class Expando extends Component {
   static propTypes = {
@@ -35,16 +35,18 @@ export default class Expando extends Component {
     startDrag: PropTypes.func,
     showArrowWhenEmpty: PropTypes.bool,
     showLock: PropTypes.bool,
+    testid: PropTypes.string,
+    openByDefault: PropTypes.bool,
   };
 
   static defaultProps = {
     showArrowWhenEmpty: true,
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      open: false,
+      open: !!props.openByDefault,
     };
   }
 
@@ -79,6 +81,7 @@ export default class Expando extends Component {
     const showArrow = this.props.content || this.props.showArrowWhenEmpty;
     return (
       <div
+        data-testid={this.props.testid}
         className="expando" data-expando={this.props.text}
         onContextMenu={(evt) => {
           evt.preventDefault();
@@ -116,7 +119,7 @@ export default class Expando extends Component {
           </div>
         </div>
         <div className={this.state.open ? 'content-visible' : 'content-hidden'}>
-          {this.props.content}
+          {this.state.open ? this.props.content : null}
         </div>
       </div>
     );

@@ -15,22 +15,21 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+import track from '../analytics/ga';
+import MenuOverlay from '../components/Menu/MenuOverlay';
+import AboutForm from '../components/aboutform';
+import InlineEditor from '../components/inline-editor/inline-editor';
+import ReportErrorModal from '../components/modal/ReportErrorModal';
+import ModalSpinner from '../components/modal/modalspinner';
+import OkCancel from '../components/okcancel';
+import '../styles/App.css';
 import GlobalNav from './GlobalNav';
 import AuthenticationForms from './authentication/authenticationforms';
-import AboutForm from '../components/aboutform';
-import ModalSpinner from '../components/modal/modalspinner';
-import InlineEditor from '../components/inline-editor/inline-editor';
-import MenuOverlay from '../components/Menu/MenuOverlay';
-import ReportErrorModal from '../components/modal/ReportErrorModal';
-import OkCancel from '../components/okcancel';
-import track from '../analytics/ga';
-
-import '../styles/App.css';
 
 class App extends Component {
   static propTypes = {
     children: PropTypes.node, // Injected by React Router
-    user: PropTypes.object,
     currentProjectId: PropTypes.string,
     location: PropTypes.shape({
       pathname: PropTypes.string.isRequired,
@@ -38,38 +37,7 @@ class App extends Component {
     spinMessage: PropTypes.string.isRequired,
   };
 
-  /**
-   * attempt to eat backspace keys ( to prevent navigation ) unless an interactive
-   * element is the target
-   */
-  componentDidMount() {
-    document.addEventListener('keydown', this.rejectBackspace);
-    document.addEventListener('keypress', this.rejectBackspace);
-
-    // disable context menus since the app generates it own
-    document.addEventListener('contextmenu', this.rejectContextMenu);
-
-    // in production, track top level, unhandled exceptions in the app
-    // not in production, ignore this so we dont garble the callstack
-    if (process.env.NODE_ENV === 'production') {
-      window.onerror = function trackError() {
-        const args = Array.from(arguments);
-        const json = {};
-        args.forEach((arg, index) => {
-          // we except strings as arguments or stringable object. toString ensures
-          // things like functions won't cause problems with JSON.stringify
-          json[index] = arg.toString();
-        });
-        const str = JSON.stringify(json, null, 2);
-        track('Errors', 'Unhandled Exception', str);
-
-        // rethrow the error :(
-        throw new Error(arguments[0]);
-      };
-    }
-  }
-
-  rejectBackspace(evt) {
+  static rejectBackspace(evt) {
     const rx = /INPUT|SELECT|TEXTAREA/i;
     if (evt.which === 8) { // 8 == backspace
       if (evt.target.hasAttribute('contenteditable')) {
@@ -85,7 +53,7 @@ class App extends Component {
    * only allow the default context menu on text edit components
    * @param evt
    */
-  rejectContextMenu(evt) {
+  static rejectContextMenu(evt) {
     const rx = /INPUT|SELECT|TEXTAREA/i;
     if (evt.target.hasAttribute('contenteditable')) {
       return;
@@ -95,14 +63,47 @@ class App extends Component {
     }
   }
 
+  /**
+   * attempt to eat backspace keys ( to prevent navigation ) unless an interactive
+   * element is the target
+   */
+  componentDidMount() {
+    document.addEventListener('keydown', App.rejectBackspace);
+    document.addEventListener('keypress', App.rejectBackspace);
+
+    // disable context menus since the app generates it own
+    document.addEventListener('contextmenu', App.rejectContextMenu);
+
+    // in production, track top level, unhandled exceptions in the app
+    // not in production, ignore this so we dont garble the callstack
+    if (process.env.NODE_ENV === 'production') {
+      window.onerror = function trackError(...args) {
+        const json = {};
+        args.forEach((arg, index) => {
+          // we except strings as arguments or stringable object. toString ensures
+          // things like functions won't cause problems with JSON.stringify
+          json[index] = arg.toString();
+        });
+        const str = JSON.stringify(json, null, 2);
+        track('Errors', 'Unhandled Exception', str);
+
+        // rethrow the error :(
+        throw new Error(args[0]);
+      };
+    }
+  }
+
   render() {
-    const DevTools = (!!process.env.DEBUGMODE) ? require('./DevTools') : 'noscript';
+    //set by webpack
+    const DevTools = (process.env.DEBUG_REDUX) ? require('./DevTools') : 'noscript'; //eslint-disable-line global-require
     const onProjectPage = this.props.location.pathname.indexOf('project/') >= 0;
 
     return (
       <div className="App">
-        <GlobalNav currentProjectId={this.props.currentProjectId}
-                   showMenu={onProjectPage}/>
+        <GlobalNav
+          currentProjectId={this.props.currentProjectId}
+          showMenu={onProjectPage}
+        />
         <AuthenticationForms />
         <AboutForm />
         <ReportErrorModal />
@@ -110,9 +111,9 @@ class App extends Component {
         <div className="App-pageContent">
           {this.props.children}
         </div>
-        <ModalSpinner spinMessage={this.props.spinMessage}/>
-        <InlineEditor/>
-        <MenuOverlay/>
+        <ModalSpinner spinMessage={this.props.spinMessage} />
+        <InlineEditor />
+        <MenuOverlay />
         <DevTools />
       </div>
     );
@@ -122,9 +123,8 @@ class App extends Component {
 function mapStateToProps(state, ownProps) {
   return {
     currentProjectId: ownProps.params.projectId,
-    user: state.user,
     spinMessage: state.ui.modals.spinMessage,
   };
 }
 
-export default connect(mapStateToProps, {})(App);
+export default connect(mapStateToProps)(App);

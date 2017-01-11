@@ -14,36 +14,51 @@
  limitations under the License.
  */
 import colors from 'colors/safe';
+import findVersions from 'find-versions';
 import { promisedExec } from './lib/cp';
 
 const NO_DOCKER = !!process.env.NO_DOCKER;
 
 export const checkNodeVersion = () => {
   const ver = process.version;
+  console.log(colors.blue('Checking Node Version... '));
+  console.log(`Found version ${ver}`);
 
-  console.log(colors.blue('Checking Node Version...'));
+  if (/v4/.test(ver)) {
+    console.warn(colors.yellow('You have version 4 of node. Node v6 is recommended.'));
+    return;
+  }
 
-  if (!/v4/.test(ver)) {
-    console.error('\n\nConstructor requires node version 4.x - you have: ' + ver + '\n\n');
-    throw new Error('Constructor requires node version 4.x - you have: ' + ver);
+  if (!/v6/.test(ver)) {
+    console.error(`\n\nConstructor requires node version 6.x - you have: ${ver}\n\n`);
+    throw new Error(`Constructor requires node version 6.x - you have: ${ver}`);
   }
 };
 
 //not necessary, but v3 greatly preferred
 export const checkNpmVersion = () => {};
 
-export const checkDockerInstalled = () => {
-  return promisedExec('docker ps', {}, {comment: 'Checking if Docker installed...'})
-    .catch(err => {
-      console.error('\n\nDocker is required to run Constructor\n\n');
+export const checkDockerInstalled = () => promisedExec('docker -v', {}, { comment: 'Checking if Docker installed...' })
+    .catch((err) => {
+      console.error(colors.red('\nDocker CLI is required to run Constructor\n'));
       throw err;
+    })
+    .then((result) => {
+      const version = findVersions(result, { loose: true });
+      console.log(`Found version ${version}`);
+
+      const [/*match*/, major, minor] = /^(\d+?)\.(\d+?)\.(.+)$/.exec(version);
+      // we ignore the 'Z' version of Docker but keep in mind it may not always be an integer
+      if (major < 1 || minor < 12) {
+        console.error(colors.red('Docker version > 1.12 is required'));
+        throw Error('Docker > 1.12 required');
+      }
     });
-};
 
 async function checks() {
   try {
     await checkNodeVersion();
-    if (! NO_DOCKER) {
+    if (!NO_DOCKER) {
       await checkDockerInstalled();
     }
   } catch (err) {

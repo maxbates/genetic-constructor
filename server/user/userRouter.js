@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import express from 'express';
 import bodyParser from 'body-parser';
-import { ensureReqUserMiddleware, getConfigFromUser, pruneUserObject } from './utils';
+import express from 'express';
+
 import updateUserHandler, { loginHandler } from './updateUserHandler';
+import { ensureReqUserMiddleware, getConfigFromUser, pruneUserObject } from './utils';
 
 export const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json();
@@ -33,7 +34,7 @@ router.route('/config')
       Object.assign(req, { config });
       next();
     },
-    updateUserHandler({})
+    updateUserHandler({}),
   );
 
 router.route('/info')
@@ -48,7 +49,7 @@ router.route('/info')
       Object.assign(req, { config, userPatch });
       next();
     },
-    updateUserHandler({ updateWholeUser: true })
+    updateUserHandler({ updateWholeUser: true }),
   );
 
 router.route('/login')

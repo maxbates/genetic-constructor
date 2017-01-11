@@ -13,58 +13,60 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import InspectorRole from './InspectorRole';
+
+import { _getFocused } from '../../selectors/focus';
+import '../../styles/InspectorGroupInformation.css';
 import InspectorBlock from './InspectorBlock';
 import InspectorProject from './InspectorProject';
-import { _getFocused } from '../../selectors/focus';
+import InspectorRole from './InspectorRole';
 
+function InspectorGroupInformation(props) {
+  const { focused, orders, overrides, type, readOnly, forceIsConstruct, isAuthoring, project, construct } = props;
 
-import '../../styles/InspectorGroupInformation.css';
-
-class InspectorGroupInformation extends Component {
-  static propTypes = {
-    readOnly: PropTypes.bool.isRequired,
-    isAuthoring: PropTypes.bool.isRequired,
-    forceIsConstruct: PropTypes.bool.isRequired,
-    type: PropTypes.string.isRequired,
-    focused: PropTypes.any.isRequired,
-    orders: PropTypes.array.isRequired,
-    overrides: PropTypes.object.isRequired,
-    project: PropTypes.object,
-    construct: PropTypes.object,
-  };
-
-  render() {
-    const { focused, orders, overrides, type, readOnly, forceIsConstruct, isAuthoring, project, construct } = this.props;
-    // inspect instances, or construct if no instance or project if no construct or instances
-    let inspect;
-    switch (type) {
+  // inspect instances, or construct if no instance or project if no construct or instances
+  let inspect;
+  switch (type) {
     case 'role' :
-      inspect = (<InspectorRole roleId={focused} readOnly/>);
+      inspect = (<InspectorRole roleId={focused} readOnly />);
       break;
     case 'project':
-      inspect = (<InspectorProject instance={focused}
-                                   orders={orders}
-                                   readOnly={readOnly}/>);
+      inspect = (<InspectorProject
+        instance={focused}
+        orders={orders}
+        readOnly={readOnly}
+      />);
       break;
     case 'construct':
     default:
-      inspect = (<InspectorBlock instances={focused}
-                                 overrides={overrides}
-                                 orders={orders}
-                                 readOnly={readOnly}
-                                 isAuthoring={isAuthoring}
-                                 project={project}
-                                 construct={construct}
-                                 forceIsConstruct={forceIsConstruct}/>);
+      inspect = (<InspectorBlock
+        instances={focused}
+        overrides={overrides}
+        orders={orders}
+        readOnly={readOnly}
+        isAuthoring={isAuthoring}
+        project={project}
+        construct={construct}
+        forceIsConstruct={forceIsConstruct}
+      />);
       break;
-    }
-
-    return <div>{inspect}</div>;
   }
+
+  return <div>{inspect}</div>;
 }
+
+InspectorGroupInformation.propTypes = {
+  readOnly: PropTypes.bool.isRequired,
+  isAuthoring: PropTypes.bool.isRequired,
+  forceIsConstruct: PropTypes.bool.isRequired,
+  type: PropTypes.string.isRequired,
+  focused: PropTypes.any.isRequired,
+  orders: PropTypes.array.isRequired,
+  overrides: PropTypes.object.isRequired,
+  project: PropTypes.object,
+  construct: PropTypes.object,
+};
 
 function mapStateToProps(state, props) {
   const { level, blockIds } = state.focus;
@@ -77,7 +79,7 @@ function mapStateToProps(state, props) {
   if (type === 'option') {
     const blockId = state.focus.blockIds[0];
     const block = state.blocks[blockId];
-    if (!!block) {
+    if (block) {
       Object.assign(overrides, {
         color: block.getColor(),
         role: block.getRole(false),
@@ -86,13 +88,13 @@ function mapStateToProps(state, props) {
   }
 
   const forceIsConstruct = (level === 'construct') ||
-    blockIds.some(blockId => this.props.project.components.indexOf(blockId) >= 0);
+    blockIds.some(blockId => props.project.components.indexOf(blockId) >= 0);
 
   const isAuthoring = !!state.focus.constructId && state.blocks[state.focus.constructId].isAuthoring() && focused.length === 1 && type !== 'project' && !readOnly;
 
   const orders = Object.keys(state.orders)
   .map(orderId => state.orders[orderId])
-  .filter(order => order.projectId === this.props.project.id && order.isSubmitted())
+  .filter(order => order.projectId === props.project.id && order.isSubmitted())
   .sort((one, two) => one.status.timeSent - two.status.timeSent);
 
   return {
@@ -106,4 +108,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-export default connect(mapStateToProps, {})(InspectorGroupInformation);
+export default connect(mapStateToProps)(InspectorGroupInformation);

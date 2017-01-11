@@ -10,12 +10,12 @@ module.exports = {
     browser
       .pause(3000)
       // start with 14 sketch blocks
-      .assert.countelements('.InventoryItem-item', 14)
+      .assert.countelements('.sbol-tile', 14)
       // filter with 'pro' which should produce 3 [promoter, protease, protein stability]
       .clearValue('.InventorySearch-input')
       .setValue('.InventorySearch-input', 'pro')
       .pause(3000)
-      .assert.countelements('.InventoryItem-item', 3)
+      .assert.countelements('.sbol-tile', 3)
       .end();
   }
 };

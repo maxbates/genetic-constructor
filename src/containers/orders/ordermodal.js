@@ -15,23 +15,17 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import {
-  uiShowOrderForm,
-  uiSpin,
-} from '../../actions/ui';
-import {
-  orderSubmit,
-  orderDetach,
-} from '../../actions/orders';
-import { projectSave } from '../../actions/projects';
-import ModalWindow from '../../components/modal/modalwindow';
-import Page1 from './page1';
-import Page2 from './page2';
-import Page3 from './page3';
-import NavLeftRight from './nav-left-right';
 
 import '../../../src/styles/form.css';
 import '../../../src/styles/ordermodal.css';
+import { orderDetach, orderSubmit } from '../../actions/orders';
+import { projectSave } from '../../actions/projects';
+import { uiShowOrderForm, uiSpin } from '../../actions/ui';
+import ModalWindow from '../../components/modal/modalwindow';
+import NavLeftRight from './nav-left-right';
+import Page1 from './page1';
+import Page2 from './page2';
+import Page3 from './page3';
 
 class OrderModal extends Component {
   static propTypes = {
@@ -98,12 +92,12 @@ class OrderModal extends Component {
     }
   };
 
-  nav(inc) {
+  nav = (inc) => {
     let page = this.state.page + inc;
     if (page < 1) page = 3;
     if (page > 3) page = 1;
     this.setState({ page });
-  }
+  };
 
   modalButtons() {
     if (!this.props.order.isSubmitted()) {
@@ -111,11 +105,13 @@ class OrderModal extends Component {
         <div className="buttons">
           <button
             disabled={!this.props.order.metadata.name}
-            type="submit">Submit Order
+            type="submit"
+          >Submit Order
           </button>
           <button
             type="button"
-            onClick={() => this.onClose()}>Cancel
+            onClick={this.onClose}
+          >Cancel
           </button>
         </div>
       );
@@ -138,34 +134,36 @@ class OrderModal extends Component {
     const titleText = ['Order DNA', 'Review Assemblies', 'Order Details'][this.state.page - 1];
 
     const error = this.state.error ?
-      <label className="error">{'Order Error: ' + this.state.error.substr(0, 1024)}</label> : null;
+      <p className="error">{`Order Error: ${this.state.error.substr(0, 1024)}`}</p> : null;
 
     return (<ModalWindow
       open={this.props.open}
       title="Order DNA"
       closeOnClickOutside
-      closeModal={() => this.onClose()}
+      closeModal={this.onClose}
       payload={
         <form className="gd-form order-form" onSubmit={this.onSubmit}>
           <div className="title">{titleText}</div>
           <div>
-            <Page1 open={this.state.page === 1} order={this.props.order}/>
-            <Page2 open={this.state.page === 2} order={this.props.order}/>
-            <Page3 open={this.state.page === 3} order={this.props.order}/>
+            <Page1 open={this.state.page === 1} order={this.props.order} />
+            <Page2 open={this.state.page === 2} order={this.props.order} />
+            <Page3 open={this.state.page === 3} order={this.props.order} />
           </div>
           {error}
           <div className="actions">
             <NavLeftRight
-              onClick={this.nav.bind(this, -1)}
+              onClick={() => this.nav(-1)}
               left
               text={leftText}
-              visible={this.state.page > 1}/>
+              visible={this.state.page > 1}
+            />
             {this.modalButtons()}
             <NavLeftRight
-              onClick={this.nav.bind(this, 1)}
+              onClick={() => this.nav(1)}
               left={false}
               text={rightText}
-              visible={this.state.page < 3 && !(this.state.page === 2 && !this.props.order.isSubmitted())}/>
+              visible={this.state.page < 3 && !(this.state.page === 2 && !this.props.order.isSubmitted())}
+            />
           </div>
         </form>}
 

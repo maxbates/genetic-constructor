@@ -36,8 +36,9 @@ export default class Switch extends Component {
     return (
       <div
         className={switchClass}
-        onClick={this.onFlick}>
-        <div className={nobClass}></div>
+        onClick={this.onFlick}
+      >
+        <div className={nobClass} />
       </div>
     );
   }

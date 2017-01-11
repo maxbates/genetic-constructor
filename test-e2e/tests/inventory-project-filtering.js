@@ -10,16 +10,18 @@ module.exports = {
     browser
     .pause(3000)
     // start with 1 samples templates 'EGF Sample Templates'
-    .assert.countelements('[data-inventory~="project"]', 1)
+    .assert.countelements('[data-testid^="egf_project"]', 1)
     // filter with 'pro' which should produce 3 [promoter, protease, protein stability]
     .clearValue('.InventorySearch-input')
-    .setValue('.InventorySearch-input', 'xxx')
-    .pause(3000)
-    .assert.countelements('[data-inventory~="project"]', 0)
-    .clearValue('.InventorySearch-input')
-    .setValue('.InventorySearch-input', 'EGF')
+    .setValue('.InventorySearch-input', 'Templates')
     .pause(1000)
-    .assert.countelements('[data-inventory~="project"]', 1)
+    // with 'Templates' in the search field we should still see the one project
+    .assert.countelements('[data-testid^="egf_project"]', 1)
+    .clearValue('.InventorySearch-input')
+    .setValue('.InventorySearch-input', 'XXX')
+    .pause(1000)
+    // now we should see nothing
+    .assert.countelements('[data-testid^="egf_project"]', 0)
     .end();
   }
 };

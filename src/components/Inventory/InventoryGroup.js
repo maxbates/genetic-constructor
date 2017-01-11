@@ -15,36 +15,35 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 
-import InventoryGroupRole from './InventoryGroupRole';
-import InventoryGroupBlocks from './InventoryGroupBlocks';
-import InventoryGroupSearch from './InventoryGroupSearch';
-import InventoryGroupProjects from './InventoryGroupProjects';
-import InventoryProjectHeader from './InventoryProjectHeader';
-
 import '../../styles/InventoryGroup.css';
+import InventoryGroupBlocks from './InventoryGroupBlocks';
+import InventoryGroupProjects from './InventoryGroupProjects';
+import InventoryGroupRole from './InventoryGroupRole';
+import InventoryGroupSearch from './InventoryGroupSearch';
+import InventoryProjectHeader from './InventoryProjectHeader';
 
 export default class InventoryGroup extends Component {
   static propTypes = {
-    title: PropTypes.string,
-    type: PropTypes.string,
     actions: PropTypes.array,
-    tabInfo: PropTypes.object.isRequired,
+    tabInfo: PropTypes.shape({
+      type: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }).isRequired,
     currentProjectId: PropTypes.string,
   };
 
   /**
-   * returns the current componengt
+   * returns the current component
    */
   inventoryGroupTypeToHeaderComponent = (type, props) => {
     switch (type) {
+      case 'projects':
+        return (<InventoryProjectHeader {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
+      case 'templates':
+        return (<InventoryProjectHeader {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
 
-    case 'projects':
-      return (<InventoryProjectHeader {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
-    case 'templates':
-      return (<InventoryProjectHeader {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
-
-    default:
-      return null;
+      default:
+        return null;
     }
   };
 
@@ -53,22 +52,22 @@ export default class InventoryGroup extends Component {
    */
   inventoryGroupTypeToComponent = (type, props) => {
     switch (type) {
-    case 'role' :
-      return (<InventoryGroupRole {...props} />);
-    case 'search-ncbi' :
-      return (<InventoryGroupSearch source="ncbi" {...props}/>);
-    case 'search-igem' :
-      return (<InventoryGroupSearch source="igem" {...props}/>);
-    case 'search-egf' :
-      return (<InventoryGroupSearch source="egf" {...props}/>);
-    case 'projects':
-      return (<InventoryGroupProjects {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
-    case 'templates':
-      return (<InventoryGroupProjects {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
-    case 'block':
-      return (<InventoryGroupBlocks {...props} />);
-    default:
-      throw new Error(`Type ${type} is not registered in InventoryGroup`);
+      case 'role' :
+        return (<InventoryGroupRole {...props} />);
+      case 'search-ncbi' :
+        return (<InventoryGroupSearch source="ncbi" {...props} />);
+      case 'search-igem' :
+        return (<InventoryGroupSearch source="igem" {...props} />);
+      case 'search-egf' :
+        return (<InventoryGroupSearch source="egf" {...props} />);
+      case 'projects':
+        return (<InventoryGroupProjects {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
+      case 'templates':
+        return (<InventoryGroupProjects {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
+      case 'block':
+        return (<InventoryGroupBlocks {...props} />);
+      default:
+        throw new Error(`Type ${type} is not registered in InventoryGroup`);
     }
   };
 
@@ -77,6 +76,7 @@ export default class InventoryGroup extends Component {
     const { title, type } = this.props.tabInfo;
     const currentGroupComponent = this.inventoryGroupTypeToComponent(type, rest);
     const currentHeaderComponent = this.inventoryGroupTypeToHeaderComponent(type, rest);
+
     return (
       <div className={'InventoryGroup'}>
         <div className="InventoryGroup-heading">

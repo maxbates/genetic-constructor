@@ -13,17 +13,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import debounce from 'lodash.debounce';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+import { uiSetGrunt } from '../../actions/ui';
 import Selector from '../../containers/orders/selector';
-import debounce from 'lodash.debounce';
-import {
-  uiSetGrunt,
-} from '../../actions/ui';
-
-const heap = heap || {track: () => {}};
-
 import '../../styles/InspectorGroupFeedback.css';
+
+const heap = window.heap || { track: () => {} };
 
 class InspectorGroupFeedback extends Component {
   static propTypes = {
@@ -54,14 +52,14 @@ class InspectorGroupFeedback extends Component {
     // value is 0..4
     const sliderRating = Number.parseFloat(this.refs.rangeSlider.value);
     this.props.uiSetGrunt('Thanks for your feedback.');
-    heap.track('Slider rating', {sliderRating});
-  }, 2000, {leading: false, trailing: true});
+    heap.track('Slider rating', { sliderRating });
+  }, 2000, { leading: false, trailing: true });
 
   /**
    * toggle anon mode
    */
   onAnonChanged = () => {
-    this.setState({anon: !this.state.anon});
+    this.setState({ anon: !this.state.anon });
   };
 
   /**
@@ -89,16 +87,16 @@ class InspectorGroupFeedback extends Component {
    */
   starRating(index) {
     const value = Number.parseFloat(index);
-    this.setState({starClicked: true});
+    this.setState({ starClicked: true });
     this.props.uiSetGrunt('Thanks for your feedback.');
-    heap.track('Star Rating', {value});
+    heap.track('Star Rating', { value });
   }
 
   /**
    * mouse over a star
    * @param index
    */
-  overStar(index) {
+  overStar = (index) => {
     // do not reset stars on mouse leave if the user already clicked a star
     if (index === -1 && this.state.starClicked) {
       return;
@@ -110,7 +108,7 @@ class InspectorGroupFeedback extends Component {
       star3: index >= 3,
       star4: index >= 4,
     });
-  }
+  };
 
   /**
    * when the destination for feedback is changed
@@ -133,46 +131,46 @@ class InspectorGroupFeedback extends Component {
       <div className="star-box">
         <div
           className={`star-five star-five-small star-0 ${this.state.star0 ? '' : 'star-gray'}`}
-          onClick={this.starRating.bind(this, 0)}
-          onMouseEnter={this.overStar.bind(this, 0)}
-          onMouseLeave={this.overStar.bind(this, -1)}>
-        </div>
+          onClick={() => this.starRating(0)}
+          onMouseEnter={() => this.overStar(0)}
+          onMouseLeave={() => this.overStar(-1)}
+        />
         <div
           className={`star-five star-five-small star-1 ${this.state.star1 ? '' : 'star-gray'}`}
-          onClick={this.starRating.bind(this, 1)}
-          onMouseEnter={this.overStar.bind(this, 1)}
-          onMouseLeave={this.overStar.bind(this, -1)}>
-        </div>
+          onClick={() => this.starRating(1)}
+          onMouseEnter={() => this.overStar(1)}
+          onMouseLeave={() => this.overStar(-1)}
+        />
         <div
           className={`star-five star-five-small star-2 ${this.state.star2 ? '' : 'star-gray'}`}
-          onClick={this.starRating.bind(this, 2)}
-          onMouseEnter={this.overStar.bind(this, 2)}
-          onMouseLeave={this.overStar.bind(this, -1)}>
-        </div>
+          onClick={() => this.starRating(2)}
+          onMouseEnter={() => this.overStar(2)}
+          onMouseLeave={() => this.overStar(-1)}
+        />
         <div
           className={`star-five star-five-small star-3 ${this.state.star3 ? '' : 'star-gray'}`}
-          onClick={this.starRating.bind(this, 3)}
-          onMouseEnter={this.overStar.bind(this, 3)}
-          onMouseLeave={this.overStar.bind(this, -1)}>
-        </div>
+          onClick={() => this.starRating(3)}
+          onMouseEnter={() => this.overStar(3)}
+          onMouseLeave={() => this.overStar(-1)}
+        />
         <div
           className={`star-five star-five-small star-4 ${this.state.star4 ? '' : 'star-gray'}`}
-          onClick={this.starRating.bind(this, 4)}
-          onMouseEnter={this.overStar.bind(this, 4)}
-          onMouseLeave={this.overStar.bind(this, -1)}>
-        </div>
+          onClick={() => this.starRating(4)}
+          onMouseEnter={() => this.overStar(4)}
+          onMouseLeave={() => this.overStar(-1)}
+        />
       </div>
-      <hr/>
+      <hr />
       <span className="bold">I would recommend this software to others.</span>
-      <input type="range" min="0" max="4" step="1" defaultValue="2" onInput={this.onRecommendChanged} ref="rangeSlider"/>
+      <input type="range" min="0" max="4" step="1" defaultValue="2" onInput={this.onRecommendChanged} ref="rangeSlider" />
       <div className="range-labels">
         <span className="light">Strongly disagree</span>
-        <span className="light" style={{float: 'right'}}>Strongly agree</span>
+        <span className="light" style={{ float: 'right' }}>Strongly agree</span>
       </div>
-      <hr/>
+      <hr />
       <span className="bold">Tell us what you think</span>
-      <br/>
-      <br/>
+      <br />
+      <br />
       <span className="light">To</span>
       <Selector
         options={this.toOptions}
@@ -180,36 +178,36 @@ class InspectorGroupFeedback extends Component {
         disabled={false}
         value={this.state.feedbackTo}
       />
-      <br/>
+      <br />
       <textarea
         placeholder="Enter your feedback here"
         rows="20"
         ref="feedbackText"
       />
-      <br/>
+      <br />
       <span className="light">Feedback is published on Github</span>
-      <br/>
-      <br/>
-      <input type="checkbox" defaultValue={this.state.anon} onChange={this.onAnonChanged}/>
+      <br />
+      <br />
+      <input type="checkbox" defaultValue={this.state.anon} onChange={this.onAnonChanged} />
       <span className="light checkbox-label">Publish Anonymously</span>
       <button className="publish-button" onClick={this.onPublishFeedback}>Publish</button>
-      <hr/>
+      <hr />
       <span className="bold">Share Genetic Constructor</span>
       <div className="socialist">
-        <a href="https://www.facebook.com/sharer/sharer.php?u=www.geneticconstructor.com" target="_blank">
-          <img className="social-button" src="/images/ui/social-facebook.svg"/>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=www.geneticconstructor.com" target="_blank" rel="noopener noreferrer">
+          <img className="social-button" src="/images/ui/social-facebook.svg" />
         </a>
-        <a href="https://twitter.com/home?status=www.geneticconstructor.com" target="_blank">
-          <img className="social-button" src="/images/ui/social-twitter.svg"/>
+        <a href="https://twitter.com/home?status=www.geneticconstructor.com" target="_blank" rel="noopener noreferrer">
+          <img className="social-button" src="/images/ui/social-twitter.svg" />
         </a>
-        <a href="https://www.linkedin.com/shareArticle?mini=true&url=www.geneticconstructor.com&title=Autodesk%20-%20Genetic%20Constructor&summary=DNS%20Design%20Tools%20from%20Autodesk&source=www.geneticconstructor.com" target="_blank">
-          <img className="social-button" src="/images/ui/social-linkedin.svg"/>
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url=www.geneticconstructor.com&title=Autodesk%20-%20Genetic%20Constructor&summary=DNA%20Design%20Tools%20from%20Autodesk&source=www.geneticconstructor.com" target="_blank" rel="noopener noreferrer">
+          <img className="social-button" src="/images/ui/social-linkedin.svg" />
         </a>
-        <a href="https://plus.google.com/share?url=www.geneticconstructor.com" target="_blank">
-          <img className="social-button" src="/images/ui/social-google+.svg"/>
+        <a href="https://plus.google.com/share?url=www.geneticconstructor.com" target="_blank" rel="noopener noreferrer">
+          <img className="social-button" src="/images/ui/social-google+.svg" />
         </a>
-        <a href="mailto:?&subject=Autodesk - Genetic Constructor">
-          <img className="social-button" src="/images/ui/social-email.svg"/>
+        <a href="mailto:?&subject=Autodesk - Genetic Constructor&body=Check%20out%20Autodesk%20Genetic%20Constructor%3A%20http%3A//geneticconstructor.com">
+          <img className="social-button" src="/images/ui/social-email.svg" />
         </a>
       </div>
 
@@ -224,4 +222,3 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   uiSetGrunt,
 })(InspectorGroupFeedback);
-

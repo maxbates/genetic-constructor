@@ -9,7 +9,7 @@ cfn-param-compose-start-params: ""
 cfn-param-compose-cmd-prefix: ""
 tmp-cfn-status: CloudStackStatus.txt
 
-verify-enabled: false
+verify-enabled: true
 # NOTE set this value in the Jenkins job as it varies by environment
 verify-url-full: ""
 

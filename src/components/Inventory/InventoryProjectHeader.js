@@ -15,22 +15,12 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import {
-  uiShowGenBankImport,
-} from '../../actions/ui';
-import {
-  projectCreate,
-  projectAddConstruct,
-  projectOpen,
-  projectSave,
-} from '../../actions/projects';
-import {
-  blockCreate,
-} from '../../actions/blocks';
+
+import { blockCreate } from '../../actions/blocks';
+import { focusConstruct } from '../../actions/focus';
+import { projectAddConstruct, projectCreate, projectOpen, projectSave } from '../../actions/projects';
+import { uiShowGenBankImport } from '../../actions/ui';
 import * as instanceMap from '../../store/instanceMap';
-import {
-  focusConstruct,
-} from '../../actions/focus';
 import '../../styles/InventoryProjectHeader.css';
 
 class InventoryProjectHeader extends Component {
@@ -78,8 +68,8 @@ class InventoryProjectHeader extends Component {
   render() {
     return (
       <div className="InventoryProjectHeader">
-        <img src="/images/ui/add.svg" title="Add New Project" onClick={this.onAddNewProject}/>
-        <img src="/images/ui/upload.svg" title="Upload Genbank or CSV File" onClick={this.onUpload}/>
+        <img data-testid="NewProjectButton" src="/images/ui/add.svg" title="Add New Project" onClick={this.onAddNewProject} />
+        <img data-testid="UploadButton" src="/images/ui/upload.svg" title="Upload Genbank or CSV File" onClick={this.onUpload} />
       </div>
     );
   }

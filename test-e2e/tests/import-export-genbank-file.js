@@ -1,10 +1,6 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
-var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
-var clickMainMenu = require('../fixtures/click-main-menu');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var http = require("http");
 var path = require('path');
 var size = require('../fixtures/size');
@@ -14,7 +10,7 @@ module.exports = {
     size(browser);
 
     // register via fixture
-    var credentials = homepageRegister(browser);
+    homepageRegister(browser);
 
     // now we can go to the project page
     browser
@@ -26,10 +22,11 @@ module.exports = {
     newProject(browser);
     browser.pause(3000);
 
-    // import from menu
-    clickMainMenu(browser, 1, 8);
-
+    // click the file menu -> Upload Genbank File
+    openInventoryPanel(browser, 'Projects');
     browser
+      .waitForElementPresent('[data-testid="UploadButton"]', 5000, 'expected upload button')
+      .click('[data-testid="UploadButton"]')
       .waitForElementPresent('.genbank-import-form', 5000, 'Expect the import dialog to appear')
       // click import into new project
       .click('.genbank-import-form input:nth-of-type(1)');

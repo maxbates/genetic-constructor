@@ -1,0 +1,56 @@
+@import './variables.css';
+
+.InventoryGroupRole {
+
+  p {
+    color: var(--colors-grey);
+    margin: 0 1rem 1rem 1rem;
+  }
+
+  .list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .sbol-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 95px;
+    margin: 0 1rem 0.25rem 0;
+    cursor: pointer;
+    .RoleSvg {
+      background-color: var(--colors-lightGrey);
+      border-radius: 5px;
+    }
+    .RoleSvg.active {
+      background-color: var(--colors-nearlyBlack);
+    }
+    .name {
+      height: 3em;
+      text-align: center;
+      color: var(--colors-grey);
+    }
+    .name.active {
+      color: var(--colors-text);
+    }
+  }
+}
+
+.InventoryRoleGroup-DNDProxy {
+  font-weight: bolder;
+  border: 2px solid white;
+  background-color: black;
+  color: white;
+  padding: 0 1rem 0 1rem;
+  cursor: pointer;
+  pointer-events: none;
+
+  svg {
+    width: 30px;
+    height: 30px;
+  }
+}

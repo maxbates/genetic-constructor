@@ -22,7 +22,7 @@ export default function Spinner({ hidden, styles }) {
     return null;
   }
 
-  return (<div className="Spinner" style={styles}/>);
+  return (<div className="Spinner" style={styles} />);
 }
 
 Spinner.propTypes = {

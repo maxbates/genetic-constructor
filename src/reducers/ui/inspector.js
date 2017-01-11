@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as ActionTypes from '../../constants/ActionTypes';
-import { getLocal, setLocal } from '../../utils/ui/localstorage';
+import { getLocal, setLocal } from '../../utils/localstorage';
 
 export const initialState = {
   isVisible: getLocal('inspectorVisibility', false),
@@ -23,17 +23,17 @@ export const initialState = {
 
 export default function inspector(state = initialState, action) {
   switch (action.type) {
-  case ActionTypes.INSPECTOR_TOGGLE_VISIBILITY :
-    const { nextState } = action;
-    setLocal('inspectorVisibility', nextState);
-    return Object.assign({}, state, { isVisible: nextState });
+    case ActionTypes.INSPECTOR_TOGGLE_VISIBILITY :
+      const { nextState } = action;
+      setLocal('inspectorVisibility', nextState);
+      return { ...state, isVisible: nextState };
 
-  case ActionTypes.INSPECTOR_SELECT_TAB :
-    const { tab } = action;
-    setLocal('inspectorTab', tab);
-    return Object.assign({}, state, { currentTab: tab });
+    case ActionTypes.INSPECTOR_SELECT_TAB :
+      const { tab } = action;
+      setLocal('inspectorTab', tab);
+      return { ...state, currentTab: tab };
 
-  default :
-    return state;
+    default :
+      return state;
   }
 }

@@ -18,8 +18,9 @@
  *
  * Extensions may want to use this for persistence on the constructor server
  */
-import express from 'express';
 import bodyParser from 'body-parser';
+import express from 'express';
+
 import rejectingFetch from '../../src/middleware/utils/rejectingFetch';
 import errorHandlingMiddleware from '../utils/errorHandlingMiddleware';
 
@@ -56,7 +57,7 @@ router.route('/githubIssue/:id?')
         Accept: 'application/vnd.github.v3.text+json',
       },
     })
-      .catch(resp => {
+      .catch((resp) => {
         res.status(resp.status);
         return resp;
       })
@@ -76,7 +77,7 @@ router.route('/githubIssue/:id?')
       },
       body: payload,
     })
-      .catch(resp => {
+      .catch((resp) => {
         res.status(resp.status);
         return resp;
       })

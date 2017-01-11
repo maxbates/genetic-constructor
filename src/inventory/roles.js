@@ -24,7 +24,7 @@ limitations under the License.
 
 export const symbolMap = {
   //include null for string matching, but the value will be the object null in blocks, not the string 'null'
-  'null': 'No Symbol',
+  null: 'No Symbol',
   promoter: 'Promoter',
   cds: 'CDS',
   terminator: 'Terminator',
@@ -41,7 +41,7 @@ export const symbolMap = {
 };
 
 export const roleMassager = {
-  'gene': 'cds',
+  gene: 'cds',
   'ribosome entry site': 'rbs',
   'ribonuclease site': 'ribonuclease',
   'rna stability element': 'rnaStability',
@@ -49,9 +49,9 @@ export const roleMassager = {
   'protein stability element': 'proteinStability',
   'origin of replication': 'originReplication',
   'restriction site': 'restrictionSite',
-  'regulatory': 'promoter',
-  'mat_peptide': 'cds',
-  'rep_origin': 'originReplication',
+  regulatory: 'promoter',
+  mat_peptide: 'cds',
+  rep_origin: 'originReplication',
 };
 
 /*

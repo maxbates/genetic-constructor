@@ -1,38 +1,34 @@
-import express from 'express';
 import bodyParser from 'body-parser';
+import debug from 'debug';
+import express from 'express';
 import invariant from 'invariant';
+import _ from 'lodash';
 
-//GC specific
-import Project from '../../../../src/models/Project';
-import Block from '../../../../src/models/Block';
-import * as fileSystem from '../../../data/middleware/fileSystem';
-import * as filePaths from '../../../data/middleware/filePaths';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
-import { filter } from 'lodash';
+import Block from '../../../../src/models/Block';
+import Project from '../../../../src/models/Project';
+import * as filePaths from '../../../data/middleware/filePaths';
+import * as fileSystem from '../../../data/middleware/fileSystem';
 import { projectPermissionMiddleware } from '../../../data/permissions';
 import * as projectPesistence from '../../../data/persistence/projects';
 import * as sequencePersistence from '../../../data/persistence/sequence';
-import DebugTimer from '../../../utils/DebugTimer';
-
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
+import { convert, exportConstruct, exportProject, importProject } from './convert';
 
-//genbank specific
-import { convert, importProject, exportProject, exportConstruct } from './convert';
+const logger = debug('constructor:extension:genbank');
 
 const extensionKey = 'genbank'; //eslint-disable-line no-unused-vars
 
 // Download a temporary file and delete it afterwards
-const downloadAndDelete = (res, tempFileName, downloadFileName) => {
-  return new Promise((resolve, reject) => {
-    res.download(tempFileName, downloadFileName, (err) => {
-      if (err) {
-        return reject(err);
-      }
-      fileSystem.fileDelete(tempFileName);
-      resolve(downloadFileName);
-    });
+const downloadAndDelete = (res, tempFileName, downloadFileName) => new Promise((resolve, reject) => {
+  res.download(tempFileName, downloadFileName, (err) => {
+    if (err) {
+      return reject(err);
+    }
+    fileSystem.fileDelete(tempFileName);
+    resolve(downloadFileName);
   });
-};
+});
 
 //create the router
 const router = express.Router(); //eslint-disable-line new-cap
@@ -46,6 +42,7 @@ router.param('projectId', (req, res, next, id) => {
 
 /***** FILES ******/
 
+//todo - DEPRECATE
 //route to download genbank files
 router.get('/file/:fileId', (req, res, next) => {
   const { fileId } = req.params;
@@ -58,7 +55,7 @@ router.get('/file/:fileId', (req, res, next) => {
 
   fileSystem.fileExists(path)
     .then(() => res.download(path))
-    .catch(err => {
+    .catch((err) => {
       if (err === errorDoesNotExist) {
         return res.status(404).send();
       }
@@ -72,15 +69,15 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
   const { projectId, blockIdList } = req.params;
   const blockIds = blockIdList.split(',');
 
-  console.log(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
+  logger(`exporting blocks ${blockIdList} from ${projectId} (${req.user.uuid})`);
 
   projectPesistence.projectGet(projectId)
     .then(roll => sequencePersistence.assignSequencesToRollup(roll))
-    .then(roll => {
+    .then((roll) => {
       const blocks = blockIds.map(blockId => roll.blocks[blockId]);
       invariant(blocks.every(block => block.sequence.md5), 'some blocks dont have md5');
 
-      const name = (roll.project.metadata.name || roll.project.id) + '.gb';
+      const name = `${roll.project.metadata.name || roll.project.id}.gb`;
 
       const construct = Block.classless({
         metadata: {
@@ -95,22 +92,23 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
       //todo - need to merge with flo's stuff to pass in sequence properly
       const partialRoll = {
         project,
-        blocks: blocks.reduce((acc, block) => {
-          return Object.assign(acc, {
-            [block.id]: block,
-          });
-        }, {
+        blocks: blocks.reduce((acc, block) => Object.assign(acc, {
+          [block.id]: block,
+        }), {
           [construct.id]: construct,
         }),
       };
 
       return exportConstruct({ roll: partialRoll, constructId: construct.id })
-        .then(resultFileName => {
-          return downloadAndDelete(res, resultFileName, roll.project.id + '.fasta');
+        .then((resultFileName) => {
+          logger(`wrote file to ${resultFileName}`);
+          return downloadAndDelete(res, resultFileName, `${roll.project.id}.fasta`);
         });
     })
-    .catch(err => {
-      console.log('Error!', err);
+    .catch((err) => {
+      logger('Error exporting blocks');
+      logger(err);
+      logger(err.stack);
       res.status(500).send(err);
     });
 });
@@ -122,33 +120,38 @@ router.all('/export/:projectId/:constructId?',
     const { projectId, constructId } = req.params;
 
     //todo - use this for genbank, to export specific blocks
-    //const options = req.body;
+    const options = req.body;
 
-    console.log(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
-    //console.log(options);
+    logger(`exporting construct ${constructId} from ${projectId} (${req.user.uuid})`);
+    if (options) {
+      logger('option map:');
+      logger(options);
+    }
 
     projectPesistence.projectGet(projectId)
       .then(roll => sequencePersistence.assignSequencesToRollup(roll))
-      .then(roll => {
+      .then((roll) => {
         const name = (roll.project.metadata.name ? roll.project.metadata.name : roll.project.id);
 
-        const promise = !!constructId ?
+        const promise = constructId ?
           exportConstruct({ roll, constructId }) :
           exportProject(roll);
 
         return promise
           .then((resultFileName) => {
+            logger(`wrote file to ${resultFileName}`);
             return fileSystem.fileRead(resultFileName, false)
-              .then(fileOutput => {
+              .then((fileOutput) => {
                 // We have to disambiguate between zip files and gb files!
                 const fileExtension = (fileOutput.substring(0, 5) !== 'LOCUS') ? '.zip' : '.gb';
                 return downloadAndDelete(res, resultFileName, name + fileExtension);
               });
           });
       })
-      .catch(err => {
-        console.log('Error!', err);
-        console.log(err.stack);
+      .catch((err) => {
+        logger('Error exporting');
+        logger(err);
+        logger(err.stack);
         res.status(500).send(err);
       });
   });
@@ -159,40 +162,45 @@ router.all('/export/:projectId/:constructId?',
 router.post('/import/:projectId?',
   importMiddleware,
   (req, res, next) => {
-    const { noSave, returnRoll, projectId, files } = req; //eslint-disable-line no-unused-vars
+    const { projectId, files } = req;
     const { constructsOnly } = req.body;
 
-    const timer = new DebugTimer(`Genbank Import (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
-
-    console.log(`importing genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
+    logger(`importing genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
     const { name, string, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
 
-    //todo - unify rather than just returning (esp once convert does not save sequences)
+    //could probably unify this better...
+    //on conversions, project is irrelevant, sometimes we only want the construct blocks, never wrap
     if (projectId === 'convert') {
       return convert(filePath, fileUrl)
-        .then(converted => {
+        .then((converted) => {
+          logger('converted');
+
           const roots = converted.roots;
-          const rootBlocks = filter(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
-          const payload = constructsOnly ?
-          { roots, blocks: rootBlocks } :
-            converted;
+          const rootBlocks = _.pickBy(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
+          const roll = {
+            project: Project.classless({
+              components: roots,
+            }),
+            blocks: constructsOnly ? rootBlocks : converted.blocks,
+            sequences: converted.sequences,
+          };
 
-          timer.end('converted');
+          Object.assign(req, { roll });
 
-          return res.status(200).json(payload);
+          next();
         })
         .catch(err => next(err));
     }
 
     return importProject(filePath, fileUrl)
     //wrap all the childless blocks in a construct (so they dont appear as top-level constructs), update rollup with construct Ids
-      .then(roll => {
-        timer.time('imported');
+      .then((roll) => {
+        logger('imported');
 
         if (!roll || typeof roll !== 'object') {
-          console.log('error retrieving roll ' + filePath);
+          logger(`error retrieving roll ${filePath}`);
           return Promise.reject('error retrieving roll');
         }
 
@@ -205,7 +213,7 @@ router.post('/import/:projectId?',
         const childlessBlockIds = roll.project.components.filter(blockId => roll.blocks[blockId].components.length === 0);
 
         const wrapperConstructs = childlessBlockIds.reduce((acc, blockId, index) => {
-          const constructName = name + (index > 0 ? ' - Construct ' + (index + 1) : '');
+          const constructName = name + (index > 0 ? ` - Construct ${index + 1}` : '');
           const construct = Block.classless({
             components: [blockId],
             metadata: {
@@ -226,22 +234,23 @@ router.post('/import/:projectId?',
 
         return roll;
       })
-      .then(roll => {
+      .then((roll) => {
         //dont care about timing
-        fileSystem.fileWrite(filePath + '-converted', roll);
+        fileSystem.fileWrite(`${filePath}-converted`, roll);
 
-        timer.end('remapped');
+        logger('remapped');
 
         Object.assign(req, { roll });
         next();
       })
       .catch((err) => {
-        console.log('error in Genbank conversion', err);
-        console.log(err.stack);
+        logger('error in Genbank conversion');
+        logger(err);
+        logger(err.stack);
         next(err);
       });
   },
-  mergeRollupMiddleware
+  mergeRollupMiddleware,
 );
 
 router.all('*', (req, res) => res.status(404).send('route not found'));

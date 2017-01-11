@@ -5,16 +5,18 @@ var size = require('../fixtures/size');
 var dragFromTo = require('../fixtures/dragfromto.js');
 
 module.exports = {
-  'Verify we can order all templates' : function (browser) {
+  'Verify we can order a template' : function (browser) {
 
     size(browser);
     homepageRegister(browser);
     openInventoryPanel(browser, 'Templates');
-    newProject(browser);
     browser
-      .click('.Toggler')
-      .waitForElementPresent('.InventoryItem-item', 5000, 'expected inventory items');
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
+      .click('[data-testid="NewProjectButton"]')
+      .click('[data-testid^="egf_project"] .label-base')
+      .waitForElementPresent('[data-testid^="block-"]', 5000, 'expected constructs to appear');
+
+    dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.cvc-drop-target', 50, 40);
+
     browser
       .click('.order-button')
       .waitForElementPresent('.order-form .page1', 10000, 'expected order dialog to appear')

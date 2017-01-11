@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+
 import Row from './row';
 
 export default class Page3 extends Component {
@@ -48,7 +49,7 @@ export default class Page3 extends Component {
         <Row text="After Fabrication:">
           <div>{order.parameters.sequenceAssemblies ? 'Sequence' : 'Do Not Sequence'}</div>
         </Row>
-        <br/>
+        <br />
       </div>
     );
   }

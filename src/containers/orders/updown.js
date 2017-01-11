@@ -23,7 +23,7 @@ export default class UpDown extends Component {
     max: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
     disabled: PropTypes.bool,
-    enabled: PropTypes.bool,
+    //enabled: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     onBlur: PropTypes.func,
   };
@@ -39,16 +39,16 @@ export default class UpDown extends Component {
 
     switch (evt.keyCode) {
       // up arrow
-    case 38:
-      this.up();
-      evt.preventDefault();
-      break;
+      case 38:
+        this.up();
+        evt.preventDefault();
+        break;
       // down arrow
-    case 40:
-      this.down();
-      evt.preventDefault();
-      break;
-    default:
+      case 40:
+        this.down();
+        evt.preventDefault();
+        break;
+      default:
     }
   };
 
@@ -85,7 +85,7 @@ export default class UpDown extends Component {
    * get the current value of the input, if invalid return this.props.min
    */
   getValue() {
-    const val = parseInt(this.refs.updown.value, 10);
+    const val = parseInt(this.updown.value, 10);
     return isNaN(val) || val < this.props.min || val > this.props.max ? this.props.min : val;
   }
 
@@ -113,7 +113,7 @@ export default class UpDown extends Component {
         <input
           className="input-updown"
           value={this.props.value}
-          ref="updown"
+          ref={(el) => { this.updown = el; }}
           maxLength={this.props.max.toString().length}
           onKeyDown={this.onKeyDown}
           onChange={this.onInputChanged}
@@ -121,8 +121,8 @@ export default class UpDown extends Component {
         />
         <div className="updown-spinner">
           <div className="arrow-container">
-            <div className="updown-arrows up" onClick={this.up}/>
-            <div className="updown-arrows down" onClick={this.down}/>
+            <div className="updown-arrows up" onClick={this.up} />
+            <div className="updown-arrows down" onClick={this.down} />
           </div>
         </div>
       </div>

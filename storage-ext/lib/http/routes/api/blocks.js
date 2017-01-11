@@ -32,6 +32,11 @@ var FILTERS = {
   role: function (blocksArray, filterValue) {
     return filter(blocksArray, function (blockObj) {
       var val = objectPath.get(blockObj, 'rules.role');
+
+      if (filterValue === 'none') {
+        return ((val == null) || (val == undefined));
+      }
+
       return val && val.indexOf(filterValue) >= 0;
     });
   },

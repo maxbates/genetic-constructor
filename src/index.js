@@ -16,18 +16,18 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import reduxRouter from './routes/reduxRouter';
+
 import * as actionTypes from './constants/ActionTypes';
-import store, { lastAction } from './store/index';
-import orchestrator from './store/api';
 import extensions from './extensions/_expose';
-import DnD from './containers/graphics/dnd/dnd';
+import routes from './routes';
+import orchestrator from './store/api';
+import store, { getState, lastAction, subscribe as storeSubscribe } from './store/index';
 
 render(
   <Provider store={store}>
-    {reduxRouter}
+    {routes}
   </Provider>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );
 
 /**
@@ -53,17 +53,16 @@ Object.assign(exposed, {
   api: orchestrator,
   store: {
     ...store,
-    lastAction: lastAction,
+    lastAction,
     subscribe: (callback, callOnSubscribe) => {
       if (callOnSubscribe === true) {
-        callback(store.getState(), lastAction());
+        callback(getState(), lastAction());
       }
 
-      return store.subscribe(() => {
-        callback(store.getState(), lastAction());
+      return storeSubscribe(() => {
+        callback(getState(), lastAction());
       });
     },
     replaceReducer: () => {}, //hide from 3rd party
   },
-  DnD,
 });
