@@ -1,17 +1,1 @@
 @import 'variables.css';
-
-.inter-construct-drop-target {
-  height: 10px;
-  width: calc(100% - 3rem);
-  background-color: transparent;
-  margin: 0 1rem 0 2rem;
-
-  &:last-child {
-    margin-bottom: 3rem;
-  }
-}
-
-.inter-construct-drop-target-hovered {
-  background-color: var(--colors-selected);
-}
-

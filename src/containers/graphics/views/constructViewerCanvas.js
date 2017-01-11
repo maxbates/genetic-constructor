@@ -18,37 +18,21 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import { blockAddComponent, blockClone, blockCreate } from '../../../actions/blocks';
-import { focusBlocks, focusConstruct } from '../../../actions/focus';
+import { focusBlocks } from '../../../actions/focus';
 import { projectAddConstruct } from '../../../actions/projects';
-import { block as blockDragType } from '../../../constants/DragTypes';
 import { projectGet, projectGetVersion } from '../../../selectors/projects';
 import '../../../styles/constructviewercanvas.css';
 import DnD from '../dnd/dnd';
 import MouseTrap from '../mousetrap';
-import ConstructViewer from './constructviewer';
-
-const defaultDropMessage = 'Drop blocks here to create a new construct.';
-const droppingMessage = 'Building new construct...';
+import DropTarget from './dropTarget';
 
 export class ConstructViewerCanvas extends Component {
   static propTypes = {
-    blockCreate: PropTypes.func.isRequired,
-    blockClone: PropTypes.func.isRequired,
-    projectAddConstruct: PropTypes.func.isRequired,
-    focusConstruct: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     projectGet: PropTypes.func.isRequired,
     children: PropTypes.array.isRequired,
     currentProjectId: PropTypes.string.isRequired,
   };
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      dropMessage: defaultDropMessage,
-    };
-  }
 
   /**
    * register as drop target when mounted, use -1 for zorder to ensure
@@ -76,69 +60,14 @@ export class ConstructViewerCanvas extends Component {
       ReactDOM.findDOMNode(this).scrollTop = 0;
     }
   }
-  /**
-   * find all the drop targets after each update
-   */
-  componentDidUpdate() {
-    // unregister old drop targets
-    if (this.dropTargets) {
-      this.dropTargets.forEach((target) => {
-        DnD.unregisterTarget(target);
-      });
-    }
-    const self = ReactDOM.findDOMNode(this);
-    this.dropTargets = Array.from(self.querySelectorAll('.inter-construct-drop-target')).forEach((target) => {
-      // drop target drag and drop handlers
-      DnD.registerTarget(target, {
-        drop: this.onDrop,
-        dragEnter: () => {
-          target.classList.add('inter-construct-drop-target-hovered');
-        },
-        dragLeave: () => {
-          target.classList.remove('inter-construct-drop-target-hovered');
-        },
-        dragEnd: () => {
-          this.setState({
-            dropMessage: droppingMessage,
-          });
-        },
-        zorder: -1,
-      });
-    });
-  }
+
   /**
    * unregister DND handlers
    */
   componentWillUnmount() {
-    DnD.unregisterTarget(ReactDOM.findDOMNode(this.refs.dropTarget));
     DnD.unregisterMonitor(ReactDOM.findDOMNode(this));
     this.mouseTrap.dispose();
     this.mouseTrap = null;
-  }
-
-  /**
-   * create a new construct, add dropped block to it
-   */
-  onDrop = (globalPosition, payload, event) => {
-    // get the index of the drop target
-    const index = Number.parseInt(event.target.getAttribute('data-index'), 10);
-    // clone construct and add to project if a construct from inventory otherwise
-    // treat as a list of one or more blocks
-    //if the block is from the inventory, we've cloned it and dont need to worry about forcing the projectId when we add the components
-    const fromInventory = payload.source.indexOf('inventory') >= 0;
-    //dont need to check if array, since inventory drags always are single items
-    if (fromInventory && payload.type === blockDragType && payload.item.isConstruct()) {
-      const construct = this.props.blockClone(payload.item.id);
-      this.props.projectAddConstruct(this.props.currentProjectId, construct.id, true, index);
-      this.props.focusConstruct(construct.id);
-    } else {
-      const construct = this.props.blockCreate();
-      this.props.projectAddConstruct(this.props.currentProjectId, construct.id, true, index);
-      const constructViewer = ConstructViewer.getViewerForConstruct(construct.id);
-      invariant(constructViewer, 'expect to find a viewer for the new construct');
-      constructViewer.addItemAtInsertionPoint(payload, null, null);
-      this.props.focusConstruct(construct.id);
-    }
   }
 
   /**
@@ -234,7 +163,11 @@ export class ConstructViewerCanvas extends Component {
     const constructViewers = [];
     for (let i = 0; i < this.props.children.length; i += 1) {
       if (!this.isSampleProject()) {
-        constructViewers.push(<div className="inter-construct-drop-target" data-index={i} />);
+        constructViewers.push(<DropTarget
+          currentProjectId={this.props.currentProjectId}
+          key={i}
+          index={i}
+        />);
       }
       constructViewers.push(React.cloneElement(this.props.children[i], {
         mouseScroll: this.mouseScroll,
@@ -244,7 +177,11 @@ export class ConstructViewerCanvas extends Component {
     }
     // put a drop target at the end
     if (!this.isSampleProject()) {
-      constructViewers.push(<div className="inter-construct-drop-target" data-index={this.props.children.length}/>);
+      constructViewers.push(<DropTarget
+        currentProjectId={this.props.currentProjectId}
+        key={this.props.children.length}
+        index={this.props.children.length}
+      />);
     }
 
     // map construct viewers so we can propagate projectId and any recently dropped blocks
@@ -267,12 +204,8 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  focusConstruct,
   focusBlocks,
   projectAddConstruct,
-  blockCreate,
-  blockAddComponent,
   projectGetVersion,
   projectGet,
-  blockClone,
 })(ConstructViewerCanvas);
