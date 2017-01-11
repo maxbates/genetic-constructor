@@ -403,9 +403,14 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
  * @param {boolean} [forceProjectId=true] set the projectId if not set
  * @returns {Project}
  */
-export const projectAddConstruct = (projectId, constructId, forceProjectId = true) => (dispatch, getState) => {
+export const projectAddConstruct = (projectId, constructId, forceProjectId = true, index = -1) => (dispatch, getState) => {
   const oldProject = getState().projects[projectId];
-  const project = oldProject.addComponents(constructId);
+  let project;
+  if (index < 0) {
+    project = oldProject.addComponents(constructId);
+  } else {
+    project = oldProject.addComponentsAt(index, constructId);
+  }
 
   const component = getState().blocks[constructId];
   const componentProjectId = component.projectId;

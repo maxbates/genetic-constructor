@@ -483,7 +483,7 @@ export class ConstructViewer extends Component {
           if (!oldName.endsWith(' - copy')) {
             clone = this.props.blockRename(clone.id, `${oldName} - copy`);
           }
-          this.props.projectAddConstruct(this.props.projectId, clone.id);
+          this.props.projectAddConstruct(this.props.projectId, clone.id, true);
           this.props.focusConstruct(clone.id);
         },
       },

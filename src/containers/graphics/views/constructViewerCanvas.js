@@ -120,6 +120,8 @@ export class ConstructViewerCanvas extends Component {
    * create a new construct, add dropped block to it
    */
   onDrop = (globalPosition, payload, event) => {
+    // get the index of the drop target
+    const index = Number.parseInt(event.target.getAttribute('data-index'), 10);
     // clone construct and add to project if a construct from inventory otherwise
     // treat as a list of one or more blocks
     //if the block is from the inventory, we've cloned it and dont need to worry about forcing the projectId when we add the components
@@ -127,11 +129,11 @@ export class ConstructViewerCanvas extends Component {
     //dont need to check if array, since inventory drags always are single items
     if (fromInventory && payload.type === blockDragType && payload.item.isConstruct()) {
       const construct = this.props.blockClone(payload.item.id);
-      this.props.projectAddConstruct(this.props.currentProjectId, construct.id, true);
+      this.props.projectAddConstruct(this.props.currentProjectId, construct.id, true, index);
       this.props.focusConstruct(construct.id);
     } else {
       const construct = this.props.blockCreate();
-      this.props.projectAddConstruct(this.props.currentProjectId, construct.id, true);
+      this.props.projectAddConstruct(this.props.currentProjectId, construct.id, true, index);
       const constructViewer = ConstructViewer.getViewerForConstruct(construct.id);
       invariant(constructViewer, 'expect to find a viewer for the new construct');
       constructViewer.addItemAtInsertionPoint(payload, null, null);
@@ -232,7 +234,7 @@ export class ConstructViewerCanvas extends Component {
     const constructViewers = [];
     for (let i = 0; i < this.props.children.length; i += 1) {
       if (!this.isSampleProject()) {
-        constructViewers.push(<div className="inter-construct-drop-target" />);
+        constructViewers.push(<div className="inter-construct-drop-target" data-index={i} />);
       }
       constructViewers.push(React.cloneElement(this.props.children[i], {
         mouseScroll: this.mouseScroll,
@@ -242,7 +244,7 @@ export class ConstructViewerCanvas extends Component {
     }
     // put a drop target at the end
     if (!this.isSampleProject()) {
-      constructViewers.push(<div className="inter-construct-drop-target"/>);
+      constructViewers.push(<div className="inter-construct-drop-target" data-index={this.props.children.length}/>);
     }
 
     // map construct viewers so we can propagate projectId and any recently dropped blocks

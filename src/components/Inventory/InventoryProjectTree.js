@@ -173,7 +173,7 @@ export class InventoryProjectTree extends Component {
     const project = this.props.projectCreate();
     // add a construct to the new project
     const block = this.props.blockCreate({ projectId: project.id });
-    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id);
+    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
 
     //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
     //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
@@ -214,7 +214,7 @@ export class InventoryProjectTree extends Component {
   onNewConstruct = (project, initialModel = {}) => {
     this.props.transact();
     const block = this.props.blockCreate(initialModel);
-    this.props.projectAddConstruct(this.props.currentProjectId, block.id);
+    this.props.projectAddConstruct(this.props.currentProjectId, block.id, true);
     this.props.commit();
     this.props.focusConstruct(block.id);
     return block;

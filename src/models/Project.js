@@ -168,6 +168,21 @@ export default class Project extends Instance {
   }
 
   /**
+   * Add constructs to the Project at the given index
+   * @method addComponents
+   * @memberOf Project
+   * @param {number} index - index to insert components at
+   * @param {...UUID} components IDs of components
+   * @returns {Project}
+   */
+  addComponentsAt(index, ...components) {
+    invariant(components.length && components.every(comp => idValidator(comp)), 'must pass component IDs');
+    invariant(index <= this.components.length && index >= 0, 'index out of bounds');
+    return this.mutate('components', this.components.slice(0, index).concat(components).concat(this.components.slice(index)));
+  }
+
+
+  /**
    * Remove constructs from the project
    * @method removeComponents
    * @memberOf Project
