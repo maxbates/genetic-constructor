@@ -37,6 +37,11 @@ export default class LandingPage extends Component {
         return;
       }
 
+      //tracking with heap
+      if (heap && heap.track) {
+        heap.track('Register_Interest', { type: data });
+      }
+
       this.showRegisterForm(data);
     };
   }
