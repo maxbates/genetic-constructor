@@ -14,6 +14,8 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
+import DnD from '../containers/graphics/dnd/dnd';
 
 import '../styles/SectionIcon.css';
 
@@ -45,11 +47,61 @@ export default class SectionIcon extends Component {
     selected: PropTypes.bool.isRequired,
     onSelect: PropTypes.func.isRequired,
     onToggle: PropTypes.func.isRequired,
+    dragTarget: PropTypes.bool,
   };
 
   state = {
     hover: false,
+    dragInside: false,
   };
+
+  /**
+   * register as a drop target after mounting.
+   */
+  componentDidMount() {
+    if (this.props.dragTarget) {
+      const self = ReactDOM.findDOMNode(this);
+      DnD.registerTarget(self, {
+        drop: () => {},
+        dragEnter: () => {
+          this.setState({ dragInside: true });
+          this.startSwitchTimer();
+        },
+        dragLeave: () => {
+          this.setState({ dragInside: false });
+          this.endSwitchTimer();
+        },
+        zorder: 0,
+      });
+    }
+  }
+  /**
+   * unsink DND on unmount
+   */
+  componentWillUnmount() {
+    if (this.props.dragTarget) {
+      const self = ReactDOM.findDOMNode(this);
+      DnD.unregisterTarget(self);
+      this.endSwitchTimer();
+    }
+  }
+
+  /**
+   * called when a drag over occurs, defer the switch to the panel just a fraction of second.
+   */
+  startSwitchTimer() {
+    this.endSwitchTimer();
+    this.timer = window.setTimeout(() => {
+      if (!this.props.open || !this.props.selected) {
+        this.onClick();
+      }
+    }, 400);
+  }
+
+  endSwitchTimer() {
+    window.clearTimeout(this.timer);
+  }
+
 
   /**
    * a click either selects the section if unselected or toggle the parent
@@ -57,7 +109,9 @@ export default class SectionIcon extends Component {
    * @param event
    */
   onClick = (event) => {
-    event.stopPropagation();
+    if (event) {
+      event.stopPropagation();
+    }
     if (this.props.open) {
       // when open clicking the selected tab collapses.
       if (this.props.selected) {
@@ -81,7 +135,9 @@ export default class SectionIcon extends Component {
 
   render() {
     const highlight = this.props.selected || this.state.hover;
-    const containerClass = highlight ? 'SectionIcon Highlighted' : 'SectionIcon';
+    let containerClass = 'SectionIcon';
+    containerClass += highlight ? ' Highlighted' : '';
+    containerClass += this.state.dragInside ? ' DragOver' : '';
     return (
       <div
         data-section={this.props.section}

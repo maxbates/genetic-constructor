@@ -48,7 +48,6 @@ export class DropTarget extends Component {
     DnD.registerTarget(self, {
       drop: this.onDrop,
       dragEnter: () => {
-        //target.classList.add('inter-construct-drop-target-hovered');
         this.setState({ hovered: true });
       },
       dragLeave: () => {

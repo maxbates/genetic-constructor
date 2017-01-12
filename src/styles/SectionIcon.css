@@ -14,4 +14,10 @@
     filter: brightness(100%);
   }
 }
+.SectionIcon.DragOver {
+  background-color: var(--colors-selected) !important;
+  img {
+    filter: brightness(1000%) !important;
+  }
+}
 
