@@ -17,6 +17,7 @@ import React, { Component } from 'react';
 
 import { dispatch } from '../store/index';
 import { uiShowAuthenticationForm } from '../actions/ui';
+import Modal from '../components/modal/Modal';
 
 import '../styles/LandingPage.css';
 
@@ -46,6 +47,8 @@ export default class LandingPage extends Component {
     };
   }
 
+  state = { open: true };
+
   componentDidMount() {
     window.addEventListener('message', this.listener, false);
   }
@@ -60,12 +63,21 @@ export default class LandingPage extends Component {
 
   render() {
     return (
-      <iframe
-        ref={(el) => { this.iframe = el; }}
-        sandbox="allow-same-origin allow-scripts"
-        className="LandingPage"
-        src="/landing_page_content/index.html"
-      />
+      <div>
+        <Modal
+          isOpen={this.state.open}
+          onClose={() => this.setState({ open: false })}
+          title="Register"
+        >
+          <p>Some Content</p>
+        </Modal>
+        <iframe
+          ref={(el) => { this.iframe = el; }}
+          sandbox="allow-same-origin allow-scripts"
+          className="LandingPage"
+          src="/landing_page_content/index.html"
+        />
+      </div>
     );
   }
 }

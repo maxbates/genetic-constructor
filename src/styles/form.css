@@ -9,8 +9,8 @@
   --errorcolor: #FF6A5E;
   --fontsize: 1.25rem;
 }
-.gd-form {
 
+.gd-form {
   padding-bottom: 1rem;
   font-size: 1.5rem;
 
@@ -124,5 +124,4 @@
   a.blue-link {
     color: var(--colors-bluetext);
   }
-
 }

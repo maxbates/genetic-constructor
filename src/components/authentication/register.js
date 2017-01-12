@@ -31,27 +31,27 @@ import { privacy, tos } from '../../utils/ui/uiapi';
 const errors = {
   nameError: {
     visible: false,
-    text: 'none',
+    text: 'x',
   },
   email1Error: {
     visible: false,
-    text: 'none',
+    text: 'x',
   },
   email2Error: {
     visible: false,
-    text: 'none',
+    text: 'x',
   },
   password1Error: {
     visible: false,
-    text: 'none',
+    text: 'x',
   },
   password2Error: {
     visible: false,
-    text: 'none',
+    text: 'x',
   },
   tosError: {
     visible: false,
-    text: 'none',
+    text: 'x',
   },
 };
 

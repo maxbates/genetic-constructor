@@ -14,9 +14,8 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import ReactDOM from 'react-dom';
 
-import '../../../src/styles/Modal.css';
+import '../../../src/styles/modal-old.css';
 
 /**
  * modal window with user supplied payload and user defined ( optional )
@@ -32,20 +31,17 @@ export default class ModalWindow extends Component {
     payload: PropTypes.object.isRequired,
   };
 
-  constructor() {
-    super();
+  componentDidMount() {
     setTimeout(() => {
-      const dom = ReactDOM.findDOMNode(this.window);
-      if (dom) {
-        dom.style.transform = 'translate(-50%, 0px)';
+      if (this.modal) {
+        this.modal.style.transform = 'translate(-50%, 0px)';
       }
     }, 10);
   }
 
   // mouse down on the blocker closes the modal, if props.closeOnClickOutside is true
   onMouseDown = (evt) => {
-    const blockEl = ReactDOM.findDOMNode(this.blocker);
-    if (evt.target === blockEl && this.props.closeOnClickOutside) {
+    if (evt.target === this.blocker && this.props.closeOnClickOutside) {
       this.props.closeModal();
     }
   };
@@ -59,7 +55,7 @@ export default class ModalWindow extends Component {
       ?
       (
         <div
-          ref={(el) => { this.window = el; }}
+          ref={(el) => { this.modal = el; }}
           className="modal-window no-vertical-scroll"
         >
           {this.props.payload}
