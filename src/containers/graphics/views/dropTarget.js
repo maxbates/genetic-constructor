@@ -33,6 +33,7 @@ export class DropTarget extends Component {
     projectAddConstruct: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string.isRequired,
+    index: PropTypes.number.isRequired,
   };
 
   state = {
@@ -65,7 +66,7 @@ export class DropTarget extends Component {
   }
 
 
-  /**
+    /**
    * create a new construct, add dropped block to it
    */
   onDrop = (globalPosition, payload) => {
@@ -94,7 +95,10 @@ export class DropTarget extends Component {
   render() {
     const classes = `inter-construct-drop-target ${this.state.hovered ? 'inter-construct-drop-target-hovered' : ''}`;
     return (
-      <div className={classes} />
+      <div
+        className={classes}
+        data-index={this.props.index}
+      />
     );
   }
 }

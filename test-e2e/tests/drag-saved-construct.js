@@ -15,9 +15,9 @@ module.exports = {
 
     browser
     // create a new construct with a single block
-    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.cvc-drop-target', 50, 40);
+    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.inter-construct-drop-target', 50, 4);
     // and again
-    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(2) .RoleSvg', 10, 10, '.cvc-drop-target', 50, 40);
+    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(2) .RoleSvg', 10, 10, '.inter-construct-drop-target', 50, 4);
 
     browser
       // give project time to save and for the construct views to update
@@ -43,7 +43,7 @@ module.exports = {
 
     // drag the first construct into the canvas
 
-    dragFromTo(browser, '.inventory-project-tree [data-testid^="block"] .label-base', 10, 10, '.cvc-drop-target', 50, 40);
+    dragFromTo(browser, '.inventory-project-tree [data-testid^="block"] .label-base', 10, 10, '.inter-construct-drop-target', 50, 4);
 
     // should have a new construct with a corresponding increase in numbers of blocks/role glyphs
     browser

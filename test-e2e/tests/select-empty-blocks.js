@@ -10,7 +10,7 @@ module.exports = {
     size(browser);
     homepageRegister(browser);
     testProject(browser);
-    openNthBlockContextMenu(browser, '.construct-viewer:nth-of-type(1) .sceneGraph', 5);
+    openNthBlockContextMenu(browser, '.construct-viewer[data-index="0"] .sceneGraph', 5);
     clickNthContextMenuItem(browser, 4);
     browser
       .pause(1000)

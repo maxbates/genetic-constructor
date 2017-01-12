@@ -73,6 +73,7 @@ export class ConstructViewer extends Component {
     projectAddConstruct: PropTypes.func,
     blocks: PropTypes.object,
     focus: PropTypes.object,
+    testIndex: PropTypes.number.isRequired,
   };
 
   /**
@@ -118,9 +119,6 @@ export class ConstructViewer extends Component {
     // and can move the page beyind the scroll limits set.
     if (!this.props.focus.constructId) {
       this.props.focusConstruct(this.props.constructId);
-      //ReactDOM.findDOMNode(this).scrollIntoView();
-    } else {
-      //ReactDOM.findDOMNode(this).scrollIntoView();
     }
   }
 
@@ -169,6 +167,7 @@ export class ConstructViewer extends Component {
     delete idToViewer[this.props.constructId];
     this.resizeDebounced.cancel();
     window.removeEventListener('resize', this.resizeDebounced);
+    this.sg.destroy();
   }
 
   /**
@@ -653,7 +652,11 @@ export class ConstructViewer extends Component {
    */
   render() {
     const rendered = (
-      <div className="construct-viewer" key={this.props.construct.id}>
+      <div
+        className="construct-viewer"
+        key={this.props.construct.id}
+        data-index={this.props.testIndex}
+      >
         <div className="sceneGraphContainer">
           <div className="sceneGraph" />
         </div>

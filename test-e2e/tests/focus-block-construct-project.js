@@ -31,7 +31,7 @@ module.exports = {
       // expect one focused construct viewer
       .assert.countelements(".construct-viewer", 1);
       // drag one block to first construct
-      dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
+      dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
     browser
       .pause(250)
       // we should have a single focused block, so changing its text should change the displayed block

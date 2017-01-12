@@ -31,7 +31,7 @@ module.exports = {
       .assert.countelements('.construct-viewer', 1);
 
     // add block to construct
-    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 600, 60);
+    dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
 
     browser
       // expect one construct view and one block

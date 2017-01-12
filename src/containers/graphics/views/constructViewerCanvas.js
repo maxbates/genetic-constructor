@@ -21,6 +21,7 @@ import { connect } from 'react-redux';
 import { focusBlocks } from '../../../actions/focus';
 import { projectAddConstruct } from '../../../actions/projects';
 import { projectGet, projectGetVersion } from '../../../selectors/projects';
+import ConstructViewer from './constructviewer';
 import '../../../styles/constructviewercanvas.css';
 import DnD from '../dnd/dnd';
 import MouseTrap from '../mousetrap';
@@ -30,8 +31,8 @@ export class ConstructViewerCanvas extends Component {
   static propTypes = {
     focusBlocks: PropTypes.func.isRequired,
     projectGet: PropTypes.func.isRequired,
-    children: PropTypes.array.isRequired,
     currentProjectId: PropTypes.string.isRequired,
+    constructs: PropTypes.array.isRequired,
   };
 
   /**
@@ -56,7 +57,7 @@ export class ConstructViewerCanvas extends Component {
    * scroll to top when a new construct viewer is added
    */
   componentWillReceiveProps(nextProps) {
-    if (nextProps.children.length > this.props.children.length) {
+    if (nextProps.constructs.length > this.props.constructs.length) {
       ReactDOM.findDOMNode(this).scrollTop = 0;
     }
   }
@@ -160,27 +161,31 @@ export class ConstructViewerCanvas extends Component {
     // map construct viewers so we can pass down mouseScroll and endMouseScroll as properties
     // and inject drop targets before each construct and at the end IF there is more than one construct
 
-    const constructViewers = [];
-    for (let i = 0; i < this.props.children.length; i += 1) {
+    const elements = [];
+    this.props.constructs.forEach((construct, index) => {
       if (!this.isSampleProject()) {
-        constructViewers.push(<DropTarget
+        elements.push(<DropTarget
           currentProjectId={this.props.currentProjectId}
-          key={i}
-          index={i}
+          index={index}
+          key={index}
         />);
       }
-      constructViewers.push(React.cloneElement(this.props.children[i], {
-        mouseScroll: this.mouseScroll,
-        endMouseScroll: this.endMouseScroll,
-        currentProjectId: this.props.currentProjectId,
-      }));
-    }
-    // put a drop target at the end
-    if (!this.isSampleProject()) {
-      constructViewers.push(<DropTarget
+      elements.push(<ConstructViewer
+        mouseScroll={this.mouseScroll}
+        endMouseScroll={this.endMouseScroll}
         currentProjectId={this.props.currentProjectId}
-        key={this.props.children.length}
-        index={this.props.children.length}
+        key={construct.id}
+        projectId={this.props.currentProjectId}
+        constructId={construct.id}
+        testIndex={index}
+      />);
+    });
+    // put a drop target at the end, force a unique key so it won't clash with the other drop targets
+    if (!this.isSampleProject()) {
+      elements.push(<DropTarget
+        currentProjectId={this.props.currentProjectId}
+        index={this.props.constructs.length}
+        key={this.props.constructs.length}
       />);
     }
 
@@ -191,7 +196,7 @@ export class ConstructViewerCanvas extends Component {
         onMouseDown={this.onMouseDown}
         onMouseUp={this.onMouseUp}
       >
-        {constructViewers}
+        {elements}
       </div>
     );
   }

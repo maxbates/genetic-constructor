@@ -56,6 +56,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
     this.osType = ConstructViewerUserInterface.checkOS();
   }
 
+  destroy() {
+    super.destroy();
+    DnD.unregisterTarget(this.el);
+  }
+
   /**
    * select all blocks within the given rectangle
    */
