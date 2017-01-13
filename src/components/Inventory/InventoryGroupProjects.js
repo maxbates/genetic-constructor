@@ -14,7 +14,6 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
@@ -66,7 +65,7 @@ export default class InventoryGroupProjects extends Component {
         />);
 
     return (
-      <div className="InventoryGroup-content InventoryGroupProjects">
+      <div className="InventoryGroup-content InventoryGroupProjects" >
         <InventoryTabs
           tabs={this.inventoryTabs}
           activeTabKey={groupBy}

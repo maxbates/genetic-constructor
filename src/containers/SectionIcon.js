@@ -71,7 +71,7 @@ export default class SectionIcon extends Component {
           this.setState({ dragInside: false });
           this.endSwitchTimer();
         },
-        zorder: 0,
+        zorder: 10,
       });
     }
   }
@@ -85,23 +85,6 @@ export default class SectionIcon extends Component {
       this.endSwitchTimer();
     }
   }
-
-  /**
-   * called when a drag over occurs, defer the switch to the panel just a fraction of second.
-   */
-  startSwitchTimer() {
-    this.endSwitchTimer();
-    this.timer = window.setTimeout(() => {
-      if (!this.props.open || !this.props.selected) {
-        this.onClick();
-      }
-    }, 400);
-  }
-
-  endSwitchTimer() {
-    window.clearTimeout(this.timer);
-  }
-
 
   /**
    * a click either selects the section if unselected or toggle the parent
@@ -132,6 +115,23 @@ export default class SectionIcon extends Component {
   onLeave = () => {
     this.setState({ hover: false });
   };
+
+  /**
+   * called when a drag over occurs, defer the switch to the panel just a fraction of second.
+   */
+  startSwitchTimer() {
+    this.endSwitchTimer();
+    this.timer = window.setTimeout(() => {
+      if (!this.props.open || !this.props.selected) {
+        this.onClick();
+      }
+    }, 400);
+  }
+
+  endSwitchTimer() {
+    window.clearTimeout(this.timer);
+  }
+
 
   render() {
     const highlight = this.props.selected || this.state.hover;

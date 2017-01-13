@@ -33,6 +33,7 @@ class InventoryProjectHeader extends Component {
     focusConstruct: PropTypes.func.isRequired,
     uiShowGenBankImport: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string.isRequired,
+    dragInside: PropTypes.bool,
   };
 
   onAddNewProject = () => {
@@ -68,8 +69,24 @@ class InventoryProjectHeader extends Component {
   render() {
     return (
       <div className="InventoryProjectHeader">
-        <img data-testid="NewProjectButton" src="/images/ui/add.svg" title="Add New Project" onClick={this.onAddNewProject} />
-        <img data-testid="UploadButton" src="/images/ui/upload.svg" title="Upload Genbank or CSV File" onClick={this.onUpload} />
+        <div className={`imgWrapper ${this.props.dragInside ? 'highlight' : ''}`}>
+          <img
+            className={this.props.dragInside ? 'highlight' : ''}
+            data-testid="NewProjectButton"
+            src="/images/ui/add.svg"
+            title="Add New Project"
+            onClick={this.onAddNewProject}
+          />
+        </div>
+        <div className="imgWrapper">
+          <img
+            highlight={false} //eslint-disable-line react/jsx-boolean-value
+            data-testid="UploadButton"
+            src="/images/ui/upload.svg"
+            title="Upload Genbank or CSV File"
+            onClick={this.onUpload}
+          />
+        </div>
       </div>
     );
   }
