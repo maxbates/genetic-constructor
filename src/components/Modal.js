@@ -35,10 +35,14 @@ export default class Modal extends Component {
     actions: PropTypes.arrayOf(PropTypes.shape({
       text: PropTypes.string.isRequired,
       onClick: PropTypes.func.isRequired,
-      disabled: PropTypes.oneOf([PropTypes.bool, PropTypes.func]),
+      disabled: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
     })),
     onAfterOpen: PropTypes.func,
-    parentSelector: PropTypes.func,
+    parentSelector: PropTypes.func, //return element to mount modal portal in
+    style: PropTypes.shape({
+      overlay: PropTypes.object,
+      content: PropTypes.object,
+    }),
   };
 
   componentDidMount() {
@@ -74,7 +78,7 @@ export default class Modal extends Component {
         <div className="Modal-header">
           <div className="Modal-header-space" />
           <div className="Modal-header-title">{title}</div>
-          <div className="Modal-header-close" onClick={this.handleClose} />
+          <div className="Modal-header-close" onClick={this.props.onClose} />
         </div>
 
         <div className="Modal-inner">

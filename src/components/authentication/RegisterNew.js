@@ -22,8 +22,13 @@ import { projectOpen } from '../../actions/projects';
 import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userRegister } from '../../actions/user';
 import track from '../../analytics/ga';
-import Modal from '../Modal';
 import { privacy, tos } from '../../utils/ui/uiapi';
+
+import Modal from '../Modal';
+import FormGroup from '../formElements/FormGroup';
+import Checkbox from '../formElements/Checkbox';
+import Captcha from '../formElements/Captcha';
+import FormRadio from '../formElements/FormRadio';
 
 //This component replaces the previous REgistration form. will deprecate once complete
 
@@ -56,27 +61,101 @@ export class RegisterFormNew extends Component {
     return config;
   }
 
-  constructor() {
-    super();
-    this.actions = [{
-      text: 'Sign Up',
-      disabled: () => true,
-      onClick: () => console.log('clicked!'),
-    }];
+  static validateForm(formState) {
+    return (
+      formState.firstName &&
+      formState.lastName &&
+      formState.email && //todo - validate
+      formState.password && //todo - validate
+      formState.accountType &&
+      formState.verification &&
+      formState.legal
+    );
   }
 
+  static registerUser(formState) {
+    console.log(formState);
+    //todo
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.actions = [{
+      text: 'Sign Up',
+      disabled: () => !RegisterFormNew.validateForm(this.state),
+      onClick: () => RegisterFormNew.registerUser(this.state),
+    }];
+
+    this.state = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      accountType: props.registerType,
+      verification: false,
+      legal: false,
+    };
+  }
+
+  onAccountTypeChange = accountType => this.setState({ accountType });
+
+  onCaptcha = isVerified => this.setState({ verification: isVerified });
+
+  onLegalCheck = evt => this.setState({ legal: evt.target.value });
+
   render() {
-    const formValid = true; //todo
+    //todo - show validation
 
     return (
       <Modal
         isOpen={this.props.isOpen}
         onClose={() => this.props.uiShowAuthenticationForm('none')}
         actions={this.actions}
-        title="Register"
+        title="Sign Up"
+        style={{ content: { width: '740px' } }}
       >
-        <p>Some Content</p>
-        {this.props.registerType}
+        <div className="Modal-banner">
+          <span>Already have a Genetic Constructor account? </span>
+          <a onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
+        </div>
+
+        <FormGroup label="Account Type">
+          <FormRadio
+            checked={this.state.accountType === 'free'}
+            name="accountType"
+            value="free"
+            onChange={() => this.onAccountTypeChange('free')}
+            label="Academic - Unlimited, free access"
+          />
+          <FormRadio
+            checked={this.state.accountType === 'paid'}
+            name="accountType"
+            value="paid"
+            onChange={() => this.onAccountTypeChange('paid')}
+            label="Individual - Unlimited free trial during BETA"
+          />
+          <FormRadio
+            checked={false}
+            name="accountType"
+            value="enterprise"
+            onChange={() => {}}
+            label="Enterprise - My company has an account"
+            disabled
+          />
+        </FormGroup>
+
+        <FormGroup label="Verification" error="There is an error!">
+          <Captcha onVerify={this.onCaptcha} />
+        </FormGroup>
+
+        <FormGroup label="Legal">
+          <Checkbox
+            checked={this.state.legal}
+            onChange={this.onLegalCheck}
+          />
+        </FormGroup>
+
       </Modal>
     );
   }

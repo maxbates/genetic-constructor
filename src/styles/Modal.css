@@ -21,7 +21,7 @@
     right: 0;
     bottom: 0;
     overflow: hidden;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   &-content {
@@ -32,8 +32,7 @@
     min-height: 200px;
     max-height: 90vh;
     margin: 0 auto;
-    border: 1px solid #ccc;
-    border-top: 0;
+    border: transparent;
     outline: none;
     background-color: var(--colors-white);
     border-radius: 0 0 var(--modal-rounding) var(--modal-rounding);
@@ -72,6 +71,21 @@
   &-inner {
     flex: 1 0 auto;
     padding: var(--modal-heading-padding);
+  }
+
+  &-banner {
+    margin-bottom: 1em;
+    text-align: center;
+    font-family: ArtifaktElementBold;
+    font-size: 12px;
+    font-style: italic;
+    font-stretch: normal;
+    color: var(--colors-mediumDarkGrey);
+
+    a {
+      cursor: pointer;
+      color: var(--colors-selected);
+    }
   }
 
   &-footer {

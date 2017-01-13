@@ -1,0 +1,45 @@
+@import './variables.css';
+
+.FormGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 1rem 0;
+
+  &-element {
+    flex: 1 0 auto;
+    padding: 0 1rem 0 1.5rem;
+  }
+
+  &-label,
+  &-error {
+    flex: 0 0 auto;
+    align-self: flex-start;
+    padding-top: 0.5rem;
+    width: 180px;
+  }
+
+  &-label {
+    text-align: right;
+  }
+
+  &-error {
+    align-self: flex-start;
+    flex: 0 0 auto;
+    width: 180px;
+  }
+
+  &.hasError &-label,
+  &.hasError &-error {
+    color: var(--colors-red);
+  }
+}
+
+.formElement {
+  margin: 0.5em 0;
+
+  .label {
+
+  }
+}

@@ -13,38 +13,38 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-//todo
+
+//this component is just the bulls-eye of the radio. Check FormRadio for the label etc.
 
 import React, { Component, PropTypes } from 'react';
 
 import '../../styles/Radio.css';
 
-export default class Radio extends Component {
-  static propTypes = {
-    active: PropTypes.bool,
-    onClick: PropTypes.func,
-    disabled: PropTypes.bool,
-  };
+export default function Radio(props) {
+  const { checked, disabled, onClick, ...rest } = props;
 
-  onClick = (evt) => {
-    evt.preventDefault();
-    const { disabled, onClick } = this.props;
-    if (disabled || !onClick) {
-      return;
+  const classes = `Radio${checked ? ' checked' : ''}${disabled ? ' disabled' : ''}`;
+  const handleClick = (evt) => {
+    if (!disabled) {
+      onClick(evt);
     }
-    onClick(evt);
   };
 
-  render() {
-    const { active, disabled, ...rest } = this.props;
-    return (
-      <div
-        {...rest}
-        className={`Checkbox${
-          active ? ' active' : ''
-          }${disabled ? ' disabled' : ''}`}
-        onClick={evt => this.onClick(evt)}
-      />
-    );
-  }
+  return (
+    <div
+      {...rest}
+      className={classes}
+      onClick={handleClick}
+    >
+      <div className="Radio-inner" />
+    </div>
+  );
 }
+
+Radio.propTypes = {
+  checked: PropTypes.bool.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};

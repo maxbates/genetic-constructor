@@ -13,4 +13,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
- //todo
+//todo
+
+import React, { PropTypes } from 'react';
+
+export default function Captcha(props) {
+  const styles = {
+    width: '350px',
+    height: '73px',
+    backgroundColor: '#fafafa',
+  };
+
+  return (
+    <div style={styles}></div>
+  );
+}
+
+Captcha.propTypes = {
+  onVerify: PropTypes.func.isRequired,
+};
