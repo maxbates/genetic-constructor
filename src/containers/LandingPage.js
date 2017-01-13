@@ -17,76 +17,52 @@ import React, { Component } from 'react';
 
 import { dispatch } from '../store/index';
 import { uiShowAuthenticationForm } from '../actions/ui';
-import Modal from '../components/Modal';
 
 import '../styles/LandingPage.css';
 
 export default class LandingPage extends Component {
-  constructor() {
-    super();
+  static onMessageHandler(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
 
-    this.listener = (evt) => {
-      evt.preventDefault();
-      evt.stopPropagation();
+    const { data, origin } = evt;
 
-      const { data, origin } = evt;
-
-      //for security, verify the message origin
-      if (origin !== window.location.origin) {
-        console.log('diferent origins, skipping');
-        console.log(evt);
-        return;
-      }
-
-      //tracking with heap
+    //for security, verify the message origin
+    //if these don't match... we have a problem
+    if (origin !== window.location.origin) {
       if (heap && heap.track) {
-        heap.track('Register_Interest', { type: data });
+        heap.track('REGISTER_ERROR', {
+          origin,
+          host: window.location.origin,
+        });
       }
+      return;
+    }
 
-      this.showRegisterForm(data);
-    };
+    //tracking with heap
+    if (heap && heap.track) {
+      heap.track('Register_Interest', { type: data });
+    }
+
+    dispatch(uiShowAuthenticationForm('register', { type: data }));
   }
 
-  state = { open: true };
-
   componentDidMount() {
-    window.addEventListener('message', this.listener, false);
+    window.addEventListener('message', LandingPage.onMessageHandler, false);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('message', this.listener);
+    window.removeEventListener('message', LandingPage.onMessageHandler);
   }
 
-  showRegisterForm = (type = 'free') => {
-    dispatch(uiShowAuthenticationForm('register', { type }));
-  };
-
   render() {
-    //todo - remove new register dialog from this component
-
-    const actions = [{
-      text: 'Sign Up',
-      disabled: () => false,
-      onClick: () => console.log('clicked!'),
-    }];
-
     return (
-      <div>
-        <Modal
-          isOpen={this.state.open}
-          onClose={() => this.setState({ open: false })}
-          actions={actions}
-          title="Register"
-        >
-          <p>Some Content</p>
-        </Modal>
-        <iframe
-          ref={(el) => { this.iframe = el; }}
-          sandbox="allow-same-origin allow-scripts"
-          className="LandingPage"
-          src="/landing_page_content/index.html"
-        />
-      </div>
+      <iframe
+        ref={(el) => { this.iframe = el; }}
+        sandbox="allow-same-origin allow-scripts"
+        className="LandingPage"
+        src="/landing_page_content/index.html"
+      />
     );
   }
 }

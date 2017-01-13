@@ -34,7 +34,7 @@ export default class Modal extends Component {
     actions: PropTypes.arrayOf(PropTypes.shape({
       text: PropTypes.string.isRequired,
       onClick: PropTypes.func.isRequired,
-      disabled: PropTypes.func,
+      disabled: PropTypes.oneOf([PropTypes.bool, PropTypes.func]),
     })),
     onAfterOpen: PropTypes.func,
     parentSelector: PropTypes.func,
@@ -43,11 +43,17 @@ export default class Modal extends Component {
   componentDidMount() {
     setTimeout(() => {
       if (this.modal) {
-        console.log(this.modal);
-        //todo - this is not actually an element. need to get the element
+        //adds class to the portal
         this.modal.node.classList.add('Modal--open');
       }
     }, 10);
+  }
+
+  componentWillUnmount() {
+    if (this.props.isOpen === true) {
+      //do we want to close it ourselves to avoid bad state?
+      console.error('unmouting open modal! need to handle better');
+    }
   }
 
   handleClose = evt => this.props.onClose(evt);
@@ -81,13 +87,19 @@ export default class Modal extends Component {
             <div className="Modal-actions">
               {actions.map((action, index) => {
                 const { disabled, text, onClick } = action;
-                const active = typeof disabled === 'function' ? disabled : disabled === true;
+                const active = typeof disabled === 'function' ?
+                  disabled() !== true :
+                  disabled !== true;
                 const classes = `Modal-action${active ? '' : ' disabled'}`;
                 return (
                   <a
                     key={index}
                     className={classes}
-                    onClick={onClick}
+                    onClick={(evt) => {
+                      if (active) {
+                        onClick(evt);
+                      }
+                    }}
                   >
                     {text}
                   </a>

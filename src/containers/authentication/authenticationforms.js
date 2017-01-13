@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
@@ -21,17 +21,23 @@ import '../../../src/styles/form.css';
 import { uiShowAuthenticationForm } from '../../actions/ui';
 import AccountForm from '../../components/authentication/account';
 import ForgotForm from '../../components/authentication/forgot';
-import RegisterForm from '../../components/authentication/register';
+import RegisterFormNew from '../../components/authentication/RegisterNew';
 import ResetForm from '../../components/authentication/reset';
 import SignInForm from '../../components/authentication/signin';
 import ModalWindow from '../../components/modal/modalwindow';
 
 function AuthenticationForms(props) {
   let form;
+
+  //new ones
   switch (props.authenticationForm) {
     case 'register' :
-      form = <RegisterForm />;
-      break;
+      return <RegisterFormNew />;
+    default:
+  }
+
+  //handle the old modals
+  switch (props.authenticationForm) {
     case 'signin' :
       form = <SignInForm />;
       break;
@@ -51,17 +57,17 @@ function AuthenticationForms(props) {
 
   return !form
     ?
-      <noscript />
+    null
     :
-      <ModalWindow
-        open
-        title="Auth Modal"
-        payload={form}
-        closeOnClickOutside
-        closeModal={(buttonText) => {
-          props.uiShowAuthenticationForm('none');
-        }}
-      />;
+    <ModalWindow
+      open
+      title="Auth Modal"
+      payload={form}
+      closeOnClickOutside
+      closeModal={(buttonText) => {
+        props.uiShowAuthenticationForm('none');
+      }}
+    />;
 }
 
 AuthenticationForms.propTypes = {

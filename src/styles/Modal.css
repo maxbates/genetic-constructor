@@ -37,6 +37,8 @@
     outline: none;
     background-color: var(--colors-white);
     border-radius: 0 0 var(--modal-rounding) var(--modal-rounding);
+    transform: translate(0, -100%);
+    transition: transform var(--timing-fast) ease-out;
   }
 
   &-header {
@@ -100,10 +102,18 @@
     }
   }
 
-  &-portal.&--open {
+  &-portal&--open {
+    background-color: transparent;
 
-    .Modal {
-      transform: translate(-50%, 0px);
+    .Modal-content {
+      transform: translate(0, 0);
+    }
+
+    & > *:empty {
+      /* if you are seeing red, you are not using the modal properly. click events will be caught. modal should be off when not shown */
+      position: absolute;
+      top: 0; bottom: 0; left: 0; right: 0;
+      background-color: red;
     }
   }
 }

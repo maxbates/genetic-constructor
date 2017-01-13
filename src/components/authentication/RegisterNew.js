@@ -29,6 +29,7 @@ import { privacy, tos } from '../../utils/ui/uiapi';
 
 export class RegisterFormNew extends Component {
   static propTypes = {
+    isOpen: PropTypes.bool.isRequired,
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
     userRegister: PropTypes.func.isRequired,
@@ -54,14 +55,37 @@ export class RegisterFormNew extends Component {
     return config;
   }
 
-  state = { canSubmit: false };
+  constructor() {
+    super();
+    this.actions = [{
+      text: 'Sign Up',
+      disabled: () => true,
+      onClick: () => console.log('clicked!'),
+    }];
+  }
 
   render() {
+    const formValid = true; //todo
 
+    return (
+      <Modal
+        isOpen={this.props.isOpen}
+        onClose={() => this.props.uiShowAuthenticationForm('none')}
+        actions={this.actions}
+        title="Register"
+      >
+        <p>Some Content</p>
+      </Modal>
+    );
   }
 }
 
-export default connect(null, {
+//todo - verify isOpen always set to false, even if auth form component is rendering this
+//need to ensure the modal is always closed properly
+
+export default connect(state => ({
+  isOpen: state.ui.modals.authenticationForm === 'register',
+}), {
   uiShowAuthenticationForm,
   uiSpin,
   userRegister,
