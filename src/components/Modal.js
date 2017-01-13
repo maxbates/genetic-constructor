@@ -22,11 +22,12 @@ import ReactModal from 'react-modal';
 
 import '../styles/Modal.css';
 
+//based on ReactModal component: https://reactcommunity.org/react-modal/
+//can be mounted inside a component, or at the app root. Uses a portal to render appropriately in whole window.
+
 export default class Modal extends Component {
-  // properties are documented at react-modal component:
-  // https://reactcommunity.org/react-modal/
-  // notably, the parent of this component is responsible for state management of isOpen, + responding to onClose
   static propTypes = {
+    //isOpen is 100% necessary, and must be set to false for modal to deconstruct properly
     isOpen: PropTypes.bool.isRequired,
     children: PropTypes.node.isRequired,
     title: PropTypes.string.isRequired,
@@ -52,11 +53,9 @@ export default class Modal extends Component {
   componentWillUnmount() {
     if (this.props.isOpen === true) {
       //do we want to close it ourselves to avoid bad state?
-      console.error('unmouting open modal! need to handle better');
+      console.error('unmounting open modal! need to handle better');
     }
   }
-
-  handleClose = evt => this.props.onClose(evt);
 
   render() {
     const { children, title, actions, ...rest } = this.props;
@@ -70,7 +69,7 @@ export default class Modal extends Component {
         contentLabel={title}
         {...rest}
         ref={(el) => { this.modal = el; }}
-        onRequestClose={this.handleClose}
+        onRequestClose={this.props.onClose}
       >
         <div className="Modal-header">
           <div className="Modal-header-space" />
