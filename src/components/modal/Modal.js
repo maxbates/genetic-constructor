@@ -31,6 +31,11 @@ export default class Modal extends Component {
     children: PropTypes.node.isRequired,
     title: PropTypes.string.isRequired,
     onClose: PropTypes.func.isRequired,
+    actions: PropTypes.arrayOf(PropTypes.shape({
+      text: PropTypes.string.isRequired,
+      onClick: PropTypes.func.isRequired,
+      disabled: PropTypes.func,
+    })),
     onAfterOpen: PropTypes.func,
     parentSelector: PropTypes.func,
   };
@@ -48,11 +53,11 @@ export default class Modal extends Component {
   handleClose = evt => this.props.onClose(evt);
 
   render() {
-    const { children, title, ...rest } = this.props;
+    const { children, title, actions, ...rest } = this.props;
 
     return (
       <ReactModal
-        className="Modal"
+        className="Modal-content"
         overlayClassName="Modal-overlay"
         portalClassName="Modal-portal"
         shouldCloseOnOverlayClick
@@ -62,12 +67,35 @@ export default class Modal extends Component {
         onRequestClose={this.handleClose}
       >
         <div className="Modal-header">
+          <div className="Modal-header-space" />
           <div className="Modal-header-title">{title}</div>
-          <div className="Modal-header-close">&times;</div>
+          <div className="Modal-header-close" onClick={this.handleClose}></div>
         </div>
-        <div className="Modal-content">
+
+        <div className="Modal-inner">
           {children}
         </div>
+
+        {actions && (
+          <div className="Modal-footer">
+            <div className="Modal-actions">
+              {actions.map((action, index) => {
+                const { disabled, text, onClick } = action;
+                const active = typeof disabled === 'function' ? disabled : disabled === true;
+                const classes = `Modal-action${active ? '' : ' disabled'}`;
+                return (
+                  <a
+                    key={index}
+                    className={classes}
+                    onClick={onClick}
+                  >
+                    {text}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </ReactModal>
     );
   }

@@ -1,48 +1,110 @@
-.Modal {
-  background-color: blue;
+@import './variables.css';
 
+:root {
+  --modal-rounding: 4px;
+  --modal-heading-padding: 1.5rem;
+}
+
+.Modal {
   &-portal {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: red;
   }
 
   &-overlay {
-    width: 600px;
-    min-height: 200px;
-    max-height: 90vh;
     position: absolute;
-    top: -1px;
+    top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     overflow: hidden;
-    margin: 0 auto;
-    border: 1px solid #ccc;
-    outline: none;
-    border-radius: 0 0 10px 10px;
-    background-color: purple;
-  }
-
-  &-header {
-
-    &-title {
-
-    }
-
-    &-close {
-
-    }
+    background-color: rgba(0, 0, 0, 0.2);
   }
 
   &-content {
-
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 600px;
+    min-height: 200px;
+    max-height: 90vh;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    border-top: 0;
+    outline: none;
+    background-color: var(--colors-white);
+    border-radius: 0 0 var(--modal-rounding) var(--modal-rounding);
   }
 
-  &-portal.&--open & {
-    /* transform: translate(-50%, 0px); */
+  &-header {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: var(--modal-heading-padding);
+    font-size: 16px;
+    background-color: var(--colors-grey);
+    color: var(--colors-white);
+
+    &-title {
+      flex: 1 0 auto;
+      text-align: center;
+    }
+
+    &-space,
+    &-close {
+      width: 16px;
+    }
+
+    &-close {
+      cursor: pointer;
+      background-image: url('/images/ui/close_icon.svg');
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+  }
+
+  &-inner {
+    flex: 1 0 auto;
+    padding: var(--modal-heading-padding);
+  }
+
+  &-footer {
+    flex: 0 0 auto;
+    background-color: var(--colors-lightGrey);
+    padding: var(--modal-heading-padding);
+  }
+
+  &-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  &-action {
+    padding: 0.5rem 1em;
+    margin: 0 0.25em;
+    font-size: var(--font-size-action);
+    color: var(--colors-white);
+    cursor: pointer;
+    background-color: var(--colors-selected);
+    border-radius: var(--modal-rounding);
+
+    &.disabled {
+      cursor: default;
+      color: var(--colors-lightGrey);
+      background-color: var(--colors-slightlyLightGrey);
+    }
+  }
+
+  &-portal.&--open {
+
+    .Modal {
+      transform: translate(-50%, 0px);
+    }
   }
 }
 

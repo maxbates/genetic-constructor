@@ -62,11 +62,20 @@ export default class LandingPage extends Component {
   };
 
   render() {
+    //todo - remove new register dialog from this component
+
+    const actions = [{
+      text: 'Sign Up',
+      disabled: () => false,
+      onClick: () => console.log('clicked!'),
+    }];
+
     return (
       <div>
         <Modal
           isOpen={this.state.open}
           onClose={() => this.setState({ open: false })}
+          actions={actions}
           title="Register"
         >
           <p>Some Content</p>
