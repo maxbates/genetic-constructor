@@ -18,6 +18,10 @@ import React, { Component, PropTypes } from 'react';
 import '../../../src/styles/modal-old.css';
 
 /**
+ * OLD OLD OLD - to be deprecated
+ *
+ * This is the old style modal. It probably requires the parent component to be registered high in the application tree (e.g. in App). Prefer Modal.js
+ *
  * modal window with user supplied payload and user defined ( optional )
  * buttons. The property this.props.closeModal is called when the modal is closed.
  * If the modal was closed via a button the button text is supplied.

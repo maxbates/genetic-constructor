@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import track from '../analytics/ga';
-import AboutForm from '../components/aboutform';
+import AboutForm from '../components/modal/aboutform';
 import InlineEditor from '../components/inline-editor/inline-editor';
 import ExtensionPicker from '../components/modal/ExtensionPicker';
 import ReportErrorModal from '../components/modal/ReportErrorModal';

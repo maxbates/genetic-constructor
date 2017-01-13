@@ -15,7 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../styles/ok-cancel-form.css';
+import '../../styles/ok-cancel-form.css';
 import ModalWindow from './modal/modalwindow';
 
 /**

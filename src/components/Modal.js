@@ -20,7 +20,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactModal from 'react-modal';
 
-import '../../styles/Modal.css';
+import '../styles/Modal.css';
 
 export default class Modal extends Component {
   // properties are documented at react-modal component:
@@ -69,7 +69,7 @@ export default class Modal extends Component {
         <div className="Modal-header">
           <div className="Modal-header-space" />
           <div className="Modal-header-title">{title}</div>
-          <div className="Modal-header-close" onClick={this.handleClose}></div>
+          <div className="Modal-header-close" onClick={this.handleClose} />
         </div>
 
         <div className="Modal-inner">

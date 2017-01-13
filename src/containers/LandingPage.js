@@ -17,7 +17,7 @@ import React, { Component } from 'react';
 
 import { dispatch } from '../store/index';
 import { uiShowAuthenticationForm } from '../actions/ui';
-import Modal from '../components/modal/Modal';
+import Modal from '../components/Modal';
 
 import '../styles/LandingPage.css';
 
