@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
@@ -29,8 +29,6 @@ import { projectAddConstruct, projectCreate, projectOpen } from '../../actions/p
 import { focusConstruct } from '../../actions/focus';
 import ConstructViewer from '../../containers/graphics/views/constructviewer';
 import { block as blockDragType } from '../../constants/DragTypes';
-
-
 
 class InventoryGroup extends Component {
   static propTypes = {
@@ -53,45 +51,6 @@ class InventoryGroup extends Component {
   };
 
   /**
-   * returns the current component
-   */
-  inventoryGroupTypeToHeaderComponent = (type, props) => {
-    switch (type) {
-      case 'projects':
-        return (<InventoryProjectHeader {...props} templates={false} dragInside={this.state.dragInside} />);//eslint-disable-line react/jsx-boolean-value
-      case 'templates':
-        return (<InventoryProjectHeader {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
-
-      default:
-        return null;
-    }
-  };
-
-  /**
-   * return component for header area
-   */
-  inventoryGroupTypeToComponent = (type, props) => {
-    switch (type) {
-      case 'role' :
-        return (<InventoryGroupRole {...props} />);
-      case 'search-ncbi' :
-        return (<InventoryGroupSearch source="ncbi" {...props} />);
-      case 'search-igem' :
-        return (<InventoryGroupSearch source="igem" {...props} />);
-      case 'search-egf' :
-        return (<InventoryGroupSearch source="egf" {...props} />);
-      case 'projects':
-        return (<InventoryGroupProjects {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
-      case 'templates':
-        return (<InventoryGroupProjects {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
-      case 'block':
-        return (<InventoryGroupBlocks {...props} />);
-      default:
-        throw new Error(`Type ${type} is not registered in InventoryGroup`);
-    }
-  };
-
-  /**
    * register as a drop target after mounting.
    */
   componentDidMount() {
@@ -105,18 +64,12 @@ class InventoryGroup extends Component {
   }
 
   /**
-   * drag enter, only valid for certain tabs
+   * unsink DND on unmount
    */
-  onDragEnter = () => {
-    this.setState({ dragInside: true });
-  };
-
-  /**
-   * drag enter, only valid for certain tabs
-   */
-  onDragLeave = () => {
-    this.setState({dragInside: false});
-  };
+  componentWillUnmount() {
+    const self = ReactDOM.findDOMNode(this);
+    DnD.unregisterTarget(self);
+  }
 
   /**
    * when blocks are dropped
@@ -147,12 +100,54 @@ class InventoryGroup extends Component {
   };
 
   /**
-   * unsink DND on unmount
+   * drag enter, only valid for certain tabs
    */
-  componentWillUnmount() {
-    const self = ReactDOM.findDOMNode(this);
-    DnD.unregisterTarget(self);
-  }
+  onDragEnter = () => {
+    this.setState({ dragInside: true });
+  };
+
+  onDragLeave = () => {
+    this.setState({ dragInside: false });
+  };
+
+  /**
+   * return component for header area
+   */
+  inventoryGroupTypeToComponent = (type, props) => {
+    switch (type) {
+      case 'role' :
+        return (<InventoryGroupRole {...props} />);
+      case 'search-ncbi' :
+        return (<InventoryGroupSearch source="ncbi" {...props} />);
+      case 'search-igem' :
+        return (<InventoryGroupSearch source="igem" {...props} />);
+      case 'search-egf' :
+        return (<InventoryGroupSearch source="egf" {...props} />);
+      case 'projects':
+        return (<InventoryGroupProjects {...props} templates={false} />);//eslint-disable-line react/jsx-boolean-value
+      case 'templates':
+        return (<InventoryGroupProjects {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
+      case 'block':
+        return (<InventoryGroupBlocks {...props} />);
+      default:
+        throw new Error(`Type ${type} is not registered in InventoryGroup`);
+    }
+  };
+
+  /**
+   * returns the current component
+   */
+  inventoryGroupTypeToHeaderComponent = (type, props) => {
+    switch (type) {
+      case 'projects':
+        return (<InventoryProjectHeader {...props} templates={false} dragInside={this.state.dragInside} />);//eslint-disable-line react/jsx-boolean-value
+      case 'templates':
+        return (<InventoryProjectHeader {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
+
+      default:
+        return null;
+    }
+  };
 
   render() {
     const { ...rest } = this.props;
@@ -170,7 +165,6 @@ class InventoryGroup extends Component {
     );
   }
 }
-
 
 export default connect(null, {
   blockCreate,
