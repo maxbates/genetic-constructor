@@ -13,4 +13,38 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
- 
+//todo
+
+import React, { Component, PropTypes } from 'react';
+
+import '../../styles/Radio.css';
+
+export default class Radio extends Component {
+  static propTypes = {
+    active: PropTypes.bool,
+    onClick: PropTypes.func,
+    disabled: PropTypes.bool,
+  };
+
+  onClick = (evt) => {
+    evt.preventDefault();
+    const { disabled, onClick } = this.props;
+    if (disabled || !onClick) {
+      return;
+    }
+    onClick(evt);
+  };
+
+  render() {
+    const { active, disabled, ...rest } = this.props;
+    return (
+      <div
+        {...rest}
+        className={`Checkbox${
+          active ? ' active' : ''
+          }${disabled ? ' disabled' : ''}`}
+        onClick={evt => this.onClick(evt)}
+      />
+    );
+  }
+}

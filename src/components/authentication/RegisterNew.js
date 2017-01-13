@@ -30,6 +30,7 @@ import { privacy, tos } from '../../utils/ui/uiapi';
 export class RegisterFormNew extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
+    registerType: PropTypes.string,
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
     userRegister: PropTypes.func.isRequired,
@@ -75,6 +76,7 @@ export class RegisterFormNew extends Component {
         title="Register"
       >
         <p>Some Content</p>
+        {this.props.registerType}
       </Modal>
     );
   }
@@ -85,6 +87,7 @@ export class RegisterFormNew extends Component {
 
 export default connect(state => ({
   isOpen: state.ui.modals.authenticationForm === 'register',
+  registerType: state.ui.modals.authFormParams.registerType,
 }), {
   uiShowAuthenticationForm,
   uiSpin,

@@ -44,7 +44,7 @@ export default class LandingPage extends Component {
       heap.track('Register_Interest', { type: data });
     }
 
-    dispatch(uiShowAuthenticationForm('register', { type: data }));
+    dispatch(uiShowAuthenticationForm('register', { registerType: data }));
   }
 
   componentDidMount() {
