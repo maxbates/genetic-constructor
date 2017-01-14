@@ -17,6 +17,7 @@
 import React, { Component, PropTypes } from 'react';
 
 import RadioInner from './Radio';
+import '../../styles/FormRadio.css';
 
 export default class FormRadio extends Component {
   static propTypes = {

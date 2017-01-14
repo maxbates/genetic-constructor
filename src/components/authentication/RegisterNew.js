@@ -29,6 +29,8 @@ import FormGroup from '../formElements/FormGroup';
 import Checkbox from '../formElements/Checkbox';
 import Captcha from '../formElements/Captcha';
 import FormRadio from '../formElements/FormRadio';
+import FormText from '../formElements/FormText';
+import FormPassword from '../formElements/FormPassword';
 
 //This component replaces the previous REgistration form. will deprecate once complete
 
@@ -74,8 +76,8 @@ export class RegisterFormNew extends Component {
   }
 
   static registerUser(formState) {
+    alert('registering!');
     console.log(formState);
-    //todo
   }
 
   constructor(props) {
@@ -98,14 +100,22 @@ export class RegisterFormNew extends Component {
     };
   }
 
+  onFirstName = evt => this.setState({ firstName: evt.target.value });
+
+  onLastName = evt => this.setState({ lastName: evt.target.value });
+
+  onEmail = evt => this.setState({ email: evt.target.value });
+
+  onPassword = evt => this.setState({ password: evt.target.value });
+
   onAccountTypeChange = accountType => this.setState({ accountType });
 
   onCaptcha = isVerified => this.setState({ verification: isVerified });
 
-  onLegalCheck = evt => this.setState({ legal: evt.target.value });
+  onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
   render() {
-    //todo - show validation
+    //todo - do + show validation
 
     return (
       <Modal
@@ -120,29 +130,60 @@ export class RegisterFormNew extends Component {
           <a onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
         </div>
 
+        <FormGroup label="Full Name">
+          <FormText
+            value={this.state.firstName}
+            placeholder="First Name"
+            onChange={this.onFirstName}
+          />
+          <FormText
+            value={this.state.lastName}
+            placeholder="Last Name"
+            onChange={this.onLastName}
+          />
+        </FormGroup>
+
+        <FormGroup label="Email">
+          <FormText
+            value={this.state.email}
+            placeholder="Email Address"
+            onChange={this.onEmail}
+          />
+        </FormGroup>
+
+        <FormGroup label="Password">
+          <FormPassword
+            value={this.state.password}
+            placeholder="Password"
+            onChange={this.onPassword}
+          />
+        </FormGroup>
+
         <FormGroup label="Account Type">
-          <FormRadio
-            checked={this.state.accountType === 'free'}
-            name="accountType"
-            value="free"
-            onChange={() => this.onAccountTypeChange('free')}
-            label="Academic - Unlimited, free access"
-          />
-          <FormRadio
-            checked={this.state.accountType === 'paid'}
-            name="accountType"
-            value="paid"
-            onChange={() => this.onAccountTypeChange('paid')}
-            label="Individual - Unlimited free trial during BETA"
-          />
-          <FormRadio
-            checked={false}
-            name="accountType"
-            value="enterprise"
-            onChange={() => {}}
-            label="Enterprise - My company has an account"
-            disabled
-          />
+          <div data-why="Vertical-override-flex-row">
+            <FormRadio
+              checked={this.state.accountType === 'free'}
+              name="accountType"
+              value="free"
+              onChange={() => this.onAccountTypeChange('free')}
+              label="Academic - Unlimited, free access"
+            />
+            <FormRadio
+              checked={this.state.accountType === 'paid'}
+              name="accountType"
+              value="paid"
+              onChange={() => this.onAccountTypeChange('paid')}
+              label="Individual - Unlimited free trial during BETA"
+            />
+            <FormRadio
+              checked={false}
+              name="accountType"
+              value="enterprise"
+              onChange={() => {}}
+              label="Enterprise - My company has an account"
+              disabled
+            />
+          </div>
         </FormGroup>
 
         <FormGroup label="Verification" error="There is an error!">
