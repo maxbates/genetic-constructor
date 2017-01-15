@@ -160,7 +160,7 @@ export class RegisterFormNew extends Component {
         </FormGroup>
 
         <FormGroup label="Account Type">
-          <div data-why="Vertical-override-flex-row">
+          <div data-why="vertical-override-flex-row">
             <FormRadio
               checked={this.state.accountType === 'free'}
               name="accountType"
@@ -186,15 +186,25 @@ export class RegisterFormNew extends Component {
           </div>
         </FormGroup>
 
-        <FormGroup label="Verification" error="There is an error!">
+        <FormGroup
+          label="Verification"
+          labelTop
+          error="There is an error!"
+        >
           <Captcha onVerify={this.onCaptcha} />
         </FormGroup>
 
-        <FormGroup label="Legal">
-          <Checkbox
-            checked={this.state.legal}
-            onChange={this.onLegalCheck}
-          />
+        <FormGroup
+          label="Legal"
+          labelTop
+        >
+          <div>
+            <Checkbox
+              checked={this.state.legal}
+              onChange={this.onLegalCheck}
+            />
+            <span style={{ marginLeft: '0.5em' }}>Legal smauh</span>
+          </div>
         </FormGroup>
 
       </Modal>

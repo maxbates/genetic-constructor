@@ -13,7 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-//todo
+
+//we have our custom captcha component because the existing ones dont handle invisible captchas (which is what we wanted for the registration modal)
 
 import React, { PropTypes } from 'react';
 

@@ -18,26 +18,23 @@ import React, { Component, PropTypes } from 'react';
 
 import '../../styles/FormGroup.css';
 
-//future - track a dirty state, only error on dirty state
+export default function FormGroup(props) {
+  const { label, labelTop, children, error } = props;
 
-export default class FormGroup extends Component {
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-    label: PropTypes.string,
-    error: PropTypes.string,
-  };
-
-  render() {
-    const { label, children, error } = this.props;
-
-    return (
-      <div className={`FormGroup${error ? ' hasError' : ''}`}>
-        <div className="FormGroup-label">{label}</div>
-        <div className="FormGroup-element">
-          {children}
-        </div>
-        {error && (<div className="FormGroup-error">{error}</div>)}
+  return (
+    <div className={`FormGroup${error ? ' hasError' : ''}`}>
+      <div className={`FormGroup-label${labelTop ? ' FormGroup-label--top' : ''}`}>{label}</div>
+      <div className="FormGroup-element">
+        {children}
       </div>
-    );
-  }
+      {error && (<div className={`FormGroup-error${labelTop ? ' FormGroup-error--top' : ''}`}>{error}</div>)}
+    </div>
+  );
 }
+
+FormGroup.propTypes = {
+  children: PropTypes.node.isRequired,
+  label: PropTypes.string,
+  labelTop: PropTypes.bool,
+  error: PropTypes.string,
+};

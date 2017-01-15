@@ -2,8 +2,8 @@
 
 .Checkbox {
   display: inline-block;
-  width: 18px;
-  height: 18px;
+  width: 1em;
+  height: 1em;
   border: 1px solid var(--colors-slightlyDarkGrey);
   background-color: var(--colors-white);
   cursor: pointer;
