@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import '../../styles/aboutform.css';
-import '../../styles/form.css';
 import { uiShowAbout } from '../../actions/ui';
 import ModalWindow from '../modal/modalwindow';
 

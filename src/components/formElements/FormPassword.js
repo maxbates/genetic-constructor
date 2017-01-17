@@ -58,7 +58,7 @@ export default class FormPassword extends Component {
         />
         {canShow && (
           <div
-            className={`FormPassword-toggle errorStyle ${rest.value ? '' : ' disabled'}`}
+            className={`FormPassword-toggle ${rest.value ? '' : ' disabled'}`}
             onClick={this.onToggle}
           >
             {showPassword ? 'Hide' : 'Show'}

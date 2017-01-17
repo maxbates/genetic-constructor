@@ -17,7 +17,6 @@ import debounce from 'lodash.debounce';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import '../../../src/styles/form.css';
 import '../../../src/styles/ordermodal.css';
 import { orderList, orderSetName, orderSetParameters } from '../../actions/orders';
 import Checkbox from './checkbox';

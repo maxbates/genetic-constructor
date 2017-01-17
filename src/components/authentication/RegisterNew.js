@@ -34,14 +34,25 @@ import FormPassword from '../formElements/FormPassword';
 
 //This component replaces the previous REgistration form. will deprecate prior one once complete
 
-const emailValidator = email => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
+//returns string if error
+const emailValidator = email => {
+  if (!email) {
+    return 'Email is required';
+  } else if (!(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email))) {
+    return 'Please enter a valid email address';
+  }
+};
 
-//todo - what are all the rules
-const passwordValidator = password => (
-  typeof password === 'string' &&
-  password.length >= 6 &&
-  /[a-z0-9]/.test(password)
-);
+//return string if error
+const passwordValidator = password => {
+  if (!password) {
+    return 'Password is required';
+  } else if (password.length <= 6) {
+    return 'Password must be longer than 6 characters';
+  } else if (!(/[0-9]/.test(password) && /[a-zA-Z]/.test(password))) {
+    return 'Numbers and letters required';
+  }
+};
 
 export class RegisterFormNew extends Component {
   static propTypes = {
@@ -106,7 +117,9 @@ export class RegisterFormNew extends Component {
       firstName: '',
       lastName: '',
       email: '',
+      emailDirty: false,
       password: '',
+      passwordDirty: false,
       accountType: props.registerType,
       verification: false,
       legal: false,
@@ -132,9 +145,17 @@ export class RegisterFormNew extends Component {
 
   onLastName = evt => this.setState({ lastName: evt.target.value });
 
-  onEmail = evt => this.setState({ email: evt.target.value });
+  onEmailBlur = evt => this.setState({ emailDirty: true });
+  onEmail = evt => this.setState({
+    emailDirty: false,
+    email: evt.target.value,
+  });
 
-  onPassword = evt => this.setState({ password: evt.target.value });
+  onPasswordBlur = evt => this.setState({ passwordDirty: true });
+  onPassword = evt => this.setState({
+    passwordDirty: false,
+    password: evt.target.value,
+  });
 
   onAccountTypeChange = accountType => this.setState({ accountType });
 
@@ -143,8 +164,12 @@ export class RegisterFormNew extends Component {
   onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
   render() {
-    const passwordError = '';
-    const emailError = '';
+    //special dirty-state handling for password and email
+    const showPasswordError = this.state.passwordDirty && this.state.password && passwordValidator(this.state.password);
+    const showEmailError = this.state.emailDirty && this.state.email && emailValidator(this.state.email);
+
+    const passwordError = showPasswordError ? passwordValidator(this.state.password) : '';
+    const emailError = showEmailError ? emailValidator(this.state.email) : '';
 
     return (
       <Modal
@@ -154,91 +179,114 @@ export class RegisterFormNew extends Component {
         title="Sign Up"
         style={{ content: { width: '740px' } }}
       >
-        <div className="Modal-banner">
-          <span>Already have a Genetic Constructor account? </span>
-          <a onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
+        <div className="Form">
+          <div className="Modal-banner">
+            <span>Already have a Genetic Constructor account? </span>
+            <a onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
+          </div>
+
+          <FormGroup
+            label="Full Name"
+          >
+            <FormText
+              value={this.state.firstName}
+              placeholder="First Name"
+              onChange={this.onFirstName}
+            />
+            <FormText
+              value={this.state.lastName}
+              placeholder="Last Name"
+              onChange={this.onLastName}
+            />
+          </FormGroup>
+
+          <FormGroup
+            label="Email"
+            error={emailError}
+          >
+            <FormText
+              value={this.state.email}
+              placeholder="Email Address"
+              onChange={this.onEmail}
+              onBlur={this.onEmailBlur}
+            />
+          </FormGroup>
+
+          <FormGroup
+            label="Password"
+            error={passwordError}
+          >
+            <FormPassword
+              value={this.state.password}
+              placeholder="Password"
+              onChange={this.onPassword}
+              onBlur={this.onPasswordBlur}
+            />
+          </FormGroup>
+
+          <FormGroup
+            label="Account Type"
+            labelTop
+          >
+            <div data-why="vertical-override-flex-row">
+              <FormRadio
+                checked={this.state.accountType === 'free'}
+                name="accountType"
+                value="free"
+                onChange={() => this.onAccountTypeChange('free')}
+                label="Academic - Unlimited, free access"
+              />
+              <FormRadio
+                checked={this.state.accountType === 'paid'}
+                name="accountType"
+                value="paid"
+                onChange={() => this.onAccountTypeChange('paid')}
+                label="Individual - Unlimited free trial during BETA"
+              />
+              <FormRadio
+                checked={false}
+                name="accountType"
+                value="enterprise"
+                onChange={() => {}}
+                label="Enterprise - My company has an account"
+                disabled
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup
+            label="Verification"
+            labelTop
+          >
+            <Captcha onVerify={this.onCaptcha} />
+          </FormGroup>
+
+          <FormGroup
+            label="Legal"
+          >
+            <div>
+              <Checkbox
+                style={{ fontSize: '18px', marginLeft: '0' }}
+                checked={this.state.legal}
+                onChange={this.onLegalCheck}
+              />
+              <span style={{ marginLeft: '0.5em' }}>
+              I agree to the&nbsp;
+                <a
+                  href={tos}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Terms of Service</a>
+                &nbsp;and&nbsp;
+                <a
+                  href={privacy}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Autodesk Privacy Statement</a>
+              </span>
+            </div>
+          </FormGroup>
         </div>
-
-        <FormGroup
-          label="Full Name"
-        >
-          <FormText
-            value={this.state.firstName}
-            placeholder="First Name"
-            onChange={this.onFirstName}
-          />
-          <FormText
-            value={this.state.lastName}
-            placeholder="Last Name"
-            onChange={this.onLastName}
-          />
-        </FormGroup>
-
-        <FormGroup
-          label="Email"
-          error={emailError}>
-          <FormText
-            value={this.state.email}
-            placeholder="Email Address"
-            onChange={this.onEmail}
-          />
-        </FormGroup>
-
-        <FormGroup label="Password">
-          <FormPassword
-            value={this.state.password}
-            placeholder="Password"
-            onChange={this.onPassword}
-          />
-        </FormGroup>
-
-        <FormGroup label="Account Type">
-          <div data-why="vertical-override-flex-row">
-            <FormRadio
-              checked={this.state.accountType === 'free'}
-              name="accountType"
-              value="free"
-              onChange={() => this.onAccountTypeChange('free')}
-              label="Academic - Unlimited, free access"
-            />
-            <FormRadio
-              checked={this.state.accountType === 'paid'}
-              name="accountType"
-              value="paid"
-              onChange={() => this.onAccountTypeChange('paid')}
-              label="Individual - Unlimited free trial during BETA"
-            />
-            <FormRadio
-              checked={false}
-              name="accountType"
-              value="enterprise"
-              onChange={() => {}}
-              label="Enterprise - My company has an account"
-              disabled
-            />
-          </div>
-        </FormGroup>
-
-        <FormGroup
-          label="Verification"
-          labelTop
-        >
-          <Captcha onVerify={this.onCaptcha} />
-        </FormGroup>
-
-        <FormGroup
-          label="Legal"
-          labelTop
-        >
-          <div>
-            <Checkbox
-              style={{ fontSize: '18px', marginLeft: '0' }}
-              checked={this.state.legal}
-              onChange={this.onLegalCheck}
-            />
-            <span style={{ marginLeft: '0.5em' }}>Legal smauh</span>
-          </div>
-        </FormGroup>
 
       </Modal>
     );

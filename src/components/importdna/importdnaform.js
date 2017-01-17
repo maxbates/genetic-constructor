@@ -16,7 +16,6 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import '../../../src/styles/form.css';
 import '../../../src/styles/importdnaform.css';
 import { blockSetSequence } from '../../actions/blocks';
 import { focusBlocks } from '../../actions/focus';

@@ -39,7 +39,9 @@ export default class FormRadio extends Component {
   };
 
   render() {
+    /* eslint-disable no-unused-vars */
     const { label, onChange, ...rest } = this.props;
+    /* eslint-enable no-unused-vars */
 
     return (
       <div className="formElement FormRadio">
