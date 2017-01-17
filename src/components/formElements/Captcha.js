@@ -86,6 +86,7 @@ export default class Captcha extends Component {
   styles = {
     height: '78px',
     /*
+    //to center the captcha
      display: 'flex',
      flexDirection: 'row',
      justifyContent: 'space-around',

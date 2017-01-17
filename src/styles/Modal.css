@@ -72,6 +72,9 @@
 
   &-inner {
     flex: 1 0 auto;
+  }
+
+  &-paddedContent {
     padding: var(--modal-heading-padding);
   }
 

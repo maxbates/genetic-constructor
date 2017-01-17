@@ -20,6 +20,8 @@
 import React, { Component, PropTypes } from 'react';
 import ReactModal from 'react-modal';
 
+import ModalFooter from './ModalFooter';
+
 import '../styles/Modal.css';
 
 //based on ReactModal component: https://reactcommunity.org/react-modal/
@@ -32,6 +34,7 @@ export default class Modal extends Component {
     children: PropTypes.node.isRequired,
     title: PropTypes.string.isRequired,
     onClose: PropTypes.func.isRequired,
+    //can pass actions, or render yourself using ModalFooter component
     actions: PropTypes.arrayOf(PropTypes.shape({
       text: PropTypes.string.isRequired,
       onClick: PropTypes.func.isRequired,
@@ -76,34 +79,8 @@ export default class Modal extends Component {
 
         <div className="Modal-inner">
           {children}
+          {actions && <ModalFooter actions={actions} />}
         </div>
-
-        {actions && (
-          <div className="Modal-footer">
-            <div className="Modal-actions">
-              {actions.map((action, index) => {
-                const { disabled, text, onClick } = action;
-                const active = typeof disabled === 'function' ?
-                  disabled() !== true :
-                  disabled !== true;
-                const classes = `Modal-action${active ? '' : ' disabled'}`;
-                return (
-                  <a
-                    key={index}
-                    className={classes}
-                    onClick={(evt) => {
-                      if (active) {
-                        onClick(evt);
-                      }
-                    }}
-                  >
-                    {text}
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </ReactModal>
     );
   }

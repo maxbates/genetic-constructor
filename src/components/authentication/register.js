@@ -130,8 +130,8 @@ export class RegisterForm extends Component {
       const email = `charlesdarwin_${Date.now()}@royalsociety.co.uk`;
       this.refs.emailAddress.value = email;
       this.refs.emailConfirm.value = email;
-      this.refs.password.value = '123456';
-      this.refs.passwordConfirm.value = '123456';
+      this.refs.password.value = 'abc123';
+      this.refs.passwordConfirm.value = 'abc123';
       this.refs.tos.checked = true;
     }
     this.setState({

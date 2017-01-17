@@ -20,11 +20,10 @@ import { connect } from 'react-redux';
 import { projectOpen } from '../../actions/projects';
 import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userRegister } from '../../actions/user';
-
-import track from '../../analytics/ga';
 import { privacy, tos } from '../../utils/ui/uiapi';
 
 import Modal from '../Modal';
+import ModalFooter from '../ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import Checkbox from '../formElements/Checkbox';
 import Captcha from '../formElements/Captcha';
@@ -34,25 +33,7 @@ import FormPassword from '../formElements/FormPassword';
 
 //This component replaces the previous REgistration form. will deprecate prior one once complete
 
-//returns string if error
-const emailValidator = email => {
-  if (!email) {
-    return 'Email is required';
-  } else if (!(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email))) {
-    return 'Please enter a valid email address';
-  }
-};
-
-//return string if error
-const passwordValidator = password => {
-  if (!password) {
-    return 'Password is required';
-  } else if (password.length <= 6) {
-    return 'Password must be longer than 6 characters';
-  } else if (!(/[0-9]/.test(password) && /[a-zA-Z]/.test(password))) {
-    return 'Numbers and letters required';
-  }
-};
+//todo - handle server errors
 
 export class RegisterFormNew extends Component {
   static propTypes = {
@@ -65,10 +46,15 @@ export class RegisterFormNew extends Component {
   };
 
   //get the configuration from the URL, to configure how the user is onboarded
-  static getConfig() {
+  static getConfig(formState) {
     const params = queryString.parse(window.location.search);
     const { projects, extensions } = params;
-    const config = {};
+
+    //track the type of account they created
+    //todo - support on server
+    const config = {
+      accountType: formState.accountType,
+    };
 
     if (projects) {
       const projectNames = projects.split(',');
@@ -87,31 +73,16 @@ export class RegisterFormNew extends Component {
     return (
       formState.firstName &&
       formState.lastName &&
-      formState.email &&
-      emailValidator(formState.email) &&
-      formState.password &&
-      passwordValidator(formState.password) &&
+      formState.email && !emailValidator(formState.email) &&
+      formState.password && !passwordValidator(formState.password) &&
       formState.accountType &&
       formState.verification &&
       formState.legal
     );
   }
 
-  static registerUser(formState) {
-    alert('registering!');
-    console.log(formState);
-
-    //todo
-  }
-
   constructor(props) {
     super(props);
-
-    this.actions = [{
-      text: 'Sign Up',
-      disabled: () => !RegisterFormNew.validateForm(this.state),
-      onClick: () => RegisterFormNew.registerUser(this.state),
-    }];
 
     this.state = {
       firstName: '',
@@ -123,7 +94,14 @@ export class RegisterFormNew extends Component {
       accountType: props.registerType,
       verification: false,
       legal: false,
+      submitError: null,
     };
+
+    this.actions = [{
+      text: 'Sign Up',
+      disabled: () => !RegisterFormNew.validateForm(this.state),
+      onClick: () => this.registerUser(this.state),
+    }];
   }
 
   //special handling for 'darwin magic' dummy user
@@ -133,7 +111,7 @@ export class RegisterFormNew extends Component {
         firstName: 'Charles',
         lastName: 'Darwin',
         email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
-        password: '123456',
+        password: 'abc123',
         accountType: 'free',
         verification: true,
         legal: true,
@@ -163,6 +141,37 @@ export class RegisterFormNew extends Component {
 
   onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
+  registerUser(formState) {
+    this.props.uiSpin('Creating your account... Please wait.');
+    this.props.userRegister({
+      email: formState.email,
+      password: formState.password,
+      firstName: formState.firstName,
+      lastName: formState.lastName,
+    }, RegisterFormNew.getConfig(formState))
+    .then((json) => {
+      // close the form / wait message
+      this.props.uiSpin();
+      this.props.uiShowAuthenticationForm('none');
+      this.props.projectOpen(null, true);
+    })
+    .catch((reason) => {
+      this.props.uiSpin();
+      const defaultMessage = 'Unexpected error, please check your connection';
+
+      if (reason.message === 'email must be unique') {
+        this.setState({
+          submitError: 'This email address is already registered.'
+        });
+      } else {
+        this.setState({
+          submitError: reason.message || defaultMessage,
+        });
+      }
+    });
+  }
+
+
   render() {
     //special dirty-state handling for password and email
     const showPasswordError = this.state.passwordDirty && this.state.password && passwordValidator(this.state.password);
@@ -175,11 +184,10 @@ export class RegisterFormNew extends Component {
       <Modal
         isOpen={this.props.isOpen}
         onClose={() => this.props.uiShowAuthenticationForm('none')}
-        actions={this.actions}
         title="Sign Up"
         style={{ content: { width: '740px' } }}
       >
-        <div className="Form">
+        <div className="Form Modal-paddedContent">
           <div className="Modal-banner">
             <span>Already have a Genetic Constructor account? </span>
             <a onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
@@ -286,8 +294,15 @@ export class RegisterFormNew extends Component {
               </span>
             </div>
           </FormGroup>
+
+          {this.state.submitError && (
+            <span className="Form-errorMessage">
+              {this.state.submitError}
+            </span>
+          )}
         </div>
 
+        <ModalFooter actions={this.actions} />
       </Modal>
     );
   }
@@ -302,3 +317,25 @@ export default connect(state => ({
   userRegister,
   projectOpen,
 })(RegisterFormNew);
+
+//error handling functions
+
+//returns string if error
+function emailValidator(email) {
+  if (!email) {
+    return 'Email is required';
+  } else if (!(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email))) {
+    return 'Please enter a valid email address';
+  }
+}
+
+//return string if error
+function passwordValidator(password) {
+  if (!password) {
+    return 'Password is required';
+  } else if (password.length < 6) {
+    return 'Password must be 6 of more characters';
+  } else if (!(/[0-9]/.test(password) && /[a-zA-Z]/.test(password))) {
+    return 'Numbers and letters are required';
+  }
+}
