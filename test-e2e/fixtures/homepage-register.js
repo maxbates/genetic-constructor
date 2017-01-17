@@ -25,7 +25,7 @@ var registerViaHomepage = function(browser) {
     .assert.countelements('.error.visible', 6);
     // create fields with viable values including a random email
   var email = 'User' + new Date().getTime() + 'blah@hotmail.com';
-  var password = '123456';
+  var password = 'abc123';
   var firstName = 'George';
   var lastName = 'Washington';
 

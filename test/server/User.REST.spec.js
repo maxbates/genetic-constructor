@@ -109,7 +109,7 @@ describe('Server', () => {
       const agent = request.agent(server);
       const user = {
         email: `T.${Math.random()}@test.com`,
-        password: '123456',
+        password: 'abc123',
       };
 
       agent.post('/register')
@@ -134,7 +134,7 @@ describe('Server', () => {
       const nextConfig = { extensions: allInactive };
       const user = {
         email: `T.${Math.random()}@test.com`,
-        password: '123456',
+        password: 'abc123',
       };
       const payload = {
         user,
