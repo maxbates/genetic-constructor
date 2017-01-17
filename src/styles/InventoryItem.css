@@ -73,8 +73,8 @@
 
   &.loading,
   &.selected {
-    transition: background-color var(--timing-extrafast) ease-out;
-    background-color: var(--listItem-background);
+    background-color: var(--colors-selected);
+    color: var(--colors-white);
 
     .InventoryItem-text {
       white-space: normal;
