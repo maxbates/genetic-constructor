@@ -29,6 +29,8 @@
     flex-direction: column;
     justify-content: flex-start;
     width: 600px;
+    overflow-y: scroll;
+    overflow-x: hidden;
     min-height: 200px;
     max-height: 90vh;
     margin: 0 auto;

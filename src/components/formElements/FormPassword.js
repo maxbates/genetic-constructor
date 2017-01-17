@@ -23,6 +23,7 @@ export default class FormPassword extends Component {
   //extends FormText, has all the same required props
   static propTypes = {
     canShow: PropTypes.bool,
+    value: PropTypes.string,
   };
 
   static defaultProps = {
@@ -32,7 +33,9 @@ export default class FormPassword extends Component {
   state = { showPassword: false };
 
   onToggle = () => {
-    this.setState({ showPassword: !this.state.showPassword });
+    if (this.props.value) {
+      this.setState({ showPassword: !this.state.showPassword });
+    }
 
     //pure components cannot have refs, so if FormText is pure, then this.textEl will be null, and we won't be able to focus it
     if (this.textEl) {
@@ -55,7 +58,7 @@ export default class FormPassword extends Component {
         />
         {canShow && (
           <div
-            className="FormPassword-toggle errorStyle"
+            className={`FormPassword-toggle errorStyle ${rest.value ? '' : ' disabled'}`}
             onClick={this.onToggle}
           >
             {showPassword ? 'Hide' : 'Show'}

@@ -25,7 +25,7 @@
     flex: 0 0 auto;
     align-self: flex-start;
     padding-top: 0.5rem;
-    width: 180px;
+    width: 165px;
     transition: border-color var(--timing-fast) ease-out, color var(--timing-fast) ease-out;
 
     &--top {
@@ -39,8 +39,6 @@
 
   &-error {
     align-self: flex-start;
-    flex: 0 0 auto;
-    width: 180px;
   }
 
   &.hasError .errorStyle,

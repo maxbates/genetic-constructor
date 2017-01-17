@@ -27,7 +27,7 @@ import '../styles/Modal.css';
 
 export default class Modal extends Component {
   static propTypes = {
-    //isOpen is 100% necessary, and must be set to false for modal to deconstruct properly
+    //isOpen is necessary to render children
     isOpen: PropTypes.bool.isRequired,
     children: PropTypes.node.isRequired,
     title: PropTypes.string.isRequired,
@@ -52,13 +52,6 @@ export default class Modal extends Component {
         this.modal.node.classList.add('Modal--open');
       }
     }, 10);
-  }
-
-  componentWillUnmount() {
-    if (this.props.isOpen === true) {
-      //do we want to close it ourselves to avoid bad state?
-      console.error('unmounting open modal! need to handle better');
-    }
   }
 
   render() {

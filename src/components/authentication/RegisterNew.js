@@ -130,7 +130,9 @@ export class RegisterFormNew extends Component {
           <a onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
         </div>
 
-        <FormGroup label="Full Name">
+        <FormGroup
+          label="Full Name"
+        >
           <FormText
             value={this.state.firstName}
             placeholder="First Name"
@@ -189,7 +191,6 @@ export class RegisterFormNew extends Component {
         <FormGroup
           label="Verification"
           labelTop
-          error="There is an error!"
         >
           <Captcha onVerify={this.onCaptcha} />
         </FormGroup>
@@ -200,6 +201,7 @@ export class RegisterFormNew extends Component {
         >
           <div>
             <Checkbox
+              style={{ fontSize: '18px', marginLeft: '0' }}
               checked={this.state.legal}
               onChange={this.onLegalCheck}
             />
@@ -211,9 +213,6 @@ export class RegisterFormNew extends Component {
     );
   }
 }
-
-//todo - verify isOpen always set to false, even if auth form component is rendering this
-//need to ensure the modal is always closed properly
 
 export default connect(state => ({
   isOpen: state.ui.modals.authenticationForm === 'register',

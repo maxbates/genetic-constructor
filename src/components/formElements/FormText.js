@@ -40,5 +40,4 @@ FormText.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   className: PropTypes.string,
-  // hasError: PropTypes.bool, //may want to allow passing hasError directly rather than only inheriting via css
 };
