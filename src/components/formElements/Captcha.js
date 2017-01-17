@@ -27,6 +27,15 @@ let counter = 0;
 export default class Captcha extends Component {
   static propTypes = {
     onVerify: PropTypes.func.isRequired,
+    theme: PropTypes.oneOf(['dark', 'light']),
+    type: PropTypes.oneOf(['image', 'audio']),
+    size: PropTypes.oneOf(['compact', 'normal']),
+  };
+
+  static defaultProps = {
+    theme: 'light',
+    type: 'image',
+    size: 'normal',
   };
 
   constructor(props) {
@@ -34,11 +43,18 @@ export default class Captcha extends Component {
     this.count = counter++;
   }
 
-  //note - captcha will complain when hot-load and remount
   componentDidMount() {
+    //captcha will complain when hot-load and remount
+    if (this.widgetId) {
+      return;
+    }
+
     try {
       this.widgetId = grecaptcha.render(this.captcha, {
         sitekey: '6LdvyREUAAAAAKr6h7kyBzioJsXPGNKjW9r21WSh',
+        type: this.props.type,
+        theme: this.props.theme,
+        size: this.props.size,
         inherit: true,
         callback: this.onSubmit,
       });
@@ -59,13 +75,21 @@ export default class Captcha extends Component {
     this.props.onVerify(true);
   };
 
+  getResponse() {
+    grecaptcha.getResponse(this.widgetId);
+  }
+
+  reset() {
+    grecaptcha.reset(this.widgetId);
+  }
+
   styles = {
     height: '78px',
     /*
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    */
+     display: 'flex',
+     flexDirection: 'row',
+     justifyContent: 'space-around',
+     */
   };
 
   render() {

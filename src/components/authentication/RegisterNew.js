@@ -13,7 +13,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import invariant from 'invariant';
 import queryString from 'query-string';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
@@ -21,6 +20,7 @@ import { connect } from 'react-redux';
 import { projectOpen } from '../../actions/projects';
 import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userRegister } from '../../actions/user';
+
 import track from '../../analytics/ga';
 import { privacy, tos } from '../../utils/ui/uiapi';
 
@@ -32,7 +32,16 @@ import FormRadio from '../formElements/FormRadio';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';
 
-//This component replaces the previous REgistration form. will deprecate once complete
+//This component replaces the previous REgistration form. will deprecate prior one once complete
+
+const emailValidator = email => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
+
+//todo - what are all the rules
+const passwordValidator = password => (
+  typeof password === 'string' &&
+  password.length >= 6 &&
+  /[a-z0-9]/.test(password)
+);
 
 export class RegisterFormNew extends Component {
   static propTypes = {
@@ -67,8 +76,10 @@ export class RegisterFormNew extends Component {
     return (
       formState.firstName &&
       formState.lastName &&
-      formState.email && //todo - validate
-      formState.password && //todo - validate
+      formState.email &&
+      emailValidator(formState.email) &&
+      formState.password &&
+      passwordValidator(formState.password) &&
       formState.accountType &&
       formState.verification &&
       formState.legal
@@ -78,6 +89,8 @@ export class RegisterFormNew extends Component {
   static registerUser(formState) {
     alert('registering!');
     console.log(formState);
+
+    //todo
   }
 
   constructor(props) {
@@ -100,7 +113,22 @@ export class RegisterFormNew extends Component {
     };
   }
 
-  onFirstName = evt => this.setState({ firstName: evt.target.value });
+  //special handling for 'darwin magic' dummy user
+  onFirstName = evt => {
+    if (evt.target.value === 'darwin magic') {
+      this.setState({
+        firstName: 'Charles',
+        lastName: 'Darwin',
+        email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
+        password: '123456',
+        accountType: 'free',
+        verification: true,
+        legal: true,
+      });
+      return;
+    }
+    this.setState({ firstName: evt.target.value });
+  };
 
   onLastName = evt => this.setState({ lastName: evt.target.value });
 
@@ -115,7 +143,8 @@ export class RegisterFormNew extends Component {
   onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
   render() {
-    //todo - do + show validation
+    const passwordError = '';
+    const emailError = '';
 
     return (
       <Modal
@@ -145,7 +174,9 @@ export class RegisterFormNew extends Component {
           />
         </FormGroup>
 
-        <FormGroup label="Email">
+        <FormGroup
+          label="Email"
+          error={emailError}>
           <FormText
             value={this.state.email}
             placeholder="Email Address"
