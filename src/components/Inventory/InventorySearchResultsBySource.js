@@ -23,7 +23,6 @@ import InventoryList from './InventoryList';
 export default class InventorySearchResultsBySource extends Component {
   static propTypes = {
     searchResults: PropTypes.object.isRequired,
-    sourcesVisible: PropTypes.object.isRequired,
     onItemSelect: PropTypes.func.isRequired,
     onItemDrop: PropTypes.func.isRequired,
     onListGroupAction: PropTypes.func.isRequired,
@@ -35,7 +34,7 @@ export default class InventorySearchResultsBySource extends Component {
   }
 
   render() {
-    const { searchResults, sourcesVisible, onItemSelect, onItemDrop } = this.props;
+    const { searchResults, onItemSelect, onItemDrop } = this.props;
 
     return (
       <div className="InventorySearchResultGroup">

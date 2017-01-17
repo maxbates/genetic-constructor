@@ -21,7 +21,7 @@ import {
   inventorySearch,
   inventorySetSources,
   inventorySearchPaginate,
-  inventoryToggleSourceVisible
+  inventoryToggleSourceVisible,
 } from '../../actions/inventory';
 import InventorySearch from './InventorySearch';
 import InventorySearchResults from './InventorySearchResults';
@@ -34,7 +34,6 @@ export class InventoryGroupSearch extends Component {
     sourcesToggling: PropTypes.bool.isRequired,
     searching: PropTypes.bool.isRequired,
     source: PropTypes.string.isRequired,
-    sourcesVisible: PropTypes.object.isRequired,
     searchResults: PropTypes.object.isRequired,
     inventorySearch: PropTypes.func.isRequired,
     inventorySearchPaginate: PropTypes.func.isRequired,
@@ -72,7 +71,7 @@ export class InventoryGroupSearch extends Component {
   };
 
   render() {
-    const { searchTerm, sourcesToggling, searching, searchResults, sourcesVisible } = this.props;
+    const { searchTerm, sourcesToggling, searching, searchResults } = this.props;
     let loadMore;
     let results;
     if (searchResults) {
@@ -108,7 +107,6 @@ export class InventoryGroupSearch extends Component {
           <InventorySearchResults
             searchTerm={searchTerm}
             sourcesToggling={sourcesToggling}
-            sourcesVisible={sourcesVisible}
             searching={searching}
             searchResults={searchResults}
             blockStash={this.props.blockStash}
