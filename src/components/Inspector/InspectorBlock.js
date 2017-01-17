@@ -269,7 +269,7 @@ export class InspectorBlock extends Component {
           />
           : null
         }
-        <Expando
+        {/*<Expando
           openByDefault
           text="Palette and Color"
           content={<ColorAndPalettePicker
@@ -279,7 +279,7 @@ export class InspectorBlock extends Component {
             onSelectColor={this.selectColor}
             onSelectPalette={this.selectPalette}
           />}
-        />
+        />*/}
         <Expando
           openByDefault
           text="Symbol"

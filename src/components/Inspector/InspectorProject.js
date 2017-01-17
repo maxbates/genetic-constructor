@@ -23,6 +23,8 @@ import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
 import InspectorRow from './InspectorRow';
 import OrderList from './OrderList';
+import Expando from './../ui/Expando';
+import PalettePicker from './../ui/PalettePicker';
 
 export class InspectorProject extends Component {
   static propTypes = {
@@ -43,6 +45,13 @@ export class InspectorProject extends Component {
 
   setProjectName = (name) => {
     this.props.projectRename(this.props.instance.id, name);
+  };
+
+  /**
+   * user selected a new palette
+   */
+  onSelectPalette = (paletteName) => {
+    alert(paletteName);
   };
 
   setProjectDescription = (description) => {
@@ -99,6 +108,17 @@ export class InspectorProject extends Component {
             value={instance.metadata.description}
           />
         </InspectorRow>
+
+        <Expando
+          text="Color Palette"
+          content={
+            <PalettePicker
+              palette="anime"
+              onSelectPalette={this.onSelectPalette}
+              readOnly={readOnly}
+            />
+          }
+        />
 
         <InspectorRow
           heading="Order History"
