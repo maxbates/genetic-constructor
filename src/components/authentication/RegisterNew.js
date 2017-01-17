@@ -95,11 +95,15 @@ export class RegisterFormNew extends Component {
       verification: false,
       legal: false,
       submitError: null,
+      forceDisabled: false,
     };
 
     this.actions = [{
       text: 'Sign Up',
-      disabled: () => !RegisterFormNew.validateForm(this.state),
+      disabled: () => (
+        !this.state.forceDisabled &&
+        !RegisterFormNew.validateForm(this.state)
+      ),
       onClick: () => this.registerUser(this.state),
     }];
   }
@@ -159,9 +163,10 @@ export class RegisterFormNew extends Component {
       this.props.uiSpin();
       const defaultMessage = 'Unexpected error, please check your connection';
 
-      if (reason.message === 'email must be unique') {
+      if (reason.type === 'unique violation') {
         this.setState({
-          submitError: 'This email address is already registered.'
+          forceDisabled: true,
+          submitError: 'This email address is already registered.',
         });
       } else {
         this.setState({
@@ -170,7 +175,6 @@ export class RegisterFormNew extends Component {
       }
     });
   }
-
 
   render() {
     //special dirty-state handling for password and email
@@ -296,9 +300,9 @@ export class RegisterFormNew extends Component {
           </FormGroup>
 
           {this.state.submitError && (
-            <span className="Form-errorMessage">
+            <div className="Form-errorMessage">
               {this.state.submitError}
-            </span>
+            </div>
           )}
         </div>
 

@@ -14,6 +14,12 @@
 /* new form styles - don't delete */
 
 .Form {
+
+  &-errorMessage {
+    color: var(--colors-red);
+    text-align: center;
+  }
+
   a {
     color: var(--colors-selected);
     text-decoration: none;

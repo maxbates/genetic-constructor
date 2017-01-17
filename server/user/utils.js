@@ -20,21 +20,23 @@ import userConfigDefaults from '../onboarding/userConfigDefaults';
 import { userConfigKey } from './userConstants';
 
 //these are the fields we expect on the client user object
-//note that the field UUID is here, whereas on the client it is userid
-//todo - reconcile uuid here and userid on client
+//note that the field uuid is here, whereas on the client it is userid
 const fields = ['password', 'newPassword', 'config', 'uuid', 'firstName', 'lastName', 'email'];
 
 export const mergeConfigToUserData = (user, config = userConfigDefaults) => merge({}, user, {
   data: {
     constructor: true,
+    constructorAccountType: config.accountType,
     [userConfigKey]: config,
   },
 });
 
 //validate config on user.data
-//todo - should validate that the projects and extensions exist, here
+//todo - should validate that the requested projects and extensions exist, here
 export const validateConfig = (config) => {
-  const { projects, extensions } = config;
+  const { projects, extensions, accountType } = config;
+
+  invariant(accountType && ['free', 'paid'].indexOf(accountType) >= 0, 'account type of free or paid is required');
 
   if (projects !== undefined) {
     invariant(typeof projects === 'object' && !Array.isArray(projects), 'config.projects must be an object');
