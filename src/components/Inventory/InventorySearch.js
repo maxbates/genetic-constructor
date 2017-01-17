@@ -23,6 +23,7 @@ export default class InventorySearch extends Component {
     onSearchChange: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
     disabled: PropTypes.bool,
+    isSearching: PropTypes.bool,
   };
 
   handleSearchChange = (event) => {
@@ -41,7 +42,7 @@ export default class InventorySearch extends Component {
           placeholder={this.props.placeholder || 'Keyword, biological function'}
           onChange={this.handleSearchChange}
         />
-        <div className="InventorySearch-progress" />
+        <div className={this.props.isSearching ? 'bar-animated' : 'bar'} />
       </div>
     );
   }

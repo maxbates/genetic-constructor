@@ -15,7 +15,6 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import Spinner from '../../components/ui/Spinner';
 import { registry } from '../../inventory/registry';
 import InventorySearchResultsByKind from './InventorySearchResultsByKind';
 import InventorySearchResultsBySource from './InventorySearchResultsBySource';
@@ -103,7 +102,7 @@ export default class InventorySearchResults extends Component {
     const noSearchResults = Object.keys(searchResults).reduce((acc, key) => acc + searchResults[key].length, 0) === 0;
 
     if (searching && noSearchResults) {
-      return (<Spinner />);
+      return null;
     }
 
     let groupsContent = (<div className="InventoryGroup-placeholderContent">No Results Found</div>);
