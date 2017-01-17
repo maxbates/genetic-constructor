@@ -202,7 +202,7 @@ router.route('/projects')
 
     return projectPersistence.getUserProjects(user.uuid, false)
       .then(rolls => rolls.map(roll => roll.project))
-      .then(manifests => {
+      .then((manifests) => {
         res.set('Last-Project-ID', mostRecentProject(manifests).id);
         return manifests;
       })

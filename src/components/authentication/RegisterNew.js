@@ -33,8 +33,6 @@ import FormPassword from '../formElements/FormPassword';
 
 //This component replaces the previous REgistration form. will deprecate prior one once complete
 
-//todo - handle server errors
-
 export class RegisterFormNew extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
@@ -51,7 +49,6 @@ export class RegisterFormNew extends Component {
     const { projects, extensions } = params;
 
     //track the type of account they created
-    //todo - support on server
     const config = {
       accountType: formState.accountType,
     };
@@ -109,7 +106,7 @@ export class RegisterFormNew extends Component {
   }
 
   //special handling for 'darwin magic' dummy user
-  onFirstName = evt => {
+  onFirstName = (evt) => {
     if (evt.target.value === 'darwin magic') {
       this.setState({
         firstName: 'Charles',
