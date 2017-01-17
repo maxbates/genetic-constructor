@@ -89,7 +89,7 @@
   /* List Items
   ===================== */
   --listItem-background: rgba(255,255,255,0.2);
-  --listItem-backgroundHover: var(--colors-selected);
+  --listItem-backgroundHover: var(--colors-grey);
 
   /* Project Details */
   --projectDetailHeaderHeight: 3rem;
