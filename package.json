@@ -115,6 +115,7 @@
     "style-loader": "^0.13.0",
     "url-regex": "^3.0.0",
     "urlsafe-base64": "^1.0.0",
+    "uuid": "^3.0.1",
     "yamljs": "^0.2.4"
   },
   "devDependencies": {

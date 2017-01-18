@@ -13,17 +13,53 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 
 import { dispatch } from '../store/index';
-import { uiShowAuthenticationForm } from '../actions/ui';
+import { uiSetGrunt, uiShowAuthenticationForm, uiShowUserWidget } from '../actions/ui';
+import { projectOpen } from '../actions/projects';
+import { getLocal, setLocal } from '../utils/localstorage';
 
 import '../styles/LandingPage.css';
 
-export default class LandingPage extends Component {
+export class LandingPage extends Component {
+  static propTypes = {
+    uiShowAuthenticationForm: PropTypes.func.isRequired,
+    uiShowUserWidget: PropTypes.func.isRequired,
+    uiSetGrunt: PropTypes.func.isRequired,
+    projectOpen: PropTypes.func.isRequired,
+    location: PropTypes.shape({
+      query: PropTypes.object,
+    }).isRequired,
+    params: PropTypes.shape({
+      comp: PropTypes.oneOf(['signin', 'register', 'account', 'reset', 'forgot']),
+    }),
+    user: PropTypes.object,
+  };
+
+  // truthy if the cookie warning must be shown
+  static showCookieWarning() {
+    return !getLocal('cookie-warning', false);
+  }
+
+  static isIE() {
+    const ua = window.navigator.userAgent;
+    const msie = ua.indexOf('MSIE ');
+    return msie > 0 || !!navigator.userAgent.match(/Trident.*rv:11\./);
+  }
+
   static onMessageHandler(evt) {
     evt.preventDefault();
     evt.stopPropagation();
+
+    if (LandingPage.isIE()) {
+      if (heap && heap.track) {
+        heap.track('IE_User');
+      }
+      this.props.uiSetGrunt('Sorry we do not currently support Internet Explorer. We recommend the Chrome browser from Google.');
+      return;
+    }
 
     const { data, origin } = evt;
 
@@ -47,7 +83,23 @@ export default class LandingPage extends Component {
     dispatch(uiShowAuthenticationForm('register', { registerType: data }));
   }
 
+  state = {
+    showCookieWarning: LandingPage.showCookieWarning(),
+  };
+
   componentDidMount() {
+    const authForm = this.props.params.comp;
+    if (authForm) {
+      this.props.uiShowAuthenticationForm(authForm);
+    } else if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
+      // if not showing an auth form goto most recent project or demo project
+      // NOTE: the nodirect query string prevents redirection
+
+      // revisit last project
+      this.props.projectOpen(null, true);
+      return;
+    }
+
     window.addEventListener('message', LandingPage.onMessageHandler, false);
   }
 
@@ -55,7 +107,19 @@ export default class LandingPage extends Component {
     window.removeEventListener('message', LandingPage.onMessageHandler);
   }
 
+  /**
+   * used is closing the cookie warnig so update local storage as seen
+   */
+  cookieWarningClosed = () => {
+    setLocal('cookie-warning', 'acknowledged');
+    this.setState({
+      showCookieWarning: false,
+    });
+  };
+
   render() {
+    //todo - need to show the cookie warning? or do it in the iframe
+
     return (
       <iframe
         ref={(el) => { this.iframe = el; }}
@@ -66,3 +130,16 @@ export default class LandingPage extends Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    user: state.user,
+  };
+}
+
+export default connect(mapStateToProps, {
+  uiShowAuthenticationForm,
+  uiShowUserWidget,
+  uiSetGrunt,
+  projectOpen,
+})(LandingPage);

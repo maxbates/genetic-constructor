@@ -4,7 +4,7 @@
   display: inline-block;
   width: 1em;
   height: 1em;
-  border: 1px solid var(--colors-slightlyDarkGrey);
+  border: 2px solid var(--colors-selected);
   background-color: var(--colors-white);
   cursor: pointer;
   user-select: none;

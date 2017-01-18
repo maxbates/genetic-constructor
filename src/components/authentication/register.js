@@ -24,6 +24,8 @@ import { userRegister } from '../../actions/user';
 import track from '../../analytics/ga';
 import { privacy, tos } from '../../utils/ui/uiapi';
 
+// THIS FILE IS DEPRECATED. PREFER REGISTERMODAL
+
 /*
  * default visibility and text for error labels
  * @type {Object}
@@ -130,8 +132,8 @@ export class RegisterForm extends Component {
       const email = `charlesdarwin_${Date.now()}@royalsociety.co.uk`;
       this.refs.emailAddress.value = email;
       this.refs.emailConfirm.value = email;
-      this.refs.password.value = 'abc123';
-      this.refs.passwordConfirm.value = 'abc123';
+      this.refs.password.value = 'abc123456';
+      this.refs.passwordConfirm.value = 'abc123456';
       this.refs.tos.checked = true;
     }
     this.setState({

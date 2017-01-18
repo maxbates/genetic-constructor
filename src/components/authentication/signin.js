@@ -22,6 +22,8 @@ import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userLogin } from '../../actions/user';
 import track from '../../analytics/ga';
 
+// THIS FILE IS DEPRECATED. PREFER SIGNINMODAL
+
 /*
  * default visibility and text for error labels
  * @type {Object}

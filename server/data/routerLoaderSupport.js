@@ -36,17 +36,17 @@ router.route('/savecomponent/:projectId?')
 
     projectPersistence.projectGet(projectId)
       .then((rollup) => {
-        if (! rollup) {
+        if (!rollup) {
           return res.status(404).send(errorDoesNotExist);
         }
 
         const constructId = rollup.project.components[0];
         const construct = rollup.blocks[constructId];
-        const newBlockID = 'block-' + uuid.v4();
+        const newBlockID = `block-${uuid.v4()}`;
         const newBlock = new Block(Object.assign({}, construct, {
           id: newBlockID,
         }), false);
-        newBlock.metadata.name = 'loaderCreated-' + Date.now();
+        newBlock.metadata.name = `loaderCreated-${Date.now()}`;
         const blocksToMerge = {};
         blocksToMerge[newBlock.id] = newBlock;
         return projectPersistence.blocksMerge(projectId, user.uuid, blocksToMerge)

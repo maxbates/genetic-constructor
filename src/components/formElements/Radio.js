@@ -16,7 +16,7 @@
 
 //this component is just the bulls-eye of the radio. Check FormRadio for the label etc.
 
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 
 import '../../styles/Radio.css';
 
