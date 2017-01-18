@@ -228,7 +228,7 @@ export class RegisterFormNew extends Component {
           >
             <FormPassword
               value={this.state.password}
-              placeholder="8 or more characters. No Spaces."
+              placeholder="8 or more characters. No spaces."
               onChange={this.onPassword}
               onBlur={this.onPasswordBlur}
             />
@@ -325,7 +325,7 @@ export default connect(state => ({
 //returns string if error
 function emailValidator(email) {
   if (!email) {
-    return 'Email is required';
+    return 'An email address is required';
   } else if (!(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email))) {
     return 'Please enter a valid email address';
   }
@@ -334,12 +334,12 @@ function emailValidator(email) {
 //return string if error
 function passwordValidator(password) {
   if (!password) {
-    return 'Password is required';
+    return 'A password is required';
   } else if (password.length < 8) {
-    return 'Password must be 8 of more characters';
+    return 'Password must be 8 or more characters';
   } else if (/ /.test(password)) {
-    return 'No spaces allowed';
+    return 'Password cannot contain spaces';
   } else if (!(/[0-9]/.test(password) && /[a-zA-Z]/.test(password))) {
-    return 'Numbers and letters are required';
+    return 'Please use at least one number and one letter';
   }
 }
