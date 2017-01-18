@@ -20,6 +20,9 @@ import { projectMerge, projectRename } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
 import Project from '../../models/Project';
 import { abort, commit, transact } from '../../store/undo/actions';
+import { blockSetPalette } from '../../actions/blocks';
+import { getPaletteName } from '../../utils/color/index';
+
 import InputSimple from './../InputSimple';
 import InspectorRow from './InspectorRow';
 import OrderList from './OrderList';
@@ -35,23 +38,28 @@ export class InspectorProject extends Component {
     },
     orders: PropTypes.array.isRequired,
     projectRename: PropTypes.func.isRequired,
+    blockSetPalette: PropTypes.func.isRequired,
     projectMerge: PropTypes.func.isRequired,
     readOnly: PropTypes.bool.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
     uiShowOrderForm: PropTypes.func.isRequired,
+    blocks: PropTypes.object,
+  };
+
+  /**
+   * user selected a new palette, apply to all constructs in the project.
+   */
+  onSelectPalette = (paletteName) => {
+    const { instance } = this.props;
+    instance.components.forEach((constructId) => {
+      this.props.blockSetPalette(constructId, paletteName);
+    });
   };
 
   setProjectName = (name) => {
     this.props.projectRename(this.props.instance.id, name);
-  };
-
-  /**
-   * user selected a new palette
-   */
-  onSelectPalette = (paletteName) => {
-    alert(paletteName);
   };
 
   setProjectDescription = (description) => {
@@ -78,6 +86,9 @@ export class InspectorProject extends Component {
 
   render() {
     const { instance, orders, readOnly } = this.props;
+    const firstConstruct = instance.components[0] ? this.props.blocks[instance.components[0]] : null;
+    const palette = firstConstruct ? firstConstruct.metadata.palette : null;
+    const paletteName = getPaletteName(palette);
 
     return (
       <div className="InspectorContent InspectorContentProject">
@@ -113,7 +124,7 @@ export class InspectorProject extends Component {
           text="Color Palette"
           content={
             <PalettePicker
-              palette="anime"
+              paletteName={paletteName}
               onSelectPalette={this.onSelectPalette}
               readOnly={readOnly}
             />
@@ -138,11 +149,18 @@ export class InspectorProject extends Component {
   }
 }
 
-export default connect(() => ({}), {
+function mapStateToProps(state, props) {
+  return {
+    blocks: state.blocks,
+  };
+}
+
+export default connect(mapStateToProps, {
   projectRename,
   projectMerge,
   transact,
   commit,
   abort,
   uiShowOrderForm,
+  blockSetPalette,
 })(InspectorProject);

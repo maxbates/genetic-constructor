@@ -23,7 +23,7 @@ import { getPalette, getPaletteName, palettes } from '../../utils/color/index';
 export default class ColorAndPalettePicker extends Component {
   static propTypes = {
     onSelectPalette: PropTypes.func.isRequired,
-    palette: PropTypes.string,
+    paletteName: PropTypes.string,
     readOnly: PropTypes.string.isRequired,
   };
 
@@ -38,13 +38,12 @@ export default class ColorAndPalettePicker extends Component {
   };
 
   render() {
-    const currentPalette = getPalette(this.props.palette);
-    const currentPaletteName = getPaletteName(this.props.palette);
+    const currentPalette = getPalette(this.props.paletteName);
     return (
       <div className="color-tabs">
         <div className="ribbon">
           {palettes.map((paletteName) => {
-            const classes = `tab${paletteName === currentPaletteName ? ' active' : ''}`;
+            const classes = `tab${paletteName === this.props.paletteName ? ' active' : ''}`;
             return (<div
               className={classes}
               key={paletteName}
