@@ -85,7 +85,7 @@ export class LandingPage extends Component {
     if (allowedModals.indexOf(modalType) < 0) {
       modalType = 'register';
     }
-    if (['free', 'paid'].indexOf(modalType) < 0) {
+    if (['free', 'paid'].indexOf(accountType) < 0) {
       accountType = 'free';
     }
     const params = modalType === 'register' ?
