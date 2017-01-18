@@ -7,7 +7,7 @@
     "testPrivate" : "../../extensions/testPrivate",
     "testErrorServer" : "../../extensions/testErrorServer",
     "SequenceDetail" : "IsaacLuo/onion2#8f03cd9d4820b9e98965dc945539afed9b9205cb",
-    "GC-GSL-Editor" : "../../../gc-gsl-editor",
+    "GC-GSL-Editor" : "autodesk-bionano/gc-gsl-editor",
     "GC-Sequence-Viewer": "duncanmeech/sequence-viewer"
   }
 }
