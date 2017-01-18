@@ -20,7 +20,8 @@ import { blockMerge, blockRename, blockSetColor, blockSetPalette, blockSetRole }
 import Block from '../../models/Block';
 import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
-import ColorAndPalettePicker from './../ui/ColorAndPalettePicker';
+import ColorPicker from './../ui/ColorPicker';
+import PalettePicker from './../ui/PalettePicker';
 import Expando from './../ui/Expando';
 import SBOLPicker from './../ui/SBOLPicker';
 import BlockNotes from './BlockNotes';
@@ -269,19 +270,23 @@ export class InspectorBlock extends Component {
           />
           : null
         }
-        {/*<Expando
-          openByDefault
-          text="Palette and Color"
-          content={<ColorAndPalettePicker
-            current={this.currentColor()}
-            readOnly={readOnly}
-            palette={palette}
-            onSelectColor={this.selectColor}
-            onSelectPalette={this.selectPalette}
-          />}
-        />*/}
         <Expando
-          openByDefault
+          text="Color Palette"
+          content={
+            <PalettePicker
+              paletteName={palette}
+              onSelectPalette={this.selectPalette}
+              readOnly={readOnly}
+            />
+          }
+        />
+        <ColorPicker
+          current={this.currentColor()}
+          readOnly={readOnly}
+          paletteName={palette}
+          onSelectColor={this.selectColor}
+        />
+        <Expando
           text="Symbol"
           content={<SBOLPicker
             current={this.currentRoleSymbol()}
