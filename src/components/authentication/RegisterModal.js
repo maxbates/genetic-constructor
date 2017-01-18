@@ -72,10 +72,7 @@ export class RegisterFormNew extends Component {
       formState.password &&
       formState.accountType &&
       formState.verification &&
-      formState.legal &&
-      !emailValidator(formState.email) &&
-      !passwordValidator(formState.password) &&
-      !formState.forceDisableEmail
+      formState.legal && !emailValidator(formState.email) && !passwordValidator(formState.password) && !formState.forceDisableEmail
     );
   }
 
@@ -105,19 +102,21 @@ export class RegisterFormNew extends Component {
     }];
   }
 
-  //special handling for 'darwin magic' dummy user
   onFirstName = (evt) => {
-    if (evt.target.value === 'darwin magic') {
-      this.setState({
-        firstName: 'Charles',
-        lastName: 'Darwin',
-        email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
-        password: 'abc123456',
-        accountType: 'free',
-        verification: true,
-        legal: true,
-      });
-      return;
+    if (process.env.BNR_ENVIRONMENT !== 'prod') {
+      //special handling for 'darwin magic' dummy user, except in production (but allow in QA, where NODE_ENV==='production')
+      if (evt.target.value === 'darwin magic') {
+        this.setState({
+          firstName: 'Charles',
+          lastName: 'Darwin',
+          email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
+          password: 'abc123456',
+          accountType: 'free',
+          verification: true,
+          legal: true,
+        });
+        return;
+      }
     }
     this.setState({ firstName: evt.target.value });
   };
