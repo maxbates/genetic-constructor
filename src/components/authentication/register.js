@@ -24,6 +24,8 @@ import { userRegister } from '../../actions/user';
 import track from '../../analytics/ga';
 import { privacy, tos } from '../../utils/ui/uiapi';
 
+// THIS FILE IS DEPRECATED. PREFER REGISTERMODAL
+
 /*
  * default visibility and text for error labels
  * @type {Object}

@@ -23,6 +23,7 @@ export default class FormPassword extends Component {
   //extends FormText, has all the same required props
   static propTypes = {
     canShow: PropTypes.bool,
+    onForgot: PropTypes.func,
     value: PropTypes.string,
   };
 
@@ -46,8 +47,11 @@ export default class FormPassword extends Component {
   };
 
   render() {
-    const { canShow, ...rest } = this.props;
+    const { canShow, onForgot, ...rest } = this.props;
     const { showPassword } = this.state;
+
+    const showForgot = onForgot;
+    const showToggler = canShow && !onForgot;
 
     return (
       <div className="FormPassword">
@@ -56,12 +60,20 @@ export default class FormPassword extends Component {
           ref={(el) => { this.textEl = el; }}
           type={showPassword ? 'text' : 'password'}
         />
-        {canShow && (
+        {showToggler && (
           <div
             className={`FormPassword-toggle ${rest.value ? '' : ' disabled'}`}
             onClick={this.onToggle}
           >
             {showPassword ? 'Hide' : 'Show'}
+          </div>
+        )}
+        {showForgot && (
+          <div
+            className="FormPassword-forgot"
+            onClick={onForgot}
+          >
+            Forgot?
           </div>
         )}
       </div>

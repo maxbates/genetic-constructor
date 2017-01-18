@@ -31,8 +31,6 @@ import FormRadio from '../formElements/FormRadio';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';
 
-//This component replaces the previous REgistration form. will deprecate prior one once complete
-
 export class RegisterFormNew extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
@@ -70,11 +68,14 @@ export class RegisterFormNew extends Component {
     return (
       formState.firstName &&
       formState.lastName &&
-      formState.email && !emailValidator(formState.email) &&
-      formState.password && !passwordValidator(formState.password) &&
+      formState.email &&
+      formState.password &&
       formState.accountType &&
       formState.verification &&
-      formState.legal
+      formState.legal &&
+      !emailValidator(formState.email) &&
+      !passwordValidator(formState.password) &&
+      !formState.forceDisableEmail
     );
   }
 
@@ -92,14 +93,13 @@ export class RegisterFormNew extends Component {
       verification: false,
       legal: false,
       submitError: null,
-      forceDisabled: false,
+      forceDisableEmail: false,
     };
 
     this.actions = [{
       text: 'Sign Up',
       disabled: () => (
-        !this.state.forceDisabled &&
-        !RegisterFormNew.validateForm(this.state)
+        !this.state.forceDisabled && !RegisterFormNew.validateForm(this.state)
       ),
       onClick: () => this.registerUser(this.state),
     }];
@@ -127,6 +127,7 @@ export class RegisterFormNew extends Component {
   onEmailBlur = evt => this.setState({ emailDirty: true });
   onEmail = evt => this.setState({
     emailDirty: false,
+    forceDisableEmail: false,
     email: evt.target.value,
   });
 
