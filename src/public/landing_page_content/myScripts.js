@@ -14,3 +14,7 @@ function setHeight() {
     document.getElementById('heroText').style.top = pos +"px";
 }
 
+// close cookies modal
+function closeCookies() {
+    document.getElementById('cookiesModal').style.display = 'none'; 
+}

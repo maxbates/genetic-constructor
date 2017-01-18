@@ -11,7 +11,13 @@
         <link href="custom.css" rel="stylesheet">
         <script src="myScripts.js"></script>
     </head>
+    
     <body id="fullPage" data-spy="scroll" data-target="#scrollNavigation" onload="setHeight()" onresize="setHeight()">
+        <!----------------------- NAVIGATION --------------------->         
+        <div id='cookiesModal'>
+            <p>Genetic Constructor uses cookies to ensure you get the best experience. <span><a href="http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement">Learn more</a></span></p>
+            <button onclick='closeCookies()' class='cookiesButton'>Close</button>
+        </div>
         <!----------------------- NAVIGATION --------------------->         
         <nav id="scrollNavigation" class="navbar navbar-default navbar-fixed-top" role="navigation">
             <div class="container-fluid">
@@ -58,28 +64,29 @@
         <!----------------------- HERO SECTION--------------------->         
         <div id="heroSection">
             <div id="heroText">
-                <h1 data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="0ms" data-animation-pro-easing-1="ease-in-out-quart">GENETIC CONSTRUCTOR</h1> 
-                <h3 class='heroSubText' data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="150ms" data-animation-pro-easing-1="ease-in-out-quart">An extensible toolkit for genetic engineering</h3> 
-                <a href="#interfaceSection">
-                    <button type="button" class="bigButton" data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="300ms" data-animation-pro-easing-1="ease-in-out-quart">Try for free</button>
-                </a>                 
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8 col-sm-offset-2">
+                            <img class='heroBack img-responsive' src="assets/images/headerBack.png".png data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="0ms" data-animation-pro-easing-1="ease-in-out-quart"/> 
+                            <img class='heroFont img-responsive' src="assets/images/headerFont.svg".png data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="0ms" data-animation-pro-easing-1="ease-in-out-quart"/>   
+                        </div>
+                        <a href="#trySection">
+                            <button class="bigButton" data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="300ms" data-animation-pro-easing-1="ease-in-out-quart">Try for free</button>
+                        </a>    
+                    </div>
+                </div>
+            </div>                                               
             </div>
-            <div id="valueSection">
+            <div id="valueSection" class='hiddenPhone' >
                 <div class="container">
                     <div class="row">
                         <div class="col-xs-12">
-                            <h5>Design and manufacture living things</h5>
-                            <p class='hiddenPhone' data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="450ms" data-animation-pro-easing-1="ease-in-out-quart">Biologists who design with DNA are experiencing a renaissance in tools and technologies that will transform the world we live in. Genetic Constructor is an extensible cloud CAD tool created by Autodesk Research to make powerful biological design and genetic engineering strategies more accessible. The tool lets you work on genetic designs at the sequence level and at higher levels of abstraction, simultaneously. It integrates with real world DNA manufacturing to bring your engineered biological systems to life.</p> 
-                        </div>
-                        <div data-animation-pro-1 style="transform:translateY(20px);opacity:0;" data-animation-pro-trigger-1="load" data-animation-pro-init-state-1="transform:translateY(20px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0);opacity:1;" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="1400ms" data-animation-pro-easing-1="ease-in-out-quart">
-                            <a href="#interfaceSection">
-                                <img class='downButton' src="assets/images/down.svg" />
-                            </a>
-                        </div>                         
+                            <h5 data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="450ms" data-animation-pro-easing-1="ease-in-out-quart">Design and manufacture living things</h5>
+                            <p data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="600ms" data-animation-pro-easing-1="ease-in-out-quart">Biologists who design with DNA are experiencing a renaissance in tools and technologies that will transform the world we live in. Genetic Constructor is an extensible cloud CAD tool created by Autodesk Research to make powerful biological design and genetic engineering strategies more accessible. The tool lets you work on genetic designs at the sequence level and at higher levels of abstraction, simultaneously. It integrates with real world DNA manufacturing to bring your engineered biological systems to life.</p> 
+                        </div>                       
                     </div>                     
                 </div>
             </div>
-        </div>
         <!----------------------- INTERFACE SECTION --------------------->
         <div id="interfaceSection">
             <div id="interfaceContainer" class="container">
@@ -90,7 +97,7 @@
                 </div>
                 <div class="row" data-animation-pro-1 style="transform:translateY(50px);opacity:0.5;" data-animation-pro-init-state-1="transform:translateY(50px);opacity:0.5;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="scroll" data-animation-pro-scroll-direction-1="down" data-animation-pro-offset-1="1000px" data-animation-pro-duration-1="2000" data-animation-pro-delay-1="200ms" data-animation-pro-easing-1="ease-in-out-quart" data-animation-pro-enable-sd-scroll-trigger-1="true">
                     <div class="col-xs-10 col-xs-offset-1">
-                        <img src="assets/images/interface.png" class="img-responsive imgPadding" alt="Design plasmids or linear strands of DNA for your organism in just one browser tab"/> 
+                        <img src="assets/images/interface.png" class="img-responsive imgPadding" alt="Design plasmids or linear strands of DNA for your organism in just one browser tab" /> 
                         <p>Design plasmids or linear strands of DNA for your organism in just one browser tab.</p>
                     </div>
                 </div>                 
@@ -111,8 +118,8 @@
                     </div>
                     <div class="col-xs-offset-1 col-xs-10 collNoPadding col-sm-6">
                         <div data-animation-pro-1 style="transform:translateY(0px);opacity:0;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="scroll" data-animation-pro-scroll-direction-1="down" data-animation-pro-offset-1="1000px" data-animation-pro-duration-1="2000" data-animation-pro-delay-1="0ms" data-animation-pro-easing-1="ease-in-out-quart" data-animation-pro-enable-sd-scroll-trigger-1="true">
-                            <img class="slideStart img-responsive imgPadding" src="assets/images/b1.png" alt="Sketch and Iterate in the cloud. Start by quickly capturing your design intent, for example, a strong promoter driving your favorite gene followed by an eGFP tag. Sketch mode lets you add the sequence later."/> 
-                            <img class="slideEnd img-responsive imgPadding" src="assets/images/b2.png" alt="Sketch and Iterate in the cloud. Start by quickly capturing your design intent, for example, a strong promoter driving your favorite gene followed by an eGFP tag. Sketch mode lets you add the sequence later."/>
+                            <img class="slideStart img-responsive imgPadding" src="assets/images/b1.png" alt="Sketch and Iterate in the cloud. Start by quickly capturing your design intent, for example, a strong promoter driving your favorite gene followed by an eGFP tag. Sketch mode lets you add the sequence later." /> 
+                            <img class="slideEnd img-responsive imgPadding" src="assets/images/b2.png" alt="Sketch and Iterate in the cloud. Start by quickly capturing your design intent, for example, a strong promoter driving your favorite gene followed by an eGFP tag. Sketch mode lets you add the sequence later." />
                         </div>
                     </div>
                 </div>                 
@@ -218,7 +225,7 @@
                             <h5 class='cardTop'>Try the beta</h5> 
                             <div class='cardBody'>
                                 <h2>EDUCATION</h2> 
-                                <h1 class='fontBold'>Free</h1>
+                                <h6>Free</h6>
                                 <p>Unlimited access for qualified academics.</p> 
                                 <button data-type="free" type="button" class="registerAction bigButton">Sign Up Now</button>
                             </div>                             
@@ -229,7 +236,7 @@
                             <h5 class='cardTop'>Free Trial*</h5> 
                             <div class='cardBody'>
                                 <h2>INDIVIDUAL</h2> 
-                                <h1 class='fontBold'>$500</h1>
+                                <h6>$500</h6>
                                 <p>Annual Subscription</p> 
                                 <button data-type="paid" type="button" class="registerAction bigButton">Sign Up Now</button>
                                 <p class='fontSuperscript'>*No credit card required while in Beta.</p>
@@ -241,7 +248,7 @@
                             <h5 class='cardTop'>Customized</h5> 
                             <div class='cardBody'>
                                 <h2>ENTERPRISE</h2> 
-                                <h1 class='fontBold'>Flex</h1>
+                                <h6>Flex</h6>
                                 <p>Contact us today to find out more.</p> 
                                 <button type="button" class="bigButton">Contact Us</button>
                             </div>                             
@@ -315,13 +322,13 @@
                     </div>
                     <div class="col-xs-12 col-sm-4 paddingBottom">
                         <div class='line'></div>
-                        <a class='footer' href="https://www.google.com">Facebook</a>
+                        <a class='footer' href="https://www.facebook.com/autodeskbionano">Facebook</a>
                         <br>
-                        <a class='footer' href="https://www.google.com">Twitter</a>
+                        <a class='footer' href="https://twitter.com/adskBioNano">Twitter</a>
                         <br>
-                        <a class='footer' href="https://www.google.com">Youtube</a>
+                        <a class='footer' href="https://www.youtube.com/channel/UC19GH6wqbQMnOe2fF4DZlZA">Youtube</a>
                         <br>
-                        <a class='footer' href="mailto:contact.bionano@autodesk.com">Contact.BioNano@Autodesk.com</a> 
+                        <a class='footer' href="mailto:geneticconstructor@autodesk.com">Contact.BioNano@Autodesk.com</a> 
                         <br>
                         <a class='footer' href="http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement">Privacy</a> 
                         <br>
