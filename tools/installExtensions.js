@@ -20,7 +20,7 @@ import pruneNodeModules from '../server/extensions/pruneNodeModules';
 
 async function installExtensions() {
   try {
-    const extensionsPath = path.resolve(__dirname, '../server/extensions/node_modules');
+    const extensionsPath = path.resolve(__dirname, '../server/extensions');
     const extensionsNpmPath = path.resolve(extensionsPath, 'node_modules');
 
     console.log(colors.blue(`clearing extensions in ${extensionsNpmPath} ...`));
