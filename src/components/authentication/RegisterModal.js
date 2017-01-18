@@ -31,10 +31,6 @@ import FormRadio from '../formElements/FormRadio';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';
 
-//This component replaces the previous REgistration form. will deprecate prior one once complete
-
-//todo - handle server errors
-
 export class RegisterFormNew extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
@@ -51,7 +47,6 @@ export class RegisterFormNew extends Component {
     const { projects, extensions } = params;
 
     //track the type of account they created
-    //todo - support on server
     const config = {
       accountType: formState.accountType,
     };
@@ -73,11 +68,14 @@ export class RegisterFormNew extends Component {
     return (
       formState.firstName &&
       formState.lastName &&
-      formState.email && !emailValidator(formState.email) &&
-      formState.password && !passwordValidator(formState.password) &&
+      formState.email &&
+      formState.password &&
       formState.accountType &&
       formState.verification &&
-      formState.legal
+      formState.legal &&
+      !emailValidator(formState.email) &&
+      !passwordValidator(formState.password) &&
+      !formState.forceDisableEmail
     );
   }
 
@@ -95,23 +93,26 @@ export class RegisterFormNew extends Component {
       verification: false,
       legal: false,
       submitError: null,
+      forceDisableEmail: false,
     };
 
     this.actions = [{
       text: 'Sign Up',
-      disabled: () => !RegisterFormNew.validateForm(this.state),
+      disabled: () => (
+        !this.state.forceDisabled && !RegisterFormNew.validateForm(this.state)
+      ),
       onClick: () => this.registerUser(this.state),
     }];
   }
 
   //special handling for 'darwin magic' dummy user
-  onFirstName = evt => {
+  onFirstName = (evt) => {
     if (evt.target.value === 'darwin magic') {
       this.setState({
         firstName: 'Charles',
         lastName: 'Darwin',
         email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
-        password: 'abc123',
+        password: 'abc123456',
         accountType: 'free',
         verification: true,
         legal: true,
@@ -126,6 +127,7 @@ export class RegisterFormNew extends Component {
   onEmailBlur = evt => this.setState({ emailDirty: true });
   onEmail = evt => this.setState({
     emailDirty: false,
+    forceDisableEmail: false,
     email: evt.target.value,
   });
 
@@ -159,9 +161,10 @@ export class RegisterFormNew extends Component {
       this.props.uiSpin();
       const defaultMessage = 'Unexpected error, please check your connection';
 
-      if (reason.message === 'email must be unique') {
+      if (reason.type === 'unique violation') {
         this.setState({
-          submitError: 'This email address is already registered.'
+          forceDisabled: true,
+          submitError: 'This email address is already registered.',
         });
       } else {
         this.setState({
@@ -170,7 +173,6 @@ export class RegisterFormNew extends Component {
       }
     });
   }
-
 
   render() {
     //special dirty-state handling for password and email
@@ -198,12 +200,12 @@ export class RegisterFormNew extends Component {
           >
             <FormText
               value={this.state.firstName}
-              placeholder="First Name"
+              placeholder="First"
               onChange={this.onFirstName}
             />
             <FormText
               value={this.state.lastName}
-              placeholder="Last Name"
+              placeholder="Last"
               onChange={this.onLastName}
             />
           </FormGroup>
@@ -214,7 +216,7 @@ export class RegisterFormNew extends Component {
           >
             <FormText
               value={this.state.email}
-              placeholder="Email Address"
+              placeholder="You will use your email address to sign in"
               onChange={this.onEmail}
               onBlur={this.onEmailBlur}
             />
@@ -226,7 +228,7 @@ export class RegisterFormNew extends Component {
           >
             <FormPassword
               value={this.state.password}
-              placeholder="Password"
+              placeholder="8 or more characters. No Spaces."
               onChange={this.onPassword}
               onBlur={this.onPasswordBlur}
             />
@@ -296,9 +298,9 @@ export class RegisterFormNew extends Component {
           </FormGroup>
 
           {this.state.submitError && (
-            <span className="Form-errorMessage">
+            <div className="Form-errorMessage">
               {this.state.submitError}
-            </span>
+            </div>
           )}
         </div>
 
@@ -333,8 +335,10 @@ function emailValidator(email) {
 function passwordValidator(password) {
   if (!password) {
     return 'Password is required';
-  } else if (password.length < 6) {
-    return 'Password must be 6 of more characters';
+  } else if (password.length < 8) {
+    return 'Password must be 8 of more characters';
+  } else if (/ /.test(password)) {
+    return 'No spaces allowed';
   } else if (!(/[0-9]/.test(password) && /[a-zA-Z]/.test(password))) {
     return 'Numbers and letters are required';
   }

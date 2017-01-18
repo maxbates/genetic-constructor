@@ -37,19 +37,14 @@ export default (
 
       <Route component={AuthRouteWrapper}>
         <Route path="/homepage/account" component={HomePage} />
-        <Route
-          path="/project/:projectId"
-          component={ProjectPage}
-        />
+        <Route path="/project/:projectId" component={ProjectPage} />
       </Route>
 
       {/* do not require authentication */}
 
-      <Route path="/landing" component={LandingPage} />
-
       <Route path="/homepage">
-        <Route path=":comp" component={HomePage} />
-        <IndexRoute component={HomePage} />
+        <Route path=":comp" component={LandingPage} />
+        <IndexRoute component={LandingPage} />
       </Route>
 
       <Route path="*" component={RouteNotFound} />

@@ -27,7 +27,7 @@
                 "email": "placeholderA",
                 "firstName": "placeholderB",
                 "lastName": "placeholderC",
-                "password": "abc123"
+                "password": "abc123456"
               },
               "config": {
                 "projects": {

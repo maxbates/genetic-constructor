@@ -24,6 +24,8 @@ loadScript('https://www.google.com/recaptcha/api.js');
 
 let counter = 0;
 
+/* global grecaptcha:false */
+
 export default class Captcha extends Component {
   static propTypes = {
     onVerify: PropTypes.func.isRequired,

@@ -35,6 +35,7 @@ export default class Modal extends Component {
     title: PropTypes.string.isRequired,
     onClose: PropTypes.func.isRequired,
     //can pass actions, or render yourself using ModalFooter component
+    //e.g. dont pass in if dependent on child state dependent, may not update
     actions: PropTypes.arrayOf(PropTypes.shape({
       text: PropTypes.string.isRequired,
       onClick: PropTypes.func.isRequired,

@@ -56,7 +56,7 @@ export function registrationHandler(req, res, next) {
     logger('[User Register] Error in input config');
     logger(err);
     logger(err.stack);
-    return res.status(422).send({ err });
+    return res.status(422).send(err);
   }
 
   const mappedUser = mergeConfigToUserData({
@@ -83,8 +83,8 @@ export function registrationHandler(req, res, next) {
       return resp.json();
     })
     .then((userPayload) => {
-      //console.log('userPayload');
-      //console.log(userPayload);
+      //logger('userPayload');
+      //logger(userPayload);
 
       if (userPayload.message) {
         return Promise.reject(userPayload);
@@ -92,8 +92,8 @@ export function registrationHandler(req, res, next) {
 
       const pruned = pruneUserObject(userPayload);
 
-      //console.log('sending pruned');
-      //console.log(pruned);
+      //logger('sending pruned');
+      //logger(pruned);
 
       res.json(pruned);
     })
@@ -102,7 +102,7 @@ export function registrationHandler(req, res, next) {
       logger(req.body);
       logger(err);
       logger(err.stack);
-      res.status(500).json({ err });
+      res.status(500).json(err);
     });
 }
 
@@ -159,7 +159,7 @@ export function loginHandler(req, res, next) {
       logger(req.body);
       logger(err);
       logger(err.stack);
-      res.status(500).json({ err });
+      res.status(500).json(err);
     });
 }
 
@@ -192,7 +192,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
       logger('[User Config] Error Updating config:');
       logger(err);
       logger(err.stack);
-      return res.status(422).json({ err });
+      return res.status(422).json(err);
     }
 
     //console.log('USER CONFIG HANDLER');
@@ -214,7 +214,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         .catch((err) => {
           logger('[User Config] error setting user config');
           logger(err);
-          res.status(501).json({ err });
+          res.status(501).json(err);
         });
     }
 
@@ -249,7 +249,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
         logger('[User Config] got error setting user config');
         logger(err);
         logger(err.stack);
-        res.status(500).json({ err });
+        res.status(500).json(err);
       });
   };
 }
