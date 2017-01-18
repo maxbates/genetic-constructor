@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { dispatch } from '../store/index';
-import { uiSetGrunt, uiShowAuthenticationForm, uiShowUserWidget } from '../actions/ui';
+import { uiSetGrunt, uiShowAuthenticationForm } from '../actions/ui';
 import { projectOpen } from '../actions/projects';
 import { getLocal, setLocal } from '../utils/localstorage';
 
@@ -26,7 +26,6 @@ import '../styles/LandingPage.css';
 export class LandingPage extends Component {
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
-    uiShowUserWidget: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     location: PropTypes.shape({
@@ -139,7 +138,6 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiShowAuthenticationForm,
-  uiShowUserWidget,
   uiSetGrunt,
   projectOpen,
 })(LandingPage);
