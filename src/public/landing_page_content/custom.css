@@ -76,7 +76,9 @@ h1
     color: var(--black);
     font-family: 'art-thin';
     cursor: default;
-    margin-bottom: -20px;
+    margin-bottom: -30px;
+    padding-top: 120px;
+
 }
 
 .heroSubText
@@ -84,7 +86,6 @@ h1
     font-size: 1.5em;
     color: var(--black);
     font-family: 'art-reg';
-    padding-bottom: 20px;
     line-height: 1.5;
     cursor: default;
 }
@@ -121,7 +122,7 @@ h5
     cursor: default;
 }
 
-.fontBold
+h6
 {
     font-family: 'art-bold';
     color: var(--white);
@@ -151,7 +152,7 @@ p
 
 .footer, .footer:visited
 {
-    color: var(--black)
+    color: var(--black);
     font-size: 1em;
     font-family: 'art-med';
     opacity: 0.6;
@@ -169,6 +170,31 @@ p
     transition: 0.2s;
 }
 
+/* ---------------------- COOKIES --------------------- */
+#cookiesModal 
+{
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    color: var(--black);
+    background: var(--lightBackground);
+    z-index: 100;
+    padding: 22px 100px 17px 20px ;
+}
+
+.cookiesButton
+{
+    position: absolute;
+    color: var(--black);
+    top: 0px;
+    right: 0;
+    height: 100%;
+    width: 100px;
+    border: none;
+    background-color: var(--spot);
+        font-family: 'art-med';
+}
+
 /* ---------------------- NAVIGATION --------------------- */
 
 .navbar
@@ -176,6 +202,7 @@ p
     padding-top: 10px;
     padding-bottom: 10px;
     background: white;
+        z-index: 1;
 }
 
 .nav
@@ -200,16 +227,26 @@ p
     min-height: 500px;
 }
 
+.heroBack {
+    padding-bottom: 40px;
+}
+
+.heroFont {
+    width: 96%;
+    position: absolute;
+    top: 28%;
+}
+
 #valueSection
 {
     color: var(--black);
     background: var(--lightGrey);
     text-align: center;
     position: absolute;
-    bottom: -20px;
+    bottom: -40px;
     width: 100%;
     padding-top: 20px;
-    padding-bottom: 20px;
+    padding-bottom: 30px;
     min-height: 150px;
 }
 
@@ -217,7 +254,7 @@ p
 {
     color: var(--black);
     padding-top: 120px;
-    padding-bottom: 160px;
+    padding-bottom: 120px;
     text-align: center;
     min-height: 800px;
 }
@@ -270,10 +307,9 @@ p
 .trySectionTop
 {
     color: var(--black);
-    background: var(--darkGrey);
     text-align: center;
-    padding-top: 120px;
-    padding-bottom: 160px;
+    padding-top: 100px;
+    padding-bottom: 60px;
 }
 
 .trySectionCards
@@ -316,7 +352,6 @@ p
     max-width: 250px;
     background-color: var(--spot);
     color: var(--black);
-    margin: 20px 0 10px 0;
     outline: none;
     opacity: 0.9;
     -webkit-transition: 0.2s;
@@ -378,16 +413,8 @@ p
 {
     position: fixed;
     width: 100%;
-}
-
-.slideMid
-{
-    animation-name: slideShowMid;
-    animation-duration: 4s;
-    animation-iteration-count: infinite;
-    position: fixed;
-    width: 100%;
-    animation-delay: 0s;
+    max-width: 650px;
+    right: 0;
 }
 
 .slideEnd
@@ -396,7 +423,10 @@ p
     animation-duration: 4s;
     animation-iteration-count: infinite;
     position: relative;
+    float: right;
     width: 100%;
+    max-width: 650px;
+    right: 0;
 }
 
 @keyframes slideShowEnd{
