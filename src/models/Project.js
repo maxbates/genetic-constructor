@@ -20,6 +20,7 @@ import { projectFileRead, projectFileWrite } from '../middleware/projectFiles';
 import ProjectSchema from '../schemas/Project';
 import safeValidate from '../schemas/fields/safeValidate';
 import { id } from '../schemas/fields/validators';
+import { palettes } from '../utils/color/index';
 import Instance from './Instance';
 
 const idValidator = (input, required = false) => safeValidate(id(), required, input);
@@ -138,6 +139,20 @@ export default class Project extends Instance {
    */
   getName() {
     return this.metadata.name || 'Untitled Project';
+  }
+
+  /**
+   * Set a Projects's color palette.
+   * @method setPalette
+   * @memberOf Project
+   * @param {string} [palette] Palette name
+   * @returns {Project}
+   * @example
+   * new Project().setPalette('bright');
+   */
+  setPalette(palette) {
+    invariant(palettes.indexOf(palette) >= 0, 'palette must exist');
+    return this.mutate('metadata.palette', palette);
   }
 
   //ideally, this would just return the same instance, would be much easier
