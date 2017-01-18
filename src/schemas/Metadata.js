@@ -50,6 +50,11 @@ const fieldDefs = {
     fields.object().required,
     'Dictionary of tags defining object',
   ],
+  palette: [
+    fields.string(),
+    'Color palette (for Project or Construct)',
+    { avoidScaffold: true },
+  ],
 };
 
 export class MetadataSchemaClass extends Schema {
