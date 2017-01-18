@@ -20,13 +20,13 @@ import '../../../src/styles/authenticationforms.css';
 import '../../../src/styles/form.css';
 import { uiShowAuthenticationForm } from '../../actions/ui';
 import AccountForm from '../../components/authentication/account';
-import ForgotForm from '../../components/authentication/forgot';
 import ResetForm from '../../components/authentication/reset';
 import ModalWindow from '../../components/modal/modalwindow';
 
 //new auth modals
 import SignInModal from '../../components/authentication/SignInModal';
 import RegisterModal from '../../components/authentication/RegisterModal';
+import ForgotModal from '../../components/authentication/ForgotModal';
 
 function AuthenticationForms(props) {
   let form;
@@ -37,14 +37,13 @@ function AuthenticationForms(props) {
       return <RegisterModal />;
     case 'signin':
       return <SignInModal />;
+    case 'forgot':
+      return <ForgotModal />;
     default:
   }
 
   //handle the old modals
   switch (props.authenticationForm) {
-    case 'forgot' :
-      form = <ForgotForm />;
-      break;
     case 'reset' :
       form = <ResetForm />;
       break;
