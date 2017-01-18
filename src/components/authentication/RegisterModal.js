@@ -112,7 +112,7 @@ export class RegisterFormNew extends Component {
         firstName: 'Charles',
         lastName: 'Darwin',
         email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
-        password: 'abc123',
+        password: 'abc123456',
         accountType: 'free',
         verification: true,
         legal: true,
@@ -200,12 +200,12 @@ export class RegisterFormNew extends Component {
           >
             <FormText
               value={this.state.firstName}
-              placeholder="First Name"
+              placeholder="First"
               onChange={this.onFirstName}
             />
             <FormText
               value={this.state.lastName}
-              placeholder="Last Name"
+              placeholder="Last"
               onChange={this.onLastName}
             />
           </FormGroup>
@@ -216,7 +216,7 @@ export class RegisterFormNew extends Component {
           >
             <FormText
               value={this.state.email}
-              placeholder="Email Address"
+              placeholder="You will use your email address to sign in"
               onChange={this.onEmail}
               onBlur={this.onEmailBlur}
             />
@@ -228,7 +228,7 @@ export class RegisterFormNew extends Component {
           >
             <FormPassword
               value={this.state.password}
-              placeholder="Password"
+              placeholder="8 or more characters. No Spaces."
               onChange={this.onPassword}
               onBlur={this.onPasswordBlur}
             />
@@ -335,8 +335,10 @@ function emailValidator(email) {
 function passwordValidator(password) {
   if (!password) {
     return 'Password is required';
-  } else if (password.length < 6) {
-    return 'Password must be 6 of more characters';
+  } else if (password.length < 8) {
+    return 'Password must be 8 of more characters';
+  } else if (/ /.test(password)) {
+    return 'No spaces allowed';
   } else if (!(/[0-9]/.test(password) && /[a-zA-Z]/.test(password))) {
     return 'Numbers and letters are required';
   }
