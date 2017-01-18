@@ -49,7 +49,7 @@
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li>
-                            <a>Sign In</a>
+                            <a class="modalAction" data-type="signin">Sign In</a>
                         </li>
                     </ul>
                 </div>
@@ -268,14 +268,14 @@
                 </div>
                 <div class="row" style='text-align: left'>
                     <div class="col-xs-6 col-sm-3">
+                        <img src="assets/images/Max.png" class="img-responsive imgPadding" />
+                        <h5>Maxwell Bates. Sr. Software Engineer</h5>
+                        <p class='paddingBottom hiddenPhone'>Maxwell studied genetic engineering at UC Berkeley, and has since worked to facilitate experiment automation and the design of biological systems, with an eye toward synthetic biology and biomedicine.</p>
+                    </div>
+                    <div class="col-xs-6 col-sm-3">
                         <img src="assets/images/Duncan.png" class="img-responsive imgPadding" />
                         <h5>Duncan Meech. Sr. Software Engineer</h5> 
                         <p class='paddingBottom hiddenPhone'>Duncan is Principal Engineer currently working on our Genetic Constructor application. Previous work has included 2D and 3D graphics systems, flight simulators, medical imaging and video games. Particular areas of interest is visualization in the browser domain.</p> 
-                    </div>
-                    <div class="col-xs-6 col-sm-3">
-                        <img src="assets/images/Max.png" class="img-responsive imgPadding" />
-                        <h5>Maxwell Bates. Sr. Software Engineer</h5> 
-                        <p class='paddingBottom hiddenPhone'>Maxwell studied genetic engineering at UC Berkeley, and has since worked to facilitate experiment automation and the design of biological systems, with an eye toward synthetic biology and biomedicine.</p> 
                     </div>
                     <div class="col-xs-6 col-sm-3">
                         <img src="assets/images/Drew.png" class="img-responsive imgPadding" />
@@ -301,9 +301,9 @@
                 <div class="row">
                     <div class="col-xs-12 col-sm-4 paddingBottom">
                         <div class='line'></div>
-                        <a class='footer' href="https://www.google.com">Sign Up</a>
+                        <a class='footer modalAction' data-type="register" data-account="free">Sign Up</a>
                         <br>
-                        <a class='footer' href="https://www.google.com">Sign In</a>
+                        <a class='footer modalAction' data-type="signin">Sign In</a>
                         <br>
                     </div>
                     <div class="col-xs-12 col-sm-4 paddingBottom">
@@ -367,10 +367,10 @@
             }); 
                 
             //set up the action buttons
-              //todo - should use single class, and data attr with type
-              $('.registerAction').on('click', function() {
-                var type = $(this).attr('data-type');
-                window.parent.postMessage(type, '*');
+              $('.modalAction').on('click', function() {
+                var modalType = $(this).attr('data-type');
+                var accountType = $(this).attr('data-account');
+                window.parent.postMessage({ modalType: modalType, accountType: accountType }, '*');
               });
                 
             });
