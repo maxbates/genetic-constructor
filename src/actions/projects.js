@@ -395,6 +395,24 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
 };
 
 /**
+ * set the palette for the project
+ * @param projectId
+ * @param paletteName
+ */
+export const projectSetPalette = (projectId, paletteName) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.mutate('metadata.palette', paletteName);
+  dispatch({
+    type: ActionTypes.PROJECT_SETPALETTE,
+    paletteName,
+    undoable: true,
+    project,
+  });
+  return project;
+};
+
+
+/**
  * Adds a construct to a project. Does not create the construct. Use a Block Action.
  * The added construct should have the project ID of the current project, or pass forceProjectId = true
  * @function

@@ -53,6 +53,7 @@ export class InspectorBlock extends Component {
     blockGetParents: PropTypes.func.isRequired,
     blockMerge: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
+    project: PropTypes.object.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
@@ -208,7 +209,8 @@ export class InspectorBlock extends Component {
 
     const inputKey = instances.map(inst => inst.id).join(',');
     const anyIsConstructOrTemplateOrList = instances.some(instance => instance.isConstruct() || instance.isTemplate() || instance.isList());
-    const palette = construct ? construct.metadata.palette : null;
+
+    const palette = construct ? construct.metadata.palette || this.props.project.metadata.palette : null;
 
     const defaultType = forceIsConstruct ? 'Construct' : 'Block';
     const type = singleInstance ? instances[0].getType(defaultType) : 'Blocks';
@@ -223,7 +225,10 @@ export class InspectorBlock extends Component {
     const paletteStateKey = 'expando-color-palette';
     // text before palette, depends on expanded state.
     const paletteOpen = getLocal(paletteStateKey, false, true);
-    const colorPaletteText = "Color Palette" + (paletteOpen ? '' : ` ${palette}`);
+    let colorPaletteText = 'Color Palette';
+    if (!paletteOpen) {
+      colorPaletteText += `: ${palette}`;
+    }
 
     return (
       <div className="InspectorContent InspectorContentBlock">

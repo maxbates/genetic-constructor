@@ -16,7 +16,7 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { projectMerge, projectRename } from '../../actions/projects';
+import { projectMerge, projectRename, projectSetPalette } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
 import Project from '../../models/Project';
 import { abort, commit, transact } from '../../store/undo/actions';
@@ -39,6 +39,7 @@ export class InspectorProject extends Component {
     },
     orders: PropTypes.array.isRequired,
     projectRename: PropTypes.func.isRequired,
+    projectSetPalette: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
     projectMerge: PropTypes.func.isRequired,
     readOnly: PropTypes.bool.isRequired,
@@ -46,13 +47,14 @@ export class InspectorProject extends Component {
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
     uiShowOrderForm: PropTypes.func.isRequired,
-    blocks: PropTypes.object,
   };
 
   /**
    * user selected a new palette, apply to all constructs in the project.
    */
   onSelectPalette = (paletteName) => {
+    // apply to project and all of its construct
+    this.props.projectSetPalette(this.props.instance.id, paletteName);
     const { instance } = this.props;
     instance.components.forEach((constructId) => {
       this.props.blockSetPalette(constructId, paletteName);
@@ -87,14 +89,15 @@ export class InspectorProject extends Component {
 
   render() {
     const { instance, orders, readOnly } = this.props;
-    const firstConstruct = instance.components[0] ? this.props.blocks[instance.components[0]] : null;
-    const palette = firstConstruct ? firstConstruct.metadata.palette : null;
-    const paletteName = getPaletteName(palette);
+    const paletteName = getPaletteName(instance.metadata.palette);
     // determines the default state of the palette expando
     const paletteStateKey = 'expando-color-palette';
     // text before palette, depends on expanded state.
     const paletteOpen = getLocal(paletteStateKey, false, true);
-    const colorPaletteText = "Color Palette" + (paletteOpen ? '' : ` ${palette}`);
+    let colorPaletteText = 'Color Palette';
+    if (!paletteOpen) {
+      colorPaletteText += `: ${paletteName}`;
+    }
 
     return (
       <div className="InspectorContent InspectorContentProject">
@@ -158,14 +161,10 @@ export class InspectorProject extends Component {
   }
 }
 
-function mapStateToProps(state, props) {
-  return {
-    blocks: state.blocks,
-  };
-}
 
-export default connect(mapStateToProps, {
+export default connect(null, {
   projectRename,
+  projectSetPalette,
   projectMerge,
   transact,
   commit,

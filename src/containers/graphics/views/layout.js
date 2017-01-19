@@ -623,7 +623,7 @@ export default class Layout {
   update(options) {
     this.options = options;
     this.construct = options.construct;
-    this.palette = this.construct.metadata.palette;
+    this.palette = this.construct.metadata.palette || this.constructViewer.getProject().metadata.palette;
     this.blocks = options.blocks;
     this.currentConstructId = options.currentConstructId;
     this.currentBlocks = options.currentBlocks;
