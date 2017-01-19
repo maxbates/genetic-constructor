@@ -307,6 +307,7 @@ p
 .trySectionTop
 {
     color: var(--black);
+    background: var(--lightGrey);
     text-align: center;
     padding-top: 100px;
     padding-bottom: 60px;
