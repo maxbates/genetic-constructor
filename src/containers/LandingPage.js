@@ -71,6 +71,7 @@ export class LandingPage extends Component {
     if (authForm === 'landing') {
       //do nothing, fall through
     } else if (authForm) {
+      console.log('showing auth form:', authForm);
       this.props.uiShowAuthenticationForm(authForm);
     } else if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
       // if not showing an auth form goto most recent project or demo project

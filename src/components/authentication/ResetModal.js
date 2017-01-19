@@ -102,11 +102,11 @@ export class ResetModal extends Component {
     });
   };
 
-  actions = {
-    text: 'Reset Password',
+  actions = [{
+    text: 'Reset',
     disabled: () => !!passwordValidator(this.state.password),
     onClick: this.onSubmit,
-  };
+  }];
 
   render() {
     const showPasswordError = this.state.passwordDirty && this.state.password && passwordValidator(this.state.password);
@@ -126,7 +126,7 @@ export class ResetModal extends Component {
           onSubmit={this.onSubmit}
         >
           <FormGroup
-            label="Password"
+            label="New Password"
             error={passwordError}
           >
             <FormPassword
@@ -136,6 +136,12 @@ export class ResetModal extends Component {
               onBlur={this.onPasswordBlur}
             />
           </FormGroup>
+
+          {this.state.submitError && (
+            <div className="Form-errorMessage">
+              {this.state.submitError}
+            </div>
+          )}
         </form>
 
         <ModalFooter actions={this.actions} />
@@ -145,7 +151,7 @@ export class ResetModal extends Component {
 }
 
 export default connect(state => ({
-  isOpen: state.ui.modals.authenticationForm === 'signin',
+  isOpen: state.ui.modals.authenticationForm === 'reset',
 }), {
   uiShowAuthenticationForm,
   uiSpin,
