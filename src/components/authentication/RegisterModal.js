@@ -290,6 +290,7 @@ export class RegisterFormNew extends Component {
             <div>
               <Checkbox
                 style={{ fontSize: '18px', marginLeft: '0' }}
+                showCheck
                 checked={this.state.legal}
                 onChange={this.onLegalCheck}
               />

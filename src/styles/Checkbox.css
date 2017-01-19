@@ -16,9 +16,12 @@
   &.checked {
     background-color: var(--colors-selected);
     border-color: transparent;
+  }
+
+  &.showCheck {
     background-image: url('/images/ui/checkbox-checkmark.svg');
     background-repeat: no-repeat;
-    background-size: contain;
+    background-position: center center;
   }
 
   &.disabled {
