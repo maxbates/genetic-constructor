@@ -44,13 +44,61 @@ export class LandingPage extends Component {
     return !getLocal('cookie-warning', false);
   }
 
+  static openLink(data) {
+    const { url } = data;
+    window.open(url, '_self');
+  }
+
+  static openModal(data) {
+    let { modalType, accountType } = data;
+
+    if (allowedModals.indexOf(modalType) < 0) {
+      modalType = 'register';
+    }
+    if (['free', 'paid'].indexOf(accountType) < 0) {
+      accountType = 'free';
+    }
+    const params = modalType === 'register' ?
+      { registerType: accountType } :
+      null;
+
+    dispatch(uiShowAuthenticationForm(modalType, params));
+  }
+
   static isIE() {
     const ua = window.navigator.userAgent;
     const msie = ua.indexOf('MSIE ');
     return msie > 0 || !!navigator.userAgent.match(/Trident.*rv:11\./);
   }
 
-  static onMessageHandler(evt) {
+  state = {
+    showCookieWarning: LandingPage.showCookieWarning(),
+  };
+
+  componentDidMount() {
+    const authForm = this.props.params.comp;
+
+    if (authForm === 'landing') {
+      //do nothing, fall through
+    } else if (authForm) {
+      this.props.uiShowAuthenticationForm(authForm);
+    } else if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
+      // if not showing an auth form goto most recent project or demo project
+      // NOTE: the nodirect query string prevents redirection
+
+      // revisit last project
+      this.props.projectOpen(null, true);
+      return;
+    }
+
+    window.addEventListener('message', this.onMessageHandler, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('message', this.onMessageHandler);
+  }
+
+  onMessageHandler(evt) {
     evt.preventDefault();
     evt.stopPropagation();
 
@@ -81,45 +129,13 @@ export class LandingPage extends Component {
       heap.track('Register_Interest', data);
     }
 
-    let { modalType, accountType } = data;
-    if (allowedModals.indexOf(modalType) < 0) {
-      modalType = 'register';
+    const { type = 'modal' } = data;
+
+    if (type === 'modal') {
+      LandingPage.openModal(data);
+    } else if (type === 'link') {
+      LandingPage.openLink(data);
     }
-    if (['free', 'paid'].indexOf(accountType) < 0) {
-      accountType = 'free';
-    }
-    const params = modalType === 'register' ?
-      { registerType: accountType } :
-      null;
-
-    dispatch(uiShowAuthenticationForm(modalType, params));
-  }
-
-  state = {
-    showCookieWarning: LandingPage.showCookieWarning(),
-  };
-
-  componentDidMount() {
-    const authForm = this.props.params.comp;
-
-    if (authForm === 'landing') {
-      //do nothing, fall through
-    } else if (authForm) {
-      this.props.uiShowAuthenticationForm(authForm);
-    } else if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
-      // if not showing an auth form goto most recent project or demo project
-      // NOTE: the nodirect query string prevents redirection
-
-      // revisit last project
-      this.props.projectOpen(null, true);
-      return;
-    }
-
-    window.addEventListener('message', LandingPage.onMessageHandler, false);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('message', LandingPage.onMessageHandler);
   }
 
   /**
