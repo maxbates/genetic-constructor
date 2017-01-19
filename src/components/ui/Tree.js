@@ -17,6 +17,7 @@ import React, { Component, PropTypes } from 'react';
 
 import '../../styles/Tree.css';
 import Expando from './Expando';
+import { getLocal } from '../../utils/localstorage';
 
 export default class Tree extends Component {
   static propTypes = {
@@ -50,6 +51,12 @@ export default class Tree extends Component {
   };
 
   render() {
+    /* add to expando to make state persistent but project must be loaded for this to work
+
+     stateKey={item.stateKey}
+     openByDefault={getLocal(item.stateKey, false, true)}
+
+     */
     return (
       <div className="tree">
         {(this.props.items || []).map((item, index) => (
