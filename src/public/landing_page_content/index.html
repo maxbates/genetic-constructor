@@ -377,12 +377,25 @@
             }  // End if
             }); 
                 
-            //set up the action buttons
+              //set up the action buttons
               $('.modalAction').on('click', function() {
                 var modalType = $(this).attr('data-type');
                 var accountType = $(this).attr('data-account');
-                window.parent.postMessage({ modalType: modalType, accountType: accountType }, '*');
+                window.parent.postMessage({ type: 'modal', modalType: modalType, accountType: accountType }, '*');
               });
+
+              //catch the links, send to the parent frame
+              $('a').on('click', function (evt) {
+                var $el = $(this);
+                var url = $el.attr('href');
+                var newTab = $el.attr('target') === '_blank';
+
+                if (url && !newTab) {
+                  evt.preventDefault();
+                  evt.stopPropagation();
+                  window.parent.postMessage({type: 'link', url: url }, '*');
+                }
+              })
                 
             });
         </script>
