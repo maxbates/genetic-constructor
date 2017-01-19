@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 import { dispatch } from '../store/index';
 import { uiSetGrunt, uiShowAuthenticationForm } from '../actions/ui';
 import { projectOpen } from '../actions/projects';
-import { getLocal, setLocal } from '../utils/localstorage';
 
 import '../styles/LandingPage.css';
 
@@ -38,11 +37,6 @@ export class LandingPage extends Component {
     }),
     user: PropTypes.object,
   };
-
-  // truthy if the cookie warning must be shown
-  static showCookieWarning() {
-    return !getLocal('cookie-warning', false);
-  }
 
   static openLink(data) {
     const { url } = data;
@@ -71,16 +65,13 @@ export class LandingPage extends Component {
     return msie > 0 || !!navigator.userAgent.match(/Trident.*rv:11\./);
   }
 
-  state = {
-    showCookieWarning: LandingPage.showCookieWarning(),
-  };
-
   componentDidMount() {
     const authForm = this.props.params.comp;
 
     if (authForm === 'landing') {
       //do nothing, fall through
     } else if (authForm) {
+      console.log('showing auth form:', authForm);
       this.props.uiShowAuthenticationForm(authForm);
     } else if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
       // if not showing an auth form goto most recent project or demo project
@@ -137,16 +128,6 @@ export class LandingPage extends Component {
       LandingPage.openLink(data);
     }
   }
-
-  /**
-   * used is closing the cookie warnig so update local storage as seen
-   */
-  cookieWarningClosed = () => {
-    setLocal('cookie-warning', 'acknowledged');
-    this.setState({
-      showCookieWarning: false,
-    });
-  };
 
   render() {
     //todo - need to show the cookie warning? or do it in the iframe
