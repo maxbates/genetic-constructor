@@ -299,17 +299,12 @@ export class InspectorBlock extends Component {
           :
             null
         }
-        {hasParents
-          ?
-            <ColorPicker
-              current={this.currentColor()}
-              readOnly={readOnly}
-              paletteName={palette}
-              onSelectColor={this.selectColor}
-            />
-          :
-            null
-        }
+        <ColorPicker
+          current={this.currentColor()}
+          readOnly={readOnly}
+          paletteName={palette}
+          onSelectColor={this.selectColor}
+        />
         <Expando
           text="Symbol"
           content={<SBOLPicker
