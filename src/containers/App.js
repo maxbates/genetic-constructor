@@ -24,7 +24,7 @@ import ReportErrorModal from '../components/modal/ReportErrorModal';
 import ModalSpinner from '../components/modal/modalspinner';
 import '../styles/App.css';
 import GlobalNav from './GlobalNav';
-import AuthenticationForms from './authenticationforms';
+import AuthenticationModals from './AuthenticationModals';
 
 class App extends Component {
   static propTypes = {
@@ -88,7 +88,7 @@ class App extends Component {
           currentProjectId={this.props.currentProjectId}
           showMenu={onProjectPage}
         />}
-        <AuthenticationForms />
+        <AuthenticationModals />
         <AboutForm />
         <ExtensionPicker />
         <ReportErrorModal />

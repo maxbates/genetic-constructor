@@ -20,10 +20,15 @@ import fetch from 'isomorphic-fetch';
 
 import { headersPost } from '../../src/middleware/utils/headers';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
+import { verifyCaptchaProductionOnly } from '../utils/captcha';
 import { API_END_POINT, INTERNAL_HOST } from '../urlConstants';
 import { mergeConfigToUserData, pruneUserObject, updateUserAll, updateUserConfig, validateConfig } from './utils';
 
 const logger = debug('constructor:auth');
+
+const authRegisterUrl = `${INTERNAL_HOST}/auth/register`;
+const authLoginUrl = `${INTERNAL_HOST}/auth/login`;
+const authUpdateUrl = `${INTERNAL_HOST}/auth/update-all`;
 
 //todo - share fetch handling with config / register routes
 
@@ -36,7 +41,7 @@ export function registrationHandler(req, res, next) {
   }
 
   const { user, config } = req.body;
-  const { email, password, firstName, lastName } = user;
+  const { email, password, firstName, lastName, captcha } = user;
 
   //basic checks before we hand off to auth/register
   if (!email || !EmailValidator.validate(email)) {
@@ -46,6 +51,12 @@ export function registrationHandler(req, res, next) {
   if (!password || password.length < 6) {
     logger(`[User Register] password invalid: ${password}`);
     return res.status(422).json({ message: 'invalid password' });
+  }
+  //require captcha in production so we dont get flooded / automated signups
+  if (process.env.BNR_ENVIRONMENT === 'prod') {
+    if (!captcha) {
+      return res.status(422).json({ message: 'captcha required' });
+    }
   }
 
   const mergedConfig = Object.assign({}, userConfigDefaults, config);
@@ -66,13 +77,16 @@ export function registrationHandler(req, res, next) {
     lastName,
   }, mergedConfig);
 
-  logger('[User Register] registering...');
-  logger(mappedUser);
+  logger('[User Register] Checking Captcha...');
 
-  //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
-  const url = `${INTERNAL_HOST}/auth/register`;
+  return verifyCaptchaProductionOnly(captcha)
+  .then(() => {
+    logger('[User Register] Captcha success');
+    logger('[User Register] registering...');
+    logger(mappedUser);
 
-  return fetch(url, headersPost(JSON.stringify(mappedUser)))
+    return fetch(authRegisterUrl, headersPost(JSON.stringify(mappedUser)));
+  })
   .then((resp) => {
     //e.g. if user already registered, just pass the error through
     if (resp.status >= 400) {
@@ -129,13 +143,10 @@ export function loginHandler(req, res, next) {
     return res.status(422).json({ message: 'invalid password' });
   }
 
-  //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
-  const url = `${INTERNAL_HOST}/auth/login`;
-
   logger('[User Login] Logging in:');
-  logger(email, password, url);
+  logger(email, password, authLoginUrl);
 
-  return fetch(url, headersPost(JSON.stringify(req.body)))
+  return fetch(authLoginUrl, headersPost(JSON.stringify(req.body)))
   .then((resp) => {
     //re-assign cookies from platform authentication
     const cookies = resp.headers.getAll('set-cookie');
@@ -227,8 +238,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     // otherwise, delegate to auth routes
     // Real auth - dont need to worry about passing cookies on fetch, since registering (not authenticated)
     // local auth - just call our mock routes
-    const url = `${INTERNAL_HOST}/auth/update-all`;
-    return fetch(url, headersPost(JSON.stringify(user)))
+    return fetch(authUpdateUrl, headersPost(JSON.stringify(user)))
     .then((resp) => {
       //re-assign cookies from platform authentication
       const cookies = resp.headers.getAll('set-cookie');
