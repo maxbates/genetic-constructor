@@ -213,6 +213,10 @@ p
     padding-top: 10px;
 }
 
+.navbar-nav > li > a {
+    cursor: pointer;
+}
+
 /* ---------------------- SECTIONS --------------------- */
 
 #heroSection
