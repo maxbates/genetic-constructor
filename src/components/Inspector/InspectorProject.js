@@ -28,6 +28,7 @@ import InspectorRow from './InspectorRow';
 import OrderList from './OrderList';
 import Expando from './../ui/Expando';
 import PalettePicker from './../ui/PalettePicker';
+import { getLocal } from '../../utils/localstorage';
 
 export class InspectorProject extends Component {
   static propTypes = {
@@ -89,6 +90,11 @@ export class InspectorProject extends Component {
     const firstConstruct = instance.components[0] ? this.props.blocks[instance.components[0]] : null;
     const palette = firstConstruct ? firstConstruct.metadata.palette : null;
     const paletteName = getPaletteName(palette);
+    // determines the default state of the palette expando
+    const paletteStateKey = 'expando-color-palette';
+    // text before palette, depends on expanded state.
+    const paletteOpen = getLocal(paletteStateKey, false, true);
+    const colorPaletteText = "Color Palette" + (paletteOpen ? '' : ` ${palette}`);
 
     return (
       <div className="InspectorContent InspectorContentProject">
@@ -121,7 +127,10 @@ export class InspectorProject extends Component {
         </InspectorRow>
 
         <Expando
-          text="Color Palette"
+          text={colorPaletteText}
+          capitalize
+          stateKey={paletteStateKey}
+          onClick={() => this.forceUpdate()}
           content={
             <PalettePicker
               paletteName={paletteName}

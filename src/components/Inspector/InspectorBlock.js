@@ -30,6 +30,7 @@ import BlockSource from './BlockSource';
 import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
+import { getLocal } from '../../utils/localstorage';
 
 export class InspectorBlock extends Component {
   static propTypes = {
@@ -218,6 +219,12 @@ export class InspectorBlock extends Component {
     const hasSequence = this.allBlocksWithSequence();
     const hasNotes = singleInstance && Object.keys(instances[0].notes).length > 0;
 
+    // determines the default state of the palette expando
+    const paletteStateKey = 'expando-color-palette';
+    // text before palette, depends on expanded state.
+    const paletteOpen = getLocal(paletteStateKey, false, true);
+    const colorPaletteText = "Color Palette" + (paletteOpen ? '' : ` ${palette}`);
+
     return (
       <div className="InspectorContent InspectorContentBlock">
 
@@ -268,6 +275,7 @@ export class InspectorBlock extends Component {
         { hasNotes
           ? <Expando
             text={`${type} Metadata`}
+            stateKey="inspector-template-metadata"
             content={<div className="InspectorContent-section">
               <BlockNotes notes={instances[0].notes} />
             </div>}
@@ -277,7 +285,10 @@ export class InspectorBlock extends Component {
         {isConstruct && singleInstance && !hasParents
           ?
             <Expando
-              text="Color Palette"
+              text={colorPaletteText}
+              capitalize
+              stateKey={paletteStateKey}
+              onClick={() => this.forceUpdate()}
               content={
                 <PalettePicker
                   paletteName={palette}
