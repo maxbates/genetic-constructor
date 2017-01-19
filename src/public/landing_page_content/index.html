@@ -400,7 +400,7 @@
             $('a').on('click', function (evt) {
               var $el = $(this);
               var url = $el.attr('href');
-              var isAnchor = url[0] === '#';
+              var isAnchor = (url && url[0] === '#');
               var newTab = $el.attr('target') === '_blank';
 
               if (url && !isAnchor && !newTab) {

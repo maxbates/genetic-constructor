@@ -20,22 +20,42 @@ import React, { Component, PropTypes } from 'react';
 import loadScript from 'load-script';
 
 //load the captcha API asynchronously (loads after the bundle)
-loadScript('https://www.google.com/recaptcha/api.js');
+let scriptLoaded = false;
+function loadCaptchaScript() {
+  return new Promise((resolve, reject) => {
+    //bind onload event to the window
+    window.onCaptchaLoad = function onCaptchaLoad() {
+      scriptLoaded = true;
+      resolve();
+    };
+
+    if (scriptLoaded === true) {
+      return resolve();
+    }
+
+    loadScript('https://www.google.com/recaptcha/api.js?onload=onCaptchaLoad&render=explicit', (err) => {
+      if (err) {
+        return reject(err);
+      }
+    });
+  });
+}
 
 let counter = 0;
-const publicSitekey = '6LdvyREUAAAAAKr6h7kyBzioJsXPGNKjW9r21WSh';
 
 /* global grecaptcha:false */
 
 export default class Captcha extends Component {
   static propTypes = {
     onVerify: PropTypes.func.isRequired,
+    sitekey: PropTypes.string,
     theme: PropTypes.oneOf(['dark', 'light']),
     type: PropTypes.oneOf(['image', 'audio']),
     size: PropTypes.oneOf(['compact', 'normal']),
   };
 
   static defaultProps = {
+    sitekey: '6LdvyREUAAAAAKr6h7kyBzioJsXPGNKjW9r21WSh',
     theme: 'light',
     type: 'image',
     size: 'normal',
@@ -52,22 +72,24 @@ export default class Captcha extends Component {
       return;
     }
 
-    try {
+    loadCaptchaScript()
+    .then(() => {
       this.widgetId = grecaptcha.render(this.captcha, {
-        sitekey: publicSitekey,
+        sitekey: this.props.sitekey,
         type: this.props.type,
         theme: this.props.theme,
         size: this.props.size,
         inherit: true,
         callback: this.onSubmit,
       });
-    } catch (err) {
+    })
+    .catch(err => {
       if (process.env.NODE_ENV !== 'production') {
         console.log('Error rendering captcha'); //eslint-disable-line no-console
         console.log(err); //eslint-disable-line no-console
         console.log(err.stack); //eslint-disable-line no-console
       }
-    }
+    });
 
     //will override the previous one
     //we could use the ID (count) if need to support multiple
@@ -75,7 +97,7 @@ export default class Captcha extends Component {
   }
 
   onSubmit = (token) => {
-    this.props.onVerify(true);
+    this.props.onVerify(token);
   };
 
   getResponse() {
@@ -89,7 +111,7 @@ export default class Captcha extends Component {
   styles = {
     height: '78px',
     /*
-    //to center the captcha
+     //to center the captcha
      display: 'flex',
      flexDirection: 'row',
      justifyContent: 'space-around',
@@ -103,7 +125,6 @@ export default class Captcha extends Component {
         style={this.styles}
         id={`recaptcha-${this.count}`}
         className="g-recaptcha"
-        data-sitekey={publicSitekey}
         data-size="invisible"
       />
     );
