@@ -39,11 +39,6 @@ export class LandingPage extends Component {
     user: PropTypes.object,
   };
 
-  // truthy if the cookie warning must be shown
-  static showCookieWarning() {
-    return !getLocal('cookie-warning', false);
-  }
-
   static openLink(data) {
     const { url } = data;
     window.open(url, '_self');
@@ -70,10 +65,6 @@ export class LandingPage extends Component {
     const msie = ua.indexOf('MSIE ');
     return msie > 0 || !!navigator.userAgent.match(/Trident.*rv:11\./);
   }
-
-  state = {
-    showCookieWarning: LandingPage.showCookieWarning(),
-  };
 
   componentDidMount() {
     const authForm = this.props.params.comp;
@@ -137,16 +128,6 @@ export class LandingPage extends Component {
       LandingPage.openLink(data);
     }
   }
-
-  /**
-   * used is closing the cookie warnig so update local storage as seen
-   */
-  cookieWarningClosed = () => {
-    setLocal('cookie-warning', 'acknowledged');
-    this.setState({
-      showCookieWarning: false,
-    });
-  };
 
   render() {
     //todo - need to show the cookie warning? or do it in the iframe
