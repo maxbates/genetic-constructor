@@ -143,7 +143,6 @@ p
 
 #heroText
 {
-    position: absolute;
     width: 100%;
 }
 
@@ -227,6 +226,10 @@ p
     color: var(--black);
     text-align: center;
     min-height: 500px;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #valueSection

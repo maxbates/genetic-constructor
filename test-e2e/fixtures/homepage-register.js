@@ -9,10 +9,14 @@ var registerViaHomepage = function (browser) {
   //trigger the modal from the frame
   .frame('LandingPageFrame', function () {
     browser
-    .waitForElementPresent('.cookiesButton', 1000, 'Expected cookies button')
     .waitForElementPresent('nav .modalAction', 100, 'Expected modal action')
     .execute(function () {
-      document.querySelector('.cookiesButton').click();
+      //may not be present
+      var cookieModal = document.querySelector('.cookiesButton');
+      if (cookieModal) {
+        cookieModal.click()
+      }
+
       document.querySelector('nav .modalAction').click();
     }, [], function () {})
     .frameParent()
