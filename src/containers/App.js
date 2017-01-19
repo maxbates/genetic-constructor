@@ -24,7 +24,7 @@ import ReportErrorModal from '../components/modal/ReportErrorModal';
 import ModalSpinner from '../components/modal/modalspinner';
 import '../styles/App.css';
 import GlobalNav from './GlobalNav';
-import AuthenticationForms from './authentication/authenticationforms';
+import AuthenticationForms from './authenticationforms';
 
 class App extends Component {
   static propTypes = {

@@ -16,17 +16,18 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import '../../../src/styles/authenticationforms.css';
-import '../../../src/styles/form.css';
-import { uiShowAuthenticationForm } from '../../actions/ui';
-import AccountForm from '../../components/authentication/account';
-import ResetForm from '../../components/authentication/reset';
-import ModalWindow from '../../components/modal/modalwindow';
+import { uiShowAuthenticationForm } from '../actions/ui';
+import AccountForm from '../components/authentication/account';
+import ModalWindow from '../components/modal/modalwindow';
 
 //new auth modals
-import SignInModal from '../../components/authentication/SignInModal';
-import RegisterModal from '../../components/authentication/RegisterModal';
-import ForgotModal from '../../components/authentication/ForgotModal';
+import SignInModal from '../components/authentication/SignInModal';
+import RegisterModal from '../components/authentication/RegisterModal';
+import ForgotModal from '../components/authentication/ForgotModal';
+import ResetModal from '../components/authentication/ResetModal';
+
+import '../styles/authenticationforms.css';
+import '../../src/styles/form.css';
 
 function AuthenticationForms(props) {
   let form;
@@ -39,14 +40,13 @@ function AuthenticationForms(props) {
       return <SignInModal />;
     case 'forgot':
       return <ForgotModal />;
+    case 'reset' :
+      return <ResetModal />;
     default:
   }
 
   //handle the old modals
   switch (props.authenticationForm) {
-    case 'reset' :
-      form = <ResetForm />;
-      break;
     case 'account' :
       form = <AccountForm />;
       break;

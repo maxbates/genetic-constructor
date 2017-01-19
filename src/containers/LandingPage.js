@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 import { dispatch } from '../store/index';
 import { uiSetGrunt, uiShowAuthenticationForm } from '../actions/ui';
 import { projectOpen } from '../actions/projects';
-import { getLocal, setLocal } from '../utils/localstorage';
 
 import '../styles/LandingPage.css';
 

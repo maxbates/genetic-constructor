@@ -21,6 +21,7 @@ import { projectOpen } from '../../actions/projects';
 import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userRegister } from '../../actions/user';
 import { privacy, tos } from '../../utils/ui/uiapi';
+import * as authValidation from './_validation';
 
 import Modal from '../Modal';
 import ModalFooter from '../ModalFooter';
@@ -72,7 +73,10 @@ export class RegisterFormNew extends Component {
       formState.password &&
       formState.accountType &&
       formState.verification &&
-      formState.legal && !emailValidator(formState.email) && !passwordValidator(formState.password) && !formState.forceDisableEmail
+      formState.legal &&
+      (!authValidation.emailValidator(formState.email)) &&
+      (!authValidation.passwordValidator(formState.password)) &&
+      (!formState.forceDisableEmail)
     );
   }
 
@@ -165,7 +169,7 @@ export class RegisterFormNew extends Component {
       this.props.uiSpin();
       const defaultMessage = 'Unexpected error, please check your connection';
 
-      if (reason.type === 'unique violation') {
+      if (reason.message === 'email must be unique' || reason.type === 'unique violation') {
         this.setState({
           forceDisabled: true,
           submitError: 'This email address is already registered.',
@@ -180,11 +184,11 @@ export class RegisterFormNew extends Component {
 
   render() {
     //special dirty-state handling for password and email
-    const showPasswordError = this.state.passwordDirty && this.state.password && passwordValidator(this.state.password);
-    const showEmailError = this.state.emailDirty && this.state.email && emailValidator(this.state.email);
+    const showPasswordError = this.state.passwordDirty && this.state.password && authValidation.passwordValidator(this.state.password);
+    const showEmailError = this.state.emailDirty && this.state.email && authValidation.emailValidator(this.state.email);
 
-    const passwordError = showPasswordError ? passwordValidator(this.state.password) : '';
-    const emailError = showEmailError ? emailValidator(this.state.email) : '';
+    const passwordError = showPasswordError ? authValidation.passwordValidator(this.state.password) : '';
+    const emailError = showEmailError ? authValidation.emailValidator(this.state.email) : '';
 
     return (
       <Modal
@@ -328,27 +332,3 @@ export default connect(state => ({
   userRegister,
   projectOpen,
 })(RegisterFormNew);
-
-//error handling functions
-
-//returns string if error
-function emailValidator(email) {
-  if (!email) {
-    return 'An email address is required';
-  } else if (!(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email))) {
-    return 'Please enter a valid email address';
-  }
-}
-
-//return string if error
-function passwordValidator(password) {
-  if (!password) {
-    return 'A password is required';
-  } else if (password.length < 8) {
-    return 'Password must be 8 or more characters';
-  } else if (/ /.test(password)) {
-    return 'Password cannot contain spaces';
-  } else if (!(/[0-9]/.test(password) && /[a-zA-Z]/.test(password))) {
-    return 'Please use at least one number and one letter';
-  }
-}

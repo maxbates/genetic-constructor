@@ -19,6 +19,7 @@ import { connect } from 'react-redux';
 import { projectOpen } from '../../actions/projects';
 import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userLogin } from '../../actions/user';
+import { ERROR_MESSAGE_DEFAULT } from './_validation';
 
 import Modal from '../Modal';
 import ModalFooter from '../ModalFooter';
@@ -26,7 +27,7 @@ import FormGroup from '../formElements/FormGroup';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';
 
-export class RegisterFormNew extends Component {
+export class SignInModal extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
     uiShowAuthenticationForm: PropTypes.func.isRequired,
@@ -60,7 +61,6 @@ export class RegisterFormNew extends Component {
     })
     .catch((reason) => {
       this.props.uiSpin();
-      const defaultMessage = 'Unexpected error, please check your connection';
 
       if (reason.message === 'Incorrect username.') {
         this.setState({
@@ -69,7 +69,7 @@ export class RegisterFormNew extends Component {
         });
       } else {
         this.setState({
-          submitError: reason.message || defaultMessage,
+          submitError: reason.message || ERROR_MESSAGE_DEFAULT,
         });
       }
     });
@@ -136,4 +136,4 @@ export default connect(state => ({
   uiSpin,
   userLogin,
   projectOpen,
-})(RegisterFormNew);
+})(SignInModal);
