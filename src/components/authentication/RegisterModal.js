@@ -142,14 +142,19 @@ export class RegisterFormNew extends Component {
 
   onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
-  registerUser(formState) {
+  registerUser() {
+    if (!this.state.forceDisabled && !RegisterFormNew.validateForm(this.state)) {
+      this.setState({ submitError: 'Please fill out all fields' });
+      return;
+    }
+
     this.props.uiSpin('Creating your account... Please wait.');
     this.props.userRegister({
-      email: formState.email,
-      password: formState.password,
-      firstName: formState.firstName,
-      lastName: formState.lastName,
-    }, RegisterFormNew.getConfig(formState))
+      email: this.state.email,
+      password: this.state.password,
+      firstName: this.state.firstName,
+      lastName: this.state.lastName,
+    }, RegisterFormNew.getConfig(this.state))
     .then((json) => {
       // close the form / wait message
       this.props.uiSpin();
@@ -188,10 +193,15 @@ export class RegisterFormNew extends Component {
         title="Sign Up"
         style={{ content: { width: '740px' } }}
       >
-        <div className="Form Modal-paddedContent">
+        <form
+          id="auth-register"
+          action="#"
+          className="Form Modal-paddedContent"
+          onSubmit={this.registerUser}
+        >
           <div className="Modal-banner">
             <span>Already have a Genetic Constructor account? </span>
-            <a onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
+            <a id="auth-showLogin" onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
           </div>
 
           <FormGroup
@@ -301,7 +311,7 @@ export class RegisterFormNew extends Component {
               {this.state.submitError}
             </div>
           )}
-        </div>
+        </form>
 
         <ModalFooter actions={this.actions} />
       </Modal>

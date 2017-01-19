@@ -137,6 +137,7 @@ export class LandingPage extends Component {
 
     return (
       <iframe
+        id="LandingPageFrame"
         ref={(el) => { this.iframe = el; }}
         sandbox="allow-same-origin allow-scripts"
         className="LandingPage"

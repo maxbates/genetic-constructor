@@ -46,6 +46,10 @@ export class RegisterFormNew extends Component {
   onPassword = evt => this.setState({ password: evt.target.value });
 
   signIn() {
+    if (!(this.state.email && this.state.password)) {
+      return;
+    }
+
     this.props.uiSpin('Signing in... Please wait.');
 
     this.props.userLogin(this.state.email, this.state.password)
@@ -74,7 +78,7 @@ export class RegisterFormNew extends Component {
   actions = [{
     text: 'Sign In',
     disabled: () => !(this.state.email && this.state.password),
-    onClick: () => this.signIn(this.state),
+    onClick: () => this.signIn(),
   }];
 
   render() {
@@ -85,10 +89,14 @@ export class RegisterFormNew extends Component {
         title="Sign In"
         style={{ content: { width: '740px' } }}
       >
-        <div className="Form Modal-paddedContent">
+        <form
+          id="auth-signin"
+          className="Form Modal-paddedContent"
+          onSubmit={this.signIn}
+        >
           <div className="Modal-banner">
             <span>Don&apos;t have a Genetic Constructor account? </span>
-            <a onClick={() => this.props.uiShowAuthenticationForm('register')}>Sign Up - it&apos;s free!</a>
+            <a id="auth-showRegister" onClick={() => this.props.uiShowAuthenticationForm('register')}>Sign Up - it&apos;s free!</a>
           </div>
 
           <FormGroup label="Email">
@@ -113,7 +121,7 @@ export class RegisterFormNew extends Component {
               {this.state.submitError}
             </div>
           )}
-        </div>
+        </form>
 
         <ModalFooter actions={this.actions} />
       </Modal>
