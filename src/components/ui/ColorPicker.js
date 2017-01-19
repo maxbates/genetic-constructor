@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import { getPalette, getPaletteName, palettes } from '../../utils/color/index';
+import { getPalette } from '../../utils/color/index';
 import '../../styles/ColorPicker.css';
 
 //todo - this has a lot of logic shared with Symbol Picker, but some differences in data structure etc. Should probably merge them though.
@@ -35,7 +35,7 @@ export default class ColorPicker extends Component {
     if (!this.props.readOnly) {
       this.setState({ expanded: !this.state.expanded });
     }
-  }
+  };
 
   render() {
     const currentPalette = getPalette(this.props.paletteName);
@@ -51,10 +51,9 @@ export default class ColorPicker extends Component {
         <div className="dropdown">
           {currentPalette.map((color, index) => {
             return (
-              <div className="color-wrapper">
+              <div className="color-wrapper" key={index}>
                 <div
                   onClick={() => this.props.onSelectColor(index)}
-                  key={index}
                   className="color"
                   style={{
                     backgroundColor: color.hex,

@@ -17,6 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { blockMerge, blockRename, blockSetColor, blockSetPalette, blockSetRole } from '../../actions/blocks';
+import { blockGetParents } from '../../selectors/blocks';
 import Block from '../../models/Block';
 import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
@@ -48,6 +49,7 @@ export class InspectorBlock extends Component {
     blockSetColor: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
+    blockGetParents: PropTypes.func.isRequired,
     blockMerge: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
     transact: PropTypes.func.isRequired,
@@ -201,6 +203,8 @@ export class InspectorBlock extends Component {
     const isList = singleInstance && instances[0].isList();
     const isTemplate = singleInstance && instances[0].isTemplate();
     const isConstruct = singleInstance && instances[0].isConstruct();
+    const hasParents = this.props.blockGetParents(instances[0].id).length > 0;
+
     const inputKey = instances.map(inst => inst.id).join(',');
     const anyIsConstructOrTemplateOrList = instances.some(instance => instance.isConstruct() || instance.isTemplate() || instance.isList());
     const palette = construct ? construct.metadata.palette : null;
@@ -270,22 +274,31 @@ export class InspectorBlock extends Component {
           />
           : null
         }
-        <Expando
-          text="Color Palette"
-          content={
-            <PalettePicker
-              paletteName={palette}
-              onSelectPalette={this.selectPalette}
-              readOnly={readOnly}
+        {isConstruct && singleInstance && !hasParents
+          ?
+            <Expando
+              text="Color Palette"
+              content={
+                <PalettePicker
+                  paletteName={palette}
+                  onSelectPalette={this.selectPalette}
+                  readOnly={readOnly}
+                />}
             />
-          }
-        />
-        <ColorPicker
-          current={this.currentColor()}
-          readOnly={readOnly}
-          paletteName={palette}
-          onSelectColor={this.selectColor}
-        />
+          :
+            null
+        }
+        {hasParents
+          ?
+            <ColorPicker
+              current={this.currentColor()}
+              readOnly={readOnly}
+              paletteName={palette}
+              onSelectColor={this.selectColor}
+            />
+          :
+            null
+        }
         <Expando
           text="Symbol"
           content={<SBOLPicker
@@ -341,6 +354,7 @@ export default connect(() => ({}), {
   blockSetColor,
   blockSetPalette,
   blockSetRole,
+  blockGetParents,
   blockRename,
   blockMerge,
   transact,
