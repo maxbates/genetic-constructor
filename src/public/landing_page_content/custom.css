@@ -33,7 +33,7 @@
 .line
 {
     border-top: solid 1px rgba(0, 0, 0, 0.3);
-    padding-bottom: 20px;  
+    padding-bottom: 20px;
 }
 
 body
@@ -58,7 +58,6 @@ body
    src: url('assets/fonts/Artifakt Element Regular.otf');
 }
 
-
 @font-face{
    font-family: 'art-med';
    src: url('assets/fonts/Artifakt Element Medium.otf');
@@ -69,16 +68,13 @@ body
    src: url('assets/fonts/Artifakt Element Bold.otf');
 }
 
-
 h1
 {
-    font-size: 4em;
+    font-size: 5em;
     color: var(--black);
     font-family: 'art-thin';
     cursor: default;
-    margin-bottom: -30px;
-    padding-top: 120px;
-
+    margin-bottom: -20px;
 }
 
 .heroSubText
@@ -88,6 +84,7 @@ h1
     font-family: 'art-reg';
     line-height: 1.5;
     cursor: default;
+    margin-bottom: 40px;
 }
 
 h2
@@ -171,7 +168,8 @@ p
 }
 
 /* ---------------------- COOKIES --------------------- */
-#cookiesModal 
+
+#cookiesModal
 {
     position: absolute;
     top: 0px;
@@ -179,7 +177,7 @@ p
     color: var(--black);
     background: var(--lightBackground);
     z-index: 100;
-    padding: 22px 100px 17px 20px ;
+    padding: 22px 100px 17px 20px;
 }
 
 .cookiesButton
@@ -192,7 +190,7 @@ p
     width: 100px;
     border: none;
     background-color: var(--spot);
-        font-family: 'art-med';
+    font-family: 'art-med';
 }
 
 /* ---------------------- NAVIGATION --------------------- */
@@ -202,7 +200,7 @@ p
     padding-top: 10px;
     padding-bottom: 10px;
     background: white;
-        z-index: 1;
+    z-index: 1;
 }
 
 .nav
@@ -227,27 +225,17 @@ p
     min-height: 500px;
 }
 
-.heroBack {
-    padding-bottom: 40px;
-}
-
-.heroFont {
-    width: 96%;
-    position: absolute;
-    top: 28%;
-}
-
 #valueSection
 {
-    color: var(--black);
-    background: var(--lightGrey);
+    color: var(--white);
+    background: #28253D;
+    opacity: 0.95;
     text-align: center;
     position: absolute;
-    bottom: -40px;
+    bottom: 0px;
     width: 100%;
-    padding-top: 20px;
-    padding-bottom: 30px;
-    min-height: 150px;
+    padding-top: 30px;
+    padding-bottom: 20px;
 }
 
 #interfaceSection
@@ -256,18 +244,17 @@ p
     padding-top: 120px;
     padding-bottom: 120px;
     text-align: center;
-    min-height: 800px;
 }
 
 .feature1
 {
     background-image: url("assets/images/back1.png"), url("assets/images/back2.png");
-    background-size: 50% 100%, 50% 100% ;
+    background-size: 50% 100%, 50% 100%;
     background-position: top left, top right;
     background-repeat: no-repeat;
     color: var(--black);
     padding-top: 120px;
-    padding-bottom: 200px;
+    padding-bottom: 180px;
 }
 
 .feature2
@@ -277,12 +264,11 @@ p
     background-position: top right;
     background-repeat: no-repeat;
     color: var(--black);
-    padding-top: 160px; 
+    padding-top: 120px;
     padding-bottom: 180px;
 }
 
-.feature3
-{
+.feature3 {
     background-image: url("assets/images/back4.png"), url("assets/images/back5.png");
     background-size: 50% 100%, 50% 100% ;
     background-position: top left, top right;
@@ -291,7 +277,7 @@ p
     padding-top: 120px;
     padding-bottom: 200px;
     color: var(--black);
-    padding-top: 180px;
+    padding-top: 120px;
     padding-bottom: 180px;
 }
 
@@ -307,7 +293,7 @@ p
 .trySectionTop
 {
     color: var(--black);
-    background: var(--lightGrey);
+    background: var(--darkGrey);
     text-align: center;
     padding-top: 100px;
     padding-bottom: 60px;
@@ -316,7 +302,7 @@ p
 .trySectionCards
 {
     background-image: url("assets/images/back6.png"), url("assets/images/back7.png");
-    background-size: 50% 100%, 50% 100% ;
+    background-size: 50% 100%, 50% 100%;
     background-position: top left, top right;
     background-repeat: no-repeat;
     text-align: center;
@@ -330,7 +316,7 @@ p
     background: var(--lightBackground);
     text-align: center;
     padding-top: 120px;
-    padding-bottom: 160px;
+    padding-bottom: 180px;
 }
 
 #footerSection
@@ -338,7 +324,7 @@ p
     color: var(--black);
     background: var(--darkGrey);
     padding-top: 120px;
-    padding-bottom: 160px;
+    padding-bottom: 180px;
 }
 
 /* ---------------------- CONTROLS --------------------- */
@@ -442,7 +428,6 @@ p
     padding-right: 0px;
 }
 
-
 /* ---------------------- RESPONSIVE --------------------- */
 
 @media (max-width:768px)
@@ -471,19 +456,69 @@ p
     }
     h1
     {
-    font-size: 3em;
+        font-size: 3em;
     }
     h2
     {
-    font-size: 2.5em;
-    font-family: 'art-thin';
-    cursor: default;
+        font-size: 2.5em;
+        font-family: 'art-thin';
+        cursor: default;
+    }
+    #interfaceSection
+    {
+        padding-top: 60px;
+        padding-bottom: 10px;
+    }
+    .feature1
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .feature2
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .feature3
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    #futureSection
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .trySectionTop
+    {
+        padding-top: 60px;
+        padding-bottom: 30px;
+    }
+    .trySectionCards
+    {
+        padding-top: 60px;
+        padding-bottom: 100px;
+    }
+    #teamSection
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    #footerSection
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
     }
     .hiddenPhone
     {
-    display: none;
+        display: none;
+    }
+    .extraPaddingPhone
+    {
+        padding-top: 120px;
     }
 }
+
 
 @media (max-width:992px)
 {
@@ -492,3 +527,4 @@ p
         margin-top: 100px;
     }
 }
+
