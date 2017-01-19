@@ -43,7 +43,7 @@
                             <a href="#interfaceSection">Features</a>
                         </li>
                         <li>
-                            <a href="#trySection">Pricing</a>
+                            <a href="#trySectionTop">Pricing</a>
                         </li>
                         <li>
                             <a href="#teamSection">Team</a>
@@ -70,7 +70,7 @@
                              data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="0ms" data-animation-pro-easing-1="ease-in-out-quart">GENETIC CONSTRUCTOR</h1>
                             <h2 class='heroSubText' data-animation-pro-1 style="transform:translateY(0px);opacity:1;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="150ms" data-animation-pro-easing-1="ease-in-out-quart">An extensible toolkit for genetic engineering</h2>
                         </div>
-                        <a href="#trySection">
+                        <a href="#trySectionTop">
                             <button class="bigButton" data-animation-pro-1 style="transform:translateY(0px);opacity:1;" data-animation-pro-init-state-1="transform:translateY(0px);opacity:0;" data-animation-pro-step-1-1="transform:translateY(0px);opacity:1;" data-animation-pro-trigger-1="load" data-animation-pro-duration-1="1000" data-animation-pro-delay-1="300ms" data-animation-pro-easing-1="ease-in-out-quart">Try for free</button>
                         </a>                         
                     </div>
@@ -210,7 +210,7 @@
             </div>
         </div>
         <!----------------------- TRY SECTION --------------------->
-        <div id="trySection" class="trySectionTop">
+        <div id="trySectionTop" class="trySectionTop">
             <div class="container">
                 <div class="row">
                     <div class="col-xs-12">
@@ -220,7 +220,7 @@
                 </div>
             </div>
         </div>
-        <div id="trySection" class="trySectionCards">
+        <div id="trySectionCards" class="trySectionCards">
             <div class="container">
                 <div class="row">
                     <div class="col-md-4">
@@ -400,9 +400,10 @@
             $('a').on('click', function (evt) {
               var $el = $(this);
               var url = $el.attr('href');
+              var isAnchor = url[0] === '#';
               var newTab = $el.attr('target') === '_blank';
 
-              if (url && !newTab) {
+              if (url && !isAnchor && !newTab) {
                 evt.preventDefault();
                 evt.stopPropagation();
                 window.parent.postMessage({ type: 'link', url: url }, '*');

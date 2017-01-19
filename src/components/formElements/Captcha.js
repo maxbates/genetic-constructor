@@ -23,6 +23,7 @@ import loadScript from 'load-script';
 loadScript('https://www.google.com/recaptcha/api.js');
 
 let counter = 0;
+const publicSitekey = '6LdvyREUAAAAAKr6h7kyBzioJsXPGNKjW9r21WSh';
 
 /* global grecaptcha:false */
 
@@ -53,7 +54,7 @@ export default class Captcha extends Component {
 
     try {
       this.widgetId = grecaptcha.render(this.captcha, {
-        sitekey: '6LdvyREUAAAAAKr6h7kyBzioJsXPGNKjW9r21WSh',
+        sitekey: publicSitekey,
         type: this.props.type,
         theme: this.props.theme,
         size: this.props.size,
@@ -102,6 +103,7 @@ export default class Captcha extends Component {
         style={this.styles}
         id={`recaptcha-${this.count}`}
         className="g-recaptcha"
+        data-sitekey={publicSitekey}
         data-size="invisible"
       />
     );
