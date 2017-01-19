@@ -22,8 +22,8 @@ import { projectOpen } from '../../actions/projects';
 import { passwordValidator, errorMessageDefault } from './_validation';
 import { reset } from '../../middleware/auth';
 
-import Modal from '../Modal';
-import ModalFooter from '../ModalFooter';
+import Modal from '../modal/Modal';
+import ModalFooter from '../modal/ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import FormPassword from '../formElements/FormPassword';
 

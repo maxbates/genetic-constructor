@@ -23,8 +23,8 @@ import { userRegister } from '../../actions/user';
 import { privacy, tos } from '../../utils/ui/uiapi';
 import * as authValidation from './_validation';
 
-import Modal from '../Modal';
-import ModalFooter from '../ModalFooter';
+import Modal from '../modal/Modal';
+import ModalFooter from '../modal/ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import Checkbox from '../formElements/Checkbox';
 import Captcha from '../formElements/Captcha';

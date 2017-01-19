@@ -21,8 +21,8 @@ import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userLogin } from '../../actions/user';
 import { ERROR_MESSAGE_DEFAULT } from './_validation';
 
-import Modal from '../Modal';
-import ModalFooter from '../ModalFooter';
+import Modal from '../modal/Modal';
+import ModalFooter from '../modal/ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';

@@ -22,7 +22,7 @@ import ReactModal from 'react-modal';
 
 import ModalFooter from './ModalFooter';
 
-import '../styles/Modal.css';
+import '../../styles/Modal.css';
 
 //based on ReactModal component: https://reactcommunity.org/react-modal/
 //can be mounted inside a component, or at the app root. Uses a portal to render appropriately in whole window.

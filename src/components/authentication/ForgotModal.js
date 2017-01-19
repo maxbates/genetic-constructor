@@ -20,8 +20,8 @@ import { connect } from 'react-redux';
 import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
 import { forgot } from '../../middleware/auth';
 
-import Modal from '../Modal';
-import ModalFooter from '../ModalFooter';
+import Modal from '../modal/Modal';
+import ModalFooter from '../modal/ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import FormText from '../formElements/FormText';
 
