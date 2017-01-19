@@ -23,7 +23,7 @@ export default class ColorPicker extends Component {
   static propTypes = {
     paletteName: PropTypes.string,
     current: PropTypes.number,
-    readOnly: PropTypes.string.isRequired,
+    readOnly: PropTypes.bool.isRequired,
     onSelectColor: PropTypes.func.isRequired,
   };
 
@@ -31,11 +31,40 @@ export default class ColorPicker extends Component {
     expanded: false,
   };
 
+  /**
+   * track mouse down while the picker is expanded
+   * @param event
+   */
+  mouseDown = (event) => {
+    let current = event.target;
+    while (current) {
+      if (current.classList && Array.from(current.classList).indexOf('single-color-picker') >= 0) {
+        // the click was in some part of the color picker so ignore
+        return;
+      }
+      current = current.parentNode;
+    }
+    // if here the click was outside the picker so close
+    document.body.removeEventListener('mousedown', this.mouseDown);
+    this.setState({ expanded: false });
+  };
+
+  /**
+   * toggle between open / closed
+   */
   toggle = () => {
     if (!this.props.readOnly) {
+      // if about to expand we need to track mouse clicks outside to close
+      if (!this.state.expanded) {
+        document.body.addEventListener('mousedown', this.mouseDown);
+      } else {
+        document.body.removeEventListener('mousedown', this.mouseDown);
+      }
+      // toggle state
       this.setState({ expanded: !this.state.expanded });
     }
   };
+
 
   render() {
     const currentPalette = getPalette(this.props.paletteName);
