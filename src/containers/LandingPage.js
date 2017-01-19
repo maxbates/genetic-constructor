@@ -34,7 +34,7 @@ export class LandingPage extends Component {
       query: PropTypes.object,
     }).isRequired,
     params: PropTypes.shape({
-      comp: PropTypes.oneOf(allowedModals),
+      comp: PropTypes.oneOf(['landing', ...allowedModals]),
     }),
     user: PropTypes.object,
   };
