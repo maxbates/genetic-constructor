@@ -32,7 +32,7 @@ import FormRadio from '../formElements/FormRadio';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';
 
-export class RegisterFormNew extends Component {
+export class RegisterModal extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
     registerType: PropTypes.string,
@@ -100,7 +100,7 @@ export class RegisterFormNew extends Component {
     this.actions = [{
       text: 'Sign Up',
       disabled: () => (
-        !this.state.forceDisabled && !RegisterFormNew.validateForm(this.state)
+        !this.state.forceDisabled && !RegisterModal.validateForm(this.state)
       ),
       onClick: () => this.registerUser(this.state),
     }];
@@ -148,7 +148,7 @@ export class RegisterFormNew extends Component {
   onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
   registerUser() {
-    if (!this.state.forceDisabled && !RegisterFormNew.validateForm(this.state)) {
+    if (!this.state.forceDisabled && !RegisterModal.validateForm(this.state)) {
       this.setState({ submitError: 'Please fill out all fields' });
       return;
     }
@@ -160,7 +160,7 @@ export class RegisterFormNew extends Component {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       captcha: this.state.captcha,
-    }, RegisterFormNew.getConfig(this.state))
+    }, RegisterModal.getConfig(this.state))
     .then((json) => {
       // close the form / wait message
       this.props.uiSpin();
@@ -212,11 +212,13 @@ export class RegisterFormNew extends Component {
 
           <FormGroup label="Full Name">
             <FormText
+              name="firstName"
               value={this.state.firstName}
               placeholder="First"
               onChange={this.onFirstName}
             />
             <FormText
+              name="lastName"
               value={this.state.lastName}
               placeholder="Last"
               onChange={this.onLastName}
@@ -226,6 +228,7 @@ export class RegisterFormNew extends Component {
           <FormGroup label="Email" error={emailError}>
             <FormText
               value={this.state.email}
+              name="email"
               placeholder="You will use your email address to sign in"
               onChange={this.onEmail}
               onBlur={this.onEmailBlur}
@@ -235,6 +238,7 @@ export class RegisterFormNew extends Component {
           <FormGroup label="Password" error={passwordError}>
             <FormPassword
               value={this.state.password}
+              name="password"
               placeholder="8 or more characters. No spaces."
               onChange={this.onPassword}
               onBlur={this.onPasswordBlur}
@@ -319,4 +323,4 @@ export default connect(state => ({
   uiSpin,
   userRegister,
   projectOpen,
-})(RegisterFormNew);
+})(RegisterModal);

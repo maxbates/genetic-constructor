@@ -40,7 +40,11 @@ export class RegisterFormNew extends Component {
   onEmail = evt => this.setState({ email: evt.target.value });
 
   onForgot() {
-    forgot(this.state.email)
+    if (!this.state.email) {
+      return;
+    }
+
+    return forgot(this.state.email)
     .then((json) => {
       //handle errors by diverting to catch
       if (json.message === 'Invalid email' || json.message === 'missing email') {
@@ -79,7 +83,11 @@ export class RegisterFormNew extends Component {
         title="Forgot Password"
         style={{ content: { width: '740px' } }}
       >
-        <div className="Form Modal-paddedContent">
+        <form
+          id="auth-forgot"
+          className="Form Modal-paddedContent"
+          onSubmit={this.onForgot}
+        >
           <div className="Modal-banner">
             <span>Remember your password? </span>
             <a onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
@@ -98,7 +106,7 @@ export class RegisterFormNew extends Component {
               {this.state.submitError}
             </div>
           )}
-        </div>
+        </form>
 
         <ModalFooter actions={this.actions} />
       </Modal>
