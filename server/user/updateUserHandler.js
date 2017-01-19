@@ -56,7 +56,7 @@ export function registrationHandler(req, res, next) {
     logger('[User Register] Error in input config');
     logger(err);
     logger(err.stack);
-    return res.status(422).send(err);
+    return res.status(422).json(err);
   }
 
   const mappedUser = mergeConfigToUserData({
@@ -73,37 +73,43 @@ export function registrationHandler(req, res, next) {
   const url = `${INTERNAL_HOST}/auth/register`;
 
   return fetch(url, headersPost(JSON.stringify(mappedUser)))
-    .then((resp) => {
-      //re-assign cookies from platform authentication
-      const cookies = resp.headers.getAll('set-cookie');
-      cookies.forEach((cookie) => {
-        res.set('set-cookie', cookie);
-      });
+  .then((resp) => {
+    //e.g. if user already registered, just pass the error through
+    if (resp.status >= 400) {
+      return resp.json()
+      .then(json => res.status(422).json(json));
+    }
 
-      return resp.json();
-    })
-    .then((userPayload) => {
-      //logger('userPayload');
-      //logger(userPayload);
-
-      if (userPayload.message) {
-        return Promise.reject(userPayload);
-      }
-
-      const pruned = pruneUserObject(userPayload);
-
-      //logger('sending pruned');
-      //logger(pruned);
-
-      res.json(pruned);
-    })
-    .catch((err) => {
-      logger('[User Register] Error registering');
-      logger(req.body);
-      logger(err);
-      logger(err.stack);
-      res.status(500).json(err);
+    //re-assign cookies from platform authentication
+    const cookies = resp.headers.getAll('set-cookie');
+    cookies.forEach((cookie) => {
+      res.set('set-cookie', cookie);
     });
+
+    return resp.json();
+  })
+  .then((userPayload) => {
+    //logger('userPayload');
+    //logger(userPayload);
+
+    if (userPayload.message) {
+      return Promise.reject(userPayload);
+    }
+
+    const pruned = pruneUserObject(userPayload);
+
+    //logger('sending pruned');
+    //logger(pruned);
+
+    res.json(pruned);
+  })
+  .catch((err) => {
+    logger('[User Register] Error registering');
+    logger(req.body);
+    logger(err);
+    logger(err.stack);
+    res.status(500).json(err);
+  });
 }
 
 export function loginHandler(req, res, next) {
@@ -130,37 +136,37 @@ export function loginHandler(req, res, next) {
   logger(email, password, url);
 
   return fetch(url, headersPost(JSON.stringify(req.body)))
-    .then((resp) => {
-      //re-assign cookies from platform authentication
-      const cookies = resp.headers.getAll('set-cookie');
-      cookies.forEach((cookie) => {
-        res.set('set-cookie', cookie);
-      });
-
-      return resp.json();
-    })
-    .then((userPayload) => {
-      logger('[User Login] received payload');
-      logger(userPayload);
-
-      if (userPayload.message) {
-        return Promise.reject(userPayload);
-      }
-
-      const pruned = pruneUserObject(userPayload);
-
-      logger('[User Login] sending pruned:');
-      logger(pruned);
-
-      res.json(pruned);
-    })
-    .catch((err) => {
-      logger('[User Login] Error logging in');
-      logger(req.body);
-      logger(err);
-      logger(err.stack);
-      res.status(500).json(err);
+  .then((resp) => {
+    //re-assign cookies from platform authentication
+    const cookies = resp.headers.getAll('set-cookie');
+    cookies.forEach((cookie) => {
+      res.set('set-cookie', cookie);
     });
+
+    return resp.json();
+  })
+  .then((userPayload) => {
+    logger('[User Login] received payload');
+    logger(userPayload);
+
+    if (userPayload.message) {
+      return Promise.reject(userPayload);
+    }
+
+    const pruned = pruneUserObject(userPayload);
+
+    logger('[User Login] sending pruned:');
+    logger(pruned);
+
+    res.json(pruned);
+  })
+  .catch((err) => {
+    logger('[User Login] Error logging in');
+    logger(req.body);
+    logger(err);
+    logger(err.stack);
+    res.status(500).json(err);
+  });
 }
 
 //parameterized route handler for setting user config
@@ -206,16 +212,16 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
       });
 
       return userPromises.update(user)
-        .then((updatedUser) => {
-          const pruned = pruneUserObject(updatedUser);
-          const toSend = wholeUser ? pruned : pruned.config;
-          res.json(toSend);
-        })
-        .catch((err) => {
-          logger('[User Config] error setting user config');
-          logger(err);
-          res.status(501).json(err);
-        });
+      .then((updatedUser) => {
+        const pruned = pruneUserObject(updatedUser);
+        const toSend = wholeUser ? pruned : pruned.config;
+        res.json(toSend);
+      })
+      .catch((err) => {
+        logger('[User Config] error setting user config');
+        logger(err);
+        res.status(501).json(err);
+      });
     }
 
     // otherwise, delegate to auth routes
@@ -223,33 +229,33 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     // local auth - just call our mock routes
     const url = `${INTERNAL_HOST}/auth/update-all`;
     return fetch(url, headersPost(JSON.stringify(user)))
-      .then((resp) => {
-        //re-assign cookies from platform authentication
-        const cookies = resp.headers.getAll('set-cookie');
-        cookies.forEach((cookie) => {
-          res.set('set-cookie', cookie);
-        });
-
-        return resp.json();
-      })
-      .then((userPayload) => {
-        logger('[User Config] received payload');
-        logger(userPayload);
-
-        if (userPayload.message) {
-          return Promise.reject(userPayload);
-        }
-
-        const pruned = pruneUserObject(userPayload);
-        const toSend = wholeUser ? pruned : pruned.config;
-
-        res.json(toSend);
-      })
-      .catch((err) => {
-        logger('[User Config] got error setting user config');
-        logger(err);
-        logger(err.stack);
-        res.status(500).json(err);
+    .then((resp) => {
+      //re-assign cookies from platform authentication
+      const cookies = resp.headers.getAll('set-cookie');
+      cookies.forEach((cookie) => {
+        res.set('set-cookie', cookie);
       });
+
+      return resp.json();
+    })
+    .then((userPayload) => {
+      logger('[User Config] received payload');
+      logger(userPayload);
+
+      if (userPayload.message) {
+        return Promise.reject(userPayload);
+      }
+
+      const pruned = pruneUserObject(userPayload);
+      const toSend = wholeUser ? pruned : pruned.config;
+
+      res.json(toSend);
+    })
+    .catch((err) => {
+      logger('[User Config] got error setting user config');
+      logger(err);
+      logger(err.stack);
+      res.status(500).json(err);
+    });
   };
 }
