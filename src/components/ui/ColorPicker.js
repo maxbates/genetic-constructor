@@ -29,6 +29,7 @@ export default class ColorPicker extends Component {
 
   state = {
     expanded: false,
+    colorName: '',
   };
 
   /**
@@ -46,7 +47,10 @@ export default class ColorPicker extends Component {
     }
     // if here the click was outside the picker so close
     document.body.removeEventListener('mousedown', this.mouseDown);
-    this.setState({ expanded: false });
+    this.setState({
+      expanded: false,
+      colorName: '',
+    });
   };
 
   /**
@@ -61,7 +65,10 @@ export default class ColorPicker extends Component {
         document.body.removeEventListener('mousedown', this.mouseDown);
       }
       // toggle state
-      this.setState({ expanded: !this.state.expanded });
+      this.setState({
+        expanded: !this.state.expanded,
+        colorName: '',
+      });
     }
   };
 
@@ -83,6 +90,8 @@ export default class ColorPicker extends Component {
               <div className="color-wrapper" key={index}>
                 <div
                   onClick={() => this.props.onSelectColor(index)}
+                  onMouseEnter={() => this.setState({ colorName: color.name || color.hex })}
+                  onMouseLeave={() => this.setState({ colorName: '' })}
                   className="color"
                   style={{
                     backgroundColor: color.hex,
@@ -98,7 +107,7 @@ export default class ColorPicker extends Component {
     }
     return (
       <div className="single-color-picker" onClick={this.toggle}>
-        <div className="label">Color</div>
+        <div className="label">{`Color: ${this.state.colorName || color.name || color.hex}`}</div>
         <div className="color" style={{ backgroundColor: color.hex }}>
           {chips}
         </div>
