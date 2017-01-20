@@ -623,6 +623,7 @@ class GlobalNav extends Component {
         <span className="GlobalNav-spacer" />
         {currentProjectId && <AutosaveTracking projectId={currentProjectId} />}
         <UserWidget />
+        <OkCancel />
       </div>
     );
   }
