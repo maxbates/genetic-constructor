@@ -85,7 +85,7 @@ export default class Captcha extends Component {
         'expired-callback': this.props.onExpire,
       });
     })
-    .catch(err => {
+    .catch((err) => {
       if (process.env.NODE_ENV !== 'production') {
         console.log('Error rendering captcha'); //eslint-disable-line no-console
         console.log(err); //eslint-disable-line no-console

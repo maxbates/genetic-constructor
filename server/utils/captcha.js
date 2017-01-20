@@ -30,7 +30,7 @@ export function verifyCaptcha(response, secret = captchaSecret) {
     method: 'POST',
   })
   .then(resp => resp.json())
-  .then(result => {
+  .then((result) => {
     if (result.success) {
       return result;
     }
@@ -44,7 +44,7 @@ export function verifyCaptchaProductionOnly(...args) {
   }
 
   return verifyCaptcha(...args)
-  .catch(err => {
+  .catch((err) => {
     console.log('captcha failed', err);
     return err;
   });
