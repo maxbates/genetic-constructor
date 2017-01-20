@@ -1,6 +1,8 @@
-var registerViaHomepage = function (browser) {
+//returns a promise - wait for it if you need to chain  / if you need the credentials
 
-  var email, password, firstName, lastName;
+var registerViaHomepage = function (browser, cb) {
+
+  var credentials = {};
 
   browser
   .url(browser.launchUrl + '/homepage')
@@ -16,7 +18,7 @@ var registerViaHomepage = function (browser) {
       //may not be present
       var cookieModal = document.querySelector('.cookiesButton');
       if (cookieModal) {
-        cookieModal.click()
+        cookieModal.click();
       }
 
       document.querySelector('nav .modalAction').click();
@@ -40,26 +42,34 @@ var registerViaHomepage = function (browser) {
   //.pause(2000)
   .waitForElementPresent('#auth-register', 5000, 'Expected register form to become visible')
   .waitForElementPresent('#auth-register input[name="firstName"]', 1000, 'Expected input name=firstName')
+  //wait a second for the form....
+  .pause(100)
 
   //todo - should test and make an error pop up -- need to work around captcha
   /*
-  // submit with no values to ensure errors appear
-  .submitForm('#auth-register')
-  //expect it to complain about there being an error
-  .waitForElementPresent('.Form-errorMessage', 5000);
-  */
+   // submit with no values to ensure errors appear
+   .submitForm('#auth-register')
+   //expect it to complain about there being an error
+   .waitForElementPresent('.Form-errorMessage', 5000);
+   */
 
   //use the trick to bypass the captcha
   .setValue('#auth-register input[name="firstName"]', 'darwin magic')
   .pause(100)
+  //make sure fields populated
+  .assert.value('#auth-register input[name="lastName"]', 'Darwin')
   // get the field values and save for later
   .execute(function () {
-    firstName = document.querySelector('#auth-register input[name="firstName"]').value;
-    lastName = document.querySelector('#auth-register input[name="lastName"]').value;
-    email = document.querySelector('#auth-register input[name="email"]').value;
-    password = document.querySelector('#auth-register input[name="password"]').value;
-
-    console.log('creds', email, password, firstName, lastName);
+    return {
+      firstName: document.querySelector('#auth-register input[name="firstName"]').value,
+      lastName: document.querySelector('#auth-register input[name="lastName"]').value,
+      email: document.querySelector('#auth-register input[name="email"]').value,
+      password: document.querySelector('#auth-register input[name="password"]').value,
+    };
+  }, [], function (result) {
+    console.log(credentials);
+    Object.assign(credentials, result.value);
+    console.log(credentials);
   })
 
   // "submit" using click
@@ -75,12 +85,10 @@ var registerViaHomepage = function (browser) {
   // wait for inventory and inspector to be present to ensure we are on a project page
   .waitForElementPresent('.SidePanel.Inventory', 10000, 'Expected Inventory Groups')
   .waitForElementPresent('.SidePanel.Inspector', 10000, 'Expected Inspector');
-  //.pause(1000)
 
-
-
-  return { email, password, firstName, lastName };
-
-}
+  if (cb) {
+    browser.execute(() => {}, [], () => cb(browser, credentials));
+  }
+};
 
 module.exports = registerViaHomepage;

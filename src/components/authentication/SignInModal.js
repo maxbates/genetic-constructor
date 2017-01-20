@@ -102,6 +102,7 @@ export class SignInModal extends Component {
           <FormGroup label="Email">
             <FormText
               value={this.state.email}
+              name="email"
               placeholder="Email Address"
               onChange={this.onEmail}
             />
@@ -110,6 +111,7 @@ export class SignInModal extends Component {
           <FormGroup label="Password">
             <FormPassword
               value={this.state.password}
+              name="password"
               onForgot={() => this.props.uiShowAuthenticationForm('forgot')}
               placeholder="Password"
               onChange={this.onPassword}

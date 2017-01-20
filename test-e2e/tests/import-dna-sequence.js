@@ -16,7 +16,7 @@ module.exports = {
     size(browser);
 
     // register via fixture
-    var credentials = homepageRegister(browser);
+    homepageRegister(browser);
 
     // now we can go to the project page
     browser
@@ -58,7 +58,7 @@ module.exports = {
       // enter a BAD sequence
       .setValue('.importdnaform textarea', 'XXXX')
       // expect to get a zero length sequence
-      .assert.containsText('.importdnaform label:nth-of-type(1)', 'Length: 0')
+      .assert.containsText('.importdnaform .length', 'Length: 0')
       // set a valid sequence with white space and newlines
       .clearValue('.importdnaform textarea')
       .setValue('.importdnaform textarea', 'acgtu ryswk mbdhv n.-')
