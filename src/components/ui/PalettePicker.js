@@ -20,7 +20,7 @@ import { getPalette, palettes } from '../../utils/color/index';
 
 //todo - this has a lot of logic shared with Symbol Picker, but some differences in data structure etc. Should probably merge them though.
 
-export default class ColorAndPalettePicker extends Component {
+export default class PalettePicker extends Component {
   static propTypes = {
     onSelectPalette: PropTypes.func.isRequired,
     paletteName: PropTypes.string,
