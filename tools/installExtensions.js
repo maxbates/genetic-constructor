@@ -27,7 +27,7 @@ async function installExtensions() {
     await pruneNodeModules(extensionsNpmPath);
 
     await promisedExec('npm install --global-style --no-optional',
-      { cwd: extensionsPath },
+      { maxBuffer: (1024 * 500), cwd: extensionsPath },
       { comment: 'Running npm install() for extensions' },
     );
   } catch (err) {
