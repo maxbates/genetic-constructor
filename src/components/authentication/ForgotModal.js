@@ -39,7 +39,9 @@ export class RegisterFormNew extends Component {
 
   onEmail = evt => this.setState({ email: evt.target.value });
 
-  onForgot() {
+  onForgot(evt) {
+    evt.preventDefault();
+
     if (!this.state.email) {
       return;
     }
@@ -72,7 +74,7 @@ export class RegisterFormNew extends Component {
   actions = [{
     text: 'Send Request',
     disabled: () => !(this.state.email),
-    onClick: () => this.onForgot(),
+    onClick: this.onForgot,
   }];
 
   render() {
