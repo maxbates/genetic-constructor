@@ -42,7 +42,7 @@ export class InspectorProject extends Component {
     projectSetPalette: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
     projectMerge: PropTypes.func.isRequired,
-    readOnly: PropTypes.bool.isRequired,
+    readOnly: PropTypes.bool,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,

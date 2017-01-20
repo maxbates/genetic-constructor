@@ -24,7 +24,7 @@ export default class PalettePicker extends Component {
   static propTypes = {
     onSelectPalette: PropTypes.func.isRequired,
     paletteName: PropTypes.string,
-    readOnly: PropTypes.string.isRequired,
+    readOnly: PropTypes.bool,
   };
 
   /**

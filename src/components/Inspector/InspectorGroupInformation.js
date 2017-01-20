@@ -57,7 +57,7 @@ function InspectorGroupInformation(props) {
 }
 
 InspectorGroupInformation.propTypes = {
-  readOnly: PropTypes.bool.isRequired,
+  readOnly: PropTypes.bool,
   isAuthoring: PropTypes.bool.isRequired,
   forceIsConstruct: PropTypes.bool.isRequired,
   type: PropTypes.string.isRequired,

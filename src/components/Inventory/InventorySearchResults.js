@@ -24,7 +24,6 @@ export default class InventorySearchResults extends Component {
     sourcesToggling: PropTypes.bool.isRequired,
     searching: PropTypes.bool.isRequired,
     searchResults: PropTypes.object.isRequired,
-    sourcesVisible: PropTypes.object.isRequired,
     loadMore: PropTypes.func.isRequired,
     inventoryToggleSourceVisible: PropTypes.func.isRequired,
     blockStash: PropTypes.func.isRequired,
