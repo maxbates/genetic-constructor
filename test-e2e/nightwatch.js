@@ -61,8 +61,8 @@ module.exports = {
         path: '',
       },
       test_workers: {
-        "enabled": true,
-        "workers": 2
+        enabled: true,
+        workers: 2,
       },
       globals: {
         waitForConditionTimeout: 10000,

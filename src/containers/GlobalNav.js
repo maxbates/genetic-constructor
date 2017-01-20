@@ -26,6 +26,7 @@ import { projectAddConstruct, projectCreate, projectOpen, projectSave } from '..
 import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiSetGrunt, uiShowGenBankImport, uiToggleDetailView } from '../actions/ui';
 import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import UserWidget from '../components/authentication/userwidget';
+import OkCancel from '../components/modal/okcancel';
 import RibbonGrunt from '../components/ribbongrunt';
 import * as clipboardFormats from '../constants/clipboardFormats';
 import { extensionApiPath } from '../middleware/utils/paths';

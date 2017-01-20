@@ -10,7 +10,7 @@ const signout = function(browser) {
     .waitForElementPresent('.menu-item:nth-of-type(3)', 5000, 'expected menu to appear')
     .pause(1000)
     .click('.menu-item:nth-of-type(3)')
-    .waitForElementPresent('.homepage', 5000, 'expected to be signed out');
+    .waitForElementPresent('.LandingPage', 5000, 'expected to be signed out')
 }
 
 module.exports = signout;

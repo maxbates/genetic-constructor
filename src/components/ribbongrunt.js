@@ -26,6 +26,7 @@ class RibbonGrunt extends Component {
   static propTypes = {
     gruntMessage: PropTypes.string,
     uiSetGrunt: PropTypes.func.isRequired,
+    atTop: PropTypes.bool, //pending new UI, where always at top
   };
 
 
@@ -42,12 +43,8 @@ class RibbonGrunt extends Component {
     this.props.uiSetGrunt('');
   };
 
-  cancelTimer() {
-    window.clearTimeout(this.closeTimer);
-  }
-
   render() {
-    const classes = `ribbongrunt ${this.props.gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}`;
+    const classes = `ribbongrunt${this.props.atTop ? ' atTop' : ''} ${this.props.gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}`;
     return (
       <div className={classes}>{this.props.gruntMessage}
         <button onClick={this.close}>&times;</button>

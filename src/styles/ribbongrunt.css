@@ -15,30 +15,40 @@
   color: var(--color);
   text-align: center;
   position: fixed;
-  z-index: 1;
+  z-index: var(--z-grunt);
   width: calc(100% - 100px);
   left: 50%;
+  top: var(--GlobalNav-height-chrome);
   transform: translateX(-50%);
   border-radius: 0 0 8px 8px;
   transition: top 250ms ease;
+
+  /* will go away with new UI design */
+  &.atTop {
+    top: 0;
+  }
+
+  button {
+    float: right;
+    width: var(--close-size);
+    height: var(--grunt-height);
+    padding: 0;
+    margin: 0;
+    font-size: 1em;
+    font-size: var(--close-size);
+    line-height: var(--close-size);
+    background-color: transparent;
+    border: none;
+    outline: none;
+    margin-right: 15px;
+  }
 }
+
 .ribbongrunt-visible {
   top: 0;
 }
 .ribbongrunt-hidden {
-  top: calc(0 - var(--grunt-height));
+  top: calc(0 - var(--grunt-height)) !important;
 }
-.ribbongrunt button {
-  float: right;
-  width: var(--close-size);
-  height: var(--grunt-height);
-  padding: 0;
-  margin: 0;
-  font-size: 1em;
-  font-size: var(--close-size);
-  line-height: var(--close-size);
-  background-color: transparent;
-  border: none;
-  outline: none;
-  margin-right: 15px;
-}
+
+
