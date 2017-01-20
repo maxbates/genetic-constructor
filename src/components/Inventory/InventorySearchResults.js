@@ -78,7 +78,7 @@ export default class InventorySearchResults extends Component {
   handleItemOnDrop = (registryKey, item, target, position) => this.getFullItem(registryKey, item, false, true);
 
   render() {
-    const { searchTerm, sourcesToggling, searching, searchResults, sourcesVisible } = this.props;
+    const { searchTerm, sourcesToggling, searching, searchResults } = this.props;
 
     if (!searchTerm) {
       return null;
@@ -95,7 +95,6 @@ export default class InventorySearchResults extends Component {
     if (!noSearchResults) {
       groupsContent = (<InventorySearchResultsBySource
         searchResults={searchResults}
-        sourcesVisible={sourcesVisible}
         onListGroupAction={key => this.handleListGroupAction(key)}
         onListGroupToggle={key => this.handleListGroupToggle(key)}
         onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}

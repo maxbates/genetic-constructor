@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 
 import '../../styles/Tree.css';
 import Expando from './Expando';
-import { getLocal } from '../../utils/localstorage';
+//import { getLocal } from '../../utils/localstorage';
 
 export default class Tree extends Component {
   static propTypes = {

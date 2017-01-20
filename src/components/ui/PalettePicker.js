@@ -54,13 +54,13 @@ export default class PalettePicker extends Component {
         </div>
         <div className="palette-picker-content">
           <div className="color-picker">
-            {currentPalette.map((color, index) => {
-              return (<div
+            {currentPalette.map((color, index) =>
+              (<div
                 key={index}
                 className="color"
                 style={{ backgroundColor: color.hex }}
-              />);
-            })}
+              />),
+            )}
           </div>
         </div>
       </div>

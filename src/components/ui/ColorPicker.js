@@ -85,22 +85,20 @@ export default class ColorPicker extends Component {
     if (this.state.expanded) {
       chips = (
         <div className="dropdown">
-          {currentPalette.map((color, index) => {
-            return (
-              <div className="color-wrapper" key={index}>
-                <div
-                  onClick={() => this.props.onSelectColor(index)}
-                  onMouseEnter={() => this.setState({ colorName: color.name || color.hex })}
-                  onMouseLeave={() => this.setState({ colorName: '' })}
-                  className="color"
-                  style={{
-                    backgroundColor: color.hex,
-                    borderColor: index === this.props.current ? 'white' : 'transparent',
-                  }}
-                />
-              </div>
-            );
-          })}
+          {currentPalette.map((color, index) => (
+            <div className="color-wrapper" key={index}>
+              <div
+                onClick={() => this.props.onSelectColor(index)}
+                onMouseEnter={() => this.setState({ colorName: color.name || color.hex })}
+                onMouseLeave={() => this.setState({ colorName: '' })}
+                className="color"
+                style={{
+                  backgroundColor: color.hex,
+                  borderColor: index === this.props.current ? 'white' : 'transparent',
+                }}
+              />
+            </div>),
+          )}
           <div className="arrow" />
         </div>
       );
