@@ -28,7 +28,6 @@ import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 import MenuBar from '../components/Menu/MenuBar';
 import UserWidget from '../components/authentication/userwidget';
 import OkCancel from '../components/modal/okcancel';
-import RibbonGrunt from '../components/ribbongrunt';
 import * as clipboardFormats from '../constants/clipboardFormats';
 import { extensionApiPath } from '../middleware/utils/paths';
 import { blockGetComponentsRecursive, blockGetParents } from '../selectors/blocks';
@@ -661,7 +660,6 @@ class GlobalNav extends Component {
 
     return (
       <div className="GlobalNav">
-        <RibbonGrunt />
         <img className="GlobalNav-logo" role="presentation" src="/images/homepage/app-logo.png" />
         {showMenu && this.menuBar()}
         <span className="GlobalNav-spacer" />

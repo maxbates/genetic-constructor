@@ -51,7 +51,7 @@ export class RegisterFormNew extends Component {
         return Promise.reject(json);
       }
 
-      this.props.uiSetGrunt(`Check Email: A link to reset your password has been sent to ${this.emailAddress}`);
+      this.props.uiSetGrunt(`Check Email: A link to reset your password has been sent to ${this.state.email}`);
       this.props.uiShowAuthenticationForm('none');
     })
     .catch((reason) => {

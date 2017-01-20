@@ -26,8 +26,8 @@ class RibbonGrunt extends Component {
   static propTypes = {
     gruntMessage: PropTypes.string,
     uiSetGrunt: PropTypes.func.isRequired,
+    atTop: PropTypes.bool, //pending new UI, where always at top
   };
-
 
   // if we going to show a message then start or extend the close timer
   componentWillReceiveProps(nextProps) {
@@ -49,7 +49,8 @@ class RibbonGrunt extends Component {
   render() {
     if (this.props.gruntMessage) {
       return (
-        <div className="ribbongrunt">{this.props.gruntMessage}
+        <div className={`ribbongrunt${this.props.atTop ? ' atTop' : ''}`}>
+          {this.props.gruntMessage}
           <button onClick={this.close}>&times;</button>
         </div>
       );

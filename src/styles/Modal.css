@@ -12,6 +12,7 @@
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: var(--zModal);
   }
 
   &-overlay {
@@ -133,7 +134,10 @@
     & > *:empty {
       /* if you are seeing red, you are not using the modal properly. click events will be caught. modal should be off when not shown */
       position: absolute;
-      top: 0; bottom: 0; left: 0; right: 0;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
       background-color: red;
     }
   }

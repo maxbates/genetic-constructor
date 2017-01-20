@@ -16,22 +16,28 @@
   text-align: center;
   position: fixed;
   top: var(--GlobalNav-height-chrome);
-  z-index: 1;
+  z-index: var(--z-grunt);
   width: 70%;
   left: 50%;
   transform: translateX(-50%);
-}
-.ribbongrunt button {
-  float: right;
-  width: var(--close-size);
-  height: var(--grunt-height);
-  padding: 0;
-  margin: 0;
-  font-size: 1em;
-  font-size: var(--close-size);
-  line-height: var(--close-size);
-  background-color: transparent;
-  border: none;
-  outline: none;
-  margin-right: 15px;
+
+  button {
+    float: right;
+    width: var(--close-size);
+    height: var(--grunt-height);
+    padding: 0;
+    margin: 0;
+    font-size: 1em;
+    font-size: var(--close-size);
+    line-height: var(--close-size);
+    background-color: transparent;
+    border: none;
+    outline: none;
+    margin-right: 15px;
+  }
+
+  /* will go away with new UI design */
+  &.atTop {
+    top: 0;
+  }
 }
