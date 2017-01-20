@@ -32,7 +32,7 @@ import FormRadio from '../formElements/FormRadio';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';
 
-export class RegisterFormNew extends Component {
+export class RegisterModal extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
     registerType: PropTypes.string,
@@ -72,7 +72,7 @@ export class RegisterFormNew extends Component {
       formState.email &&
       formState.password &&
       formState.accountType &&
-      formState.verification &&
+      formState.captcha &&
       formState.legal &&
       (!authValidation.emailValidator(formState.email)) &&
       (!authValidation.passwordValidator(formState.password)) &&
@@ -91,7 +91,7 @@ export class RegisterFormNew extends Component {
       password: '',
       passwordDirty: false,
       accountType: props.registerType,
-      verification: false,
+      captcha: null,
       legal: false,
       submitError: null,
       forceDisableEmail: false,
@@ -100,7 +100,7 @@ export class RegisterFormNew extends Component {
     this.actions = [{
       text: 'Sign Up',
       disabled: () => (
-        !this.state.forceDisabled && !RegisterFormNew.validateForm(this.state)
+        !this.state.forceDisabled && !RegisterModal.validateForm(this.state)
       ),
       onClick: () => this.registerUser(this.state),
     }];
@@ -116,7 +116,7 @@ export class RegisterFormNew extends Component {
           email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
           password: 'abc123456',
           accountType: 'free',
-          verification: true,
+          captcha: true,
           legal: true,
         });
         return;
@@ -142,12 +142,13 @@ export class RegisterFormNew extends Component {
 
   onAccountTypeChange = accountType => this.setState({ accountType });
 
-  onCaptcha = isVerified => this.setState({ verification: isVerified });
+  onCaptcha = captchaToken => this.setState({ captcha: captchaToken });
+  onCaptchaExpire = () => this.setState({ captcha: null });
 
   onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
   registerUser() {
-    if (!this.state.forceDisabled && !RegisterFormNew.validateForm(this.state)) {
+    if (!this.state.forceDisabled && !RegisterModal.validateForm(this.state)) {
       this.setState({ submitError: 'Please fill out all fields' });
       return;
     }
@@ -158,7 +159,8 @@ export class RegisterFormNew extends Component {
       password: this.state.password,
       firstName: this.state.firstName,
       lastName: this.state.lastName,
-    }, RegisterFormNew.getConfig(this.state))
+      captcha: this.state.captcha,
+    }, RegisterModal.getConfig(this.state))
     .then((json) => {
       // close the form / wait message
       this.props.uiSpin();
@@ -208,50 +210,44 @@ export class RegisterFormNew extends Component {
             <a id="auth-showLogin" onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
           </div>
 
-          <FormGroup
-            label="Full Name"
-          >
+          <FormGroup label="Full Name">
             <FormText
+              name="firstName"
               value={this.state.firstName}
               placeholder="First"
               onChange={this.onFirstName}
             />
             <FormText
+              name="lastName"
               value={this.state.lastName}
               placeholder="Last"
               onChange={this.onLastName}
             />
           </FormGroup>
 
-          <FormGroup
-            label="Email"
-            error={emailError}
-          >
+          <FormGroup label="Email" error={emailError}>
             <FormText
               value={this.state.email}
+              name="email"
               placeholder="You will use your email address to sign in"
               onChange={this.onEmail}
               onBlur={this.onEmailBlur}
             />
           </FormGroup>
 
-          <FormGroup
-            label="Password"
-            error={passwordError}
-          >
+          <FormGroup label="Password" error={passwordError}>
             <FormPassword
               value={this.state.password}
+              name="password"
               placeholder="8 or more characters. No spaces."
               onChange={this.onPassword}
               onBlur={this.onPasswordBlur}
             />
           </FormGroup>
 
-          <FormGroup
-            label="Account Type"
-            labelTop
-          >
-            <div data-why="vertical-override-flex-row">
+          <FormGroup label="Account Type" labelTop>
+            {/* add a div to override the flex row */}
+            <div>
               <FormRadio
                 checked={this.state.accountType === 'free'}
                 name="accountType"
@@ -277,16 +273,11 @@ export class RegisterFormNew extends Component {
             </div>
           </FormGroup>
 
-          <FormGroup
-            label="Verification"
-            labelTop
-          >
-            <Captcha onVerify={this.onCaptcha} />
+          <FormGroup label="Verification" labelTop>
+            <Captcha onVerify={this.onCaptcha} onExpire={this.onCaptchaExpire} />
           </FormGroup>
 
-          <FormGroup
-            label="Legal"
-          >
+          <FormGroup label="Legal">
             <div>
               <Checkbox
                 style={{ fontSize: '18px', marginLeft: '0' }}
@@ -332,4 +323,4 @@ export default connect(state => ({
   uiSpin,
   userRegister,
   projectOpen,
-})(RegisterFormNew);
+})(RegisterModal);

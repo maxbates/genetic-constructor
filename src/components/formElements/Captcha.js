@@ -48,6 +48,7 @@ let counter = 0;
 export default class Captcha extends Component {
   static propTypes = {
     onVerify: PropTypes.func.isRequired,
+    onExpire: PropTypes.func,
     sitekey: PropTypes.string,
     theme: PropTypes.oneOf(['dark', 'light']),
     type: PropTypes.oneOf(['image', 'audio']),
@@ -80,25 +81,18 @@ export default class Captcha extends Component {
         theme: this.props.theme,
         size: this.props.size,
         inherit: true,
-        callback: this.onSubmit,
+        callback: this.props.onVerify, //passes the token, or could call getReponse
+        'expired-callback': this.props.onExpire,
       });
     })
-    .catch(err => {
+    .catch((err) => {
       if (process.env.NODE_ENV !== 'production') {
         console.log('Error rendering captcha'); //eslint-disable-line no-console
         console.log(err); //eslint-disable-line no-console
         console.log(err.stack); //eslint-disable-line no-console
       }
     });
-
-    //will override the previous one
-    //we could use the ID (count) if need to support multiple
-    window.onCaptchaSubmit = this.onSubmit;
   }
-
-  onSubmit = (token) => {
-    this.props.onVerify(token);
-  };
 
   getResponse() {
     grecaptcha.getResponse(this.widgetId);

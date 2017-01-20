@@ -29,7 +29,7 @@ import ResetModal from '../components/authentication/ResetModal';
 import '../styles/authenticationforms.css';
 import '../../src/styles/form.css';
 
-function AuthenticationForms(props) {
+function AuthenticationModals(props) {
   let form;
 
   //new ones
@@ -70,7 +70,7 @@ function AuthenticationForms(props) {
     />;
 }
 
-AuthenticationForms.propTypes = {
+AuthenticationModals.propTypes = {
   uiShowAuthenticationForm: PropTypes.func.isRequired,
   authenticationForm: PropTypes.string,
 };
@@ -83,4 +83,4 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiShowAuthenticationForm,
-})(AuthenticationForms);
+})(AuthenticationModals);
