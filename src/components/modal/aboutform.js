@@ -1,10 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import '../../src/styles/aboutform.css';
-import '../../src/styles/form.css';
-import { uiShowAbout } from '../actions/ui';
-import ModalWindow from './modal/modalwindow';
+import '../../styles/aboutform.css';
+import { uiShowAbout } from '../../actions/ui';
+import ModalWindow from '../modal/modalwindow';
 
 class AboutForm extends Component {
 

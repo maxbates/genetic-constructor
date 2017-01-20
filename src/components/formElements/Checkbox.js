@@ -20,6 +20,7 @@ import '../../styles/Checkbox.css';
 export default class Checkbox extends Component {
   static propTypes = {
     checked: PropTypes.bool,
+    showCheck: PropTypes.bool,
     onChange: PropTypes.func,
     disabled: PropTypes.bool,
   };
@@ -34,13 +35,14 @@ export default class Checkbox extends Component {
   };
 
   render() {
-    const { checked, disabled, ...rest } = this.props;
+    const { checked, showCheck, disabled, ...rest } = this.props;
     return (
       <div
         {...rest}
         className={`Checkbox${
-      checked ? ' checked' : ''
-      }${disabled ? ' disabled' : ''}`}
+          showCheck ? ' showCheck' : ''}${
+          checked ? ' checked' : ''
+          }${disabled ? ' disabled' : ''}`}
         onClick={evt => this.onClick(evt)}
       />
     );

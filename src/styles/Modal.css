@@ -1,50 +1,145 @@
 @import './variables.css';
 
-/*interaction blocker for popup menus, when visible or hidden*/
-.modal-blocker-visible {
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0,0,0,0.5);
-  left: 0;
-  top: 0;
-  z-index: var(--zModal);
-}
-.modal-blocker-hidden {
-  position: fixed;
-  top: 0;
-  width: 0;
-  left: -100000px;
-  display: none;
-  visibility: hidden;
-  overflow: hidden;
-}
-.modal-window {
-  position: relative;
-  left: 50%;
-  top: 0;
-  background-color: white;
-  display: inline-block;
-  transition: transform 400ms ease;
-  transform: translate(-50%, -100%);
-  max-height: 100vh;
-  overflow-y: scroll;
+:root {
+  --modal-rounding: 4px;
+  --modal-heading-padding: 1.5rem;
 }
 
-.modal-window-title {
-  font-size: 2rem;
-  line-height: 4rem;
-  height: 4rem;
-  color: var(--colors-slightlyDarkGrey);
-  text-align: center;
+.Modal {
+  &-portal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--zModal);
+  }
+
+  &-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 600px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    min-height: 200px;
+    max-height: 90vh;
+    margin: 0 auto;
+    border: transparent;
+    outline: none;
+    background-color: var(--colors-white);
+    border-radius: 0 0 var(--modal-rounding) var(--modal-rounding);
+    transform: translate(0, -100%);
+    transition: transform var(--timing-fast) ease-out;
+  }
+
+  &-header {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: var(--modal-heading-padding);
+    font-size: 16px;
+    font-weight: bold;
+    background-color: var(--colors-grey);
+    color: var(--colors-white);
+
+    &-title {
+      flex: 1 0 auto;
+      text-align: center;
+    }
+
+    &-space,
+    &-close {
+      width: 16px;
+    }
+
+    &-close {
+      cursor: pointer;
+      background-image: url('/images/ui/close_icon.svg');
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+  }
+
+  &-inner {
+    flex: 1 0 auto;
+  }
+
+  &-paddedContent {
+    padding: var(--modal-heading-padding);
+  }
+
+  &-banner {
+    margin-bottom: 1em;
+    text-align: center;
+    font-family: ArtifaktElementBold;
+    font-size: 12px;
+    font-style: italic;
+    font-stretch: normal;
+    color: var(--colors-mediumDarkGrey);
+
+    a {
+      cursor: pointer;
+      color: var(--colors-selected);
+    }
+  }
+
+  &-footer {
+    flex: 0 0 auto;
+    background-color: var(--colors-lightGrey);
+    padding: var(--modal-heading-padding);
+  }
+
+  &-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  &-action {
+    padding: 0.5rem 1em;
+    margin: 0 0.25em;
+    font-size: var(--font-size-action);
+    font-weight: bold;
+    color: var(--colors-white);
+    cursor: pointer;
+    background-color: var(--colors-selected);
+    border-radius: var(--modal-rounding);
+
+    &.disabled {
+      cursor: default;
+      color: var(--colors-lightGrey);
+      background-color: var(--colors-slightlyLightGrey);
+    }
+  }
+
+  &-portal&--open {
+    background-color: transparent;
+
+    .Modal-content {
+      transform: translate(0, 0);
+    }
+
+    & > *:empty {
+      /* if you are seeing red, you are not using the modal properly. click events will be caught. modal should be off when not shown */
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: red;
+    }
+  }
 }
-.modal-button-bar {
-  display: flex;
-  padding: 1rem;
-  justify-content: center;
-  align-items: center;
-  border-top: 1px solid white;
-}
-.modal-button-bar * {
-  margin-left: 0.5rem;
-}
+

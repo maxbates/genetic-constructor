@@ -25,7 +25,6 @@ import Page1 from './page1';
 import Page2 from './page2';
 import Page3 from './page3';
 
-import '../../../src/styles/form.css';
 import '../../../src/styles/ordermodal.css';
 
 class OrderModal extends Component {
