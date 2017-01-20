@@ -67,9 +67,7 @@ var registerViaHomepage = function (browser, cb) {
       password: document.querySelector('#auth-register input[name="password"]').value,
     };
   }, [], function (result) {
-    console.log(credentials);
     Object.assign(credentials, result.value);
-    console.log(credentials);
   })
 
   // "submit" using click

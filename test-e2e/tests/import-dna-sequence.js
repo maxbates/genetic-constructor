@@ -63,7 +63,7 @@ module.exports = {
       .clearValue('.importdnaform textarea')
       .setValue('.importdnaform textarea', 'acgtu ryswk mbdhv n.-')
       // expect a message about a valid 18 character sequence ( with white space etc removed )
-      .assert.containsText('.importdnaform label:nth-of-type(1)', 'Length: 18')
+      .assert.containsText('.importdnaform .length', 'Length: 18')
       // submit the form with the valid sequence
       .submitForm('.importdnaform')
       // wait for the grunt ribbon to confirm,

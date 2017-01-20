@@ -9,15 +9,15 @@ module.exports = {
     size(browser);
     browser
     .url(`${browser.launchUrl}/homepage/forgot`)
-    .waitForElementPresent('#forgot-form', 5000, 'Expected form to be present')
+    .waitForElementPresent('#auth-forgot', 5000, 'Expected form to be present')
     .pause(2000)
     .click('.Modal-header-close')
-    .waitForElementNotPresent('#forgot-form', 5000, 'Expected form to go away')
+    .waitForElementNotPresent('#auth-forgot', 5000, 'Expected form to go away')
     .url(`${browser.launchUrl}/homepage/reset`)
-    .waitForElementPresent('#reset-form', 5000, 'Expected form to be present')
+    .waitForElementPresent('#auth-reset', 5000, 'Expected form to be present')
     .pause(2000)
     .click('.Modal-header-close')
-    .waitForElementNotPresent('#reset-form', 5000, 'Expected form to go away')
+    .waitForElementNotPresent('#auth-reset', 5000, 'Expected form to go away')
     .end();
   },
 };
