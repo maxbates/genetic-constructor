@@ -4,13 +4,13 @@
 {
     --black: rgba(0, 0, 0, 0.8);
     --white: white;
-    --spot: #32DFA6;
-    --secondary: #F0F486;
+    --spot: #2FE695;
+    --lightBackground: white;
+    --lightGrey: #E7E7E7;
     --darkGrey: #D8D8D8;
     --blueBackground: #232C56;
     --purpleBackground: #3A2C4D;
     --blackBackground: #21263D;
-    --placeholder: #85A2C0; 
 }
 
 .paddingBottom
@@ -141,7 +141,6 @@ h6
 {
     font-size: 0.9em;
     opacity: 0.5;
-    padding-top: 10px;
 }
 
 p
@@ -184,7 +183,7 @@ p
     top: 0px;
     width: 100%;
     color: var(--black);
-    background: var(--white);
+    background: var(--lightBackground);
     z-index: 100;
     padding: 22px 100px 17px 20px;
 }
@@ -311,13 +310,13 @@ p
 
 .trySectionCards
 {
-    background-image: url("assets/images/back4.png");
-    background-size: cover;
-    background-position: top center;
+    background-image: url("assets/images/back6.png"), url("assets/images/back7.png");
+    background-size: 50% 100%, 50% 100%;
+    background-position: top left, top right;
     background-repeat: no-repeat;
     text-align: center;
-    padding-top: 40px;
-    padding-bottom: 240px;
+    padding-top: 80px;
+    padding-bottom: 180px;
 }
 
 #teamSection
@@ -361,41 +360,12 @@ p
     transform: translate3d(0px, -1px, 0px);
     -webkit-transition: 0.2s;
     transition: 0.2s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3)
 }
 
 .downButton
 {
     margin-top: 20px;
 }
-
-.smallButton, .smallButton:focus
-{
-    border-radius: 50px;
-    font-family: 'art-bold';
-    border: none;
-    padding: 12px 30px 12px 30px;
-    width: 100%;
-    margin-top: 20px;
-    max-width: 220px;
-    background-color: var(--white);
-    color: var(--black);
-    outline: none;
-    opacity: 0.95;
-    -webkit-transition: 0.2s;
-    transition: 0.2s;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1)
-}
-
-.smallButton:hover
-{
-    opacity: 1;
-    transform: translate3d(0px, -1px, 0px);
-    -webkit-transition: 0.2s;
-    transition: 0.2s;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5)
-}
-
 
 /* ---------------------- CARDS --------------------- */
 
@@ -423,7 +393,7 @@ p
 
 .cardTop
 {
-    background: var(--secondary);
+    background: var(--spot);
     padding: 20px;
     color: var(--black);
 }
@@ -469,17 +439,30 @@ p
 
 /* ---------------------- RESPONSIVE --------------------- */
 
-@media (max-width:992px)
-{
-    .cardHeader
-    {
-        font-size: 2.0em;
-    }
-}
-
-
 @media (max-width:768px)
 {
+    .feature1
+    {
+        background-image: url("assets/images/back1.png");
+        background-size: 100% 100%;
+        background-position: top left;
+    }
+    .feature2
+    {
+        background-image: none;
+    }
+    .feature3
+    {
+        background-image: url("assets/images/back4.png");
+        background-size: 100% 100%;
+        background-position: top left;
+    }
+    .trySectionCards
+    {
+        background-image: url("assets/images/back7.png");
+        background-size: 100% 100%;
+        background-position: top left;
+    }
     h1
     {
         font-size: 3em;
@@ -490,30 +473,23 @@ p
         font-family: 'art-thin';
         cursor: default;
     }
-        .cardHeader
-    {
-        font-size: 2.5em;
-    }
     #interfaceSection
     {
         padding-top: 60px;
-        padding-bottom: 60px;
+        padding-bottom: 10px;
     }
     .feature1
     {
-        background: var(--placeholder);
         padding-top: 60px;
         padding-bottom: 60px;
     }
     .feature2
     {
-        background-image: none;
         padding-top: 60px;
         padding-bottom: 60px;
     }
     .feature3
     {
-        background: var(--placeholder);
         padding-top: 60px;
         padding-bottom: 60px;
     }
@@ -525,13 +501,12 @@ p
     .trySectionTop
     {
         padding-top: 60px;
-        padding-bottom: 60px;
+        padding-bottom: 30px;
     }
     .trySectionCards
     {
-        background: var(--placeholder);
-        padding-top: 0px;
-        padding-bottom: 160px;
+        padding-top: 60px;
+        padding-bottom: 100px;
     }
     #teamSection
     {
@@ -551,10 +526,14 @@ p
     {
         padding-top: 120px;
     }
+}
+
+
+@media (max-width:992px)
+{
     .card2
     {
         margin-top: 100px;
     }
 }
-
 

@@ -10,7 +10,7 @@
     --blueBackground: #232C56;
     --purpleBackground: #3A2C4D;
     --blackBackground: #21263D;
-    --placeholder: #85A2C0; 
+    --placeholder: #85ACC0; 
 }
 
 .paddingBottom
@@ -317,7 +317,7 @@ p
     background-repeat: no-repeat;
     text-align: center;
     padding-top: 40px;
-    padding-bottom: 240px;
+    padding-bottom: 180px;
 }
 
 #teamSection
@@ -381,7 +381,7 @@ p
     background-color: var(--white);
     color: var(--black);
     outline: none;
-    opacity: 0.95;
+    opacity: 0.9;
     -webkit-transition: 0.2s;
     transition: 0.2s;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1)
@@ -469,15 +469,6 @@ p
 
 /* ---------------------- RESPONSIVE --------------------- */
 
-@media (max-width:992px)
-{
-    .cardHeader
-    {
-        font-size: 2.0em;
-    }
-}
-
-
 @media (max-width:768px)
 {
     h1
@@ -490,14 +481,14 @@ p
         font-family: 'art-thin';
         cursor: default;
     }
-        .cardHeader
+    .cardHeader
     {
-        font-size: 2.5em;
+        font-size: 2.0em;
     }
     #interfaceSection
     {
         padding-top: 60px;
-        padding-bottom: 60px;
+        padding-bottom: 10px;
     }
     .feature1
     {
@@ -525,13 +516,13 @@ p
     .trySectionTop
     {
         padding-top: 60px;
-        padding-bottom: 60px;
+        padding-bottom: 30px;
     }
     .trySectionCards
     {
         background: var(--placeholder);
-        padding-top: 0px;
-        padding-bottom: 160px;
+        padding-top: 60px;
+        padding-bottom: 100px;
     }
     #teamSection
     {
@@ -551,10 +542,14 @@ p
     {
         padding-top: 120px;
     }
+}
+
+
+@media (max-width:992px)
+{
     .card2
     {
         margin-top: 100px;
     }
 }
-
 
