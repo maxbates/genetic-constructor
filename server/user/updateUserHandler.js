@@ -148,6 +148,12 @@ export function loginHandler(req, res, next) {
 
   return fetch(authLoginUrl, headersPost(JSON.stringify(req.body)))
   .then((resp) => {
+    //e.g. if user already registered, just pass the error through
+    if (resp.status >= 400) {
+      return resp.json()
+      .then(json => res.status(422).json(json));
+    }
+
     //re-assign cookies from platform authentication
     const cookies = resp.headers.getAll('set-cookie');
     cookies.forEach((cookie) => {
@@ -240,6 +246,12 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     // local auth - just call our mock routes
     return fetch(authUpdateUrl, headersPost(JSON.stringify(user)))
     .then((resp) => {
+      //e.g. if user already registered, just pass the error through
+      if (resp.status >= 400) {
+        return resp.json()
+        .then(json => res.status(422).json(json));
+      }
+
       //re-assign cookies from platform authentication
       const cookies = resp.headers.getAll('set-cookie');
       cookies.forEach((cookie) => {

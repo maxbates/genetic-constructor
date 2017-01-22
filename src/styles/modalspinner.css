@@ -11,4 +11,5 @@
   color: white;
   text-align: center;
   animation: 1.25s textfade infinite alternate;
+  z-index: var(--z-spinner);
 }
