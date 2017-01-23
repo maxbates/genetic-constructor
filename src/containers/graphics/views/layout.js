@@ -58,6 +58,7 @@ export default class Layout {
       insetY: 0,
       initialRowXLimit: -Infinity,
       rootLayout: true,
+      palette: null,
     }, options);
 
     // prep data structures for layout`
@@ -623,7 +624,7 @@ export default class Layout {
   update(options) {
     this.options = options;
     this.construct = options.construct;
-    this.palette = this.construct.metadata.palette;
+    this.palette = this.rootLayout ? this.construct.metadata.palette || this.constructViewer.getProject().metadata.palette : this.palette;
     this.blocks = options.blocks;
     this.currentConstructId = options.currentConstructId;
     this.currentBlocks = options.currentBlocks;
@@ -825,6 +826,7 @@ export default class Layout {
             insetX: nestedX,
             insetY: nestedY,
             rootLayout: false,
+            palette: this.palette,
           });
         }
 
@@ -834,6 +836,9 @@ export default class Layout {
 
         // update base color of nested construct skeleton
         nestedLayout.baseColor = block.getColor() || this.baseColor;
+
+        // update palette
+        nestedLayout.palette = this.palette;
 
         // update minimum x extent of first rowH
         nestedLayout.initialRowXLimit = this.getConnectionRowLimit(part);

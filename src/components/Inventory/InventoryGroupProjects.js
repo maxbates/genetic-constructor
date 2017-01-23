@@ -14,10 +14,10 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
+import InventorySearch from './InventorySearch';
 
 export default class InventoryGroupProjects extends Component {
   static propTypes = {
@@ -36,10 +36,19 @@ export default class InventoryGroupProjects extends Component {
 
   state = {
     groupBy: 'project',
+    filter: '',
   };
 
   onTabSelect = (key) => {
     this.setState({ groupBy: key });
+  };
+
+  /**
+   * project filter changed
+   * @param filter
+   */
+  handleFilterChange = (filter) => {
+    this.setState({ filter });
   };
 
   render() {
@@ -50,18 +59,30 @@ export default class InventoryGroupProjects extends Component {
         <InventoryRoleMap />
       :
         (<InventoryProjectTree
+          filter={this.state.filter}
           currentProjectId={currentProjectId}
           templates={this.props.templates}
         />);
 
     return (
-      <div className="InventoryGroup-content InventoryGroupProjects">
+      <div className="InventoryGroup-content InventoryGroupProjects" >
         <InventoryTabs
           tabs={this.inventoryTabs}
           activeTabKey={groupBy}
           onTabSelect={tab => this.onTabSelect(tab.key)}
         />
-        <div className="InventoryGroup-contentInner no-vertical-scroll">
+        {groupBy !== 'type'
+          ?
+            <InventorySearch
+              searchTerm={this.state.filter}
+              disabled={false}
+              placeholder="Search"
+              onSearchChange={this.handleFilterChange}
+            />
+          :
+            null
+        }
+        <div className="InventoryGroup-contentInner">
           {currentList}
         </div>
       </div>

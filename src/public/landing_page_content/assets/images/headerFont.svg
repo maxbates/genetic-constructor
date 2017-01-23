@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="810" height="104" viewBox="0 0 810 104">
+  <g fill="#FFFFFF" fill-rule="evenodd" transform="translate(93)">
+    <text font-family="ArtifaktElement-Light, Artifakt Element" font-size="55" font-weight="300">
+      <tspan x="0" y="58">GENETIC CONSTRUCTOR</tspan>
+    </text>
+    <text opacity=".855" font-family="ArtifaktLegend-Bold, Artifakt Legend" font-size="20" font-weight="bold">
+      <tspan x="98.11" y="88">An extensible toolkit for genetic engineering</tspan>
+    </text>
+  </g>
+</svg>

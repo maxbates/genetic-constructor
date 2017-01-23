@@ -16,8 +16,7 @@ module.exports = {
     .waitForElementPresent('.InspectorGroup')
     .assert.countelements('.InspectorGroup input.InputSimple-input', 1)
     .assert.countelements('.InspectorGroup textarea.InputSimple-input', 1)
-    .assert.countelements('.InspectorGroup .color-tabs', 1)
-    .assert.countelements('.InspectorGroup .sbol-picker', 1)
+    .assert.countelements('.expando[data-expando="Symbol"]', 1)
     .end();
   }
 };

@@ -23,7 +23,6 @@ import InventoryList from './InventoryList';
 export default class InventorySearchResultsBySource extends Component {
   static propTypes = {
     searchResults: PropTypes.object.isRequired,
-    sourcesVisible: PropTypes.object.isRequired,
     onItemSelect: PropTypes.func.isRequired,
     onItemDrop: PropTypes.func.isRequired,
     onListGroupAction: PropTypes.func.isRequired,
@@ -35,30 +34,15 @@ export default class InventorySearchResultsBySource extends Component {
   }
 
   render() {
-    const { searchResults, sourcesVisible, onItemSelect, onItemDrop } = this.props;
+    const { searchResults, onItemSelect, onItemDrop } = this.props;
 
     return (
       <div className="InventorySearchResultGroup">
         {Object.keys(searchResults).map((key) => {
           const name = registry[key].name;
           const results = searchResults[key];
-
-          const moreResults = Number.isInteger(results.count) ?
-            results.length < results.count :
-            results.length % results.parameters.entries === 0;
-          const actionVisible = results.length > 0 && moreResults && sourcesVisible[key];
-          const loadMore = actionVisible
-          ? (<a
-            onClick={(evt) => {
-              this.handleListGroupAction(evt, key);
-            }}
-            className="InventorySearch-loadmore"
-          >Load more...</a>)
-          : null;
-
           return (
             <div key={key}>
-              {loadMore}
               <InventoryList
                 inventoryType={blockDragType}
                 onDrop={item => onItemDrop(key, item)}

@@ -2,6 +2,9 @@
 
 .ProjectDetail {
 
+  a {
+    text-transform: uppercase;
+  }
   &-open {
     color: var(--colors-mediumLightGrey);
     position: relative;
@@ -75,6 +78,7 @@
     align-items: center;
     min-height: var(--projectDetailFooterHeight);
     padding-left: 0.5rem;
+    text-transform: uppercase;
 
     &-extension {
       color: var(--colors-mediumLightGrey);

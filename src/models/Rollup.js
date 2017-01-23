@@ -186,7 +186,6 @@ export default class Rollup {
     }
 
     //if no blockId, get all blocks which are not options
-    //if no id provided, get all blocks which are options
     const optionDict = _.merge(_.map(this.blocks, block => block.options));
     return _.omitBy(this.blocks, (block, blockId) => optionDict[blockId]);
   }

@@ -14,45 +14,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { PropTypes } from 'react';
+import Arrow from './Arrow';
 
 import '../../styles/Toggler.css';
 
-const serializer = navigator.userAgent.indexOf('Node.js') < 0 ? new XMLSerializer() : {
-  serializeToString: () => '<SVG/>',
-};
 
-export default function Toggler({ onClick, hidden, open, disabled, style }) {
+export default function Toggler({ onClick, hidden, open, disabled }) {
   if (hidden) {
-    //todo - in React v15, can return null
-    return <noscript />;
+    return null;
   }
 
-  const handleClick = (evt) => {
-    if (!disabled) {
-      onClick(evt);
-    }
-  };
-
-  const templateId = 'disclosure_triangle_closed';
-  const template = document.getElementById(templateId);
-  const svg = template.cloneNode(true);
-  svg.removeAttribute('id');
-
-  const markup = serializer.serializeToString(svg);
-
-  return (<div
-    className={`Toggler${
-                           disabled ? ' disabled' : ''
-                           }${open ? ' open' : ''}`}
-    style={style}
-    onClick={handleClick}
-    dangerouslySetInnerHTML={{ __html: markup }}
-  />);
+  return (<div className="Toggler">
+    <Arrow
+      direction={open ? 'down' : 'right'}
+      disabled={disabled}
+      onClick={onClick}
+      hidden={false}
+    />
+  </div>);
 }
 
 Toggler.propTypes = {
   onClick: PropTypes.func,
-  style: PropTypes.object,
   open: PropTypes.bool,
   disabled: PropTypes.bool,
   hidden: PropTypes.bool,

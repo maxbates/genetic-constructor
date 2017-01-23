@@ -63,10 +63,10 @@ export class Inspector extends Component {
       type: 'orders',
       title: 'Orders',
     },
-    History: {
-      type: 'history',
-      title: 'History',
-    },
+    // History: {
+    //   type: 'history',
+    //   title: 'History',
+    // },
     Feedback: {
       type: 'feedback',
       title: 'Feedback',

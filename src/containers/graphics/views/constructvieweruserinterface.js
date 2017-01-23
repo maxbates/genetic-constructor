@@ -56,6 +56,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
     this.osType = ConstructViewerUserInterface.checkOS();
   }
 
+  destroy() {
+    super.destroy();
+    DnD.unregisterTarget(this.el);
+  }
+
   /**
    * select all blocks within the given rectangle
    */
@@ -695,6 +700,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     this.hideEdgeInsertionPoint();
     this.hideBlockInsertionPoint();
     this.selectConstruct();
+    this.showDragInside();
   }
 
   /**
@@ -704,6 +710,15 @@ export default class ConstructViewerUserInterface extends UserInterface {
     this.dragInside = false;
     this.hideEdgeInsertionPoint();
     this.hideBlockInsertionPoint();
+    this.hideDragInside();
+  }
+
+  showDragInside() {
+    this.el.classList.add('scenegraph-userinterface-drag-inside');
+  }
+
+  hideDragInside() {
+    this.el.classList.remove('scenegraph-userinterface-drag-inside');
   }
 
   darken() {

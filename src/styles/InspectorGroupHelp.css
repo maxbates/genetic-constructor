@@ -13,15 +13,19 @@
     margin-bottom: 2px;
   }
   a {
-    font-color: var(--colors-selected);
+    color: var(--colors-selected);
     text-decoration: none;
     display: block;
     text-indent: 1.5rem;
   }
   a:hover {
     text-decoration: underline;
+    color: var(--colors-selected);
   }
   a:visited {
+    color: var(--colors-selected);
+  }
+  a:active {
     color: var(--colors-selected);
   }
 }

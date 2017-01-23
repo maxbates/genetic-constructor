@@ -19,14 +19,13 @@
   display: block;
   font-size: 12px;
   cursor: default;
-  border-radius: 3px;
+  border-radius: 2px;
 
   &.hasImage {
     white-space: nowrap;
     text-overflow: ellipsis;
 
     .InventoryItem-text {
-      margin-left: 0.5em;
     }
   }
 
@@ -37,8 +36,7 @@
     justify-content: flex-start;
     align-items: center;
     cursor: pointer;
-    padding: 2px 5px;
-    margin: 1px 0;
+    padding-top: 4px;
     width: 100%;
     max-width: 100%;
   }
@@ -49,6 +47,7 @@
     white-space: nowrap;
     overflow: hidden;
     flex-shrink: 1;
+    padding: 0 4px;
   }
 
   &-image {
@@ -74,8 +73,8 @@
 
   &.loading,
   &.selected {
-    transition: background-color var(--timing-extrafast) ease-out;
-    background-color: var(--listItem-background);
+    background-color: var(--colors-selected);
+    color: var(--colors-white);
 
     .InventoryItem-text {
       white-space: normal;

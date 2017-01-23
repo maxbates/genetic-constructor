@@ -3,7 +3,7 @@
 :root {
   --label-color: var(--colors-nearlyBlack);
   --label-background: var(--colors-white);
-  --label-hover-background: var(--colors-selected);
+  --label-hover-background: var(--colors-grey);
   --label-hover-color: var(--colors-white);
   --label-selected: var(--colors-selected);
 }
@@ -20,6 +20,7 @@
   .left {
 
     display: inline-flex;
+    align-items: center;
     justify-content: space-between;
     width: 100%;
 

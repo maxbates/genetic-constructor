@@ -15,16 +15,8 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import Spinner from '../../components/ui/Spinner';
 import { registry } from '../../inventory/registry';
-import InventorySearchResultsByKind from './InventorySearchResultsByKind';
 import InventorySearchResultsBySource from './InventorySearchResultsBySource';
-import InventoryTabs from './InventoryTabs';
-
-const inventoryTabs = [
-  { key: 'source', name: 'By Source' },
-  { key: 'type', name: 'By Kind' },
-];
 
 export default class InventorySearchResults extends Component {
   static propTypes = {
@@ -32,15 +24,11 @@ export default class InventorySearchResults extends Component {
     sourcesToggling: PropTypes.bool.isRequired,
     searching: PropTypes.bool.isRequired,
     searchResults: PropTypes.object.isRequired,
-    sourcesVisible: PropTypes.object.isRequired,
     loadMore: PropTypes.func.isRequired,
     inventoryToggleSourceVisible: PropTypes.func.isRequired,
     blockStash: PropTypes.func.isRequired,
   };
 
-  state = {
-    groupBy: 'source',
-  };
 
   getFullItem = (registryKey, item, onlyConstruct = false, shouldAddToStore = true) => {
     const { id } = item.source;
@@ -76,9 +64,6 @@ export default class InventorySearchResults extends Component {
     return Promise.resolve(item);
   };
 
-  handleTabSelect = (key) => {
-    this.setState({ groupBy: key });
-  };
 
   handleListGroupToggle = (source) => {
     this.props.inventoryToggleSourceVisible(source);
@@ -93,8 +78,7 @@ export default class InventorySearchResults extends Component {
   handleItemOnDrop = (registryKey, item, target, position) => this.getFullItem(registryKey, item, false, true);
 
   render() {
-    const { searchTerm, sourcesToggling, searching, searchResults, sourcesVisible } = this.props;
-    const { groupBy } = this.state;
+    const { searchTerm, sourcesToggling, searching, searchResults } = this.props;
 
     if (!searchTerm) {
       return null;
@@ -103,46 +87,25 @@ export default class InventorySearchResults extends Component {
     const noSearchResults = Object.keys(searchResults).reduce((acc, key) => acc + searchResults[key].length, 0) === 0;
 
     if (searching && noSearchResults) {
-      return (<Spinner />);
+      return null;
     }
 
     let groupsContent = (<div className="InventoryGroup-placeholderContent">No Results Found</div>);
 
     if (!noSearchResults) {
-      groupsContent = (groupBy === 'source')
-        ?
-        (<InventorySearchResultsBySource
-          searchResults={searchResults}
-          sourcesVisible={sourcesVisible}
-          onListGroupAction={key => this.handleListGroupAction(key)}
-          onListGroupToggle={key => this.handleListGroupToggle(key)}
-          onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
-          onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}
-        />)
-        :
-        (<InventorySearchResultsByKind
-          searchResults={searchResults}
-          sourcesVisible={sourcesVisible}
-          onListGroupToggle={key => this.handleListGroupToggle(key)}
-          onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
-          onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}
-        />);
+      groupsContent = (<InventorySearchResultsBySource
+        searchResults={searchResults}
+        onListGroupAction={key => this.handleListGroupAction(key)}
+        onListGroupToggle={key => this.handleListGroupToggle(key)}
+        onItemDrop={(key, item) => this.handleItemOnDrop(key, item)}
+        onItemSelect={(key, item) => this.handleItemOnSelect(key, item)}
+      />);
     }
-
-    const showTabs = !(!searchTerm || sourcesToggling || (searching && noSearchResults) || noSearchResults);
 
     return (
       <div className="InventoryGroup-contentNester InventorySearchResults">
-        {showTabs && (
-          <InventoryTabs
-            tabs={inventoryTabs}
-            activeTabKey={groupBy}
-            onTabSelect={tab => this.handleTabSelect(tab.key)}
-          />
-        )}
-
         {!sourcesToggling && (
-          <div className="InventoryGroup-contentInner no-vertical-scroll">
+          <div className="InventoryGroup-contentInner">
             {groupsContent}
           </div>
         )}

@@ -21,7 +21,7 @@ module.exports = {
     searchFor(browser, 'Igem', 'BBa_K1328003');
 
     // drag first result to create new construct
-    dragFromTo(browser, '.InventoryItem-item',10, 10, '.cvc-drop-target', 50, 40);
+    dragFromTo(browser, '.InventoryItem-item',10, 10, '.inter-construct-drop-target', 50, 4);
 
     browser
       // wait for a block to appear

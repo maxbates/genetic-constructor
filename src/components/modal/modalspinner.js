@@ -15,7 +15,6 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../../../src/styles/Modal.css';
 import '../../../src/styles/modalspinner.css';
 
 /**

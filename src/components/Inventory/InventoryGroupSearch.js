@@ -1,25 +1,32 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { blockStash } from '../../actions/blocks';
-import { inventorySearch, inventorySetSources, inventorySearchPaginate, inventoryToggleSourceVisible } from '../../actions/inventory';
+import {
+  inventorySearch,
+  inventorySetSources,
+  inventorySearchPaginate,
+  inventoryToggleSourceVisible,
+} from '../../actions/inventory';
 import InventorySearch from './InventorySearch';
 import InventorySearchResults from './InventorySearchResults';
+
+import '../../styles/inventorygroupsearch.css';
 
 export class InventoryGroupSearch extends Component {
   static propTypes = {
@@ -27,7 +34,6 @@ export class InventoryGroupSearch extends Component {
     sourcesToggling: PropTypes.bool.isRequired,
     searching: PropTypes.bool.isRequired,
     source: PropTypes.string.isRequired,
-    sourcesVisible: PropTypes.object.isRequired,
     searchResults: PropTypes.object.isRequired,
     inventorySearch: PropTypes.func.isRequired,
     inventorySearchPaginate: PropTypes.func.isRequired,
@@ -65,21 +71,42 @@ export class InventoryGroupSearch extends Component {
   };
 
   render() {
-    const { searchTerm, sourcesToggling, searching, searchResults, sourcesVisible } = this.props;
+    const { searchTerm, sourcesToggling, searching, searchResults } = this.props;
+    let loadMore;
+    let results;
+    if (searchResults) {
+      results = searchResults[this.props.source];
+      if (results && results.length) {
+        const count = Number.parseInt(results.count, 10);
+        const limit = Number.isInteger(count) ? count : results.length;
+        const isMore = results.length < limit;
+        loadMore = (<div className="InventoryGroupSearch-loadmore" >
+          <div className="label">{results.length} items from {this.props.source.toUpperCase()}</div>
+          { isMore
+            ?
+              <div className="link" onClick={() => this.handleLoadMore(this.props.source)}>Load more...</div>
+            :
+              null
+          }
+        </div>);
+      }
+    }
+
     return (
       <div className={'InventoryGroup-content InventoryGroupSearch'}>
         <InventorySearch
           searchTerm={searchTerm}
-          isSearching={searching}
+          isSearching={!!(searching || (results && results.length && results.loading))}
           disabled={sourcesToggling}
           onSearchChange={value => this.handleSearchChange(value)}
         />
+
+        {loadMore}
 
         {!sourcesToggling && (
           <InventorySearchResults
             searchTerm={searchTerm}
             sourcesToggling={sourcesToggling}
-            sourcesVisible={sourcesVisible}
             searching={searching}
             searchResults={searchResults}
             blockStash={this.props.blockStash}

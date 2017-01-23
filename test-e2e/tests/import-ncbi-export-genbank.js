@@ -31,7 +31,7 @@ module.exports = {
     browser
       .waitForElementPresent('.InventoryItem[data-inventory^="searchresult NCBI"]', 30000, 'expected search results');
 
-    dragFromTo(browser, '.InventoryItem[data-inventory^="searchresult NCBI"]', 10, 10, '.cvc-drop-target', 20, 20);
+    dragFromTo(browser, '.InventoryItem[data-inventory^="searchresult NCBI"]', 10, 10, '.inter-construct-drop-target', 50, 4);
 
     browser
     // wait for a block to appear

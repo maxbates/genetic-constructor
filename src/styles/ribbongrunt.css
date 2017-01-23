@@ -8,37 +8,47 @@
 }
 
 .ribbongrunt {
+  position: fixed;
+  width: calc(100% - 100px);
   height: var(--grunt-height);
+  top: var(--GlobalNav-height-chrome);
+  left: 50%;
+  z-index: var(--z-grunt);
   line-height: var(--grunt-height);
   font-size: var(--ribbon-fontsize);
   background-color: var(--background);
   color: var(--color);
   text-align: center;
-  position: fixed;
-  z-index: 1;
-  width: calc(100% - 100px);
-  left: 50%;
-  transform: translateX(-50%);
   border-radius: 0 0 8px 8px;
+  transform: translateX(-50%);
   transition: top 250ms ease;
-}
-.ribbongrunt-visible {
-  top: 0;
-}
-.ribbongrunt-hidden {
-  top: calc(0 - var(--grunt-height));
-}
-.ribbongrunt button {
-  float: right;
-  width: var(--close-size);
-  height: var(--grunt-height);
-  padding: 0;
-  margin: 0;
-  font-size: 1em;
-  font-size: var(--close-size);
-  line-height: var(--close-size);
-  background-color: transparent;
-  border: none;
-  outline: none;
-  margin-right: 15px;
+
+  &-visible {
+    top: 0;
+  }
+
+  &-hidden {
+    top: calc(0 - var(--grunt-height));
+  }
+
+  button {
+    float: right;
+    width: var(--close-size);
+    height: var(--grunt-height);
+    padding: 0;
+    margin: 0;
+    font-size: 1em;
+    font-size: var(--close-size);
+    line-height: var(--close-size);
+    background-color: transparent;
+    border: none;
+    outline: none;
+    margin-right: 15px;
+  }
+
+  /* will go away with new UI design */
+  &.atTop {
+    top: 0;
+  }
+
 }

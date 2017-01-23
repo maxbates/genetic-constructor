@@ -209,12 +209,11 @@ export const focusRole = roleId => (dispatch, getState) => {
  */
 export const focusBlockOption = (blockId, optionId) => (dispatch, getState) => {
   invariant(idValidator(blockId) && idValidator(optionId), 'must pass valid block ID and optionId');
-
   const oldOptions = getState().focus.options;
   const options = Object.assign({}, oldOptions, { [blockId]: optionId });
-
   dispatch({
     type: ActionTypes.FOCUS_BLOCK_OPTION,
+    lastOptionId: optionId,
     options,
   });
   return options;

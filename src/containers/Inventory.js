@@ -47,48 +47,28 @@ export class Inventory extends Component {
     Projects: {
       type: 'projects',
       title: 'Projects',
-      search: {
-        placeholder: 'Filter projects',
-      },
+      dragTarget: true,
     },
     Templates: {
       type: 'templates',
       title: 'Templates',
-      search: {
-        placeholder: 'Filter templates',
-      },
     },
     Sketch: {
       type: 'role',
       title: 'Sketch Blocks',
-      search: {
-        placeholder: 'Filter sketch blocks',
-      },
     },
     // Commons: null,
     Ncbi: {
       type: 'search-ncbi',
       title: 'NCBI Search',
-      search: {
-        source: 'ncbi',
-        placeholder: 'Keyword, biological function',
-      },
     },
     Igem: {
       type: 'search-igem',
       title: 'IGEM Search',
-      search: {
-        source: 'igem',
-        placeholder: 'Keyword, biological function',
-      },
     },
     Egf: {
       type: 'search-egf',
       title: 'EGF Search',
-      search: {
-        source: 'egf',
-        placeholder: 'Part Name',
-      },
     },
   };
 
@@ -105,6 +85,7 @@ export class Inventory extends Component {
         onToggle={() => this.toggle(!isVisible)}
         selected={this.props.currentTab === sectionName && isVisible}
         section={sectionName}
+        dragTarget={this.sections[sectionName].dragTarget}
       />
       ));
     // setup content area

@@ -20,6 +20,7 @@ import MouseTrap from '../../containers/graphics/mousetrap';
 import '../../styles/Expando.css';
 import Arrow from './Arrow';
 import Label from './Label';
+import { getLocal, setLocal } from '../../utils/localstorage';
 
 export default class Expando extends Component {
   static propTypes = {
@@ -31,12 +32,15 @@ export default class Expando extends Component {
     headerWidgets: PropTypes.array,
     bold: PropTypes.bool,
     onExpand: PropTypes.func,
+    onClick: PropTypes.func,
     onContextMenu: PropTypes.func,
     startDrag: PropTypes.func,
     showArrowWhenEmpty: PropTypes.bool,
     showLock: PropTypes.bool,
     testid: PropTypes.string,
     openByDefault: PropTypes.bool,
+    capitalize: PropTypes.bool,
+    stateKey: PropTypes.string,
   };
 
   static defaultProps = {
@@ -45,8 +49,9 @@ export default class Expando extends Component {
 
   constructor(props) {
     super(props);
+    // initial state from local storage if we have a state key, otherwise default to openByDefault property.
     this.state = {
-      open: !!props.openByDefault,
+      open: props.stateKey ? getLocal(props.stateKey, !!props.openByDefault, true) : !!props.openByDefault,
     };
   }
 
@@ -55,25 +60,38 @@ export default class Expando extends Component {
       this.mouseTrap = new MouseTrap({
         element: ReactDOM.findDOMNode(this.refs.label),
         mouseDrag: (event, localPosition, startPosition, distance) => {
-          // cancel mouse drag and start a drag and drop
-          this.mouseTrap.cancelDrag();
-          // get global point as starting point for drag
-          const globalPoint = this.mouseTrap.mouseToGlobal(event);
-          // callback to owner
-          this.props.startDrag(globalPoint);
+          if (distance > 12) {
+            // cancel mouse drag and start a drag and drop
+            this.mouseTrap.cancelDrag();
+            // get global point as starting point for drag
+            const globalPoint = this.mouseTrap.mouseToGlobal(event);
+            // callback to owner
+            this.props.startDrag(globalPoint);
+          }
         },
       });
     }
   }
 
   /**
-   * toggle the open state and invoke the optional onExpand property.
+   * toggle the open state and invoke the optional onExpand / onClick callbacks
    */
-  onToggle = () => {
+  onClick = () => {
+    // toggle open state
     const open = !this.state.open;
     this.setState({ open });
+    // store locally if stateKey present
+    if (this.props.stateKey) {
+      setLocal(this.props.stateKey, open, true);
+    }
+
+    // handle onExpand callback
     if (open && this.props.onExpand) {
       this.props.onExpand();
+    }
+    // send click event
+    if (this.props.onClick) {
+      this.props.onClick();
     }
   };
 
@@ -94,7 +112,7 @@ export default class Expando extends Component {
         <div className="header">
           <Arrow
             direction={this.state.open ? 'down' : 'right'}
-            onClick={this.onToggle}
+            onClick={this.onClick}
             hidden={!showArrow}
           />
           <Label
@@ -102,7 +120,7 @@ export default class Expando extends Component {
             text={this.props.text}
             bold={this.props.bold}
             hover
-            onClick={this.onToggle}
+            onClick={this.onClick}
             selected={this.props.selected}
             widgets={this.props.labelWidgets}
             showLock={this.props.showLock}
@@ -112,6 +130,7 @@ export default class Expando extends Component {
               marginRight: this.props.headerWidgets && this.props.headerWidgets.length ? '0.5rem' : '0',
               flexGrow: 1,
               userSelect: 'none',
+              textTransform: this.props.capitalize ? 'capitalize' : 'none',
             }}
           />
           <div className="header-extras">
