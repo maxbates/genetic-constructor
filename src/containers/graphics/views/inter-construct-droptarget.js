@@ -26,7 +26,7 @@ import ConstructViewer from './constructviewer';
 
 import '../../../styles/inter-construct-droptarget.css';
 
-export class DropTarget extends Component {
+export class InterConstructDropTarget extends Component {
   static propTypes = {
     blockCreate: PropTypes.func.isRequired,
     blockClone: PropTypes.func.isRequired,
@@ -107,4 +107,4 @@ export default connect(null, {
   projectAddConstruct,
   blockClone,
   blockCreate,
-})(DropTarget);
+})(InterConstructDropTarget);
