@@ -17,15 +17,16 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import track from '../analytics/ga';
-import AboutForm from '../components/modal/aboutform';
 import MenuOverlay from '../components/Menu/MenuOverlay';
+import AboutForm from '../components/modal/aboutform';
 import InlineEditor from '../components/inline-editor/inline-editor';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
 import ModalSpinner from '../components/modal/modalspinner';
-import '../styles/App.css';
 import GlobalNav from './GlobalNav';
 import RibbonGrunt from '../components/ribbongrunt';
 import AuthenticationModals from './AuthenticationModals';
+
+import '../styles/App.css';
 
 class App extends Component {
   static propTypes = {
