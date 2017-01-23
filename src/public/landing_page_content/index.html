@@ -399,7 +399,7 @@
               var url = $el.attr('href');
               var isAnchor = (url && url[0] === '#');
               var newTab = $el.attr('target') === '_blank';
-              var target = newTab ? '_blank' : '_self;
+              var target = newTab ? '_blank' : '_self';
 
               //don't block target="_blank" since iframe can't open new tabs
               if (url && !isAnchor) {
