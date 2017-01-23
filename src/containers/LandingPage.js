@@ -39,8 +39,10 @@ export class LandingPage extends Component {
   };
 
   static openLink(data) {
-    const { url } = data;
-    window.open(url, '_self');
+    const { url, target } = data;
+    // default to own tab, unless new tab specified
+    const targetToUse = target || '_self';
+    window.open(url, target);
   }
 
   static openModal(data) {
