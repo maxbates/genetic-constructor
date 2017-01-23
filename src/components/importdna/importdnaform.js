@@ -16,7 +16,6 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import '../../../src/styles/form.css';
 import '../../../src/styles/importdnaform.css';
 import { blockSetSequence } from '../../actions/blocks';
 import { focusBlocks } from '../../actions/focus';
@@ -181,7 +180,7 @@ class DNAImportForm extends Component {
             defaultValue={this.state.sequence}
             onChange={this.onSequenceChanged}
           />
-          <p className="label" style={{ textAlign: 'right' }}>{`Length: ${this.state.validLength}`}</p>
+          <p className="length" style={{ textAlign: 'right' }}>{`Length: ${this.state.validLength}`}</p>
           <div className={`error ${!this.state.inputValid ? 'visible' : ''}`}>The sequence is not valid</div>
           <div style={{ width: '75%', textAlign: 'center' }}>
             <button type="submit" disabled={!(this.state.inputValid && this.state.validLength)}>Add</button>

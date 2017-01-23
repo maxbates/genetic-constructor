@@ -20,6 +20,7 @@ import { syncHistoryWithStore } from 'react-router-redux';
 import AuthRouteWrapper from './components/authentication/authRouteWrapper';
 import App from './containers/App';
 import ProjectPage from './containers/ProjectPage';
+import LandingPage from './containers/LandingPage';
 import HomePage from './containers/homepage';
 import RouteNotFound from './containers/routenotfound';
 import store from './store/index';
@@ -36,22 +37,19 @@ export default (
 
       <Route component={AuthRouteWrapper}>
         <Route path="/homepage/account" component={HomePage} />
-        <Route
-          path="/project/:projectId"
-          component={ProjectPage}
-        />
+        <Route path="/project/:projectId" component={ProjectPage} />
       </Route>
 
       {/* do not require authentication */}
 
       <Route path="/homepage">
-        <Route path=":comp" component={HomePage} />
-        <IndexRoute component={HomePage} />
+        <Route path=":comp" component={LandingPage} />
+        <IndexRoute component={LandingPage} />
       </Route>
+
       <Route path="*" component={RouteNotFound} />
 
       <IndexRedirect to="/homepage" />
-
     </Route>
   </Router>
 );

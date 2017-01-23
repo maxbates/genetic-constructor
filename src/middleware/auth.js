@@ -26,9 +26,9 @@ const authFetch = (...args) => rejectingFetch(...args)
         return Promise.reject(resp);
       }
       if (resp.headers.get('Content-Type').indexOf('json') >= 0) {
-        return Promise.reject(resp.json());
+        return resp.json().then(json => Promise.reject(json));
       }
-      return Promise.reject(resp.text());
+      return resp.text().then(text => Promise.reject(text));
     });
 
 // login with email and password and set the sessionKey (cookie) for later use

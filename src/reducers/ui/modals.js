@@ -20,6 +20,7 @@ import * as ActionTypes from '../../constants/ActionTypes';
 export const initialState = {
   detailViewVisible: false,
   authenticationForm: 'none',
+  authFormParams: {},
   showDNAImport: false,
   orderId: null,
   showAbout: false,
@@ -40,8 +41,8 @@ export const initialState = {
 export default function modals(state = initialState, action) {
   switch (action.type) {
     case ActionTypes.UI_SHOW_AUTHENTICATION_FORM:
-      const { authenticationForm } = action;
-      return Object.assign({}, state, { authenticationForm });
+      const { authenticationForm, authFormParams } = action;
+      return Object.assign({}, state, { authenticationForm, authFormParams });
 
     case ActionTypes.UI_SHOW_GENBANK_IMPORT:
       const { showGenBankImport } = action;

@@ -30,6 +30,7 @@
   --font-size-heading: 11px;
   --font-size-modal: 14px;
   --font-size-sectionLabel: 16px;
+  --font-size-action: 16px;
 
   --font-family-base: ArtifaktElementRegular, sans-serif;
   --font-family-bold: ArtifaktElementBold, sans-serif;
@@ -70,11 +71,14 @@
 
   /* Z Order
   =================== */
-  --zMenu: 100000;
-  --zMenuContainer: 1000;
-  --zModal:90000;
-  --zFence:200000;
-  --z404: 99999999;
+  --zMenuContainer: 10;
+  --zMenu: 20;
+  --zModal:15;
+  --zFence:20;
+  --z404: 100;
+  --z-landingPageFrame: 10;
+  --z-grunt: 20;
+  --z-spinner: 25;
 
   /* Modal windows
   ==================== */

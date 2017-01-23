@@ -8,6 +8,7 @@ webapp:
     HOST_URL: https://geneticconstructor${BNR_ENV_URL_SUFFIX}.bionano.autodesk.com
     NODE_ENV: ${NODE_ENV}
     GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
+    CAPTCHA_SECRET_REGISTER: ${CAPTCHA_SECRET_REGISTER}
     NO_DOCKER: "true"
     STORAGE_API: http://internal-lb${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}

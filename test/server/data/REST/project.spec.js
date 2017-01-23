@@ -7,6 +7,7 @@ import Rollup from '../../../../src/models/Rollup';
 import Project from '../../../../src/models/Project';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import devServer from '../../../../server/server';
+import * as lodash from 'lodash';
 
 describe('Server', () => {
   describe('Data', () => {
@@ -71,6 +72,20 @@ describe('Server', () => {
             .end(done);
         });
 
+        it('GET all projects returns last updated project ID in response header', (done) => {
+          const url = '/data/projects';
+          request(server)
+            .get(url)
+            .expect(200)
+            .expect('Content-Type', /json/)
+            .expect(result => {
+              assert(result.get('Last-Project-ID') != null, '\'Last-Project-Id\' not found in response header');
+              assert(result.get('Last-Project-ID') === projectData.id, 'incorrect \'Last-Project-Id\' value');
+              assert(Array.isArray(result.body));
+            })
+            .end(done);
+        });
+
         //future
         //it('GET supports a depth query parameter');
 
@@ -130,6 +145,24 @@ describe('Server', () => {
           request(server)
             .delete(url)
             .expect(405, done);
+        });
+
+        it('Loader Support GET adds block and component to project', (done) => {
+          const url = `/data/loadersupport/savecomponent/${projectId}`;
+          request(server)
+            .get(url)
+            .expect(200)
+            .expect('Content-Type', /json/)
+            .end((err, result) => {
+              if (err) {
+                done(err);
+              }
+
+              assert((result.body.data.project.components.length - projectData.components.length) == 1,
+                'expected 1 more project component');
+              assert(lodash.keys(result.body.data.blocks).length == 1, 'expected 1 more block');
+              done();
+            });
         });
       });
     });

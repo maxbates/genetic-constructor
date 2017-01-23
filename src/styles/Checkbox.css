@@ -4,16 +4,24 @@
   display: inline-block;
   width: 1em;
   height: 1em;
-  border: 1px solid var(--colors-slightlyDarkGrey);
+  border: 2px solid var(--colors-selected);
   background-color: var(--colors-white);
   cursor: pointer;
   user-select: none;
+  margin: 0 0.25em;
+  border-radius: 2px;
   vertical-align: text-top;
   transition: background-color var(--timing-extrafast) ease-out, border-color var(--timing-extrafast) ease-out;
 
   &.checked {
     background-color: var(--colors-selected);
     border-color: transparent;
+  }
+
+  &.showCheck {
+    background-image: url('/images/ui/checkbox-checkmark.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
   }
 
   &.disabled {

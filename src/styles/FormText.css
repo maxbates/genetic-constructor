@@ -1,0 +1,22 @@
+@import './variables.css';
+
+.FormText {
+  outline: 0;
+  padding: 0.25rem 0.75rem;
+  margin: 0;
+  border-radius: 2px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--colors-nearlyBlack);
+  background-color: var(--colors-white);
+  border: solid 2px var(--colors-lightGrey);
+  transition: border-color var(--timing-fast) ease-out;
+
+  &:focus {
+    border-color: var(--colors-slightlyDarkGrey);
+  }
+
+  &:not(:first-child) {
+    margin-left: 1rem;
+  }
+}
