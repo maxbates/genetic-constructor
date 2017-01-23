@@ -42,7 +42,7 @@ export class LandingPage extends Component {
     const { url, target } = data;
     // default to own tab, unless new tab specified
     const targetToUse = target || '_self';
-    window.open(url, target);
+    window.open(url, targetToUse);
   }
 
   static openModal(data) {
