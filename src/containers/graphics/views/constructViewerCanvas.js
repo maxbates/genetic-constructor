@@ -25,7 +25,7 @@ import ConstructViewer from './constructviewer';
 import '../../../styles/constructviewercanvas.css';
 import DnD from '../dnd/dnd';
 import MouseTrap from '../mousetrap';
-import DropTarget from './dropTarget';
+import DropTarget from './inter-construct-droptarget';
 
 export class ConstructViewerCanvas extends Component {
   static propTypes = {

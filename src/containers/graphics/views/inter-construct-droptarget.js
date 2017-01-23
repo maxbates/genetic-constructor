@@ -24,7 +24,7 @@ import { block as blockDragType } from '../../../constants/DragTypes';
 import DnD from '../dnd/dnd';
 import ConstructViewer from './constructviewer';
 
-import '../../../styles/droptarget.css';
+import '../../../styles/inter-construct-droptarget.css';
 
 export class DropTarget extends Component {
   static propTypes = {
