@@ -15,29 +15,16 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../../styles/ColorAndPalettePicker.css';
-import { getPalette, getPaletteName, palettes } from '../../utils/color/index';
+import '../../styles/PalettePicker.css';
+import { getPalette, palettes } from '../../utils/color/index';
 
 //todo - this has a lot of logic shared with Symbol Picker, but some differences in data structure etc. Should probably merge them though.
 
-export default class ColorAndPalettePicker extends Component {
+export default class PalettePicker extends Component {
   static propTypes = {
-    current: PropTypes.number,
-    onSelectColor: PropTypes.func.isRequired,
     onSelectPalette: PropTypes.func.isRequired,
-    palette: PropTypes.string,
-  };
-
-  static defaultProps = {
-    current: 0,
-  };
-
-  /**
-   * color selected by clicking
-   * @param colorIndex
-   */
-  onSelectColor = (colorIndex) => {
-    this.props.onSelectColor(colorIndex);
+    paletteName: PropTypes.string,
+    readOnly: PropTypes.bool,
   };
 
   /**
@@ -45,17 +32,18 @@ export default class ColorAndPalettePicker extends Component {
    * @param paletteName
    */
   onSelectPalette = (paletteName) => {
-    this.props.onSelectPalette(paletteName);
+    if (!this.props.readOnly) {
+      this.props.onSelectPalette(paletteName);
+    }
   };
 
   render() {
-    const currentPalette = getPalette(this.props.palette);
-    const currentPaletteName = getPaletteName(this.props.palette);
+    const currentPalette = getPalette(this.props.paletteName);
     return (
       <div className="color-tabs">
         <div className="ribbon">
           {palettes.map((paletteName) => {
-            const classes = `tab${paletteName === currentPaletteName ? ' active' : ''}`;
+            const classes = `tab${paletteName === this.props.paletteName ? ' active' : ''}`;
             return (<div
               className={classes}
               key={paletteName}
@@ -64,18 +52,15 @@ export default class ColorAndPalettePicker extends Component {
             </div>);
           })}
         </div>
-        <div className="color-picker-content">
+        <div className="palette-picker-content">
           <div className="color-picker">
-            {currentPalette.map((color, index) => {
-              const classes = `color${index === this.props.current ? ' active' : ''}`;
-              return (<div
+            {currentPalette.map((color, index) =>
+              (<div
                 key={index}
-                className={classes}
-                title={color.name}
-                onClick={() => this.onSelectColor(index)}
+                className="color"
                 style={{ backgroundColor: color.hex }}
-              />);
-            })}
+              />),
+            )}
           </div>
         </div>
       </div>

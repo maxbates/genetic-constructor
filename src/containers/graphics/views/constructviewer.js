@@ -170,6 +170,7 @@ export class ConstructViewer extends Component {
     this.sg.destroy();
   }
 
+
   /**
    * launch DNA form for this construct
    */
@@ -181,6 +182,13 @@ export class ConstructViewer extends Component {
         this.props.uiShowOrderForm(true, order.id);
       });
   };
+
+  /**
+   * get project our construct is from
+   */
+  getProject() {
+    return this.props.projectGet(this.props.currentProjectId);
+  }
 
   /**
    * get the parent of the given block, which is either the construct or the parents
@@ -617,7 +625,7 @@ export class ConstructViewer extends Component {
   }
 
   isSampleProject() {
-    return this.props.projectGet(this.props.currentProjectId).rules.frozen;
+    return this.getProject().rules.frozen;
   }
 
   /**

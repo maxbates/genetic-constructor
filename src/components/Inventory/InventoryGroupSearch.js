@@ -96,7 +96,7 @@ export class InventoryGroupSearch extends Component {
       <div className={'InventoryGroup-content InventoryGroupSearch'}>
         <InventorySearch
           searchTerm={searchTerm}
-          isSearching={searching || (results && results.length && results.loading)}
+          isSearching={!!(searching || (results && results.length && results.loading))}
           disabled={sourcesToggling}
           onSearchChange={value => this.handleSearchChange(value)}
         />

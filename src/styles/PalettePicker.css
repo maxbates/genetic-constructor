@@ -24,9 +24,9 @@
       color: var(--colors-white);
     }
   }
-  .color-picker-content {
-    border-top: 1px solid var(--colors-lightGrey);
-    padding-top: 4px;
+  .palette-picker-content {
+    padding: 4px 0;
+    background-color: var(--colors-nearlyBlack);
 
     .color-picker {
       display: flex;
@@ -41,13 +41,9 @@
         margin: 0.2rem;
         border-radius: 100%;
         background-color: whitesmoke;
-        transition: background-color 200ms ease;
         box-sizing: border-box;
         cursor: pointer;
         border: 3px solid transparent;
-      }
-      .color.active, .color:hover {
-        border-color: rgba(0, 0, 0, 0.25);
       }
     }
   }

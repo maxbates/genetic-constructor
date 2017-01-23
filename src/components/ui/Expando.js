@@ -20,6 +20,7 @@ import MouseTrap from '../../containers/graphics/mousetrap';
 import '../../styles/Expando.css';
 import Arrow from './Arrow';
 import Label from './Label';
+import { getLocal, setLocal } from '../../utils/localstorage';
 
 export default class Expando extends Component {
   static propTypes = {
@@ -38,6 +39,8 @@ export default class Expando extends Component {
     showLock: PropTypes.bool,
     testid: PropTypes.string,
     openByDefault: PropTypes.bool,
+    capitalize: PropTypes.bool,
+    stateKey: PropTypes.string,
   };
 
   static defaultProps = {
@@ -46,8 +49,9 @@ export default class Expando extends Component {
 
   constructor(props) {
     super(props);
+    // initial state from local storage if we have a state key, otherwise default to openByDefault property.
     this.state = {
-      open: !!props.openByDefault,
+      open: props.stateKey ? getLocal(props.stateKey, !!props.openByDefault, true) : !!props.openByDefault,
     };
   }
 
@@ -76,6 +80,12 @@ export default class Expando extends Component {
     // toggle open state
     const open = !this.state.open;
     this.setState({ open });
+    // store locally if stateKey present
+    if (this.props.stateKey) {
+      setLocal(this.props.stateKey, open, true);
+    }
+
+    // handle onExpand callback
     if (open && this.props.onExpand) {
       this.props.onExpand();
     }
@@ -120,6 +130,7 @@ export default class Expando extends Component {
               marginRight: this.props.headerWidgets && this.props.headerWidgets.length ? '0.5rem' : '0',
               flexGrow: 1,
               userSelect: 'none',
+              textTransform: this.props.capitalize ? 'capitalize' : 'none',
             }}
           />
           <div className="header-extras">

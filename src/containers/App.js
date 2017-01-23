@@ -22,11 +22,11 @@ import AboutForm from '../components/modal/aboutform';
 import InlineEditor from '../components/inline-editor/inline-editor';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
 import ModalSpinner from '../components/modal/modalspinner';
-import OkCancel from '../components/modal/okcancel';
-import '../styles/App.css';
 import GlobalNav from './GlobalNav';
 import RibbonGrunt from '../components/ribbongrunt';
 import AuthenticationModals from './AuthenticationModals';
+
+import '../styles/App.css';
 
 class App extends Component {
   static propTypes = {
@@ -111,7 +111,6 @@ class App extends Component {
         <AuthenticationModals />
         <AboutForm />
         <ReportErrorModal />
-        <OkCancel />
         <div className="App-pageContent">
           {this.props.children}
         </div>

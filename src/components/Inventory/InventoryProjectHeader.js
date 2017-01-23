@@ -80,7 +80,6 @@ class InventoryProjectHeader extends Component {
         </div>
         <div className="imgWrapper">
           <img
-            highlight={false} //eslint-disable-line react/jsx-boolean-value
             data-testid="UploadButton"
             src="/images/ui/upload.svg"
             title="Upload Genbank or CSV File"

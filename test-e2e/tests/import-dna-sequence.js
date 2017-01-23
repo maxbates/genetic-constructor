@@ -64,6 +64,6 @@ module.exports = {
       .waitForElementPresent('.ribbongrunt-visible', 5000, 'expected a grunt')
       .assert.containsText('.ribbongrunt-visible', 'Sequence was successfully inserted.')
       .end();
-0
+
   }
 };

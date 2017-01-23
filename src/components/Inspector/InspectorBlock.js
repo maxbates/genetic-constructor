@@ -17,10 +17,12 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { blockMerge, blockRename, blockSetColor, blockSetPalette, blockSetRole } from '../../actions/blocks';
+import { blockGetParents } from '../../selectors/blocks';
 import Block from '../../models/Block';
 import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
-import ColorAndPalettePicker from './../ui/ColorAndPalettePicker';
+import ColorPicker from './../ui/ColorPicker';
+import PalettePicker from './../ui/PalettePicker';
 import Expando from './../ui/Expando';
 import SBOLPicker from './../ui/SBOLPicker';
 import BlockNotes from './BlockNotes';
@@ -28,6 +30,7 @@ import BlockSource from './BlockSource';
 import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
+import { getLocal } from '../../utils/localstorage';
 
 export class InspectorBlock extends Component {
   static propTypes = {
@@ -47,8 +50,10 @@ export class InspectorBlock extends Component {
     blockSetColor: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
+    blockGetParents: PropTypes.func.isRequired,
     blockMerge: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
+    project: PropTypes.object.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
@@ -200,9 +205,12 @@ export class InspectorBlock extends Component {
     const isList = singleInstance && instances[0].isList();
     const isTemplate = singleInstance && instances[0].isTemplate();
     const isConstruct = singleInstance && instances[0].isConstruct();
+    const hasParents = this.props.blockGetParents(instances[0].id).length > 0;
+
     const inputKey = instances.map(inst => inst.id).join(',');
     const anyIsConstructOrTemplateOrList = instances.some(instance => instance.isConstruct() || instance.isTemplate() || instance.isList());
-    const palette = construct ? construct.metadata.palette : null;
+
+    const palette = construct ? construct.metadata.palette || this.props.project.metadata.palette : null;
 
     const defaultType = forceIsConstruct ? 'Construct' : 'Block';
     const type = singleInstance ? instances[0].getType(defaultType) : 'Blocks';
@@ -212,6 +220,15 @@ export class InspectorBlock extends Component {
 
     const hasSequence = this.allBlocksWithSequence();
     const hasNotes = singleInstance && Object.keys(instances[0].notes).length > 0;
+
+    // determines the default state of the palette expando
+    const paletteStateKey = 'expando-color-palette';
+    // text before palette, depends on expanded state.
+    const paletteOpen = getLocal(paletteStateKey, false, true);
+    let colorPaletteText = 'Color Palette';
+    if (!paletteOpen) {
+      colorPaletteText += `: ${palette}`;
+    }
 
     return (
       <div className="InspectorContent InspectorContentBlock">
@@ -263,25 +280,37 @@ export class InspectorBlock extends Component {
         { hasNotes
           ? <Expando
             text={`${type} Metadata`}
+            stateKey="inspector-template-metadata"
             content={<div className="InspectorContent-section">
               <BlockNotes notes={instances[0].notes} />
             </div>}
           />
           : null
         }
-        <Expando
-          openByDefault
-          text="Palette and Color"
-          content={<ColorAndPalettePicker
-            current={this.currentColor()}
-            readOnly={readOnly}
-            palette={palette}
-            onSelectColor={this.selectColor}
-            onSelectPalette={this.selectPalette}
-          />}
+        {isConstruct && singleInstance && !hasParents
+          ?
+            <Expando
+              text={colorPaletteText}
+              capitalize
+              stateKey={paletteStateKey}
+              onClick={() => this.forceUpdate()}
+              content={
+                <PalettePicker
+                  paletteName={palette}
+                  onSelectPalette={this.selectPalette}
+                  readOnly={readOnly}
+                />}
+            />
+          :
+            null
+        }
+        <ColorPicker
+          current={this.currentColor()}
+          readOnly={readOnly}
+          paletteName={palette}
+          onSelectColor={this.selectColor}
         />
         <Expando
-          openByDefault
           text="Symbol"
           content={<SBOLPicker
             current={this.currentRoleSymbol()}
@@ -336,6 +365,7 @@ export default connect(() => ({}), {
   blockSetColor,
   blockSetPalette,
   blockSetRole,
+  blockGetParents,
   blockRename,
   blockMerge,
   transact,
