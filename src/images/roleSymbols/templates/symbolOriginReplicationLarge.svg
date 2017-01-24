@@ -1,0 +1,9 @@
+<svg id="sbol-svg-originReplication-large" xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <circle id="a-x" cx="27" cy="27" r="17"/>
+    <mask id="b-x" width="34" height="34" x="0" y="0" fill="white">
+      <use xlink:href="#a-x"/>
+    </mask>
+  </defs>
+  <use fill="none" fill-rule="evenodd" stroke="#292D40" stroke-width="2" mask="url(#b-x)" xlink:href="#a-x"/>
+</svg>

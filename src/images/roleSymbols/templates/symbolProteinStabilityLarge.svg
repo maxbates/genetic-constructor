@@ -1,0 +1,12 @@
+<svg id="sbol-svg-proteinStability-large" mlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <circle id="a-xx" cx="27.5" cy="26.5" r="12.5"/>
+    <mask id="b-xx" width="25" height="25" x="0" y="0" fill="white">
+      <use xlink:href="#a-xx"/>
+    </mask>
+  </defs>
+  <g fill="none" fill-rule="evenodd" stroke="#292D40">
+    <use stroke-width="2" mask="url(#b-xx)" xlink:href="#a-xx"/>
+    <path d="M27.5,51 L27.5,39"/>
+  </g>
+</svg>

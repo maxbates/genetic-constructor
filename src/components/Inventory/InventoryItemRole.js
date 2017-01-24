@@ -69,7 +69,6 @@ export default class InventoryItemRole extends Component {
           svgProps={{
             fill: 'transparent',
             color: highlight ? this.props.hover : '#1D222D',
-            strokeWidth: 1,
           }}
           dataAttribute={`sbol ${role.id}`}
         />

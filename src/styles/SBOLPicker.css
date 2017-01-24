@@ -23,8 +23,8 @@
   .dropdown {
     position: absolute;
     padding: 4px 0;
-    left: -56px;
-    top: 62px;
+    left: -61px;
+    top: 64px;
     width: 258px;
     background-color: var(--colors-nearlyBlack);
     display: flex;
@@ -38,7 +38,7 @@
       background-color: var(--colors-nearlyBlack);
       position: absolute;
       transform: rotate(45deg);
-      left: 70px;
+      left: 77px;
       top: -10px;
     }
   }

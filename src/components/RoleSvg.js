@@ -31,11 +31,11 @@ export default class RoleSvg extends Component {
     width: PropTypes.string,
     height: PropTypes.string,
     styles: PropTypes.object,
-    strokeWidth: PropTypes.number,
     classes: PropTypes.string,
     onClick: PropTypes.func,
     onMouseEnter: PropTypes.func,
     onMouseLeave: PropTypes.func,
+    large: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -54,7 +54,8 @@ export default class RoleSvg extends Component {
   render() {
     if (!this.markup) {
       // clone the template
-      const templateId = `sbol-svg-${this.props.symbolName}`;
+      const name = this.props.symbolName || 'null';
+      const templateId = `sbol-svg-${name}${this.props.large ? '-large' : ''}`;
       const template = document.getElementById(templateId);
       // some role symbols may not be supported so ignore the ones without templates
       if (template) {
@@ -74,10 +75,6 @@ export default class RoleSvg extends Component {
         }
         if (this.props.height) {
           svg.setAttribute('height', this.props.height);
-        }
-        // if the owner wants to modify the stroke width apply
-        if (this.props.strokeWidth) {
-          setAttribute(svg, 'stroke-width', this.props.strokeWidth, true);
         }
         this.markup = serializer.serializeToString(svg);
       } else {

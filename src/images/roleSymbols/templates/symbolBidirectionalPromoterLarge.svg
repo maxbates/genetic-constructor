@@ -1,0 +1,8 @@
+<svg id="sbol-svg-bidirectional-promoter-large" xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54">
+  <g fill="none" fill-rule="evenodd">
+    <polygon fill="#292D40" points="12 28 43 28 43 27 12 27"/>
+    <polyline stroke="#292D40" points="36 19.5 44 27.5 36 35.5" stroke-linecap="square"/>
+    <polyline stroke="#292D40" points="11 19.5 19 27.5 11 35.5" stroke-linecap="square" transform="matrix(-1 0 0 1 30 0)"/>
+    <polygon fill="#292D40" points="27 48 28 48 28 28 27 28"/>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+<svg id="sbol-svg-backbone-large" xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <path id="a" d="M9.75823646,3.13146498 C1.54657131,7.6832653 -1.42033534,18.0300984 3.13146498,26.2417635 C7.6832653,34.4534287 18.0300984,37.4203353 26.2417635,32.868535 C34.4534287,28.3167347 37.4203353,17.9699016 32.868535,9.75823646 C28.3167347,1.54657131 17.9699016,-1.42033534 9.75823646,3.13146498 Z"/>
+    <mask id="b" width="34.006" height="34.006" x="0" y="0" fill="white">
+      <use xlink:href="#a"/>
+    </mask>
+  </defs>
+  <use fill="none" fill-rule="evenodd" stroke="#292D40" stroke-width="2" mask="url(#b)" xlink:href="#a" transform="translate(9 9)" stroke-dasharray="89"/>
+</svg>

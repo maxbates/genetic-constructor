@@ -73,14 +73,6 @@ export default class SBOLPicker extends Component {
     }
   };
 
-  onMouseEnter = (id) => {
-    //this.setState({ hoverText: SBOLPicker.makeHoverText(id) });
-  };
-
-  onMouseLeave = () => {
-    //this.setState({ hoverText: SBOLPicker.makeHoverText(this.props.current) });
-  };
-
   /**
    * toggle between open / closed
    */
@@ -100,23 +92,24 @@ export default class SBOLPicker extends Component {
     }
   };
 
-  makeSymbolCurrent = (id) =>
+  makeSymbolCurrent = id =>
     (
       <div className="wrapper">
         <RoleSvg
-          width="50px"
-          height="50px"
+          width="54"
+          height="54"
           color={'black'}
-          strokeWidth={1}
           symbolName={id}
           key={id}
+          large={true}
         />
       </div>
     );
 
-  makeSymbol = (id) => {
-    return (
+  makeSymbol = id =>
+    (
       <div
+        key={id}
         className="highlight"
         onMouseEnter={() => this.props.setText(SBOLPicker.makeHoverText(id))}
         onMouseLeave={() => this.props.setText('')}
@@ -124,17 +117,16 @@ export default class SBOLPicker extends Component {
       >
         <div className="wrapper">
           <RoleSvg
-            width="50px"
-            height="50px"
+            width="54"
+            height="54"
             color={'black'}
-            strokeWidth={1}
             symbolName={id}
-            key={id}
+            large={true}
           />
         </div>
       </div>
     );
-  };
+
 
   render() {
     const { current } = this.props;
@@ -160,31 +152,4 @@ export default class SBOLPicker extends Component {
         {chips}
       </div>);
   }
-
-// render() {
-//   const { current } = this.props;
-//   return (
-//     <div className="SBOLPicker">
-//       <div className="SBOLPicker-content">
-//         <div className="name">{this.state.hoverText}</div>
-//         <div className="sbol-picker">
-//           {symbols.map((symbolObj) => {
-//             const { id } = symbolObj;
-//             return (<RoleSvg
-//               width="50px"
-//               height="50px"
-//               color={current === id ? 'white' : 'black'}
-//               classes={current === id ? 'active' : null}
-//               symbolName={id}
-//               onClick={() => this.onClick(id)}
-//               onMouseEnter={() => this.onMouseEnter(id)}
-//               onMouseLeave={this.onMouseLeave}
-//               key={id}
-//             />);
-//           })}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 }
