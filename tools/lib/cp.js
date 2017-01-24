@@ -115,8 +115,8 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
     });
 
     spawned.on('close', (code) => {
-      log(`child process exited with code ${code}`, forceOutput);
-      if (code > 0) {
+      console.log(`child process exited with code ${code}`);
+      if (code === null || code > 0) {
         return reject(spawned);
       }
       resolve(spawned);

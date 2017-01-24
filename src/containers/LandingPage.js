@@ -66,7 +66,7 @@ export class LandingPage extends Component {
       // revisit last project
       this.props.projectOpen(null, true);
     } else {
-      this.props.uiShowAuthenticationForm('register', authFormParams);
+      this.props.uiShowAuthenticationForm('signin', authFormParams);
     }
   }
 

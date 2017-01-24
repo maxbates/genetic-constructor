@@ -76,6 +76,7 @@ function AuthenticationModals(props) {
   }
 
   const onClose = () => {
+    //trigger this first, since it will be cleared after form set to 'none'
     if (props.authFormParams.onClose) {
       props.authFormParams.onClose();
     }

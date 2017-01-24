@@ -76,7 +76,7 @@ export class SignInForm extends Component {
   actions = [{
     text: 'Sign In',
     disabled: () => !(this.state.email && this.state.password),
-    onClick: () => this.signIn(),
+    onClick: () => this.onSubmit(),
   }];
 
   render() {
@@ -84,13 +84,14 @@ export class SignInForm extends Component {
       <form
         id="auth-signin"
         className="Form"
-        onSubmit={this.signIn}
+        onSubmit={this.onSubmit}
       >
         <div className="Modal-paddedContent">
           <div className="Modal-banner">
             <span>Don&apos;t have a Genetic Constructor account? </span>
-            <a id="auth-showRegister" onClick={() => this.props.uiShowAuthenticationForm('register')}>Sign Up - it&apos;
-              s free!</a>
+            <a id="auth-showRegister" onClick={() => this.props.uiShowAuthenticationForm('register')}>
+              Sign Up - it&apos;s free!
+            </a>
           </div>
 
           <FormGroup label="Email">
