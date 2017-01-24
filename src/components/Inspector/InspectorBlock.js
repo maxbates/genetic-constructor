@@ -31,6 +31,7 @@ import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
 import { getLocal } from '../../utils/localstorage';
+import '../../styles/InspectorBlock.css';
 
 export class InspectorBlock extends Component {
   static propTypes = {
@@ -60,6 +61,10 @@ export class InspectorBlock extends Component {
     forceIsConstruct: PropTypes.bool,
   };
 
+  state = {
+    colorSymbolText: 'Color & Symbol',
+  };
+
   static defaultProps = {
     forceIsConstruct: false,
   };
@@ -74,6 +79,10 @@ export class InspectorBlock extends Component {
     this.props.instances.forEach((block) => {
       this.props.blockMerge(block.id, { metadata: { description } });
     });
+  };
+
+  setColorSymbolText = (str) => {
+    this.setState({ colorSymbolText: str || 'Color & Symbol' });
   };
 
   selectColor = (colorIndex) => {
@@ -304,7 +313,9 @@ export class InspectorBlock extends Component {
           :
             null
         }
+        <div className="color-symbol-label">{this.state.colorSymbolText}</div>
         <ColorPicker
+          setText={this.setColorSymbolText}
           current={this.currentColor()}
           readOnly={readOnly}
           paletteName={palette}

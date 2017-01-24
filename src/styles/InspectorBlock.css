@@ -1,0 +1,7 @@
+@import './variables.css';
+
+.InspectorContentBlock {
+  .color-symbol-label {
+    margin: 0.5rem 0 0 0;
+  }
+}

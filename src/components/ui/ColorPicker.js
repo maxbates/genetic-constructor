@@ -25,11 +25,11 @@ export default class ColorPicker extends Component {
     current: PropTypes.number,
     readOnly: PropTypes.bool.isRequired,
     onSelectColor: PropTypes.func.isRequired,
+    setText: PropTypes.func.isRequired,
   };
 
   state = {
     expanded: false,
-    colorName: '',
   };
 
   /**
@@ -63,11 +63,11 @@ export default class ColorPicker extends Component {
         document.body.addEventListener('mousedown', this.mouseDown);
       } else {
         document.body.removeEventListener('mousedown', this.mouseDown);
+        this.props.setText('');
       }
       // toggle state
       this.setState({
         expanded: !this.state.expanded,
-        colorName: '',
       });
     }
   };
@@ -81,16 +81,20 @@ export default class ColorPicker extends Component {
     } else {
       color = { hex: 'lightgray', name: 'No Color' };
     }
+
     let chips;
     if (this.state.expanded) {
       chips = (
         <div className="dropdown">
           {currentPalette.map((color, index) => (
-            <div className="color-wrapper" key={index}>
+            <div
+              className="color-wrapper"
+              key={index}
+              onClick={() => this.props.onSelectColor(index)}
+              onMouseEnter={() => this.props.setText(color.name || color.hex)}
+              onMouseLeave={() => this.props.setText('')}
+            >
               <div
-                onClick={() => this.props.onSelectColor(index)}
-                onMouseEnter={() => this.setState({ colorName: color.name || color.hex })}
-                onMouseLeave={() => this.setState({ colorName: '' })}
                 className="color"
                 style={{
                   backgroundColor: color.hex,
@@ -105,7 +109,6 @@ export default class ColorPicker extends Component {
     }
     return (
       <div className="single-color-picker" onClick={this.toggle}>
-        <div className="label">{`Color: ${this.state.colorName || color.name || color.hex}`}</div>
         <div className="color" style={{ backgroundColor: color.hex }}>
           {chips}
         </div>
