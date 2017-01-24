@@ -36,6 +36,16 @@
     padding-bottom: 20px;
 }
 
+.divider
+{
+    border-top: solid 1px rgba(0, 0, 0, 0.5);
+    padding-bottom: 10px;
+    width: 150px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
 body
 {
     overflow-x: hidden;
@@ -94,7 +104,7 @@ h2
     cursor: default;
 }
 
-h3
+h3,.h3
 {
     font-size: 1.5em;
     font-family: 'art-bold';
@@ -234,9 +244,7 @@ p
 
 #valueSection
 {
-    color: var(--white);
-    background: #28253D;
-    opacity: 0.95;
+    color: var(--black);
     text-align: center;
     position: absolute;
     bottom: 0px;
@@ -255,18 +263,18 @@ p
 
 .feature1
 {
-    background-image: url("assets/images/back1.png"), url("assets/images/back2.png");
-    background-size: 50% 100%, 50% 100%;
-    background-position: top left, top right;
+    background-image: url("assets/images/back1.png");
+    background-size: 100% 100%;
+    background-position: top right;
     background-repeat: no-repeat;
-    color: var(--black);
+    color: var(--white);
     padding-top: 120px;
     padding-bottom: 180px;
 }
 
 .feature2
 {
-    background-image: url("assets/images/back3.png");
+    background-image: url("assets/images/back2.png");
     background-size: 100% 100%;
     background-position: top right;
     background-repeat: no-repeat;
@@ -276,14 +284,11 @@ p
 }
 
 .feature3 {
-    background-image: url("assets/images/back4.png"), url("assets/images/back5.png");
-    background-size: 50% 100%, 50% 100% ;
-    background-position: top left, top right;
+    background-image: url("assets/images/back3.png");
+    background-size: 100% 100%;
+    background-position: top right;
     background-repeat: no-repeat;
-    color: var(--black);
-    padding-top: 120px;
-    padding-bottom: 200px;
-    color: var(--black);
+    color: var(--white);
     padding-top: 120px;
     padding-bottom: 180px;
 }
@@ -300,7 +305,6 @@ p
 .trySectionTop
 {
     color: var(--black);
-    background: var(--darkGrey);
     text-align: center;
     padding-top: 100px;
     padding-bottom: 60px;
@@ -308,9 +312,9 @@ p
 
 .trySectionCards
 {
-    background-image: url("assets/images/back6.png"), url("assets/images/back7.png");
-    background-size: 50% 100%, 50% 100%;
-    background-position: top left, top right;
+    background-image: url("assets/images/back4.png");
+    background-size: 100% 100%;
+    background-position: top left;
     background-repeat: no-repeat;
     text-align: center;
     padding-top: 80px;
@@ -441,30 +445,18 @@ p
 
 /* ---------------------- RESPONSIVE --------------------- */
 
+
+@media (max-width:992px)
+{
+    .cardHeader
+    {
+        font-size: 2.0em;
+    }
+}
+
+
 @media (max-width:768px)
 {
-    .feature1
-    {
-        background-image: url("assets/images/back1.png");
-        background-size: 100% 100%;
-        background-position: top left;
-    }
-    .feature2
-    {
-        background-image: none;
-    }
-    .feature3
-    {
-        background-image: url("assets/images/back4.png");
-        background-size: 100% 100%;
-        background-position: top left;
-    }
-    .trySectionCards
-    {
-        background-image: url("assets/images/back7.png");
-        background-size: 100% 100%;
-        background-position: top left;
-    }
     h1
     {
         font-size: 3em;
@@ -475,23 +467,30 @@ p
         font-family: 'art-thin';
         cursor: default;
     }
+        .cardHeader
+    {
+        font-size: 2.5em;
+    }
     #interfaceSection
     {
         padding-top: 60px;
-        padding-bottom: 10px;
+        padding-bottom: 60px;
     }
     .feature1
     {
+        background: var(--placeholder);
         padding-top: 60px;
         padding-bottom: 60px;
     }
     .feature2
     {
+        background-image: none;
         padding-top: 60px;
         padding-bottom: 60px;
     }
     .feature3
     {
+        background: var(--placeholder);
         padding-top: 60px;
         padding-bottom: 60px;
     }
@@ -503,12 +502,13 @@ p
     .trySectionTop
     {
         padding-top: 60px;
-        padding-bottom: 30px;
+        padding-bottom: 60px;
     }
     .trySectionCards
     {
-        padding-top: 60px;
-        padding-bottom: 100px;
+        background: var(--placeholder);
+        padding-top: 0px;
+        padding-bottom: 160px;
     }
     #teamSection
     {
@@ -528,11 +528,6 @@ p
     {
         padding-top: 120px;
     }
-}
-
-
-@media (max-width:992px)
-{
     .card2
     {
         margin-top: 100px;
