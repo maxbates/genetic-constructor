@@ -314,22 +314,21 @@ export class InspectorBlock extends Component {
             null
         }
         <div className="color-symbol-label">{this.state.colorSymbolText}</div>
-        <ColorPicker
-          setText={this.setColorSymbolText}
-          current={this.currentColor()}
-          readOnly={readOnly}
-          paletteName={palette}
-          onSelectColor={this.selectColor}
-        />
-        <Expando
-          text="Symbol"
-          content={<SBOLPicker
+        <div className="color-symbol">
+          <ColorPicker
+            setText={this.setColorSymbolText}
+            current={this.currentColor()}
+            readOnly={readOnly}
+            paletteName={palette}
+            onSelectColor={this.selectColor}
+          />
+          <SBOLPicker
+            setText={this.setColorSymbolText}
             current={this.currentRoleSymbol()}
             readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList))}
             onSelect={this.selectSymbol}
-          />}
-        />
-
+          />
+        </div>
         <InspectorRow
           heading={`${type} Rules`}
           condition={isAuthoring}

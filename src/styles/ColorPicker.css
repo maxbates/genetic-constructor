@@ -34,8 +34,8 @@
   .dropdown {
     position: absolute;
     padding: 4px 0;
-    left: 0;
-    top: 64px;
+    left: -2px;
+    top: 62px;
     width: 258px;
     background-color: var(--colors-nearlyBlack);
     display: flex;

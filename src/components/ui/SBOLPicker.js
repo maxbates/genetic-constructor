@@ -24,6 +24,7 @@ export default class SBOLPicker extends Component {
     readOnly: PropTypes.bool,
     current: PropTypes.any,
     onSelect: PropTypes.func,
+    setText: PropTypes.func,
   };
 
   static makeHoverText(symbolId) {
@@ -37,6 +38,30 @@ export default class SBOLPicker extends Component {
     };
   }
 
+  state = {
+    expanded: false,
+  };
+
+  /**
+   * track mouse down while the picker is expanded
+   * @param event
+   */
+  mouseDown = (event) => {
+    let current = event.target;
+    while (current) {
+      if (current.classList && Array.from(current.classList).indexOf('SBOLPicker') >= 0) {
+        // the click was in some part of the color picker so ignore
+        return;
+      }
+      current = current.parentNode;
+    }
+    // if here the click was outside the picker so close
+    document.body.removeEventListener('mousedown', this.mouseDown);
+    this.setState({
+      expanded: false,
+    });
+  };
+
   /**
    * user clicked on of the symbols identified by the bound id
    */
@@ -49,37 +74,117 @@ export default class SBOLPicker extends Component {
   };
 
   onMouseEnter = (id) => {
-    this.setState({ hoverText: SBOLPicker.makeHoverText(id) });
+    //this.setState({ hoverText: SBOLPicker.makeHoverText(id) });
   };
 
   onMouseLeave = () => {
-    this.setState({ hoverText: SBOLPicker.makeHoverText(this.props.current) });
+    //this.setState({ hoverText: SBOLPicker.makeHoverText(this.props.current) });
+  };
+
+  /**
+   * toggle between open / closed
+   */
+  toggle = () => {
+    if (!this.props.readOnly) {
+      // if about to expand we need to track mouse clicks outside to close
+      if (!this.state.expanded) {
+        document.body.addEventListener('mousedown', this.mouseDown);
+      } else {
+        document.body.removeEventListener('mousedown', this.mouseDown);
+        this.props.setText('');
+      }
+      // toggle state
+      this.setState({
+        expanded: !this.state.expanded,
+      });
+    }
+  };
+
+  makeSymbolCurrent = (id) =>
+    (
+      <div className="wrapper">
+        <RoleSvg
+          width="50px"
+          height="50px"
+          color={'black'}
+          strokeWidth={1}
+          symbolName={id}
+          key={id}
+        />
+      </div>
+    );
+
+  makeSymbol = (id) => {
+    return (
+      <div
+        className="highlight"
+        onMouseEnter={() => this.props.setText(SBOLPicker.makeHoverText(id))}
+        onMouseLeave={() => this.props.setText('')}
+        onClick={() => this.onClick(id)}
+      >
+        <div className="wrapper">
+          <RoleSvg
+            width="50px"
+            height="50px"
+            color={'black'}
+            strokeWidth={1}
+            symbolName={id}
+            key={id}
+          />
+        </div>
+      </div>
+    );
   };
 
   render() {
     const { current } = this.props;
-    return (
-      <div className="SBOLPicker">
-        <div className="SBOLPicker-content">
-          <div className="name">{this.state.hoverText}</div>
-          <div className="sbol-picker">
-            {symbols.map((symbolObj) => {
-              const { id } = symbolObj;
-              return (<RoleSvg
-                width="54px"
-                height="54px"
-                color={current === id ? 'white' : 'black'}
-                classes={current === id ? 'active' : null}
-                symbolName={id}
-                onClick={() => this.onClick(id)}
-                onMouseEnter={() => this.onMouseEnter(id)}
-                onMouseLeave={this.onMouseLeave}
-                key={id}
-              />);
-            })}
-          </div>
+    let chips;
+    if (this.state.expanded) {
+      chips = (
+        <div className="dropdown">
+          {symbols.map((symbolObj) => {
+            const { id } = symbolObj;
+            return this.makeSymbol(id);
+          })}
+          <div className="arrow"/>
         </div>
-      </div>
-    );
+      );
+    }
+
+    return (
+      <div
+        className="SBOLPicker"
+        onClick={this.toggle}
+      >
+        {this.makeSymbolCurrent(current)}
+        {chips}
+      </div>);
   }
+
+// render() {
+//   const { current } = this.props;
+//   return (
+//     <div className="SBOLPicker">
+//       <div className="SBOLPicker-content">
+//         <div className="name">{this.state.hoverText}</div>
+//         <div className="sbol-picker">
+//           {symbols.map((symbolObj) => {
+//             const { id } = symbolObj;
+//             return (<RoleSvg
+//               width="50px"
+//               height="50px"
+//               color={current === id ? 'white' : 'black'}
+//               classes={current === id ? 'active' : null}
+//               symbolName={id}
+//               onClick={() => this.onClick(id)}
+//               onMouseEnter={() => this.onMouseEnter(id)}
+//               onMouseLeave={this.onMouseLeave}
+//               key={id}
+//             />);
+//           })}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 }

@@ -49,7 +49,6 @@ export default class ColorPicker extends Component {
     document.body.removeEventListener('mousedown', this.mouseDown);
     this.setState({
       expanded: false,
-      colorName: '',
     });
   };
 

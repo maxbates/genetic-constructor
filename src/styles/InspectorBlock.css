@@ -3,5 +3,12 @@
 .InspectorContentBlock {
   .color-symbol-label {
     margin: 0.5rem 0 0 0;
+    text-transform: capitalize;
+  }
+
+  .color-symbol {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
   }
 }
