@@ -18,7 +18,15 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import { blockCreate } from '../../actions/blocks';
-import { focusConstruct, focusForceBlocks, focusForceProject } from '../../actions/focus';
+import {
+  focusConstruct,
+  focusForceBlocks,
+  focusForceProject,
+  focusBlocks,
+} from '../../actions/focus';
+import {
+  blockGetParents,
+} from '../../selectors/blocks';
 import {
   projectAddConstruct,
   projectCreate,
@@ -41,16 +49,16 @@ import { extensionApiPath } from '../../middleware/utils/paths';
 import * as instanceMap from '../../store/instanceMap';
 import { commit, transact } from '../../store/undo/actions';
 import '../../styles/InventoryProjectTree.css';
-import BasePairCount from '../ui/BasePairCount';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
-import InventorySearch from './InventorySearch';
+import BasePairCount from '../ui/BasePairCount';
 
 export class InventoryProjectTree extends Component {
   static propTypes = {
     currentProjectId: PropTypes.string,
     projects: PropTypes.object.isRequired,
     blockCreate: PropTypes.func.isRequired,
+    blockGetParents: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
     templates: PropTypes.bool.isRequired,
     projectCreate: PropTypes.func.isRequired,
@@ -61,6 +69,7 @@ export class InventoryProjectTree extends Component {
     projectOpen: PropTypes.func.isRequired,
     focus: PropTypes.object.isRequired,
     focusConstruct: PropTypes.func.isRequired,
+    focusBlocks: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
     focusForceBlocks: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
@@ -71,9 +80,8 @@ export class InventoryProjectTree extends Component {
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowOkCancel: PropTypes.func.isRequired,
     blocks: PropTypes.object.isRequired,
+    filter: PropTypes.string.isRequired,
   };
-
-  static filter = '';
 
   /**
    * make a drag and drop proxy for the item
@@ -100,7 +108,6 @@ export class InventoryProjectTree extends Component {
 
   state = {
     isLoading: true,
-    filter: InventoryProjectTree.filter || '',
   };
 
   //will retrigger on each load
@@ -108,6 +115,7 @@ export class InventoryProjectTree extends Component {
     this.props.projectList()
     .then(() => this.setState({ isLoading: false }));
   }
+
 
   /**
    * when a project is expanded, we need to load to get the blocks and also inspect it
@@ -126,9 +134,18 @@ export class InventoryProjectTree extends Component {
    * when a block is expanded, show it in the inspector
    * @param projectId
    */
-  onExpandBlock(block, item) {
-    // TODO, this should work but is broken in DEV currently as well
-    this.props.focusForceBlocks([block]);
+  onClickBlock(block) {
+    // if block/construct is from the current project focus the block/construct...
+    if (block.projectId === this.props.currentProjectId) {
+      if (!this.props.blockGetParents(block.id).length) {
+        this.props.focusConstruct(block.id);
+      } else {
+        this.props.focusBlocks([block.id]);
+      }
+    } else {
+      // ...otherwise just show in inspector
+      this.props.focusForceBlocks([block]);
+    }
     this.props.inspectorToggleVisibility(true);
     this.props.inspectorSelectTab('Information');
   }
@@ -156,7 +173,7 @@ export class InventoryProjectTree extends Component {
     const project = this.props.projectCreate();
     // add a construct to the new project
     const block = this.props.blockCreate({ projectId: project.id });
-    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id);
+    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
 
     //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
     //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
@@ -197,7 +214,7 @@ export class InventoryProjectTree extends Component {
   onNewConstruct = (project, initialModel = {}) => {
     this.props.transact();
     const block = this.props.blockCreate(initialModel);
-    this.props.projectAddConstruct(this.props.currentProjectId, block.id);
+    this.props.projectAddConstruct(this.props.currentProjectId, block.id, true);
     this.props.commit();
     this.props.focusConstruct(block.id);
     return block;
@@ -240,7 +257,9 @@ export class InventoryProjectTree extends Component {
       },
       {
         text: 'Delete Project',
-        action: this.onDeleteProject.bind(this, project),
+        action: () => {
+          this.onDeleteProject(project);
+        },
       },
     ], {
       x: evt.pageX,
@@ -262,13 +281,16 @@ export class InventoryProjectTree extends Component {
           items.push({
             block,
             testid: block.id,
+            stateKey: block.id,
             text: block.getName(),
             textWidgets: [
               hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }} /> : null,
             ],
-            onExpand: () => this.onExpandBlock(block),
+            onClick: this.onClickBlock.bind(this, block),
             items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
-            startDrag: () => InventoryProjectTree.onBlockDrag(block),
+            startDrag: (globalPosition) => {
+              InventoryProjectTree.onBlockDrag(block, globalPosition);
+            },
             locked: block.isFrozen(),
           });
         }
@@ -276,11 +298,6 @@ export class InventoryProjectTree extends Component {
     }
     return items;
   }
-
-  handleFilterChange = (filter) => {
-    InventoryProjectTree.filter = filter;
-    this.setState({ filter });
-  };
 
   /**
    * perform the actual deletion.
@@ -363,12 +380,11 @@ export class InventoryProjectTree extends Component {
 
       //if filtering, and name doesnt match, skip
       const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
-      const filter = this.state.filter.toLowerCase();
-      if (!!filter && name.indexOf(filter) >= 0) {
-        return false;
+      const filter = this.props.filter.toLowerCase();
+      if (!filter) {
+        return true;
       }
-
-      return true;
+      return name.indexOf(filter) >= 0;
     })
     .sortBy((one, two) => {
       if (!one || !two) {
@@ -379,10 +395,13 @@ export class InventoryProjectTree extends Component {
     .map(project => ({
       text: project.getName(),
       testid: project.id,
+      stateKey: project.id,
       bold: true,
       selected: project.id === currentProjectId,
       onExpand: () => this.onExpandProject(project),
-      onContextMenu: () => this.onProjectContextMenu(project),
+      onContextMenu: (evt) => {
+        this.onProjectContextMenu(project, evt);
+      },
       items: this.getProjectBlocksRecursive(project.components, 0, project.rules.frozen ? 1 : Number.MAX_VALUE),
       labelWidgets: [
         <img
@@ -398,12 +417,6 @@ export class InventoryProjectTree extends Component {
 
     return (
       <div>
-        <InventorySearch
-          searchTerm={this.state.filter}
-          disabled={false}
-          placeholder="Filter projects"
-          onSearchChange={this.handleFilterChange}
-        />
         <div className="inventory-project-tree">
           <Tree items={treeItems} />
         </div>
@@ -423,6 +436,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   blockCreate,
+  blockGetParents,
   projectCreate,
   projectAddConstruct,
   projectSave,
@@ -433,6 +447,7 @@ export default connect(mapStateToProps, {
   focusConstruct,
   focusForceProject,
   focusForceBlocks,
+  focusBlocks,
   inspectorToggleVisibility,
   inspectorSelectTab,
   transact,

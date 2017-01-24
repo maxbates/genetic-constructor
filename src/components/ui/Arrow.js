@@ -27,7 +27,7 @@ export default class Switch extends Component {
   };
 
   onClick = (evt) => {
-    if (this.props.onClick && !this.props.hidden) {
+    if (this.props.onClick && !this.props.hidden && !this.props.disabled) {
       this.props.onClick(evt);
     }
   };

@@ -16,7 +16,7 @@ module.exports = {
     .click('[data-testid^="egf_project"] .label-base')
     .waitForElementPresent('[data-testid^="block-"]', 5000, 'expected constructs to appear');
 
-    dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.cvc-drop-target', 50, 40);
+    dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.inter-construct-drop-target', 50, 4);
 
     browser
       .click('.order-button')

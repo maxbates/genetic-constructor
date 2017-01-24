@@ -1,18 +1,23 @@
 @import './variables.css';
 
+@keyframes moving-gradient {
+  0% { background-position: left bottom; }
+  100% { background-position: right bottom; }
+}
+
 .InventorySearch {
   flex-shrink: 0;
   position: relative;
 
   input,
   input:focus {
-    width: calc(100% - (var(--SidePanel-width-padding-content) * 2));
-    margin: 0 0 1.5rem var(--SidePanel-width-padding-content);
+    width: 100%;
     outline: 0;
     border-radius: 2px;
     border: none;
     padding: 0.5em 2em 0.5em 0.4em;
-    background: var(--colors-lightGrey);
+    background: var(--colors-white);
+    border: 1px solid var(--colors-lightGrey);
     color: var(--colors-text);
     background-image: url('/images/ui/search.svg');
     background-repeat: no-repeat;
@@ -27,10 +32,32 @@
   &-loadmore {
     height: 3rem;
     line-height: 3rem;
-    margin-left: var(--SidePanel-width-padding-content);
     cursor: pointer;
   }
   &-loadmore:hover {
     text-decoration: underline;
+  }
+
+  .bar {
+    height: 4px;
+    margin-bottom: 0.5rem;
+  }
+
+  .bar-animated {
+    height: 4px;
+    margin-bottom: 0.5rem;
+
+    background: linear-gradient(
+                    left,
+                    dodgerblue 30%,
+                    lightgray 80%,
+                    dodgerblue 100%
+    ) repeat;
+
+    background-size: 50% 100%;
+    animation-name: moving-gradient;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
   }
 }

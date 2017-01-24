@@ -52,7 +52,8 @@ export const projectPermissionMiddleware = (req, res, next) => {
   if (!idRegex().test(projectId)) {
     logger(`[projectPermissionMiddleware] invalid projectId @ ${req.url}`);
     res.status(400).send(errorInvalidId);
-    next(`projectId is not valid, got ${projectId}`);
+    //don't need to delegate to errorHandlingMiddleware, just return error response
+    //next(`projectId is not valid, got ${projectId}`);
     return;
   }
 

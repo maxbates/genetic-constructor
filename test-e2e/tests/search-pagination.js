@@ -23,7 +23,7 @@ module.exports = {
     browser
       // wait for a block to appear
       .waitForElementPresent('.InventoryItem-item', 10000, 'expected some results')
-      .waitForElementPresent('.InventorySearch-loadmore', 5000, 'expected a load more button');
+      .waitForElementPresent('.InventoryGroupSearch-loadmore', 5000, 'expected a load more button');
 
     // mark all the current search results so we know when they are replaced.
     browser.execute(function() {
@@ -37,7 +37,7 @@ module.exports = {
         // ensure the tags items are visible to selenium
         .assert.countelements('[data-test="test"]', 10)
         // ask for more results
-        .click('.InventorySearch-loadmore')
+        .click('.InventoryGroupSearch-loadmore .link')
         // wait for old results to go away
         .waitForElementNotPresent('[data-test-flag="test"]', 10000, 'expected old results to go away')
         .assert.countelements('[data-test-flag="test"]', 0)

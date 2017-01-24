@@ -73,6 +73,7 @@ export class ConstructViewer extends Component {
     projectAddConstruct: PropTypes.func,
     blocks: PropTypes.object,
     focus: PropTypes.object,
+    testIndex: PropTypes.number.isRequired,
   };
 
   /**
@@ -118,9 +119,6 @@ export class ConstructViewer extends Component {
     // and can move the page beyind the scroll limits set.
     if (!this.props.focus.constructId) {
       this.props.focusConstruct(this.props.constructId);
-      //ReactDOM.findDOMNode(this).scrollIntoView();
-    } else {
-      //ReactDOM.findDOMNode(this).scrollIntoView();
     }
   }
 
@@ -169,7 +167,9 @@ export class ConstructViewer extends Component {
     delete idToViewer[this.props.constructId];
     this.resizeDebounced.cancel();
     window.removeEventListener('resize', this.resizeDebounced);
+    this.sg.destroy();
   }
+
 
   /**
    * launch DNA form for this construct
@@ -182,6 +182,13 @@ export class ConstructViewer extends Component {
         this.props.uiShowOrderForm(true, order.id);
       });
   };
+
+  /**
+   * get project our construct is from
+   */
+  getProject() {
+    return this.props.projectGet(this.props.currentProjectId);
+  }
 
   /**
    * get the parent of the given block, which is either the construct or the parents
@@ -483,7 +490,7 @@ export class ConstructViewer extends Component {
           if (!oldName.endsWith(' - copy')) {
             clone = this.props.blockRename(clone.id, `${oldName} - copy`);
           }
-          this.props.projectAddConstruct(this.props.projectId, clone.id);
+          this.props.projectAddConstruct(this.props.projectId, clone.id, true);
           this.props.focusConstruct(clone.id);
         },
       },
@@ -618,7 +625,7 @@ export class ConstructViewer extends Component {
   }
 
   isSampleProject() {
-    return this.props.projectGet(this.props.currentProjectId).rules.frozen;
+    return this.getProject().rules.frozen;
   }
 
   /**
@@ -653,7 +660,11 @@ export class ConstructViewer extends Component {
    */
   render() {
     const rendered = (
-      <div className="construct-viewer" key={this.props.construct.id}>
+      <div
+        className="construct-viewer"
+        key={this.props.construct.id}
+        data-index={this.props.testIndex}
+      >
         <div className="sceneGraphContainer">
           <div className="sceneGraph" />
         </div>

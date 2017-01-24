@@ -16,8 +16,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import '../../../src/styles/form.css';
-import '../../../src/styles/ordermodal.css';
 import { orderDetach, orderSubmit } from '../../actions/orders';
 import { projectSave } from '../../actions/projects';
 import { uiShowOrderForm, uiSpin } from '../../actions/ui';
@@ -26,6 +24,8 @@ import NavLeftRight from './nav-left-right';
 import Page1 from './page1';
 import Page2 from './page2';
 import Page3 from './page3';
+
+import '../../../src/styles/ordermodal.css';
 
 class OrderModal extends Component {
   static propTypes = {

@@ -17,6 +17,7 @@ import React, { Component, PropTypes } from 'react';
 
 import '../../styles/Tree.css';
 import Expando from './Expando';
+//import { getLocal } from '../../utils/localstorage';
 
 export default class Tree extends Component {
   static propTypes = {
@@ -30,6 +31,16 @@ export default class Tree extends Component {
   };
 
   /**
+   * when a branch is clicked
+   * @param item
+   */
+  static onClickBlock(item) {
+    if (item.onClick) {
+      item.onClick(item);
+    }
+  }
+
+  /**
    * when a branch is expanded
    * @param item
    */
@@ -40,6 +51,12 @@ export default class Tree extends Component {
   };
 
   render() {
+    /* add to expando to make state persistent but project must be loaded for this to work
+
+     stateKey={item.stateKey}
+     openByDefault={getLocal(item.stateKey, false, true)}
+
+     */
     return (
       <div className="tree">
         {(this.props.items || []).map((item, index) => (
@@ -52,6 +69,7 @@ export default class Tree extends Component {
             <Expando
               showArrowWhenEmpty={this.props.depth === 0}
               onExpand={() => this.onExpandBranch(item)}
+              onClick={() => Tree.onClickBlock(item)}
               key={index}
               text={item.text}
               testid={item.testid}

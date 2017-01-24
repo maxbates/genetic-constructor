@@ -6,6 +6,11 @@
     position: relative;
     height: 100%;
     overflow: hidden;
+    font-family: var(--font-family-panels);
+  }
+
+  .container * {
+    font-family: var(--font-family-panels) !important;
   }
 
   .title {
@@ -17,6 +22,7 @@
     user-select: none;
     cursor: default;
     padding-right: var(--SidePanel-width-padding-content);
+    color: var(--colors-grey);
   }
 
   .vertical-menu {
@@ -46,4 +52,16 @@
     transform: translateX(250px);
   }
 
+  // force font in expandos and labels
+  .label-base * {
+    font-weight: normal !important;
+    font-family: var(--font-family-panels) !important;
+  }
+  .label-bold * {
+    font-weight: bold !important;
+    font-family: var(--font-family-panels) !important;
+  }
+  .expando * {
+    font-family: var(--font-family-panels) !important;
+  }
 }

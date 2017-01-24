@@ -1,6 +1,6 @@
 
 var openInventoryPanel= function(browser, sectionName) {
-  var sectionSelector = `.SidePanel.Inventory.visible .open [data-section="${sectionName}"][data-selected="true"]`;
+  var sectionSelector = `.SidePanel.Inventory.visible [data-section="${sectionName}"][data-selected="true"]`;
   browser
   // make sure inspector is present
   .waitForElementPresent('.SidePanel.Inventory', 5000, 'Expected Inventory');

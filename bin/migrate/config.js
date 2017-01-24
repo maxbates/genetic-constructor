@@ -23,3 +23,5 @@ console.log('STORAGE PATH:', storagePath);
 
 export const projectPath = path.resolve(storagePath, 'projects');
 console.log('PROJECT PATH:', projectPath);
+
+export const STORAGE_API = process.env.STORAGE_API || "http://localhost:3000/api";

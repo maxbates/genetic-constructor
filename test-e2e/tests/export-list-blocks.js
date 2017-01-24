@@ -25,7 +25,7 @@ module.exports = {
 
     newProject(browser);
     searchFor(browser, 'Ncbi', 'Runx1');
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
+    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.inter-construct-drop-target', 50, 4);
 
     // click the my projects inventory tab and expect a project.
     openInventoryPanel(browser, 'Templates');
@@ -39,7 +39,7 @@ module.exports = {
 
 
     // drag the first construct into the canvas
-    dragFromTo(browser, '.inventory-project-tree [data-testid^="block"]', 50, 10, '.cvc-drop-target', 50, 40);
+    dragFromTo(browser, '.inventory-project-tree [data-testid^="block"]', 50, 10, '.inter-construct-drop-target', 50, 4);
     browser
       .pause(3000);
     // export the project via its context menu

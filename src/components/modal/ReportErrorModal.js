@@ -18,6 +18,7 @@ import { connect } from 'react-redux';
 
 import '../../../src/styles/ReportErrorModal.css';
 import { uiReportError } from '../../actions/ui';
+import { userGetUser } from '../../selectors/user';
 import { reportError } from '../../middleware/reporting';
 import ModalWindow from './modalwindow';
 
@@ -32,6 +33,7 @@ const initialState = {
 class SaveErrorModal extends Component {
   static propTypes = {
     open: PropTypes.bool.isRequired,
+    userGetUser: PropTypes.func.isRequired,
     uiReportError: PropTypes.func.isRequired,
   };
 
@@ -44,14 +46,15 @@ class SaveErrorModal extends Component {
 
   submitForm = () => {
     const url = window.location.href;
-    const user = window.flashedUser.userid; //todo - should use action
+    const user = this.props.userGetUser();
+    const userId = user ? user.userid : null;
     const { title, description } = this.state;
 
     this.setState({
       submitted: true,
     });
 
-    return reportError(title, description, url, user)
+    return reportError(title, description, url, userId)
       .then((json) => {
         this.setState({
           createdUrl: json.html_url,
@@ -141,4 +144,5 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiReportError,
+  userGetUser,
 })(SaveErrorModal);

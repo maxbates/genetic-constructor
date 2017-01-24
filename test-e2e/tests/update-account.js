@@ -8,22 +8,22 @@ module.exports = {
   'Test account updating.' : function (browser) {
     size(browser);
     // register via fixture and get credentials used
-    var credentials = homepageRegister(browser);
-    browser
+    homepageRegister(browser, (browser, credentials) => {
+      browser
       // click user widget to access account dialog
-      .click('div.signed-in')
+      .click('.userwidget')
       .pause(1000);
      clickNthContextMenuItem(browser, 2);
      browser
       .waitForElementPresent('#account-form', 5000, 'expected account form');
-    // change password, email and names
-    var newCredentials = {
-      password: 'new' + credentials.password,
-      email: 'new' + credentials.email,
-      firstName: 'new' + credentials.firstName,
-      lastName: 'new' + credentials.lastName,
-    };
-    browser
+      // change password, email and names
+      var newCredentials = {
+        password: 'new' + credentials.password,
+        email: 'new' + credentials.email,
+        firstName: 'new' + credentials.firstName,
+        lastName: 'new' + credentials.lastName,
+      };
+      browser
       .clearValue('#account-form input:nth-of-type(1)')
       .clearValue('#account-form input:nth-of-type(2)')
       .clearValue('#account-form input:nth-of-type(3)')
@@ -42,10 +42,11 @@ module.exports = {
       .submitForm('#account-form')
       .waitForElementNotPresent('#account-form', 5000, 'expected account form to disappear');
 
-    // now sign out and sign in with new credentials
-    signout(browser);
-    signin(browser, newCredentials);
-    // done
-    browser.end();
+      // now sign out and sign in with new credentials
+      signout(browser);
+      signin(browser, newCredentials);
+      // done
+      browser.end();
+    });
   }
 };

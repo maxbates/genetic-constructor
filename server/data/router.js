@@ -26,6 +26,9 @@ import jobFileRouter from './routerJobs';
 import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
 import snapshotRouter from './routerSnapshots';
+import loaderSupportRouter from './routerLoaderSupport';
+
+import mostRecentProject from '../utils/mostRecentProject';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json({
@@ -63,6 +66,9 @@ router.use('/file/:projectId', projectPermissionMiddleware, projectFileRouter);
 /* sequence */
 //todo - throttle? enforce user present on req?
 router.use('/sequence', sequenceRouter);
+
+/* Load Testing Support */
+router.use('/loadersupport', loaderSupportRouter);
 
 /* versioning */
 
@@ -190,11 +196,16 @@ router.route('/projects/:projectId')
 
 //separate route because dont use project permission middleware
 router.route('/projects')
+  .all(ensureReqUserMiddleware)
   .get((req, res, next) => {
     const { user } = req;
 
     return projectPersistence.getUserProjects(user.uuid, false)
       .then(rolls => rolls.map(roll => roll.project))
+      .then((manifests) => {
+        res.set('Last-Project-ID', mostRecentProject(manifests).id);
+        return manifests;
+      })
       .then(manifests => res.status(200).json(manifests))
       .catch(err => next(err));
   });

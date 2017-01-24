@@ -33,6 +33,7 @@ class InventoryProjectHeader extends Component {
     focusConstruct: PropTypes.func.isRequired,
     uiShowGenBankImport: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string.isRequired,
+    dragInside: PropTypes.bool,
   };
 
   onAddNewProject = () => {
@@ -40,7 +41,7 @@ class InventoryProjectHeader extends Component {
     const project = this.props.projectCreate();
     // add a construct to the new project
     const block = this.props.blockCreate({ projectId: project.id });
-    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id);
+    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
 
     //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
     //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
@@ -68,8 +69,23 @@ class InventoryProjectHeader extends Component {
   render() {
     return (
       <div className="InventoryProjectHeader">
-        <img data-testid="NewProjectButton" src="/images/ui/add.svg" title="Add New Project" onClick={this.onAddNewProject} />
-        <img data-testid="UploadButton" src="/images/ui/upload.svg" title="Upload Genbank or CSV File" onClick={this.onUpload} />
+        <div className={`imgWrapper ${this.props.dragInside ? 'highlight' : ''}`}>
+          <img
+            className={this.props.dragInside ? 'highlight' : ''}
+            data-testid="NewProjectButton"
+            src="/images/ui/add.svg"
+            title="Add New Project"
+            onClick={this.onAddNewProject}
+          />
+        </div>
+        <div className="imgWrapper">
+          <img
+            data-testid="UploadButton"
+            src="/images/ui/upload.svg"
+            title="Upload Genbank or CSV File"
+            onClick={this.onUpload}
+          />
+        </div>
       </div>
     );
   }
