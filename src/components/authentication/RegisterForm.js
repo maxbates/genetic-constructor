@@ -97,10 +97,11 @@ export class RegisterForm extends Component {
 
     this.actions = [{
       text: 'Sign Up',
+      type: 'submit',
       disabled: () => (
         !this.state.forceDisabled && !RegisterForm.validateForm(this.state)
       ),
-      onClick: () => this.onSubmit(this.state),
+      onClick: this.onSubmit,
     }];
   }
 
@@ -145,7 +146,9 @@ export class RegisterForm extends Component {
 
   onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
-  onSubmit = () => {
+  onSubmit = (evt) => {
+    evt.preventDefault();
+
     if (!this.state.forceDisabled && !RegisterForm.validateForm(this.state)) {
       this.setState({ submitError: 'Please fill out all fields' });
       return;

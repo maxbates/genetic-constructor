@@ -44,7 +44,9 @@ export class SignInForm extends Component {
 
   onPassword = evt => this.setState({ password: evt.target.value });
 
-  onSubmit = () => {
+  onSubmit = (evt) => {
+    evt.preventDefault();
+
     if (!(this.state.email && this.state.password)) {
       return;
     }
@@ -75,8 +77,9 @@ export class SignInForm extends Component {
 
   actions = [{
     text: 'Sign In',
+    type: 'submit',
     disabled: () => !(this.state.email && this.state.password),
-    onClick: () => this.onSubmit(),
+    onClick: this.onSubmit,
   }];
 
   render() {
