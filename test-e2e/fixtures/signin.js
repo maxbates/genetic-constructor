@@ -1,28 +1,12 @@
 var signin = function (browser, credentials) {
 
   browser
-  // sign back in with previous credentials
-  .waitForElementPresent('.LandingPage', 5000, 'sign in can occur on the homepage only')
-  .waitForElementPresent('#LandingPageFrame', 500, 'Expected Landing page iframe to be present')
+  .url(browser.launchUrl + '/homepage')
+  // wait for homepage to be present before starting
+  .waitForElementPresent('.LandingPage', 5000, 'Expected landing page to be present')
 
-  //trigger the modal from the frame
-  .frame('LandingPageFrame', function () {
-    browser
-    .waitForElementPresent('nav .modalAction', 100, 'Expected modal action')
-    .execute(function () {
-      //may not be present
-      var cookieModal = document.querySelector('.cookiesButton');
-      if (cookieModal) {
-        cookieModal.click()
-      }
-
-      document.querySelector('nav .modalAction').click();
-    }, [], function () {})
-    .frameParent()
-    //make sure stepped out
-    .assert.elementPresent('#LandingPageFrame');
-  })
-  .waitForElementPresent('#auth-signin', 5000, 'Expected sign in dialog to become visible')
+  // wait for login form to be present
+  .waitForElementPresent('#auth-signin', 5000, 'Expected signin form to become visible')
 
     /*
   //todo - submit and test for errors
@@ -47,7 +31,7 @@ var signin = function (browser, credentials) {
   */
   .setValue('#auth-signin input[name="email"]', credentials.email)
   .setValue('#auth-signin input[name="password"]', credentials.password)
-  .pause(100)
+  .waitForElementNotPresent('.Modal-action.disabled', 1000, 'modal button should be enabled')
   .click('.Modal-action')
   .waitForElementNotPresent('#auth-signin', 5000, 'form should be dismissed on successful login');
 };
