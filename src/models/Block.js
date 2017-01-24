@@ -13,31 +13,30 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import Instance from './Instance';
 import invariant from 'invariant';
-import { assign, merge, cloneDeep } from 'lodash';
-import BlockSchema from '../schemas/Block';
+import { assign, cloneDeep, merge } from 'lodash';
+
+import { symbolMap } from '../inventory/roles';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
-import { isHex, palettes, getPalette, nextColor, colorFiller } from '../utils/color/index';
-import { dnaStrictRegexp, dnaLooseRegexp } from '../utils/dna';
-import * as validators from '../schemas/fields/validators';
+import BlockSchema from '../schemas/Block';
 import safeValidate from '../schemas/fields/safeValidate';
-import { symbolMap } from '../inventory/roles';
+import * as validators from '../schemas/fields/validators';
+import { colorFiller, getPalette, isHex, nextColor, palettes } from '../utils/color/index';
+import { dnaLooseRegexp, dnaStrictRegexp } from '../utils/dna';
+import Instance from './Instance';
 
-const idValidator = (id) => safeValidate(validators.id(), true, id);
+const idValidator = id => safeValidate(validators.id(), true, id);
 
+//merge to clear fields only belonging to top-level constructs
 const fieldsClearToplevel = {
   metadata: {
     palette: null,
   },
 };
 
-const fieldsClearLeaf = {
-  rules: {
-    role: null,
-  },
-};
+//merge to clear fields when not a leaf - these belong only to leaves
+//const fieldsClearLeaf = {};
 
 /**
  * Blocks are the foundational data type for representing DNA constructs in Genetic Constructor. Blocks can be thought of as parts, except they may not specify a sequence, and accommodate many more types of data than just base pairs and annotations.
@@ -112,7 +111,7 @@ export default class Block extends Instance {
    * @returns {Block} Cloned block
    */
   clone(parentInfo = {}, overwrites = {}) {
-    const [ firstParent ] = this.parents;
+    const [firstParent] = this.parents;
 
     const mergeWith = merge({ projectId: null }, overwrites);
 
@@ -338,7 +337,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   setListBlock(isList = true) {
-    if (!!isList) {
+    if (isList) {
       //clear components
       const cleared = this.mutate('components', []);
       return cleared.setRule('list', true);
@@ -395,7 +394,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   setProjectId(projectId) {
-    invariant(idValidator(projectId) || projectId === null, 'project Id is required, or null to mark unassociated');
+    invariant(projectId === null || idValidator(projectId), 'project Id is required, or null to mark unassociated');
     invariant(!this.projectId || (this.projectId && projectId === null), 'if project ID is set, must unset first');
 
     if (this.projectId === projectId) {
@@ -425,8 +424,8 @@ export default class Block extends Instance {
     // called many K per second, no es6 fluffy stuff in here.
     if (this.metadata.name) return this.metadata.name;
     if (this.rules.role) return this.getRole();
-    if ((!!defaultToBases || this.isFiller()) && this.metadata.initialBases) return this.metadata.initialBases.substring(0, 3) + '...';
-    return defaultName || 'New ' + this.getType();
+    if ((!!defaultToBases || this.isFiller()) && this.metadata.initialBases) return `${this.metadata.initialBases.substring(0, 3)}...`;
+    return defaultName || `New ${this.getType()}`;
   }
 
   /**
@@ -513,6 +512,14 @@ export default class Block extends Instance {
       return colorFiller;
     }
 
+    //backwards compatible / if someone sets hex for some reason  (e.g. a weird import / strong preference)
+    //note that this will not change with the palette
+    //todo - should we try to convert it?
+    if (isHex(this.metadata.color)) {
+      console.warn('todo - migrate and avoid hex as color'); //eslint-disable-line
+      return this.metadata.color;
+    }
+
     //color should always be defined... may happen if defined wrong / is null
     if (!Number.isInteger(this.metadata.color)) {
       return 'lightgray';
@@ -525,12 +532,6 @@ export default class Block extends Instance {
       console.warn('todo - handle color by role'); //eslint-disable-line
       const role = this.getRole(false);
       return role ? palette[0].hex : colorFiller;
-    }
-
-    //backwards compatible / if someone sets hex for some reason (shouldnt happen)
-    if (isHex(this.metadata.color)) {
-      console.warn('todo - migrate and avoid hex as color'); //eslint-disable-line
-      return this.metadata.color;
     }
 
     return palette[this.metadata.color].hex;
@@ -635,7 +636,7 @@ export default class Block extends Instance {
     invariant(optionIds.every(optionId => Object.prototype.hasOwnProperty.call(this.options, optionId)), 'Option ID must be present to toggle it');
 
     const options = cloneDeep(this.options);
-    optionIds.forEach(optionId => {
+    optionIds.forEach((optionId) => {
       Object.assign(options, { [optionId]: !this.options[optionId] });
     });
 
@@ -685,7 +686,7 @@ export default class Block extends Instance {
    */
   removeOptions(...optionIds) {
     const cloned = cloneDeep(this.options);
-    optionIds.forEach(id => {
+    optionIds.forEach((id) => {
       delete cloned[id];
     });
 
@@ -755,7 +756,7 @@ export default class Block extends Instance {
       promise = Promise.resolve(null);
     }
 
-    return promise.then(seq => {
+    return promise.then((seq) => {
       if (typeof seq === 'string' && Array.isArray(trim) && ignoreTrim !== true) {
         return seq.substring(trim[0], seq.length - trim[1]);
       }
@@ -790,7 +791,7 @@ export default class Block extends Instance {
         const updatedSequence = {
           md5,
           length: sequenceLength,
-          initialBases: '' + sequence.substr(0, 6),
+          initialBases: `${sequence.substr(0, 6)}`,
           download: null,
           trim: null,
         };
@@ -848,7 +849,7 @@ export default class Block extends Instance {
     invariant(typeof annotationName === 'string', `Must pass object with Name or annotation Name directly, got ${annotation}`);
 
     const annotations = this.sequence.annotations.slice();
-    const toSplice = annotations.findIndex((ann) => ann.name === annotationName);
+    const toSplice = annotations.findIndex(ann => ann.name === annotationName);
 
     if (toSplice < 0) {
       console.warn('annotation not found'); // eslint-disable-line
@@ -864,7 +865,9 @@ export default class Block extends Instance {
    *********/
 
   clearBlockLevelFields() {
-    return this.merge(fieldsClearLeaf);
+    // doesnt do anything at the moment
+    // return this.merge(fieldsClearLeaf);
+    return this;
   }
 
   //when something becomes a not-top level construct, do some cleanup

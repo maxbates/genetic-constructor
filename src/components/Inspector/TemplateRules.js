@@ -16,18 +16,18 @@
 
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { blockMerge, blockSetListBlock, blockFreeze, blockSetHidden } from '../../actions/blocks';
-import Checkbox from '../ui/Checkbox';
 
+import { blockFreeze, blockMerge, blockSetHidden, blockSetListBlock } from '../../actions/blocks';
 import '../../styles/TemplateRules.css';
+import Checkbox from '../formElements/Checkbox';
 
 export class TemplateRules extends Component {
   static propTypes = {
     block: PropTypes.object.isRequired,
     readOnly: PropTypes.bool.isRequired,
     isConstruct: PropTypes.bool.isRequired,
-    blockMerge: PropTypes.func.isRequired,
-    blockFreeze: PropTypes.func.isRequired,
+    //blockMerge: PropTypes.func.isRequired,
+    //blockFreeze: PropTypes.func.isRequired,
     blockSetListBlock: PropTypes.func.isRequired,
     blockSetHidden: PropTypes.func.isRequired,
   };
@@ -37,11 +37,11 @@ export class TemplateRules extends Component {
     this.rules = [
       ['hidden',
         'Hidden',
-        (value) => this.props.blockSetHidden(this.props.block.id, value),
-        () => this.props.isConstruct ],
+        value => this.props.blockSetHidden(this.props.block.id, value),
+        () => this.props.isConstruct],
       ['list',
         'List Block',
-        (value) => this.props.blockSetListBlock(this.props.block.id, value),
+        value => this.props.blockSetListBlock(this.props.block.id, value),
         () => this.props.block.isConstruct()],
       /*
       ['frozen',
@@ -59,15 +59,19 @@ export class TemplateRules extends Component {
         {this.rules.map(([rule, name, func, hideIf = () => {}]) => {
           if (hideIf() === true) { return null; }
           return (
-            <div className="TemplateRules-rule"
-                 key={rule}>
-              <Checkbox checked={block.rules[rule]}
-                        disabled={readOnly || (rule === 'frozen' && isConstruct)}
-                        onChange={(value) => {
-                          if (!readOnly) {
-                            func(value);
-                          }
-                        }}/>
+            <div
+              className="TemplateRules-rule"
+              key={rule}
+            >
+              <Checkbox
+                checked={block.rules[rule]}
+                disabled={readOnly || (rule === 'frozen' && isConstruct)}
+                onChange={(value) => {
+                  if (!readOnly) {
+                    func(value);
+                  }
+                }}
+              />
               <span className="TemplateRules-name">{name}</span>
             </div>
           );

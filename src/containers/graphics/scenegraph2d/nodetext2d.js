@@ -39,14 +39,14 @@ export default class Node2DText {
 
     if (this.currentCache !== cacheString) {
       this.currentCache = cacheString;
-      this.el.style.width = this.node.width + 'px';
-      this.el.style.height = this.el.style.lineHeight = this.node.height + 'px';
+      this.el.style.width = `${this.node.width}px`;
+      this.el.style.height = this.el.style.lineHeight = `${this.node.height}px`;
       this.el.style.fontWeight = this.node.fontWeight;
       this.el.style.fontSize = this.node.fontSize;
       this.el.style.fontFamily = this.node.fontFamily;
       this.el.style.color = this.node.color;
       this.el.style.textAlign = this.node.textAlign;
-      this.el.style.textIndent = this.node.textIndent + 'px';
+      this.el.style.textIndent = `${this.node.textIndent}px`;
       this.el.innerHTML = this.node.text || '';
     }
   }

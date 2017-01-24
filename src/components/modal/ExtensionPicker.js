@@ -13,24 +13,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { merge } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { merge } from 'lodash';
-import ModalWindow from './modalwindow';
+
+import { extensionAuthor, extensionDescription, extensionName, extensionRegion, extensionType, manifestIsClient, manifestIsServer } from '../../../server/extensions/manifestUtils';
 import { uiShowExtensionPicker } from '../../actions/ui';
 import { userUpdateConfig } from '../../actions/user';
 import registry from '../../extensions/clientRegistry';
-import {
-  extensionName,
-  extensionAuthor,
-  extensionRegion,
-  extensionType,
-  extensionDescription,
-  manifestIsClient,
-  manifestIsServer,
-} from '../../../server/extensions/manifestUtils';
-
 import '../../styles/ExtensionPicker.css';
+import ModalWindow from './modalwindow';
 
 export class ExtensionPicker extends Component {
   static propTypes = {
@@ -51,11 +43,9 @@ export class ExtensionPicker extends Component {
     extensionsActive: {},
   };
 
-  checkExtensionActive = (extension) => {
-    return (typeof this.state.extensionsActive[extension] === 'boolean') ?
+  checkExtensionActive = extension => (typeof this.state.extensionsActive[extension] === 'boolean') ?
       this.state.extensionsActive[extension] :
       (this.props.config.extensions[extension] && this.props.config.extensions[extension].active);
-  };
 
   handleToggleExtension = (extension) => {
     const nextState = !this.checkExtensionActive(extension);
@@ -65,13 +55,11 @@ export class ExtensionPicker extends Component {
   };
 
   submitForm = () => {
-    const mappedExtensionsActive = Object.keys(this.state.extensionsActive).reduce((acc, key) => {
-      return Object.assign(acc, { [key]: { active: this.state.extensionsActive[key] } });
-    }, {});
+    const mappedExtensionsActive = Object.keys(this.state.extensionsActive).reduce((acc, key) => Object.assign(acc, { [key]: { active: this.state.extensionsActive[key] } }), {});
     const nextConfig = merge({}, this.props.config, { extensions: mappedExtensionsActive });
 
     this.props.userUpdateConfig(nextConfig)
-      .then(user => {
+      .then((user) => {
         this.setState({ dirty: false });
         this.props.uiShowExtensionPicker(false);
       });
@@ -99,11 +87,9 @@ export class ExtensionPicker extends Component {
 
             <div className="ExtensionPicker-list">
               <div className="ExtensionPicker-row ExtensionPicker-header">
-                {['', ...tableFields].map(field => {
-                  return (<div className="ExtensionPicker-cell" key={field}>{field}</div>);
-                })}
+                {['', ...tableFields].map(field => (<div className="ExtensionPicker-cell" key={field}>{field}</div>))}
               </div>
-              {Object.keys(registry).map(key => registry[key]).map(extension => {
+              {Object.keys(registry).map(key => registry[key]).map((extension) => {
                 const values = {
                   Name: extensionName(extension),
                   Type: extensionType(extension),
@@ -114,20 +100,24 @@ export class ExtensionPicker extends Component {
                   Region: extensionRegion(extension),
                 };
 
-                return (<div className="ExtensionPicker-row"
-                             key={extension.name}>
+                return (<div
+                  className="ExtensionPicker-row"
+                  key={extension.name}
+                >
                   <div className="ExtensionPicker-cell">
-                    <input type="checkbox"
-                           className="ExtensionPicker-cell ExtensionPicker-toggle"
-                           checked={this.checkExtensionActive(extension.name)}
-                           onChange={() => this.handleToggleExtension(extension.name)}/>
+                    <input
+                      type="checkbox"
+                      className="ExtensionPicker-cell ExtensionPicker-toggle"
+                      checked={this.checkExtensionActive(extension.name)}
+                      onChange={() => this.handleToggleExtension(extension.name)}
+                    />
                   </div>
-                  {tableFields.map((field) => {
-                    return (<div className={'ExtensionPicker-cell ExtensionPicker-' + field}
-                                 key={field}>
-                      {values[field]}
-                    </div>);
-                  })}
+                  {tableFields.map(field => (<div
+                    className={`ExtensionPicker-cell ExtensionPicker-${field}`}
+                    key={field}
+                  >
+                    {values[field]}
+                  </div>))}
 
                 </div>);
               })}
@@ -137,12 +127,14 @@ export class ExtensionPicker extends Component {
               <button
                 type="submit"
                 disabled={!this.state.dirty}
-                onClick={() => this.submitForm()}>
+                onClick={() => this.submitForm()}
+              >
                 Submit
               </button>
             </div>
           </div>
-        )}/>
+        )}
+      />
     );
   }
 }

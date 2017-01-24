@@ -1,0 +1,5 @@
+{
+  "rules": {
+    "no-case-declarations": 0 //reducers dont create block scopes for case statements, lexical delcaration visible through switch, but im lazy and dont want to refactor
+  }
+}

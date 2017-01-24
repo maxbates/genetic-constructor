@@ -100,11 +100,10 @@ describe('Server', () => {
             });
         });
 
-        it('objectGet() catches when not an object, rejects with contents', (done) => {
+        it('objectGet() catches when not an object, rejects', (done) => {
           s3.objectGet(bucket, stringName)
             .then(done)
-            .catch(result => {
-              expect(result).to.equal(stringContents);
+            .catch(err => {
               done();
             });
         });
@@ -116,7 +115,8 @@ describe('Server', () => {
                 assert(result === true, 'expected to exist');
               }),
             s3.itemExists(bucket, uuid.v4())
-              .then(result => {
+              .then(result => { throw Error('shouldnt resolve to false') })
+              .catch(result => {
                 assert(result === false, 'expected to not exist');
               }),
           ]);
@@ -125,7 +125,8 @@ describe('Server', () => {
         it('itemDelete() deletes object', () => {
           return s3.itemDelete(bucket, stringName)
             .then(() => s3.itemExists(bucket, stringName))
-            .then((exists) => {
+            .then((result) => { throw Error('shouldnt exist'); })
+            .catch((exists) => {
               expect(exists).to.equal(false);
             });
         });

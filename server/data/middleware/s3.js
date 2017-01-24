@@ -13,9 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import invariant from 'invariant';
-import { errorDoesNotExist } from '../../utils/errors';
 import debug from 'debug';
+import invariant from 'invariant';
+import AWS from 'aws-sdk';
+
+import { errorDoesNotExist } from '../../utils/errors';
 
 const log = debug('constructor:data:s3');
 
@@ -42,9 +44,9 @@ const forceLocal = ((process.env.FORCE_LOCAL !== null) && (process.env.FORCE_LOC
 
 export const useRemote = ((!forceLocal) && ((process.env.NODE_ENV === 'production') || awsKeyEnvVarsSet));
 
-log('[S3 Config] AWS Keys set via environment variables? ' + awsKeyEnvVarsSet);
-log('[S3 Config] Force Local Storage? ' + forceLocal);
-log('[S3 Config] Remote Persistence Enabled? ' + useRemote);
+log(`[S3 Config] AWS Keys set via environment variables? ${awsKeyEnvVarsSet}`);
+log(`[S3 Config] Force Local Storage? ${forceLocal}`);
+log(`[S3 Config] Remote Persistence Enabled? ${useRemote}`);
 
 //these are all the buckets the app expects
 // TODO these should be configurable
@@ -56,10 +58,14 @@ export const buckets = [
 
 //namespace keys by environment, version, etc.
 export const testPrefix = 'TEST/'; //in test environment, prefix everything so easier to clean up
+
 const storageVersion = '1'; //static, for data migrations
-const environment = !!process.env.BNR_ENVIRONMENT ? (process.env.BNR_ENVIRONMENT + '/') : 'local/'; //environment so data is siloed across environments
+
+//environment so data is siloed across environments, and special handling for travis
+const environment = process.env.BNR_ENVIRONMENT || (process.env.TRAVIS ? (`travis/${process.env.TRAVIS_JOB_ID}`) : 'local');
+
 const generatePrefix = () => {
-  let prefix = `${environment}${storageVersion}/`;
+  let prefix = `${environment}/${storageVersion}/`;
   if (process.env.NODE_ENV === 'test') {
     //last (so its the first prefix), add test prefix for test environments
     prefix = testPrefix + prefix;
@@ -67,14 +73,17 @@ const generatePrefix = () => {
   return prefix;
 };
 
-const setupKey = (key) => generatePrefix() + key;
+const setupKey = key => generatePrefix() + key;
 
 log(`[S3 Config] prefix = ${generatePrefix()}`);
+if (useRemote && !log.enabled) {
+  console.log(`[S3] prefix: ${generatePrefix()}`); //eslint-ignore-line
+}
 
 //ensure we have consistent fields returned
-const massageResult = (obj, Prefix) => {
-  const prefix = Prefix ?
-    `${Prefix}/` :
+const massageResult = (obj, forcePrefix) => {
+  const prefix = forcePrefix ?
+    `${forcePrefix}/` :
     setupKey('/'); //if no specific prefix provided, hide the stuff we do automatically
 
   //explicitly remap a few fields so we know they are there / fields to expect
@@ -86,12 +95,9 @@ const massageResult = (obj, Prefix) => {
   });
 };
 
-let AWS;
 if (useRemote) {
   invariant(!!process.env.AWS_ACCESS_KEY_ID, 'production environment uses AWS, unless specify env var FORCE_LOCAL=true. expected env var AWS_ACCESS_KEY_ID');
   invariant(!!process.env.AWS_SECRET_ACCESS_KEY, 'production environment uses AWS, unless specify env var FORCE_LOCAL=true. expected env var AWS_SECRET_ACCESS_KEY');
-
-  AWS = require('aws-sdk');
 
   AWS.config.update({
     region: process.env.AWS_S3_LOCATION || 'us-west-1',
@@ -102,55 +108,51 @@ if (useRemote) {
 
 //should run before server starts. s3 persistence modules expect buckets to exist
 //promise
-export const ensureBucketProvisioned = (Bucket) => {
-  return new Promise((resolve, reject) => {
-    log(`Setting up S3 Bucket ${Bucket}...`);
+export const ensureBucketProvisioned = Bucket => new Promise((resolve, reject) => {
+  log(`Setting up S3 Bucket ${Bucket}...`);
 
-    const API = new AWS.S3();
+  const API = new AWS.S3();
 
-    API.headBucket({ Bucket }, (err, data) => {
-      if (err) {
-        log(`Creating new S3 bucket ${Bucket}...`);
-        const createParams = {
-          Bucket,
-          ACL: 'private',
-          CreateBucketConfiguration: {
-            LocationConstraint: 'us-west-1',
-          },
-        };
+  API.headBucket({ Bucket }, (err, data) => {
+    if (err) {
+      log(`Creating new S3 bucket ${Bucket}...`);
+      const createParams = {
+        Bucket,
+        ACL: 'private',
+        CreateBucketConfiguration: {
+          LocationConstraint: 'us-west-1',
+        },
+      };
 
-        API.createBucket(createParams, (err, data) => {
+      API.createBucket(createParams, (err, data) => {
+        if (err) {
+          log(`Failed to create S3 Bucket ${Bucket}`);
+          log(err);
+          log(err.stack);
+          return reject(err);
+        }
+
+        log(`S3 Bucket created: ${Bucket}`);
+
+        API.waitFor('bucketExists', { Bucket }, (err, data) => {
           if (err) {
-            log(`Failed to create S3 Bucket ${Bucket}`);
+            log('Error waiting for bucket to exist:', Bucket);
             log(err);
-            log(err.stack);
             return reject(err);
           }
-
-          log(`S3 Bucket created: ${Bucket}`);
-
-          API.waitFor('bucketExists', { Bucket }, (err, data) => {
-            if (err) {
-              log('Error waiting for bucket to exist:', Bucket);
-              log(err);
-              return reject(err);
-            }
-            return resolve(data);
-          });
+          return resolve(data);
         });
-      } else {
+      });
+    } else {
         //already exists off the bat
-        resolve(data);
-      }
-    });
+      resolve(data);
+    }
   });
-};
+});
 
 //sync
 //expects the bucket exists - setup prior to server start with ensureBucketProvisioned
-export const getBucket = (Bucket) => {
-  return new AWS.S3({ params: { Bucket } });
-};
+export const getBucket = Bucket => new AWS.S3({ params: { Bucket } });
 
 //synchronous
 export const getSignedUrl = (bucket, key, operation = 'getObject', opts = {}) => {
@@ -164,16 +166,22 @@ export const itemExists = (bucket, key) => {
   const Key = setupKey(key);
 
   return new Promise((resolve, reject) => {
+    log(`[exists] ${key} (${Key}) @ ${bucket.config.params.Bucket}`);
+
     bucket.headObject({ Key }, (err, result) => {
       if (err) {
         if (err.statusCode === 404) {
-          return resolve(false);
+          log(`[exists] no ${key}`);
+          return reject(false);
         }
 
-        //unhandled
-        console.log(err, err.stack);
+        log(`[exists] Error: ${key}`);
+        log(err);
+        log(err.stack);
         return reject(err);
       }
+      log(`[exists] Success ${key}`);
+
       return resolve(true);
     });
   });
@@ -183,6 +191,8 @@ export const folderContents = (bucket, prefix, params = {}) => {
   const Prefix = setupKey(prefix);
 
   return new Promise((resolve, reject) => {
+    log(`[folderContents] ${prefix} (${Prefix}) @ ${bucket.config.params.Bucket}`);
+
     const req = Object.assign({}, params, { Prefix });
     bucket.listObjects(req, (err, results) => {
       if (err) {
@@ -212,29 +222,30 @@ export const folderContents = (bucket, prefix, params = {}) => {
   });
 };
 
-export const bucketVersioned = (bucket) => {
-  return new Promise((resolve, reject) => {
-    bucket.getBucketVersioning({}, (err, result) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(result.Status === 'Enabled');
-    });
+export const bucketVersioned = bucket => new Promise((resolve, reject) => {
+  bucket.getBucketVersioning({}, (err, result) => {
+    if (err) {
+      return reject(err);
+    }
+    resolve(result.Status === 'Enabled');
   });
-};
+});
 
 export const itemVersions = (bucket, Key, params = {}) => {
   //use key as the prefix so only get its versions
   const Prefix = setupKey(Key);
 
   return new Promise((resolve, reject) => {
+    log(`[itemVersions] ${Key} (${Prefix}) @ ${bucket.config.params.Bucket}`);
+
     const req = Object.assign({}, params, {
       Prefix,
     });
     bucket.listObjectVersions(req, (err, results) => {
       if (err) {
-        console.log('got error');
-        console.log(err);
+        log('[itemVersions] Error');
+        log(err);
+        log(err.stack);
         return reject(err);
       }
 
@@ -254,21 +265,27 @@ export const itemGetBuffer = (bucket, key, params = {}) => {
   return new Promise((resolve, reject) => {
     const req = Object.assign({},
       params,
-      { Key }
+      { Key },
     );
+
+    log(`[get] ${key} (${Key}) @ ${bucket.config.params.Bucket}`);
 
     bucket.getObject(req, (err, result) => {
       if (err) {
         if (err.statusCode) {
           if (err.statusCode === 404) {
+            log(`[get] 404 ${key}`);
             return reject(errorDoesNotExist);
           }
         }
-        //unhandled error
-        console.log(err, err.stack);
+        log(`[get] Error: ${key}`);
+        log(err);
+        log(err.stack);
         return reject(err);
       }
+
       //just return the file content (no need yet for file metadata)
+      log(`[get] Success ${key}`);
       return resolve(result.Body);
     });
   });
@@ -278,19 +295,23 @@ export const stringGet = (bucket, Key, params = {}) => {
   const stringParams = Object.assign({}, params, { ResponseContentType: 'text/plain' });
 
   return itemGetBuffer(bucket, Key, stringParams)
-    .then(result => result.toString('utf-8'));
+    .then((result) => {
+      const str = result.toString('utf-8');
+      log(`[stringGet] ${Key} = ${str.substr(0, 50)}`);
+      return str;
+    });
 };
 
 export const objectGet = (bucket, Key, params = {}) => {
   const objParams = Object.assign({}, params, { ResponseContentType: 'application/json' });
 
   return stringGet(bucket, Key, objParams)
-    .then(result => {
+    .then((result) => {
       try {
         return JSON.parse(result);
       } catch (err) {
         console.log('error parsing JSON in objectGet', Key, result.substring(0, 100));
-        return Promise.reject(result);
+        return Promise.reject(err);
       }
     });
 };
@@ -303,17 +324,22 @@ export const itemPutBuffer = (bucket, key, Body, params = {}) => {
   const Key = setupKey(key);
 
   return new Promise((resolve, reject) => {
+    log(`[put] ${key} (${Key}) @ ${bucket.config.params.Bucket}`);
+
     const req = Object.assign({},
       params,
-      { Body, Key }
+      { Body, Key },
     );
 
     bucket.putObject(req, (err, result) => {
       if (err) {
-        //unhandled error
-        console.log(err, err.stack);
+        log(`[put] Error: ${key}`);
+        log(err);
+        log(err.stack);
         return reject(err);
       }
+
+      log(`[put] Success: ${key}`);
       return resolve(result);
     });
   });
@@ -336,28 +362,26 @@ export const objectPut = (bucket, Key, obj, params = {}) => {
 
 // DELETE
 
-const _itemDelete = (bucket, Key, VersionId = null) => {
-  return new Promise((resolve, reject) => {
-    const req = { Key };
-    if (VersionId) {
-      Object.assign(req, { VersionId });
-    }
+const _itemDelete = (bucket, Key, VersionId = null) => new Promise((resolve, reject) => {
+  const req = { Key };
+  if (VersionId) {
+    Object.assign(req, { VersionId });
+  }
 
-    bucket.deleteObject(req, (err, result) => {
-      if (err) {
-        if (err.statusCode === 404) {
-          return reject(errorDoesNotExist);
-        }
-
-        //unhandled
-        console.log(err, err.stack);
-        return reject(err);
+  bucket.deleteObject(req, (err, result) => {
+    if (err) {
+      if (err.statusCode === 404) {
+        return reject(errorDoesNotExist);
       }
 
-      return resolve(result.DeleteMarker);
-    });
+        //unhandled
+      console.log(err, err.stack);
+      return reject(err);
+    }
+
+    return resolve(result.DeleteMarker);
   });
-};
+});
 
 export const itemDelete = (bucket, key, version) => {
   const Key = setupKey(key);
@@ -368,8 +392,12 @@ export const itemDelete = (bucket, key, version) => {
 //this is kinda hardwired so you dont make mistakes
 //clears everything prefixed with testPrefix in the bucket
 export const emptyBucketTests = (bucket) => {
+  const Prefix = setupKey();
+
   return new Promise((resolve, reject) => {
-    const req = { Prefix: testPrefix };
+    log(`[clear] Clearing Test Data ${Prefix} @ ${bucket.config.params.Bucket}`);
+
+    const req = { Prefix };
     bucket.listObjects(req, (err, results) => {
       if (!results.Contents) {
         return resolve();
@@ -386,4 +414,3 @@ export const emptyBucketTests = (bucket) => {
     });
   });
 };
-

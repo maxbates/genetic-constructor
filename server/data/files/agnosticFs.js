@@ -24,6 +24,8 @@ console.log(s3.useRemote ? '[Files] Using S3 for file persistence, not file syst
 // when using local, s3bucket is prefix
 // use this scheme so the filePath (e.g. on write) returned is the same across platforms
 
+//todo - file exists, reject if not
+
 export const fileRead = (s3bucket, filePath, params) => {
   invariant(filePath, 'file name is required');
 
@@ -60,12 +62,10 @@ export const fileWrite = (s3bucket, filePath, contents, params) => {
       }));
   }
 
-  return promise.then(result => {
-    return Object.assign(result, {
-      Key: filePath,
-      name: filePath.substr(filePath.lastIndexOf('/') + 1),
-    });
-  });
+  return promise.then(result => Object.assign(result, {
+    Key: filePath,
+    name: filePath.substr(filePath.lastIndexOf('/') + 1),
+  }));
 };
 
 export const fileDelete = (s3bucket, filePath, params) => {

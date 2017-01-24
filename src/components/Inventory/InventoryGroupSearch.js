@@ -15,21 +15,13 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import {
-  inventorySearch,
-  inventorySearchPaginate,
-  inventoryShowSourcesToggling,
-  inventorySetSources,
-  inventoryToggleSource,
-  inventoryToggleSourceVisible,
-} from '../../actions/inventory';
+
 import { blockStash } from '../../actions/blocks';
-
+import { inventorySearch, inventorySearchPaginate, inventorySetSources, inventoryShowSourcesToggling, inventoryToggleSource, inventoryToggleSourceVisible } from '../../actions/inventory';
 import { registry } from '../../inventory/registry';
-
-import InventorySources from './InventorySources';
 import InventorySearch from './InventorySearch';
 import InventorySearchResults from './InventorySearchResults';
+import InventorySources from './InventorySources';
 
 export class InventoryGroupSearch extends Component {
   static propTypes = {
@@ -42,7 +34,7 @@ export class InventoryGroupSearch extends Component {
     inventorySearch: PropTypes.func.isRequired,
     inventorySearchPaginate: PropTypes.func.isRequired,
     inventoryShowSourcesToggling: PropTypes.func.isRequired,
-    inventorySetSources: PropTypes.func.isRequired,
+    //inventorySetSources: PropTypes.func.isRequired,
     inventoryToggleSource: PropTypes.func.isRequired,
     inventoryToggleSourceVisible: PropTypes.func.isRequired,
     blockStash: PropTypes.func.isRequired,
@@ -67,26 +59,32 @@ export class InventoryGroupSearch extends Component {
 
     return (
       <div className={'InventoryGroup-content InventoryGroupSearch'}>
-        <InventorySearch searchTerm={searchTerm}
-                         isSearching={searching}
-                         disabled={sourcesToggling}
-                         onSearchChange={(value) => this.handleSearchChange(value)}/>
+        <InventorySearch
+          searchTerm={searchTerm}
+          isSearching={searching}
+          disabled={sourcesToggling}
+          onSearchChange={value => this.handleSearchChange(value)}
+        />
 
-        <InventorySources registry={registry}
-                          sourceList={sourceList}
-                          toggling={sourcesToggling}
-                          onToggleVisible={(nextState) => inventoryShowSourcesToggling(nextState)}
-                          onSourceToggle={(source) => this.onSourceToggle(source)}/>
+        <InventorySources
+          registry={registry}
+          sourceList={sourceList}
+          toggling={sourcesToggling}
+          onToggleVisible={nextState => inventoryShowSourcesToggling(nextState)}
+          onSourceToggle={source => this.onSourceToggle(source)}
+        />
 
         {!sourcesToggling && (
-          <InventorySearchResults searchTerm={searchTerm}
-                                  sourcesToggling={sourcesToggling}
-                                  sourcesVisible={sourcesVisible}
-                                  searching={searching}
-                                  searchResults={searchResults}
-                                  blockStash={this.props.blockStash}
-                                  loadMore={(source) => this.handleLoadMore(source)}
-                                  inventoryToggleSourceVisible={this.props.inventoryToggleSourceVisible}/>
+          <InventorySearchResults
+            searchTerm={searchTerm}
+            sourcesToggling={sourcesToggling}
+            sourcesVisible={sourcesVisible}
+            searching={searching}
+            searchResults={searchResults}
+            blockStash={this.props.blockStash}
+            loadMore={source => this.handleLoadMore(source)}
+            inventoryToggleSourceVisible={this.props.inventoryToggleSourceVisible}
+          />
         )}
       </div>
     );

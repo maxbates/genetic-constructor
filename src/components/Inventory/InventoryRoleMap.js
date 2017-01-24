@@ -14,28 +14,26 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import Block from '../../models/Block';
 import { connect } from 'react-redux';
+
 import { blockClone, blockLoad, blockStash } from '../../actions/blocks';
-import { block as blockDragType } from '../../constants/DragTypes';
-import { getBlockRoles, getBlocksWithRole } from '../../middleware/querying';
-import { symbolMap } from '../../inventory/roles';
-
-//bit of a hack, since we are not storing this information in the store (since its really derived data) but need to update it
-import { lastAction, subscribe } from '../../store/index';
 import * as ActionTypes from '../../constants/ActionTypes';
-
-import InventoryListGroup from './InventoryListGroup';
-import InventoryList from './InventoryList';
+import { block as blockDragType } from '../../constants/DragTypes';
+import { symbolMap } from '../../inventory/roles';
+import { getBlockRoles, getBlocksWithRole } from '../../middleware/querying';
+import Block from '../../models/Block';
+import { lastAction, subscribe } from '../../store/index';
 import Spinner from '../ui/Spinner';
+import InventoryList from './InventoryList';
+import InventoryListGroup from './InventoryListGroup';
 
 //note - must match storage API
 const noRoleKey = 'none';
 
 export class InventoryRoleMap extends Component {
   static propTypes = {
-    blockStash: PropTypes.func.isRequired,
-    blockClone: PropTypes.func.isRequired,
+    //blockStash: PropTypes.func.isRequired,
+    //blockClone: PropTypes.func.isRequired,
     blockLoad: PropTypes.func.isRequired,
   };
 
@@ -93,18 +91,18 @@ export class InventoryRoleMap extends Component {
     this.setRoleType(type, false);
 
     getBlocksWithRole(type)
-      .then(blockMap => {
+      .then((blockMap) => {
         const blocks = Object.keys(blockMap).map(blockId => new Block(blockMap[blockId]));
         this.setRoleType(type, blocks);
       });
   };
 
-  onBlockDrop = (item, target) => {
+  onBlockDrop = (item, target) =>
     //get components if its a construct and add blocks to the store
     //note - this may be a very large query
     //note - used to unhide blocks but lets see what desired behavior is
-    return this.props.blockLoad(item.id, item.projectId, true, true);
-  };
+     this.props.blockLoad(item.id, item.projectId, true, true)
+      .then(blocks => blocks[item.id]);
 
   //false is for loading
   setRoleType(type, blocks = false) {
@@ -118,21 +116,25 @@ export class InventoryRoleMap extends Component {
 
     const content = loadingMap ?
       <Spinner /> :
-      Object.keys(typeMap).sort().map(type => {
+      Object.keys(typeMap).sort().map((type) => {
         const count = typeMap[type];
         const name = symbolMap[type] || type;
         const items = loadedTypes[type] || [];
         const isLoading = loadedTypes[type] === false;
         return (
-          <InventoryListGroup key={type}
-                              title={name + ` (${count})`}
-                              isLoading={isLoading}
-                              onToggle={(nextState) => this.onToggleType(nextState, type)}
-                              dataAttribute={`roleMap ${name}`}>
-            <InventoryList inventoryType={blockDragType}
-                           onDrop={this.onBlockDrop}
-                           items={items}
-                           dataAttributePrefix={`roleMap ${name}`}/>
+          <InventoryListGroup
+            key={type}
+            title={`${name} (${count})`}
+            isLoading={isLoading}
+            onToggle={nextState => this.onToggleType(nextState, type)}
+            dataAttribute={`roleMap ${name}`}
+          >
+            <InventoryList
+              inventoryType={blockDragType}
+              onDrop={this.onBlockDrop}
+              items={items}
+              dataAttributePrefix={`roleMap ${name}`}
+            />
           </InventoryListGroup>
         );
       });

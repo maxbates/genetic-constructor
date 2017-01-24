@@ -20,10 +20,11 @@
  *
  * @module permissions
  */
-import { errorInvalidId, errorNoIdProvided, errorNoPermission, errorDoesNotExist } from '../utils/errors';
-import { id as idRegex } from '../../src/utils/regex';
-import { userOwnsProject } from './persistence/projects';
 import debug from 'debug';
+
+import { id as idRegex } from '../../src/utils/regex';
+import { errorDoesNotExist, errorInvalidId, errorNoIdProvided, errorNoPermission } from '../utils/errors';
+import { userOwnsProject } from './persistence/projects';
 
 const logger = debug('constructor:permissions');
 
@@ -42,16 +43,17 @@ export const projectPermissionMiddleware = (req, res, next) => {
   }
 
   if (!projectId) {
-    logger('[projectPermissionMiddleware] no projectId provided @ ' + req.url);
+    logger(`[projectPermissionMiddleware] no projectId provided @ ${req.url}`);
     res.status(400).send(errorNoIdProvided);
     next('projectId not found on route request. This is probably an internal error.');
     return;
   }
 
   if (!idRegex().test(projectId)) {
-    logger('[projectPermissionMiddleware] invalid projectId @ ' + req.url);
+    logger(`[projectPermissionMiddleware] invalid projectId @ ${req.url}`);
     res.status(400).send(errorInvalidId);
-    next('projectId is not valid, got ' + projectId);
+    //don't need to delegate to errorHandlingMiddleware, just return error response
+    //next(`projectId is not valid, got ${projectId}`);
     return;
   }
 

@@ -22,18 +22,20 @@
  *
  * This user is used in unit testing.
  */
-import express from 'express';
-import uuid from 'node-uuid';
 import fs from 'fs';
 import path from 'path';
-import { testUserId } from '../../test/constants';
+
 import bodyParser from 'body-parser';
+import debug from 'debug';
 import EmailValidator from 'email-validator';
-import checkUserSetup from '../onboarding/userSetup';
+import express from 'express';
+import uuid from 'node-uuid';
+
+import { testUserId } from '../../test/constants';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
+import checkUserSetup from '../onboarding/userSetup';
 import { userConfigKey } from '../user/userConstants';
 import { getConfigFromUser, mergeConfigToUserData } from '../user/utils';
-import debug from 'debug';
 
 const log = debug('constructor:auth:local');
 
@@ -80,22 +82,20 @@ export const defaultUser = Object.assign(
   },
   { data: userData },
   loadedUser,
-  defaultUserForcedFields()
+  defaultUserForcedFields(),
 );
 
 //initial user setup for the default user
-export const ensureUserSetup = () => {
-  return checkUserSetup(defaultUser)
-    .catch(resp => {
+export const ensureUserSetup = () => checkUserSetup(defaultUser)
+    .catch((resp) => {
       log('error checking user setup in ensureUserSetup');
       log(resp);
 
-      return resp.text().then(text => {
+      return resp.text().then((text) => {
         console.log(`${text}`);
         return Promise.reject(text);
       });
     });
-};
 
 // @ req.user.data[userConfigKey]
 
@@ -190,7 +190,7 @@ const handleRegister = (req, res, next) => {
       res.cookie('sess', currentCookie);
       res.send(defaultUser);
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err, err.stack);
       res.status(500).send(err);
     });

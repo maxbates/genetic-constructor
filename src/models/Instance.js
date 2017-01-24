@@ -13,12 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { cloneDeep, assign, merge } from 'lodash';
 import invariant from 'invariant';
-import Immutable from './Immutable';
+import { assign, cloneDeep, merge } from 'lodash';
+
 import InstanceSchema from '../schemas/Instance';
 import safeValidate from '../schemas/fields/safeValidate';
 import { number } from '../schemas/fields/validators';
+import Immutable from './Immutable';
 
 const versionValidator = (ver, required = false) => safeValidate(number(), required, ver);
 
@@ -42,6 +43,8 @@ export default class Instance extends Immutable {
   constructor(input = {}, subclassBase, frozen) {
     invariant(typeof input === 'object', 'must pass an object (or leave undefined) to model constructor');
 
+    //not sure why this is complaining...
+    //eslint-disable-next-line constructor-super
     return super(merge(
       assign(InstanceSchema.scaffold(), subclassBase), //perf. NB - this is only valid so long as no overlapping fields
       input,
@@ -91,7 +94,7 @@ export default class Instance extends Immutable {
         version: cloned.version,
       }, inputObject);
 
-      invariant(versionValidator(parentObject.version), 'must pass a valid version (SHA), got ' + parentObject.version);
+      invariant(versionValidator(parentObject.version), `must pass a valid version (SHA), got ${parentObject.version}`);
 
       const parents = [parentObject, ...cloned.parents];
 

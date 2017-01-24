@@ -15,7 +15,6 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../../../src/styles/Modal.css';
 import '../../../src/styles/modalspinner.css';
 
 /**
@@ -26,7 +25,6 @@ import '../../../src/styles/modalspinner.css';
  */
 export default class ModalSpinner extends Component {
   static propTypes = {
-    open: PropTypes.number,
     spinMessage: PropTypes.string,
   };
 

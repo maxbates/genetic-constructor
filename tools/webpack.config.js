@@ -34,10 +34,10 @@ const GLOBALS = {
 
 //get list of node modules for webpack to avoid bundling on server
 const nodeModules = fs.readdirSync('node_modules')
-  .filter((x) => ['.bin'].indexOf(x) === -1)
+  .filter(x => ['.bin'].indexOf(x) === -1)
   .reduce(
     (acc, mod) => Object.assign(acc, { [mod]: true }),
-    {}
+    {},
   );
 
 //common configuration
@@ -175,8 +175,8 @@ export const serverConfig = merge({}, config, {
   resolve: {
     root: serverSourcePath,
     alias: {
-      gd_plugins: buildPath + '/plugins',
-      gd_extensions: buildPath + '/node_modules',
+      gd_plugins: `${buildPath}/plugins`,
+      gd_extensions: `${buildPath}/node_modules`,
     },
   },
 

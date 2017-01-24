@@ -15,17 +15,17 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { projectList } from '../../actions/projects';
-import { blockStash } from '../../actions/blocks';
 
-import InventoryProject from './InventoryProject';
+import { blockStash } from '../../actions/blocks';
+import { projectList } from '../../actions/projects';
 import Spinner from '../ui/Spinner';
+import InventoryProject from './InventoryProject';
 
 export class InventoryProjectList extends Component {
   static propTypes = {
     currentProject: PropTypes.string.isRequired,
     projects: PropTypes.object.isRequired,
-    blockStash: PropTypes.func.isRequired,
+    //blockStash: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
   };
 
@@ -55,14 +55,16 @@ export class InventoryProjectList extends Component {
         {Object.keys(projects)
           .map(projectId => projects[projectId])
           .sort((one, two) => two.metadata.created - one.metadata.created)
-          .map(project => {
+          .map((project) => {
             const projectId = project.id;
             const isActive = (projectId === currentProject);
 
             return (
-              <InventoryProject key={projectId}
-                                project={project}
-                                isActive={isActive}/>
+              <InventoryProject
+                key={projectId}
+                project={project}
+                isActive={isActive}
+              />
             );
           })}
       </div>

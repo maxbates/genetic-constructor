@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import Menu from './Menu';
 
 import '../../styles/Menu.css';
+import Menu from './Menu';
 
 export default class MenuBar extends Component {
   static propTypes = {
@@ -43,11 +43,13 @@ export default class MenuBar extends Component {
       <div className="menu-bar">
         {this.props.menus.map((menu) => {
           const menuId = menu.text;
-          return (<Menu key={menuId}
-                        title={menu.text}
-                        isOpen={this.state.openMenu === menuId}
-                        onToggle={(forceVal) => this.toggleMenu(menuId, forceVal)}
-                        menuItems={menu.items}/> );
+          return (<Menu
+            key={menuId}
+            title={menu.text}
+            isOpen={this.state.openMenu === menuId}
+            onToggle={forceVal => this.toggleMenu(menuId, forceVal)}
+            menuItems={menu.items}
+          />);
         })}
       </div>
     );

@@ -13,27 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 
 import '../../../src/styles/ordermodal.css';
 
-export default class Input extends Component {
-  static propTypes = {
-    value: PropTypes.bool.isRequired,
-    disabled: PropTypes.bool,
-    onChange: PropTypes.func.isRequired,
-    label: PropTypes.string.isRequired,
-  };
-
-  render() {
-    return (
-      <div className="row-checkbox">
-        <input onChange={evt => {this.props.onChange(evt.target.checked);}}
-               type="checkbox"
-               disabled={this.props.disabled}
-               checked={this.props.value} />
-        {this.props.label}
-      </div>
-    );
-  }
+export default function Checkbox(props) {
+  return (
+    <div className="row-checkbox">
+      <input
+        onChange={(evt) => { props.onChange(evt.target.checked); }}
+        type="checkbox"
+        disabled={props.disabled}
+        checked={props.value}
+      />
+      {props.label}
+    </div>
+  );
 }
+
+Checkbox.propTypes = {
+  value: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
+  onChange: PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired,
+};

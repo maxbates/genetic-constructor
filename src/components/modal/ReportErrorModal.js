@@ -15,11 +15,12 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ModalWindow from './modalwindow';
-import { uiReportError } from '../../actions/ui';
-import { reportError } from '../../middleware/reporting';
 
 import '../../../src/styles/ReportErrorModal.css';
+import { uiReportError } from '../../actions/ui';
+import { userGetUser } from '../../selectors/user';
+import { reportError } from '../../middleware/reporting';
+import ModalWindow from './modalwindow';
 
 const initialState = {
   title: '',
@@ -32,6 +33,7 @@ const initialState = {
 class SaveErrorModal extends Component {
   static propTypes = {
     open: PropTypes.bool.isRequired,
+    userGetUser: PropTypes.func.isRequired,
     uiReportError: PropTypes.func.isRequired,
   };
 
@@ -44,21 +46,22 @@ class SaveErrorModal extends Component {
 
   submitForm = () => {
     const url = window.location.href;
-    const user = window.flashedUser.userid; //todo - should use action
+    const user = this.props.userGetUser();
+    const userId = user ? user.userid : null;
     const { title, description } = this.state;
 
     this.setState({
       submitted: true,
     });
 
-    return reportError(title, description, url, user)
-      .then(json => {
+    return reportError(title, description, url, userId)
+      .then((json) => {
         this.setState({
           createdUrl: json.html_url,
           hasError: false,
         });
       })
-      .catch(resp => {
+      .catch((resp) => {
         resp.json().then(json => console.log(json)); //eslint-disable-line no-console
         this.setState({
           submitted: false,
@@ -87,40 +90,48 @@ class SaveErrorModal extends Component {
         title="Report an Issue"
         closeModal={this.closeModal}
         payload={(
-          <div className="gd-form report-error-form"
-                style={{ padding: '1rem 2em 3rem' }}>
+          <div
+            className="gd-form report-error-form"
+            style={{ padding: '1rem 2em 3rem' }}
+          >
             <div className="title">Report an Issue</div>
 
-            <input ref="title"
-                   type="text"
-                   placeholder="Title, at least 8 characters."
-                   value={this.state.title}
-                   onChange={evt => this.setState({title: evt.target.value}) }/>
+            <input
+              ref="title"
+              type="text"
+              placeholder="Title, at least 8 characters."
+              value={this.state.title}
+              onChange={evt => this.setState({ title: evt.target.value })}
+            />
 
-            <textarea ref="description"
-                      rows="5"
-                      placeholder="Please describe what led to the issue; at least 8 characters."
-                      value={this.state.description}
-                      onChange={evt => this.setState({description: evt.target.value})} />
+            <textarea
+              ref="description"
+              rows="5"
+              placeholder="Please describe what led to the issue; at least 8 characters."
+              value={this.state.description}
+              onChange={evt => this.setState({ description: evt.target.value })}
+            />
 
-            {createdUrl && (<div style={{paddingTop: '1.5rem', textAlign: 'center'}}>
-              Thank you! Your issue has been logged at <a style={{textDecoration: 'underline'}} href={createdUrl} target="_blank">GitHub (account required)</a>
+            {createdUrl && (<div style={{ paddingTop: '1.5rem', textAlign: 'center' }}>
+              Thank you! Your issue has been logged at <a style={{ textDecoration: 'underline' }} href={createdUrl} target="_blank" rel="noopener noreferrer">GitHub (account required)</a>
             </div>)}
 
-            {hasError && (<div style={{paddingTop: '1.5rem', textAlign: 'center'}}>
-              Something went wrong. <a style={{textDecoration: 'underline'}} href={'https://forum.bionano.autodesk.com/c/genetic-constructor'} target="_blank">Post to our forums</a> instead?
+            {hasError && (<div style={{ paddingTop: '1.5rem', textAlign: 'center' }}>
+              Something went wrong. <a style={{ textDecoration: 'underline' }} href={'https://forum.bionano.autodesk.com/c/genetic-constructor'} target="_blank" rel="noopener noreferrer">Post to our forums</a> instead?
             </div>)}
 
             <div style={{ width: '200px', paddingTop: '1.5rem', textAlign: 'center' }}>
               <button
                 type="submit"
                 disabled={!formvalid || submitted}
-                onClick={() => this.submitForm()}>
+                onClick={() => this.submitForm()}
+              >
                 Submit
               </button>
             </div>
           </div>
-        )}/>
+        )}
+      />
     );
   }
 }
@@ -133,4 +144,5 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiReportError,
+  userGetUser,
 })(SaveErrorModal);

@@ -20,14 +20,16 @@ import '../../styles/BlockNotes.css';
 export default function BlockNotes({ notes }) {
   return (
     <div className="BlockNotes">
-      {Object.keys(notes).map(key => {
+      {Object.keys(notes).map((key) => {
         const value = notes[key];
         if (!value) {
           return null;
         }
         return (
-          <div className="BlockNotes-group"
-               key={key}>
+          <div
+            className="BlockNotes-group"
+            key={key}
+          >
             <div className="BlockNotes-group-title">{key}</div>
             <div className="BlockNotes-group-value">{value}</div>
           </div>

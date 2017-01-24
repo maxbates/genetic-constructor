@@ -47,15 +47,17 @@ export default class InventoryGroupProjects extends Component {
 
     const currentList = groupBy === 'type'
       ?
-      <InventoryRoleMap />
+        <InventoryRoleMap />
       :
-      <InventoryProjectList currentProject={currentProject}/>;
+        <InventoryProjectList currentProject={currentProject} />;
 
     return (
       <div className="InventoryGroup-content InventoryGroupProjects">
-        <InventoryTabs tabs={this.inventoryTabs}
-                       activeTabKey={groupBy}
-                       onTabSelect={(tab) => this.onTabSelect(tab.key)}/>
+        <InventoryTabs
+          tabs={this.inventoryTabs}
+          activeTabKey={groupBy}
+          onTabSelect={tab => this.onTabSelect(tab.key)}
+        />
         <div className="InventoryGroup-contentInner no-vertical-scroll">
           {currentList}
         </div>

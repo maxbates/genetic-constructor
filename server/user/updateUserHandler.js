@@ -14,15 +14,21 @@
  limitations under the License.
  */
 
-import fetch from 'isomorphic-fetch';
-import EmailValidator from 'email-validator';
-import { INTERNAL_HOST, API_END_POINT } from '../urlConstants';
-import userConfigDefaults from '../onboarding/userConfigDefaults';
-import { pruneUserObject, validateConfig, updateUserAll, updateUserConfig, mergeConfigToUserData } from './utils';
-import { headersPost } from '../../src/middleware/utils/headers';
 import debug from 'debug';
+import EmailValidator from 'email-validator';
+import fetch from 'isomorphic-fetch';
+
+import { headersPost } from '../../src/middleware/utils/headers';
+import userConfigDefaults from '../onboarding/userConfigDefaults';
+import { verifyCaptchaProductionOnly } from '../utils/captcha';
+import { API_END_POINT, INTERNAL_HOST } from '../urlConstants';
+import { mergeConfigToUserData, pruneUserObject, updateUserAll, updateUserConfig, validateConfig } from './utils';
 
 const logger = debug('constructor:auth');
+
+const authRegisterUrl = `${INTERNAL_HOST}/auth/register`;
+const authLoginUrl = `${INTERNAL_HOST}/auth/login`;
+const authUpdateUrl = `${INTERNAL_HOST}/auth/update-all`;
 
 //todo - share fetch handling with config / register routes
 
@@ -35,7 +41,7 @@ export function registrationHandler(req, res, next) {
   }
 
   const { user, config } = req.body;
-  const { email, password, firstName, lastName } = user;
+  const { email, password, firstName, lastName, captcha } = user;
 
   //basic checks before we hand off to auth/register
   if (!email || !EmailValidator.validate(email)) {
@@ -46,6 +52,12 @@ export function registrationHandler(req, res, next) {
     logger(`[User Register] password invalid: ${password}`);
     return res.status(422).json({ message: 'invalid password' });
   }
+  //require captcha in production so we dont get flooded / automated signups
+  if (process.env.BNR_ENVIRONMENT === 'prod') {
+    if (!captcha) {
+      return res.status(422).json({ message: 'captcha required' });
+    }
+  }
 
   const mergedConfig = Object.assign({}, userConfigDefaults, config);
 
@@ -55,7 +67,7 @@ export function registrationHandler(req, res, next) {
     logger('[User Register] Error in input config');
     logger(err);
     logger(err.stack);
-    return res.status(422).send({ err });
+    return res.status(422).json(err);
   }
 
   const mappedUser = mergeConfigToUserData({
@@ -65,44 +77,53 @@ export function registrationHandler(req, res, next) {
     lastName,
   }, mergedConfig);
 
-  logger('[User Register] registering...');
-  logger(mappedUser);
+  logger('[User Register] Checking Captcha...');
 
-  //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
-  const url = INTERNAL_HOST + '/auth/register';
+  return verifyCaptchaProductionOnly(captcha)
+  .then(() => {
+    logger('[User Register] Captcha success');
+    logger('[User Register] registering...');
+    logger(mappedUser);
 
-  return fetch(url, headersPost(JSON.stringify(mappedUser)))
-    .then(resp => {
-      //re-assign cookies from platform authentication
-      const cookies = resp.headers.getAll('set-cookie');
-      cookies.forEach(cookie => {
-        res.set('set-cookie', cookie);
-      });
+    return fetch(authRegisterUrl, headersPost(JSON.stringify(mappedUser)));
+  })
+  .then((resp) => {
+    //e.g. if user already registered, just pass the error through
+    if (resp.status >= 400) {
+      return resp.json()
+      .then(json => res.status(422).json(json));
+    }
 
-      return resp.json();
-    })
-    .then(userPayload => {
-      //console.log('userPayload');
-      //console.log(userPayload);
-
-      if (!!userPayload.message) {
-        return Promise.reject(userPayload);
-      }
-
-      const pruned = pruneUserObject(userPayload);
-
-      //console.log('sending pruned');
-      //console.log(pruned);
-
-      res.json(pruned);
-    })
-    .catch(err => {
-      logger('[User Register] Error registering');
-      logger(req.body);
-      logger(err);
-      logger(err.stack);
-      res.status(500).json({ err });
+    //re-assign cookies from platform authentication
+    const cookies = resp.headers.getAll('set-cookie');
+    cookies.forEach((cookie) => {
+      res.set('set-cookie', cookie);
     });
+
+    return resp.json();
+  })
+  .then((userPayload) => {
+    //logger('userPayload');
+    //logger(userPayload);
+
+    if (userPayload.message) {
+      return Promise.reject(userPayload);
+    }
+
+    const pruned = pruneUserObject(userPayload);
+
+    //logger('sending pruned');
+    //logger(pruned);
+
+    res.json(pruned);
+  })
+  .catch((err) => {
+    logger('[User Register] Error registering');
+    logger(req.body);
+    logger(err);
+    logger(err.stack);
+    res.status(500).json(err);
+  });
 }
 
 export function loginHandler(req, res, next) {
@@ -122,44 +143,47 @@ export function loginHandler(req, res, next) {
     return res.status(422).json({ message: 'invalid password' });
   }
 
-  //regardless whether local auth or real auth (it is mounted appropriately at /auth), we want to hit this route
-  const url = INTERNAL_HOST + '/auth/login';
-
   logger('[User Login] Logging in:');
-  logger(email, password, url);
+  logger(email, password, authLoginUrl);
 
-  return fetch(url, headersPost(JSON.stringify(req.body)))
-    .then(resp => {
-      //re-assign cookies from platform authentication
-      const cookies = resp.headers.getAll('set-cookie');
-      cookies.forEach(cookie => {
-        res.set('set-cookie', cookie);
-      });
+  return fetch(authLoginUrl, headersPost(JSON.stringify(req.body)))
+  .then((resp) => {
+    //e.g. if user already registered, just pass the error through
+    if (resp.status >= 400) {
+      return resp.json()
+      .then(json => res.status(422).json(json));
+    }
 
-      return resp.json();
-    })
-    .then(userPayload => {
-      logger('[User Login] received payload');
-      logger(userPayload);
-
-      if (!!userPayload.message) {
-        return Promise.reject(userPayload);
-      }
-
-      const pruned = pruneUserObject(userPayload);
-
-      logger('[User Login] sending pruned:');
-      logger(pruned);
-
-      res.json(pruned);
-    })
-    .catch(err => {
-      logger('[User Login] Error logging in');
-      logger(req.body);
-      logger(err);
-      logger(err.stack);
-      res.status(500).json({ err });
+    //re-assign cookies from platform authentication
+    const cookies = resp.headers.getAll('set-cookie');
+    cookies.forEach((cookie) => {
+      res.set('set-cookie', cookie);
     });
+
+    return resp.json();
+  })
+  .then((userPayload) => {
+    logger('[User Login] received payload');
+    logger(userPayload);
+
+    if (userPayload.message) {
+      return Promise.reject(userPayload);
+    }
+
+    const pruned = pruneUserObject(userPayload);
+
+    logger('[User Login] sending pruned:');
+    logger(pruned);
+
+    res.json(pruned);
+  })
+  .catch((err) => {
+    logger('[User Login] Error logging in');
+    logger(req.body);
+    logger(err);
+    logger(err.stack);
+    res.status(500).json(err);
+  });
 }
 
 //parameterized route handler for setting user config
@@ -191,7 +215,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
       logger('[User Config] Error Updating config:');
       logger(err);
       logger(err.stack);
-      return res.status(422).json({ err });
+      return res.status(422).json(err);
     }
 
     //console.log('USER CONFIG HANDLER');
@@ -200,55 +224,60 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     //to update user, issues with setting cookies as auth and making a new fetch, so call user update function
     //might want to abstract to same across local + real auth
     if (process.env.BIO_NANO_AUTH) {
-      const userPromises = require('bio-user-platform').userPromises({
+      const userPromises = require('bio-user-platform').userPromises({ //eslint-disable-line
         apiEndPoint: API_END_POINT,
       });
 
       return userPromises.update(user)
-        .then(updatedUser => {
-          const pruned = pruneUserObject(updatedUser);
-          const toSend = wholeUser ? pruned : pruned.config;
-          res.json(toSend);
-        })
-        .catch(err => {
-          logger('[User Config] error setting user config');
-          logger(err);
-          res.status(501).json({ err });
-        });
+      .then((updatedUser) => {
+        const pruned = pruneUserObject(updatedUser);
+        const toSend = wholeUser ? pruned : pruned.config;
+        res.json(toSend);
+      })
+      .catch((err) => {
+        logger('[User Config] error setting user config');
+        logger(err);
+        res.status(501).json(err);
+      });
     }
 
     // otherwise, delegate to auth routes
     // Real auth - dont need to worry about passing cookies on fetch, since registering (not authenticated)
     // local auth - just call our mock routes
-    const url = INTERNAL_HOST + '/auth/update-all';
-    return fetch(url, headersPost(JSON.stringify(user)))
-      .then(resp => {
-        //re-assign cookies from platform authentication
-        const cookies = resp.headers.getAll('set-cookie');
-        cookies.forEach(cookie => {
-          res.set('set-cookie', cookie);
-        });
+    return fetch(authUpdateUrl, headersPost(JSON.stringify(user)))
+    .then((resp) => {
+      //e.g. if user already registered, just pass the error through
+      if (resp.status >= 400) {
+        return resp.json()
+        .then(json => res.status(422).json(json));
+      }
 
-        return resp.json();
-      })
-      .then(userPayload => {
-        logger('[User Config] received payload');
-        logger(userPayload);
-
-        if (!!userPayload.message) {
-          return Promise.reject(userPayload);
-        }
-
-        const pruned = pruneUserObject(userPayload);
-        const toSend = wholeUser ? pruned : pruned.config;
-
-        res.json(toSend);
-      })
-      .catch(err => {
-        logger('[User Config] got error setting user config');
-        logger(err);
-        logger(err.stack);
-        res.status(500).json({ err });
+      //re-assign cookies from platform authentication
+      const cookies = resp.headers.getAll('set-cookie');
+      cookies.forEach((cookie) => {
+        res.set('set-cookie', cookie);
       });
+
+      return resp.json();
+    })
+    .then((userPayload) => {
+      logger('[User Config] received payload');
+      logger(userPayload);
+
+      if (userPayload.message) {
+        return Promise.reject(userPayload);
+      }
+
+      const pruned = pruneUserObject(userPayload);
+      const toSend = wholeUser ? pruned : pruned.config;
+
+      res.json(toSend);
+    })
+    .catch((err) => {
+      logger('[User Config] got error setting user config');
+      logger(err);
+      logger(err.stack);
+      res.status(500).json(err);
+    });
   };
 }

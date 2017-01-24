@@ -15,67 +15,59 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { uiShowDNAImport } from '../../actions/ui';
-import { blockGetSequence, blockSetSequence } from '../../actions/blocks';
-import { focusBlocks } from '../../actions/focus';
-import { uiSetGrunt } from '../../actions/ui';
-import ModalWindow from '../modal/modalwindow';
-import { blockCreate, blockAddComponent } from '../../actions/blocks';
-import { dnaLoose, dnaLooseRegexp } from '../../utils/dna';
 
-import '../../../src/styles/form.css';
 import '../../../src/styles/importdnaform.css';
+import { blockSetSequence } from '../../actions/blocks';
+import { focusBlocks } from '../../actions/focus';
+import { uiSetGrunt, uiShowDNAImport } from '../../actions/ui';
+import { dnaLoose, dnaLooseRegexp } from '../../utils/dna';
+import ModalWindow from '../modal/modalwindow';
 
 class DNAImportForm extends Component {
-
   static propTypes = {
     uiShowDNAImport: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
     blockSetSequence: PropTypes.func.isRequired,
-    blockCreate: PropTypes.func.isRequired,
-    blockAddComponent: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     focusedBlocks: PropTypes.array.isRequired,
     focusBlocks: PropTypes.func.isRequired,
-    blockGetSequence: PropTypes.func.isRequired,
     blocks: PropTypes.object.isRequired,
+    //used in nextProps, which is not picked up by lint
+    //eslint-disable-next-line react/no-unused-prop-types
     currentConstruct: PropTypes.object,
   };
 
-  constructor() {
-    super();
-    this.state = {
-      inputValid: true,
-      validLength: 0,
-      // we don't want to render until we have the sequence
-      haveSequence: false,
-    };
-  }
+  state = {
+    inputValid: true,
+    validLength: 0,
+    // we don't want to render until we have the sequence
+    haveSequence: false,
+  };
 
   componentWillReceiveProps(nextProps) {
     // we need a focused block that is not frozen or locked to operate on.
     if (!this.props.open && nextProps.open) {
       if (nextProps.focusedBlocks.length !== 1) {
         this.props.uiShowDNAImport(false);
-        this.props.uiSetGrunt(`Sequence data must be added to a selected block. Please select a single block and try again.`);
+        this.props.uiSetGrunt('Sequence data must be added to a selected block. Please select a single block and try again.');
         return;
       }
       const ncc = nextProps.currentConstruct;
       const authoring = ncc.isTemplate() && ncc.isAuthoring();
       if (ncc.isFrozen() || (!authoring && (ncc.isFixed() || ncc.isTemplate()))) {
         this.props.uiShowDNAImport(false);
-        this.props.uiSetGrunt(`You cannot add sequence to a template block.`);
+        this.props.uiSetGrunt('You cannot add sequence to a template block.');
         return;
       }
       const block = this.props.blocks[this.props.focusedBlocks[0]];
       if (block.isList()) {
         this.props.uiShowDNAImport(false);
-        this.props.uiSetGrunt(`You cannot add sequence to a list block.`);
+        this.props.uiSetGrunt('You cannot add sequence to a list block.');
         return;
       }
       if (block.components.length) {
         this.props.uiShowDNAImport(false);
-        this.props.uiSetGrunt(`You cannot add sequence to a block with child components.`);
+        this.props.uiSetGrunt('You cannot add sequence to a block with child components.');
         return;
       }
       // can edit the sequence of blocks that were previously manually edited or have no source
@@ -85,7 +77,7 @@ class DNAImportForm extends Component {
         return;
       }
       block.getSequence()
-        .then(sequence => {
+        .then((sequence) => {
           if (this.refs.sequenceTextArea) {
             this.refs.sequenceTextArea.value = sequence || '';
           }
@@ -98,13 +90,12 @@ class DNAImportForm extends Component {
         })
         .catch(() => {
           this.props.uiShowDNAImport(false);
-          this.props.uiSetGrunt(`There was a problem fetching that blocks sequence.`);
-          return;
+          this.props.uiSetGrunt('There was a problem fetching that blocks sequence.');
         });
     }
   }
 
-  onSequenceChanged(evt) {
+  onSequenceChanged = (evt) => {
     const source = evt.target.value;
     if (source) {
       // strip anything except atgc and whitespace
@@ -129,9 +120,9 @@ class DNAImportForm extends Component {
         sequence: null,
       });
     }
-  }
+  };
 
-  onSubmit(evt) {
+  onSubmit= (evt) => {
     evt.preventDefault();
     // be sure we have a valid sequence before continuing
     if (this.state.inputValid
@@ -140,17 +131,17 @@ class DNAImportForm extends Component {
       && this.state.validLength === this.state.sequence.length) {
       this.setSequenceAndClose(this.props.focusedBlocks[0], this.state.sequence);
     }
-  }
+  };
 
   setSequenceAndClose(blockId, sequence) {
     this.props.blockSetSequence(blockId, sequence)
-      .then(block => {
+      .then((block) => {
         // close the dialog, focus the block we inserted into and message the user.
         this.props.uiShowDNAImport(false);
         this.props.focusBlocks([blockId]);
-        this.props.uiSetGrunt(`Sequence was successfully inserted.`);
+        this.props.uiSetGrunt('Sequence was successfully inserted.');
       })
-      .catch(reason => {
+      .catch((reason) => {
         // show the error dialog
         this.props.uiShowDNAImport(false);
         this.props.uiSetGrunt(`There was a problem inserting that DNA: ${reason.toString()}`);
@@ -171,35 +162,37 @@ class DNAImportForm extends Component {
         this.props.uiShowDNAImport(false);
       }}
       payload={
-          <form className="gd-form importdnaform" onSubmit={this.onSubmit.bind(this)}>
-            <div className="title">Add Sequence</div>
-            <textarea
-              onKeyDown={event => {
-                if (event.key === 'Enter') {
-                  this.onSubmit(event);
-                }
+        <form className="gd-form importdnaform" onSubmit={this.onSubmit}>
+          <div className="title">Add Sequence</div>
+          <textarea
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                this.onSubmit(event);
+              }
+            }}
+            placeholder="Type or paste DNA sequence data here."
+            rows="10"
+            autoComplete="off"
+            autoFocus
+            maxLength="10000000"
+            spellCheck="false"
+            ref="sequenceTextArea"
+            defaultValue={this.state.sequence}
+            onChange={this.onSequenceChanged}
+          />
+          <p className="length" style={{ textAlign: 'right' }}>{`Length: ${this.state.validLength}`}</p>
+          <div className={`error ${!this.state.inputValid ? 'visible' : ''}`}>The sequence is not valid</div>
+          <div style={{ width: '75%', textAlign: 'center' }}>
+            <button type="submit" disabled={!(this.state.inputValid && this.state.validLength)}>Add</button>
+            <button
+              type="button"
+              onClick={() => {
+                this.props.uiShowDNAImport(false);
               }}
-              placeholder="Type or paste DNA sequence data here."
-              rows="10"
-              autoComplete="off"
-              autoFocus
-              maxLength="10000000"
-              spellCheck="false"
-              ref="sequenceTextArea"
-              defaultValue={this.state.sequence}
-              onChange={this.onSequenceChanged.bind(this)}/>
-            <label style={{textAlign: 'right'}}>{`Length: ${this.state.validLength}`}</label>
-            <div className={`error ${!this.state.inputValid ? 'visible' : ''}`}>The sequence is not valid</div>
-            <div style={{width: '75%', textAlign: 'center'}}>
-              <button type="submit" disabled={!(this.state.inputValid && this.state.validLength)}>Add</button>
-              <button
-                type="button"
-                onClick={() => {
-                  this.props.uiShowDNAImport(false);
-                }}>Cancel
+            >Cancel
               </button>
-            </div>
-          </form>}
+          </div>
+        </form>}
 
     />);
   }
@@ -216,10 +209,7 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiShowDNAImport,
-  blockGetSequence,
   blockSetSequence,
   uiSetGrunt,
-  blockCreate,
-  blockAddComponent,
   focusBlocks,
 })(DNAImportForm);

@@ -29,7 +29,7 @@ function formatCount(count) {
 
   const sizes = ['bp', 'kb', 'Mb', 'Gb', 'Tb'];
   const ind = Math.floor(Math.log(count) / Math.log(thresh));
-  return `${parseFloat((count / Math.pow(thresh, ind))).toFixed(1)} ${sizes[ind]}`;
+  return `${parseFloat(count / (thresh ** ind)).toFixed(1)} ${sizes[ind]}`;
 }
 
 export default function BasePairCount({ count, ...rest }) {

@@ -15,13 +15,12 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { inspectorToggleVisibility } from '../actions/ui';
-import { _getFocused } from '../selectors/focus';
 
-import InspectorRole from '../components/Inspector/InspectorRole';
+import { inspectorToggleVisibility } from '../actions/ui';
 import InspectorBlock from '../components/Inspector/InspectorBlock';
 import InspectorProject from '../components/Inspector/InspectorProject';
-
+import InspectorRole from '../components/Inspector/InspectorRole';
+import { _getFocused } from '../selectors/focus';
 import '../styles/Inspector.css';
 import '../styles/SidePanel.css';
 
@@ -50,39 +49,49 @@ export class Inspector extends Component {
     // inspect instances, or construct if no instance or project if no construct or instances
     let inspect;
     switch (type) {
-    case 'role' :
-      inspect = (<InspectorRole roleId={focused} readOnly/>);
-      break;
-    case 'project':
-      inspect = (<InspectorProject instance={focused}
-                                   orders={orders}
-                                   readOnly={readOnly}/>);
-      break;
-    case 'construct':
-    default:
-      inspect = (<InspectorBlock instances={focused}
-                                 overrides={overrides}
-                                 orders={orders}
-                                 readOnly={readOnly}
-                                 isAuthoring={isAuthoring}
-                                 project={project}
-                                 construct={construct}
-                                 forceIsConstruct={forceIsConstruct}/>);
-      break;
+      case 'role' :
+        inspect = (<InspectorRole roleId={focused} readOnly />);
+        break;
+      case 'project':
+        inspect = (<InspectorProject
+          instance={focused}
+          orders={orders}
+          readOnly={readOnly}
+        />);
+        break;
+      case 'construct':
+      default:
+        inspect = (<InspectorBlock
+          instances={focused}
+          overrides={overrides}
+          orders={orders}
+          readOnly={readOnly}
+          isAuthoring={isAuthoring}
+          project={project}
+          construct={construct}
+          forceIsConstruct={forceIsConstruct}
+        />);
+        break;
     }
 
     return (
-      <div className={'SidePanel Inspector' +
-      (isVisible ? ' visible' : '') +
-      (readOnly ? ' readOnly' : '')}>
+      <div
+        className={`SidePanel Inspector${
+      isVisible ? ' visible' : ''
+      }${readOnly ? ' readOnly' : ''}`}
+      >
 
         <div className="SidePanel-heading">
-          <button tabIndex="-1" className="button-nostyle SidePanel-heading-trigger Inspector-trigger"
-                  onClick={() => this.toggle()}/>
+          <button
+            tabIndex="-1" className="button-nostyle SidePanel-heading-trigger Inspector-trigger"
+            onClick={() => this.toggle()}
+          />
           <div className="SidePanel-heading-content">
             <span className="SidePanel-heading-title">Inspector</span>
-            <button tabIndex="-1" className="button-nostyle SidePanel-heading-close"
-                    onClick={() => this.toggle(false)}/>
+            <button
+              tabIndex="-1" className="button-nostyle SidePanel-heading-close"
+              onClick={() => this.toggle(false)}
+            />
           </div>
         </div>
 
@@ -110,7 +119,7 @@ function mapStateToProps(state, props) {
   if (type === 'option') {
     const blockId = state.focus.blockIds[0];
     const block = state.blocks[blockId];
-    if (!!block) {
+    if (block) {
       Object.assign(overrides, {
         color: block.getColor(),
         role: block.getRole(false),

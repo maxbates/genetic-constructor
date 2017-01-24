@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+
 import MenuItem from './MenuItem';
 import MenuSeparator from './MenuSeparator';
 
@@ -69,11 +70,15 @@ export default class Menu extends Component {
 
   render() {
     return (
-      <div className="menu-dropdown"
-           onMouseLeave={() => this.startTimeout()}
-           onMouseEnter={() => this.killTimeout()}>
-        <div className={this.props.isOpen ? 'menu-header menu-header-open' : 'menu-header'}
-             onClick={this.toggle}>
+      <div
+        className="menu-dropdown"
+        onMouseLeave={() => this.startTimeout()}
+        onMouseEnter={() => this.killTimeout()}
+      >
+        <div
+          className={this.props.isOpen ? 'menu-header menu-header-open' : 'menu-header'}
+          onClick={this.toggle}
+        >
           {this.props.title}
         </div>
         {this.props.isOpen && (
@@ -92,8 +97,9 @@ export default class Menu extends Component {
                     checked={item.checked}
                     disabled={!!item.disabled}
                     classes={item.classes}
-                    action={boundAction}/>) :
-                  (<MenuSeparator key={index}/>)
+                    action={boundAction}
+                  />) :
+                  (<MenuSeparator key={index} />)
               );
             })}
           </div>

@@ -14,8 +14,8 @@
  limitations under the License.
  */
 import React, { PropTypes } from 'react';
-import { registry } from '../../inventory/registry';
 
+import { registry } from '../../inventory/registry';
 import '../../styles/BlockSource.css';
 
 export default function BlockSource({ block, ...rest }) {
@@ -42,13 +42,19 @@ export default function BlockSource({ block, ...rest }) {
   const url = knownUrl || computedUrl;
 
   //note - use key to force re=render when href is removed. React v15 uses removeAttribute and will handle this, can remove when upgrade.
-  return (<a className="BlockSource"
-             href={url}
-             key={url ? 'y' : 'n'}
-             target="_blank" {...rest}>
-    <span className="BlockSource-name">{name}</span>
-    {url && (<span className="BlockSource-icon"/>)}
-  </a>);
+  return (
+    <a
+      className="BlockSource"
+      href={url}
+      key={url ? 'y' : 'n'}
+      target="_blank"
+      rel="noopener noreferrer"
+      {...rest}
+    >
+      <span className="BlockSource-name">{name}</span>
+      {url && (<span className="BlockSource-icon" />)}
+    </a>
+  );
 }
 
 BlockSource.propTypes = {

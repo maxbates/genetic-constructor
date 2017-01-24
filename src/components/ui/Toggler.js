@@ -15,11 +15,11 @@ limitations under the License.
 */
 import React, { PropTypes } from 'react';
 
-const serializer = navigator.userAgent.indexOf('Node.js') < 0 ? new XMLSerializer() : {
-  serializeToString: () => {return '<SVG/>';},
-};
-
 import '../../styles/Toggler.css';
+
+const serializer = navigator.userAgent.indexOf('Node.js') < 0 ? new XMLSerializer() : {
+  serializeToString: () => '<SVG/>',
+};
 
 export default function Toggler({ onClick, hidden, open, disabled, style }) {
   if (hidden) {
@@ -33,19 +33,21 @@ export default function Toggler({ onClick, hidden, open, disabled, style }) {
     }
   };
 
-  const templateId = `disclosure_triangle_closed`;
+  const templateId = 'disclosure_triangle_closed';
   const template = document.getElementById(templateId);
   const svg = template.cloneNode(true);
   svg.removeAttribute('id');
 
   const markup = serializer.serializeToString(svg);
 
-  return (<div className={'Toggler' +
-                           (disabled ? ' disabled' : '') +
-                           (open ? ' open' : '')}
-              style={style}
-              onClick={handleClick}
-              dangerouslySetInnerHTML={{__html: markup}}></div>);
+  return (<div
+    className={`Toggler${
+                           disabled ? ' disabled' : ''
+                           }${open ? ' open' : ''}`}
+    style={style}
+    onClick={handleClick}
+    dangerouslySetInnerHTML={{ __html: markup }}
+  />);
 }
 
 Toggler.propTypes = {

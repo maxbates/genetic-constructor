@@ -53,6 +53,16 @@ describe('Extensions', () => {
         .catch(done);
     });
 
+    it('conversion blocks should not have blockId', () => {
+      return importProject(path.resolve(__dirname, '../res/sampleGenbankContiguous.gb'))
+      .then(({ blocks }) => {
+        Object.keys(blocks).forEach((blockId) => {
+          const block = blocks[blockId];
+          assert(!block.projectId, 'block shouldnt have a project iD');
+        });
+      });
+    });
+
     it('should import Genbank file with holes as a project', function importGB(done) {
       importProject(path.resolve(__dirname, '../res/sampleGenbankContiguousWithHoles.gb'))
         .then(output => {
@@ -175,12 +185,14 @@ describe('Extensions', () => {
         .then(roll => exportProject(roll))
         .then(resultFileName => {
           fs.readFile(resultFileName, function (err, data) {
-            if (err) done(err);
+            if (err) {
+              return done(err);
+            }
 
             JSZip.loadAsync(data)
               .then((zip) => {
                 expect(zip.file(/\.gb/).length).to.equal(625 + 1 + 1);
-                zip.file(' -  - 10.gb')
+                zip.file('Untitled Project -  - 10.gb')
                   .async('string')
                   .then((content) => {
                     expect(content).to.contain('LOCUS');

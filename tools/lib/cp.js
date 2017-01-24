@@ -21,7 +21,7 @@ import { merge } from 'lodash';
 const logger = debug('constructor:tools');
 
 if (!logger.enabled) {
-  console.log('Enable build tool with env var DEBUG=constructor:tools');
+  console.log('Enable build tool debugging with env var DEBUG=constructor:tools');
 }
 
 const defaultOpts = {
@@ -42,7 +42,7 @@ export const promisedExec = (cmd, opts, {
   forceOutput = false,
   comment = null,
 } = {}) => {
-  console.log(colors.blue(comment || 'running ' + cmd));
+  console.log(colors.blue(comment || `running ${cmd}`));
 
   return new Promise((resolve, reject) => {
     exec(cmd, merge({}, defaultOpts, opts), (err, stdout, stderr) => {
@@ -87,7 +87,7 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
 
     //stdio only defined when piped, not if inherited / ignored
     if (spawned.stdout) {
-      spawned.stdout.on('data', data => {
+      spawned.stdout.on('data', (data) => {
         log(`${data}`, forceOutput);
         if (`${data}`.indexOf(waitUntil) >= 0) {
           log('Resolved!');
@@ -95,7 +95,7 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
         }
       });
 
-      spawned.stderr.on('data', data => {
+      spawned.stderr.on('data', (data) => {
         log(`${data}`, true);
         if (`${data}`.indexOf(waitUntil) >= 0) {
           return resolve(spawned);

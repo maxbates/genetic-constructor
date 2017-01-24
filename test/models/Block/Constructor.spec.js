@@ -76,10 +76,8 @@ describe('Model', () => {
         }
       }
 
-      //note times are conservative so that they pass in traivs (lame boxes)
-
       it('should make new Block() quickly', function makeBlocksFast() {
-        const perSecond = 1500;
+        const perSecond = process.env.TRAVIS ? 1000 : 3000;
         const number = 1000;
         const timeout = number * 1000 / perSecond;
 
@@ -89,7 +87,7 @@ describe('Model', () => {
       });
 
       it('should make Block.classless() quickly', function makeBlocksFast() {
-        const perSecond = 1500;
+        const perSecond = process.env.TRAVIS ? 1000 : 3000;
         const number = 1000;
         const timeout = number * 1000 / perSecond;
 

@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import invariant from 'invariant';
 import debug from 'debug';
+import invariant from 'invariant';
 
 const logger = debug('constructor:schemas');
 
@@ -30,6 +30,13 @@ const logger = debug('constructor:schemas');
  * @param input {*} The input value to validate
  * @param args {...*} More args to validator
  * @return {Boolean} true if validation did not return an Error or false
+ *
+ * @example
+ * import { email, number } from './schemas/fields/validators'
+ *
+ * const versionValidator = (ver, required = false) => safeValidate(number(), required, ver);
+ *
+ * const emailValidator = (email, required = false) => safeValidate(email(), required, email)
  */
 export default function safeValidate(validator, required = false, input, ...args) {
   invariant(typeof validator === 'function', 'must pass a function');
