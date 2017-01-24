@@ -23,7 +23,6 @@ import { userRegister } from '../../actions/user';
 import { privacy, tos } from '../../utils/ui/uiapi';
 import * as authValidation from './_validation';
 
-import Modal from '../modal/Modal';
 import ModalFooter from '../modal/ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import Checkbox from '../formElements/Checkbox';
@@ -32,9 +31,8 @@ import FormRadio from '../formElements/FormRadio';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';
 
-export class RegisterModal extends Component {
+export class RegisterForm extends Component {
   static propTypes = {
-    isOpen: PropTypes.bool.isRequired,
     accountType: PropTypes.string,
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
@@ -100,9 +98,9 @@ export class RegisterModal extends Component {
     this.actions = [{
       text: 'Sign Up',
       disabled: () => (
-        !this.state.forceDisabled && !RegisterModal.validateForm(this.state)
+        !this.state.forceDisabled && !RegisterForm.validateForm(this.state)
       ),
-      onClick: () => this.registerUser(this.state),
+      onClick: () => this.onSubmit(this.state),
     }];
   }
 
@@ -147,8 +145,8 @@ export class RegisterModal extends Component {
 
   onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
-  registerUser() {
-    if (!this.state.forceDisabled && !RegisterModal.validateForm(this.state)) {
+  onSubmit = () => {
+    if (!this.state.forceDisabled && !RegisterForm.validateForm(this.state)) {
       this.setState({ submitError: 'Please fill out all fields' });
       return;
     }
@@ -160,7 +158,7 @@ export class RegisterModal extends Component {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       captcha: this.state.captcha,
-    }, RegisterModal.getConfig(this.state))
+    }, RegisterForm.getConfig(this.state))
     .then((json) => {
       // close the form / wait message
       this.props.uiSpin();
@@ -182,7 +180,7 @@ export class RegisterModal extends Component {
         });
       }
     });
-  }
+  };
 
   render() {
     //special dirty-state handling for password and email
@@ -193,137 +191,129 @@ export class RegisterModal extends Component {
     const emailError = showEmailError ? authValidation.emailValidator(this.state.email) : '';
 
     return (
-      <Modal
-        isOpen={this.props.isOpen}
-        onClose={() => this.props.uiShowAuthenticationForm('none')}
-        title="Sign Up"
-        style={{ content: { width: '740px' } }}
+      <form
+        id="auth-register"
+        className="Form"
+        onSubmit={this.onSubmit}
       >
-        <form
-          id="auth-register"
-          className="Form"
-          onSubmit={this.registerUser}
-        >
-          <div className="Modal-paddedContent">
-            <div className="Modal-banner">
-              <span>Already have a Genetic Constructor account? </span>
-              <a id="auth-showLogin" onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
-            </div>
-
-            <FormGroup label="Full Name">
-              <FormText
-                name="firstName"
-                value={this.state.firstName}
-                placeholder="First"
-                onChange={this.onFirstName}
-              />
-              <FormText
-                name="lastName"
-                value={this.state.lastName}
-                placeholder="Last"
-                onChange={this.onLastName}
-              />
-            </FormGroup>
-
-            <FormGroup label="Email" error={emailError}>
-              <FormText
-                value={this.state.email}
-                name="email"
-                placeholder="You will use your email address to sign in"
-                onChange={this.onEmail}
-                onBlur={this.onEmailBlur}
-              />
-            </FormGroup>
-
-            <FormGroup label="Password" error={passwordError}>
-              <FormPassword
-                value={this.state.password}
-                name="password"
-                placeholder="8 or more characters. No spaces."
-                onChange={this.onPassword}
-                onBlur={this.onPasswordBlur}
-              />
-            </FormGroup>
-
-            <FormGroup label="Account Type" labelTop>
-              {/* add a div to override the flex row */}
-              <div>
-                <FormRadio
-                  checked={this.state.accountType === 'free'}
-                  name="accountType"
-                  value="free"
-                  onChange={() => this.onAccountTypeChange('free')}
-                  label="Academic - Unlimited, free access"
-                />
-                <FormRadio
-                  checked={this.state.accountType === 'paid'}
-                  name="accountType"
-                  value="paid"
-                  onChange={() => this.onAccountTypeChange('paid')}
-                  label="Individual - Unlimited free trial during BETA"
-                />
-                <FormRadio
-                  checked={false}
-                  name="accountType"
-                  value="enterprise"
-                  onChange={() => {}}
-                  label="Enterprise - My company has an account"
-                  disabled
-                />
-              </div>
-            </FormGroup>
-
-            <FormGroup label="Verification" labelTop>
-              <Captcha onVerify={this.onCaptcha} onExpire={this.onCaptchaExpire} />
-            </FormGroup>
-
-            <FormGroup label="Legal">
-              <div>
-                <Checkbox
-                  style={{ fontSize: '18px', marginLeft: '0' }}
-                  showCheck
-                  checked={this.state.legal}
-                  onChange={this.onLegalCheck}
-                />
-                <span style={{ marginLeft: '0.5em' }}>
-                  I agree to the&nbsp;
-                  <a
-                    href={tos}
-                    className="link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >Terms of Service</a>
-                  &nbsp;and&nbsp;
-                  <a
-                    href={privacy}
-                    className="link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >Autodesk Privacy Statement</a>
-                </span>
-              </div>
-            </FormGroup>
-
-            {this.state.submitError && (
-              <div className="Form-errorMessage">
-                {this.state.submitError}
-              </div>
-            )}
+        <div className="Modal-paddedContent">
+          <div className="Modal-banner">
+            <span>Already have a Genetic Constructor account? </span>
+            <a id="auth-showLogin" onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
           </div>
 
-          <ModalFooter actions={this.actions} />
-        </form>
-      </Modal>
+          <FormGroup label="Full Name">
+            <FormText
+              name="firstName"
+              value={this.state.firstName}
+              placeholder="First"
+              onChange={this.onFirstName}
+            />
+            <FormText
+              name="lastName"
+              value={this.state.lastName}
+              placeholder="Last"
+              onChange={this.onLastName}
+            />
+          </FormGroup>
+
+          <FormGroup label="Email" error={emailError}>
+            <FormText
+              value={this.state.email}
+              name="email"
+              placeholder="You will use your email address to sign in"
+              onChange={this.onEmail}
+              onBlur={this.onEmailBlur}
+            />
+          </FormGroup>
+
+          <FormGroup label="Password" error={passwordError}>
+            <FormPassword
+              value={this.state.password}
+              name="password"
+              placeholder="8 or more characters. No spaces."
+              onChange={this.onPassword}
+              onBlur={this.onPasswordBlur}
+            />
+          </FormGroup>
+
+          <FormGroup label="Account Type" labelTop>
+            {/* add a div to override the flex row */}
+            <div>
+              <FormRadio
+                checked={this.state.accountType === 'free'}
+                name="accountType"
+                value="free"
+                onChange={() => this.onAccountTypeChange('free')}
+                label="Academic - Unlimited, free access"
+              />
+              <FormRadio
+                checked={this.state.accountType === 'paid'}
+                name="accountType"
+                value="paid"
+                onChange={() => this.onAccountTypeChange('paid')}
+                label="Individual - Unlimited free trial during BETA"
+              />
+              <FormRadio
+                checked={false}
+                name="accountType"
+                value="enterprise"
+                onChange={() => {}}
+                label="Enterprise - My company has an account"
+                disabled
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup label="Verification" labelTop>
+            <Captcha onVerify={this.onCaptcha} onExpire={this.onCaptchaExpire} />
+          </FormGroup>
+
+          <FormGroup label="Legal">
+            <div>
+              <Checkbox
+                style={{ fontSize: '18px', marginLeft: '0' }}
+                showCheck
+                checked={this.state.legal}
+                onChange={this.onLegalCheck}
+              />
+              <span style={{ marginLeft: '0.5em' }}>
+                  I agree to the&nbsp;
+                <a
+                  href={tos}
+                  className="link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Terms of Service</a>
+                &nbsp;and&nbsp;
+                <a
+                  href={privacy}
+                  className="link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Autodesk Privacy Statement</a>
+              </span>
+            </div>
+          </FormGroup>
+
+          {this.state.submitError && (
+            <div className="Form-errorMessage">
+              {this.state.submitError}
+            </div>
+          )}
+        </div>
+
+        <ModalFooter actions={this.actions} />
+      </form>
     );
   }
 }
 
 export default connect(state => ({
-  isOpen: state.ui.modals.authenticationForm === 'register',
   accountType: state.ui.modals.authFormParams.accountType,
 }), {
   uiShowAuthenticationForm,
   uiSpin,
   userRegister,
   projectOpen,
-})(RegisterModal);
+})(RegisterForm);

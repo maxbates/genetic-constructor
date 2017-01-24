@@ -338,6 +338,8 @@ p
 
 .bigButton, .bigButton:focus
 {
+    display: block;
+    margin: 0 auto;
     border-radius: 50px;
     font-family: 'art-bold';
     border: none;
@@ -358,6 +360,8 @@ p
     transform: translate3d(0px, -1px, 0px);
     -webkit-transition: 0.2s;
     transition: 0.2s;
+    text-decoration: none;
+    color: var(--black);
 }
 
 .downButton
