@@ -11,12 +11,5 @@
   color: white;
   text-align: center;
   animation: 1.25s textfade infinite alternate;
-}
-@keyframes textfade {
-  from {
-    color: white;
-  }
-  to {
-    color: transparent;
-  }
+  z-index: var(--z-spinner);
 }

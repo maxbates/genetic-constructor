@@ -15,7 +15,7 @@
  */
 import express from 'express';
 
-import * as uuid from 'node-uuid';
+import uuid from 'uuid';
 import { projectPermissionMiddleware } from './permissions';
 
 import {

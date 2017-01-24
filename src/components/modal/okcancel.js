@@ -15,8 +15,8 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../styles/ok-cancel-form.css';
-import ModalWindow from './modal/modalwindow';
+import '../../styles/ok-cancel-form.css';
+import ModalWindow from '../modal/modalwindow';
 
 /**
  * Genbank import dialog.
