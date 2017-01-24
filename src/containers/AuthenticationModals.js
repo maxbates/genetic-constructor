@@ -29,29 +29,43 @@ import ResetModal from '../components/authentication/ResetModal';
 import '../styles/authenticationforms.css';
 import '../../src/styles/form.css';
 
+const nameMap = {
+  register: 'Sign Up',
+  signin: 'Sign In',
+  forgot: 'Forgot Password',
+  reset: 'Reset Password',
+  account: 'Account Information',
+};
+
 function AuthenticationModals(props) {
+  let oldform;
   let form;
 
   //new ones
+  //todo - should convert these to forms, and wrap in modal ourselves
   switch (props.authenticationForm) {
     case 'register' :
-      return <RegisterModal />;
+      form = <RegisterModal />;
+      break;
     case 'signin':
-      return <SignInModal />;
+      form = <SignInModal />;
+      break;
     case 'forgot':
-      return <ForgotModal />;
+      form = <ForgotModal />;
+      break;
     case 'reset' :
-      return <ResetModal />;
+      form = <ResetModal />;
+      break;
     default:
   }
 
   //handle the old modals
   switch (props.authenticationForm) {
     case 'account' :
-      form = <AccountForm />;
+      oldform = <AccountForm />;
       break;
     default:
-      form = null;
+      oldform = null;
       break;
   }
 

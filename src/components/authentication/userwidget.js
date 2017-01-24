@@ -60,15 +60,8 @@ class UserWidget extends Component {
 
   signOut = () => {
     this.props.userLogout()
-    .then(() => {
-      track('Authentication', 'Sign Out', 'Success');
-      // store is left with previous user projects and other issue. For now do a complete reload
-      //this.props.push('/homepage');
-      window.location = `${window.location.protocol}\\\\${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}\\homepage`;
-    })
     .catch((reason) => {
       this.props.uiSetGrunt('There was a problem signing you out');
-      track('Authentication', 'Sign Out', 'Failed');
     });
   };
 
