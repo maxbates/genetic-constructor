@@ -81,7 +81,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <h1 class="animate delay">GENETIC CONSTRUCTOR</h1>
-                    <h2 class='heroSubText animate delay'>An extensible toolkit for genetic engineering</h2>
+                    <h1 class='heroSubText animate delay'>An extensible toolkit for genetic engineering</h1>
                 </div>
                 <a href="#trySectionTop">
                     <button class="bigButton animate delay">Try for free</button>
@@ -96,7 +96,7 @@
             <div class="col-xs-12">
                 <div class='divider'></div>
                 <h5 class="animate delay">Design and manufacture living things</h5>
-                <p class="animate delay">New tools and technologies for DNA engineering will help you transform the world we live in. Genetic Constructor is an extensible cloud CAD tool created by Autodesk Research to make powerful biological design and genetic engineering strategies more accessible. The tool lets you work on genetic designs at the sequence level and at higher levels of abstraction, simultaneously. It integrates with real world DNA manufacturing to bring your engineered biological systems to life.</p>
+                <p class="animate delay">New tools and technologies for DNA engineering will help you transform the world we live in. <br> Genetic Constructor is an extensible CAD tool, making powerful biological design and genetic engineering accessible in the cloud. Work on genetic designs at the sequence level and at higher levels of abstraction, simultaneously and integrate with real world DNA manufacturing to bring your engineered biological systems to life.</p>
                 <a href="#interfaceSection">
                     <img class='downButton' src="landing/assets/images/down.svg" />
                 </a>
@@ -334,6 +334,21 @@
         </div>
     </div>
 </div>
+<!-- Autodesk Section -->
+<!-- <div id="autodeskSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h2 style="padding-bottom: 30px">THE FUTURE OF MAKING THINGS</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-8 col-xs-offset-2">
+                <div class="youtube-player" data-id="yE-jIzVMLEM"></div>
+            </div>
+        </div>
+    </div>
+</div> -->
 <!-- FOOTER SECTION -->
 <div id="footerSection">
     <div class="container">
@@ -461,6 +476,36 @@
     $('.animate.feature-text:in-viewport').delay(150).fadeTo(1000, 1);
     $('.animate:not(.delay.move-card.move):in-viewport').fadeTo(500, 1);
   });
+
+  /* Light YouTube Embeds by @labnol */
+  /* Web: http://labnol.org/?p=27941 */
+  document.addEventListener("DOMContentLoaded",
+        function() {
+            var div, n,
+                v = document.getElementsByClassName("youtube-player");
+            for (n = 0; n < v.length; n++) {
+                div = document.createElement("div");
+                div.setAttribute("data-id", v[n].dataset.id);
+                div.innerHTML = labnolThumb(v[n].dataset.id);
+                div.onclick = labnolIframe;
+                v[n].appendChild(div);
+            }
+        });
+
+    function labnolThumb(id) {
+        var thumb = '<img src="https://i.ytimg.com/vi/ID/hqdefault.jpg">',
+            play = '<div class="play"></div>';
+        return thumb.replace("ID", id) + play;
+    }
+
+    function labnolIframe() {
+        var iframe = document.createElement("iframe");
+        var embed = "https://www.youtube.com/embed/ID?autoplay=1";
+        iframe.setAttribute("src", embed.replace("ID", this.dataset.id));
+        iframe.setAttribute("frameborder", "0");
+        iframe.setAttribute("allowfullscreen", "1");
+        this.parentNode.replaceChild(iframe, this);
+    }
 </script>
 </body>
 </html>
