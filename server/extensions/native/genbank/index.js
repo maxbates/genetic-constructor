@@ -9,7 +9,7 @@ import Block from '../../../../src/models/Block';
 import Project from '../../../../src/models/Project';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as fileSystem from '../../../data/middleware/fileSystem';
-import { projectPermissionMiddleware } from '../../../data/permissions';
+import { userOwnsProjectMiddleware } from '../../../data/permissions';
 import * as projectPesistence from '../../../data/persistence/projects';
 import * as sequencePersistence from '../../../data/persistence/sequence';
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
@@ -65,7 +65,7 @@ router.get('/file/:fileId', (req, res, next) => {
 
 /***** EXPORT ******/
 
-router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware, (req, res, next) => {
+router.get('/export/blocks/:projectId/:blockIdList', userOwnsProjectMiddleware, (req, res, next) => {
   const { projectId, blockIdList } = req.params;
   const blockIds = blockIdList.split(',');
 
@@ -114,7 +114,7 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
 });
 
 router.all('/export/:projectId/:constructId?',
-  projectPermissionMiddleware,
+  userOwnsProjectMiddleware,
   formParser,
   (req, res, next) => {
     const { projectId, constructId } = req.params;

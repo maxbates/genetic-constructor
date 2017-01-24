@@ -18,7 +18,7 @@ import express from 'express';
 
 import { ensureReqUserMiddleware } from '../user/utils';
 import { errorDoesNotExist, errorInvalidModel, errorInvalidRoute } from '../utils/errors';
-import { projectPermissionMiddleware } from './permissions';
+import { userOwnsProjectMiddleware } from './permissions';
 import * as blockPersistence from './persistence/blocks';
 import * as projectVersions from './persistence/projectVersions';
 import * as projectPersistence from './persistence/projects';
@@ -41,7 +41,7 @@ const jsonParser = bodyParser.json({
 
 router.use(jsonParser);
 
-//ensure req.user is set, send 401 otherwise
+//ensure req.user is set
 router.use(ensureReqUserMiddleware);
 
 /******** PARAMS ***********/
@@ -56,6 +56,11 @@ router.param('blockId', (req, res, next, id) => {
   next();
 });
 
+router.param('version', (req, res, next, id) => {
+  Object.assign(req, { version: id });
+  next();
+});
+
 /********** ROUTES ***********/
 
 router.use('/commons', commonsRouter);
@@ -65,18 +70,17 @@ router.use('/sequence', sequenceRouter);
 router.use('/loadersupport', loaderSupportRouter);
 
 /* job files */
-router.use('/jobs/:projectId', projectPermissionMiddleware, jobFileRouter);
+router.use('/jobs/:projectId', userOwnsProjectMiddleware, jobFileRouter);
 
 /* project files */
-router.use('/file/:projectId', projectPermissionMiddleware, projectFileRouter);
+router.use('/file/:projectId', userOwnsProjectMiddleware, projectFileRouter);
 
 /* versioning */
 router.route('/versions/:projectId/:version?')
-  .all(projectPermissionMiddleware)
+  .all(userOwnsProjectMiddleware)
   .get((req, res, next) => {
     //pass the version you want, otherwise send version history
-    const { projectId } = req;
-    const { version } = req.params;
+    const { projectId, version } = req;
 
     if (version) {
       projectVersions.projectVersionGet(projectId, version)
@@ -89,7 +93,7 @@ router.route('/versions/:projectId/:version?')
     }
   });
 
-router.use('/snapshots/:projectId', projectPermissionMiddleware, snapshotRouter);
+router.use('/snapshots/:projectId', userOwnsProjectMiddleware, snapshotRouter);
 
 /* info queries */
 
@@ -148,7 +152,7 @@ router.route('/info/:type/:detail?/:additional?')
 // e.g. used in autosave, loading / saving whole project
 
 router.route('/projects/:projectId')
-  .all(projectPermissionMiddleware)
+  .all(userOwnsProjectMiddleware)
   .get((req, res, next) => {
     const { projectId } = req;
 
@@ -217,7 +221,7 @@ router.route('/projects')
  */
 
 router.route('/:projectId/:blockId')
-  .all(projectPermissionMiddleware)
+  .all(userOwnsProjectMiddleware)
   .get((req, res, next) => {
     const { projectId, blockId } = req;
 
@@ -275,7 +279,7 @@ router.route('/:projectId/:blockId')
   .delete((req, res, next) => res.status(405).send());
 
 router.route('/:projectId')
-  .all(projectPermissionMiddleware)
+  .all(userOwnsProjectMiddleware)
   .get((req, res, next) => {
     const { projectId } = req;
     //const { depth } = req.query; //future

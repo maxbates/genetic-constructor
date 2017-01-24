@@ -5,7 +5,7 @@ import Block from '../../../../src/models/Block';
 import Project from '../../../../src/models/Project';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as fileSystem from '../../../data/middleware/fileSystem';
-import { projectPermissionMiddleware } from '../../../data/permissions';
+import { userOwnsProjectMiddleware } from '../../../data/permissions';
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
 import { convertCsv } from './convert';
 
@@ -111,7 +111,7 @@ router.post('/import/:projectId?',
 );
 
 router.get('export/:projectId',
-  projectPermissionMiddleware,
+  userOwnsProjectMiddleware,
   (req, res, next) => {
     res.status(501).send();
   });

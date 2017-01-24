@@ -23,7 +23,7 @@ describe('Server', () => {
   describe('Data', () => {
     describe('Permissions', () => {
       it('projectIdValidMiddleware', () => { throw new Error('todo'); });
-      it('projectPermissionMiddleware', () => { throw new Error('todo'); });
+      it('userOwnsProjectMiddleware', () => { throw new Error('todo'); });
     });
   });
 });

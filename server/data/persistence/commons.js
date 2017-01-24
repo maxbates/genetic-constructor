@@ -14,25 +14,67 @@
  limitations under the License.
  */
 
+import debug from 'debug';
+import invariant from 'invariant';
 import _ from 'lodash';
 
+import * as projectPersistence from './projects';
+import * as projectVersions from './projectVersions';
 import * as snapshots from './snapshots';
+import { errorDoesNotExist } from '../../utils/errors';
 
-//todo - this file may not be necessary
-//may be able to just use project persistence + snapshots
+const logger = debug('constructor:data:persistence:commons');
 
+export const TAG_PUBLISHED = 'TAG_PUBLISHED';
+
+//NB - mutates the json directly
 export const lockProjectDeep = (roll) => {
-  //todo - do we need to clone?
-  const locked = _.cloneDeep(roll);
-
   //freeze project
-  locked.project.rules.frozen = true;
+  roll.project.rules.frozen = true;
 
   //freeze blocks
-  _.forEach(locked.blocks, (block) => { block.rules.frozen = true; });
-  return locked;
+  _.forEach(roll.blocks, (block) => { block.rules.frozen = true; });
+  return roll;
 };
 
 export const checkProjectPublic = (projectId, version) => {
 
+};
+
+export const listProjectPublicVersions = (projectId) => {
+  //todo
+};
+
+export const commonsRetrieve = (projectId, version) => {
+  if (version) {
+    return projectVersions.projectVersionGet(projectId, version);
+  }
+
+  //todo - get latest published
+};
+
+// Publish a project (create a public snapshot)
+// version -> assert exists and mark public
+// !version -> create public snapshot
+export const projectPublish = (projectId, version) => {
+  //todo
+};
+
+// Unpublish a project (mark snapshot as non-public, do not delete)
+// version -> should just mark as non-public, not remove the snapshot
+// !version -> remove public from all snapshots
+export const projectUnpublish = (projectId, version) => {
+  //todo
+};
+
+//custom permissions middleware
+//given a project and a verison, check if its public
+export const checkProjectPublicMiddleware = (req, res, next) => {
+  const { projectId, version } = req;
+
+  invariant(projectId, '[checkProjectPublicMiddleware] project ID required on request');
+
+  checkProjectPublic(projectId, version)
+  .then(() => next())
+  .catch(err => res.status(403).send(err));
 };

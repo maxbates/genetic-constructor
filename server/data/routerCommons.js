@@ -17,72 +17,56 @@
 import express from 'express';
 
 import { ensureReqUserMiddleware } from '../user/utils';
-import { errorDoesNotExist } from '../utils/errors';
-import { projectIdValidMiddleware } from './permissions';
+import { projectIdValidMiddleware, userOwnsProjectMiddleware } from './permissions';
 import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap
-
-// params
-
-router.param('projectId', (req, res, next, id) => {
-  Object.assign(req, { projectId: id });
-  next();
-});
-
-router.param('version', (req, res, next, id) => {
-  Object.assign(req, { version: id });
-  next();
-});
 
 // check user and project Id valid
 
 router.use(ensureReqUserMiddleware);
 router.use(projectIdValidMiddleware);
 
-// commons permissions
-
-//custom permissions middleware
-//given a project and a verison, check if its public
-router.use((req, res, next) => {
-  const { projectId, version } = req;
-
-  commons.checkProjectPublic(projectId, version)
-  .then()
-  .catch(err => res.status(403).send(err));
-});
-
 // routes
 
 router.route('/:projectId/:version?')
-//get the published project
-.get((req, res, next) => {
-  const { projectId, version } = req;
+// get the published project, @ version, or latest
+.get(
+  commons.checkProjectPublicMiddleware,
+  (req, res, next) => {
+    const { projectId, version } = req;
 
-  //request all versions
-  if (version === 'versions') {
+    //request all versions
+    if (version === 'versions') {
+      return commons.listProjectPublicVersions(projectId)
+      .then(results => res.json(results))
+      .catch(next);
+    }
 
-  }
+    return commons.commonsRetrieve(projectId, version)
+    .then(project => res.status(200).json(project))
+    .catch(next);
+  })
 
-  //get a specific version
-  if (version) {
+// publish
+.post(
+  userOwnsProjectMiddleware,
+  (req, res, next) => {
+    const { projectId, version } = req;
+    commons.projectPublish(projectId, version)
+    .then(info => res.json(info))
+    .catch(next);
+  })
 
-  }
-
-  //otherwise, get the project @ latest
-})
-//publish
-.post((req, res, next) => {
-  //todo
-  // version -> assert exists and mark public
-  // !version -> create public snapshot
-})
-//unpublish
-.delete((req, res, next) => {
-  //todo
-  // version -> should just mark as non-public, not remove the snapshot
-  // !version -> remove public from all snapshots
-});
+// unpublish
+.delete(
+  userOwnsProjectMiddleware,
+  (req, res, next) => {
+    const { projectId, version } = req;
+    commons.projectUnpublish(projectId, version)
+    .then(info => res.json(info))
+    .catch(next);
+  });
 
 //catch-all
 router.route('*').all((req, res) => res.status(501).send());

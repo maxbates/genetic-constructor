@@ -16,7 +16,7 @@
 import express from 'express';
 
 import uuid from 'uuid';
-import { projectPermissionMiddleware } from './permissions';
+import { userOwnsProjectMiddleware } from './permissions';
 
 import {
   errorDoesNotExist,
@@ -29,7 +29,7 @@ import Block from '../../src/models/Block';
 const router = express.Router(); //eslint-disable-line new-cap
 
 router.route('/savecomponent/:projectId?')
-  .all(projectPermissionMiddleware)
+  .all(userOwnsProjectMiddleware)
   .get((req, res, next) => {
     const { user } = req;
     const { projectId } = req.params;

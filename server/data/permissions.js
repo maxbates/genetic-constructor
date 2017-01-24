@@ -48,7 +48,7 @@ export const projectIdValidMiddleware = (req, res, next) => {
   return true;
 };
 
-export const projectPermissionMiddleware = (req, res, next) => {
+export const userOwnsProjectMiddleware = (req, res, next) => {
   const { user } = req;
   const { projectId } = req.params;
 
@@ -58,7 +58,7 @@ export const projectPermissionMiddleware = (req, res, next) => {
   if (!user || !user.uuid) {
     res.status(401);
     logger('no user attached by auth middleware @', req.url);
-    next('[projectPermissionMiddleware] user not attached to request by middleware');
+    next('[userOwnsProjectMiddleware] user not attached to request by middleware');
     return;
   }
 

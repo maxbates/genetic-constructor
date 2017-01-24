@@ -20,7 +20,7 @@ import { merge } from 'lodash';
 import Order from '../../src/models/Order';
 import saveCombinations from '../../src/utils/generators/orderConstructs';
 import { pruneUserObject } from '../user/utils';
-import { projectPermissionMiddleware } from './../data/permissions';
+import { userOwnsProjectMiddleware } from './../data/permissions';
 import * as orderPersistence from './../data/persistence/orders';
 import * as projectVersions from './../data/persistence/projectVersions';
 import * as projectPersistence from './../data/persistence/projects';
@@ -146,7 +146,7 @@ router.post('/validate', validateOrderMiddleware, (req, res, next) => {
 });
 
 router.route('/:projectId/:orderId?')
-  .all(projectPermissionMiddleware)
+  .all(userOwnsProjectMiddleware)
   .get((req, res, next) => {
     const { user, projectId } = req; //eslint-disable-line no-unused-vars
     const { orderId } = req.params;
