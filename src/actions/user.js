@@ -60,11 +60,15 @@ export const userLogin = (email, password) => (dispatch, getState) => login(emai
       });
 
 //Promise
-export const userLogout = () => (dispatch, getState) => logout()
+export const userLogout = (avoidRedirect = false) => (dispatch, getState) => logout()
       .then(() => {
-        const setUserPayload = _userSetUser({});
-        dispatch(setUserPayload);
-        return true;
+        if (avoidRedirect !== true) {
+          window.location = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+        } else {
+          const setUserPayload = _userSetUser({});
+          dispatch(setUserPayload);
+          return true;
+        }
       });
 
 //Promise

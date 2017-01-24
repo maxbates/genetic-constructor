@@ -22,14 +22,12 @@ import { projectOpen } from '../../actions/projects';
 import { passwordValidator, errorMessageDefault } from './_validation';
 import { reset } from '../../middleware/auth';
 
-import Modal from '../modal/Modal';
 import ModalFooter from '../modal/ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import FormPassword from '../formElements/FormPassword';
 
-export class ResetModal extends Component {
+export class ResetForm extends Component {
   static propTypes = {
-    isOpen: PropTypes.bool.isRequired,
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
@@ -53,7 +51,7 @@ export class ResetModal extends Component {
 
   // return a single named parameter from the query string
   static getParameter(name) {
-    return ResetModal.getQueryStrings()[name];
+    return ResetForm.getQueryStrings()[name];
   }
 
   state = {
@@ -75,7 +73,7 @@ export class ResetModal extends Component {
       return;
     }
 
-    reset(ResetModal.getParameter('e'), ResetModal.getParameter('h'), this.state.password)
+    reset(ResetForm.getParameter('e'), ResetForm.getParameter('h'), this.state.password)
     .then((json) => {
       //if message is on the repsonse, there was an error
       if (json.message) {
@@ -85,7 +83,7 @@ export class ResetModal extends Component {
       this.props.uiSetGrunt('Your password has been reset');
 
       //log them in since we have their email and password
-      return this.props.userLogin(ResetModal.getParameter('e'), this.state.password)
+      return this.props.userLogin(ResetForm.getParameter('e'), this.state.password)
       .then(() => {
         // close the form
         this.props.uiShowAuthenticationForm('none');
@@ -113,18 +111,13 @@ export class ResetModal extends Component {
     const passwordError = showPasswordError ? passwordValidator(this.state.password) : '';
 
     return (
-      <Modal
-        isOpen={this.props.isOpen}
-        onClose={() => this.props.uiShowAuthenticationForm('none')}
-        title="Reset Password"
-        style={{ content: { width: '740px' } }}
+      <form
+        id="auth-reset"
+        action="#"
+        className="Form"
+        onSubmit={this.onSubmit}
       >
-        <form
-          id="auth-reset"
-          action="#"
-          className="Form Modal-paddedContent"
-          onSubmit={this.onSubmit}
-        >
+        <div className="Modal-paddedContent">
           <FormGroup
             label="New Password"
             error={passwordError}
@@ -142,19 +135,17 @@ export class ResetModal extends Component {
               {this.state.submitError}
             </div>
           )}
-        </form>
+        </div>
 
         <ModalFooter actions={this.actions} />
-      </Modal>
+      </form>
     );
   }
 }
 
-export default connect(state => ({
-  isOpen: state.ui.modals.authenticationForm === 'reset',
-}), {
+export default connect(null, {
   uiShowAuthenticationForm,
   uiSpin,
   userLogin,
   projectOpen,
-})(ResetModal);
+})(ResetForm);

@@ -17,67 +17,103 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { uiShowAuthenticationForm } from '../actions/ui';
+
+//old forms
 import AccountForm from '../components/authentication/account';
 import ModalWindow from '../components/modal/modalwindow';
 
 //new auth modals
-import SignInModal from '../components/authentication/SignInModal';
-import RegisterModal from '../components/authentication/RegisterModal';
-import ForgotModal from '../components/authentication/ForgotModal';
-import ResetModal from '../components/authentication/ResetModal';
+import Modal from '../components/modal/Modal';
+import SignInForm from '../components/authentication/SignInForm';
+import RegisterForm from '../components/authentication/RegisterForm';
+import ForgotForm from '../components/authentication/ForgotForm';
+import ResetForm from '../components/authentication/ResetForm';
 
 import '../styles/authenticationforms.css';
 import '../../src/styles/form.css';
 
+const nameMap = {
+  register: 'Sign Up',
+  signin: 'Sign In',
+  forgot: 'Forgot Password',
+  reset: 'Reset Password',
+  account: 'Account Information',
+};
+
 function AuthenticationModals(props) {
+  if (props.authenticationForm === 'none') {
+    return null;
+  }
+
+  let oldform;
   let form;
 
   //new ones
   switch (props.authenticationForm) {
     case 'register' :
-      return <RegisterModal />;
+      form = <RegisterForm />;
+      break;
     case 'signin':
-      return <SignInModal />;
+      form = <SignInForm />;
+      break;
     case 'forgot':
-      return <ForgotModal />;
+      form = <ForgotForm />;
+      break;
     case 'reset' :
-      return <ResetModal />;
+      form = <ResetForm />;
+      break;
     default:
   }
 
   //handle the old modals
   switch (props.authenticationForm) {
     case 'account' :
-      form = <AccountForm />;
+      oldform = <AccountForm />;
       break;
     default:
-      form = null;
+      oldform = null;
       break;
   }
 
-  return !form
+  return form
     ?
-    null
+      <Modal
+        isOpen={!!form}
+        onClose={() => {
+          props.uiShowAuthenticationForm('none');
+          if (props.authFormParams.onClose) {
+            props.authFormParams.onClose();
+          }
+        }}
+        title={nameMap[props.authenticationForm]}
+        style={{ content: { width: '740px' } }}
+      >
+        {form}
+      </Modal>
     :
-    <ModalWindow
-      open
-      title="Auth Modal"
-      payload={form}
-      closeOnClickOutside
-      closeModal={(buttonText) => {
-        props.uiShowAuthenticationForm('none');
-      }}
-    />;
+      <ModalWindow
+        open
+        title="Auth Modal"
+        payload={oldform}
+        closeOnClickOutside
+        closeModal={(buttonText) => {
+          props.uiShowAuthenticationForm('none');
+        }}
+      />;
 }
 
 AuthenticationModals.propTypes = {
   uiShowAuthenticationForm: PropTypes.func.isRequired,
   authenticationForm: PropTypes.string,
+  authFormParams: PropTypes.shape({
+    onClose: PropTypes.func,
+  }),
 };
 
 function mapStateToProps(state) {
   return {
     authenticationForm: state.ui.modals.authenticationForm,
+    authFormParams: state.ui.modals.authFormParams,
   };
 }
 

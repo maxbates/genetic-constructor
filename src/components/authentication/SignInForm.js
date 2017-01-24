@@ -21,15 +21,13 @@ import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userLogin } from '../../actions/user';
 import { ERROR_MESSAGE_DEFAULT } from './_validation';
 
-import Modal from '../modal/Modal';
 import ModalFooter from '../modal/ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';
 
-export class SignInModal extends Component {
+export class SignInForm extends Component {
   static propTypes = {
-    isOpen: PropTypes.bool.isRequired,
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
     userLogin: PropTypes.func.isRequired,
@@ -46,7 +44,7 @@ export class SignInModal extends Component {
 
   onPassword = evt => this.setState({ password: evt.target.value });
 
-  signIn() {
+  onSubmit = () => {
     if (!(this.state.email && this.state.password)) {
       return;
     }
@@ -73,7 +71,7 @@ export class SignInModal extends Component {
         });
       }
     });
-  }
+  };
 
   actions = [{
     text: 'Sign In',
@@ -83,20 +81,16 @@ export class SignInModal extends Component {
 
   render() {
     return (
-      <Modal
-        isOpen={this.props.isOpen}
-        onClose={() => this.props.uiShowAuthenticationForm('none')}
-        title="Sign In"
-        style={{ content: { width: '740px' } }}
+      <form
+        id="auth-signin"
+        className="Form"
+        onSubmit={this.signIn}
       >
-        <form
-          id="auth-signin"
-          className="Form Modal-paddedContent"
-          onSubmit={this.signIn}
-        >
+        <div className="Modal-paddedContent">
           <div className="Modal-banner">
             <span>Don&apos;t have a Genetic Constructor account? </span>
-            <a id="auth-showRegister" onClick={() => this.props.uiShowAuthenticationForm('register')}>Sign Up - it&apos;s free!</a>
+            <a id="auth-showRegister" onClick={() => this.props.uiShowAuthenticationForm('register')}>Sign Up - it&apos;
+              s free!</a>
           </div>
 
           <FormGroup label="Email">
@@ -123,19 +117,17 @@ export class SignInModal extends Component {
               {this.state.submitError}
             </div>
           )}
-        </form>
 
+        </div>
         <ModalFooter actions={this.actions} />
-      </Modal>
+      </form>
     );
   }
 }
 
-export default connect(state => ({
-  isOpen: state.ui.modals.authenticationForm === 'signin',
-}), {
+export default connect(null, {
   uiShowAuthenticationForm,
   uiSpin,
   userLogin,
   projectOpen,
-})(SignInModal);
+})(SignInForm);

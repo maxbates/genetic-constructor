@@ -45,22 +45,33 @@ export class LandingPage extends Component {
   componentDidMount() {
     const authForm = this.props.params.comp;
     const haveUser = this.props.user && this.props.user.userid;
-    const forceNoRedirect = this.props.location.query && !this.props.location.query.noredirect;
+    const { query } = this.props.location;
+    const redirectOk = query && !query.noredirect;
 
-    //todo - on logout go to landing page
     //todo - on close, reload the landing page
+    //todo - pass params.onClose into modal. redo the auth forms as forms, and wrap in modal automatically
 
+    const params = {
+      onClose: () => {
+        window.location = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+      },
+    };
     if (authForm && allowedModals.indexOf(authForm) >= 0) {
-      this.props.uiShowAuthenticationForm(authForm);
-    } else if (haveUser && forceNoRedirect) {
+      if (authForm === 'register') {
+        params.accountType = (query && query.accountType) ? query.accountType : 'free';
+      }
+      this.props.uiShowAuthenticationForm(authForm, params);
+    } else if (haveUser && redirectOk) {
       // revisit last project
       this.props.projectOpen(null, true);
+    } else {
+      this.props.uiShowAuthenticationForm('register', params);
     }
   }
 
   render() {
     return (
-      <div className="LandingPage">Landing page content</div>
+      <div className="LandingPage" />
     );
   }
 }
