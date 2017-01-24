@@ -19,7 +19,7 @@
     flex-grow: 1;
     align-self: flex-end;
     justify-content: center;
-    color: var(--black);
+    color: var(--colors-black);
     text-align: center;
     padding-bottom: 2em;
     font-size: 4em;

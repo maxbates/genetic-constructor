@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 
 import { uiSetGrunt, uiShowAuthenticationForm, uiShowExtensionPicker } from '../../actions/ui';
 import { userLogout } from '../../actions/user';
-import track from '../../analytics/ga';
 import PopupMenu from '../../components/Menu/PopupMenu';
 import Vector2D from '../../containers/graphics/geometry/vector2d';
 import '../../styles/userwidget.css';

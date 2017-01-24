@@ -106,7 +106,7 @@ export class SignInForm extends Component {
             <FormPassword
               value={this.state.password}
               name="password"
-              onForgot={() => this.props.uiShowAuthenticationForm('forgot')}
+              onForgot={() => this.props.uiShowAuthenticationForm('forgot', {})}
               placeholder="Password"
               onChange={this.onPassword}
             />

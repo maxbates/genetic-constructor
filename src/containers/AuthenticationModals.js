@@ -75,16 +75,18 @@ function AuthenticationModals(props) {
       break;
   }
 
+  const onClose = () => {
+    if (props.authFormParams.onClose) {
+      props.authFormParams.onClose();
+    }
+    props.uiShowAuthenticationForm('none');
+  };
+
   return form
     ?
       <Modal
         isOpen={!!form}
-        onClose={() => {
-          props.uiShowAuthenticationForm('none');
-          if (props.authFormParams.onClose) {
-            props.authFormParams.onClose();
-          }
-        }}
+        onClose={onClose}
         title={nameMap[props.authenticationForm]}
         style={{ content: { width: '740px' } }}
       >
@@ -105,7 +107,7 @@ function AuthenticationModals(props) {
 AuthenticationModals.propTypes = {
   uiShowAuthenticationForm: PropTypes.func.isRequired,
   authenticationForm: PropTypes.string,
-  authFormParams: PropTypes.shape({
+  authFormParams: PropTypes.shape({ //eslint-disable-line react/no-unused-prop-types
     onClose: PropTypes.func,
   }),
 };

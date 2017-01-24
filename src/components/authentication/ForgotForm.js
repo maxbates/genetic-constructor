@@ -26,7 +26,6 @@ import FormText from '../formElements/FormText';
 
 export class ForgotForm extends Component {
   static propTypes = {
-    isOpen: PropTypes.bool.isRequired,
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
   };

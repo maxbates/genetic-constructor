@@ -43,26 +43,30 @@ export class LandingPage extends Component {
   }
 
   componentDidMount() {
+    //determine whether to show a modal, or go to project page
+
     const authForm = this.props.params.comp;
     const haveUser = this.props.user && this.props.user.userid;
     const { query } = this.props.location;
     const redirectOk = query && !query.noredirect;
 
-    const params = {
+    //if they close the modal, send them to the landing page... they didn't go through the process
+    const authFormParams = {
       onClose: () => {
         window.location = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
       },
     };
+
     if (authForm && allowedModals.indexOf(authForm) >= 0) {
       if (authForm === 'register') {
-        params.accountType = (query && query.accountType) ? query.accountType : 'free';
+        authFormParams.accountType = (query && query.accountType) ? query.accountType : 'free';
       }
-      this.props.uiShowAuthenticationForm(authForm, params);
+      this.props.uiShowAuthenticationForm(authForm, authFormParams);
     } else if (haveUser && redirectOk) {
       // revisit last project
       this.props.projectOpen(null, true);
     } else {
-      this.props.uiShowAuthenticationForm('register', params);
+      this.props.uiShowAuthenticationForm('register', authFormParams);
     }
   }
 

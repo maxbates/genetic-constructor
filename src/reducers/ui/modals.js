@@ -43,7 +43,9 @@ export default function modals(state = initialState, action) {
   switch (action.type) {
     case ActionTypes.UI_SHOW_AUTHENTICATION_FORM:
       const { authenticationForm, authFormParams } = action;
-      return Object.assign({}, state, { authenticationForm, authFormParams });
+      //preserve params if not turned off explicitly (either params or the modal) - (e.g. trigger signin -> register form)
+      const params = (!authFormParams || authenticationForm === 'none') ? authFormParams : Object.assign({}, state.authFormParams, authFormParams);
+      return Object.assign({}, state, { authenticationForm, authFormParams: params });
 
     case ActionTypes.UI_SHOW_GENBANK_IMPORT:
       const { showGenBankImport } = action;
