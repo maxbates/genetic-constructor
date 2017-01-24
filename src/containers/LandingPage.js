@@ -48,9 +48,6 @@ export class LandingPage extends Component {
     const { query } = this.props.location;
     const redirectOk = query && !query.noredirect;
 
-    //todo - on close, reload the landing page
-    //todo - pass params.onClose into modal. redo the auth forms as forms, and wrap in modal automatically
-
     const params = {
       onClose: () => {
         window.location = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
