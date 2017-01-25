@@ -72,7 +72,9 @@ export class LandingPage extends Component {
 
   render() {
     return (
-      <div className="LandingPage" />
+      <div className="LandingPage">
+        <div className="LandingPage-title">GENETIC CONSTRUCTOR</div>
+      </div>
     );
   }
 }
