@@ -350,7 +350,7 @@ p
 #footerSection
 {
     color: var(--black);
-    background: var(--darkGrey);
+    background: var(--white);
     padding-top: 30px;
 }
 
