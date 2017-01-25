@@ -30,9 +30,8 @@ export const reportApiPath = path => `${serverRoot}report/${path}`;
 
 export const extensionApiPath = (extension, path) => `${serverRoot}extensions/api/${extension}/${path}`;
 
-export const commonsApiPath = (projectId, version) => `${serverRoot}/commons/${projectId}${version ? (`/${version}`) : ''}`;
-
 export const projectFilePath = (projectId, namespace, fileName, version) => dataApiPath(`file/${projectId}/${namespace}${fileName ? (`/${fileName}`) : ''}${version ? (`/${version}`) : ''}`);
 
 export const jobPath = (projectId, namespace, fileName) => dataApiPath(`jobs/${projectId}/${namespace}${fileName ? (`/${fileName}`) : ''}`);
 
+export const commonsApiPath = (projectId, version) => dataApiPath(`commons/${projectId}${version ? (`/${version}`) : ''}`);

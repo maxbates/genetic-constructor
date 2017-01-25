@@ -22,7 +22,6 @@ import * as permissions from '../../../server/data/permissions';
 describe('Server', () => {
   describe('Data', () => {
     describe('Permissions', () => {
-      it('projectIdValidMiddleware', () => { throw new Error('todo'); });
       it('userOwnsProjectMiddleware', () => { throw new Error('todo'); });
     });
   });

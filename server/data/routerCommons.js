@@ -16,7 +16,7 @@
 
 import express from 'express';
 
-import { ensureReqUserMiddleware, projectIdValidMiddleware, userOwnsProjectMiddleware } from './permissions';
+import { ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
 import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap
@@ -24,7 +24,6 @@ const router = express.Router(); //eslint-disable-line new-cap
 // check user and project Id valid
 
 router.use(ensureReqUserMiddleware);
-router.use(projectIdValidMiddleware);
 
 // routes
 
