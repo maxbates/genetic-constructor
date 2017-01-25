@@ -31,7 +31,8 @@ export function verifyCaptcha(response, secret = captchaSecret) {
   })
   .then(resp => resp.json())
   .then((result) => {
-    if (result.success) {
+    console.log(result);
+    if (result.success === true) {
       return result;
     }
     return Promise.reject({ message: 'Captcha Verification Failed', ...result });
@@ -43,6 +44,7 @@ export function verifyCaptchaProductionOnly(...args) {
     return verifyCaptcha(...args);
   }
 
+  //not in production, just return the error, but don't reject
   return verifyCaptcha(...args)
   .catch((err) => {
     console.log('captcha failed', err);
