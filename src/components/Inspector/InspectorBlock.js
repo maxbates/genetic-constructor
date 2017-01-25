@@ -143,8 +143,7 @@ export class InspectorBlock extends Component {
     if (instances.length === 1) {
       return instances[0].getRole(false);
     }
-    //false is specially handled in symbol picker as blank, and is different than null (no symbol)
-    return false;
+    return null;
   }
 
   /**
