@@ -53,6 +53,9 @@ export default class RoleSvg extends Component {
 
   render() {
     if (!this.markup) {
+      if (this.props.width === "54") {
+        debugger;
+      }
       // clone the template
       const name = this.props.symbolName || 'null';
       const templateId = `sbol-svg-${name}${this.props.large ? '-large' : ''}`;

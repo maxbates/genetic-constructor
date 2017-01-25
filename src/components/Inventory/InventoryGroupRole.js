@@ -151,8 +151,8 @@ class InventoryGroupRole extends Component {
             {sorted.map(item => (
               <div className="sbol-tile" key={item.id}>
                 <RoleSvg
-                  width="54"
-                  height="54"
+                  width="54px"
+                  height="54px"
                   large={true}
                   color={current.id === item.id ? 'white' : 'black'}
                   classes={current.id === item.id ? 'active' : null}

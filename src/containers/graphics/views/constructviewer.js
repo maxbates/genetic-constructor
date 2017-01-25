@@ -647,8 +647,8 @@ export class ConstructViewer extends Component {
         <RoleSvg
           symbolName="lock"
           color={this.props.construct.getColor()}
-          width="14"
-          height="14"
+          width="14px"
+          height="14px"
           fill={this.props.construct.getColor()}
         />
       </div>

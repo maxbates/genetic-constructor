@@ -96,8 +96,8 @@ export default class SBOLPicker extends Component {
     (
       <div className="wrapper">
         <RoleSvg
-          width="54"
-          height="54"
+          width="54px"
+          height="54px"
           color={'black'}
           symbolName={id}
           key={id}
@@ -117,8 +117,8 @@ export default class SBOLPicker extends Component {
       >
         <div className="wrapper">
           <RoleSvg
-            width="54"
-            height="54"
+            width="54px"
+            height="54px"
             color={'black'}
             symbolName={id}
             large={true}
