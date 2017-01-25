@@ -106,7 +106,7 @@ export class RegisterForm extends Component {
   }
 
   onFirstName = (evt) => {
-    if (process.env.BNR_ENVIRONMENT !== 'prod') {
+    if (process.env.NODE_ENV !== 'production') {
       //special handling for 'darwin magic' dummy user, except in production (but allow in QA, where NODE_ENV==='production')
       if (evt.target.value === 'darwin magic') {
         this.setState({

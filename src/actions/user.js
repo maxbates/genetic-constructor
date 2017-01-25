@@ -60,15 +60,16 @@ export const userLogin = (email, password) => (dispatch, getState) => login(emai
       });
 
 //Promise
-export const userLogout = (avoidRedirect = false) => (dispatch, getState) => logout()
+//only reset store if arg set to false, so that minimize code execution and wait for window to change location
+export const userLogout = (onlyRedirect = true) => (dispatch, getState) => logout()
       .then(() => {
-        if (avoidRedirect !== true) {
-          window.location = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+        window.location = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+        if (!onlyRedirect) {
+          //also reset the user in case the window doesn't change. pass-through for tests
+          const setUserPayload = _userSetUser({});
+          dispatch(setUserPayload);
+          return true;
         }
-        //also reset the user in case the window doesn't change. pass-through for tests
-        const setUserPayload = _userSetUser({});
-        dispatch(setUserPayload);
-        return true;
       });
 
 //Promise
