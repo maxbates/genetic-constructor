@@ -3,12 +3,26 @@
 .LandingPage {
   height: 100vh;
   width: 100vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   border: 0;
   padding: 0px;
   overflow: hidden;
-  background-color: transparent;
+  background-color: white;
+  background-image: url('/landing/assets/images/hero.png');
+  background-size: cover;
+  background-position: top center;
 
-  iframe {
-    z-index: var(--z-landingPageFrame);
+  &-title {
+    display: flex;
+    flex-grow: 1;
+    align-self: flex-end;
+    justify-content: center;
+    color: var(--colors-black);
+    text-align: center;
+    padding-bottom: 2em;
+    font-size: 4em;
+    font-family: var(--font-family-base);
   }
 }

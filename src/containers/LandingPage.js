@@ -16,8 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { dispatch } from '../store/index';
-import { uiSetGrunt, uiShowAuthenticationForm } from '../actions/ui';
+import { uiShowAuthenticationForm } from '../actions/ui';
 import { projectOpen } from '../actions/projects';
 
 import '../styles/LandingPage.css';
@@ -27,39 +26,15 @@ const allowedModals = ['signin', 'register', 'account', 'reset', 'forgot'];
 export class LandingPage extends Component {
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
-    uiSetGrunt: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     location: PropTypes.shape({
       query: PropTypes.object,
     }).isRequired,
     params: PropTypes.shape({
-      comp: PropTypes.oneOf(['landing', ...allowedModals]),
+      comp: PropTypes.oneOf(allowedModals),
     }),
     user: PropTypes.object,
   };
-
-  static openLink(data) {
-    const { url, target } = data;
-    // default to own tab, unless new tab specified
-    const targetToUse = target || '_self';
-    window.open(url, targetToUse);
-  }
-
-  static openModal(data) {
-    let { modalType, accountType } = data;
-
-    if (allowedModals.indexOf(modalType) < 0) {
-      modalType = 'register';
-    }
-    if (['free', 'paid'].indexOf(accountType) < 0) {
-      accountType = 'free';
-    }
-    const params = modalType === 'register' ?
-      { registerType: accountType } :
-      null;
-
-    dispatch(uiShowAuthenticationForm(modalType, params));
-  }
 
   static isIE() {
     const ua = window.navigator.userAgent;
@@ -68,80 +43,36 @@ export class LandingPage extends Component {
   }
 
   componentDidMount() {
+    //determine whether to show a modal, or go to project page
+
     const authForm = this.props.params.comp;
+    const haveUser = this.props.user && this.props.user.userid;
+    const { query } = this.props.location;
+    const redirectOk = query && !query.noredirect;
 
-    if (authForm === 'landing') {
-      //do nothing, fall through
-    } else if (authForm) {
-      console.log('showing auth form:', authForm);
-      this.props.uiShowAuthenticationForm(authForm);
-    } else if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
-      // if not showing an auth form goto most recent project or demo project
-      // NOTE: the nodirect query string prevents redirection
+    //if they close the modal, send them to the landing page... they didn't go through the process
+    const authFormParams = {
+      onClose: () => {
+        window.location = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+      },
+    };
 
+    if (authForm && allowedModals.indexOf(authForm) >= 0) {
+      if (authForm === 'register') {
+        authFormParams.accountType = (query && query.accountType) ? query.accountType : 'free';
+      }
+      this.props.uiShowAuthenticationForm(authForm, authFormParams);
+    } else if (haveUser && redirectOk) {
       // revisit last project
       this.props.projectOpen(null, true);
-      return;
-    }
-
-    window.addEventListener('message', this.onMessageHandler, false);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('message', this.onMessageHandler);
-  }
-
-  onMessageHandler(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-
-    if (LandingPage.isIE()) {
-      if (heap && heap.track) {
-        heap.track('IE_User');
-      }
-      this.props.uiSetGrunt('Sorry we do not currently support Internet Explorer. We recommend the Chrome browser from Google.');
-      return;
-    }
-
-    const { data, origin } = evt;
-
-    //for security, verify the message origin
-    //if these don't match... we have a problem
-    if (origin !== window.location.origin) {
-      if (heap && heap.track) {
-        heap.track('REGISTER_ERROR', {
-          origin,
-          host: window.location.origin,
-        });
-      }
-      return;
-    }
-
-    //tracking with heap
-    if (heap && heap.track) {
-      heap.track('Register_Interest', data);
-    }
-
-    const { type = 'modal' } = data;
-
-    if (type === 'modal') {
-      LandingPage.openModal(data);
-    } else if (type === 'link') {
-      LandingPage.openLink(data);
+    } else {
+      this.props.uiShowAuthenticationForm('signin', authFormParams);
     }
   }
 
   render() {
-    //todo - need to show the cookie warning? or do it in the iframe
-
     return (
-      <iframe
-        id="LandingPageFrame"
-        ref={(el) => { this.iframe = el; }}
-        sandbox="allow-same-origin allow-scripts"
-        className="LandingPage"
-        src="/landing_page_content/index.html"
-      />
+      <div className="LandingPage" />
     );
   }
 }
@@ -154,6 +85,5 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiShowAuthenticationForm,
-  uiSetGrunt,
   projectOpen,
 })(LandingPage);

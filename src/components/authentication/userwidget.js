@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 
 import { uiSetGrunt, uiShowAuthenticationForm, uiShowExtensionPicker } from '../../actions/ui';
 import { userLogout } from '../../actions/user';
-import track from '../../analytics/ga';
 import PopupMenu from '../../components/Menu/PopupMenu';
 import Vector2D from '../../containers/graphics/geometry/vector2d';
 import '../../styles/userwidget.css';
@@ -60,15 +59,8 @@ class UserWidget extends Component {
 
   signOut = () => {
     this.props.userLogout()
-    .then(() => {
-      track('Authentication', 'Sign Out', 'Success');
-      // store is left with previous user projects and other issue. For now do a complete reload
-      //this.props.push('/homepage');
-      window.location = `${window.location.protocol}\\\\${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}\\homepage`;
-    })
     .catch((reason) => {
       this.props.uiSetGrunt('There was a problem signing you out');
-      track('Authentication', 'Sign Out', 'Failed');
     });
   };
 

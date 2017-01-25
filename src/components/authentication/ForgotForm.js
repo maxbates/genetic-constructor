@@ -20,14 +20,12 @@ import { connect } from 'react-redux';
 import { uiShowAuthenticationForm, uiSetGrunt } from '../../actions/ui';
 import { forgot } from '../../middleware/auth';
 
-import Modal from '../modal/Modal';
 import ModalFooter from '../modal/ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import FormText from '../formElements/FormText';
 
-export class RegisterFormNew extends Component {
+export class ForgotForm extends Component {
   static propTypes = {
-    isOpen: PropTypes.bool.isRequired,
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
   };
@@ -79,17 +77,12 @@ export class RegisterFormNew extends Component {
 
   render() {
     return (
-      <Modal
-        isOpen={this.props.isOpen}
-        onClose={() => this.props.uiShowAuthenticationForm('none')}
-        title="Forgot Password"
-        style={{ content: { width: '740px' } }}
+      <form
+        id="auth-forgot"
+        className="Form"
+        onSubmit={this.onForgot}
       >
-        <form
-          id="auth-forgot"
-          className="Form Modal-paddedContent"
-          onSubmit={this.onForgot}
-        >
+        <div className="Modal-paddedContent">
           <div className="Modal-banner">
             <span>Remember your password? </span>
             <a onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
@@ -108,17 +101,15 @@ export class RegisterFormNew extends Component {
               {this.state.submitError}
             </div>
           )}
-        </form>
 
+        </div>
         <ModalFooter actions={this.actions} />
-      </Modal>
+      </form>
     );
   }
 }
 
-export default connect(state => ({
-  isOpen: state.ui.modals.authenticationForm === 'forgot',
-}), {
+export default connect(null, {
   uiShowAuthenticationForm,
   uiSetGrunt,
-})(RegisterFormNew);
+})(ForgotForm);

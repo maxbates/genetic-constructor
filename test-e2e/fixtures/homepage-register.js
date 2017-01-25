@@ -7,26 +7,7 @@ var registerViaHomepage = function (browser, cb) {
   browser
   .url(browser.launchUrl + '/homepage')
   // wait for homepage to be present before starting
-  .waitForElementPresent('.LandingPage', 5000, 'Expected homepage element to be present')
-  .waitForElementPresent('#LandingPageFrame', 500, 'Expected Landing page iframe to be present')
-
-  //trigger the modal from the frame
-  .frame('LandingPageFrame', function () {
-    browser
-    .waitForElementPresent('nav .modalAction', 100, 'Expected modal action')
-    .execute(function () {
-      //may not be present
-      var cookieModal = document.querySelector('.cookiesButton');
-      if (cookieModal) {
-        cookieModal.click();
-      }
-
-      document.querySelector('nav .modalAction').click();
-    }, [], function () {})
-    .frameParent()
-    //make sure stepped out
-    .assert.elementPresent('#LandingPageFrame');
-  })
+  .waitForElementPresent('.LandingPage', 5000, 'Expected landing page to be present')
 
   // wait for login form to be present
   .waitForElementPresent('#auth-signin', 5000, 'Expected signin form to become visible')

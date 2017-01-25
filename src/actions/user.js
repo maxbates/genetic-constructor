@@ -60,8 +60,12 @@ export const userLogin = (email, password) => (dispatch, getState) => login(emai
       });
 
 //Promise
-export const userLogout = () => (dispatch, getState) => logout()
+export const userLogout = (avoidRedirect = false) => (dispatch, getState) => logout()
       .then(() => {
+        if (avoidRedirect !== true) {
+          window.location = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+        }
+        //also reset the user in case the window doesn't change. pass-through for tests
         const setUserPayload = _userSetUser({});
         dispatch(setUserPayload);
         return true;

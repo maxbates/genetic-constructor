@@ -49,6 +49,7 @@ const pathDocs = createBuildPath('jsdoc', `../docs/jsdoc/genetic-constructor/${p
 const pathImages = createBuildPath('images', '../src/images');
 const pathPublic = createBuildPath('public', '../src/public');
 const pathClientBundle = createBuildPath('client.js', '../build/client.js');
+const pathLanding = createBuildPath('public/landing', '../src/public/landing');
 
 //create server app
 const app = express();
@@ -113,14 +114,14 @@ if (process.env.BIO_NANO_AUTH) {
     resetForm: '/homepage/reset',
     apiEndPoint: API_END_POINT,
     onLogin: (req, res, next) => checkUserSetup(req.user)
-        .then(projectId =>
-          //note this expects an abnormal return of req and res to the next function
-           next(req, res))
-        .catch((err) => {
-          console.log(err);
-          console.log(err.stack);
-          res.status(500).end();
-        }),
+    .then(projectId =>
+      //note this expects an abnormal return of req and res to the next function
+      next(req, res))
+    .catch((err) => {
+      console.log(err);
+      console.log(err.stack);
+      res.status(500).end();
+    }),
     //onLogin: (req, res, next) => next(req, res), //mock
     registerRedirect: false,
   };
@@ -154,13 +155,12 @@ app.use('/order', orderRouter);
 app.use('/extensions', extensionsRouter);
 app.use('/report', reportRouter);
 
-// Register Client Requests, delegate routing to client
-// ----------------------------------------------------
+// STATIC ROUTES
 
-//Static Files
-app.use(express.static(pathPublic));
 app.use('/images', express.static(pathImages));
 app.use('/help/docs', express.static(pathDocs));
+app.use('/landing', express.static(pathLanding));
+app.use(express.static(pathPublic));
 
 app.get('/version', (req, res) => {
   try {
@@ -172,23 +172,36 @@ app.get('/version', (req, res) => {
   }
 });
 
+// PAGE LOADING
+
 app.get('*', (req, res) => {
+  //on root request if not logged in, show them the landing page
+  if (req.url === '/' && !req.user) {
+    res.sendFile(`${pathPublic}/landing.html`);
+    return;
+  }
+
+  // client bundle may be requested at multiple relative paths
   if (req.url.indexOf('client.js') >= 0) {
     //should only hit this when proxy is not set up (i.e. not in development)
     res.sendFile(pathClientBundle);
-  } else {
-    // setup user properties and discourse base url to flash to client
-    const discourse = {
-      discourseDomain: process.env.BNR_ENV_URL_SUFFIX || 'https://forum.bionano.autodesk.com',
-    };
-    //so that any routing is delegated to the client
-    const prunedUser = pruneUserObject(req.user);
-    const config = prunedUser.config ? JSON.stringify(prunedUser.config) : '{}';
-    const user = Object.assign({}, prunedUser, { config });
-    res.render(path.join(`${pathContent}/index.pug`), Object.assign({}, user, discourse, {
-      productionEnvironment: process.env.NODE_ENV === 'production',
-    }));
+    return;
   }
+
+  //otherwise, send the index page
+  //so that any routing is delegated to the client
+
+  // setup user properties and discourse base url to flash to client
+  const prunedUser = pruneUserObject(req.user);
+  const config = prunedUser.config ? JSON.stringify(prunedUser.config) : '{}';
+  const user = Object.assign({}, prunedUser, { config });
+
+  const params = Object.assign({
+    discourseDomain: process.env.BNR_ENV_URL_SUFFIX || 'https://forum.bionano.autodesk.com',
+    productionEnvironment: process.env.NODE_ENV === 'production',
+  }, user);
+
+  res.render(path.join(`${pathContent}/index.pug`), params);
 });
 
 /*** running ***/
@@ -231,10 +244,10 @@ function initDb() {
 //returns a promise, so you can listen and wait until it resolves
 export const listenSafely = () =>
   //first check if the port is in use -- e.g. tests are running, or some other reason
-   checkPortFree(HOST_PORT, HOST_NAME)
-    .then(initDb)
-    .then(startServer)
-    .catch(handleError);
+  checkPortFree(HOST_PORT, HOST_NAME)
+  .then(initDb)
+  .then(startServer)
+  .catch(handleError);
 
 //attempt start the server by default
 if (process.env.SERVER_MANUAL !== 'true') {

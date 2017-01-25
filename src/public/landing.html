@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Genetic Constructor is an extensible cloud CAD tool to make powerful biological design and genetic engineering strategies more accessible. The tool lets you work on genetic designs at the sequence level and at higher levels of abstraction, simultaneously. It integrates with real world DNA manufacturing to bring your engineered biological systems to life.">
+    <meta name="author" content="BioNano Team at Autodesk">
+    <meta name="keywors" content="genetic design software, genetic design tool, dna sequence editor, molecular design software, promoter library, CAD software for biology">
+    <title>Genetic Constructor - Genetic Design Software</title>
+    <link href="landing/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="landing/custom.css" rel="stylesheet">
+    <script>
+      // close cookies modal
+      function closeCookies(skipSetting) {
+        document.getElementById('cookiesModal').style.display = 'none';
+
+        if (skipSetting !== true) {
+          try {
+            localStorage.setItem('constructor_cookies_accepted', 'true');
+          } catch (err) {
+          }
+        }
+      }
+      window.closeCookies = closeCookies;
+    </script>
+</head>
+
+<body id="fullPage" data-spy="scroll" data-target="#scrollNavigation">
+<!-- MODAL -->
+<div id='cookiesModal'>
+    <p>Genetic Constructor uses cookies to ensure you get the best experience. <span><a
+            href="http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement"
+            target="_blank">Learn more</a></span></p>
+    <button onclick='closeCookies()' class='cookiesButton'>Close</button>
+</div>
+<!-- NAVIGATION -->
+<nav id="scrollNavigation" class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand page-scroll" href="#heroSection">
+                <img src="landing/assets/images/logo.svg" width="30px" />
+            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                <li class="hidden">
+                    <a href="#heroSection"></a>
+                </li>
+                <li>
+                    <a href="#interfaceSection">Features</a>
+                </li>
+                <li>
+                    <a href="#trySectionTop">Pricing</a>
+                </li>
+                <li>
+                    <a href="#teamSection">Team</a>
+                </li>
+                <li>
+                    <a href="#footerSection">Contact</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a class="authAction" href="homepage/signin">Sign In</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- HERO SECTION -->
+<div id="heroSection">
+    <div id="heroText">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h1 class="animate delay">GENETIC CONSTRUCTOR</h1>
+                    <h1 class='heroSubText animate delay'>An extensible toolkit for genetic engineering</h1>
+                </div>
+                <a href="#trySectionTop">
+                    <button class="bigButton animate delay">Try for free</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="valueSection" class='hiddenPhone'>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class='divider'></div>
+                <h5 class="animate delay">Design and manufacture living things</h5>
+                <p class="animate delay">New tools and technologies for DNA engineering will help you transform the world we live in. <br> Genetic Constructor is an extensible CAD tool, making powerful biological design and genetic engineering accessible in the cloud. Work on genetic designs at the sequence level and at higher levels of abstraction, simultaneously and integrate with real world DNA manufacturing to bring your engineered biological systems to life.</p>
+                <a href="#interfaceSection">
+                    <img class='downButton' src="landing/assets/images/down.svg" />
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- INTERFACE SECTION -->
+<div id="interfaceSection">
+    <div id="interfaceContainer" class="container">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1">
+                <h2 class="animate move" style="margin-top:50px;">GENETIC DESIGN REIMAGINED</h2>
+            </div>
+        </div>
+        <div class="row animate move" style="transform:translateY(50px);opacity:0.5;">
+            <div class="col-xs-10 col-xs-offset-1">
+                <img src="landing/assets/images/interface.png" class="img-responsive imgPadding"
+                     alt="Design plasmids or linear strands of DNA for your organism in just one browser tab" />
+                <p>Design plasmids or linear strands of DNA for your organism in just one browser tab.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FEATURE SECTION -->
+<div id="featureSection" class="feature1">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-10">
+                <h2 class="animate">FEATURES</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-offset-1 col-xs-10 col-sm-4">
+                <h1 class="h3 animate delay">Sketch and iterate in the cloud</h1>
+                <p class="animate delay">Start by quickly capturing your design intent, for example, a strong promoter driving your favorite gene followed by an eGFP tag. Sketch mode lets you add the sequence later. No need to sketch on the whiteboard anymore – just go straight to the browser and keep all information in one place.</p>
+            </div>
+            <div class="col-xs-offset-1 col-xs-10 collNoPadding col-sm-6">
+                <div class="animate" style="transform: translateY(0px)">
+                    <img class="slideStart img-responsive imgPadding" src="landing/assets/images/b1.png"
+                         alt="Sketch and Iterate in the cloud. Start by quickly capturing your design intent, for example, a strong promoter driving your favorite gene followed by an eGFP tag. Sketch mode lets you add the sequence later." />
+                    <img class="slideEnd img-responsive imgPadding" src="landing/assets/images/b2.png"
+                         alt="Sketch and Iterate in the cloud. Start by quickly capturing your design intent, for example, a strong promoter driving your favorite gene followed by an eGFP tag. Sketch mode lets you add the sequence later." />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="feature2">
+    <div class="container-fluid collNoPadding">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-4">
+                <h1 class="h3 animate delay">Design with hierarchy so you can focus on the parts that matter</h1>
+                <p class="animate delay">Not all information is needed all of the time. Your insert traditionally takes up the least space in your plasmid map, but it may be the most important part in your design. With Genetic Constructor you can collapse the backbone into a single block and focus on your insert.</p>
+            </div>
+            <div class="col-sm-6 col-xs-10 col-xs-offset-1">
+                <div class="animate" style="transform: translateY(0px)">
+                    <img class="slideStart img-responsive imgPadding" src="landing/assets/images/a1.png"
+                         alt="Design with hierarchy so you can focus on the parts that matter. Not all information is needed all of the time. Your insert traditionally takes up the least of the space in your plasmid map, but it may be the most important part in your design. With Genetic Constructor you can collapse the backbone into a single block and focus on your insert." />
+                    <img class="slideEnd img-responsive imgPadding" src="landing/assets/images/a2.png"
+                         alt="Design with hierarchy so you can focus on the parts that matter. Not all information is needed all of the time. Your insert traditionally takes up the least of the space in your plasmid map, but it may be the most important part in your design. With Genetic Constructor you can collapse the backbone into a single block and focus on your insert." />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="feature3">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 largePadding animate" src="assets/images/interface.png"
+                 class="img-responsive">
+                <img src="landing/assets/images/c1.png" class="img-responsive imgPadding"
+                     alt="Query popular online databases for your favorite genes. Genetic Constructor puts the power of NCBI and iGEM at your fingertips. Search for your favorite gene and explore the results. Drag and drop your final selection directly into your design. All annotations are maintained and converted to our convenient hierarchical structure." />
+                <h1 class="h3">Query popular online databases for your favorite genes</h1>
+                <p>Genetic Constructor puts the power of NCBI and iGEM at your fingertips. Search for your favorite gene and explore the results. Drag and drop your final selection directly into your design. All annotations are maintained and converted to our convenient hierarchical structure.</p>
+            </div>
+            <div class="col-xs-12 col-sm-6 largePadding animate" src="assets/images/interface.png"
+                 class="img-responsive">
+                <img src="landing/assets/images/d1.png" class="img-responsive imgPadding"
+                     alt="Create combinatorial libraries within seconds. Want to test a promoter and a tag library with your favorite gene? With a regular sequence editor this would result in hundreds of files that you have to keep track of. With Genetic Constructor you can easily populate any block with a list of possible sequences. You continue to work with just one design, but you can easily preview any or all combinations of the possible alternatives." />
+                <h1 class="h3">Create combinatorial libraries within seconds</h1>
+                <p>Want to test a promoter library and a tag library with your favorite gene? With a regular sequence editor this would result in hundreds of files that you have to keep track of. With Genetic Constructor you can easily populate any block with a list of possible sequences. You continue to work with just one design, but you can easily preview any or all combinations of the possible alternatives.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FUTURE SECTION -->
+<div id="futureSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-push-4 col-xs-4">
+                <img src="landing/assets/images/small1.png" class="img-responsive imgPadding" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 imgPadding">
+                <h2>COMING SOON</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6">
+                <ul>
+                    <li>
+                        <p>Edit and annotate sequences directly</p>
+                    </li>
+                    <li>
+                        <p>Publish and reuse designs from our growing public collection</p>
+                    </li>
+                    <li>
+                        <p>Share designs privately with individuals or groups</p>
+                    </li>
+                    <li>
+                        <p>Snapshot versions at important decision points in your design process</p>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-xs-6">
+                <ul>
+                    <li>
+                        <p>Revisit previous versions using the automatic version history</p>
+                    </li>
+                    <li>
+                        <p>Speed up common tasks with reusable templates</p>
+                    </li>
+                    <li>
+                        <p>Order synthetic DNA on the fly</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TRY SECTION -->
+<div id="trySectionTop" class="trySectionTop">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class='divider'></div>
+                <h2 class="animate move" style="transform:translateY(50px)">TRY GENETIC CONSTRUCTOR</h2>
+                <p class="animate move" style="transform:translateY(50px)">Like all Autodesk products, Genetic
+                    Constructor is free for academics. We offer a simple annual subscription for everyone else. No
+                    complex tiers, no hidden costs.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="trySectionCards" class="trySectionCards">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class='card1 animate move-card' style="transform:translateY(100px)">
+                    <h5 class='cardTop'>Try the Beta</h5>
+                    <div class='cardBody'>
+                        <h2>EDUCATION</h2>
+                        <h6>Free</h6>
+                        <p>Unlimited access for qualified academics.</p>
+                        <a data-type="register" data-account="free" type="button" class="authAction bigButton" href="homepage/register">Sign Up Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class='card2 animate move-card' style="transform:translateY(50px)">
+                    <h5 class='cardTop'>Free Trial*</h5>
+                    <div class='cardBody'>
+                        <h2>INDIVIDUAL</h2>
+                        <h6>$500</h6>
+                        <p>Annual Subscription</p>
+                        <a data-type="register" data-account="paid" type="button" class="authAction bigButton" href="homepage/register?accountType=paid">Sign
+                            Up Now
+                        </a>
+                        <p class='fontSuperscript'>*No credit card required while in Beta.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class='card3 animate move-card' style="transform:translateY(100px)">
+                    <h5 class='cardTop'>Customized</h5>
+                    <div class='cardBody'>
+                        <h2>ENTERPRISE</h2>
+                        <h6>Flex</h6>
+                        <p>Contact us today to find out more.</p>
+                        <a type="button" class="bigButton"
+                                href="mailto:geneticconstructor@autodesk.com">Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- TEAM SECTION -->
+<div id="teamSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>OUR TEAM</h2>
+                <p class='paddingBottom'>The BioNano Research group at Autodesk is dedicated to developing technology that accelerates scientific progress. We believe that this ambitious mission can only succeed through an open collaboration with our peers in academia and industry. We are committed to aggregating the best ideas and workflows from the life sciences and combining them with Autodesk's deep knowledge and experience delivering the most popular, successful engineering tools on the planet. Our team is composed of leading PhD scientists, experience designers and software developers. Together we are developing the next generation of molecular biology tools!</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 col-xs-offset-3 col-sm-offset-4 col-sm-4">
+                <img src="landing/assets/images/Conny.png" class="imgPadding img-responsive"
+                     style="display: block;  margin-left: auto;  margin-right: auto " />
+                <h5>Conny Scheitz. Scientist</h5>
+                <p class='paddingBottom hidden-xs'>Conny is a cancer and population geneticist as well as a lab automation specialist. In the past, she has worked on bringing cloud labs to life. At Autodesk she is now working towards democratizing biology and giving scientists the next generation tools they need to succeed.</p>
+            </div>
+        </div>
+        <div class="row" style='text-align: left'>
+            <div class="col-xs-6 col-sm-3">
+                <img src="landing/assets/images/Max.png" class="img-responsive imgPadding" />
+                <h5>Maxwell Bates. Software Engineer</h5>
+                <p class='paddingBottom hiddenPhone'>Maxwell studied genetic engineering at UC Berkeley, and has since worked to facilitate experiment automation and the design of biological systems, with an eye toward synthetic biology and biomedicine.</p>
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                <img src="landing/assets/images/Duncan.png" class="img-responsive imgPadding" />
+                <h5>Duncan Meech. Software Engineer</h5>
+                <p class='paddingBottom hiddenPhone'>Duncan is Principal Engineer currently working on our Genetic Constructor application. Previous work has included 2D and 3D graphics systems, flight simulators,medical imaging and video games. A particular area of interest is visualization in the browser domain.</p>
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                <img src="landing/assets/images/Drew.png" class="img-responsive imgPadding" />
+                <h5>Drew Hylbert. Software Engineer</h5>
+                <p class='paddingBottom hiddenPhone'>Drew engineers infrastructure components supporting Autodesk's BioNano research initiatives. He brings over 15 years of experience building scalable, distributed-systems architecture in the consumer internet, finance, and energy spaces to the challenges posed by scientific datasets and workflow heterogeneity within the scientific community.</p>
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                <img src="landing/assets/images/Joe.png" class="img-responsive imgPadding" />
+                <h5>Joe Lachoff. UX Designer</h5>
+                <p class='paddingBottom hiddenPhone'>Joe designs: He does research, writes, sketches, diagrams, prototypes, tests, photographs, and presents. He iterates. He empathizes; synthesizes; dreams and invents. In collaboration with the BioNano team he is working to create software tools for genetic design.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-push-4 col-xs-4">
+                <img src="landing/assets/images/small2.png" class="img-responsive imgPadding" />
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Autodesk Section -->
+<!-- <div id="autodeskSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h2 style="padding-bottom: 30px">THE FUTURE OF MAKING THINGS</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-8 col-xs-offset-2">
+                <div class="youtube-player" data-id="yE-jIzVMLEM"></div>
+            </div>
+        </div>
+    </div>
+</div> -->
+<!-- FOOTER SECTION -->
+<div id="footerSection">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-4 paddingBottom">
+                <div class='line'></div>
+                <a class='footer authAction' data-type="register" data-account="free" href="homepage/register">Create your account</a>
+                <br>
+                <a class='footer authAction' data-type="signin" href="homepage/signin">Sign In</a>
+                <br>
+            </div>
+            <div class="col-xs-12 col-sm-4 paddingBottom">
+                <div class='line'></div>
+                <a class='footer' href="https://geneticconstructor.readme.io/docs" target="_blank">Documentation</a>
+                <br>
+                <a class='footer' href="https://www.autodeskresearch.com" target="_blank">Autodesk Research</a>
+                <br>
+            </div>
+            <div class="col-xs-12 col-sm-4 paddingBottom">
+                <div class='line'></div>
+                <a class='footer' href="https://www.facebook.com/autodeskbionano" target="_blank">Facebook</a>
+                <br>
+                <a class='footer' href="https://twitter.com/adskBioNano" target="_blank">Twitter</a>
+                <br>
+                <a class='footer' href="https://www.youtube.com/channel/UC19GH6wqbQMnOe2fF4DZlZA" target="_blank">YouTube</a>
+                <br>
+                <a class='footer' href="mailto:geneticconstructor@autodesk.com">Email us</a>
+                <br>
+                <a class='footer' href="http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement"
+                   target="_blank">Privacy</a>
+                <br>
+                <a class='footer'>© 2017 Autodesk Research</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-4 paddingBottom">
+                <img src="landing/assets/images/Autodesk.svg" width="150" />
+            </div>
+        </div>
+    </div>
+</div>
+<!-- SCRIPTS -->
+<script src="landing/assets/js/jquery.min.js"></script>
+<script src="landing/bootstrap/js/bootstrap.min.js"></script>
+<script src="landing/assets/js/ie10-viewport-bug-workaround.js"></script>
+<script type="text/javascript" src="https://www.appelsiini.net/download/jquery.viewport.mini.js"></script>
+<script>
+  $(document).ready(function () {
+    // Add scrollspy to <body>
+    $('body').scrollspy({ target: ".navbar", offset: 50 });
+
+    // Add smooth scrolling on all links inside the navbar
+    $("#scrollNavigation a").on('click', function (event) {
+      // Make sure this.hash has a value before overriding default behavior
+      if (this.hash !== "") {
+        // Prevent default anchor click behavior
+        event.preventDefault();
+
+        // Store hash
+        var hash = this.hash;
+
+        // Using jQuery's animate() method to add smooth page scroll
+        // The optional number (800) specifies the number of milliseconds it takes to scroll to the specified area
+        $('html, body').animate({
+          scrollTop: $(hash).offset().top
+        }, 500, function () {
+
+          // Add hash (#) to URL when done scrolling (default click behavior)
+          window.location.hash = hash;
+        });
+      }  // End if
+    });
+
+    //handling for auth buttons
+    //$('.authAction').on('click', function (evt) {});
+
+    //hide the cookie banner if they have accepted it
+    try {
+      var isAccepted = localStorage.getItem('constructor_cookies_accepted');
+      if (isAccepted) {
+        closeCookies(true);
+      }
+    } catch (err) {
+    }
+
+    // Hide all elements for animation
+    $('.animate').css('opacity', '0');
+    $('.animate.delay:in-viewport').each(function (index) {
+      $(this).delay(150 * index).fadeTo(500, 1);
+    });
+  });
+
+  // Animate opacity and moves
+  $(window).scroll(function () {
+    $('.animate.delay:in-viewport').each(function (index) {
+      $(this).delay(150 * index).fadeTo(500, 1);
+    });
+    $('.animate.move:in-viewport').each(function (index) {
+      if ($(this).css('opacity') < 1) {
+        $(this).delay(200 * index).animate({ "opacity": "1" }, 1500);
+        $(this).delay(200 * index).css({
+          "-webkit-transform": "translateY(0px)",
+          "-webkit-transition": "-webkit-transform 1.5s ease-in-out"
+        });
+      }
+    });
+    $('.animate.move-card:in-viewport').each(function (index) {
+      if ($(this).css('opacity') < 1) {
+        if (index != 1) {
+          $(this).delay(250 * index).animate({ "opacity": "1" }, 1500);
+          $(this).delay(250 * index).css({
+            "-webkit-transform": "translateY(50px)",
+            "-webkit-transition": "-webkit-transform 2s ease-in-out"
+          });
+        }
+        else {
+          $(this).delay(250 * index).animate({ "opacity": "1" }, 1500);
+          $(this).delay(250 * index).css({
+            "-webkit-transform": "translateY(0px)",
+            "-webkit-transition": "-webkit-transform 2s ease-in-out"
+          });
+        }
+      }
+    });
+    $('.animate.feature-text:in-viewport').delay(150).fadeTo(1000, 1);
+    $('.animate:not(.delay.move-card.move):in-viewport').fadeTo(500, 1);
+  });
+
+  /* Light YouTube Embeds by @labnol */
+  /* Web: http://labnol.org/?p=27941 */
+  document.addEventListener("DOMContentLoaded",
+        function() {
+            var div, n,
+                v = document.getElementsByClassName("youtube-player");
+            for (n = 0; n < v.length; n++) {
+                div = document.createElement("div");
+                div.setAttribute("data-id", v[n].dataset.id);
+                div.innerHTML = labnolThumb(v[n].dataset.id);
+                div.onclick = labnolIframe;
+                v[n].appendChild(div);
+            }
+        });
+
+    function labnolThumb(id) {
+        var thumb = '<img src="https://i.ytimg.com/vi/ID/hqdefault.jpg">',
+            play = '<div class="play"></div>';
+        return thumb.replace("ID", id) + play;
+    }
+
+    function labnolIframe() {
+        var iframe = document.createElement("iframe");
+        var embed = "https://www.youtube.com/embed/ID?autoplay=1";
+        iframe.setAttribute("src", embed.replace("ID", this.dataset.id));
+        iframe.setAttribute("frameborder", "0");
+        iframe.setAttribute("allowfullscreen", "1");
+        this.parentNode.replaceChild(iframe, this);
+    }
+</script>
+</body>
+</html>

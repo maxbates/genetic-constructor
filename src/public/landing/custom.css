@@ -36,6 +36,16 @@
     padding-bottom: 20px;
 }
 
+.divider
+{
+    border-top: solid 1px rgba(0, 0, 0, 0.5);
+    padding-bottom: 10px;
+    width: 150px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
 body
 {
     overflow-x: hidden;
@@ -94,7 +104,7 @@ h2
     cursor: default;
 }
 
-h3
+h3,.h3
 {
     font-size: 1.5em;
     font-family: 'art-bold';
@@ -144,6 +154,11 @@ p
 #heroText
 {
     width: 100%;
+}
+
+#heroText a:hover
+{
+    text-decoration: none;
 }
 
 .footer, .footer:visited
@@ -199,7 +214,7 @@ p
     padding-top: 10px;
     padding-bottom: 10px;
     background: white;
-    z-index: 1;
+    z-index: 2;
 }
 
 .nav
@@ -234,9 +249,7 @@ p
 
 #valueSection
 {
-    color: var(--white);
-    background: #28253D;
-    opacity: 0.95;
+    color: var(--black);
     text-align: center;
     position: absolute;
     bottom: 0px;
@@ -255,18 +268,18 @@ p
 
 .feature1
 {
-    background-image: url("assets/images/back1.png"), url("assets/images/back2.png");
-    background-size: 50% 100%, 50% 100%;
-    background-position: top left, top right;
+    background-image: url("assets/images/back1.png");
+    background-size: 100% 100%;
+    background-position: top right;
     background-repeat: no-repeat;
-    color: var(--black);
+    color: var(--white);
     padding-top: 120px;
     padding-bottom: 180px;
 }
 
 .feature2
 {
-    background-image: url("assets/images/back3.png");
+    background-image: url("assets/images/back2.png");
     background-size: 100% 100%;
     background-position: top right;
     background-repeat: no-repeat;
@@ -276,14 +289,11 @@ p
 }
 
 .feature3 {
-    background-image: url("assets/images/back4.png"), url("assets/images/back5.png");
-    background-size: 50% 100%, 50% 100% ;
-    background-position: top left, top right;
+    background-image: url("assets/images/back3.png");
+    background-size: 100% 100%;
+    background-position: top right;
     background-repeat: no-repeat;
-    color: var(--black);
-    padding-top: 120px;
-    padding-bottom: 200px;
-    color: var(--black);
+    color: var(--white);
     padding-top: 120px;
     padding-bottom: 180px;
 }
@@ -300,7 +310,6 @@ p
 .trySectionTop
 {
     color: var(--black);
-    background: var(--darkGrey);
     text-align: center;
     padding-top: 100px;
     padding-bottom: 60px;
@@ -308,12 +317,24 @@ p
 
 .trySectionCards
 {
-    background-image: url("assets/images/back6.png"), url("assets/images/back7.png");
-    background-size: 50% 100%, 50% 100%;
-    background-position: top left, top right;
+    background-image: url("assets/images/back4.png");
+    background-size: 100% 100%;
+    background-position: top left;
     background-repeat: no-repeat;
     text-align: center;
     padding-top: 80px;
+    padding-bottom: 180px;
+}
+
+#autodeskSection
+{
+    color: var(--black);
+    background-image: url("assets/images/back3.png");
+    background-size: 100% 100%;
+    background-position: top left;
+    background-repeat: no-repeat;
+    text-align: center;
+    padding-top: 120px;
     padding-bottom: 180px;
 }
 
@@ -330,14 +351,15 @@ p
 {
     color: var(--black);
     background: var(--darkGrey);
-    padding-top: 120px;
-    padding-bottom: 180px;
+    padding-top: 30px;
 }
 
 /* ---------------------- CONTROLS --------------------- */
 
 .bigButton, .bigButton:focus
 {
+    display: block;
+    margin: 0 auto;
     border-radius: 50px;
     font-family: 'art-bold';
     border: none;
@@ -358,6 +380,8 @@ p
     transform: translate3d(0px, -1px, 0px);
     -webkit-transition: 0.2s;
     transition: 0.2s;
+    text-decoration: none;
+    color: var(--black);
 }
 
 .downButton
@@ -437,30 +461,18 @@ p
 
 /* ---------------------- RESPONSIVE --------------------- */
 
+
+@media (max-width:992px)
+{
+    .cardHeader
+    {
+        font-size: 2.0em;
+    }
+}
+
+
 @media (max-width:768px)
 {
-    .feature1
-    {
-        background-image: url("assets/images/back1.png");
-        background-size: 100% 100%;
-        background-position: top left;
-    }
-    .feature2
-    {
-        background-image: none;
-    }
-    .feature3
-    {
-        background-image: url("assets/images/back4.png");
-        background-size: 100% 100%;
-        background-position: top left;
-    }
-    .trySectionCards
-    {
-        background-image: url("assets/images/back7.png");
-        background-size: 100% 100%;
-        background-position: top left;
-    }
     h1
     {
         font-size: 3em;
@@ -471,23 +483,30 @@ p
         font-family: 'art-thin';
         cursor: default;
     }
+        .cardHeader
+    {
+        font-size: 2.5em;
+    }
     #interfaceSection
     {
         padding-top: 60px;
-        padding-bottom: 10px;
+        padding-bottom: 60px;
     }
     .feature1
     {
+        background: var(--placeholder);
         padding-top: 60px;
         padding-bottom: 60px;
     }
     .feature2
     {
+        background-image: none;
         padding-top: 60px;
         padding-bottom: 60px;
     }
     .feature3
     {
+        background: var(--placeholder);
         padding-top: 60px;
         padding-bottom: 60px;
     }
@@ -499,12 +518,13 @@ p
     .trySectionTop
     {
         padding-top: 60px;
-        padding-bottom: 30px;
+        padding-bottom: 60px;
     }
     .trySectionCards
     {
-        padding-top: 60px;
-        padding-bottom: 100px;
+        background: var(--placeholder);
+        padding-top: 0px;
+        padding-bottom: 160px;
     }
     #teamSection
     {
@@ -524,14 +544,66 @@ p
     {
         padding-top: 120px;
     }
-}
-
-
-@media (max-width:992px)
-{
     .card2
     {
         margin-top: 100px;
     }
+}
+
+/* Light YouTube Embeds by @labnol */
+/* Web: http://labnol.org/?p=27941 */
+.youtube-player {
+    position: relative;
+    padding-bottom: 56.23%;
+    /* Use 75% for 4:3 videos */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    background: #000;
+    margin: 5px;
+}
+
+.youtube-player iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: transparent;
+}
+
+.youtube-player img {
+    bottom: 0;
+    display: block;
+    left: 0;
+    margin: auto;
+    max-width: 100%;
+    width: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border: none;
+    height: auto;
+    cursor: pointer;
+    -webkit-transition: .4s all;
+    -moz-transition: .4s all;
+    transition: .4s all;
+}
+
+.youtube-player img:hover {
+    -webkit-filter: brightness(75%);
+}
+
+.youtube-player .play {
+    height: 72px;
+    width: 72px;
+    left: 50%;
+    top: 50%;
+    margin-left: -36px;
+    margin-top: -36px;
+    position: absolute;
+    background: url("//i.imgur.com/TxzC70f.png") no-repeat;
+    cursor: pointer;
 }
 

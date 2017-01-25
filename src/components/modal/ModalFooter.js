@@ -23,13 +23,13 @@ export default function ModalFooter(props) {
     <div className="Modal-footer">
       <div className="Modal-actions">
         {actions.map((action, index) => {
-          const { disabled, text, onClick } = action;
+          const { disabled, text, onClick, ...rest } = action;
           const active = typeof disabled === 'function' ?
             disabled() !== true :
             disabled !== true;
           const classes = `Modal-action${active ? '' : ' disabled'}`;
           return (
-            <a
+            <button
               key={index}
               className={classes}
               onClick={(evt) => {
@@ -37,9 +37,10 @@ export default function ModalFooter(props) {
                   onClick(evt);
                 }
               }}
+              {...rest}
             >
               {text}
-            </a>
+            </button>
           );
         })}
       </div>
