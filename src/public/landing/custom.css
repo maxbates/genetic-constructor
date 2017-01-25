@@ -468,6 +468,11 @@ p
     {
         font-size: 2.0em;
     }
+    .card2
+    {
+        margin-top: 100px;
+        margin-bottom: 50px;
+    }
 }
 
 
@@ -494,7 +499,8 @@ p
     }
     .feature1
     {
-        background: var(--placeholder);
+        background-size: cover;
+        background-position: top left;
         padding-top: 60px;
         padding-bottom: 60px;
     }
@@ -506,7 +512,8 @@ p
     }
     .feature3
     {
-        background: var(--placeholder);
+        background-size: cover;
+        background-position: top center;
         padding-top: 60px;
         padding-bottom: 60px;
     }
@@ -522,7 +529,6 @@ p
     }
     .trySectionCards
     {
-        background: var(--placeholder);
         padding-top: 0px;
         padding-bottom: 160px;
     }
@@ -536,10 +542,6 @@ p
         padding-top: 60px;
         padding-bottom: 60px;
     }
-    .hiddenPhone
-    {
-        display: none;
-    }
     .extraPaddingPhone
     {
         padding-top: 120px;
@@ -547,6 +549,7 @@ p
     .card2
     {
         margin-top: 100px;
+        margin-bottom: 50px;
     }
 }
 
