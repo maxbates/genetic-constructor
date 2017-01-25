@@ -43,6 +43,17 @@ export default class SBOLPicker extends Component {
   };
 
   /**
+   * user clicked on of the symbols identified by the bound id
+   */
+  onClick = (id) => {
+    const { readOnly, onSelect } = this.props;
+    const next = id === 'null' ? null : id;
+    if (!readOnly) {
+      onSelect(next);
+    }
+  };
+
+  /**
    * track mouse down while the picker is expanded
    * @param event
    */
@@ -60,17 +71,6 @@ export default class SBOLPicker extends Component {
     this.setState({
       expanded: false,
     });
-  };
-
-  /**
-   * user clicked on of the symbols identified by the bound id
-   */
-  onClick = (id) => {
-    const { readOnly, onSelect } = this.props;
-    const next = id === 'null' ? null : id;
-    if (!readOnly) {
-      onSelect(next);
-    }
   };
 
   /**
@@ -101,7 +101,7 @@ export default class SBOLPicker extends Component {
           color={'black'}
           symbolName={id}
           key={id}
-          large={true}
+          large={true}//eslint-disable-line react/jsx-boolean-value
         />
       </div>
     );
@@ -121,7 +121,7 @@ export default class SBOLPicker extends Component {
             height="54px"
             color={'black'}
             symbolName={id}
-            large={true}
+            large={true}//eslint-disable-line react/jsx-boolean-value
           />
         </div>
       </div>
@@ -138,7 +138,7 @@ export default class SBOLPicker extends Component {
             const { id } = symbolObj;
             return this.makeSymbol(id);
           })}
-          <div className="arrow"/>
+          <div className="arrow" />
         </div>
       );
     }

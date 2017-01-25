@@ -153,7 +153,7 @@ class InventoryGroupRole extends Component {
                 <RoleSvg
                   width="54px"
                   height="54px"
-                  large={true}
+                  large={true}//eslint-disable-line react/jsx-boolean-value
                   color={current.id === item.id ? 'white' : 'black'}
                   classes={current.id === item.id ? 'active' : null}
                   symbolName={item.id}

@@ -61,12 +61,12 @@ export class InspectorBlock extends Component {
     forceIsConstruct: PropTypes.bool,
   };
 
-  state = {
-    colorSymbolText: 'Color & Symbol',
-  };
-
   static defaultProps = {
     forceIsConstruct: false,
+  };
+
+  state = {
+    colorSymbolText: 'Color & Symbol',
   };
 
   setBlockName = (name) => {
