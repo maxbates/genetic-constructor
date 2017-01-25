@@ -17,9 +17,11 @@
 import chai from 'chai';
 import uuid from 'node-uuid';
 import fetch from 'isomorphic-fetch';
-import Project from '../../src/models/Project';
+import * as projectPersistence from '../../server/data/persistence/projects';
 import * as api from '../../src/middleware/projectFiles';
 import * as s3 from '../../server/data/middleware/s3';
+import { createExampleRollup } from '../_utils/rollup';
+import { testUserId } from '../constants';
 
 const { assert, expect } = chai;
 
@@ -27,12 +29,17 @@ const { assert, expect } = chai;
 
 describe('Middleware', () => {
   describe('Project Files', () => {
-    const projectId = Project.classless().id;
+    const roll = createExampleRollup();
+    const projectId = roll.project.id;
     const namespace = 'someNamespace';
 
     const fileNameRoundtrip = uuid.v4();
     const fileNameAtomic = uuid.v4();
     const fileContents = 'some initial contents';
+
+    before(() => {
+      return projectPersistence.projectWrite(projectId, roll, testUserId);
+    });
 
     it('projectFileWrite() requires projectId, namespace, filename, and contents string', () => {
       expect(() => api.projectFileWrite()).to.throw();
@@ -50,7 +57,13 @@ describe('Middleware', () => {
         .then(resp => resp.text())
         .then(contents => {
           expect(contents).to.equal(fileContents);
-        });
+        })
+      .catch(resp => {
+        return resp.text().then(text => {
+          console.log(text);
+          throw text
+        })
+      })
     });
 
     it('projectFileWrite() should return the latest version, or "-1" in local, and a url', () => {

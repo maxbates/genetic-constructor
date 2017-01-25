@@ -33,7 +33,7 @@ export const projectIdParamAssignment = (req, res, next, id) => {
   const { user } = req;
   const projectId = id;
 
-  logger(`[projectIdParamAssignment] Checking ${projectId} for ${user ? user.uuid : 'null'}`);
+  logger(`[projectIdParamAssignment] Checking ${projectId} for ${user ? user.uuid : 'null'} @ ${req.url}`);
 
   if (projectId && !idRegex().test(projectId)) {
     logger(`[projectIdParamAssignment] projectId ${projectId} invalid @ ${req.url}`);
@@ -51,30 +51,33 @@ export const projectIdParamAssignment = (req, res, next, id) => {
   })
   .catch(err => {
     if (err === errorDoesNotExist) {
-      logger(`[projectIdParamAssignment] projectId ${projectId} does not exist`);
+      logger(`[projectIdParamAssignment] projectId ${projectId} does not exist, continuing...`);
       Object.assign(req, { projectDoesNotExist: true, projectOwner: null });
       return next();
     }
 
     logger('[projectIdParamAssignment] uncaught error checking access');
+    logger(err);
+
     res.status(500).send('error checking project access');
   });
 };
 
 export const ensureReqUserMiddleware = (req, res, next) => {
+  logger('[ensureReqUserMiddleware] checking req.user');
+
   if (!req.user || !req.user.uuid) {
     res.status(401);
-    logger('no user attached by auth middleware @', req.url);
-    next('[ensureReqUserMiddleware] user not attached to request by middleware');
-    return false;
+    logger('[ensureReqUserMiddleware] no user attached by auth middleware @', req.url);
+    next('user not attached');
   }
 
-  return true;
+  next();
 };
 
 //assumes req.projectId, req.user, req.projectOwner (see projectIdParamAssignment)
 export const userOwnsProjectMiddleware = (req, res, next) => {
-  const { user, projectId, projectOwner } = req;
+  const { user, projectId, projectOwner, projectDoesNotExist } = req;
 
   logger(`[userOwnsProjectMiddleware] Checking ${projectId} for ${user ? user.uuid : 'null'} (owner: ${projectOwner})`);
 
@@ -82,13 +85,14 @@ export const userOwnsProjectMiddleware = (req, res, next) => {
     return res.status(400).send(errorNoIdProvided);
   }
 
-  if (!ensureReqUserMiddleware(req, res, next)) {
-    return;
+  if (!user || !user.uuid) {
+    logger('[userOwnsProjectMiddleware] no user attached');
+    return res.status(401).send('no user associated with request');
   }
 
-  invariant(projectOwner, '[userOwnsProjectMiddleware] if req.projectId and req.user, req.projectOwner must be defined');
+  invariant(!projectDoesNotExist || projectOwner, '[userOwnsProjectMiddleware] if req.projectId and req.user and project exists, req.projectOwner must be defined');
 
-  if (projectOwner !== user.uuid) {
+  if (!projectDoesNotExist && projectOwner !== user.uuid) {
     logger(`[userOwnsProjectMiddleware] user ${user.uuid} cannot access ${projectId} (owner: ${projectOwner})`);
     return res.status(403).send(`User does not have access to project ${projectId}`);
   }

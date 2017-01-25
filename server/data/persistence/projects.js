@@ -100,7 +100,12 @@ export const getUserProjectIds = (userId) => {
 
 //get user id of project owner
 export const getProjectOwner = projectId => dbHeadRaw(`projects/${projectId}`)
-  .then(resp => resp.headers.get('Owner'));
+  .then(resp => resp.headers.get('Owner'))
+  .catch(resp => {
+    if (resp.status === 404) {
+      return Promise.reject(errorDoesNotExist);
+    }
+  });
 
 //EXISTS
 
@@ -120,7 +125,7 @@ export const projectExists = projectId => dbHeadRaw(`projects/${projectId}`)
 //true if user owns project
 // reject errorNoPermission if exists and not users
 // reject errorDoesNotExist if does not exist
-export const userOwnsProject = (userId, projectId) => getProjectOwner
+export const userOwnsProject = (userId, projectId) => getProjectOwner(projectId)
     .then((owner) => {
       if (owner === userId) {
         return true;
@@ -128,12 +133,9 @@ export const userOwnsProject = (userId, projectId) => getProjectOwner
       return Promise.reject(errorNoPermission);
     })
     .catch((resp) => {
-      //rethrow
-      if (resp === errorNoPermission) {
-        return Promise.reject(errorNoPermission);
-      }
-      if (resp.status === 404) {
-        return Promise.reject(errorDoesNotExist);
+      //rethrow known errors
+      if (resp === errorNoPermission || resp === errorDoesNotExist) {
+        return Promise.reject(resp);
       }
 
       console.log(`unhandled error checking project permission: ${userId} ${projectId}`);
