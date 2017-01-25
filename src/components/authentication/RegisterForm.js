@@ -106,20 +106,18 @@ export class RegisterForm extends Component {
   }
 
   onFirstName = (evt) => {
-    if (process.env.NODE_ENV !== 'production') {
-      //special handling for 'darwin magic' dummy user, except in production (but allow in QA, where NODE_ENV==='production')
-      if (evt.target.value === 'darwin magic') {
-        this.setState({
-          firstName: 'Charles',
-          lastName: 'Darwin',
-          email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
-          password: 'abc123456',
-          accountType: 'free',
-          captcha: true,
-          legal: true,
-        });
-        return;
-      }
+    //special handling for 'darwin magic' dummy user -- will not pass in production environment since captcha will fail
+    if (evt.target.value === 'darwin magic') {
+      this.setState({
+        firstName: 'Charles',
+        lastName: 'Darwin',
+        email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
+        password: 'abc123456',
+        accountType: 'free',
+        captcha: true,
+        legal: true,
+      });
+      return;
     }
     this.setState({ firstName: evt.target.value });
   };
