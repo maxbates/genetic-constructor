@@ -16,8 +16,7 @@
 
 import express from 'express';
 
-import { ensureReqUserMiddleware } from '../user/utils';
-import { projectIdValidMiddleware, userOwnsProjectMiddleware } from './permissions';
+import { ensureReqUserMiddleware, projectIdValidMiddleware, userOwnsProjectMiddleware } from './permissions';
 import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap
@@ -29,6 +28,14 @@ router.use(projectIdValidMiddleware);
 
 // routes
 
+router.route('/query')
+.post((req, res, next) => {
+  const query = req.body;
+  return commons.commonsQuery(query)
+  .then(results => res.json(results))
+  .catch(next);
+});
+
 router.route('/:projectId/:version?')
 // get the published project, @ version, or latest
 .get(
@@ -38,7 +45,7 @@ router.route('/:projectId/:version?')
 
     //request all versions
     if (version === 'versions') {
-      return commons.listProjectPublicVersions(projectId)
+      return commons.commonsRetrieveVersions(projectId)
       .then(results => res.json(results))
       .catch(next);
     }
@@ -52,8 +59,11 @@ router.route('/:projectId/:version?')
 .post(
   userOwnsProjectMiddleware,
   (req, res, next) => {
-    const { projectId, version } = req;
-    commons.projectPublish(projectId, version)
+    const { user, projectId, version } = req;
+
+    //todo - differentiate between publishing new, and publishing existing version
+
+    commons.commonsPublish(projectId, user.uuid, version, req.body)
     .then(info => res.json(info))
     .catch(next);
   })
@@ -62,8 +72,8 @@ router.route('/:projectId/:version?')
 .delete(
   userOwnsProjectMiddleware,
   (req, res, next) => {
-    const { projectId, version } = req;
-    commons.projectUnpublish(projectId, version)
+    const { user, projectId, version } = req;
+    commons.commonsUnpublish(projectId, user.uuid, version)
     .then(info => res.json(info))
     .catch(next);
   });

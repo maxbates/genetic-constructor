@@ -24,9 +24,19 @@ import debug from 'debug';
 
 import { id as idRegex } from '../../src/utils/regex';
 import { errorDoesNotExist, errorInvalidId, errorNoIdProvided, errorNoPermission } from '../utils/errors';
-import { userOwnsProject } from './persistence/projects';
+import { getProjectOwner } from './persistence/projects';
 
 const logger = debug('constructor:permissions');
+
+export const ensureReqUserMiddleware = (req, res, next) => {
+  if (!req.user || !req.user.uuid) {
+    res.status(401);
+    logger('no user attached by auth middleware @', req.url);
+    next('[userOwnsProjectMiddleware] user not attached to request by middleware');
+    return false;
+  }
+  return true;
+};
 
 export const projectIdValidMiddleware = (req, res, next) => {
   const { projectId } = req.params;
@@ -48,17 +58,14 @@ export const projectIdValidMiddleware = (req, res, next) => {
   return true;
 };
 
+//assigns req.projectDoesNotExist
 export const userOwnsProjectMiddleware = (req, res, next) => {
   const { user } = req;
   const { projectId } = req.params;
 
   logger(`[projectPermissionMiddleware] Checking ${projectId} for ${user ? user.uuid : 'null'}`);
 
-  //in case havent already checked for user on request
-  if (!user || !user.uuid) {
-    res.status(401);
-    logger('no user attached by auth middleware @', req.url);
-    next('[userOwnsProjectMiddleware] user not attached to request by middleware');
+  if (!ensureReqUserMiddleware(req, res, next)) {
     return;
   }
 
@@ -66,9 +73,16 @@ export const userOwnsProjectMiddleware = (req, res, next) => {
     return;
   }
 
-  userOwnsProject(user.uuid, projectId)
-  .then(() => {
-    logger(`[projectPermissionMiddleware] user ${user.uuid} owns project ${projectId}`);
+  getProjectOwner(projectId)
+  .then((owner) => {
+    Object.assign(req, { projectOwner: owner });
+    logger(`[projectPermissionMiddleware] user ${owner} owns project ${projectId} (requested by ${user.uuid})`);
+
+    if (user.uuid !== owner) {
+      logger(`[projectPermissionMiddleware] user ${user.uuid} cannot access ${projectId}`);
+      return res.status(403).send(`User does not have access to project ${projectId}`);
+    }
+
     next();
   })
   .catch((err) => {
@@ -77,11 +91,6 @@ export const userOwnsProjectMiddleware = (req, res, next) => {
       logger(`[projectPermissionMiddleware] project does not exist (${projectId})`);
       Object.assign(req, { projectDoesNotExist: true });
       return next();
-    }
-
-    if (err === errorNoPermission) {
-      logger(`[projectPermissionMiddleware] user ${user.uuid} cannot access ${projectId}`);
-      return res.status(403).send(`User does not have access to project ${projectId}`);
     }
 
     logger('project permission check error');

@@ -16,7 +16,7 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 
-import { ensureReqUserMiddleware } from '../user/utils';
+import { ensureReqUserMiddleware } from '../data/permissions';
 import errorHandlingMiddleware from '../utils/errorHandlingMiddleware';
 import { errorDoesNotExist } from '../utils/errors';
 import extensionApiRouter from './apiRouter';

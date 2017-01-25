@@ -98,6 +98,10 @@ export const getUserProjectIds = (userId) => {
     .then(projects => projects.map(project => project.project.id));
 };
 
+//get user id of project owner
+export const getProjectOwner = projectId => dbHeadRaw(`projects/${projectId}`)
+  .then(resp => resp.headers.get('Owner'));
+
 //EXISTS
 
 //resolves to latest version
@@ -113,12 +117,11 @@ export const projectExists = projectId => dbHeadRaw(`projects/${projectId}`)
     });
 
 //check access to a particular project
-//true if user owns peroject
+//true if user owns project
 // reject errorNoPermission if exists and not users
 // reject errorDoesNotExist if does not exist
-export const userOwnsProject = (userId, projectId) => dbHeadRaw(`projects/${projectId}`)
-    .then((resp) => {
-      const owner = resp.headers.get('Owner');
+export const userOwnsProject = (userId, projectId) => getProjectOwner
+    .then((owner) => {
       if (owner === userId) {
         return true;
       }

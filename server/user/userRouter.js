@@ -17,7 +17,8 @@ import bodyParser from 'body-parser';
 import express from 'express';
 
 import updateUserHandler, { loginHandler } from './updateUserHandler';
-import { ensureReqUserMiddleware, getConfigFromUser, pruneUserObject } from './utils';
+import { getConfigFromUser, pruneUserObject } from './utils';
+import { ensureReqUserMiddleware } from '../data/permissions';
 
 export const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json();

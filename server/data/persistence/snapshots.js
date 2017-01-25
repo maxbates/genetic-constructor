@@ -35,7 +35,7 @@ const transformDbVersion = result => ({
 export const SNAPSHOT_TYPE_USER = 'SNAPSHOT_USER';
 export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
 
-export const SNAPSHOT_TAG_PUBLIC = 'SNAPSHOT_PUBLIC';
+export const SNAPSHOT_TAG_PUBLIC = 'SNAPSHOT_COMMONS';
 
 export const defaultMessage = 'Project Snapshot';
 

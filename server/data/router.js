@@ -16,9 +16,8 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 
-import { ensureReqUserMiddleware } from '../user/utils';
 import { errorDoesNotExist, errorInvalidModel, errorInvalidRoute } from '../utils/errors';
-import { userOwnsProjectMiddleware } from './permissions';
+import { ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
 import * as blockPersistence from './persistence/blocks';
 import * as projectVersions from './persistence/projectVersions';
 import * as projectPersistence from './persistence/projects';

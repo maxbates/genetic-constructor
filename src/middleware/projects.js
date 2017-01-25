@@ -15,6 +15,7 @@
  */
 import invariant from 'invariant';
 
+import Rollup from '../models/Rollup';
 import { noteFailure, noteSave } from '../store/saveState';
 import { getBlockContents } from './querying';
 import { headersDelete, headersGet, headersPost } from './utils/headers';
@@ -49,14 +50,15 @@ export const loadProject = (projectId) => {
     });
 };
 
-//expects a rollup
+//Save project
+//expects a rollup, which is validated
 //autosave
 //returns the commit with version, message, or null if no need to save
 //resolves to null if the project has not changed
 export const saveProject = (projectId, rollup) => {
   invariant(projectId, 'Project ID required to snapshot');
   invariant(rollup, 'Rollup is required to save');
-  invariant(rollup.project && typeof rollup.blocks === 'object', 'rollup in wrong form');
+  Rollup.validate(rollup, true, true);
 
   const url = dataApiPath(`projects/${projectId}`);
   const stringified = JSON.stringify(rollup);

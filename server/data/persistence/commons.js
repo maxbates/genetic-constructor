@@ -25,8 +25,6 @@ import { errorDoesNotExist } from '../../utils/errors';
 
 const logger = debug('constructor:data:persistence:commons');
 
-export const TAG_PUBLISHED = 'TAG_PUBLISHED';
-
 //NB - mutates the json directly
 export const lockProjectDeep = (roll) => {
   //freeze project
@@ -38,32 +36,43 @@ export const lockProjectDeep = (roll) => {
 };
 
 export const checkProjectPublic = (projectId, version) => {
-
+  //todo
 };
 
-export const listProjectPublicVersions = (projectId) => {
+export const commonsQuery = (query = {}) => {
+  //todo - query snapshots with public tag
+};
+
+export const commonsRetrieveVersions = (projectId) => {
   //todo
 };
 
 export const commonsRetrieve = (projectId, version) => {
   if (version) {
-    return projectVersions.projectVersionGet(projectId, version);
+    return projectVersions.projectVersionGet(projectId, version)
+    .then(lockProjectDeep);
   }
+
+  //otherwise, get latest
+
+  //todo - handle no permissions, version doesnt exist, project doesnt exist
 
   //todo - get latest published
 };
 
 // Publish a project (create a public snapshot)
-// version -> assert exists and mark public
-// !version -> create public snapshot
-export const projectPublish = (projectId, version) => {
+// version -> assert exists and mark public, body = snapshot info
+// !version -> create public snapshot, body = rollup
+export const commonsPublish = (projectId, userId, version, body) => {
   //todo
+
+  const publicTag = snapshots.SNAPSHOT_TAG_PUBLIC;
 };
 
 // Unpublish a project (mark snapshot as non-public, do not delete)
 // version -> should just mark as non-public, not remove the snapshot
 // !version -> remove public from all snapshots
-export const projectUnpublish = (projectId, version) => {
+export const commonsUnpublish = (projectId, userId, version) => {
   //todo
 };
 
