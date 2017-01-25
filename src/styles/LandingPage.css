@@ -21,8 +21,8 @@
     justify-content: center;
     color: var(--colors-black);
     text-align: center;
-    padding-bottom: 2em;
-    font-size: 4em;
-    font-family: var(--font-family-base);
+    padding-bottom: 1em;
+    font-size: 6em;
+    font-family: ArtifaktElementLight,sans-serif;
   }
 }
