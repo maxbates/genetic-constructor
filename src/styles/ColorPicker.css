@@ -27,15 +27,14 @@
     position: relative;
     z-index: 1;
     flex-shrink: 0;
-    box-sizing: border-box;
-    border: 2px solid transparent;
+    position: relative;
   }
 
   .dropdown {
     position: absolute;
     padding: 4px 0;
-    left: -2px;
-    top: 64px;
+    left: -1px;
+    top: 68px;
     width: 258px;
     background-color: var(--colors-nearlyBlack);
     display: flex;
@@ -49,7 +48,7 @@
       background-color: var(--colors-nearlyBlack);
       position: absolute;
       transform: rotate(45deg);
-      left: 15px;
+      left: 17px;
       top: -10px;
     }
   }
