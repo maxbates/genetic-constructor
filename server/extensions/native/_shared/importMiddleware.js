@@ -258,7 +258,7 @@ export function mergeRollupMiddleware(req, res, next) {
         .then(() => roll);
     })
     .then((roll) => {
-      logger(`project written, import complete (${projectId}`);
+      logger(`project written, import complete (${projectId})`);
 
       //if we did a conversion, we don't want a project ID on the blocks
       if (conversion) {
