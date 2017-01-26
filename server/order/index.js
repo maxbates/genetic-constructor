@@ -20,7 +20,7 @@ import { merge } from 'lodash';
 import Order from '../../src/models/Order';
 import saveCombinations from '../../src/utils/generators/orderConstructs';
 import { pruneUserObject } from '../user/utils';
-import { userOwnsProjectMiddleware } from './../data/permissions';
+import { projectIdParamAssignment, userOwnsProjectMiddleware } from './../data/permissions';
 import * as orderPersistence from './../data/persistence/orders';
 import * as projectVersions from './../data/persistence/projectVersions';
 import * as projectPersistence from './../data/persistence/projects';
@@ -33,10 +33,7 @@ const router = express.Router(); //eslint-disable-line new-cap
 const logger = debug('constructor:order');
 
 //in theory, we could get rid of this part of the route, and just assign the projectID basic on the project that is posted
-router.param('projectId', (req, res, next, id) => {
-  Object.assign(req, { projectId: id });
-  next();
-});
+router.param('projectId', projectIdParamAssignment);
 
 const validateOrderMiddleware = (req, res, next) => {
   const { user } = req;

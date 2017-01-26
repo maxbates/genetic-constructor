@@ -79,7 +79,11 @@ export const ensureReqUserMiddleware = (req, res, next) => {
 export const userOwnsProjectMiddleware = (req, res, next) => {
   const { user, projectId, projectOwner, projectDoesNotExist } = req;
 
-  logger(`[userOwnsProjectMiddleware] Checking ${projectId} for ${user ? user.uuid : 'null'} (owner: ${projectOwner})`);
+  logger(`[userOwnsProjectMiddleware]
+  Checking project: ${projectId}
+  User: ${user ? user.uuid : 'null'}
+  exists: ${projectDoesNotExist}
+  owner: ${projectOwner}`);
 
   if (!projectId) {
     return res.status(400).send(errorNoIdProvided);
@@ -90,7 +94,8 @@ export const userOwnsProjectMiddleware = (req, res, next) => {
     return res.status(401).send('no user associated with request');
   }
 
-  invariant(!projectDoesNotExist || projectOwner, '[userOwnsProjectMiddleware] if req.projectId and req.user and project exists, req.projectOwner must be defined');
+  //if you hit this, you didnt set req params properly to use this function
+  invariant(projectDoesNotExist || projectOwner, '[userOwnsProjectMiddleware] if req.projectId and req.user and project exists, req.projectOwner must be defined');
 
   if (!projectDoesNotExist && projectOwner !== user.uuid) {
     logger(`[userOwnsProjectMiddleware] user ${user.uuid} cannot access ${projectId} (owner: ${projectOwner})`);

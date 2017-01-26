@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import fetch from 'isomorphic-fetch';
 
 /**
@@ -22,12 +22,21 @@ import fetch from 'isomorphic-fetch';
  */
 export default function rejectingFetch(...args) {
   return fetch(...args)
-    .then((resp) => {
+  .then((resp) => {
+    if (process.env.NODE_ENV === 'test') {
       if (resp.status >= 400) {
-        return Promise.reject(resp);
+        //in test, log the error, its annoying to explicitly catch to log it since often returned
+        resp.clone().text().then(text => {
+          console.log(text); //eslint-disable-line no-console
+        });
       }
-      return resp;
-    });
+    }
+
+    if (resp.status >= 400) {
+      return Promise.reject(resp);
+    }
+    return resp;
+  });
 }
 
 export { fetch };

@@ -37,9 +37,7 @@ describe('Middleware', () => {
     const fileNameAtomic = uuid.v4();
     const fileContents = 'some initial contents';
 
-    before(() => {
-      return projectPersistence.projectWrite(projectId, roll, testUserId);
-    });
+    before(() => projectPersistence.projectWrite(projectId, roll, testUserId));
 
     it('projectFileWrite() requires projectId, namespace, filename, and contents string', () => {
       expect(() => api.projectFileWrite()).to.throw();
