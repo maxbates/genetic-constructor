@@ -16,13 +16,13 @@
 
 import express from 'express';
 
-import { ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
+import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
 import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
 // check user and project Id valid
-
+router.param('projectId', projectIdParamAssignment);
 router.use(ensureReqUserMiddleware);
 
 // routes

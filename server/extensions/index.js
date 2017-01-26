@@ -22,7 +22,14 @@ import { errorDoesNotExist } from '../utils/errors';
 import extensionApiRouter from './apiRouter';
 import { getExtensionInternalPath } from './loadExtension';
 import { manifestIsClient, manifestIsServer } from './manifestUtils';
-import { checkClientExtensionFilePath, checkExtensionExistsMiddleware, checkExtensionIsClientMiddleware, checkUserExtensionAccess, checkUserExtensionAccessMiddleware, checkUserExtensionActive } from './middlewareChecks';
+import {
+  checkClientExtensionFilePath,
+  checkExtensionExistsMiddleware,
+  checkExtensionIsClientMiddleware,
+  checkUserExtensionAccess,
+  checkUserExtensionAccessMiddleware,
+  checkUserExtensionActive,
+} from './middlewareChecks';
 import csvRouter from './native/csv/index';
 import fastaRouter from './native/fasta/index';
 import genbankRouter from './native/genbank/index';

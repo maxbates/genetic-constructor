@@ -1,7 +1,7 @@
 import express from 'express';
 import invariant from 'invariant';
 
-import { userOwnsProjectMiddleware } from '../../../../server/data/permissions';
+import { projectIdParamAssignment, userOwnsProjectMiddleware } from '../../../../server/data/permissions';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as sequences from '../../../../server/data/persistence/sequence';
 import { errorDoesNotExist } from '../../../../server/utils/errors';
@@ -20,6 +20,9 @@ const createFilePath = (fileName) => {
 
 //create the router
 const router = express.Router(); //eslint-disable-line new-cap
+
+//assigns req.projectId / req.projectDoesNotExist / req.projectOwner
+router.param('projectId', projectIdParamAssignment);
 
 //route to download files
 router.get('/file/:fileId', (req, res, next) => {

@@ -27,7 +27,7 @@ import { errorInvalidId, errorDoesNotExist, errorNoIdProvided } from '../utils/e
 import * as projectPersistence from './persistence/projects';
 import { id as idRegex } from '../../src/utils/regex';
 
-const logger = debug('constructor:permissions');
+const logger = debug('constructor:data:permissions');
 
 export const projectIdParamAssignment = (req, res, next, id) => {
   const { user } = req;
@@ -67,9 +67,8 @@ export const ensureReqUserMiddleware = (req, res, next) => {
   logger('[ensureReqUserMiddleware] checking req.user');
 
   if (!req.user || !req.user.uuid) {
-    res.status(401);
     logger('[ensureReqUserMiddleware] no user attached by auth middleware @', req.url);
-    next('user not attached');
+    return res.status(401).send('no user associated with request');
   }
 
   next();
@@ -93,6 +92,9 @@ export const userOwnsProjectMiddleware = (req, res, next) => {
     logger('[userOwnsProjectMiddleware] no user attached');
     return res.status(401).send('no user associated with request');
   }
+
+  //todo - instead of throwing, lets just run the query and assignment here
+  //todo - can we just look at req.params.projectId and do it that way? is that safe?
 
   //if you hit this, you didnt set req params properly to use this function
   invariant(projectDoesNotExist || projectOwner, '[userOwnsProjectMiddleware] if req.projectId and req.user and project exists, req.projectOwner must be defined');

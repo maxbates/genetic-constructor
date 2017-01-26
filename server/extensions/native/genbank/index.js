@@ -9,7 +9,7 @@ import Block from '../../../../src/models/Block';
 import Project from '../../../../src/models/Project';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as fileSystem from '../../../data/middleware/fileSystem';
-import { userOwnsProjectMiddleware } from '../../../data/permissions';
+import { projectIdParamAssignment, userOwnsProjectMiddleware } from '../../../data/permissions';
 import * as projectPesistence from '../../../data/persistence/projects';
 import * as sequencePersistence from '../../../data/persistence/sequence';
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
@@ -35,10 +35,8 @@ const router = express.Router(); //eslint-disable-line new-cap
 
 const formParser = bodyParser.urlencoded({ extended: true });
 
-router.param('projectId', (req, res, next, id) => {
-  Object.assign(req, { projectId: id });
-  next();
-});
+//assigns req.projectId / req.projectDoesNotExist / req.projectOwner
+router.param('projectId', projectIdParamAssignment);
 
 /***** FILES ******/
 
