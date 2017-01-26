@@ -488,7 +488,7 @@ export default class Layout {
       this.banner.set({
         fill: this.baseColor,
         stroke: this.baseColor,
-        bounds: new Box2D(this.insetX, this.insetY, this.sceneGraph.availableWidth - this.insetX, kT.bannerHeight),
+        bounds: new Box2D(this.insetX, this.insetY, kT.bannerHeight, kT.bannerHeight),
       });
     }
   }
@@ -506,7 +506,6 @@ export default class Layout {
           dataAttribute: { name: 'nodetype', value: 'construct-title' },
           sg: this.sceneGraph,
           hoverClass: 'inline-editor-hover-title',
-          textIndent: 4,
         }, kT.titleAppearance));
         this.sceneGraph.root.appendChild(this.titleNode);
       }
@@ -525,7 +524,7 @@ export default class Layout {
       this.titleNode.set({
         text,
         color: this.baseColor,
-        bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, this.sceneGraph.availableWidth - this.insetX - kT.rightPad, kT.titleH),
+        bounds: new Box2D(this.insetX + kT.titleX, this.insetY + kT.titleY, kT.titleW, kT.titleH),
         dataAttribute: { name: 'construct-title', value: text },
       });
     }

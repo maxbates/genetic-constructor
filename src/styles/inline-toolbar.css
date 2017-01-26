@@ -1,0 +1,19 @@
+@import './variables.css';
+
+.inline-toolbar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  .item {
+    margin-left: 0.5rem;
+    width: 1.5em;
+    height: 1.5em;
+    background-color: red;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+

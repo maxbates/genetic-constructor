@@ -33,6 +33,7 @@ import '../../../styles/inline-editor.css';
 import SceneGraph2D from '../scenegraph2d/scenegraph2d';
 import UserInterface from './constructvieweruserinterface';
 import Layout from './layout';
+import InlineToolbar from '../../../components/toolbars/inline-toolbar';
 
 // static hash for matching viewers to constructs
 const idToViewer = {};
@@ -596,6 +597,8 @@ export class ConstructViewer extends Component {
    * only visible on templates that are not part of the sample(s) project
    */
   orderButton() {
+    return null;
+
     if (this.props.construct.isTemplate() && !this.isSampleProject()) {
       const canOrderFromEGF = this.props.construct.components.every((blockId) => {
         const block = this.props.blocks[blockId];
@@ -655,6 +658,14 @@ export class ConstructViewer extends Component {
     );
   }
 
+  toolbar() {
+    return (
+      <div className="constructviewer-toolbar-container">
+        <InlineToolbar />
+      </div>
+    )
+  }
+
   /**
    * render the component, the scene graph will render later when componentDidUpdate is called
    */
@@ -669,6 +680,7 @@ export class ConstructViewer extends Component {
           <div className="sceneGraph" />
         </div>
         {this.orderButton()}
+        {this.toolbar()}
         {this.lockIcon()}
       </div>
     );

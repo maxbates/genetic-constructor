@@ -16,8 +16,11 @@ limitations under the License.
 // height of blocks
 const blockH = 30;
 // width of title
-const titleW = 200;
-const titleH = 40;
+const titleW = 400;
+const titleH = 30;
+// position of title
+const titleX = 34;
+const titleY = 1;
 // total height of each row
 const rowH = 60;
 // row header bar height
@@ -34,7 +37,7 @@ const contextDotsH = 18;
 // width of condensed text blocks
 const condensedText = 40;
 // height of banner bar above construct name
-const bannerHeight = 18;
+const bannerHeight = 30;
 // inset of layout in graph
 const insetX = 0;
 const insetY = 0;
@@ -42,7 +45,7 @@ const insetY = 0;
 const nestedInsetX = 20;
 const nestedInsetY = 20;
 // font size
-const titleFontSize = '20px';
+const titleFontSize = '16px';
 const blockFontSize = '12px';
 // background
 const background = 'rgb(52, 57, 77)';
@@ -82,6 +85,8 @@ export default {
   contextDotsH,
   titleW,
   titleH,
+  titleX,
+  titleY,
   rowH,
   rowBarH,
   rowBarW,

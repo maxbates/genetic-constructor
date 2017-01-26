@@ -91,6 +91,7 @@
   width: calc(100% - 3rem);
   background: transparent;
   position: relative;
+  border-top: 1px solid gray;
 
   .lockIcon {
     position: absolute;

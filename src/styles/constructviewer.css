@@ -24,3 +24,11 @@
   }
 }
 
+.constructviewer-toolbar-container {
+  position: absolute;
+  right: 0px;
+  top: 1px;
+  background-color: lightgray;
+  display: inline-flex;
+}
+
