@@ -16,7 +16,7 @@
 import express from 'express';
 
 import uuid from 'uuid';
-import { userOwnsProjectMiddleware } from './permissions';
+import { projectIdParamAssignment, userOwnsProjectMiddleware } from './permissions';
 
 import {
   errorDoesNotExist,
@@ -27,6 +27,8 @@ import * as projectPersistence from './persistence/projects';
 import Block from '../../src/models/Block';
 
 const router = express.Router(); //eslint-disable-line new-cap
+
+router.param('projectId', projectIdParamAssignment);
 
 router.route('/savecomponent/:projectId?')
   .all(userOwnsProjectMiddleware)

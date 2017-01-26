@@ -45,7 +45,6 @@ router.use(ensureReqUserMiddleware);
 
 /******** PARAMS ***********/
 
-//assigns req.projectId / req.projectDoesNotExist / req.projectOwner
 router.param('projectId', projectIdParamAssignment);
 
 router.param('blockId', (req, res, next, id) => {
