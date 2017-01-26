@@ -16,7 +16,7 @@ limitations under the License.
 // height of blocks
 const blockH = 30;
 // width of title
-const titleW = 400;
+const titleW = 500;
 const titleH = 30;
 // position of title
 const titleX = 34;

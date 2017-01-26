@@ -488,9 +488,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
   getTitleEditorBoundsAndTarget() {
     const target = this.layout.titleNode.el;
     const bounds = new Box2D(target.getBoundingClientRect());
-    const aabb = this.layout.getBlocksAABB();
-    bounds.width = Math.min(this.layout.titleNodeTextWidth, aabb.width);
-    bounds.width = Math.max(bounds.width, this.layout.sceneGraph.availableWidth / 2);
     bounds.top += 4;
     bounds.height -= 8;
     bounds.x -= 3;

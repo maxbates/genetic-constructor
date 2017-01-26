@@ -514,12 +514,11 @@ export default class Layout {
       // to indicate template if appropriate
       let text = this.construct.getName('New Construct');
       if (this.construct.isTemplate()) {
-        text += '<span style="color:gray">&nbsp;Template</span>';
+        text += '<span class="extra" style="color:gray">&nbsp;Template</span>';
       }
       if (this.isAuthoring()) {
-        text += '<span style="color:gray">&nbsp;(Authoring)</span>';
+        text += '<span class="extra" style="color:gray">&nbsp;(Authoring)</span>';
       }
-      this.titleNodeTextWidth = this.titleNode.measureText(text).x + kT.textPad;
 
       this.titleNode.set({
         text,
