@@ -25,12 +25,15 @@ const router = express.Router(); //eslint-disable-line new-cap
 
 //NB - this route is for a particular project, permissions have already been checked for project... querying across projects would need to be separate to avoid permissions issues
 
+router.param('version', (req, res, next, id) => {
+  Object.assign(req, { version: id });
+  next();
+});
+
 router.route('/:version?')
   .get((req, res, next) => {
     //pass the version you want, otherwise send commit log
-    const { projectId, projectDoesNotExist } = req;
-    const { version } = req.params;
-    const { tags } = req.query;
+    const { projectId, projectDoesNotExist, version } = req;
 
     if (projectDoesNotExist === true) {
       return res.status(404).send(errorDoesNotExist);
@@ -41,11 +44,8 @@ router.route('/:version?')
         .then(snapshot => res.status(200).json(snapshot))
         .catch(err => next(err));
     } else {
-      snapshots.snapshotQuery(tags, projectId)
-        .then(log => {
-          //no need to filter, since have already ensure the user owns the project
-          res.status(200).json(log);
-        })
+      snapshots.snapshotList(projectId)
+        .then(log => res.status(200).json(log))
         .catch((err) => {
           //return 200 if project exists (implicit, due to prior middleware) but no snapshots found
           if (err === errorDoesNotExist) {
@@ -55,12 +55,14 @@ router.route('/:version?')
         });
     }
   })
+
+  //todo - separate post (specific version) and put (with rollup)
+
   .post((req, res, next) => {
     //you can POST a field 'message' for the commit, and an object of 'tags'
     //can also post a field 'rollup' for save a new rollup for the commit
     //receive the version
-    const { user, projectId, projectDoesNotExist } = req;
-    const { version } = req.params;
+    const { user, projectId, projectDoesNotExist, version } = req;
     const { message, rollup: roll, tags } = req.body;
 
     if (projectDoesNotExist && !roll) {

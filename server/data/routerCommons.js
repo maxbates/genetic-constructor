@@ -72,6 +72,7 @@ router.route('/:projectId/:version?')
     const { user, projectId } = req;
     const roll = req.body;
 
+    res.status(501).send('todo');
     //todo - write, snapshot, and publish
   })
 

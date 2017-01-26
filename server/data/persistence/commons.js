@@ -25,6 +25,8 @@ import { errorDoesNotExist } from '../../utils/errors';
 
 const logger = debug('constructor:data:persistence:commons');
 
+export const COMMONS_TAG = 'COMMONS_TAG';
+
 //NB - mutates the json directly
 export const lockProjectDeep = (roll) => {
   //freeze project

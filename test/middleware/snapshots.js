@@ -46,7 +46,7 @@ describe('Middleware', () => {
     });
 
     it('snapshotList() on project with no snapshots gets 200', () => {
-      return api.snapshotList(roll.project.id)
+      return api.snapshotList(projectId)
         .then(versions => {
           expect(versions.length).to.equal(0);
         });
@@ -123,10 +123,6 @@ describe('Middleware', () => {
     });
 
     it('snapshotList() only queries snapshots you have access to', () => {
-      throw new Error('todo');
-    });
-
-    it('snapshot() accepts tags, snapshotList() can filter on tags', () => {
       throw new Error('todo');
     });
   });

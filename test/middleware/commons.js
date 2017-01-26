@@ -17,7 +17,7 @@ import { assert, expect } from 'chai';
 import uuid from 'uuid';
 import _ from 'lodash';
 
-import * as api from '../../src/middleware/commons';
+import * as commons from '../../src/middleware/commons';
 import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import * as snapshots from '../../server/data/persistence/snapshots';
@@ -52,7 +52,7 @@ describe('middleware', () => {
     let rollPublic3;
     let snapshotPublic3;
 
-    before(async() => {
+    before(async () => {
       //write the projects
       rollOtherPublic = (await projectPersistence.projectWrite(rollOtherPublic.project.id, rollOtherPublic, otherUserId)).data;
       rollPrivate = (await projectPersistence.projectWrite(rollPrivate.project.id, rollPrivate, testUserId)).data;
@@ -65,7 +65,7 @@ describe('middleware', () => {
         otherUserId,
         rollOtherPublic.project.version,
         'Another users snapshot!',
-        { [snapshots.SNAPSHOT_TAG_PUBLIC]: true },
+        { [commons.COMMONS_TAG]: true },
         snapshots.SNAPSHOT_TYPE_PUBLISH,
       );
 
@@ -80,7 +80,7 @@ describe('middleware', () => {
         testUserId,
         rollPublic1.project.version,
         undefined,
-        { [snapshots.SNAPSHOT_TAG_PUBLIC]: true },
+        { [commons.COMMONS_TAG]: true },
       );
 
       snapshotPublic2 = await snapshots.snapshotWrite(
@@ -88,7 +88,7 @@ describe('middleware', () => {
         testUserId,
         rollPublic2.project.version,
         'Some message',
-        { [snapshots.SNAPSHOT_TAG_PUBLIC]: true },
+        { [commons.COMMONS_TAG]: true },
         snapshots.SNAPSHOT_TYPE_PUBLISH,
       );
 

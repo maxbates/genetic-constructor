@@ -37,8 +37,6 @@ export const SNAPSHOT_TYPE_USER = 'SNAPSHOT_USER';
 export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
 export const SNAPSHOT_TYPE_PUBLISH = 'SNAPSHOT_PUBLISH';
 
-export const SNAPSHOT_TAG_PUBLIC = 'SNAPSHOT_TAG_COMMONS';
-
 export const defaultMessage = 'Project Snapshot';
 
 export const snapshotQuery = (tags = {}, projectId) => {
@@ -63,7 +61,7 @@ export const snapshotExists = (projectId, version) => {
   const passedVersion = version || version === 0;
   logger(`[snapshotExists] ${projectId} @ ${version}`);
 
-  return dbHeadRaw(`snapshots/${projectId}${passedVersion ? `?projectVersion=${version}`: ''}`)
+  return dbHeadRaw(`snapshots/${projectId}${passedVersion ? `?projectVersion=${version}` : ''}`)
   .then(resp => resp.headers.get('Latest-Snapshot'));
 };
 
