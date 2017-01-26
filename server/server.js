@@ -27,7 +27,7 @@ import pkg from '../package.json';
 import dataRouter from './data/router';
 import extensionsRouter from './extensions/index';
 import checkUserSetup from './onboarding/userSetup';
-import orderRouter from './order/index';
+import orderRouter from './order/router';
 import reportRouter from './report/index';
 import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
 import { registrationHandler } from './user/updateUserHandler';
