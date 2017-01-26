@@ -203,7 +203,7 @@ User ${user.uuid}
   })
   .then(orderResponse =>
     //check if we have a snapshot, create if we dont / merge if do
-    snapshots.snapshotGet(projectId, user.uuid, projectVersion)
+    snapshots.snapshotGet(projectId, projectVersion)
     .catch(err =>
       //assume the snapshot doesnt exist, and we want to create a new one
       null)

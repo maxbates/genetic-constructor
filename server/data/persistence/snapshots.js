@@ -33,8 +33,6 @@ const transformDbVersion = result => ({
   owner: result.owner,
 });
 
-//todo - should these rely on the userId? Move user down the arguments? Check usage
-
 export const SNAPSHOT_TYPE_USER = 'SNAPSHOT_USER';
 export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
 export const SNAPSHOT_TYPE_PUBLISH = 'SNAPSHOT_PUBLISH';
@@ -43,8 +41,7 @@ export const SNAPSHOT_TAG_PUBLIC = 'SNAPSHOT_TAG_COMMONS';
 
 export const defaultMessage = 'Project Snapshot';
 
-//todo - remove userId from args
-export const snapshotList = (projectId, userId, tags = {}) => {
+export const snapshotList = (projectId, tags = {}) => {
   if (Object.keys(tags).length) {
     return dbPost(`snapshots/tags?project=${projectId}`, null, null, {}, tags)
     .then(results => results.map(transformDbVersion));
@@ -65,8 +62,6 @@ export const snapshotExists = (projectId, version) => {
   .then(resp => resp.headers.get('Latest-Snapshot'));
 };
 
-//todo - remove userId from args
-//todo - check router checks owner permission
 export const snapshotGet = (projectId, userId, version) => {
   logger(`[snapshotGet] ${projectId} @ ${version}`);
 
@@ -113,7 +108,7 @@ export const snapshotMerge = (
   message,
   tags = {},
   type,
-) => snapshotGet(projectId, userId, version)
+) => snapshotGet(projectId, version)
 .then(snapshot => {
   //prefer new things if defined, otherwise default to snapshot (which must have defaults)
   const newMessage = message || snapshot.message;

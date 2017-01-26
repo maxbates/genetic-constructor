@@ -34,11 +34,11 @@ router.route('/:version?')
     }
 
     if (version) {
-      snapshots.snapshotGet(projectId, user.uuid, version)
+      snapshots.snapshotGet(projectId, version)
         .then(snapshot => res.status(200).json(snapshot))
         .catch(err => next(err));
     } else {
-      snapshots.snapshotList(projectId, user.uuid, tags)
+      snapshots.snapshotList(projectId, tags)
         .then(log => res.status(200).json(log))
         .catch((err) => {
           //return 200 if project exists (implicit, due to prior middleware) but no snapshots found

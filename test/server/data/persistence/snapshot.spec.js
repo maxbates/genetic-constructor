@@ -44,8 +44,16 @@ describe('Server', () => {
             .then(() => projectPersistence.projectWrite(roll.project.id, latest, testUserId));
         });
 
+        it('snapshotExists() returns UUID of latest snapshot', () => {
+          throw new Error('todo');
+        });
+
+        it('snapshotExists() returns 404 when does not exist', () => {
+          throw new Error('todo');
+        });
+
         it('snapshotList() returns 404 when no snapshots', () => {
-          return snapshots.snapshotList(roll.project.id, testUserId)
+          return snapshots.snapshotList(roll.project.id)
             .catch(err => {
               expect(err).to.equal(errorDoesNotExist);
             });
@@ -63,7 +71,7 @@ describe('Server', () => {
         });
 
         it('snapshotGet() should be able to get a specific snapshot', () => {
-          return snapshots.snapshotGet(roll.project.id, testUserId, 0)
+          return snapshots.snapshotGet(roll.project.id, 0)
             .then(result => {
               expect(result.version).to.equal(0);
               expect(result.projectId).to.equal(roll.project.id);
@@ -97,7 +105,7 @@ describe('Server', () => {
         });
 
         it('snapshotList() returns all the snapshots', () => {
-          return snapshots.snapshotList(roll.project.id, testUserId)
+          return snapshots.snapshotList(roll.project.id)
             .then(results => {
               assert(results.length === 3, 'should have 3 snapshots');
               assert(results.every(result => {
@@ -107,7 +115,7 @@ describe('Server', () => {
         });
 
         it('snapshotList() can limit to tags', () => {
-          return snapshots.snapshotList(roll.project.id, testUserId, exampleTag)
+          return snapshots.snapshotList(roll.project.id, exampleTag)
             .then(results => {
               assert(results.length === 1, 'should have 1 snapshot with tag');
               expect(results[0].version).to.equal(1);
@@ -128,7 +136,7 @@ describe('Server', () => {
 
         it('projectDelete() deletes all snapshots', (done) => {
           projectPersistence.projectDelete(roll.project.id, testUserId)
-            .then(() => snapshots.snapshotList(roll.project.id, testUserId))
+            .then(() => snapshots.snapshotList(roll.project.id))
             .then(results => {
               //console.log(results);
               done(new Error('project shouldnt exist'));
