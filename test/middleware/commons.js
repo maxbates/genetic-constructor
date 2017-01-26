@@ -27,7 +27,7 @@ import Project from '../../src/models/Project';
 import Rollup from '../../src/models/Rollup';
 
 describe('middleware', () => {
-  describe.only('commons', () => {
+  describe('commons', () => {
     //roll for another user, to check permissions
     const otherUserId = uuid.v1();
     let rollOtherPublic = createExampleRollup();
@@ -52,7 +52,7 @@ describe('middleware', () => {
     let rollPublic3;
     let snapshotPublic3;
 
-    before(async () => {
+    before(async() => {
       //write the projects
       rollOtherPublic = (await projectPersistence.projectWrite(rollOtherPublic.project.id, rollOtherPublic, otherUserId)).data;
       rollPrivate = (await projectPersistence.projectWrite(rollPrivate.project.id, rollPrivate, testUserId)).data;
@@ -91,21 +91,27 @@ describe('middleware', () => {
         { [snapshots.SNAPSHOT_TAG_PUBLIC]: true },
         snapshots.SNAPSHOT_TYPE_PUBLISH,
       );
+
+      throw new Error('todo - whole suite!');
     });
 
     it('commonsRetrieve() should fail on private project');
     it('commonsRetrieve() should work on published project');
     it('commonsRetrieve() retrieves the latest published version');
+    it('commonsRetrieve() retrieves a locked project');
 
     it('commonsQuery() should query published projects, ignore private projects');
 
-    it('commonsPublish() should create a snapshot at the newest version');
+    it('commonsPublish() should create a snapshot at the newest version, return snapshot');
 
-    it('commonsPublishVersion() publishes an existing version, which was not snapshotted');
-    it('commonsPublishVersion() publishes an existing version, which was snapshotted');
+    it('commonsPublishVersion() publishes an existing version, which was not snapshotted, return snapshot');
+    it('commonsPublishVersion() publishes an existing version, which was snapshotted, return snapshot');
 
     it('commonsUnpublish() should unpublish a snapshot, but not delete it');
 
+    it('commonsPublish() allows custom tags');
     it('commonsPublishVersion() allows custom tags');
+
+    it('commonsQuery() queries for newly added + tagged snapshots')
   });
 });

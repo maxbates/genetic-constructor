@@ -104,7 +104,7 @@ describe('Server', () => {
             });
         });
 
-        it('snapshotList() returns all the snapshots', () => {
+        it('snapshotList() returns all the snapshots for a project', () => {
           return snapshots.snapshotList(roll.project.id)
             .then(results => {
               assert(results.length === 3, 'should have 3 snapshots');
@@ -114,8 +114,18 @@ describe('Server', () => {
             });
         });
 
-        it('snapshotList() can limit to tags', () => {
-          return snapshots.snapshotList(roll.project.id, exampleTag)
+        it('snapshotQuery() queries by tags', () => {
+          throw new Error('should query across two projects, add another write so differentiate from following test');
+
+          return snapshots.snapshotQuery(exampleTag)
+            .then(results => {
+              assert(results.length === 1, 'should have 1 snapshot with tag');
+              expect(results[0].version).to.equal(1);
+            });
+        });
+
+        it('snapshotQuery() can limit to a project', () => {
+          return snapshots.snapshotQuery(exampleTag, roll.project.id)
             .then(results => {
               assert(results.length === 1, 'should have 1 snapshot with tag');
               expect(results[0].version).to.equal(1);

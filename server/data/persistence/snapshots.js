@@ -41,17 +41,22 @@ export const SNAPSHOT_TAG_PUBLIC = 'SNAPSHOT_TAG_COMMONS';
 
 export const defaultMessage = 'Project Snapshot';
 
-export const snapshotList = (projectId, tags = {}) => {
-  if (Object.keys(tags).length) {
-    return dbPost(`snapshots/tags?project=${projectId}`, null, null, {}, tags)
-    .then(results => results.map(transformDbVersion));
-  }
+export const snapshotQuery = (tags = {}, projectId) => {
+  logger(`[snapshotQuery] ${JSON.stringify(tags)}`);
+  invariant(typeof tags === 'object', 'must pass object of tags');
+
+  return dbPost(`snapshots/tags${projectId ? `?project=${projectId}` : ''}`, null, null, {}, tags)
+  .then(results => results.map(transformDbVersion));
+};
+
+export const snapshotList = (projectId) => {
+  logger(`[snapshotList] ${projectId}`);
+  invariant(projectId, 'projectId required');
 
   return dbGet(`snapshots/${projectId}`)
   .then(results => results.map(transformDbVersion));
 };
 
-//todo - test
 //returns UUID of latest snapshot if exists
 //does not allow passing tags
 export const snapshotExists = (projectId, version) => {
@@ -78,8 +83,8 @@ export const snapshotWrite = (
   tags = {},
   type = SNAPSHOT_TYPE_USER,
 ) => {
-  console.log(projectId, userId, version);
-  invariant(projectId && userId && (version || version === 0 || version === '0'), 'must pass projectId, userId, version');
+  //version optional, defaults to latest
+  invariant(projectId && userId, 'must pass projectId, userId');
 
   let projectVersion = version;
 

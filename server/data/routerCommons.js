@@ -54,17 +54,25 @@ router.route('/:projectId/:version?')
     .catch(next);
   })
 
-// publish
+// publish, given projectId and version
 .post(
   userOwnsProjectMiddleware,
   (req, res, next) => {
     const { user, projectId, version } = req;
 
-    //todo - differentiate between publishing new, and publishing existing version
-
     commons.commonsPublish(projectId, user.uuid, version, req.body)
     .then(info => res.json(info))
     .catch(next);
+  })
+
+//publish, given rollup, at new version
+.put(
+  userOwnsProjectMiddleware,
+  (req, res, next) => {
+    const { user, projectId } = req;
+    const roll = req.body;
+
+    //todo - write, snapshot, and publish
   })
 
 // unpublish

@@ -15,6 +15,7 @@
  */
 
 import express from 'express';
+import _ from 'lodash';
 
 import { errorDoesNotExist, errorInvalidModel, errorVersioningSystem } from './../utils/errors';
 import * as projectPersistence from './persistence/projects';
@@ -22,10 +23,12 @@ import * as snapshots from './persistence/snapshots';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
+//NB - this route is for a particular project, permissions have already been checked for project... querying across projects would need to be separate to avoid permissions issues
+
 router.route('/:version?')
   .get((req, res, next) => {
     //pass the version you want, otherwise send commit log
-    const { user, projectId, projectDoesNotExist } = req;
+    const { projectId, projectDoesNotExist } = req;
     const { version } = req.params;
     const { tags } = req.query;
 
@@ -38,8 +41,11 @@ router.route('/:version?')
         .then(snapshot => res.status(200).json(snapshot))
         .catch(err => next(err));
     } else {
-      snapshots.snapshotList(projectId, tags)
-        .then(log => res.status(200).json(log))
+      snapshots.snapshotQuery(tags, projectId)
+        .then(log => {
+          //no need to filter, since have already ensure the user owns the project
+          res.status(200).json(log);
+        })
         .catch((err) => {
           //return 200 if project exists (implicit, due to prior middleware) but no snapshots found
           if (err === errorDoesNotExist) {
@@ -61,11 +67,12 @@ router.route('/:version?')
       return res.status(404).send(errorDoesNotExist);
     }
 
-    if (!!version && !!roll) {
+    if (version && roll) {
       return res.status(422).send('cannot send version and roll');
     }
 
-    const rollupDefined = !!roll && roll.project && roll.blocks;
+    //will validate when attempt to write, so this check is enough
+    const rollupDefined = roll && roll.project && roll.blocks;
 
     //use version they gave or get latest
     const getVersionPromise = version ?

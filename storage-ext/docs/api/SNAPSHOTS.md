@@ -93,6 +93,8 @@ Returns an array of snapshot records.
 * Employs JSON subset comparision. Does the target snapshot contain the key-value pairs in the post body? NOT strict object comparision.
 * Returns 404 if no snapshots exist.
 
+* Optional `project` query string can be provided to limit query to a particular project
+
 #### Manage Snapshots with UUID
 
 The unique snapshot `uuid` can be used to fetch and delete the snapshot.

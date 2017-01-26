@@ -31,8 +31,7 @@ describe('Middleware', () => {
 
     before(() => projectPersistence.projectWrite(projectId, roll, testUserId)
       .then(() => projectPersistence.projectWrite(projectId, updated, testUserId))
-      .then(() => projectPersistence.projectWrite(projectId, latest, testUserId))
-    );
+      .then(() => projectPersistence.projectWrite(projectId, latest, testUserId)));
 
     it('snapshotList() before projects exists gets 404', (done) => {
       api.snapshotList(createExampleRollup().project.id)
@@ -119,7 +118,16 @@ describe('Middleware', () => {
         });
     });
 
-    //future
-    it('snapshot() accepts tags, snapshotList() can filter on tags');
+    it('snapshotGet() returns 403 when dont have access to the snapshot', () => {
+      throw new Error('todo');
+    });
+
+    it('snapshotList() only queries snapshots you have access to', () => {
+      throw new Error('todo');
+    });
+
+    it('snapshot() accepts tags, snapshotList() can filter on tags', () => {
+      throw new Error('todo');
+    });
   });
 });

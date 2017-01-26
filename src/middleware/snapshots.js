@@ -53,6 +53,9 @@ export const snapshotList = (projectId) => {
     .then(resp => resp.json());
 };
 
+//todo
+//export const snapshotQuery = (tags, projectId) => {}
+
 export const snapshotGet = (projectId, version) => {
   invariant(projectId, 'Project ID required to snapshot');
   invariant(version, 'version is necessary');
