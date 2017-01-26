@@ -21,15 +21,7 @@ import { headersDelete, headersGet, headersPost } from './utils/headers';
 import { commonsApiPath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
-export const commonsQuery = (query = {}) => {
-  const url = commonsApiPath('query');
-  const stringified = JSON.stringify(query);
-
-  return rejectingFetch(url, headersPost(stringified))
-  .then(resp => resp.json());
-};
-
-export const commonsRetrieveProject = (projectId, version) => {
+export const commonsRetrieve = (projectId, version) => {
   invariant(projectId, 'Project ID required to publish');
 
   const url = commonsApiPath(projectId, version);
@@ -68,5 +60,13 @@ export const commonsUnpublish = (projectId, version) => {
   const url = commonsApiPath(projectId, version);
 
   return rejectingFetch(url, headersDelete())
+  .then(resp => resp.json());
+};
+
+export const commonsQuery = (query = {}) => {
+  const url = commonsApiPath('query');
+  const stringified = JSON.stringify(query);
+
+  return rejectingFetch(url, headersPost(stringified))
   .then(resp => resp.json());
 };

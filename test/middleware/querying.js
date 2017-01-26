@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import { assert, expect } from 'chai';
-import uuid from 'node-uuid';
+import uuid from 'uuid';
 import _ from 'lodash';
 import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';

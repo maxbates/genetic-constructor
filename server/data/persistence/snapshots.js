@@ -13,10 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 import debug from 'debug';
 
 import { errorDoesNotExist } from '../../utils/errors';
-import { dbGet, dbPost } from '../middleware/db';
+import { dbHeadRaw, dbGet, dbPost } from '../middleware/db';
 
 const logger = debug('constructor:data:persistence:snapshots');
 
@@ -32,13 +33,17 @@ const transformDbVersion = result => ({
   owner: result.owner,
 });
 
+//todo - should these rely on the userId? Move user down the arguments? Check usage
+
 export const SNAPSHOT_TYPE_USER = 'SNAPSHOT_USER';
 export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
+export const SNAPSHOT_TYPE_PUBLISH = 'SNAPSHOT_PUBLISH';
 
-export const SNAPSHOT_TAG_PUBLIC = 'SNAPSHOT_COMMONS';
+export const SNAPSHOT_TAG_PUBLIC = 'SNAPSHOT_TAG_COMMONS';
 
 export const defaultMessage = 'Project Snapshot';
 
+//todo - remove userId from args
 export const snapshotList = (projectId, userId, tags = {}) => {
   if (Object.keys(tags).length) {
     return dbPost(`snapshots/tags?project=${projectId}`, null, null, {}, tags)
@@ -49,6 +54,19 @@ export const snapshotList = (projectId, userId, tags = {}) => {
   .then(results => results.map(transformDbVersion));
 };
 
+//todo - test
+//returns UUID of latest snapshot if exists
+//does not allow passing tags
+export const snapshotExists = (projectId, version) => {
+  const passedVersion = version || version === 0;
+  logger(`[snapshotExists] ${projectId} @ ${version}`);
+
+  return dbHeadRaw(`snapshots/${projectId}${passedVersion ? `?projectVersion=${version}`: ''}`)
+  .then(resp => resp.headers.get('Latest-Snapshot'));
+};
+
+//todo - remove userId from args
+//todo - check router checks owner permission
 export const snapshotGet = (projectId, userId, version) => {
   logger(`[snapshotGet] ${projectId} @ ${version}`);
 
@@ -65,6 +83,9 @@ export const snapshotWrite = (
   tags = {},
   type = SNAPSHOT_TYPE_USER,
 ) => {
+  console.log(projectId, userId, version);
+  invariant(projectId && userId && (version || version === 0 || version === '0'), 'must pass projectId, userId, version');
+
   let projectVersion = version;
 
   //not necessary this is a number, just used for check
