@@ -41,12 +41,12 @@
     width: 534px;
     height: 32px;
     user-select: none;
-    pointer-events: none;
     visibility: hidden;
     opacity: 0;
   }
   .inline-toolbar {
     flex-shrink: 1;
+    pointer-events: auto;
   }
 }
 

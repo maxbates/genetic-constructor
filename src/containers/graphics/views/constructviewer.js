@@ -22,8 +22,20 @@ import { connect } from 'react-redux';
 import { blockAddComponent, blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename, blockSetAuthoring, blockSetListBlock } from '../../../actions/blocks';
 import { focusBlockOption, focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../../actions/focus';
 import { orderCreate, orderList, orderSetName } from '../../../actions/orders';
-import { projectAddConstruct, projectRemoveConstruct } from '../../../actions/projects';
-import { inspectorToggleVisibility, uiInlineEditor, uiSetGrunt, uiShowDNAImport, uiShowMenu, uiShowOrderForm, uiToggleDetailView } from '../../../actions/ui';
+import {
+  projectAddConstruct,
+  projectRemoveConstruct,
+  projectSave,
+} from '../../../actions/projects';
+import {
+  inspectorToggleVisibility,
+  uiInlineEditor,
+  uiSetGrunt,
+  uiShowDNAImport,
+  uiShowMenu,
+  uiShowGenBankImport,
+  uiShowOrderForm,
+  uiToggleDetailView } from '../../../actions/ui';
 import RoleSvg from '../../../components/RoleSvg';
 import { role as roleDragType } from '../../../constants/DragTypes';
 import { blockGetComponentsRecursive, blockGetParents } from '../../../selectors/blocks';
@@ -62,6 +74,7 @@ export class ConstructViewer extends Component {
     uiShowMenu: PropTypes.func,
     uiShowOrderForm: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
+    uiShowGenBankImport: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
     orderCreate: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
@@ -71,6 +84,7 @@ export class ConstructViewer extends Component {
     blockGetParents: PropTypes.func,
     projectGet: PropTypes.func,
     projectRemoveConstruct: PropTypes.func,
+    projectSave: PropTypes.func,
     projectAddConstruct: PropTypes.func,
     blocks: PropTypes.object,
     focus: PropTypes.object,
@@ -597,7 +611,6 @@ export class ConstructViewer extends Component {
    * return true if you can order DNA for this construct
    */
   allowOrder() {
-
     if (this.props.construct.isTemplate() && !this.isSampleProject()) {
       const canOrderFromEGF = this.props.construct.components.every((blockId) => {
         const block = this.props.blocks[blockId];
@@ -680,8 +693,13 @@ export class ConstructViewer extends Component {
             {
               text: 'Upload Genbank or CSV',
               imageURL: '/images/ui/upload.svg',
-              enabled: false,
-              clicked: () => {},
+              enabled: !this.isSampleProject(),
+              clicked: () => {
+                this.props.projectSave(this.props.currentProjectId)
+                .then(() => {
+                  this.props.uiShowGenBankImport(true);
+                });
+              },
             },
             {
               text: 'Download Construct',
@@ -758,10 +776,12 @@ export default connect(mapStateToProps, {
   focusConstruct,
   projectGet,
   projectRemoveConstruct,
+  projectSave,
   projectAddConstruct,
   inspectorToggleVisibility,
   uiShowDNAImport,
   uiShowOrderForm,
+  uiShowGenBankImport,
   uiShowMenu,
   uiSetGrunt,
   uiInlineEditor,
