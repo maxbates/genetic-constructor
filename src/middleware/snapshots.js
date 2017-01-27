@@ -58,7 +58,7 @@ export const snapshotList = (projectId) => {
 
 export const snapshotGet = (projectId, version) => {
   invariant(projectId, 'Project ID required to snapshot');
-  invariant(version, 'version is necessary');
+  invariant(Number.isInteger(version), 'version is necessary');
 
   const url = dataApiPath(`snapshots/${projectId}/${version}`);
 

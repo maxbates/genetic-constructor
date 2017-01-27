@@ -14,8 +14,11 @@
  limitations under the License.
  */
 import { assert, expect } from 'chai';
+import uuid from 'uuid';
 import _ from 'lodash';
+
 import * as api from '../../src/middleware/snapshots';
+import * as snapshots from '../../server/data/persistence/snapshots';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import { testUserId } from '../constants';
 import { createExampleRollup } from '../_utils/rollup';
@@ -118,8 +121,20 @@ describe('Middleware', () => {
       });
     });
 
-    it('snapshotGet() returns 403 when dont have access to the snapshot', () => {
-      throw new Error('todo');
+    it('snapshotGet() returns 403 when dont have access to the snapshot', async () => {
+      try {
+        const otherUser = uuid.v1();
+        const otherRoll = createExampleRollup();
+
+        await projectPersistence.projectWrite(otherRoll.project.id, otherRoll, otherUser);
+        await snapshots.snapshotWrite(otherRoll.project.id, otherUser, 0);
+
+        const retrieved = await api.snapshotGet(otherRoll.project.id, 0);
+
+        assert(!retrieved, 'should not have retreived');
+      } catch (resp) {
+        assert(resp.status === 403, 'should get a 403');
+      }
     });
 
     it('snapshotList() only queries snapshots you have access to', () => {

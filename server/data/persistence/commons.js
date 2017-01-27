@@ -217,6 +217,7 @@ export const commonsUnpublish = (projectId, userId, version) => {
 
 //custom permissions middleware
 //given a project and a verison, check if its public
+//given just a project, check if some version is public
 export const checkProjectPublicMiddleware = (req, res, next) => {
   const { projectId, version } = req;
 
