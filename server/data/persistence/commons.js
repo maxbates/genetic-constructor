@@ -25,7 +25,10 @@ import { errorNotPublished, errorDoesNotExist } from '../../utils/errors';
 
 const logger = debug('constructor:data:persistence:commons');
 
+export const SNAPSHOT_TYPE_PUBLISH = 'SNAPSHOT_PUBLISH';
 export const COMMONS_TAG = 'COMMONS_TAG';
+
+export const defaultMessage = 'Published Project';
 
 const snapshotIsPublished = snapshot => snapshot.tags[COMMONS_TAG];
 
@@ -40,6 +43,14 @@ const lockProjectDeep = (roll) => {
   return roll;
 };
 
+//given list of snapshots, e.g. on queries, only take the latest version of each project
+const reduceSnapshotsToLatestPerProject = snapshots =>
+  _.chain(snapshots)
+  .groupBy('projectId')
+  .mapValues((projectSnapshots, projectId) => _.maxBy(projectSnapshots, 'version'))
+  .values()
+  .value();
+
 /**
  * Check if a project @ version is published, or if any version is published
  * @param projectId
@@ -48,6 +59,7 @@ const lockProjectDeep = (roll) => {
  * @reject not public (errorNotPublished) , doesnt exist (errorDoesNotExist)
  */
 export const checkProjectPublic = (projectId, version) => {
+  invariant(version === undefined || Number.isInteger(version), 'version must be a number');
   //if version given, check the particular version
   if (Number.isInteger(version)) {
     logger(`[checkProjectPublic] checking public snapshot: ${projectId} @ ${version}`);
@@ -72,14 +84,6 @@ export const checkProjectPublic = (projectId, version) => {
     return _.maxBy(results, 'version');
   });
 };
-
-//on queries, only take the latest version of each project
-const reduceSnapshotsToLatestPerProject = snapshots =>
-  _.chain(snapshots)
-  .groupBy('projectId')
-  .mapValues((projectSnapshots, projectId) => _.maxBy(projectSnapshots, 'version'))
-  .values()
-  .value();
 
 /**
  * Query the commons
@@ -116,25 +120,99 @@ export const commonsRetrieve = (projectId, version, lockProject = true) =>
   .then(snapshot => projectVersions.projectVersionByUUID(snapshot.projectUUID))
   .then(roll => lockProject === true ? lockProjectDeep(roll) : roll);
 
-// Publish a project at particular version
-// version -> assert exists and mark public, body = snapshot info
-// !version -> create public snapshot, body = rollup
-export const commonsPublishVersion = (projectId, userId, version, message, tags) => {
-  //todo
-  //handle snapshot exists or doesn't exist
+/**
+ * Publish a project at particular version
+ * assert exists and mark public, update snapshot info
+ *
+ * If the snapshot already existed, do not change the type.
+ * @param projectId
+ * @param userId
+ * @param version
+ * @param message
+ * @param tags
+ * @returns {Promise}
+ * @resolve snapshot
+ */
+export const commonsPublishVersion = (projectId, userId, version, message, tags = {}) => {
+  invariant(projectId, 'projectId required');
+  invariant(userId, 'userId required');
+  invariant(Number.isInteger(version), 'version required');
+
+  const newTags = { ...tags, [COMMONS_TAG]: true };
+
+  //try to update the existing snapshot, without changing the type
+  return snapshots.snapshotMerge(projectId, userId, version, message, newTags)
+  //if snapshot doesn't exist, make a new + public one
+  .catch((err) => {
+    //if we got a different error, pass it through
+    if (err !== errorDoesNotExist) {
+      return Promise.reject(err);
+    }
+
+    const newMessage = message || defaultMessage;
+
+    return snapshots.snapshotWrite(projectId, userId, version, newMessage, newTags, SNAPSHOT_TYPE_PUBLISH);
+  });
 };
 
-//given a rollup, create a new version, and snapshot publishing it
+/**
+ * Publish a project, given a rollup for its newest state
+ * Writes the project, creates a public snapshot
+ *
+ * If the snapshot already existed, do not change the type.
+ * @param projectId
+ * @param userId
+ * @param roll
+ * @param message
+ * @param tags
+ * @returns {Promise}
+ * @resolve snapshot
+ */
 export const commonsPublish = (projectId, userId, roll, message, tags) => {
-  //todo
-  //handle snapshot exists or doesn't exist
+  invariant(projectId, 'projectId required');
+  invariant(userId, 'userId required');
+
+  //will properly validate roll when attempt to write
+  invariant(roll && roll.project && roll.blocks, 'roll is required');
+
+  return projectPersistence.projectWrite(projectId, roll)
+  .then(writtenRoll => {
+    const newTags = { ...tags, [COMMONS_TAG]: true };
+    return snapshots.snapshotWrite(projectId, userId, writtenRoll, message, newTags, SNAPSHOT_TYPE_PUBLISH);
+  });
 };
 
-// Unpublish a project (mark snapshot as non-public, do not delete)
-// version -> should just mark as non-public, not remove the snapshot
-// !version -> remove public from all snapshots
+/**
+ * Unpublish a project (mark snapshot as non-public, do not delete)
+ * !version -> remove public from all snapshots
+ * version -> mark the snapshot as non-public.
+ *
+ * In the future, we may want to delete the snapshot, rather than just mark it unpublished. The snapshot type can be checked on unpublishing - depending on whether it is SNAPSHOT_TYPE_PUBLISH, the snapshot can be just be marked non-public or be deleted entirely.
+ *
+ * @param projectId
+ * @param userId
+ * @param [version]
+ * @return Promise
+ * @resolve if version passed, the updated snapshot. if no version passed, all the remaining snapshots for the project.
+ * @reject if doesnt exist
+ */
 export const commonsUnpublish = (projectId, userId, version) => {
-  //todo
+  invariant(projectId, 'projectId required');
+  invariant(userId, 'userId required');
+  invariant(version === undefined || Number.isInteger(version), 'version must be a number');
+
+  const tagOverride = { [COMMONS_TAG]: false };
+
+  //if version is passed, unpublish just that version
+  if (Number.isInteger(version)) {
+    return snapshots.snapshotMerge(projectId, userId, version, undefined, tagOverride);
+  }
+
+  //otherwise, unpublish all snapshots of the project
+  return snapshots.snapshotList(projectId)
+  .then(projectSnapshots => Promise.all(projectSnapshots.map(snapshot =>
+    snapshots.snapshotMerge(projectId, userId, snapshot.version, snapshot.message, tagOverride),
+  )));
 };
 
 //custom permissions middleware
@@ -146,5 +224,5 @@ export const checkProjectPublicMiddleware = (req, res, next) => {
 
   checkProjectPublic(projectId, version)
   .then(() => next())
-  .catch(err => res.status(403).send(err));
+  .catch(next);
 };

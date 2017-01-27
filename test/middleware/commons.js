@@ -67,7 +67,7 @@ describe('middleware', () => {
         rollOtherPublic.project.version,
         'Another users snapshot!',
         { [commons.COMMONS_TAG]: true },
-        snapshots.SNAPSHOT_TYPE_PUBLISH,
+        commons.SNAPSHOT_TYPE_PUBLISH,
       );
 
       snapshotPrivate = await snapshots.snapshotWrite(
@@ -90,7 +90,7 @@ describe('middleware', () => {
         rollPublic2.project.version,
         'Some message',
         { [commons.COMMONS_TAG]: true },
-        snapshots.SNAPSHOT_TYPE_PUBLISH,
+        commons.SNAPSHOT_TYPE_PUBLISH,
       );
 
       throw new Error('todo - whole suite!');

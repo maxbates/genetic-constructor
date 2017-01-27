@@ -53,7 +53,7 @@ export const snapshotList = (projectId) => {
     .then(resp => resp.json());
 };
 
-//todo
+//todo when needed
 //export const snapshotQuery = (tags, projectId) => {}
 
 export const snapshotGet = (projectId, version) => {
