@@ -1,0 +1,110 @@
+.slideStart{
+  position: static;
+  float:right;
+}
+.slideEnd{
+  transform:translateY(-650px);
+}
+#feature2{
+  height: 950px;
+}
+#feature1{
+  height: 1025px;
+}
+
+/* colors */
+/*:root
+{
+    --black: rgba(0, 0, 0, 0.8);
+    --white: white;
+    --spot: #2FE695;
+    --lightBackground: white;
+    --lightGrey: #E7E7E7;
+    --darkGrey: #D8D8D8;
+    --blueBackground: #232C56;
+    --purpleBackground: #3A2C4D;
+    --blackBackground: #21263D;
+}*/
+
+h6
+{
+    color: white);
+}
+
+.footer, .footer:visited
+{
+    color: black;
+}
+
+.footer:hover
+{
+    color: black;
+}
+
+#cookiesModal
+{
+    color: black;
+    background: white;
+}
+
+.cookiesButton
+{
+    color: black;
+    background-color: #2FE695;
+}
+
+.feature1
+{
+    color: white;
+}
+
+.feature3 {
+    color: white;
+}
+
+#futureSection
+{
+    color: black;
+    background: white;
+}
+
+#teamSection
+{
+    color: black;
+    background: white;
+}
+
+.bigButton, .bigButton:focus
+{
+    background-color: #2FE695;
+    color: black;
+}
+
+.bigButton:hover
+{
+    color: black;
+}
+
+.card1
+{
+    background: #232C56;
+    color: white;
+}
+
+.card2
+{
+    background: #3A2C4D;
+    color: white;
+}
+
+.card3
+{
+    background: #21263D;
+    color: white;
+}
+
+.cardTop
+{
+    background: #2FE695;
+    color: black;
+}
