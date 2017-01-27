@@ -174,7 +174,7 @@ p
 
 .footer:hover
 {
-    color: black;
+    color: var(--black);
     opacity: 0.8;
     text-decoration: none;
     -webkit-transition: 0.2s;
@@ -213,7 +213,7 @@ p
 {
     padding-top: 10px;
     padding-bottom: 10px;
-    background: white;
+    background: var(--white);
     z-index: 2;
 }
 
@@ -617,6 +617,6 @@ p
     left: 0;
     right: 0;
     z-index: 10000000000;
-    background-color: white;
+    background-color: var(--white);
     opacity: 0;
 }
