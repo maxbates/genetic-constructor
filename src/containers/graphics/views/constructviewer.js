@@ -656,6 +656,7 @@ export class ConstructViewer extends Component {
   toolbar() {
     return (
       <div className="constructviewer-toolbar-container">
+        <div className="title-placeholder" />
         <InlineToolbar
           items={[
             {

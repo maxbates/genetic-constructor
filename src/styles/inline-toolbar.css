@@ -4,15 +4,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
 
   .item {
     width: 32px;
     height: 32px;
     cursor: pointer;
-
-    &:first-child {
-      margin-left: 0;
-    }
   }
 }
 

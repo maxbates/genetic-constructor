@@ -44,7 +44,7 @@ class InlineToolbar extends Component {
     return (
       <div className="inline-toolbar">
         {
-          this.props.items.map((item, index) =>
+          this.props.items.slice().reverse().map((item, index) =>
             (
               <img
                 key={index}

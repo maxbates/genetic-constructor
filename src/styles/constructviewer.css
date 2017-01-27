@@ -28,6 +28,25 @@
   position: absolute;
   right: 0;
   top: 0;
-  display: inline-flex;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 32px;
+  overflow: hidden;
+  pointer-events: none;
+
+  .title-placeholder {
+    flex-shrink: 0;
+    /*check layout constants, must match titleX + titleW*/
+    width: 534px;
+    height: 32px;
+    user-select: none;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+  }
+  .inline-toolbar {
+    flex-shrink: 1;
+  }
 }
 
