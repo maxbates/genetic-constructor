@@ -282,8 +282,7 @@ export const blocksPatch = (projectId, userId, blockMap) =>
 const _projectDelete = (projectId, userId) => {
   logger(`[_projectDelete] Deleting ${projectId}`);
 
-  return dbDelete(`projects/${projectId}`)
-  .then(resp => resp.json());
+  return dbDelete(`projects/${projectId}`);
 };
 
 export const projectDelete = (projectId, userId, forceDelete = false) => {

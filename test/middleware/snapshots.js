@@ -121,28 +121,41 @@ describe('Middleware', () => {
       });
     });
 
-    it('snapshotGet() returns 403 when dont have access to the snapshot', async () => {
-      try {
-        const otherUser = uuid.v1();
-        const otherRoll = createExampleRollup();
+    describe('permissions', () => {
+      const otherUser = uuid.v1();
+      const otherRoll = createExampleRollup();
 
+      before(async () => {
         await projectPersistence.projectWrite(otherRoll.project.id, otherRoll, otherUser);
         await snapshots.snapshotWrite(otherRoll.project.id, otherUser, 0);
+      });
 
-        const retrieved = await api.snapshotGet(otherRoll.project.id, 0);
+      it('snapshotGet() returns 403 when dont have access to the snapshot', async() => {
+        try {
+          await api.snapshotGet(otherRoll.project.id, 0);
+          assert(false, 'should not have retreived');
+        } catch (resp) {
+          assert(resp.status === 403, 'should get a 403');
+        }
+      });
 
-        assert(!retrieved, 'should not have retreived');
-      } catch (resp) {
-        assert(resp.status === 403, 'should get a 403');
-      }
-    });
+      it('snapshotList() only queries snapshots you have access to', async () => {
+        try {
+          await api.snapshotList(otherRoll.project.id);
+          assert(false, 'should not have queries');
+        } catch (resp) {
+          assert(resp.status === 403, 'should get a 403');
+        }
+      });
 
-    it('snapshotList() only queries snapshots you have access to', () => {
-      throw new Error('todo');
-    });
-
-    it('snapshotDelete() can delete a snapshot', () => {
-      throw new Error('todo');
+      it('snapshotWrite() fails when dont have access to project', async () => {
+        try {
+          await api.snapshot(otherRoll.project.id);
+          assert(false, 'should not have written');
+        } catch (resp) {
+          assert(resp.status === 403, 'should get a 403');
+        }
+      });
     });
   });
 });

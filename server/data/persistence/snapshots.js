@@ -17,7 +17,7 @@ import invariant from 'invariant';
 import debug from 'debug';
 
 import { errorDoesNotExist } from '../../utils/errors';
-import { dbHeadRaw, dbGet, dbPost, dbDelete } from '../middleware/db';
+import { dbHead, dbGet, dbPost, dbDelete } from '../middleware/db';
 
 const logger = debug('constructor:data:persistence:snapshots');
 
@@ -82,7 +82,7 @@ export const snapshotExists = (projectId, version) => {
 
   const passedVersion = Number.isInteger(version) && version >= 0;
 
-  return dbHeadRaw(`snapshots/${projectId}${passedVersion ? `?projectVersion=${version}` : ''}`)
+  return dbHead(`snapshots/${projectId}${passedVersion ? `?projectVersion=${version}` : ''}`)
   .then(resp => resp.headers.get('Latest-Snapshot'));
 };
 
@@ -175,18 +175,19 @@ export const snapshotMerge = (
     //prefer new things if defined, otherwise default to snapshot (which must have defaults)
     const newMessage = message || snapshot.message;
     const newType = type || snapshot.type;
-    const newTags = { ...snapshot.tags, tags };
+    const newTags = { ...snapshot.tags, ...tags };
 
     logger(`[snapshotMerge] updating @ V${version} on ${projectId} - ${newMessage}, ${newType}, ${JSON.stringify(newTags)}`);
 
     return snapshotWrite(projectId, userId, version, newMessage, newTags, newType);
   });
 
-//todo - test
 //if want to support - need to do by uuid, so need to fetch via projectId + version and delete that way, or list and delete
 export const snapshotDelete = (projectId, version) => {
   logger(`[snapshotDelete] deleting ${projectId} @ ${version}`);
+  invariant(Number.isInteger(version), 'version is required');
 
   return snapshotExists(projectId, version)
-  .then(uuid => dbDelete(`snapshots/uuid/${uuid}`));
+  .then(uuid => dbDelete(`snapshots/uuid/${uuid}`))
+  .then(json => true);
 };

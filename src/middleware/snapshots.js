@@ -65,3 +65,7 @@ export const snapshotGet = (projectId, version) => {
   return rejectingFetch(url, headersGet())
     .then(resp => resp.json());
 };
+
+//todo when needed
+//note - need to distinguish between types of snapshots. Probably only want to let them delete the explicit ones they made (not orders, etc.)
+//export const snapshotDelete = (projectId, version) => {}

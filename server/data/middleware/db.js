@@ -65,17 +65,19 @@ export const dbHeadRaw = (path, params = {}) => {
 };
 
 //does some standardized error handling, does not parse the response
-export const dbHead = (path, params = {}) => dbHeadRaw(path, params)
-    .catch(defaultErrorHandling);
+export const dbHead = (path, params = {}) =>
+  dbHeadRaw(path, params)
+  .catch(defaultErrorHandling);
 
 export const dbGetRaw = (path, params = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
   return rejectingFetch(makePath(path), headers.headersGet(fetchParams));
 };
 
-export const dbGet = (path, params = {}) => dbGetRaw(path, params)
-    .then(resp => resp.json())
-    .catch(defaultErrorHandling);
+export const dbGet = (path, params = {}) =>
+  dbGetRaw(path, params)
+  .then(resp => resp.json())
+  .catch(defaultErrorHandling);
 
 export const dbPostRaw = (path, userId, data, params = {}, bodyParams = {}) => {
   const body = JSON.stringify(Object.assign({},
@@ -88,15 +90,20 @@ export const dbPostRaw = (path, userId, data, params = {}, bodyParams = {}) => {
   return rejectingFetch(makePath(path), headers.headersPost(body, fetchParams));
 };
 
-export const dbPost = (path, userId, data, params = {}, bodyParams = {}) => dbPostRaw(path, userId, data, params, bodyParams)
-    .then(resp => resp.json())
-    .catch(defaultErrorHandling);
+export const dbPost = (path, userId, data, params = {}, bodyParams = {}) =>
+  dbPostRaw(path, userId, data, params, bodyParams)
+  .then(resp => resp.json())
+  .catch(defaultErrorHandling);
 
-export const dbDelete = (path, params = {}) => {
+export const dbDeleteRaw = (path, params = {}) => {
   const fetchParams = Object.assign({}, defaultHeaders, params);
-  return rejectingFetch(makePath(path), headers.headersDelete(fetchParams))
-    .catch(defaultErrorHandling);
+  return rejectingFetch(makePath(path), headers.headersDelete(fetchParams));
 };
+
+export const dbDelete = (path, params = {}) =>
+  dbDeleteRaw(path, params)
+  .then(resp => resp.json())
+  .catch(defaultErrorHandling);
 
 //dont strip the other fields that may be there - most basic CRUD operations include information other than just the data
 export const dbPruneResult = json => json.data;
