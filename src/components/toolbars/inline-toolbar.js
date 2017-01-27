@@ -29,19 +29,35 @@ class InlineToolbar extends Component {
         text: "Blah",
         imageURL: "/images/blah.svg",
         enabled: true,
+        clicked: () => {},
      */
     items: PropTypes.array.isRequired,
+  };
+
+  itemClicked = (item) => {
+    if (item.enabled) {
+      item.clicked();
+    }
   };
 
   render() {
     return (
       <div className="inline-toolbar">
-        <div className="item"/>
-        <div className="item"/>
-        <div className="item"/>
-        <div className="item"/>
-        <div className="item"/>
-        <div className="item"/>
+        {
+          this.props.items.map((item, index) =>
+            (
+              <img
+                key={index}
+                title={item.text}
+                src={item.imageURL}
+                onClick={() => this.itemClicked(item)}
+                className="item"
+                style={{
+                  filter: `brightness(${item.enabled ? '100%' : '50%'})`,
+                }}
+              />
+            ))
+        }
       </div>
     );
   }

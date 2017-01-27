@@ -26,9 +26,8 @@
 
 .constructviewer-toolbar-container {
   position: absolute;
-  right: 0px;
-  top: 1px;
-  background-color: lightgray;
+  right: 0;
+  top: 0;
   display: inline-flex;
 }
 

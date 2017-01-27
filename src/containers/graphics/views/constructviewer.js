@@ -594,10 +594,9 @@ export class ConstructViewer extends Component {
   }
 
   /**
-   * only visible on templates that are not part of the sample(s) project
+   * return true if you can order DNA for this construct
    */
-  orderButton() {
-    return null;
+  allowOrder() {
 
     if (this.props.construct.isTemplate() && !this.isSampleProject()) {
       const canOrderFromEGF = this.props.construct.components.every((blockId) => {
@@ -616,15 +615,11 @@ export class ConstructViewer extends Component {
             return option.source.source && option.source.source === 'egf';
           });
         }
-
         return false;
       });
-
-      return canOrderFromEGF ?
-        <button onClick={this.onOrderDNA} className="order-button">Order DNA</button> :
-        null;
+      return canOrderFromEGF
     }
-    return null;
+    return false;
   }
 
   isSampleProject() {
@@ -661,9 +656,56 @@ export class ConstructViewer extends Component {
   toolbar() {
     return (
       <div className="constructviewer-toolbar-container">
-        <InlineToolbar />
+        <InlineToolbar
+          items={[
+            {
+              text: 'View',
+              imageURL: '/images/ui/view.svg',
+              enabled: false,
+              clicked: () => {},
+            },
+            {
+              text: 'Palette',
+              imageURL: '/images/ui/color.svg',
+              enabled: false,
+              clicked: () => {},
+            },
+            {
+              text: 'Order DNA',
+              imageURL: '/images/ui/order.svg',
+              enabled: this.allowOrder(),
+              clicked: this.onOrderDNA,
+            },
+            {
+              text: 'Upload Genbank or CSV',
+              imageURL: '/images/ui/upload.svg',
+              enabled: false,
+              clicked: () => {},
+            },
+            {
+              text: 'Download Construct',
+              imageURL: '/images/ui/download.svg',
+              enabled: false,
+              clicked: () => {},
+            },
+            {
+              text: 'Delete Construct',
+              imageURL: '/images/ui/delete.svg',
+              enabled: !this.isSampleProject(),
+              clicked: () => {
+                this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
+              },
+            },
+            {
+              text: 'More...',
+              imageURL: '/images/ui/more.svg',
+              enabled: true,
+              clicked: () => {},
+            },
+          ]}
+        />
       </div>
-    )
+    );
   }
 
   /**
@@ -679,7 +721,6 @@ export class ConstructViewer extends Component {
         <div className="sceneGraphContainer">
           <div className="sceneGraph" />
         </div>
-        {this.orderButton()}
         {this.toolbar()}
         {this.lockIcon()}
       </div>
