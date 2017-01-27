@@ -38,6 +38,8 @@ const contextDotsH = 18;
 const condensedText = 40;
 // height of banner bar above construct name
 const bannerHeight = 30;
+// gap between banner and start of construct
+const bannerGap = 12;
 // inset of layout in graph
 const insetX = 0;
 const insetY = 0;
@@ -59,7 +61,7 @@ const collapsedHeight = blockH + titleH + bannerHeight + rowBarH;
 // width of message for collapsed constructs e.g. 'and 123 more...'
 const collapsedMessageWidth = 100;
 // padding at right / bottom of scenegraph to make selection easier
-const bottomPad = 50;
+const bottomPad = 30;
 const rightPad = 30;
 // width of reserved space for selection dot on options
 const optionDotW = 16;
@@ -98,6 +100,7 @@ export default {
   nestedInsetX,
   nestedInsetY,
   bannerHeight,
+  bannerGap,
   roleIcon,
   minWidth,
   minHeight,

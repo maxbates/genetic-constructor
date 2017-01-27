@@ -672,7 +672,7 @@ export default class Layout {
    *
    */
   getInitialLayoutPoint() {
-    return new Vector2D(this.insetX + kT.rowBarW, this.insetY + (this.showHeader ? kT.bannerHeight + kT.titleH + kT.rowBarH : kT.rowBarH));
+    return new Vector2D(this.insetX + kT.rowBarW, this.insetY + (this.showHeader ? kT.bannerHeight + kT.bannerGap + kT.rowBarH : kT.rowBarH));
   }
 
   /**
