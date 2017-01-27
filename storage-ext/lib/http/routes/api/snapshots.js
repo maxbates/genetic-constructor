@@ -333,6 +333,7 @@ var fetchByTags = function (req, res) {
   // console.log('tags body', tagsBody);
   var where = {
     tags: tagsBody,
+    status: 1,
   };
 
   if ((req.query.project != null) && (req.query.project != "")) {
