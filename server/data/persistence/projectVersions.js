@@ -24,14 +24,22 @@ const transformDbVersion = result => ({
   owner: result.owner,
 });
 
-export const projectVersionExists = (projectId, version) => dbHead(`projects/${projectId}?version=${version}`)
-    .then(() => true);
+export const projectVersionExists = (projectId, version) =>
+  dbHead(`projects/${projectId}?version=${version}`)
+  .then(() => true);
 
 //returns project at a particular point in time
-export const projectVersionGet = (projectId, version) => dbGet(`projects/${projectId}?version=${version}`)
-    .then(mergeMetadataOntoProject)
-    .then(dbPruneResult);
+export const projectVersionGet = (projectId, version) =>
+  dbGet(`projects/${projectId}?version=${version}`)
+  .then(mergeMetadataOntoProject)
+  .then(dbPruneResult);
 
 //list all versions of a project
-export const projectVersionList = projectId => dbGet(`projects/versions/${projectId}`)
-    .then(results => results.map(transformDbVersion));
+export const projectVersionList = projectId =>
+  dbGet(`projects/versions/${projectId}`)
+  .then(results => results.map(transformDbVersion));
+
+export const projectVersionByUUID = uuid =>
+  dbGet(`projects/uuid/${uuid}`)
+  .then(mergeMetadataOntoProject)
+  .then(dbPruneResult);

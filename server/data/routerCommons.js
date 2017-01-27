@@ -59,8 +59,9 @@ router.route('/:projectId/:version?')
   userOwnsProjectMiddleware,
   (req, res, next) => {
     const { user, projectId, version } = req;
+    const { message, tags } = req.body;
 
-    commons.commonsPublish(projectId, user.uuid, version, req.body)
+    commons.commonsPublishVersion(projectId, user.uuid, version, message, tags)
     .then(info => res.json(info))
     .catch(next);
   })
@@ -70,10 +71,11 @@ router.route('/:projectId/:version?')
   userOwnsProjectMiddleware,
   (req, res, next) => {
     const { user, projectId } = req;
-    const roll = req.body;
+    const { rollup, message, tags } = req.body;
 
-    res.status(501).send('todo');
-    //todo - write, snapshot, and publish
+    commons.commonsPublish(projectId, user.uuid, rollup, message, tags)
+    .then(info => res.json(info))
+    .catch(next);
   })
 
 // unpublish

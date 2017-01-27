@@ -17,7 +17,8 @@ import { assert, expect } from 'chai';
 import uuid from 'uuid';
 import _ from 'lodash';
 
-import * as commons from '../../src/middleware/commons';
+import * as api from '../../src/middleware/commons';
+import * as commons from '../../server/data/persistence/commons';
 import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import * as snapshots from '../../server/data/persistence/snapshots';
@@ -102,7 +103,7 @@ describe('middleware', () => {
 
     it('commonsQuery() should query published projects, ignore private projects');
 
-    it('commonsPublish() should create a snapshot at the newest version, return snapshot');
+    it('commonsPublish() should take project, create a snapshot at the newest version, return snapshot');
 
     it('commonsPublishVersion() publishes an existing version, which was not snapshotted, return snapshot');
     it('commonsPublishVersion() publishes an existing version, which was snapshotted, return snapshot');
@@ -112,6 +113,7 @@ describe('middleware', () => {
     it('commonsPublish() allows custom tags');
     it('commonsPublishVersion() allows custom tags');
 
-    it('commonsQuery() queries for newly added + tagged snapshots')
+    it('commonsQuery() queries for newly added + tagged snapshots');
+    it('commonsQuery() only gets latest per project');
   });
 });
