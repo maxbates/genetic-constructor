@@ -503,18 +503,19 @@ describeAppTest("http", function (app) {
         });
     });
 
-    it('should return 404 fetch snapshots with junk tags', function fetchByTagsFail(done) {
+    it('should return 204 fetch snapshots with junk tags', function fetchByTagsFail(done) {
       request(app.proxy)
         .post('/api/snapshots/tags')
         .send({
           pink: "flamingo",
         })
-        .expect(404)
+        .expect(200)
         .end(function (err, res) {
           assert.ifError(err);
           assert.notEqual(res, null);
           assert.notEqual(res.body, null);
-          assert.notEqual(res.body.message, null);
+          //note from max - changed this to a 204, sorry if the tests got messed up
+          assert(Array.isArray(res.body));
           done();
         });
     });

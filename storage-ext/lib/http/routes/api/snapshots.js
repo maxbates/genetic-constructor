@@ -344,9 +344,7 @@ var fetchByTags = function (req, res) {
     where: where,
   }).then(function (results) {
     if(results.length < 1) {
-      return res.status(404).send({
-        message: 'no matching snapshots',
-      }).end();
+      return res.status(200).send([]).end();
     }
 
     return res.status(200).send(map(results, function (result) { return result.get(); })).end();
