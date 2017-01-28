@@ -45,13 +45,13 @@ import {
 } from '../../actions/ui';
 import { block as blockDragType } from '../../constants/DragTypes';
 import DnD from '../../containers/graphics/dnd/dnd';
-import { extensionApiPath } from '../../middleware/utils/paths';
 import * as instanceMap from '../../store/instanceMap';
 import { commit, transact } from '../../store/undo/actions';
 import '../../styles/InventoryProjectTree.css';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
 import BasePairCount from '../ui/BasePairCount';
+import downloadProject from '../../middleware/utils/downloadProject';
 
 export class InventoryProjectTree extends Component {
   static propTypes = {
@@ -248,7 +248,7 @@ export class InventoryProjectTree extends Component {
       {},
       {
         text: 'Download Project',
-        action: this.downloadProject.bind(this, project),
+        action: () => this.onDownloadProject(project),
       },
       {
         text: 'Duplicate Project',
@@ -264,6 +264,16 @@ export class InventoryProjectTree extends Component {
     ], {
       x: evt.pageX,
       y: evt.pageY,
+    });
+  };
+
+  /**
+   * download the current file as a genbank file
+   */
+  onDownloadProject = (project) => {
+    this.props.projectSave(project.id)
+    .then(() => {
+      downloadProject(project.id, this.props.focus.options);
     });
   };
 
@@ -314,53 +324,6 @@ export class InventoryProjectTree extends Component {
       .then(() => this.props.projectDelete(project.id));
     }
   }
-
-  /**
-   * download the current file as a genbank file
-   *
-   */
-  downloadProject = (project) => {
-    this.props.projectSave(project.id)
-    .then(() => {
-      //todo - maybe this whole complicated bit should go in middleware as its own function
-
-      const url = extensionApiPath('genbank', `export/${project.id}`);
-      const postBody = this.props.focus.options;
-      const iframeTarget = `${Math.floor(Math.random() * 10000)}${+Date.now()}`;
-
-      // for now use an iframe otherwise any errors will corrupt the page
-      const iframe = document.createElement('iframe');
-      iframe.name = iframeTarget;
-      iframe.style.display = 'none';
-      iframe.src = '';
-      document.body.appendChild(iframe);
-
-      //make form to post to iframe
-      const form = document.createElement('form');
-      form.style.display = 'none';
-      form.action = url;
-      form.method = 'post';
-      form.target = iframeTarget;
-
-      //add inputs to the form for each value in postBody
-      Object.keys(postBody).forEach((key) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = postBody[key];
-        form.appendChild(input);
-      });
-
-      document.body.appendChild(form);
-      form.submit();
-
-      //removing elements will cancel, so give them a nice timeout
-      setTimeout(() => {
-        document.body.removeChild(form);
-        document.body.removeChild(iframe);
-      }, 60 * 1000);
-    });
-  };
 
   render() {
     const { projects, templates, currentProjectId } = this.props;

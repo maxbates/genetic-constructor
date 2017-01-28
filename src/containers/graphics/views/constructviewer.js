@@ -46,6 +46,7 @@ import SceneGraph2D from '../scenegraph2d/scenegraph2d';
 import UserInterface from './constructvieweruserinterface';
 import Layout from './layout';
 import InlineToolbar from '../../../components/toolbars/inline-toolbar';
+import downloadProject from '../../../middleware/utils/downloadProject';
 
 // static hash for matching viewers to constructs
 const idToViewer = {};
@@ -704,8 +705,10 @@ export class ConstructViewer extends Component {
             {
               text: 'Download Construct',
               imageURL: '/images/ui/download.svg',
-              enabled: false,
-              clicked: () => {},
+              enabled: true,
+              clicked: () => {
+                downloadProject(this.props.currentProjectId, this.props.focus.options);
+              },
             },
             {
               text: 'Delete Construct',
