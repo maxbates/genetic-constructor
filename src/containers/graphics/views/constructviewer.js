@@ -676,8 +676,8 @@ export class ConstructViewer extends Component {
             {
               text: 'View',
               imageURL: '/images/ui/view.svg',
-              enabled: false,
-              clicked: () => {},
+              enabled: true,
+              clicked: () => this.sg.ui.toggleCollapsedState(),
             },
             {
               text: 'Palette',

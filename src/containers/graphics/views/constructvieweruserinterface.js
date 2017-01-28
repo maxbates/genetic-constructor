@@ -368,6 +368,16 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
+   * toggle collapsed state, remove selections if collapsing and update view
+   */
+  toggleCollapsedState() {
+    this.layout.setCollapsed(!this.layout.collapsed);
+    if (this.collapsed) {
+      this.constructViewer.blockSelected([]);
+    }
+    this.constructViewer.update();
+  }
+  /**
    * select with mouse including handling ancillary actions like opening the context menu and toggle nested construct
    */
   mouseSelect(evt, point) {
@@ -377,12 +387,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
 
     // text expander toggle first
     if (this.constructExpander(evt, point)) {
-      this.layout.setCollapsed(!this.layout.collapsed);
-      if (this.collapsed) {
-        this.constructViewer.blockSelected([]);
-      }
-      this.constructViewer.update();
-      return;
+      this.toggleCollapsedState();
     }
     // ignore everything else if we are collapsed
     if (this.collapsed) {
