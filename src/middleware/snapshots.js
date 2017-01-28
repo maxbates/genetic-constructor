@@ -53,7 +53,7 @@ export const snapshotList = (projectId) => {
     .then(resp => resp.json());
 };
 
-//todo when needed
+//future - when needed
 //export const snapshotQuery = (tags, projectId) => {}
 
 export const snapshotGet = (projectId, version) => {
@@ -66,6 +66,6 @@ export const snapshotGet = (projectId, version) => {
     .then(resp => resp.json());
 };
 
-//todo when needed
+//future -  when needed
 //note - need to distinguish between types of snapshots. Probably only want to let them delete the explicit ones they made (not orders, etc.)
 //export const snapshotDelete = (projectId, version) => {}

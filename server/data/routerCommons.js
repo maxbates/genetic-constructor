@@ -38,6 +38,7 @@ router.use(ensureReqUserMiddleware);
 router.route('/query')
 .post((req, res, next) => {
   const query = req.body;
+
   return commons.commonsQuery(query)
   .then(results => res.json(results))
   .catch(next);
@@ -66,6 +67,10 @@ router.route('/:projectId/:version?')
 .post(
   userOwnsProjectMiddleware,
   (req, res, next) => {
+    if (req.projectDoesNotExist) {
+      res.status(404).send('Project does not yet exist');
+    }
+
     const { user, projectId, version } = req;
     const { message, tags } = req.body;
 
@@ -74,6 +79,7 @@ router.route('/:projectId/:version?')
     .catch(next);
   })
 
+/*
 //publish, given rollup, at new version
 .put(
   userOwnsProjectMiddleware,
@@ -85,12 +91,14 @@ router.route('/:projectId/:version?')
     .then(info => res.json(info))
     .catch(next);
   })
+*/
 
 // unpublish
 .delete(
   userOwnsProjectMiddleware,
   (req, res, next) => {
     const { user, projectId, version } = req;
+
     commons.commonsUnpublish(projectId, user.uuid, version)
     .then(info => res.json(info))
     .catch(next);

@@ -191,6 +191,9 @@ describe('Server', () => {
           assert(retrieved && retrieved.project && retrieved.blocks, 'should get project');
         });
 
+        //todo (when expose route)
+        it('can publish a rollup directly');
+
         it('can unpublish a version, doesnt delete snapshot', async () => {
           const versionToUnpub = snapsPublic.indexOf(true);
 
