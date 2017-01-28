@@ -23,6 +23,14 @@ const router = express.Router(); //eslint-disable-line new-cap
 
 // check user and project Id valid
 router.param('projectId', projectIdParamAssignment);
+
+router.param('version', (req, res, next, id) => {
+  if (id) {
+    Object.assign(req, { version: parseInt(id, 10) });
+  }
+  next();
+});
+
 router.use(ensureReqUserMiddleware);
 
 // routes

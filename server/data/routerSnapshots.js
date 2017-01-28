@@ -25,7 +25,7 @@ const router = express.Router(); //eslint-disable-line new-cap
 //NB - this route is for a particular project, permissions have already been checked for project... querying across projects would need to be separate to avoid permissions issues
 
 router.param('version', (req, res, next, id) => {
-  Object.assign(req, { version: id });
+  Object.assign(req, { version: parseInt(id, 10) });
   next();
 });
 
