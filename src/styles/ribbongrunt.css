@@ -48,7 +48,7 @@
 
   /* will go away with new UI design */
   &.atTop {
-    top: 0;
+    bottom: 0;
   }
 
 }
