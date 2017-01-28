@@ -89,11 +89,12 @@ export const checkProjectPublic = (projectId, version) => {
  * Query the commons
  * Prune each project to the latest version only
  * @param {Object} tags
+ * @param {boolean} collapse Collapse to one per project
  */
-export const commonsQuery = (tags = {}) => {
+export const commonsQuery = (tags = {}, collapse = true) => {
   const query = { ...tags, [COMMONS_TAG]: true };
   return snapshots.snapshotQuery(query)
-  .then(reduceSnapshotsToLatestPerProject);
+  .then(results => collapse === true ? reduceSnapshotsToLatestPerProject(results) : results);
 };
 
 /**
@@ -168,6 +169,7 @@ export const commonsPublishVersion = (projectId, userId, version, message, tags 
  * @returns {Promise}
  * @resolve snapshot
  */
+//todo - test
 export const commonsPublish = (projectId, userId, roll, message, tags) => {
   invariant(projectId, 'projectId required');
   invariant(userId, 'userId required');

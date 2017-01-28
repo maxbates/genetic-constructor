@@ -15,7 +15,6 @@
  */
 
 import express from 'express';
-import _ from 'lodash';
 
 import { errorDoesNotExist, errorInvalidModel, errorVersioningSystem } from './../utils/errors';
 import * as projectPersistence from './persistence/projects';
