@@ -429,7 +429,6 @@ p
 
 .slideStart
 {
-    position: static;
     float:right;
     width: 100%;
     max-width: 650px;
@@ -441,9 +440,7 @@ p
     animation-name: slideShowEnd;
     animation-duration: 4s;
     animation-iteration-count: infinite;
-    position: relative;
-    float: right;
-    transform:translateY(-100%);
+    position: absolute;
     width: 100%;
     max-width: 650px;
     right: 0;
