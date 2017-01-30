@@ -20,6 +20,7 @@ import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
+import { palettes } from '../../../utils/color/index';
 
 import {
   blockAddComponent,
@@ -723,46 +724,84 @@ export class ConstructViewer extends Component {
   }
 
   /**
-   * show palette menu
-   * @param anchorElement
+   * get all the items for palette menu
    */
-  showPaletteMenu(anchorElement) {
+  getPaletteMenuItems() {
     const project = this.getProject();
     const palette = this.props.construct.metadata.palette || project.metadata.palette;
-    this.props.uiShowMenu([
+    const paletteItems = palettes.map(paletteName => ({
+      text: paletteName[0].toUpperCase() + paletteName.slice(1),
+      checked: palette === paletteName,
+      action: () => this.props.blockSetPalette(this.props.constructId, paletteName),
+    }));
+    return [
       {
         text: 'Palette',
         disabled: true,
       },
+      ...paletteItems,
+    ];
+  }
+  /**
+   * show palette menu
+   * @param anchorElement
+   */
+  showPaletteMenu(anchorElement) {
+    this.props.uiShowMenu(this.getPaletteMenuItems(), this.getToolbarAnchorPosition(anchorElement), true);
+  }
+
+  /**
+   * the concatenation of all the inline toolbar actions and sub menus
+   * @param anchorElement
+   */
+  showMoreMenu(anchorElement) {
+    this.props.uiShowMenu([
       {
-        text: 'Inherit from Project',
-        checked: !this.props.construct.metadata.palette,
-        action: () => this.props.blockSetPalette(this.props.constructId, null),
+        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
+        action: () => { this.sg.ui.toggleCollapsedState(); },
       },
       {
-        text: 'Anime',
-        checked: palette === 'anime',
-        action: () => this.props.blockSetPalette(this.props.constructId, 'anime'),
+        text: 'Color',
+        menuItems: this.getPaletteMenuItems(),
       },
       {
-        text: 'Bright',
-        checked: palette === 'bright',
-        action: () => this.props.blockSetPalette(this.props.constructId, 'bright'),
+        text: 'Order DNA',
+        disabled: !this.allowOrder(),
+        action: this.onOrderDNA,
       },
       {
-        text: 'Pastel',
-        checked: palette === 'pastel',
-        action: () => this.props.blockSetPalette(this.props.constructId, 'pastel'),
+        text: 'Upload',
+        disabled: false,
+        action: this.upload,
       },
       {
-        text: 'Nature',
-        checked: palette === 'nature',
-        action: () => this.props.blockSetPalette(this.props.constructId, 'nature'),
+        text: 'Download Construct',
+        disabled: false,
+        action: () => {
+          downloadProject(this.props.currentProjectId, this.props.focus.options);
+        },
+      },
+      {
+        text: 'Delete Construct',
+        disabled: this.isSampleProject(),
+        action: () => {
+          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
+        },
       },
     ],
       this.getToolbarAnchorPosition(anchorElement),
       true);
   }
+
+  /**
+   * start an upload
+   */
+  upload = () => {
+    this.props.projectSave(this.props.currentProjectId)
+    .then(() => {
+      this.props.uiShowGenBankImport(true);
+    });
+  };
 
   /**
    * return the JSX and items for the toolbar. The toolbar contains action buttons
@@ -786,7 +825,7 @@ export class ConstructViewer extends Component {
             {
               text: 'Palette',
               imageURL: '/images/ui/color.svg',
-              enabled: true,
+              enabled: !this.isSampleProject(),
               clicked: (event) => {
                 this.showPaletteMenu(event.target);
               },
@@ -801,12 +840,7 @@ export class ConstructViewer extends Component {
               text: 'Upload Genbank or CSV',
               imageURL: '/images/ui/upload.svg',
               enabled: !this.isSampleProject(),
-              clicked: () => {
-                this.props.projectSave(this.props.currentProjectId)
-                .then(() => {
-                  this.props.uiShowGenBankImport(true);
-                });
-              },
+              clicked: this.upload,
             },
             {
               text: 'Download Construct',
@@ -828,7 +862,9 @@ export class ConstructViewer extends Component {
               text: 'More...',
               imageURL: '/images/ui/more.svg',
               enabled: true,
-              clicked: () => {},
+              clicked: (event) => {
+                this.showMoreMenu(event.target);
+              },
             },
           ]}
         />
