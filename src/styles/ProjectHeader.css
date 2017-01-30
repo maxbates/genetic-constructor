@@ -12,10 +12,10 @@
   /* left side */
   &-info {
     display: flex;
-    flex-grow: 1;
+    flex-shrink: 0;
     flex-direction: column;
-    max-width: 100%;
-  }
+    width: 80%;
+  }l
 
   &-title {
     font-size: 16px;
@@ -34,7 +34,10 @@
 
   /* right side */
   &-actions {
-    align-self: center;
+    flex-shrink: 1;
+    margin-top: -5px;
+    overflow: hidden;
+    height: 32px;
   }
 
   &-detailToggle {

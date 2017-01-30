@@ -17,27 +17,31 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import { focusPrioritize } from '../actions/focus';
-import { projectRename } from '../actions/projects';
+import { focusPrioritize, focusConstruct } from '../actions/focus';
+import { projectRename, projectAddConstruct } from '../actions/projects';
+import { blockCreate } from '../actions/blocks';
 import { inspectorToggleVisibility, uiInlineEditor } from '../actions/ui';
 import Box2D from '../containers/graphics/geometry/box2d';
+import InlineToolbar from '../components/toolbars/inline-toolbar';
 import '../styles/ProjectHeader.css';
 import '../styles/inline-editor.css';
 
 class ProjectHeader extends Component {
   static propTypes = {
+    blockCreate: PropTypes.func.isRequired,
     project: PropTypes.object.isRequired,
     isFocused: PropTypes.bool.isRequired,
+    focusConstruct: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
     focusPrioritize: PropTypes.func.isRequired,
+    projectAddConstruct: PropTypes.func.isRequired,
     projectRename: PropTypes.func.isRequired,
   };
 
   state = {
     hover: false,
   };
-
 
   onClick = () => {
     this.props.inspectorToggleVisibility(true);
@@ -52,38 +56,94 @@ class ProjectHeader extends Component {
 
   onMouseEnter = () => {
     this.setState({ hover: true });
-  }
+  };
 
   onMouseLeave = () => {
     this.setState({ hover: false });
-  }
+  };
+
+  /**
+   * add new construct to project
+   */
+  onAddConstruct = () => {
+    const block = this.props.blockCreate({ projectId: this.props.project.id });
+    this.props.projectAddConstruct(this.props.project.id, block.id, true);
+    this.props.focusConstruct(block.id);
+  };
 
   titleEditorBounds() {
     return new Box2D(ReactDOM.findDOMNode(this.refs.title).getBoundingClientRect()).inflate(0, 4);
   }
 
+  /**
+   * jsx/js for project toolbar
+   * @returns {XML}
+   */
+  toolbar() {
+    return (
+      <InlineToolbar
+        items={[
+          {
+            text: 'One',
+            imageURL: '/images/ui/add.svg',
+            enabled: true,
+            clicked: this.onAddConstruct,
+          }, {
+            text: 'Two',
+            imageURL: '/images/ui/view.svg',
+            enabled: true,
+            clicked: (event) => {},
+          }, {
+            text: 'Three',
+            imageURL: '/images/ui/download.svg',
+            enabled: true,
+            clicked: (event) => {},
+          }, {
+            text: 'Four',
+            imageURL: '/images/ui/delete.svg',
+            enabled: true,
+            clicked: (event) => {},
+          }, {
+            text: 'More...',
+            imageURL: '/images/ui/more.svg',
+            enabled: true,
+            clicked: (event) => {
+            },
+          }
+        ]}
+      />);
+  }
+
   render() {
     const { project, isFocused } = this.props;
-    const hover = this.state.hover && !this.props.project.rules.frozen
-      ? (<div className="inline-editor-hover inline-editor-hover-project">
-        <span>{project.metadata.name || 'Untitled Project'}</span>
-        <img src="/images/ui/inline_edit.svg" />
-      </div>)
-      : null;
+    let hoverElement;
+    if (this.state.hover && !this.props.project.rules.frozen) {
+      hoverElement = (
+        <div className="inline-editor-hover inline-editor-hover-project">
+          <span>{project.metadata.name || 'Untitled Project'}</span>
+          <img src="/images/ui/inline_edit.svg" />
+        </div>
+      );
+    }
+
     return (
       <div
         className={`ProjectHeader${isFocused ? ' focused' : ''}`}
-        onClick={this.onClick}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
       >
-        <div className="ProjectHeader-info">
+        <div
+          className="ProjectHeader-info"
+          onClick={this.onClick}
+          onMouseEnter={this.onMouseEnter}
+          onMouseLeave={this.onMouseLeave}
+        >
           <div ref="title" className="ProjectHeader-title">{project.metadata.name || 'Untitled Project'}</div>
           <div className="ProjectHeader-description">{project.metadata.description}</div>
         </div>
 
-        <div className="ProjectHeader-actions" />
-        {hover}
+        <div className="ProjectHeader-actions">
+          {this.toolbar()}
+        </div>
+        {hoverElement}
       </div>
     );
   }
@@ -96,8 +156,11 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
+  blockCreate,
   inspectorToggleVisibility,
   focusPrioritize,
+  focusConstruct,
   uiInlineEditor,
+  projectAddConstruct,
   projectRename,
 })(ProjectHeader);
