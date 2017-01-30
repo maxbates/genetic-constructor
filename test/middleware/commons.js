@@ -28,7 +28,7 @@ import Project from '../../src/models/Project';
 import Rollup from '../../src/models/Rollup';
 
 describe('middleware', () => {
-  describe('commons', () => {
+  describe.only('commons', () => {
     const publicTag = { [commons.COMMONS_TAG]: true };
 
     const makeTag = (isPublic) => {
@@ -102,6 +102,8 @@ describe('middleware', () => {
         makeTag(true),
         commons.SNAPSHOT_TYPE_PUBLISH,
       );
+
+      throw new Error('write this suite');
     });
 
     it('commonsRetrieve() should fail on private project', (done) => {
