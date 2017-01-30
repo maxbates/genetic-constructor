@@ -52,16 +52,19 @@ export default class InventoryGroupProjects extends Component {
   };
 
   render() {
-    const { currentProjectId } = this.props;
-    const { groupBy } = this.state;
+    const { templates, currentProjectId } = this.props;
+    const { filter, groupBy } = this.state;
+
     const currentList = groupBy === 'type'
       ?
-        <InventoryRoleMap />
+        (<InventoryRoleMap
+          templates={templates}
+        />)
       :
         (<InventoryProjectTree
-          filter={this.state.filter}
+          filter={filter}
           currentProjectId={currentProjectId}
-          templates={this.props.templates}
+          templates={templates}
         />);
 
     return (
@@ -74,7 +77,7 @@ export default class InventoryGroupProjects extends Component {
         {groupBy !== 'type'
           ?
             <InventorySearch
-              searchTerm={this.state.filter}
+              searchTerm={filter}
               disabled={false}
               placeholder="Search"
               onSearchChange={this.handleFilterChange}
