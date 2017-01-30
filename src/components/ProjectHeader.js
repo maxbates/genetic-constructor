@@ -17,12 +17,30 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import { focusPrioritize, focusConstruct } from '../actions/focus';
-import { projectRename, projectAddConstruct } from '../actions/projects';
+import {
+  focusPrioritize,
+  focusConstruct,
+} from '../actions/focus';
+import {
+  projectRename,
+  projectAddConstruct,
+  projectDelete,
+  projectLoad,
+  projectOpen,
+} from '../actions/projects';
 import { blockCreate } from '../actions/blocks';
-import { inspectorToggleVisibility, uiInlineEditor } from '../actions/ui';
+import {
+  inspectorToggleVisibility,
+  inventoryToggleVisibility,
+  uiInlineEditor,
+  uiShowMenu,
+  uiSetGrunt,
+  uiShowOkCancel,
+} from '../actions/ui';
 import Box2D from '../containers/graphics/geometry/box2d';
+import Vector2D from '../containers/graphics/geometry/vector2d';
 import InlineToolbar from '../components/toolbars/inline-toolbar';
+import downloadProject from '../middleware/utils/downloadProject';
 import '../styles/ProjectHeader.css';
 import '../styles/inline-editor.css';
 
@@ -30,13 +48,22 @@ class ProjectHeader extends Component {
   static propTypes = {
     blockCreate: PropTypes.func.isRequired,
     project: PropTypes.object.isRequired,
+    focus: PropTypes.object,
     isFocused: PropTypes.bool.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
+    inventoryToggleVisibility: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
+    uiSetGrunt: PropTypes.func.isRequired,
+    uiShowMenu: PropTypes.func.isRequired,
+    uiShowOkCancel: PropTypes.func.isRequired,
     focusPrioritize: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
+    projectDelete: PropTypes.func.isRequired,
+    projectOpen: PropTypes.func.isRequired,
+    projectLoad: PropTypes.func.isRequired,
     projectRename: PropTypes.func.isRequired,
+    inventoryVisible: PropTypes.bool.isRequired,
   };
 
   state = {
@@ -76,6 +103,114 @@ class ProjectHeader extends Component {
   }
 
   /**
+   * get position for a context menu attached to one of the inline toolbar items
+   * @param anchorElenent
+   */
+  getToolbarAnchorPosition(anchorElement) {
+    const box = new Box2D(anchorElement.getBoundingClientRect());
+    return new Vector2D(box.cx, box.bottom);
+  }
+
+  /**
+   * toggle the side panels
+   */
+  togglePanels = () => {
+    const showPanels = !this.props.inventoryVisible;
+    this.props.inventoryToggleVisibility(showPanels);
+    this.props.inspectorToggleVisibility(showPanels);
+  };
+
+  /**
+   * view menu items, can appear on their own menu or the overflow menu
+   */
+  getViewMenuItems() {
+    const showPanels = !this.props.inventoryVisible;
+    return [
+      {
+        text: `${showPanels ? 'Show' : 'Hide'} all panels`,
+        action: this.togglePanels,
+      },
+      {
+        text: 'Show/Hide Nested Blocks',
+        action: () => { }, // will need to toggle ALL construct viewers
+      },
+    ];
+  }
+
+  /**
+   * show view menu for toolbar view item
+   * @param anchorElement
+   */
+  showViewMenu = (anchorElement) => {
+    this.props.uiShowMenu(this.getViewMenuItems(), this.getToolbarAnchorPosition(anchorElement), true);
+  };
+
+  /**
+   * the concatenation of all the inline toolbar actions and sub menus
+   * @param anchorElement
+   */
+  showMoreMenu(anchorElement) {
+    this.props.uiShowMenu([
+      {
+        text: 'New Construct',
+        action: () => { },
+      },
+      {
+        text: 'View',
+        menuItems: this.getViewMenuItems(),
+      },
+      {
+        text: 'Download Project',
+        action: () => {
+          downloadProject(this.props.project.id, this.props.focus.options);
+        },
+      },
+      {
+        text: 'Delete Project',
+        action: this.onDeleteProject,
+      },
+    ],
+    this.getToolbarAnchorPosition(anchorElement),
+    true);
+  }
+
+  /**
+   * perform the actual deletion.
+   */
+  deleteProject(project) {l
+    if (project.rules.frozen) {
+      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
+    } else {
+      //load another project, avoiding this one
+      this.props.projectLoad(null, false, [project.id])
+      //open the new project, skip saving the previous one
+      .then(openProject => this.props.projectOpen(openProject.id, true))
+      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+      .then(() => this.props.projectDelete(project.id));
+    }
+  }
+
+  /**
+   * delete the given project
+   * @param project
+   */
+  onDeleteProject = (project) => {
+    this.props.uiShowOkCancel(
+      'Delete Project',
+      `${this.props.project.getName() || 'Your project'}\nand all related project data will be permanently deleted.\nThis action cannot be undone.`,
+      () => {
+        this.props.uiShowOkCancel();
+        this.deleteProject(this.props.project);
+      },
+      () => {
+        this.props.uiShowOkCancel();
+      },
+      'Delete Project',
+      'Cancel',
+    );
+  };
+
+  /**
    * jsx/js for project toolbar
    * @returns {XML}
    */
@@ -84,30 +219,33 @@ class ProjectHeader extends Component {
       <InlineToolbar
         items={[
           {
-            text: 'One',
+            text: 'Add Construct',
             imageURL: '/images/ui/add.svg',
             enabled: true,
             clicked: this.onAddConstruct,
           }, {
-            text: 'Two',
+            text: 'View',
             imageURL: '/images/ui/view.svg',
             enabled: true,
-            clicked: (event) => {},
+            clicked: event => this.showViewMenu(event.target),
           }, {
-            text: 'Three',
+            text: 'Download Project',
             imageURL: '/images/ui/download.svg',
             enabled: true,
-            clicked: (event) => {},
+            clicked: () => {
+              downloadProject(this.props.project.id, this.props.focus.options);
+            },
           }, {
-            text: 'Four',
+            text: 'Delete Project',
             imageURL: '/images/ui/delete.svg',
             enabled: true,
-            clicked: (event) => {},
+            clicked: this.onDeleteProject,
           }, {
             text: 'More...',
             imageURL: '/images/ui/more.svg',
             enabled: true,
             clicked: (event) => {
+              this.showMoreMenu(event.target);
             },
           }
         ]}
@@ -151,16 +289,25 @@ class ProjectHeader extends Component {
 
 function mapStateToProps(state, props) {
   return {
+    focus: state.focus,
     isFocused: state.focus.level === 'project' && !state.focus.forceProject,
+    inventoryVisible: state.ui.inventory.isVisible,
   };
 }
 
 export default connect(mapStateToProps, {
   blockCreate,
   inspectorToggleVisibility,
+  inventoryToggleVisibility,
   focusPrioritize,
   focusConstruct,
   uiInlineEditor,
+  uiSetGrunt,
+  uiShowMenu,
+  uiShowOkCancel,
   projectAddConstruct,
+  projectOpen,
+  projectDelete,
+  projectLoad,
   projectRename,
 })(ProjectHeader);
