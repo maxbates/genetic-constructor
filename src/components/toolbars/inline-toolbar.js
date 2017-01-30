@@ -34,9 +34,9 @@ class InlineToolbar extends Component {
     items: PropTypes.array.isRequired,
   };
 
-  itemClicked = (item) => {
+  itemClicked = (event, item) => {
     if (item.enabled) {
-      item.clicked();
+      item.clicked(event, item);
     }
   };
 
@@ -50,7 +50,7 @@ class InlineToolbar extends Component {
                 key={index}
                 title={item.text}
                 src={item.imageURL}
-                onClick={() => this.itemClicked(item)}
+                onClick={(event) => this.itemClicked(event, item)}
                 className="item"
                 style={{
                   filter: `brightness(${item.enabled ? '100%' : '50%'})`,

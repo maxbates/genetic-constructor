@@ -18,6 +18,8 @@ import debounce from 'lodash.debounce';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+import Box2D from '../geometry/box2d';
+import Vector2D from '../geometry/vector2d';
 
 import { blockAddComponent, blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename, blockSetAuthoring, blockSetListBlock } from '../../../actions/blocks';
 import { focusBlockOption, focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../../actions/focus';
@@ -29,6 +31,7 @@ import {
 } from '../../../actions/projects';
 import {
   inspectorToggleVisibility,
+  inventoryToggleVisibility,
   uiInlineEditor,
   uiSetGrunt,
   uiShowDNAImport,
@@ -58,6 +61,7 @@ export class ConstructViewer extends Component {
     construct: PropTypes.object.isRequired,
     constructId: PropTypes.string.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
+    inventoryToggleVisibility: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     focusBlocksAdd: PropTypes.func.isRequired,
     focusBlocksToggle: PropTypes.func.isRequired,
@@ -90,6 +94,7 @@ export class ConstructViewer extends Component {
     blocks: PropTypes.object,
     focus: PropTypes.object,
     testIndex: PropTypes.number.isRequired,
+    inventoryVisible: PropTypes.bool.isRequired,
   };
 
   /**
@@ -631,7 +636,7 @@ export class ConstructViewer extends Component {
         }
         return false;
       });
-      return canOrderFromEGF
+      return canOrderFromEGF;
     }
     return false;
   }
@@ -667,6 +672,35 @@ export class ConstructViewer extends Component {
     );
   }
 
+  /**
+   * show the view context menu beneath the given element ( from the inline toolbar )
+   * @param anchorElement
+   */
+  showViewMenu(anchorElement) {
+    const box = new Box2D(anchorElement.getBoundingClientRect());
+    const menuPosition = new Vector2D(box.cx, box.bottom);
+    const showPanels = !this.props.inventoryVisible;''
+    this.props.uiShowMenu([
+      {
+        text: `${showPanels ? 'Show' : 'Hide'} all panels`,
+        action: () => {
+          this.props.inventoryToggleVisibility(showPanels);
+          this.props.inspectorToggleVisibility(showPanels);
+        },
+      },
+      {
+        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
+        action: () => { this.sg.ui.toggleCollapsedState(); },
+      },
+    ],
+    menuPosition, true);
+  }
+
+  /**
+   * return the JSX and items for the toolbar. The toolbar contains action buttons
+   * and buttons which trigger context menus.
+   * @returns {XML}
+   */
   toolbar() {
     return (
       <div className="constructviewer-toolbar-container">
@@ -677,7 +711,9 @@ export class ConstructViewer extends Component {
               text: 'View',
               imageURL: '/images/ui/view.svg',
               enabled: true,
-              clicked: () => this.sg.ui.toggleCollapsedState(),
+              clicked: (event) => {
+                this.showViewMenu(event.target);
+              },
             },
             {
               text: 'Palette',
@@ -756,6 +792,7 @@ function mapStateToProps(state, props) {
     focus: state.focus,
     construct: state.blocks[props.constructId],
     blocks: state.blocks,
+    inventoryVisible: state.ui.inventory.isVisible,
   };
 }
 
@@ -782,6 +819,7 @@ export default connect(mapStateToProps, {
   projectSave,
   projectAddConstruct,
   inspectorToggleVisibility,
+  inventoryToggleVisibility,
   uiShowDNAImport,
   uiShowOrderForm,
   uiShowGenBankImport,
