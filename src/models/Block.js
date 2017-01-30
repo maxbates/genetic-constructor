@@ -477,13 +477,12 @@ export default class Block extends Instance {
    * Should only apply to top-level constructs
    * @method setPalette
    * @memberOf Block
-   * @param {string} [palette] Palette name
+   * @param {string} [palette] Palette name or null to default to project palette
    * @returns {Block}
    * @example
    * new Block().setPalette('bright');
    */
   setPalette(palette) {
-    invariant(palettes.indexOf(palette) >= 0, 'palette must exist');
     return this.mutate('metadata.palette', palette);
   }
 

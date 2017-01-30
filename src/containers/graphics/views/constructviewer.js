@@ -21,7 +21,18 @@ import { connect } from 'react-redux';
 import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 
-import { blockAddComponent, blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename, blockSetAuthoring, blockSetListBlock } from '../../../actions/blocks';
+import {
+  blockAddComponent,
+  blockAddComponents,
+  blockClone,
+  blockCreate,
+  blockDelete,
+  blockDetach,
+  blockRemoveComponent,
+  blockRename,
+  blockSetAuthoring,
+  blockSetPalette,
+  blockSetListBlock } from '../../../actions/blocks';
 import { focusBlockOption, focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../../actions/focus';
 import { orderCreate, orderList, orderSetName } from '../../../actions/orders';
 import {
@@ -71,6 +82,7 @@ export class ConstructViewer extends Component {
     blockClone: PropTypes.func,
     blockRename: PropTypes.func,
     blockSetAuthoring: PropTypes.func,
+    blockSetPalette: PropTypes.func,
     blockSetListBlock: PropTypes.func,
     blockAddComponent: PropTypes.func,
     blockAddComponents: PropTypes.func,
@@ -673,27 +685,83 @@ export class ConstructViewer extends Component {
   }
 
   /**
+   * toggle the side panels
+   */
+  togglePanels = () => {
+    const showPanels = !this.props.inventoryVisible;
+    this.props.inventoryToggleVisibility(showPanels);
+    this.props.inspectorToggleVisibility(showPanels);
+  };
+
+  /**
+   * get position for a context menu attached to one of the inline toolbar items
+   * @param anchorElenent
+   */
+  getToolbarAnchorPosition(anchorElement) {
+    const box = new Box2D(anchorElement.getBoundingClientRect());
+    return new Vector2D(box.cx, box.bottom);
+  }
+
+  /**
    * show the view context menu beneath the given element ( from the inline toolbar )
    * @param anchorElement
    */
   showViewMenu(anchorElement) {
-    const box = new Box2D(anchorElement.getBoundingClientRect());
-    const menuPosition = new Vector2D(box.cx, box.bottom);
-    const showPanels = !this.props.inventoryVisible;''
+    const showPanels = !this.props.inventoryVisible;
     this.props.uiShowMenu([
       {
         text: `${showPanels ? 'Show' : 'Hide'} all panels`,
-        action: () => {
-          this.props.inventoryToggleVisibility(showPanels);
-          this.props.inspectorToggleVisibility(showPanels);
-        },
+        action: this.togglePanels,
       },
       {
         text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
         action: () => { this.sg.ui.toggleCollapsedState(); },
       },
     ],
-    menuPosition, true);
+      this.getToolbarAnchorPosition(anchorElement),
+      true);
+  }
+
+  /**
+   * show palette menu
+   * @param anchorElement
+   */
+  showPaletteMenu(anchorElement) {
+    const project = this.getProject();
+    const palette = this.props.construct.metadata.palette || project.metadata.palette;
+    this.props.uiShowMenu([
+      {
+        text: 'Palette',
+        disabled: true,
+      },
+      {
+        text: 'Inherit from Project',
+        checked: !this.props.construct.metadata.palette,
+        action: () => this.props.blockSetPalette(this.props.constructId, null),
+      },
+      {
+        text: 'Anime',
+        checked: palette === 'anime',
+        action: () => this.props.blockSetPalette(this.props.constructId, 'anime'),
+      },
+      {
+        text: 'Bright',
+        checked: palette === 'bright',
+        action: () => this.props.blockSetPalette(this.props.constructId, 'bright'),
+      },
+      {
+        text: 'Pastel',
+        checked: palette === 'pastel',
+        action: () => this.props.blockSetPalette(this.props.constructId, 'pastel'),
+      },
+      {
+        text: 'Nature',
+        checked: palette === 'nature',
+        action: () => this.props.blockSetPalette(this.props.constructId, 'nature'),
+      },
+    ],
+      this.getToolbarAnchorPosition(anchorElement),
+      true);
   }
 
   /**
@@ -718,8 +786,10 @@ export class ConstructViewer extends Component {
             {
               text: 'Palette',
               imageURL: '/images/ui/color.svg',
-              enabled: false,
-              clicked: () => {},
+              enabled: true,
+              clicked: (event) => {
+                this.showPaletteMenu(event.target);
+              },
             },
             {
               text: 'Order DNA',
@@ -803,6 +873,7 @@ export default connect(mapStateToProps, {
   blockClone,
   blockSetAuthoring,
   blockSetListBlock,
+  blockSetPalette,
   blockAddComponent,
   blockAddComponents,
   blockRemoveComponent,
