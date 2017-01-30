@@ -13,15 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-export default function generalErrorHandler(err, req, res, next) {
-  if (err) {
-    console.log('unhandled server error @ url: ', req.originalUrl);
-    console.error(err, err.stack);
 
-    if (res.headersSent) {
-      return next(err);
-    }
-    return res.status(500).send(err);
-  }
-  return next();
+//last ditch error handler, should be mounted as last middleware
+export default function generalErrorHandler(err, req, res, next) {
+  console.log('unhandled server error @ url: ', req.originalUrl);
+  console.error(err, err.stack);
+
+  //only want a string, dont leak to client
+  const message = typeof err === 'string' ? err : err.message;
+  return res.status(500).send(message);
 }

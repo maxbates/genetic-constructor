@@ -21,7 +21,7 @@ import _ from 'lodash';
 import * as projectPersistence from './projects';
 import * as projectVersions from './projectVersions';
 import * as snapshots from './snapshots';
-import { errorNotPublished, errorDoesNotExist } from '../../utils/errors';
+import { errorNotPublished, errorDoesNotExist } from '../../errors/errorConstants';
 
 const logger = debug('constructor:data:persistence:commons');
 
@@ -62,11 +62,20 @@ export const checkProjectPublic = (projectId, version) => {
   invariant(version === undefined || Number.isInteger(version), 'version must be a number');
   //if version given, check the particular version
   if (Number.isInteger(version)) {
-    logger(`[checkProjectPublic] checking public snapshot: ${projectId} @ ${version}`);
+    logger(`[checkProjectPublic] checking public snapshot:
+Project: ${projectId}
+Version: ${version}`);
 
     return snapshots.snapshotGet(projectId, version)
     .then(snapshot => {
-      if (snapshotIsPublished(snapshot)) {
+      const isPublished = snapshotIsPublished(snapshot);
+
+      logger(`[checkProjectPublic] Found snapshot:
+Project: ${projectId}
+version: ${version}
+published? ${isPublished}`);
+
+      if (isPublished) {
         return snapshot;
       }
       return Promise.reject(errorNotPublished);
@@ -74,14 +83,26 @@ export const checkProjectPublic = (projectId, version) => {
   }
 
   //otherwise, check if any version is public, and return that snapshot
-  logger(`[checkProjectPublic] checking any public snapshot: ${projectId}`);
+  logger(`[checkProjectPublic] checking any public version:
+Project: ${projectId}
+Version: [latest]`);
 
   return snapshots.snapshotQuery({ [COMMONS_TAG]: true }, projectId)
   .then(results => {
-    if (!results || !results.length) {
+    const hasResults = results && results.length > 0;
+    const latestVersion = hasResults ?
+      _.maxBy(results, 'version') :
+      null;
+
+    logger(`[checkProjectPublic] Found latest:
+Project: ${projectId}
+published? ${hasResults}
+latest: ${latestVersion && latestVersion.version}`);
+
+    if (!hasResults) {
       return Promise.reject(errorNotPublished);
     }
-    return _.maxBy(results, 'version');
+    return latestVersion;
   });
 };
 
@@ -169,7 +190,7 @@ export const commonsPublishVersion = (projectId, userId, version, message, tags 
  * @returns {Promise}
  * @resolve snapshot
  */
-//todo - test
+//todo - test (when expose route)
 export const commonsPublish = (projectId, userId, roll, message, tags) => {
   invariant(projectId, 'projectId required');
   invariant(userId, 'userId required');

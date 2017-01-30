@@ -17,6 +17,7 @@
 import express from 'express';
 
 import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
+import { errorNotPublished } from '../errors/errorConstants';
 import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap
@@ -33,6 +34,18 @@ router.param('version', (req, res, next, id) => {
 
 router.use(ensureReqUserMiddleware);
 
+/*
+//fixme - this is not hit....
+function customErrorHandler(err, req, res, next) {
+  console.log('got an error');
+  console.log(err);
+  if (err) {
+    res.status(504).send('caught error');
+  }
+}
+router.use(customErrorHandler);
+*/
+
 // routes
 
 router.route('/query')
@@ -41,7 +54,13 @@ router.route('/query')
 
   return commons.commonsQuery(query)
   .then(results => res.json(results))
-  .catch(next);
+  .catch((err) => {
+    //hide forbidden, just say it doesn't exist
+    if (err === errorNotPublished) {
+      return res.status(404).send();
+    }
+    next(err);
+  });
 });
 
 router.route('/:projectId/:version?')
@@ -80,18 +99,20 @@ router.route('/:projectId/:version?')
   })
 
 /*
-//publish, given rollup, at new version
-.put(
-  userOwnsProjectMiddleware,
-  (req, res, next) => {
-    const { user, projectId } = req;
-    const { rollup, message, tags } = req.body;
+ //publish, given rollup, at new version
+ .put(
+ userOwnsProjectMiddleware,
+ (req, res, next) => {
+ res.status(501).send('test this route');
 
-    commons.commonsPublish(projectId, user.uuid, rollup, message, tags)
-    .then(info => res.json(info))
-    .catch(next);
-  })
-*/
+ const { user, projectId } = req;
+ const { rollup, message, tags } = req.body;
+
+ commons.commonsPublish(projectId, user.uuid, rollup, message, tags)
+ .then(info => res.json(info))
+ .catch(next);
+ })
+ */
 
 // unpublish
 .delete(

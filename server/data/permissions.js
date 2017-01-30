@@ -23,7 +23,7 @@
 import debug from 'debug';
 import invariant from 'invariant';
 
-import { errorInvalidId, errorDoesNotExist, errorNoIdProvided } from '../utils/errors';
+import { errorInvalidId, errorDoesNotExist, errorNoIdProvided } from '../errors/errorConstants';
 import * as projectPersistence from './persistence/projects';
 import { id as idRegex } from '../../src/utils/regex';
 
@@ -33,7 +33,10 @@ export const projectIdParamAssignment = (req, res, next, id) => {
   const { user } = req;
   const projectId = id;
 
-  logger(`[projectIdParamAssignment] Checking ${projectId} for ${user ? user.uuid : 'null'} @ ${req.url}`);
+  logger(`[projectIdParamAssignment] Looking up project:
+Project: ${projectId}
+User: ${user ? user.uuid : 'null'}
+Route: ${req.url}`);
 
   if (projectId && !idRegex().test(projectId)) {
     logger(`[projectIdParamAssignment] projectId ${projectId} invalid @ ${req.url}`);
@@ -45,7 +48,10 @@ export const projectIdParamAssignment = (req, res, next, id) => {
 
   projectPersistence.getProjectOwner(projectId)
   .then((owner) => {
-    logger(`[projectIdParamAssignment] projectId ${projectId} owner: ${owner}`);
+    logger(`[projectIdParamAssignment] Found project:
+Project: ${projectId}
+Owner: ${owner}`);
+
     Object.assign(req, { projectOwner: owner });
     next();
   })
@@ -58,13 +64,12 @@ export const projectIdParamAssignment = (req, res, next, id) => {
 
     logger('[projectIdParamAssignment] uncaught error checking access');
     logger(err);
-
     res.status(500).send('error checking project access');
   });
 };
 
 export const ensureReqUserMiddleware = (req, res, next) => {
-  logger('[ensureReqUserMiddleware] checking req.user');
+  //logger('[ensureReqUserMiddleware] checking req.user');
 
   if (!req.user || !req.user.uuid) {
     logger('[ensureReqUserMiddleware] no user attached by auth middleware @', req.url);

@@ -21,7 +21,7 @@ import { createExampleRollup } from '../../../_utils/rollup';
 import {
   errorNotPublished,
   errorDoesNotExist,
-} from '../../../../server/utils/errors';
+} from '../../../../server/errors/errorConstants';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as snapshots from '../../../../server/data/persistence/snapshots';

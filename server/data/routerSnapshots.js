@@ -16,7 +16,7 @@
 
 import express from 'express';
 
-import { errorDoesNotExist, errorInvalidModel, errorVersioningSystem } from './../utils/errors';
+import { errorDoesNotExist } from '../errors/errorConstants';
 import * as projectPersistence from './persistence/projects';
 import * as snapshots from './persistence/snapshots';
 
@@ -90,15 +90,7 @@ router.route('/:version?')
       .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, message, tags))
       .then(snapshot => res.status(200).json(snapshot))
       //may want better error handling here
-      .catch((err) => {
-        if (err === errorInvalidModel) {
-          return res.status(422).send(err);
-        }
-        if (err === errorVersioningSystem) {
-          return res.status(500).send(err);
-        }
-        return next(err);
-      });
+      .catch(next);
   });
 
 export default router;

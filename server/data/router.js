@@ -16,7 +16,7 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 
-import { errorDoesNotExist, errorInvalidModel, errorInvalidRoute } from '../utils/errors';
+import { errorInvalidModel, errorInvalidRoute } from '../errors/errorConstants';
 import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
 import * as blockPersistence from './persistence/blocks';
 import * as projectVersions from './persistence/projectVersions';
@@ -27,7 +27,6 @@ import sequenceRouter from './routerSequences';
 import snapshotRouter from './routerSnapshots';
 import loaderSupportRouter from './routerLoaderSupport';
 import commonsRouter from './routerCommons';
-
 import mostRecentProject from '../utils/mostRecentProject';
 
 const router = express.Router(); //eslint-disable-line new-cap
@@ -154,12 +153,7 @@ router.route('/projects/:projectId')
 
   projectPersistence.projectGet(projectId)
   .then(roll => res.status(200).json(roll))
-  .catch((err) => {
-    if (err === errorDoesNotExist) {
-      return res.status(404).send(err);
-    }
-    return next(err);
-  });
+  .catch(next);
 })
 .post((req, res, next) => {
   const { projectId, user } = req;
@@ -171,12 +165,7 @@ router.route('/projects/:projectId')
     updated: info.updated,
     id: info.id,
   }))
-  .catch((err) => {
-    if (err === errorInvalidModel) {
-      return res.status(422).send(errorInvalidModel);
-    }
-    next(err);
-  });
+  .catch(next);
 })
 .delete((req, res, next) => {
   const { projectId, user } = req;
@@ -184,13 +173,7 @@ router.route('/projects/:projectId')
 
   projectPersistence.projectDelete(projectId, user.uuid, forceDelete)
   .then(() => res.status(200).json({ projectId }))
-  .catch((err) => {
-    if (err === errorDoesNotExist) {
-      //unclear why this would ever happen with project access middleware...
-      return res.status(404).send(errorDoesNotExist);
-    }
-    return next(err);
-  });
+  .catch(next);
 });
 
 //separate route because dont use project permission middleware
@@ -206,7 +189,7 @@ router.route('/projects')
     return manifests;
   })
   .then(manifests => res.status(200).json(manifests))
-  .catch(err => next(err));
+  .catch(next);
 });
 
 /*
@@ -228,7 +211,7 @@ router.route('/:projectId/:blockId')
     }
     res.json(result);
   })
-  .catch(err => next(err));
+  .catch(next);
 })
 .put((req, res, next) => {
   const { user, projectId, blockId } = req;
@@ -242,12 +225,7 @@ router.route('/:projectId/:blockId')
   .then((result) => {
     res.json(result.blocks[blockId]);
   })
-  .catch((err) => {
-    if (err === errorInvalidModel) {
-      return res.status(422).send(errorInvalidModel);
-    }
-    next(err);
-  });
+  .catch(next);
 })
 .post((req, res, next) => {
   const { user, projectId, blockId } = req;
@@ -262,15 +240,7 @@ router.route('/:projectId/:blockId')
   .then((result) => {
     res.json(result.blocks[blockId]);
   })
-  .catch((err) => {
-    if (err === errorDoesNotExist) {
-      return res.status(404).send('project does not exist');
-    }
-    if (err === errorInvalidModel) {
-      return res.status(422).send(errorInvalidModel);
-    }
-    next(err);
-  });
+  .catch(next);
 })
 .delete((req, res, next) => res.status(405).send());
 
@@ -284,12 +254,7 @@ router.route('/:projectId')
   .then((result) => {
     res.json(result);
   })
-  .catch((err) => {
-    if (err === errorDoesNotExist) {
-      return res.status(404).send('project does not exist');
-    }
-    next(err);
-  });
+  .catch(next);
 })
 .put((req, res, next) => {
   res.status(405).send('cannot PUT project manifest, only post to update existing');
@@ -304,15 +269,7 @@ router.route('/:projectId')
 
   projectPersistence.projectWriteManifest(projectId, project, user.uuid)
   .then(merged => res.status(200).send(merged))
-  .catch((err) => {
-    if (err === errorDoesNotExist) {
-      return res.status(404).send(errorDoesNotExist);
-    }
-    if (err === errorInvalidModel) {
-      return res.status(422).send(errorInvalidModel);
-    }
-    next(err);
-  });
+  .catch(next);
 })
 .delete((req, res, next) => res.status(405).send('use DELETE /projects/:id'));
 

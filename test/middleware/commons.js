@@ -29,6 +29,16 @@ import Rollup from '../../src/models/Rollup';
 
 describe('middleware', () => {
   describe('commons', () => {
+    const publicTag = { [commons.COMMONS_TAG]: true };
+
+    const makeTag = (isPublic) => {
+      const base = { someCustomTag: 'my value' };
+      if (isPublic) {
+        Object.assign(base, publicTag);
+      }
+      return base;
+    };
+
     //roll for another user, to check permissions
     const otherUserId = uuid.v1();
     let rollOtherPublic = createExampleRollup();
@@ -66,7 +76,7 @@ describe('middleware', () => {
         otherUserId,
         rollOtherPublic.project.version,
         'Another users snapshot!',
-        { [commons.COMMONS_TAG]: true },
+        makeTag(true),
         commons.SNAPSHOT_TYPE_PUBLISH,
       );
 
@@ -81,7 +91,7 @@ describe('middleware', () => {
         testUserId,
         rollPublic1.project.version,
         undefined,
-        { [commons.COMMONS_TAG]: true },
+        makeTag(true),
       );
 
       snapshotPublic2 = await snapshots.snapshotWrite(
@@ -89,17 +99,44 @@ describe('middleware', () => {
         testUserId,
         rollPublic2.project.version,
         'Some message',
-        { [commons.COMMONS_TAG]: true },
+        makeTag(true),
         commons.SNAPSHOT_TYPE_PUBLISH,
       );
-
-      throw new Error('todo - whole suite!');
     });
 
-    it('commonsRetrieve() should fail on private project');
-    it('commonsRetrieve() should work on published project');
-    it('commonsRetrieve() retrieves the latest published version');
-    it('commonsRetrieve() retrieves a locked project');
+    it('commonsRetrieve() should fail on private project', (done) => {
+      api.commonsRetrieve(rollPrivate.project.id, rollPrivate.project.version)
+      .then(result => done('shouldnt work'))
+      .catch(resp => {
+        expect(resp.status).to.equal(404);
+        done();
+      })
+      .catch(done);
+    });
+
+    it('commonsRetrieve() should work on YOUR published project @ version', async () => {
+      const ret = await api.commonsRetrieve(snapshotPublic1.projectId, snapshotPublic1.version);
+      assert(ret && ret.project && ret.blocks, 'should get rollup');
+    });
+
+    it('commonsRetrieve() should work on OTHER published project @ version', async () => {
+      const ret = await api.commonsRetrieve(snapshotOtherPublic.projectId, snapshotOtherPublic.version);
+      assert(ret && ret.project && ret.blocks, 'should get rollup');
+    });
+
+    it('commonsRetrieve() retrieves the latest published version', async () => {
+      const ret = await api.commonsRetrieve(rollPublic1.project.id);
+
+      assert(ret && ret.project && ret.blocks, 'should get rollup');
+      expect(ret.project.version).to.equal(1);
+    });
+
+    it('commonsRetrieve() retrieves a locked project', async () => {
+      const ret = await api.commonsRetrieve(rollPublic1.project.id);
+
+      assert(ret.project.rules.frozen, 'project should be frozen');
+      assert(_.every(ret.blocks, (block) => block.rules.frozen), 'blocks should be frozen');
+    });
 
     it('commonsQuery() should query published projects, ignore private projects');
 

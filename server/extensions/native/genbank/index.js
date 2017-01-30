@@ -4,7 +4,7 @@ import express from 'express';
 import invariant from 'invariant';
 import _ from 'lodash';
 
-import { errorDoesNotExist } from '../../../../server/utils/errors';
+import { errorDoesNotExist } from '../../../errors/errorConstants';
 import Block from '../../../../src/models/Block';
 import Project from '../../../../src/models/Project';
 import * as filePaths from '../../../data/middleware/filePaths';

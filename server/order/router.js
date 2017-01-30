@@ -25,7 +25,7 @@ import * as orderPersistence from './../data/persistence/orders';
 import * as projectVersions from './../data/persistence/projectVersions';
 import * as projectPersistence from './../data/persistence/projects';
 import * as snapshots from './../data/persistence/snapshots';
-import { errorDoesNotExist, errorInvalidModel } from './../utils/errors';
+import { errorDoesNotExist, errorInvalidModel } from '../errors/errorConstants';
 import { submit, validate } from './egf';
 import { submit as testSubmit, validate as testValidate } from './test';
 
@@ -267,7 +267,7 @@ User ${user.uuid}
       res.status(404).send(errorDoesNotExist);
     }
 
-    res.status(500).send('There was an error handling the order...');
+    res.status(500).send(err);
   });
 });
 

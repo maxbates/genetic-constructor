@@ -20,7 +20,7 @@ import { projectIdParamAssignment, userOwnsProjectMiddleware } from './permissio
 
 import {
   errorDoesNotExist,
-} from '../utils/errors';
+} from '../errors/errorConstants';
 
 import * as projectPersistence from './persistence/projects';
 

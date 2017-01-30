@@ -18,7 +18,7 @@ import md5 from 'md5';
 
 import { dnaLooseRegexp } from '../../src/utils/dna';
 import * as sequenceUtils from '../../src/utils/sequenceMd5';
-import { errorDoesNotExist } from './../utils/errors';
+import { errorDoesNotExist } from '../errors/errorConstants';
 import * as sequences from './persistence/sequence';
 
 const router = express.Router(); //eslint-disable-line new-cap
@@ -45,12 +45,7 @@ router.route('/:md5?')
           .set('Content-Type', 'text/plain')
           .send(sequence);
       })
-      .catch((err) => {
-        if (err === errorDoesNotExist) {
-          return res.status(404).send(errorDoesNotExist);
-        }
-        return next(err);
-      });
+      .catch(next);
   })
   //todo - support passing as string, not just object
   .post((req, res, next) => {

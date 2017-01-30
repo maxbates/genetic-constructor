@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 import debug from 'debug';
 
-import { errorDoesNotExist } from '../../utils/errors';
+import { errorDoesNotExist } from '../../errors/errorConstants';
 import { dbHead, dbGet, dbPost, dbDelete } from '../middleware/db';
 
 const logger = debug('constructor:data:persistence:snapshots');

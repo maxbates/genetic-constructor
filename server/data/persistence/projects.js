@@ -22,7 +22,7 @@ import invariant from 'invariant';
 import { forEach, merge } from 'lodash';
 
 import Rollup from '../../../src/models/Rollup';
-import { errorDoesNotExist, errorInvalidModel, errorNoPermission } from '../../utils/errors';
+import { errorDoesNotExist, errorInvalidModel, errorNoPermission } from '../../errors/errorConstants';
 import { validateId, validateProject } from '../../utils/validation';
 import { dbDelete, dbGet, dbHead, dbHeadRaw, dbPost, dbPruneResult } from '../middleware/db';
 

@@ -26,7 +26,7 @@ import Rollup from '../../../../src/models/Rollup';
 import { resetColorSeed } from '../../../../src/utils/color/index';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as fileSystem from '../../../data/middleware/fileSystem';
-import { errorDoesNotExist, errorNoPermission } from '../../../utils/errors';
+import { errorDoesNotExist, errorNoPermission } from '../../../errors/errorConstants';
 
 const logger = debug('constructor:import');
 

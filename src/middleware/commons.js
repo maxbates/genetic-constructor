@@ -22,7 +22,7 @@ import { commonsApiPath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
 export const commonsRetrieve = (projectId, version) => {
-  invariant(projectId, 'Project ID required to publish');
+  invariant(projectId, 'Project ID required to retrieve');
 
   return rejectingFetch(commonsApiPath(projectId, version), headersGet())
   .then(resp => resp.json());

@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import { projectIdParamAssignment, userOwnsProjectMiddleware } from '../../../../server/data/permissions';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as sequences from '../../../../server/data/persistence/sequence';
-import { errorDoesNotExist } from '../../../../server/utils/errors';
+import { errorDoesNotExist } from '../../../errors/errorConstants';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as fileSystem from '../../../data/middleware/fileSystem';
 

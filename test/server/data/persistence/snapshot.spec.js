@@ -21,7 +21,7 @@ import { updateProjectWithTestAuthor } from '../../../_utils/userUtils';
 import { testUserId } from '../../../constants';
 import { createExampleRollup } from '../../../_utils/rollup';
 
-import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
+import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/errors/errorConstants';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 

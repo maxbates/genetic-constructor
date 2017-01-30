@@ -18,7 +18,7 @@ import debug from 'debug';
 import * as headers from '../../../src/middleware/utils/headers';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
 import { STORAGE_URL } from '../../urlConstants';
-import { errorDoesNotExist, errorNoPermission } from '../../utils/errors';
+import { errorDoesNotExist, errorNoPermission } from '../../errors/errorConstants';
 
 const logger = debug('constructor:data:db');
 
