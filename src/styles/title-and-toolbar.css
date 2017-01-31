@@ -1,0 +1,49 @@
+@import './variables.css';
+
+.title-and-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .title {
+    text-indent: 0.5rem;
+    white-space: nowrap;
+    width: 100%;
+    max-width: calc(100% - 32px);
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 1;
+
+    .text {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      flex-shrink: 1;
+      span {
+        margin-left: 1rem;
+        color: gray;
+      }
+    }
+    img {
+      flex-shrink: 0;
+      visibility: hidden;
+    }
+
+    &:hover {
+      background-color: gray;
+      border-radius: 2px;
+      color: black;
+      img {
+        visibility: visible;
+      }
+      span {
+        color: gray;
+      }
+    }
+  }
+  .bar {
+    min-width: 32px;
+    height: 32px;
+    overflow: hidden;
+  }
+}

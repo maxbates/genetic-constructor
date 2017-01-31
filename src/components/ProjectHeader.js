@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
@@ -39,10 +39,9 @@ import {
 } from '../actions/ui';
 import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
-import InlineToolbar from '../components/toolbars/inline-toolbar';
+import TitleAndToolbar from '../components/toolbars/title-and-toolbar';
 import downloadProject from '../middleware/utils/downloadProject';
 import '../styles/ProjectHeader.css';
-import '../styles/inline-editor.css';
 
 class ProjectHeader extends Component {
   static propTypes = {
@@ -170,14 +169,14 @@ class ProjectHeader extends Component {
         action: this.onDeleteProject,
       },
     ],
-    this.getToolbarAnchorPosition(anchorElement),
-    true);
+      this.getToolbarAnchorPosition(anchorElement),
+      true);
   }
 
   /**
    * perform the actual deletion.
    */
-  deleteProject(project) {l
+  deleteProject(project) {
     if (project.rules.frozen) {
       this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
     } else {
@@ -215,44 +214,54 @@ class ProjectHeader extends Component {
    * @returns {XML}
    */
   toolbar() {
-    return (
-      <InlineToolbar
-        items={[
-          {
-            text: 'Add Construct',
-            imageURL: '/images/ui/add.svg',
-            enabled: true,
-            clicked: this.onAddConstruct,
-          }, {
-            text: 'View',
-            imageURL: '/images/ui/view.svg',
-            enabled: true,
-            clicked: event => this.showViewMenu(event.target),
-          }, {
-            text: 'Download Project',
-            imageURL: '/images/ui/download.svg',
-            enabled: true,
-            clicked: () => {
-              downloadProject(this.props.project.id, this.props.focus.options);
-            },
-          }, {
-            text: 'Delete Project',
-            imageURL: '/images/ui/delete.svg',
-            enabled: true,
-            clicked: this.onDeleteProject,
-          }, {
-            text: 'More...',
-            imageURL: '/images/ui/more.svg',
-            enabled: true,
-            clicked: (event) => {
-              this.showMoreMenu(event.target);
-            },
-          }
-        ]}
-      />);
+    return [
+      {
+        text: 'Add Construct',
+        imageURL: '/images/ui/add.svg',
+        enabled: true,
+        clicked: this.onAddConstruct,
+      }, {
+        text: 'View',
+        imageURL: '/images/ui/view.svg',
+        enabled: true,
+        clicked: event => this.showViewMenu(event.target),
+      }, {
+        text: 'Download Project',
+        imageURL: '/images/ui/download.svg',
+        enabled: true,
+        clicked: () => {
+          downloadProject(this.props.project.id, this.props.focus.options);
+        },
+      }, {
+        text: 'Delete Project',
+        imageURL: '/images/ui/delete.svg',
+        enabled: true,
+        clicked: this.onDeleteProject,
+      }, {
+        text: 'More...',
+        imageURL: '/images/ui/more.svg',
+        enabled: true,
+        clicked: (event) => {
+          this.showMoreMenu(event.target);
+        },
+      },
+    ];
   }
 
   render() {
+    const { project } = this.props;
+    return (
+      <div className="ProjectHeader">
+        <TitleAndToolbar
+          title={project.metadata.name || 'Untitled Project'}
+          toolbarItems={this.toolbar()}
+          fontSize="1.5rem"
+          color="#DFE2EC"
+        />
+      </div>);
+  }
+
+  renderXXX() {
     const { project, isFocused } = this.props;
     let hoverElement;
     if (this.state.hover && !this.props.project.rules.frozen) {
