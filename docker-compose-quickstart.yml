@@ -16,6 +16,7 @@ webapp:
     BNR_ENVIRONMENT: ${BNR_ENVIRONMENT}
     BNR_ENV_TAG: ${BNR_ENV_TAG}
     BNR_ENV_URL_SUFFIX: ${BNR_ENV_URL_SUFFIX}
+    EMAIL: ${EMAIL}
   command:
     npm run server-auth
   log_driver: json-file
