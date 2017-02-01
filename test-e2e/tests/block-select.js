@@ -54,7 +54,7 @@ module.exports = {
     browser.pause(1000);
     browser.assert.countelements(".scenegraph-userinterface-selection", 0);
 
-    dragRegion(browser, '.scenegraph-userinterface', 800, 110, 30, 10, 100);
+    dragRegion(browser, '.scenegraph-userinterface', 800, 100, 30, 10, 100);
     browser
       .waitForElementPresent('.scenegraph-userinterface-selection', 5000, 'expected selections')
       // ensure we have all elements selected
