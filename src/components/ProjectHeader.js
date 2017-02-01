@@ -159,7 +159,7 @@ class ProjectHeader extends Component {
     this.props.uiShowMenu([
       {
         text: 'New Construct',
-        action: () => { },
+        action: this.onAddConstruct,
       },
       {
         text: 'View',
