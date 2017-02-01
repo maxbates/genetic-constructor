@@ -93,6 +93,18 @@
   position: relative;
   border-top: 1px solid gray;
 
+  .title-and-toolbar-container {
+    position: absolute;
+    width: calc(100% - 40px);
+    right: 0;
+    top: 0;
+    height: 32px;
+  }
+
+  .title-and-toolbar-unfocused {
+    opacity: 0.5;
+  }
+
   .lockIcon {
     position: absolute;
     left: -19px;

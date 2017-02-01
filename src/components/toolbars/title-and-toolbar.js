@@ -48,8 +48,9 @@ class TitleAndToolbar extends Component {
           style={{ fontSize: this.props.fontSize, color: this.props.color }}
           onClick={this.props.onClick}
         >
-          <div className="text">{this.props.title}</div>
-          <span>{this.props.subTitle}</span>
+          <div className="text">{this.props.title}
+            <span>{this.props.subTitle}</span>
+          </div>
           <img src="/images/ui/edit.svg" />
         </div>
         <div className="bar">

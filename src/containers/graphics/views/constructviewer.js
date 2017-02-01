@@ -33,8 +33,15 @@ import {
   blockRename,
   blockSetAuthoring,
   blockSetPalette,
-  blockSetListBlock } from '../../../actions/blocks';
-import { focusBlockOption, focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../../actions/focus';
+  blockSetListBlock
+} from '../../../actions/blocks';
+import {
+  focusBlockOption,
+  focusBlocks,
+  focusBlocksAdd,
+  focusBlocksToggle,
+  focusConstruct
+} from '../../../actions/focus';
 import { orderCreate, orderList, orderSetName } from '../../../actions/orders';
 import {
   projectAddConstruct,
@@ -50,7 +57,8 @@ import {
   uiShowMenu,
   uiShowGenBankImport,
   uiShowOrderForm,
-  uiToggleDetailView } from '../../../actions/ui';
+  uiToggleDetailView
+} from '../../../actions/ui';
 import RoleSvg from '../../../components/RoleSvg';
 import { role as roleDragType } from '../../../constants/DragTypes';
 import { blockGetComponentsRecursive, blockGetParents } from '../../../selectors/blocks';
@@ -60,7 +68,7 @@ import '../../../styles/inline-editor.css';
 import SceneGraph2D from '../scenegraph2d/scenegraph2d';
 import UserInterface from './constructvieweruserinterface';
 import Layout from './layout';
-import InlineToolbar from '../../../components/toolbars/inline-toolbar';
+import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
 import downloadProject from '../../../middleware/utils/downloadProject';
 
 // static hash for matching viewers to constructs
@@ -149,8 +157,6 @@ export class ConstructViewer extends Component {
     window.addEventListener('resize', this.resizeDebounced);
 
     // if there is no focused construct then we should grab it
-    // NOTE: For now this is disabled because it often does not product the desired result
-    // and can move the page beyind the scroll limits set.
     if (!this.props.focus.constructId) {
       this.props.focusConstruct(this.props.constructId);
     }
@@ -172,25 +178,10 @@ export class ConstructViewer extends Component {
     }
   }
 
-  shouldComponentUpdate(props, nextProps) {
-    // console.log(`CT:${this.props.construct.id}, ${props.construct !== nextProps.construct}`);
-    // return props.construct !== nextProps.construct;
-    return true;
-  }
-
   /**
    * scroll into view if needed and update scenegraph
-   *
-   *
    */
   componentDidUpdate(prevProps) {
-    // if we are newly focused then scroll ourselves into view
-    // const oldFocus = prevProps.construct.id === prevProps.focus.construct;
-    // const newFocus = this.props.construct.id === this.props.focus.construct;
-    // if (!oldFocus && newFocus) {
-    //   const dom = ReactDOM.findDOMNode(this);
-    //   dom.scrollIntoView();
-    // }
     this.update();
   }
 
@@ -204,17 +195,16 @@ export class ConstructViewer extends Component {
     this.sg.destroy();
   }
 
-
   /**
    * launch DNA form for this construct
    */
   onOrderDNA = () => {
     let order = this.props.orderCreate(this.props.currentProjectId, [this.props.construct.id]);
     this.props.orderList(this.props.currentProjectId)
-      .then((orders) => {
-        order = this.props.orderSetName(order.id, `Order ${orders.length}`);
-        this.props.uiShowOrderForm(true, order.id);
-      });
+    .then((orders) => {
+      order = this.props.orderSetName(order.id, `Order ${orders.length}`);
+      this.props.uiShowOrderForm(true, order.id);
+    });
   };
 
   /**
@@ -244,6 +234,21 @@ export class ConstructViewer extends Component {
   showInlineEditor(commit, value, position, className, target) {
     this.props.uiInlineEditor(commit, value, position, className, target);
   }
+
+  /**
+   * inline edit the title of the construct when the title is clicked
+   */
+  onTitleClicked = () => {
+    const { construct } = this.props;
+    this.props.focusConstruct(construct.id);
+    if (construct.isAuthoring() || !construct.isFixed()) {
+      const target = ReactDOM.findDOMNode(this).querySelector('.title-and-toolbar-container .title');
+      const bounds = target.getBoundingClientRect();
+      this.showInlineEditor((value) => {
+        this.renameBlock(construct.id, value);
+      }, construct.getName(), bounds, 'inline-editor-construct-title', target);
+    }
+  };
 
   /**
    * remove the given block, which we assume if part of our construct and
@@ -413,6 +418,7 @@ export class ConstructViewer extends Component {
     // list blocks cannot have children
     return !block.isList();
   }
+
   /**
    * show the block context menu at the given global coordinates.
    * @param menuPosition
@@ -430,14 +436,14 @@ export class ConstructViewer extends Component {
     const isAuthoring = this.props.construct.isAuthoring();
 
     const authoringListItems = singleBlock && isAuthoring ? [
-      {
-        text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
-        disabled: !singleBlock,
-        action: () => {
-          this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
+        {
+          text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
+          disabled: !singleBlock,
+          action: () => {
+            this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
+          },
         },
-      },
-    ] : [];
+      ] : [];
 
     return [
       {
@@ -490,13 +496,13 @@ export class ConstructViewer extends Component {
   constructContextMenuItems = () => {
     const typeName = this.props.construct.getType('Construct');
     const templateItems = this.props.construct.isTemplate() ? [
-      {
-        text: `${this.props.construct.isAuthoring() ? 'End Authoring' : 'Author'} ${typeName}`,
-        action: () => {
-          this.props.blockSetAuthoring(this.props.construct.id, !this.props.construct.isAuthoring());
+        {
+          text: `${this.props.construct.isAuthoring() ? 'End Authoring' : 'Author'} ${typeName}`,
+          action: () => {
+            this.props.blockSetAuthoring(this.props.construct.id, !this.props.construct.isAuthoring());
+          },
         },
-      },
-    ] : [];
+      ] : [];
 
     return [
       {
@@ -710,15 +716,15 @@ export class ConstructViewer extends Component {
   showViewMenu(anchorElement) {
     const showPanels = !this.props.inventoryVisible;
     this.props.uiShowMenu([
-      {
-        text: `${showPanels ? 'Show' : 'Hide'} all panels`,
-        action: this.togglePanels,
-      },
-      {
-        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
-        action: () => { this.sg.ui.toggleCollapsedState(); },
-      },
-    ],
+        {
+          text: `${showPanels ? 'Show' : 'Hide'} all panels`,
+          action: this.togglePanels,
+        },
+        {
+          text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
+          action: () => { this.sg.ui.toggleCollapsedState(); },
+        },
+      ],
       this.getToolbarAnchorPosition(anchorElement),
       true);
   }
@@ -742,6 +748,7 @@ export class ConstructViewer extends Component {
       ...paletteItems,
     ];
   }
+
   /**
    * show palette menu
    * @param anchorElement
@@ -756,39 +763,39 @@ export class ConstructViewer extends Component {
    */
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
-      {
-        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
-        action: () => { this.sg.ui.toggleCollapsedState(); },
-      },
-      {
-        text: 'Color',
-        menuItems: this.getPaletteMenuItems(),
-      },
-      {
-        text: 'Order DNA',
-        disabled: !this.allowOrder(),
-        action: this.onOrderDNA,
-      },
-      {
-        text: 'Upload',
-        disabled: false,
-        action: this.upload,
-      },
-      {
-        text: 'Download Construct',
-        disabled: false,
-        action: () => {
-          downloadProject(this.props.currentProjectId, this.props.focus.options);
+        {
+          text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
+          action: () => { this.sg.ui.toggleCollapsedState(); },
         },
-      },
-      {
-        text: 'Delete Construct',
-        disabled: this.isSampleProject(),
-        action: () => {
-          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
+        {
+          text: 'Color',
+          menuItems: this.getPaletteMenuItems(),
         },
-      },
-    ],
+        {
+          text: 'Order DNA',
+          disabled: !this.allowOrder(),
+          action: this.onOrderDNA,
+        },
+        {
+          text: 'Upload',
+          disabled: false,
+          action: this.upload,
+        },
+        {
+          text: 'Download Construct',
+          disabled: false,
+          action: () => {
+            downloadProject(this.props.currentProjectId, this.props.focus.options);
+          },
+        },
+        {
+          text: 'Delete Construct',
+          disabled: this.isSampleProject(),
+          action: () => {
+            this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
+          },
+        },
+      ],
       this.getToolbarAnchorPosition(anchorElement),
       true);
   }
@@ -804,79 +811,74 @@ export class ConstructViewer extends Component {
   };
 
   /**
-   * return the JSX and items for the toolbar. The toolbar contains action buttons
-   * and buttons which trigger context menus.
-   * @returns {XML}
+   * toolbar items / states and actions
+   * @returns {Array}
    */
-  toolbar() {
-    return (
-      <div className="constructviewer-toolbar-container">
-        <div className="title-placeholder" />
-        <InlineToolbar
-          items={[
-            {
-              text: 'View',
-              imageURL: '/images/ui/view.svg',
-              enabled: true,
-              clicked: (event) => {
-                this.showViewMenu(event.target);
-              },
-            },
-            {
-              text: 'Palette',
-              imageURL: '/images/ui/color.svg',
-              enabled: !this.isSampleProject(),
-              clicked: (event) => {
-                this.showPaletteMenu(event.target);
-              },
-            },
-            {
-              text: 'Order DNA',
-              imageURL: '/images/ui/order.svg',
-              enabled: this.allowOrder(),
-              clicked: this.onOrderDNA,
-            },
-            {
-              text: 'Upload Genbank or CSV',
-              imageURL: '/images/ui/upload.svg',
-              enabled: !this.isSampleProject(),
-              clicked: this.upload,
-            },
-            {
-              text: 'Download Construct',
-              imageURL: '/images/ui/download.svg',
-              enabled: true,
-              clicked: () => {
-                downloadProject(this.props.currentProjectId, this.props.focus.options);
-              },
-            },
-            {
-              text: 'Delete Construct',
-              imageURL: '/images/ui/delete.svg',
-              enabled: !this.isSampleProject(),
-              clicked: () => {
-                this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
-              },
-            },
-            {
-              text: 'More...',
-              imageURL: '/images/ui/more.svg',
-              enabled: true,
-              clicked: (event) => {
-                this.showMoreMenu(event.target);
-              },
-            },
-          ]}
-        />
-      </div>
-    );
+  toolbarItems() {
+    return [
+      {
+        text: 'View',
+        imageURL: '/images/ui/view.svg',
+        enabled: true,
+        clicked: (event) => {
+          this.showViewMenu(event.target);
+        },
+      },
+      {
+        text: 'Palette',
+        imageURL: '/images/ui/color.svg',
+        enabled: !this.isSampleProject(),
+        clicked: (event) => {
+          this.showPaletteMenu(event.target);
+        },
+      },
+      {
+        text: 'Order DNA',
+        imageURL: '/images/ui/order.svg',
+        enabled: this.allowOrder(),
+        clicked: this.onOrderDNA,
+      },
+      {
+        text: 'Upload Genbank or CSV',
+        imageURL: '/images/ui/upload.svg',
+        enabled: !this.isSampleProject(),
+        clicked: this.upload,
+      },
+      {
+        text: 'Download Construct',
+        imageURL: '/images/ui/download.svg',
+        enabled: true,
+        clicked: () => {
+          downloadProject(this.props.currentProjectId, this.props.focus.options);
+        },
+      },
+      {
+        text: 'Delete Construct',
+        imageURL: '/images/ui/delete.svg',
+        enabled: !this.isSampleProject(),
+        clicked: () => {
+          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
+        },
+      },
+      {
+        text: 'More...',
+        imageURL: '/images/ui/more.svg',
+        enabled: true,
+        clicked: (event) => {
+          this.showMoreMenu(event.target);
+        },
+      },
+    ];
   }
 
   /**
    * render the component, the scene graph will render later when componentDidUpdate is called
    */
   render() {
-    const rendered = (
+    const { construct } = this.props;
+    const isFocused = construct.id === this.props.focus.constructId;
+    const subTitle = `${construct.isTemplate() ? 'Template' : ''}${construct.isAuthoring() ? ' (Authoring)' : ''}`;
+    return (
       <div
         className="construct-viewer"
         key={this.props.construct.id}
@@ -885,11 +887,19 @@ export class ConstructViewer extends Component {
         <div className="sceneGraphContainer">
           <div className="sceneGraph" />
         </div>
-        {this.toolbar()}
+        <div className={`title-and-toolbar-container${isFocused ? '' : ' title-and-toolbar-unfocused'}`}>
+          <TitleAndToolbar
+            toolbarItems={this.toolbarItems()}
+            title={this.props.construct.getName('New Construct')}
+            subTitle={subTitle}
+            fontSize="16px"
+            color={construct.getColor()}
+            onClick={this.onTitleClicked}
+          />
+        </div>
         {this.lockIcon()}
       </div>
     );
-    return rendered;
   }
 }
 

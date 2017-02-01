@@ -5,6 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer;
 
   .title {
     font-family: Helvetica;
@@ -37,8 +38,11 @@
       img {
         visibility: visible;
       }
+      .text {
+        color: var(--colors-lighterGrey);
+      }
       span {
-        color: gray;
+        color: var(--colors-darkGrey);
       }
     }
   }

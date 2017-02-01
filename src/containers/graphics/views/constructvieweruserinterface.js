@@ -440,20 +440,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
-   * get the bounds for the construct title editor
-   * @param blockId
-   */
-  // TODO, do we need this?
-  // getTitleEditorBoundsAndTarget() {
-  //   const target = this.layout.titleNode.el;
-  //   const bounds = new Box2D(target.getBoundingClientRect());
-  //   bounds.top += 4;
-  //   bounds.height -= 8;
-  //   bounds.x -= 3;
-  //   return { target, bounds };
-  // }
-
-  /**
    * selected construct is lighter than unselected constructs
    *
    */

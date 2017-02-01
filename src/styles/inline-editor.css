@@ -14,7 +14,7 @@
 }
 .inline-editor-construct-title {
   font-size: 16px;
-  text-indent: 3px;
+  text-indent: 0.5rem;
   padding-right: 4px;
   font-family: Helvetica;
 }
