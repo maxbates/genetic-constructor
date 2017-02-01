@@ -218,15 +218,19 @@ export class ConstructViewer extends Component {
   /**
    * inline edit the title of the construct when the title is clicked
    */
-  onTitleClicked = () => {
+  onTitleClicked = (event) => {
     const { construct } = this.props;
+    this.props.focusBlocks([]);
     this.props.focusConstruct(construct.id);
     if (construct.isAuthoring() || !construct.isFixed()) {
-      const target = ReactDOM.findDOMNode(this).querySelector('.title-and-toolbar-container .title');
-      const bounds = target.getBoundingClientRect();
-      this.showInlineEditor((value) => {
-        this.renameBlock(construct.id, value);
-      }, construct.getName(), bounds, 'inline-editor-construct-title', target);
+      // there might be an autoscroll when focusing the construct so wait for that to complete
+      window.setTimeout(() => {
+        const target = ReactDOM.findDOMNode(this).querySelector('.title-and-toolbar-container .title');
+        const bounds = target.getBoundingClientRect();
+        this.showInlineEditor((value) => {
+          this.renameBlock(construct.id, value);
+        }, construct.getName(), bounds, 'inline-editor-construct-title', target);
+      }, 10);
     }
   };
 
