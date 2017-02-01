@@ -37,6 +37,7 @@ class TitleAndToolbar extends Component {
     subTitle: PropTypes.string,
     fontSize: PropTypes.string.isRequired,
     color: PropTypes.string.isRequired,
+    onClick: PropTypes.func.isRequired,
   };
 
   render() {
@@ -45,6 +46,7 @@ class TitleAndToolbar extends Component {
         <div
           className="title"
           style={{ fontSize: this.props.fontSize, color: this.props.color }}
+          onClick={this.props.onClick}
         >
           <div className="text">{this.props.title}</div>
           <span>{this.props.subTitle}</span>

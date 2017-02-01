@@ -15,12 +15,6 @@ limitations under the License.
 */
 // height of blocks
 const blockH = 30;
-// width of title
-const titleW = 500;
-const titleH = 30;
-// position of title
-const titleX = 34;
-const titleY = 1;
 // total height of each row
 const rowH = 60;
 // row header bar height
@@ -47,7 +41,6 @@ const insetY = 0;
 const nestedInsetX = 20;
 const nestedInsetY = 20;
 // font size
-const titleFontSize = '16px';
 const blockFontSize = '12px';
 // background
 const background = 'rgb(52, 57, 77)';
@@ -55,7 +48,7 @@ const background = 'rgb(52, 57, 77)';
 const roleIcon = 27;
 // min size of layout
 const minWidth = blockH * 4;
-const minHeight = blockH + rowBarH + titleH;
+const minHeight = blockH + rowBarH;
 // height when collapsed
 const collapsedHeight = blockH + bannerHeight + bannerGap + rowBarH;
 // width of message for collapsed constructs e.g. 'and 123 more...'
@@ -85,10 +78,6 @@ export default {
   optionDotL,
   contextDotsW,
   contextDotsH,
-  titleW,
-  titleH,
-  titleX,
-  titleY,
   rowH,
   rowBarH,
   rowBarW,
@@ -109,15 +98,6 @@ export default {
   bottomPad,
   rightPad,
 
-  // display properties for various elements
-  titleAppearance: {
-    fill: 'transparent',
-    glyph: 'rectangle',
-    strokeWidth: 0,
-    fontSize: titleFontSize,
-    textAlign: 'left',
-    height: titleH,
-  },
   // row bar
   rowAppearance: {
     height: rowBarH,

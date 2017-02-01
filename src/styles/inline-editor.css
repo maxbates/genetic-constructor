@@ -8,8 +8,9 @@
 }
 /*styles for specific inline editing contexts*/
 .inline-editor-project {
-  text-indent: 9px;
-  font-size: 16px;
+  text-indent: 5px;
+  font-size: 1.5rem;
+  font-family: Helvetica;
 }
 .inline-editor-construct-title {
   font-size: 16px;
@@ -24,40 +25,5 @@
   font-family: Helvetica;
 }
 
-/*hover glyph for inline editing hint*/
-.inline-editor-hover {
-  position: absolute;
-  background-color: gray;
-  color: white;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  img {
-    margin-left: 12px;
-    margin-right: 12px;
-  }
-  span {
-    white-space: nowrap;
-  }
-}
-
-.inline-editor-hover-title {
-  left: -4px;
-  text-indent: 4px;
-  top: 3px;
-  font-size: 16px;
-  padding: 1px 0 1px 0px;
-  font-family: Helvetica;
-  span.extra {
-    color: black !important;
-  }
-}
-.inline-editor-hover-project {
-  left: 10px;
-  top: 6px;
-  font-size: 16px;
-  text-indent: 10px;
-  padding: 4px 0 4px 0;
-}
 
 

@@ -65,9 +65,6 @@ class ProjectHeader extends Component {
     inventoryVisible: PropTypes.bool.isRequired,
   };
 
-  state = {
-    hover: false,
-  };
 
   onClick = () => {
     this.props.inspectorToggleVisibility(true);
@@ -76,16 +73,8 @@ class ProjectHeader extends Component {
     if (!this.props.project.rules.frozen) {
       this.props.uiInlineEditor((value) => {
         this.props.projectRename(this.props.project.id, value);
-      }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this));
+      }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this).querySelector('.title'));
     }
-  };
-
-  onMouseEnter = () => {
-    this.setState({ hover: true });
-  };
-
-  onMouseLeave = () => {
-    this.setState({ hover: false });
   };
 
   /**
@@ -98,7 +87,7 @@ class ProjectHeader extends Component {
   };
 
   titleEditorBounds() {
-    return new Box2D(ReactDOM.findDOMNode(this.refs.title).getBoundingClientRect()).inflate(0, 4);
+    return new Box2D(ReactDOM.findDOMNode(this).querySelector('.title').getBoundingClientRect());
   }
 
   /**
@@ -253,6 +242,7 @@ class ProjectHeader extends Component {
     return (
       <div className="ProjectHeader">
         <TitleAndToolbar
+          onClick={this.onClick}
           title={project.metadata.name || 'Untitled Project'}
           toolbarItems={this.toolbar()}
           fontSize="1.5rem"

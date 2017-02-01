@@ -93,10 +93,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     // so work backwards in the list and return the first
     // block found
     for (let i = hits.length - 1; i >= 0; i--) {
-      // hit the title node
-      if (hits[i].isNodeOrChildOf(this.layout.titleNode)) {
-        return hits[i];
-      }
       // a block node
       if (this.layout.elementFromNode(hits[i])) {
         return hits[i];
@@ -119,13 +115,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
   topBlockAt(point) {
     const top = this.topNodeAt(point);
     return top ? this.layout.elementFromNode(top) : null;
-  }
-
-  /**
-   * true if the node is the title node for the construct
-   */
-  isConstructTitleNode(node) {
-    return !!(node && node.isNodeOrChildOf(this.layout.titleNode));
   }
 
   /**
@@ -209,32 +198,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
-   * mouse enter/leave are used to ensure no block is in the hover state
-   */
-  mouseEnter(event) {
-    this.setTitleHover();
-  }
-
-  mouseLeave(event) {
-    this.setTitleHover();
-  }
-
-  /**
-   * set hover state for title node
-   */
-  setTitleHover(hover) {
-    // bail on no change
-    if (this.layout.titleNode.hover === hover) {
-      return;
-    }
-
-    this.layout.titleNode.set({
-      hover,
-    });
-    this.layout.titleNode.updateBranch();
-  }
-
-  /**
    * double click handler
    */
   doubleClick(evt, point) {
@@ -251,13 +214,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
   mouseMove(evt, point) {
     let clickable = false;
     if (!this.collapsed) {
-      const hits = this.sg.findNodesAt(point);
-      const isTitle = this.isConstructTitleNode(hits.length ? hits.pop() : null);
-      const isBlock = this.topBlockAt(point);
-      if (this.construct.isAuthoring() || !this.construct.isFixed()) {
-        this.setTitleHover(isTitle);
-      }
-      clickable = isTitle || isBlock;
+      clickable = this.topBlockAt(point);
     }
     this.setCursor(clickable ? 'pointer' : 'default');
   }
@@ -309,11 +266,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     evt.preventDefault();
     // select construct regardless of where click occurred.
     this.selectConstruct();
-    // open construct menu for title according to position
-    if (this.titleContextMenu(evt, point)) {
-      return;
-    }
-
     // show context menu for blocks if there are selections of the user is over a block
     const showMenu = () => {
       this.constructViewer.showBlockContextMenu(this.mouseTrap.mouseToGlobal(evt));
@@ -333,21 +285,21 @@ export default class ConstructViewerUserInterface extends UserInterface {
   /**
    * run the title context menu if the point is over the title block.
    */
-  titleContextMenu(evt, point) {
-    const hits = this.sg.findNodesAt(point);
-    if (this.isConstructTitleNode(hits.length ? hits.pop() : null)) {
-      // this.constructViewer.openPopup({
-      //   constructPopupMenuOpen: true,
-      //   menuPosition: this.mouseTrap.mouseToGlobal(evt),
-      // });
-      this.constructViewer.showConstructContextMenu(this.mouseTrap.mouseToGlobal(evt));
-      return true;
-    }
-    return false;
-  }
+  // titleContextMenu(evt, point) {
+  //   const hits = this.sg.findNodesAt(point);
+  //   if (this.isConstructTitleNode(hits.length ? hits.pop() : null)) {
+  //     // this.constructViewer.openPopup({
+  //     //   constructPopupMenuOpen: true,
+  //     //   menuPosition: this.mouseTrap.mouseToGlobal(evt),
+  //     // });
+  //     this.constructViewer.showConstructContextMenu(this.mouseTrap.mouseToGlobal(evt));
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   /**
-   * true if the point is in the title expander node ( looks like a triangle )
+   * true if the point is in the expander node ( looks like a triangle )
    * @param  {[type]} evt   [description]
    * @param  {[type]} point [description]
    * @return {Boolean}       [description]
@@ -461,17 +413,18 @@ export default class ConstructViewerUserInterface extends UserInterface {
       this.constructViewer.blockSelected([]);
       // if they clicked the title node then select the construct and initiate editing
       // of the title of construct via an inline edit.
-      if (this.construct.isAuthoring() || !this.construct.isFixed()) {
-        const topNode = this.topNodeAt(point);
-        if (this.isConstructTitleNode(topNode)) {
-          this.selectConstruct();
-          const bat = this.getTitleEditorBoundsAndTarget();
-          this.constructViewer.showInlineEditor((value) => {
-            this.constructViewer.renameBlock(this.construct.id, value);
-          }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
-          topNode.set({ hover: false });
-        }
-      }
+      // TODO, this is how to edit the title
+      // if (this.construct.isAuthoring() || !this.construct.isFixed()) {
+      //   const topNode = this.topNodeAt(point);
+      //   if (this.isConstructTitleNode(topNode)) {
+      //     this.selectConstruct();
+      //     const bat = this.getTitleEditorBoundsAndTarget();
+      //     this.constructViewer.showInlineEditor((value) => {
+      //       this.constructViewer.renameBlock(this.construct.id, value);
+      //     }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
+      //     topNode.set({ hover: false });
+      //   }
+      // }
     }
   }
 
@@ -490,14 +443,15 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * get the bounds for the construct title editor
    * @param blockId
    */
-  getTitleEditorBoundsAndTarget() {
-    const target = this.layout.titleNode.el;
-    const bounds = new Box2D(target.getBoundingClientRect());
-    bounds.top += 4;
-    bounds.height -= 8;
-    bounds.x -= 3;
-    return { target, bounds };
-  }
+  // TODO, do we need this?
+  // getTitleEditorBoundsAndTarget() {
+  //   const target = this.layout.titleNode.el;
+  //   const bounds = new Box2D(target.getBoundingClientRect());
+  //   bounds.top += 4;
+  //   bounds.height -= 8;
+  //   bounds.x -= 3;
+  //   return { target, bounds };
+  // }
 
   /**
    * selected construct is lighter than unselected constructs

@@ -493,41 +493,6 @@ export default class Layout {
     }
   }
 
-  /**
-   * create title as necessary
-   *
-   *
-   */
-  titleFactory() {
-    if (this.showHeader) {
-      if (!this.titleNode) {
-        // node that carries the text
-        this.titleNode = new Node2D(Object.assign({
-          dataAttribute: { name: 'nodetype', value: 'construct-title' },
-          sg: this.sceneGraph,
-          hoverClass: 'inline-editor-hover-title',
-        }, kT.titleAppearance));
-        this.sceneGraph.root.appendChild(this.titleNode);
-      }
-
-      // update title to current position and text and width, also add gray text
-      // to indicate template if appropriate
-      let text = this.construct.getName('New Construct');
-      if (this.construct.isTemplate()) {
-        text += '<span class="extra" style="color:gray">&nbsp;Template</span>';
-      }
-      if (this.isAuthoring()) {
-        text += '<span class="extra" style="color:gray">&nbsp;(Authoring)</span>';
-      }
-
-      this.titleNode.set({
-        text,
-        color: this.baseColor,
-        bounds: new Box2D(this.insetX + kT.titleX, this.insetY + kT.titleY, kT.titleW, kT.titleH),
-        dataAttribute: { name: 'construct-title', value: text },
-      });
-    }
-  }
 
   /**
    * create the vertical bar as necessary and update its color
@@ -696,8 +661,6 @@ export default class Layout {
     const ct = this.construct;
     // construct the banner if required
     this.bannerFactory();
-    // create and update title
-    this.titleFactory();
     // maximum x position
     const mx = layoutOptions.xlimit - (this.collapsed ? kT.collapsedMessageWidth : 0);
     // reset nested constructs
@@ -1038,7 +1001,6 @@ export default class Layout {
     invariant(!this.disposed, 'Layout already disposed');
     this.disposed = true;
     Layout.removeNode(this.banner);
-    Layout.removeNode(this.titleNode);
     Layout.removeNode(this.vertical);
     this.rows.forEach((node) => {
       Layout.removeNode(node);
