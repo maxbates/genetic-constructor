@@ -22,7 +22,7 @@ import AnnotationSchema from '../schemas/Annotation';
 import BlockSchema from '../schemas/Block';
 import safeValidate from '../schemas/fields/safeValidate';
 import * as validators from '../schemas/fields/validators';
-import { colorFiller, getPalette, isHex, nextColor, palettes } from '../utils/color/index';
+import { colorFiller, getPalette, isHex, nextColor } from '../utils/color/index';
 import { dnaLooseRegexp, dnaStrictRegexp } from '../utils/dna';
 import Instance from './Instance';
 

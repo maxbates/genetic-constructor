@@ -33,14 +33,14 @@ import {
   blockRename,
   blockSetAuthoring,
   blockSetPalette,
-  blockSetListBlock
+  blockSetListBlock,
 } from '../../../actions/blocks';
 import {
   focusBlockOption,
   focusBlocks,
   focusBlocksAdd,
   focusBlocksToggle,
-  focusConstruct
+  focusConstruct,
 } from '../../../actions/focus';
 import { orderCreate, orderList, orderSetName } from '../../../actions/orders';
 import {
@@ -57,7 +57,7 @@ import {
   uiShowMenu,
   uiShowGenBankImport,
   uiShowOrderForm,
-  uiToggleDetailView
+  uiToggleDetailView,
 } from '../../../actions/ui';
 import RoleSvg from '../../../components/RoleSvg';
 import { role as roleDragType } from '../../../constants/DragTypes';
@@ -123,6 +123,14 @@ export class ConstructViewer extends Component {
    */
   static getViewerForConstruct(id) {
     return idToViewer[id];
+  }
+  /**
+   * get position for a context menu attached to one of the inline toolbar items
+   * @param anchorElenent
+   */
+  static getToolbarAnchorPosition(anchorElement) {
+    const box = new Box2D(anchorElement.getBoundingClientRect());
+    return new Vector2D(box.cx, box.bottom);
   }
 
   constructor(props) {
@@ -208,34 +216,6 @@ export class ConstructViewer extends Component {
   };
 
   /**
-   * get project our construct is from
-   */
-  getProject() {
-    return this.props.projectGet(this.props.currentProjectId);
-  }
-
-  /**
-   * get the parent of the given block, which is either the construct or the parents
-   * of the block if a nested construct.
-   *
-   */
-  getBlockParent(blockId) {
-    const parents = this.props.blockGetParents(blockId);
-    invariant(parents && parents.length, 'blocks are expected to have parents');
-    return parents[0];
-  }
-
-  /**
-   * show the inline editor
-   * @param commit
-   * @param cancel
-   * @param position
-   */
-  showInlineEditor(commit, value, position, className, target) {
-    this.props.uiInlineEditor(commit, value, position, className, target);
-  }
-
-  /**
    * inline edit the title of the construct when the title is clicked
    */
   onTitleClicked = () => {
@@ -251,106 +231,41 @@ export class ConstructViewer extends Component {
   };
 
   /**
-   * remove the given block, which we assume if part of our construct and
-   * return the scenegraph node that was representing it.
-   */
-  removePart(partId) {
-    this.props.blockDetach(partId);
-  }
-
-  /**
-   * remove all parts in the list
-   */
-  removePartsList(partList) {
-    this.props.blockDetach(...partList);
-  }
-
-  /**
-   * select the given block
-   */
-  constructSelected(id) {
-    this.props.focusConstruct(id);
-  }
-
-  /**
-   * rename the current construct
-   * @param newName
-   */
-  renameBlock(blockId, newName) {
-    this.props.blockRename(blockId, newName);
-  }
-
-  /**
-   * select the given block
-   */
-  blockSelected(partIds) {
-    this.props.focusBlocks(partIds);
-  }
-
-  /**
-   * focus an option
-   */
-  optionSelected(blockId, optionId) {
-    this.props.focusBlockOption(blockId, optionId);
-  }
-
-  /**
-   * select the given block
-   */
-  blockToggleSelected(partIds) {
-    this.props.focusBlocksToggle(partIds);
-  }
-
-  /**
-   * add the given part by ID to the selections
-   */
-  blockAddToSelections(partIds) {
-    this.props.focusBlocksAdd(partIds);
-  }
-
-  /**
-   * Join the given block with any other selected block in the same
-   * construct level and select them all
-   */
-  blockAddToSelectionsRange(partId, currentSelections) {
-    // get all the blocks at the same level as this one
-    const levelBlocks = (this.props.blockGetParents(partId)[0]).components;
-    // find min/max index of these blocks if they are in the currentSelections
-    let min = levelBlocks.indexOf(partId);
-    let max = min;
-    currentSelections.forEach((blockId, index) => {
-      const blockIndex = levelBlocks.indexOf(blockId);
-      if (blockIndex >= 0) {
-        min = Math.min(min, blockIndex);
-        max = Math.max(max, blockIndex);
-      }
-    });
-    // now we can select the entire range
-    this.props.focusBlocksAdd(levelBlocks.slice(min, max + 1));
-  }
-
-  /**
-   * select all the empty block ( no sequence ) in our construct
-   */
-  selectEmptyBlocks() {
-    const allChildren = this.props.blockGetComponentsRecursive(this.props.focus.constructId);
-    const emptySet = allChildren.filter(block => !block.hasSequence()).map(block => block.id);
-    this.props.focusBlocks(emptySet);
-    if (!emptySet.length) {
-      this.props.uiSetGrunt('There are no empty blocks in the current construct');
-    }
-  }
-
-  /**
-   * window resize, update layout and scene graph with new dimensions
+   * get the parent of the given block, which is either the construct or the parents
+   * of the block if a nested construct.
    *
    */
-  windowResized() {
-    this.sg.availableWidth = this.dom.clientWidth;
-    this.sg.availableHeight = this.dom.clientHeight;
-    this.forceUpdate();
+  getBlockParent(blockId) {
+    const parents = this.props.blockGetParents(blockId);
+    invariant(parents && parents.length, 'blocks are expected to have parents');
+    return parents[0];
+  }
+  /**
+   * get project our construct is from
+   */
+  getProject() {
+    return this.props.projectGet(this.props.currentProjectId);
   }
 
+  /**
+   * get all the items for palette menu
+   */
+  getPaletteMenuItems() {
+    const project = this.getProject();
+    const palette = this.props.construct.metadata.palette || project.metadata.palette;
+    const paletteItems = palettes.map(paletteName => ({
+      text: paletteName[0].toUpperCase() + paletteName.slice(1),
+      checked: palette === paletteName,
+      action: () => this.props.blockSetPalette(this.props.constructId, paletteName),
+    }));
+    return [
+      {
+        text: 'Palette',
+        disabled: true,
+      },
+      ...paletteItems,
+    ];
+  }
   /**
    * accessor for our DOM node.
    *
@@ -436,14 +351,14 @@ export class ConstructViewer extends Component {
     const isAuthoring = this.props.construct.isAuthoring();
 
     const authoringListItems = singleBlock && isAuthoring ? [
-        {
-          text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
-          disabled: !singleBlock,
-          action: () => {
-            this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
-          },
+      {
+        text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
+        disabled: !singleBlock,
+        action: () => {
+          this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
         },
-      ] : [];
+      },
+    ] : [];
 
     return [
       {
@@ -496,13 +411,13 @@ export class ConstructViewer extends Component {
   constructContextMenuItems = () => {
     const typeName = this.props.construct.getType('Construct');
     const templateItems = this.props.construct.isTemplate() ? [
-        {
-          text: `${this.props.construct.isAuthoring() ? 'End Authoring' : 'Author'} ${typeName}`,
-          action: () => {
-            this.props.blockSetAuthoring(this.props.construct.id, !this.props.construct.isAuthoring());
-          },
+      {
+        text: `${this.props.construct.isAuthoring() ? 'End Authoring' : 'Author'} ${typeName}`,
+        action: () => {
+          this.props.blockSetAuthoring(this.props.construct.id, !this.props.construct.isAuthoring());
         },
-      ] : [];
+      },
+    ] : [];
 
     return [
       {
@@ -700,14 +615,6 @@ export class ConstructViewer extends Component {
     this.props.inspectorToggleVisibility(showPanels);
   };
 
-  /**
-   * get position for a context menu attached to one of the inline toolbar items
-   * @param anchorElenent
-   */
-  getToolbarAnchorPosition(anchorElement) {
-    const box = new Box2D(anchorElement.getBoundingClientRect());
-    return new Vector2D(box.cx, box.bottom);
-  }
 
   /**
    * show the view context menu beneath the given element ( from the inline toolbar )
@@ -716,37 +623,128 @@ export class ConstructViewer extends Component {
   showViewMenu(anchorElement) {
     const showPanels = !this.props.inventoryVisible;
     this.props.uiShowMenu([
-        {
-          text: `${showPanels ? 'Show' : 'Hide'} all panels`,
-          action: this.togglePanels,
-        },
-        {
-          text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
-          action: () => { this.sg.ui.toggleCollapsedState(); },
-        },
-      ],
-      this.getToolbarAnchorPosition(anchorElement),
+      {
+        text: `${showPanels ? 'Show' : 'Hide'} all panels`,
+        action: this.togglePanels,
+      },
+      {
+        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
+        action: () => { this.sg.ui.toggleCollapsedState(); },
+      },
+    ],
+      ConstructViewer.getToolbarAnchorPosition(anchorElement),
       true);
   }
 
   /**
-   * get all the items for palette menu
+   * select the given block
    */
-  getPaletteMenuItems() {
-    const project = this.getProject();
-    const palette = this.props.construct.metadata.palette || project.metadata.palette;
-    const paletteItems = palettes.map(paletteName => ({
-      text: paletteName[0].toUpperCase() + paletteName.slice(1),
-      checked: palette === paletteName,
-      action: () => this.props.blockSetPalette(this.props.constructId, paletteName),
-    }));
-    return [
-      {
-        text: 'Palette',
-        disabled: true,
-      },
-      ...paletteItems,
-    ];
+  constructSelected(id) {
+    this.props.focusConstruct(id);
+  }
+
+  /**
+   * rename the current construct
+   * @param newName
+   */
+  renameBlock(blockId, newName) {
+    this.props.blockRename(blockId, newName);
+  }
+
+  /**
+   * select the given block
+   */
+  blockSelected(partIds) {
+    this.props.focusBlocks(partIds);
+  }
+
+  /**
+   * focus an option
+   */
+  optionSelected(blockId, optionId) {
+    this.props.focusBlockOption(blockId, optionId);
+  }
+
+  /**
+   * select the given block
+   */
+  blockToggleSelected(partIds) {
+    this.props.focusBlocksToggle(partIds);
+  }
+
+  /**
+   * add the given part by ID to the selections
+   */
+  blockAddToSelections(partIds) {
+    this.props.focusBlocksAdd(partIds);
+  }
+
+  /**
+   * Join the given block with any other selected block in the same
+   * construct level and select them all
+   */
+  blockAddToSelectionsRange(partId, currentSelections) {
+    // get all the blocks at the same level as this one
+    const levelBlocks = (this.props.blockGetParents(partId)[0]).components;
+    // find min/max index of these blocks if they are in the currentSelections
+    let min = levelBlocks.indexOf(partId);
+    let max = min;
+    currentSelections.forEach((blockId, index) => {
+      const blockIndex = levelBlocks.indexOf(blockId);
+      if (blockIndex >= 0) {
+        min = Math.min(min, blockIndex);
+        max = Math.max(max, blockIndex);
+      }
+    });
+    // now we can select the entire range
+    this.props.focusBlocksAdd(levelBlocks.slice(min, max + 1));
+  }
+
+  /**
+   * select all the empty block ( no sequence ) in our construct
+   */
+  selectEmptyBlocks() {
+    const allChildren = this.props.blockGetComponentsRecursive(this.props.focus.constructId);
+    const emptySet = allChildren.filter(block => !block.hasSequence()).map(block => block.id);
+    this.props.focusBlocks(emptySet);
+    if (!emptySet.length) {
+      this.props.uiSetGrunt('There are no empty blocks in the current construct');
+    }
+  }
+
+  /**
+   * window resize, update layout and scene graph with new dimensions
+   *
+   */
+  windowResized() {
+    this.sg.availableWidth = this.dom.clientWidth;
+    this.sg.availableHeight = this.dom.clientHeight;
+    this.forceUpdate();
+  }
+
+  /**
+   * remove all parts in the list
+   */
+  removePartsList(partList) {
+    this.props.blockDetach(...partList);
+  }
+
+  /**
+   * remove the given block, which we assume if part of our construct and
+   * return the scenegraph node that was representing it.
+   */
+  removePart(partId) {
+    this.props.blockDetach(partId);
+  }
+
+  /**
+   * show the inline editor
+   * @param commit
+   * @param cancel
+   * @param position
+   */
+  showInlineEditor(commit, value, position, className, target) {
+    this.props.uiInlineEditor(commit, value, position, className, target);
   }
 
   /**
@@ -754,7 +752,7 @@ export class ConstructViewer extends Component {
    * @param anchorElement
    */
   showPaletteMenu(anchorElement) {
-    this.props.uiShowMenu(this.getPaletteMenuItems(), this.getToolbarAnchorPosition(anchorElement), true);
+    this.props.uiShowMenu(this.getPaletteMenuItems(), ConstructViewer.getToolbarAnchorPosition(anchorElement), true);
   }
 
   /**
@@ -763,39 +761,39 @@ export class ConstructViewer extends Component {
    */
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
-        {
-          text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
-          action: () => { this.sg.ui.toggleCollapsedState(); },
+      {
+        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
+        action: () => { this.sg.ui.toggleCollapsedState(); },
+      },
+      {
+        text: 'Color',
+        menuItems: this.getPaletteMenuItems(),
+      },
+      {
+        text: 'Order DNA',
+        disabled: !this.allowOrder(),
+        action: this.onOrderDNA,
+      },
+      {
+        text: 'Upload',
+        disabled: false,
+        action: this.upload,
+      },
+      {
+        text: 'Download Construct',
+        disabled: false,
+        action: () => {
+          downloadProject(this.props.currentProjectId, this.props.focus.options);
         },
-        {
-          text: 'Color',
-          menuItems: this.getPaletteMenuItems(),
+      },
+      {
+        text: 'Delete Construct',
+        disabled: this.isSampleProject(),
+        action: () => {
+          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
         },
-        {
-          text: 'Order DNA',
-          disabled: !this.allowOrder(),
-          action: this.onOrderDNA,
-        },
-        {
-          text: 'Upload',
-          disabled: false,
-          action: this.upload,
-        },
-        {
-          text: 'Download Construct',
-          disabled: false,
-          action: () => {
-            downloadProject(this.props.currentProjectId, this.props.focus.options);
-          },
-        },
-        {
-          text: 'Delete Construct',
-          disabled: this.isSampleProject(),
-          action: () => {
-            this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
-          },
-        },
-      ],
+      },
+    ],
       this.getToolbarAnchorPosition(anchorElement),
       true);
   }
@@ -895,7 +893,7 @@ export class ConstructViewer extends Component {
             fontSize="16px"
             color={construct.getColor()}
             onClick={this.onTitleClicked}
-            onContextMenu={(position) => this.showConstructContextMenu(position)}
+            onContextMenu={position => this.showConstructContextMenu(position)}
           />
         </div>
         {this.lockIcon()}
