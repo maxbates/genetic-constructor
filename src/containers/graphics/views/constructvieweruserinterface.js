@@ -202,9 +202,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
    */
   doubleClick(evt, point) {
     const top = this.topNodeAt(point);
-    const block = this.layout.elementFromNode(top);
-    if (block) {
-      this.constructViewer.openInspector();
+    if (top) {
+      const block = this.layout.elementFromNode(top);
+      if (block) {
+        this.constructViewer.openInspector();
+      }
     }
   }
 
@@ -281,22 +283,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
       showMenu();
     }
   }
-
-  /**
-   * run the title context menu if the point is over the title block.
-   */
-  // titleContextMenu(evt, point) {
-  //   const hits = this.sg.findNodesAt(point);
-  //   if (this.isConstructTitleNode(hits.length ? hits.pop() : null)) {
-  //     // this.constructViewer.openPopup({
-  //     //   constructPopupMenuOpen: true,
-  //     //   menuPosition: this.mouseTrap.mouseToGlobal(evt),
-  //     // });
-  //     this.constructViewer.showConstructContextMenu(this.mouseTrap.mouseToGlobal(evt));
-  //     return true;
-  //   }
-  //   return false;
-  // }
 
   /**
    * true if the point is in the expander node ( looks like a triangle )
@@ -411,20 +397,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     } else {
       // clear block selections
       this.constructViewer.blockSelected([]);
-      // if they clicked the title node then select the construct and initiate editing
-      // of the title of construct via an inline edit.
-      // TODO, this is how to edit the title
-      // if (this.construct.isAuthoring() || !this.construct.isFixed()) {
-      //   const topNode = this.topNodeAt(point);
-      //   if (this.isConstructTitleNode(topNode)) {
-      //     this.selectConstruct();
-      //     const bat = this.getTitleEditorBoundsAndTarget();
-      //     this.constructViewer.showInlineEditor((value) => {
-      //       this.constructViewer.renameBlock(this.construct.id, value);
-      //     }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
-      //     topNode.set({ hover: false });
-      //   }
-      // }
     }
   }
 

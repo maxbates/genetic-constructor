@@ -5,6 +5,7 @@
   outline: none;
   border-width: 0;
   z-index: var(--zModal);
+  border-radius: 2px;
 }
 /*styles for specific inline editing contexts*/
 .inline-editor-project {

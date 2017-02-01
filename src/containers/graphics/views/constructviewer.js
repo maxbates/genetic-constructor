@@ -895,6 +895,7 @@ export class ConstructViewer extends Component {
             fontSize="16px"
             color={construct.getColor()}
             onClick={this.onTitleClicked}
+            onContextMenu={(position) => this.showConstructContextMenu(position)}
           />
         </div>
         {this.lockIcon()}
