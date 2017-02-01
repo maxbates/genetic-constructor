@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
 
 import * as ActionTypes from './ActionTypes';
@@ -20,25 +20,6 @@ import SectionManager from './SectionManager';
 import UndoManager from './UndoManager';
 
 //future - support for reducerEnhancing the whole store. Key parts will be weird?
-
-//fixme - creating manager singleton here for undoReducer vs. dedicated manager in enhancerCreator creates a disparity. enhcancer creator should create on which is shared, and update what is exported
-const manager = new UndoManager();
-
-//hack - curently required to be last reducer (to run after enhancers have run to update undoManager, relying on key order in combineReducers)
-//note that if you pass manager into enhancerCreator, this will not work
-export const undoReducer = (state = {}, action) => {
-  const { past, future, time } = manager.getUndoState();
-
-  if (state.past === past && state.future === future) {
-    return state;
-  }
-
-  return {
-    past,
-    future,
-    time,
-  };
-};
 
 //passing in manager is for testing, but you may not want to use the singleton... but the reducer will not work if you pass it in (WIP)
 //each creator creates a new manager, so we dont have a singleton. Tests may create multiple stores, we dont want their actions affecting each other.
@@ -49,9 +30,8 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
     filter: () => false,
   }, config);
 
-  return (reducer, key = reducer.name) => {
-    //todo - why is a key required?
-    invariant(key, 'key is required, key in e.g. combineReducers');
+  function undoReducerEnhancer(reducer, key = reducer.name) {
+    invariant(key, 'key is required, key in e.g. combineReducers, for registering section properly');
     const initialState = reducer(undefined, {});
 
     //create a manager for this section of the store, register()
@@ -127,10 +107,16 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
 
       //should be consistent with the return if undoActionCalled
       return sectionManager.getCurrentState();
-    };
-  };
+    }
+  }
+
+  //expose the manager, so easy to see state of undo manager
+  undoReducerEnhancer.manager = undoManager;
+
+  return undoReducerEnhancer;
 };
 
+//todo - these should be in actions.js
 export const makeUndoable = action => Object.assign(action, { undoable: true });
 export const makePurging = action => Object.assign(action, { undoPurge: true });
 

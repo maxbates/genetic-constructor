@@ -17,7 +17,6 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { uiSaveFailure } from '../../actions/ui';
-import autosaveInstance from '../../store/autosave/autosaveInstance';
 import { getProjectSaveState } from '../../store/saveState';
 import '../../styles/AutosaveTracking.css';
 
@@ -25,6 +24,9 @@ export class autosaveTracking extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
     uiSaveFailure: PropTypes.func.isRequired,
+    autosave: PropTypes.shape({
+      dirty: PropTypes.bool.isRequired,
+    }).isRequired,
   };
 
   state = {
@@ -54,10 +56,10 @@ export class autosaveTracking extends Component {
   }
 
   render() {
-    const { projectId } = this.props;
+    const { autosave, projectId } = this.props;
+    const { dirty } = autosave;
     const saveState = getProjectSaveState(projectId);
     const { updated, saveDelta, saveSuccessful } = saveState;
-    const dirty = autosaveInstance.isDirty();
 
     let text;
     if (!saveSuccessful) {
@@ -75,6 +77,8 @@ export class autosaveTracking extends Component {
   }
 }
 
-export default connect(() => ({}), {
+export default connect((state) => ({
+  autosave: state.autosave,
+}), {
   uiSaveFailure,
 })(autosaveTracking);
