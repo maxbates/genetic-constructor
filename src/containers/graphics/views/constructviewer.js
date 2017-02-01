@@ -798,7 +798,7 @@ export class ConstructViewer extends Component {
         },
       },
     ],
-      this.getToolbarAnchorPosition(anchorElement),
+      ConstructViewer.getToolbarAnchorPosition(anchorElement),
       true);
   }
 
