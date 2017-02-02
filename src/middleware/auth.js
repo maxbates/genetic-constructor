@@ -42,8 +42,10 @@ export const login = (user, password) => {
   return authFetch(serverPath('user/login'), headersPost(stringified));
 };
 
+//user should have email, password, firstName, lastName, and captcha
 export const register = (user, config = {}) => {
-  invariant(user.email && user.password && user.firstName && user.lastName, 'wrong format user');
+  invariant(user.email && user.password && user.firstName && user.lastName, 'wrong format user, need: email, password, firstName, lastName, and captcha');
+  invariant(user.captcha, 'Captcha should be defined');
 
   //allow passing config directly in the middleware
   const payload = { user, config };

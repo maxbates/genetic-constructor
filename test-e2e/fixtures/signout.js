@@ -7,10 +7,10 @@ const signout = function(browser) {
     .waitForElementPresent('.userwidget', 5000, 'expected user to be signed in')
     .click('.userwidget')
     // click sign out menu item
-    .waitForElementPresent('.menu-item:nth-of-type(3)', 5000, 'expected menu to appear')
+    .waitForElementPresent('.menu-item:nth-of-type(4)', 5000, 'expected menu to appear')
     .pause(1000)
     .click('.menu-item:nth-of-type(3)')
-    .waitForElementPresent('.LandingPage', 5000, 'expected to be signed out')
+    .waitForElementPresent('#heroSection', 5000, 'expected to be signed out, on the landing page')
 }
 
 module.exports = signout;
