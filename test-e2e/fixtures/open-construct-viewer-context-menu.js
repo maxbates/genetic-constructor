@@ -7,7 +7,7 @@ module.exports = function (browser) {
   // generate mouse move events on body from source to destination
   browser.execute(function() {
 
-    var title = document.body.querySelector('[data-nodetype="construct-title"]');
+    var title = document.body.querySelector('.construct-viewer .title-and-toolbar .title');
     var bounds = title.getBoundingClientRect();
     return {left: bounds.left , top: bounds.top, width: bounds.width, height: bounds.height};
 
