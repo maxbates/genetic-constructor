@@ -121,7 +121,7 @@ class InventoryGroupRole extends Component {
   makeDnDProxy() {
     const item = this.state.current;
     const proxy = document.createElement('div');
-    proxy.className = 'InventoryRoleGroup-DNDProxy';
+    proxy.className = 'InventoryItemProxy';
     proxy.innerHTML = item.name;
     const element = ReactDOM.findDOMNode(this.refs[item.id]);
     const svg = element.querySelector('svg');
