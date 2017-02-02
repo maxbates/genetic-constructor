@@ -72,7 +72,7 @@ export class Page1 extends Component {
     this.props.orderSetParameters(this.props.order.id, {
       permutations: total,
     }, true);
-  }
+  };
 
   methodChanged = (newMethod) => {
     this.props.orderSetParameters(this.props.order.id, {
@@ -99,7 +99,7 @@ export class Page1 extends Component {
 
     if (!order.parameters.onePot) {
       method = (<Selector
-        disabled={!!order.isSubmitted()}
+        disabled={order.isSubmitted()}
         value={order.parameters.combinatorialMethod}
         options={methodOptions}
         onChange={this.methodChanged}
@@ -117,7 +117,7 @@ export class Page1 extends Component {
           </Row>
           <Row text="Assembly Containers:">
             <Selector
-              disabled={!!order.isSubmitted()}
+              disabled={order.isSubmitted()}
               value={assemblyOptions[order.parameters.onePot ? 0 : 1]}
               options={assemblyOptions}
               onChange={val => this.assemblyContainerChanged(val)}
@@ -128,7 +128,7 @@ export class Page1 extends Component {
               total={this.props.numberConstructs}
               value={this.props.order.parameters.permutations}
               editable={!order.parameters.onePot}
-              disabled={!!order.isSubmitted()}
+              disabled={order.isSubmitted()}
               onBlur={(val) => {
                 this.numberOfAssembliesChanged(val);
               }}
@@ -142,7 +142,7 @@ export class Page1 extends Component {
               onChange={this.sequenceAssemblies}
               label="Sequence Assemblies"
               value={order.parameters.sequenceAssemblies}
-              disabled={!!order.parameters.onePot}
+              disabled={order.parameters.onePot}
             />
           </Row>
           <br />
