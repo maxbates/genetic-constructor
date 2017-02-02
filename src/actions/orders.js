@@ -157,7 +157,7 @@ export const orderGenerateConstructs = (orderId, allPossibilities = false) =>
     return combinations.filter((el, idx, arr) => parameters.activeIndices[idx] === true);
   };
 
-//todo - this logic should go into order model, wrap in try catch
+//todo - this logic should go into order class, and just assume the component will handle before calling action
 /**
  * Set the parameters of the order
  * @function

@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import debounce from 'lodash.debounce';
+import _ from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
@@ -43,22 +43,32 @@ export class Page1 extends Component {
     orderSetParameters: PropTypes.func.isRequired,
     //orderList: PropTypes.func.isRequired,
     //blocks: PropTypes.object.isRequired,
-    numberConstructs: PropTypes.number.isRequired,
+    numberCombinations: PropTypes.number.isRequired,
   };
 
   constructor() {
     super();
     //todo - this should use a transaction + commit, not deboucne like this. See InputSimple
-    this.labelChanged = debounce(value => this._labelChanged(value), 500, { leading: false, trailing: true });
+    this.labelChanged = _.debounce(value => this._labelChanged(value), 500, { leading: false, trailing: true });
   }
 
   assemblyContainerChanged = (newValue) => {
     const onePot = newValue === assemblyOptions[0];
-    this.props.orderSetParameters(this.props.order.id, {
-      permutations: this.props.numberConstructs,
-      combinatorialMethod: 'Random Subset',
+    const { order, numberCombinations } = this.props;
+
+    //merge old with new parameters
+    const parameters = _.merge({
+      permutations: numberCombinations,
+    }, order.parameters, {
       onePot,
-    }, true);
+    });
+
+    //set combinatorial method if one not set
+    if (!parameters.combinatorialMethod) {
+      parameters.combinatorialMethod = 'Random Subset';
+    }
+
+    this.props.orderSetParameters(this.props.order.id, parameters, true);
   };
 
   _labelChanged = (newLabel) => {
@@ -125,7 +135,7 @@ export class Page1 extends Component {
           </Row>
           <Row text="Number of assemblies:">
             <Permutations
-              total={this.props.numberConstructs}
+              total={this.props.numberCombinations}
               value={this.props.order.parameters.permutations}
               editable={!order.parameters.onePot}
               disabled={order.isSubmitted()}
@@ -155,7 +165,7 @@ export class Page1 extends Component {
 function mapStateToProps(state, props) {
   return {
     blocks: state.blocks,
-    numberConstructs: props.order.numberCombinations,
+    numberCombinations: props.order.numberCombinations,
   };
 }
 
