@@ -46,15 +46,15 @@ module.exports = {
       .clearValue('.Inspector .InputSimple-input')
       .setValue('.Inspector .InputSimple-input', ['Hillary Clinton', browser.Keys.ENTER])
       .pause(500)
-      .assert.containsText('[data-nodetype="construct-title"] .nodetext', 'Hillary Clinton');
+      .assert.containsText('.construct-viewer .title-and-toolbar .title', 'Hillary Clinton');
     browser
       // focus the project and change its title
-      .click('.ProjectHeader')
+      .click('.ProjectHeader .title-and-toolbar .title')
       .pause(500)
       .clearValue('.Inspector .InputSimple-input')
       .setValue('.Inspector .InputSimple-input', ['Bernie Saunders', browser.Keys.ENTER])
       .pause(500)
-      .assert.containsText('.ProjectHeader-title', 'Bernie Saunders')
+      .assert.containsText('.ProjectHeader .title-and-toolbar .title .text', 'Bernie Saunders')
       .saveScreenshot('./test-e2e/current-screenshots/focus-block-construct-project.png')
       .end();
   }
