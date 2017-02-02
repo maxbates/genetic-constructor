@@ -21,6 +21,7 @@ import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import UserInterface from '../scenegraph2d/userinterface';
 import Fence from './fence';
+import D from 'DOMArray';
 
 // # of pixels of mouse movement before a drag is triggered.
 const dragThreshold = 8;
@@ -629,11 +630,17 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   showDragInside() {
-    this.el.classList.add('scenegraph-userinterface-drag-inside');
+    if (!this.borderElement) {
+      this.borderElement = D('<div class="scenegraph-userinterface-drag-inside"></div>');
+      this.el.appendChild(this.borderElement.el);
+    }
   }
 
   hideDragInside() {
-    this.el.classList.remove('scenegraph-userinterface-drag-inside');
+    if (this.borderElement) {
+      this.borderElement.remove();
+      this.borderElement = null;
+    }
   }
 
   darken() {

@@ -21,7 +21,7 @@ import { uiSetGrunt, uiSpin } from '../../actions/ui';
 import { role as roleDragType } from '../../constants/DragTypes';
 import DnD from '../../containers/graphics/dnd/dnd';
 import MouseTrap from '../../containers/graphics/mousetrap';
-import inventoryRoles from '../../inventory/roles';
+import { symbols as inventoryRoles, sortOrder } from '../../inventory/roles';
 import Block from '../../models/Block';
 import '../../styles/InventoryGroupRole.css';
 import RoleSvg from '../RoleSvg';
@@ -53,6 +53,7 @@ class InventoryGroupRole extends Component {
     'bidrectional promoter',
     'plasmin backbone',
     'combinatorial list',
+    'list block',
     'no symbol',
   ];
 
@@ -137,8 +138,8 @@ class InventoryGroupRole extends Component {
 
     // sort items by order given by sortOrder
     const sorted = this.roleSymbols.slice();
-    sorted.sort((itemA, itemB) => InventoryGroupRole.sortOrder.indexOf(itemA.name.toLowerCase()) -
-    InventoryGroupRole.sortOrder.indexOf(itemB.name.toLowerCase()));
+    sorted.sort((itemA, itemB) => sortOrder.indexOf(itemA.name.toLowerCase()) -
+    sortOrder.indexOf(itemB.name.toLowerCase()));
 
     return (
       <div className="InventoryGroup-content InventoryGroupRole">
@@ -161,7 +162,7 @@ class InventoryGroupRole extends Component {
                   onMouseLeave={this.onMouseLeave}
                   ref={item.id}
                 />
-                <div className={`name${current.id === item.id ? ' active' : ''}`}>{item.name}</div>
+                <div className={`name${current.id === item.id ? ' active' : ''}`}>{item.name === 'No Symbol' ? '' : item.name}</div>
               </div>))}
           </div>
         </div>
