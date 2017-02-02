@@ -50,7 +50,7 @@ class InlineToolbar extends Component {
                 key={index}
                 title={item.text}
                 src={item.imageURL}
-                onClick={(event) => this.itemClicked(event, item)}
+                onClick={event => this.itemClicked(event, item)}
                 className="item"
                 style={{
                   filter: `brightness(${item.enabled ? '100%' : '50%'})`,

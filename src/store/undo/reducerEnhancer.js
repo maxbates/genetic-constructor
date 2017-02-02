@@ -107,7 +107,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
 
       //should be consistent with the return if undoActionCalled
       return sectionManager.getCurrentState();
-    }
+    };
   }
 
   //expose the manager, so easy to see state of undo manager
@@ -118,6 +118,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager
 
 //todo - these should be in actions.js
 export const makeUndoable = action => Object.assign(action, { undoable: true });
+export const actionIsUndoable = action => action.undoable === true;
 export const makePurging = action => Object.assign(action, { undoPurge: true });
 
 export default undoReducerEnhancerCreator;

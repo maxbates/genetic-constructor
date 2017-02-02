@@ -92,7 +92,7 @@ export class ProjectPage extends Component {
     if (this.props.autosave && this.props.autosave.dirty === true && process.env.NODE_ENV === 'production') {
       return 'Project has unsaved work! Please save before leaving this page';
     }
-  };
+  }
 
   render() {
     const { project, projectId, constructs } = this.props;

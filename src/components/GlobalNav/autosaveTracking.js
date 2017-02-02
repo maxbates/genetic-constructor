@@ -77,7 +77,7 @@ export class autosaveTracking extends Component {
   }
 }
 
-export default connect((state) => ({
+export default connect(state => ({
   autosave: state.autosave,
 }), {
   uiSaveFailure,

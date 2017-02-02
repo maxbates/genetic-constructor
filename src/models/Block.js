@@ -483,6 +483,7 @@ export default class Block extends Instance {
    * new Block().setPalette('bright');
    */
   setPalette(palette) {
+    invariant(palettes.indexOf(palette) >= 0, 'must be a valid palette');
     return this.mutate('metadata.palette', palette);
   }
 
