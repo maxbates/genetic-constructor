@@ -47,6 +47,7 @@ class InlineToolbar extends Component {
           this.props.items.slice().reverse().map((item, index) =>
             (
               <img
+                data-id={item.text}
                 key={index}
                 title={item.text}
                 src={item.imageURL}
