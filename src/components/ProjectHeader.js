@@ -28,7 +28,10 @@ import {
   projectLoad,
   projectOpen,
 } from '../actions/projects';
-import { blockCreate } from '../actions/blocks';
+import {
+  blockCreate,
+  blockRename,
+} from '../actions/blocks';
 import {
   inspectorToggleVisibility,
   inventoryToggleVisibility,
@@ -46,6 +49,7 @@ import '../styles/ProjectHeader.css';
 class ProjectHeader extends Component {
   static propTypes = {
     blockCreate: PropTypes.func.isRequired,
+    blockRename: PropTypes.func.isRequired,
     project: PropTypes.object.isRequired,
     focus: PropTypes.object,
     focusConstruct: PropTypes.func.isRequired,
@@ -78,6 +82,7 @@ class ProjectHeader extends Component {
    */
   onAddConstruct = () => {
     const block = this.props.blockCreate({ projectId: this.props.project.id });
+    this.props.blockRename(block.id, 'New Construct');
     this.props.projectAddConstruct(this.props.project.id, block.id, true);
     this.props.focusConstruct(block.id);
   };
@@ -260,6 +265,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   blockCreate,
+  blockRename,
   inspectorToggleVisibility,
   inventoryToggleVisibility,
   focusPrioritize,

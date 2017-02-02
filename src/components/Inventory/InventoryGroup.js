@@ -24,7 +24,7 @@ import InventoryGroupRole from './InventoryGroupRole';
 import InventoryGroupSearch from './InventoryGroupSearch';
 import InventoryProjectHeader from './InventoryProjectHeader';
 import DnD from '../../containers/graphics/dnd/dnd';
-import { blockClone, blockCreate } from '../../actions/blocks';
+import { blockClone, blockCreate, blockRename } from '../../actions/blocks';
 import { projectAddConstruct, projectCreate, projectOpen } from '../../actions/projects';
 import { focusConstruct } from '../../actions/focus';
 import ConstructViewer from '../../containers/graphics/views/constructviewer';
@@ -35,6 +35,7 @@ class InventoryGroup extends Component {
     actions: PropTypes.array,
     blockCreate: PropTypes.func.isRequired,
     blockClone: PropTypes.func.isRequired,
+    blockRename: PropTypes.func.isRequired,
     projectCreate: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
@@ -88,6 +89,7 @@ class InventoryGroup extends Component {
       this.props.focusConstruct(construct.id);
     } else {
       const construct = this.props.blockCreate();
+      this.props.blockRename(construct.id, 'New Construct');
       this.props.projectAddConstruct(project.id, construct.id, true);
       // we need the actual ConstructViewer to proceed
       window.setTimeout(() => {
@@ -169,6 +171,7 @@ class InventoryGroup extends Component {
 export default connect(null, {
   blockCreate,
   blockClone,
+  blockRename,
   projectCreate,
   projectOpen,
   projectAddConstruct,

@@ -17,7 +17,7 @@ import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import { blockClone, blockCreate } from '../../../actions/blocks';
+import { blockClone, blockCreate, blockRename } from '../../../actions/blocks';
 import { focusConstruct } from '../../../actions/focus';
 import { projectAddConstruct } from '../../../actions/projects';
 import { block as blockDragType } from '../../../constants/DragTypes';
@@ -29,6 +29,7 @@ import '../../../styles/inter-construct-droptarget.css';
 export class InterConstructDropTarget extends Component {
   static propTypes = {
     blockCreate: PropTypes.func.isRequired,
+    blockRename: PropTypes.func.isRequired,
     blockClone: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
@@ -80,6 +81,7 @@ export class InterConstructDropTarget extends Component {
       this.props.focusConstruct(construct.id);
     } else {
       const construct = this.props.blockCreate();
+      this.props.blockRename(construct.id, 'New Construct');
       this.props.projectAddConstruct(this.props.currentProjectId, construct.id, true, this.props.index);
       const constructViewer = ConstructViewer.getViewerForConstruct(construct.id);
       invariant(constructViewer, 'expect to find a viewer for the new construct');
@@ -107,4 +109,5 @@ export default connect(null, {
   projectAddConstruct,
   blockClone,
   blockCreate,
+  blockRename,
 })(InterConstructDropTarget);
