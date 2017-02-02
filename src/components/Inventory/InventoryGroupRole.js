@@ -91,17 +91,24 @@ class InventoryGroupRole extends Component {
     // get global point as starting point for drag
     const globalPoint = this.mouseTrap.mouseToGlobal(event);
 
-    // make a block to drag
+    // make a block to drag, mondo hack for list blocks, otherwise just the usual hacks
+    let rules;
+    if (this.state.current.id === 'list') {
+      rules = { list: true };
+    } else {
+      rules = {
+        role: this.state.current.id === 'null' ? null : this.state.current.id,
+      };
+    }
     const roleBlock = new Block({
       id: this.state.current,
       metadata: {
         name: this.state.current.name,
         color: null,
       },
-      rules: {
-        role: this.state.current.id === 'null' ? null : this.state.current.id,
-      },
+      rules,
     });
+
     // start DND
     DnD.startDrag(this.makeDnDProxy(), globalPoint, {
       item: roleBlock,
@@ -162,7 +169,9 @@ class InventoryGroupRole extends Component {
                   onMouseLeave={this.onMouseLeave}
                   ref={item.id}
                 />
-                <div className={`name${current.id === item.id ? ' active' : ''}`}>{item.name === 'No Symbol' ? '' : item.name}</div>
+                <div
+                  className={`name${current.id === item.id ? ' active' : ''}`}
+                >{item.name === 'No Symbol' ? '' : item.name}</div>
               </div>))}
           </div>
         </div>
