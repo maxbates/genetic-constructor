@@ -679,7 +679,8 @@ export default class Layout {
     // additional vertical space consumed on every row for nested constructs
     let nestedVertical = 0;
 
-    // additional height required by the tallest list on the row
+    // additional height required by the tallest list on the row including an allowance
+    // for empty list blocks which have the text 'Emtpy List' below them.
     let maxListHeight = 0;
 
     // used to track the nested constructs on each row
@@ -714,7 +715,9 @@ export default class Layout {
       const node = this.nodeFromElement(part);
       const block = this.blocks[part];
       const name = this.partName(part);
-      const listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      let listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      // empty list blocks has a message below them so allow for that.
+      listN = block.isList() ? Math.max(listN, 1) : listN;
 
       // set role part name if any
       node.set({

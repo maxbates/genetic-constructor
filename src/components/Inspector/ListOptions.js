@@ -85,7 +85,6 @@ export class ListOptions extends Component {
     const { options } = block;
     const isFrozen = block.isFrozen();
 
-    //const csvUploadButton = !isFrozen && !toggleOnly ? <CSVFileDrop style={{marginBottom: '1em'}} onDrop={this.handleCSVDrop}/> : null;
     const csvUploadButton = !isFrozen && !toggleOnly ?
       (<div style={{ marginBottom: '1em' }} className="CSVFileDrop" onClick={this.handleCSVImport}>Upload Parts
         (CSV)</div>) : null;
