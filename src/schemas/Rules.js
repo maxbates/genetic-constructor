@@ -1,3 +1,4 @@
+
 /*
  Copyright 2016 Autodesk,Inc.
 
@@ -47,11 +48,6 @@ const rulesFields = {
   fixed: [
     fields.bool(),
     'Block Ids of components are fixed - no movement, insertions, deletions, substitutions',
-    { avoidScaffold: true },
-  ],
-  authoring: [
-    fields.bool(),
-    'A template is being authored',
     { avoidScaffold: true },
   ],
 };
