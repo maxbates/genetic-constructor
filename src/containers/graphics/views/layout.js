@@ -384,9 +384,6 @@ export default class Layout {
    * @return {boolean}
    */
   blockIsHidden(blockId) {
-    if (this.isAuthoring()) {
-      return false;
-    }
     const block = this.blocks[blockId];
     return block.isHidden();
   }
@@ -564,19 +561,6 @@ export default class Layout {
       this.nestedLayouts[key].dispose();
     });
     this.nestedLayouts = this.newNestedLayouts;
-  }
-
-  /**
-   * nested constructs may be indicate not authoring when the top level construct does
-   * so always check the top level construct.
-   * @return {Boolean}
-   */
-  isAuthoring() {
-    // construct may not be present when used as a preview control in the order form
-    if (this.constructViewer.props.construct) {
-      return this.constructViewer.props.construct.isAuthoring();
-    }
-    return false;
   }
 
   /**

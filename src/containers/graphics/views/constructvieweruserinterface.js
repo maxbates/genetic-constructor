@@ -384,7 +384,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         case 'optionSelect':
           break;
         default:
-          if (this.blockIsFocused(block) && (this.construct.isAuthoring() || !this.construct.isFixed())) {
+          if (this.blockIsFocused(block) && !this.construct.isFixed()) {
             const name = this.layout.partName(block);
             const bat = this.getBlockEditorBoundsAndTarget(block);
             this.constructViewer.showInlineEditor((value) => {
@@ -524,8 +524,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
         if (this.construct.isFrozen()) {
           return;
         }
-        // no mutation of fixed constructs unless authoring
-        if (this.construct.isFixed() && !this.construct.isAuthoring()) {
+        // no mutation of fixed constructs
+        if (this.construct.isFixed()) {
           return;
         }
         // open an undo/redo transaction
@@ -662,7 +662,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     // select construct on drag over (unless collapsed)
     this.selectConstruct();
     // no drop on frozen or fixed constructs
-    if (this.construct.isFrozen() || (this.construct.isFixed() && !this.construct.isAuthoring())) {
+    if (this.construct.isFrozen() || this.construct.isFixed()) {
       return;
     }
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
@@ -689,7 +689,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
    */
   onDrop(globalPosition, payload, event) {
     // no drop on frozen or fixed constructs or collapsed
-    if (this.layout.collapsed || this.construct.isFrozen() || (this.construct.isFixed() && !this.construct.isAuthoring())) {
+    if (this.layout.collapsed || this.construct.isFrozen() || this.construct.isFixed()) {
       return;
     }
     // for now templates can only be dropped on the new construct target which is part of the canvas

@@ -31,7 +31,6 @@ import {
   blockDetach,
   blockRemoveComponent,
   blockRename,
-  blockSetAuthoring,
   blockSetPalette,
   blockSetListBlock,
 } from '../../../actions/blocks';
@@ -90,7 +89,6 @@ export class ConstructViewer extends Component {
     blockCreate: PropTypes.func,
     blockClone: PropTypes.func,
     blockRename: PropTypes.func,
-    blockSetAuthoring: PropTypes.func,
     blockSetPalette: PropTypes.func,
     blockSetListBlock: PropTypes.func,
     blockAddComponent: PropTypes.func,
@@ -222,7 +220,7 @@ export class ConstructViewer extends Component {
     const { construct } = this.props;
     this.props.focusBlocks([]);
     this.props.focusConstruct(construct.id);
-    if (construct.isAuthoring() || !construct.isFixed()) {
+    if (!construct.isFixed()) {
       // there might be an autoscroll when focusing the construct so wait for that to complete
       window.setTimeout(() => {
         const target = ReactDOM.findDOMNode(this).querySelector('.title-and-toolbar-container .title');
@@ -352,9 +350,8 @@ export class ConstructViewer extends Component {
   blockContextMenuItems = () => {
     const singleBlock = this.props.focus.blockIds.length === 1;
     const firstBlock = this.props.blocks[this.props.focus.blockIds[0]];
-    const isAuthoring = this.props.construct.isAuthoring();
 
-    const authoringListItems = singleBlock && isAuthoring ? [
+    const authoringListItems = singleBlock ? [
       {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
         disabled: !singleBlock,
@@ -374,14 +371,14 @@ export class ConstructViewer extends Component {
       },
       {
         text: `Delete ${singleBlock ? 'Block' : 'Blocks'}`,
-        disabled: !isAuthoring && (this.props.construct.isFixed() || this.props.construct.isFrozen()),
+        disabled:  this.props.construct.isFixed() || this.props.construct.isFrozen(),
         action: () => {
           this.removePartsList(this.sg.ui.selectedElements);
         },
       },
       {
         text: 'Import DNA Sequence',
-        disabled: !singleBlock || (!isAuthoring && (this.props.construct.isFixed() || this.props.construct.isFrozen())),
+        disabled: !singleBlock || (this.props.construct.isFixed() || this.props.construct.isFrozen()),
         action: () => {
           this.props.uiShowDNAImport(true);
         },
@@ -414,14 +411,6 @@ export class ConstructViewer extends Component {
    */
   constructContextMenuItems = () => {
     const typeName = this.props.construct.getType('Construct');
-    const templateItems = this.props.construct.isTemplate() ? [
-      {
-        text: `${this.props.construct.isAuthoring() ? 'End Authoring' : 'Author'} ${typeName}`,
-        action: () => {
-          this.props.blockSetAuthoring(this.props.construct.id, !this.props.construct.isAuthoring());
-        },
-      },
-    ] : [];
 
     return [
       {
@@ -453,7 +442,6 @@ export class ConstructViewer extends Component {
           this.props.focusConstruct(clone.id);
         },
       },
-      ...templateItems,
     ];
   };
 
@@ -469,8 +457,8 @@ export class ConstructViewer extends Component {
     if (type === roleDragType) {
       // create new block with correct type of rules dictated by source symbol
       const droppedBlock = this.props.blockCreate({
-        rules: payload.item.rules,
-        metadata: payload.item.metadata,
+        rules: item.rules,
+        metadata: item.metadata,
       });
       // insert next to block, inject into a block, or add as the first block of an empty construct
       if (insertionPoint) {
@@ -538,7 +526,7 @@ export class ConstructViewer extends Component {
     }
 
     // add all blocks in the payload
-    const blocks = Array.isArray(payload.item) ? payload.item : [payload.item];
+    const blocks = Array.isArray(item) ? item : [item];
     // return the list of newly added blocks so we can select them for example
     blocks.forEach((block) => {
       const newBlock = (payload.source === 'inventory' || payload.copying)
@@ -546,9 +534,6 @@ export class ConstructViewer extends Component {
         : this.props.blocks[block];
       newBlocks.push(newBlock.id);
     });
-
-    //if the block is from the inventory, we've cloned it and dont need to worry about forcing the projectId when we add the components
-    //const shouldForceProjectId = payload.source.indexOf('inventory') >= 0;
 
     // now insert the blocks in one go
     return this.props.blockAddComponents(parent.id, newBlocks, index, true);
@@ -882,7 +867,7 @@ export class ConstructViewer extends Component {
   render() {
     const { construct } = this.props;
     const isFocused = construct.id === this.props.focus.constructId;
-    const subTitle = `${construct.isTemplate() ? 'Template' : ''}${construct.isAuthoring() ? ' (Authoring)' : ''}`;
+    const subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
     return (
       <div
         className="construct-viewer"
@@ -923,7 +908,6 @@ export default connect(mapStateToProps, {
   blockDelete,
   blockDetach,
   blockClone,
-  blockSetAuthoring,
   blockSetListBlock,
   blockSetPalette,
   blockAddComponent,
