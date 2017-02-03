@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import D from 'DOMArray';
 import { dispatch } from '../../../store/index';
 import { transact } from '../../../store/undo/actions';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
@@ -21,7 +22,7 @@ import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import UserInterface from '../scenegraph2d/userinterface';
 import Fence from './fence';
-import D from 'DOMArray';
+
 
 // # of pixels of mouse movement before a drag is triggered.
 const dragThreshold = 8;
@@ -631,7 +632,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
 
   showDragInside() {
     if (!this.borderElement) {
-      this.borderElement = D('<div class="scenegraph-userinterface-drag-inside"></div>');
+      this.borderElement = D('<div class="scenegraph-userinterface-drag-inside"></div>'); //eslint-disable-line new-cap
       this.el.appendChild(this.borderElement.el);
     }
   }
