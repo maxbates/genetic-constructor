@@ -467,8 +467,8 @@ export class ConstructViewer extends Component {
     // get the immediate parent ( which might not be the top level block if this is a nested construct )
     let parent = insertionPoint ? this.getBlockParent(insertionPoint.block) : this.props.construct;
     if (type === roleDragType) {
-      // create new block with correct type of sbol symbo
-      const droppedBlock = this.props.blockCreate({ rules: { role: item.rules.role } });
+      // create new block with correct type of rules dictated by source symbol
+      const droppedBlock = this.props.blockCreate({ rules: payload.item.rules });
       // insert next to block, inject into a block, or add as the first block of an empty construct
       if (insertionPoint) {
         if (insertionPoint.edge) {
