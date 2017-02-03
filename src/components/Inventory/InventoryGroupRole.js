@@ -93,7 +93,8 @@ class InventoryGroupRole extends Component {
 
     // make a block to drag, mondo hack for list blocks, otherwise just the usual hacks
     let rules;
-    if (this.state.current.id === 'list') {
+    const isList = this.state.current.id === 'list';
+    if (isList) {
       rules = { list: true };
     } else {
       rules = {
@@ -103,7 +104,7 @@ class InventoryGroupRole extends Component {
     const roleBlock = new Block({
       id: this.state.current,
       metadata: {
-        name: this.state.current.name,
+        name: isList ? 'New List Block' : this.state.current.name,
         color: null,
       },
       rules,

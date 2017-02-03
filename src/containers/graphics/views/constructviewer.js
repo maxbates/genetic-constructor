@@ -468,7 +468,10 @@ export class ConstructViewer extends Component {
     let parent = insertionPoint ? this.getBlockParent(insertionPoint.block) : this.props.construct;
     if (type === roleDragType) {
       // create new block with correct type of rules dictated by source symbol
-      const droppedBlock = this.props.blockCreate({ rules: payload.item.rules });
+      const droppedBlock = this.props.blockCreate({
+        rules: payload.item.rules,
+        metadata: payload.item.metadata,
+      });
       // insert next to block, inject into a block, or add as the first block of an empty construct
       if (insertionPoint) {
         if (insertionPoint.edge) {
