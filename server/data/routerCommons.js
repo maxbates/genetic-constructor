@@ -22,6 +22,12 @@ import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
+const convertTagsStrings = tags => _.forEach(tags, (val, key) => {
+  if (typeof val !== 'string') {
+    tags[key] = String(val);
+  }
+});
+
 // check user and project Id valid
 router.param('projectId', projectIdParamAssignment);
 
@@ -33,18 +39,6 @@ router.param('version', (req, res, next, id) => {
 });
 
 router.use(ensureReqUserMiddleware);
-
-/*
-//fixme - this is not hit....
-function customErrorHandler(err, req, res, next) {
-  console.log('got an error');
-  console.log(err);
-  if (err) {
-    res.status(504).send('caught error');
-  }
-}
-router.use(customErrorHandler);
-*/
 
 // routes
 
@@ -92,6 +86,7 @@ router.route('/:projectId/:version?')
 
     const { user, projectId, version } = req;
     const { message, tags } = req.body;
+    convertTagsStrings(tags);
 
     commons.commonsPublishVersion(projectId, user.uuid, version, message, tags)
     .then(info => res.json(info))
@@ -107,6 +102,7 @@ router.route('/:projectId/:version?')
 
  const { user, projectId } = req;
  const { rollup, message, tags } = req.body;
+ convertTagsStrings(tags);
 
  commons.commonsPublish(projectId, user.uuid, rollup, message, tags)
  .then(info => res.json(info))

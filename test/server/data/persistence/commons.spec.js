@@ -134,17 +134,6 @@ describe('Server', () => {
           expect(query.length).to.equal(numberPublished);
         });
 
-        //todo - @hylberd
-        it('can query, when tags of wrong type, and work', async () => {
-          //should not throw, but return bogus
-          const query = await commons.commonsQuery({ customTag: 9 })
-          .catch(resp => {
-            return resp.json().then(text => Promise.reject(text));
-          });
-
-          expect(query.length).to.equal(0);
-        });
-
         it('can retrieve a locked project, default to latest', async () => {
           const published = await commons.commonsRetrieve(projectId);
 

@@ -28,7 +28,7 @@ import Project from '../../src/models/Project';
 import Rollup from '../../src/models/Rollup';
 
 describe('middleware', () => {
-  describe.only('commons', () => {
+  describe('commons', () => {
     const publicTag = { [commons.COMMONS_TAG]: true };
 
     const makeTag = (isPublic) => {
@@ -102,8 +102,6 @@ describe('middleware', () => {
         makeTag(true),
         commons.SNAPSHOT_TYPE_PUBLISH,
       );
-
-      throw new Error('write this suite');
     });
 
     it('commonsRetrieve() should fail on private project', (done) => {
@@ -139,6 +137,8 @@ describe('middleware', () => {
       assert(ret.project.rules.frozen, 'project should be frozen');
       assert(_.every(ret.blocks, (block) => block.rules.frozen), 'blocks should be frozen');
     });
+
+    //todo - need to finish this suite
 
     it('commonsQuery() should query published projects, ignore private projects');
 
