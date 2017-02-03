@@ -105,7 +105,6 @@ class InventoryGroupRole extends Component {
       id: this.state.current,
       metadata: {
         name: isList ? 'New List Block' : this.state.current.name,
-        color: null,
       },
       rules,
     });
