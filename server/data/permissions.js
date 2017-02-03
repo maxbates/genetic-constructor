@@ -55,7 +55,7 @@ Owner: ${owner}`);
     Object.assign(req, { projectOwner: owner });
     next();
   })
-  .catch(err => {
+  .catch((err) => {
     if (err === errorDoesNotExist) {
       logger(`[projectIdParamAssignment] projectId ${projectId} does not exist, continuing...`);
       Object.assign(req, { projectDoesNotExist: true, projectOwner: null });

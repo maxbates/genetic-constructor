@@ -15,6 +15,7 @@
  */
 
 import express from 'express';
+import _ from 'lodash';
 
 import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
 import { errorNotPublished } from '../errors/errorConstants';

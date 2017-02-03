@@ -67,7 +67,7 @@ Project: ${projectId}
 Version: ${version}`);
 
     return snapshots.snapshotGet(projectId, version)
-    .then(snapshot => {
+    .then((snapshot) => {
       const isPublished = snapshotIsPublished(snapshot);
 
       logger(`[checkProjectPublic] Found snapshot:
@@ -88,7 +88,7 @@ Project: ${projectId}
 Version: [latest]`);
 
   return snapshots.snapshotQuery({ [COMMONS_TAG]: true }, projectId)
-  .then(results => {
+  .then((results) => {
     const hasResults = results && results.length > 0;
     const latestVersion = hasResults ?
       _.maxBy(results, 'version') :
@@ -199,7 +199,7 @@ export const commonsPublish = (projectId, userId, roll, message, tags) => {
   invariant(roll && roll.project && roll.blocks, 'roll is required');
 
   return projectPersistence.projectWrite(projectId, roll)
-  .then(writtenRoll => {
+  .then((writtenRoll) => {
     const newTags = { ...tags, [COMMONS_TAG]: true };
     return snapshots.snapshotWrite(projectId, userId, writtenRoll, message, newTags, SNAPSHOT_TYPE_PUBLISH);
   });

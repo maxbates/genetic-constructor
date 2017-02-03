@@ -18,7 +18,6 @@ import md5 from 'md5';
 
 import { dnaLooseRegexp } from '../../src/utils/dna';
 import * as sequenceUtils from '../../src/utils/sequenceMd5';
-import { errorDoesNotExist } from '../errors/errorConstants';
 import * as sequences from './persistence/sequence';
 
 const router = express.Router(); //eslint-disable-line new-cap

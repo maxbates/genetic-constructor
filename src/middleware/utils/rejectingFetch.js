@@ -26,7 +26,7 @@ export default function rejectingFetch(...args) {
     if (process.env.NODE_ENV === 'test') {
       if (resp.status >= 400) {
         //in test, log the error, its annoying to explicitly catch to log it since often returned
-        resp.clone().text().then(text => {
+        resp.clone().text().then((text) => {
           console.log(text); //eslint-disable-line no-console
         });
       }

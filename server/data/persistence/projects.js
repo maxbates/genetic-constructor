@@ -104,10 +104,11 @@ export const getUserProjectIds = (userId) => {
 export const getProjectOwner = projectId =>
   dbHeadRaw(`projects/${projectId}`)
   .then(resp => resp.headers.get('Owner'))
-  .catch(resp => {
+  .catch((resp) => {
     if (resp.status === 404) {
       return Promise.reject(errorDoesNotExist);
     }
+    return Promise.reject(resp);
   });
 
 //EXISTS
