@@ -759,6 +759,7 @@ export class ConstructViewer extends Component {
       },
       {
         text: 'Color',
+        disabled: this.isSampleProject() || this.props.construct.isFixed(),
         menuItems: this.getPaletteMenuItems(),
       },
       {
@@ -817,7 +818,7 @@ export class ConstructViewer extends Component {
       {
         text: 'Palette',
         imageURL: '/images/ui/color.svg',
-        enabled: !this.isSampleProject(),
+        enabled: !this.isSampleProject() && !this.props.construct.isFixed(),
         clicked: (event) => {
           this.showPaletteMenu(event.target);
         },
@@ -883,6 +884,7 @@ export class ConstructViewer extends Component {
             title={this.props.construct.getName('New Construct')}
             subTitle={subTitle}
             fontSize="16px"
+            noHover={construct.isFixed()}
             color={construct.getColor()}
             onClick={this.onTitleClicked}
             onContextMenu={position => this.showConstructContextMenu(position)}

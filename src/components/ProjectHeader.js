@@ -246,6 +246,7 @@ class ProjectHeader extends Component {
       <div className="ProjectHeader">
         <TitleAndToolbar
           onClick={this.onClick}
+          noHover={this.props.project.rules.frozen}
           title={project.metadata.name || 'Untitled Project'}
           toolbarItems={this.toolbar()}
           fontSize="1.5rem"
