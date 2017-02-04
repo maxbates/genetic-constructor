@@ -403,6 +403,8 @@ export class ConstructViewer extends Component {
    * return JSX for construct context menu
    */
   showConstructContextMenu(menuPosition) {
+    // select construct
+    this.sg.ui.selectConstruct();
     // add the blocks context menu items if there are selected blocks
     let items = this.constructContextMenuItems();
     if (this.props.focus.blockIds.length) {
@@ -905,6 +907,7 @@ export class ConstructViewer extends Component {
             color={construct.getColor()}
             onClick={this.onTitleClicked}
             onContextMenu={position => this.showConstructContextMenu(position)}
+            itemActivated={() => this.props.focusConstruct(this.props.constructId)}
           />
         </div>
         {this.lockIcon()}
