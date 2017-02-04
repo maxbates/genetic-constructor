@@ -355,11 +355,11 @@ export class ConstructViewer extends Component {
   blockContextMenuItems = () => {
     const singleBlock = this.props.focus.blockIds.length === 1;
     const firstBlock = this.props.blocks[this.props.focus.blockIds[0]];
-
+    const canListify = singleBlock && !firstBlock.hasSequence();
     const authoringListItems = singleBlock ? [
       {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
-        disabled: !singleBlock,
+        disabled: !canListify,
         action: () => {
           this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
         },
