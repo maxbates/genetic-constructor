@@ -137,6 +137,10 @@ export class ConstructViewer extends Component {
     this.update = debounce(this._update.bind(this), 16);
   }
 
+  state = {
+    showHidden: false,
+  };
+
   /**
    * setup the scene graph and layout component.
    */
@@ -294,6 +298,7 @@ export class ConstructViewer extends Component {
       currentBlocks: this.props.focus.blockIds,
       currentConstructId: this.props.focus.constructId,
       focusedOptions: this.props.focus.options,
+      showHidden: this.state.showHidden,
     });
     this.sg.update();
     this.sg.ui.update();
@@ -406,6 +411,10 @@ export class ConstructViewer extends Component {
     this.props.uiShowMenu(items, menuPosition);
   }
 
+  toggleHiddenBlocks = () => {
+    this.setState({ showHidden: !this.state.showHidden });
+  };
+
   /**
    * menu items for the construct context menu
    */
@@ -441,6 +450,10 @@ export class ConstructViewer extends Component {
           this.props.projectAddConstruct(this.props.projectId, clone.id, true);
           this.props.focusConstruct(clone.id);
         },
+      },
+      {
+        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+        action: this.toggleHiddenBlocks,
       },
     ];
   };
@@ -754,8 +767,12 @@ export class ConstructViewer extends Component {
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
       {
-        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
+        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} Nested Blocks`,
         action: () => { this.sg.ui.toggleCollapsedState(); },
+      },
+      {
+        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+        action: this.toggleHiddenBlocks,
       },
       {
         text: 'Color',
