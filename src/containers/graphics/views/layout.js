@@ -640,6 +640,9 @@ export default class Layout {
    *
    */
   layout(layoutOptions) {
+    if (this.showHidden === undefined) {
+      debugger;
+    }
     // set the new reference key
     this.updateReference += 1;
     // shortcut
@@ -763,7 +766,11 @@ export default class Layout {
       this.updateListForBlock(block, td.x);
 
       // render children unless user has collapsed the block or it is hidden OR all its children are hidden
-      if (node.showChildren && !this.blockIsHidden(part) && this.someChildrenVisible(part) && !this.collapsed) {
+      let hidden = this.blockIsHidden(part);
+      if (hidden && this.showHidden) {
+        hidden = false;
+      }
+      if (node.showChildren && !hidden && this.someChildrenVisible(part) && !this.collapsed) {
         // establish the position
         const nestedX = this.insetX + kT.nestedInsetX;
         const nestedY = yp + nestedVertical + kT.blockH + kT.nestedInsetY;
@@ -830,7 +837,7 @@ export default class Layout {
             blocks: this.blocks,
             currentBlocks: this.currentBlocks,
             currentConstructId: this.currentConstructId,
-            showhidden: this.showHidden,
+            showHidden: this.showHidden,
           });
         });
       }
