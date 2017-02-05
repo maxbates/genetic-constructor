@@ -17,14 +17,14 @@
   &-menu {
     position: absolute;
     padding: 0.5em 0;
-    background-color: lightgray;
+    background-color: var(--colors-lighterGrey);
     border-radius: 5px;
     display: inline-flex;
     flex-direction: column;
   }
   /* top level menu gets a different shadow than sub menus */
   &-top {
-    box-shadow: 3px 3px 4px -1px rgba(0,0,0,0.5);
+    box-shadow: 0px 0px 10px 0px rgba(38,49,66,1);
   }
 
   &-left {

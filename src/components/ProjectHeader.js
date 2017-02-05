@@ -44,7 +44,7 @@ import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
 import TitleAndToolbar from '../components/toolbars/title-and-toolbar';
 import downloadProject from '../middleware/utils/downloadProject';
-import GlobalNav from '../containers/GlobalNav';
+import GlobalNav from './GlobalNav/GlobalNav';
 
 import '../styles/ProjectHeader.css';
 

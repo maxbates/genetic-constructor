@@ -21,6 +21,7 @@ import { connect } from 'react-redux';
 import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import { palettes } from '../../../utils/color/index';
+import GlobalNav from '../../../components/GlobalNav/GlobalNav';
 
 import {
   blockAddComponent,
@@ -398,6 +399,7 @@ export class ConstructViewer extends Component {
         },
       },
       ...authoringListItems,
+      ...GlobalNav.getSingleton().getEditMenuItems(),
     ];
   };
 
@@ -408,10 +410,7 @@ export class ConstructViewer extends Component {
     // select construct
     this.sg.ui.selectConstruct();
     // add the blocks context menu items if there are selected blocks
-    let items = this.constructContextMenuItems();
-    if (this.props.focus.blockIds.length) {
-      items = [...items, {}, ...this.blockContextMenuItems()];
-    }
+    const items = [...this.constructContextMenuItems(), ...GlobalNav.getSingleton().getEditMenuItems()];
     this.props.uiShowMenu(items, menuPosition);
   }
 

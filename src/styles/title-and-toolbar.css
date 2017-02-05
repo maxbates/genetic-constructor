@@ -20,6 +20,7 @@
       text-overflow: ellipsis;
       overflow: hidden;
       flex-shrink: 1;
+      user-select: none;
       span {
         margin-left: 1rem;
         color: gray;

@@ -19,25 +19,25 @@ import KeyboardTrap from 'mousetrap';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename } from '../actions/blocks';
-import { clipboardSetData } from '../actions/clipboard';
-import { focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../actions/focus';
-import { projectAddConstruct, projectCreate, projectOpen, projectSave } from '../actions/projects';
-import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiSetGrunt, uiShowGenBankImport, uiToggleDetailView } from '../actions/ui';
-import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
-import UserWidget from '../components/authentication/userwidget';
-import OkCancel from '../components/modal/okcancel';
-import RibbonGrunt from '../components/ribbongrunt';
-import * as clipboardFormats from '../constants/clipboardFormats';
-import { extensionApiPath } from '../middleware/utils/paths';
-import Rollup from '../models/Rollup';
-import { blockGetComponentsRecursive, blockGetParents } from '../selectors/blocks';
-import { projectGetVersion } from '../selectors/projects';
-import * as instanceMap from '../store/instanceMap';
-import { commit, redo, transact, undo } from '../store/undo/actions';
-import { stringToShortcut } from '../utils/ui/keyboard-translator';
-import '../styles/GlobalNav.css';
-import { sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude } from '../utils/ui/uiapi';
+import { blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename } from '../../actions/blocks';
+import { clipboardSetData } from '../../actions/clipboard';
+import { focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../actions/focus';
+import { projectAddConstruct, projectCreate, projectOpen, projectSave } from '../../actions/projects';
+import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiSetGrunt, uiShowGenBankImport, uiToggleDetailView } from '../../actions/ui';
+import AutosaveTracking from './autosaveTracking';
+import UserWidget from '../authentication/userwidget';
+import OkCancel from '../modal/okcancel';
+import RibbonGrunt from '../ribbongrunt';
+import * as clipboardFormats from '../../constants/clipboardFormats';
+import { extensionApiPath } from '../../middleware/utils/paths';
+import Rollup from '../../models/Rollup';
+import { blockGetComponentsRecursive, blockGetParents } from '../../selectors/blocks';
+import { projectGetVersion } from '../../selectors/projects';
+import * as instanceMap from '../../store/instanceMap';
+import { commit, redo, transact, undo } from '../../store/undo/actions';
+import { stringToShortcut } from '../../utils/ui/keyboard-translator';
+import '../../styles/GlobalNav.css';
+import { sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude } from '../../utils/ui/uiapi';
 
 class GlobalNav extends Component {
   static propTypes = {
