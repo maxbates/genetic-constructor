@@ -640,9 +640,6 @@ export default class Layout {
    *
    */
   layout(layoutOptions) {
-    if (this.showHidden === undefined) {
-      debugger;
-    }
     // set the new reference key
     this.updateReference += 1;
     // shortcut

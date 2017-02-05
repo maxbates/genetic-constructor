@@ -43,9 +43,9 @@ import {
 import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
 import TitleAndToolbar from '../components/toolbars/title-and-toolbar';
-import ConstructViewer from '../containers/graphics/views/constructviewer';
 import downloadProject from '../middleware/utils/downloadProject';
-import { stringToShortcut } from '../utils/ui/keyboard-translator';
+import GlobalNav from '../containers/GlobalNav';
+
 import '../styles/ProjectHeader.css';
 
 class ProjectHeader extends Component {
@@ -259,36 +259,7 @@ class ProjectHeader extends Component {
         text: 'Delete Project',
         action: () => { },
       },
-      {},
-      {
-        text: 'Select All',
-        shortcut: stringToShortcut('meta A'),
-        disabled: false,
-        action: () => {
-          if (ConstructViewer.getFocusedViewer()) {
-            alert(ConstructViewer.getFocusedViewer().props.construct.getName());
-          }
-        },
-      }, 
-      {
-        text: 'Cut',
-        shortcut: stringToShortcut('meta X'),
-        disabled: false,
-        action: () => {},
-      }, 
-      {
-        text: 'Copy',
-        shortcut: stringToShortcut('meta C'),
-        disabled: false,
-        action: () => {},
-      }, 
-      {
-        text: 'Paste',
-        shortcut: stringToShortcut('meta V'),
-        disabled: false,
-        action: () => {},
-      }
-    ];
+    ].concat(GlobalNav.getSingleton().getEditMenuItems());
     this.props.uiShowMenu(items, position);
   };
 

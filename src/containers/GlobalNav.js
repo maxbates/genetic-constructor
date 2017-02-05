@@ -35,6 +35,7 @@ import { blockGetComponentsRecursive, blockGetParents } from '../selectors/block
 import { projectGetVersion } from '../selectors/projects';
 import * as instanceMap from '../store/instanceMap';
 import { commit, redo, transact, undo } from '../store/undo/actions';
+import { stringToShortcut } from '../utils/ui/keyboard-translator';
 import '../styles/GlobalNav.css';
 import { sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude } from '../utils/ui/uiapi';
 
@@ -79,8 +80,18 @@ class GlobalNav extends Component {
     window.open(uri, '_blank');
   }
 
+  /**
+   * singleton instance of GlobalNav
+   */
+  static getSingleton() {
+    return GlobalNav.singleton;
+  }
+
   constructor(props) {
     super(props);
+
+    // assign singleton
+    GlobalNav.singleton = this;
 
     // keyboard shortcuts
     //
@@ -390,6 +401,60 @@ class GlobalNav extends Component {
       // select the clones
       this.props.focusBlocks(clones.map(clone => clone.id));
     }
+  }
+
+  /**
+   * return menu items for select all, cut, copy, paste, undo, redo
+   * @returns {[*,*,*,*,*,*,*,*]}
+   */
+  getEditMenuItems() {
+    return [
+      {},
+      {
+        text: 'Select All',
+        shortcut: stringToShortcut('meta A'),
+        disabled: !this.props.focus.constructId,
+        action: () => {
+          this.onSelectAll();
+        },
+      }, {
+        text: 'Cut',
+        shortcut: stringToShortcut('meta X'),
+        disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
+        action: () => {
+          debugger;
+          this.cutFocusedBlocksToClipboard();
+        },
+      }, {
+        text: 'Copy',
+        shortcut: stringToShortcut('meta C'),
+        disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
+        action: () => {
+          this.copyFocusedBlocksToClipboard();
+        },
+      }, {
+        text: 'Paste',
+        shortcut: stringToShortcut('meta V'),
+        disabled: !(this.props.clipboard.formats.indexOf(clipboardFormats.blocks) >= 0) || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
+        action: () => {
+          this.pasteBlocksToConstruct();
+        },
+      },
+      {},
+      {
+        text: 'Undo',
+        shortcut: stringToShortcut('meta z'),
+        action: () => {
+          this.props.undo();
+        },
+      }, {
+        text: 'Redo',
+        shortcut: stringToShortcut('shift meta z'),
+        action: () => {
+          this.props.redo();
+        },
+      },
+    ];
   }
 /*
   menuBar() {

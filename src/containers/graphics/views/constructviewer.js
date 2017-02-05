@@ -70,6 +70,7 @@ import Layout from './layout';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
 import downloadProject from '../../../middleware/utils/downloadProject';
 
+
 // static hash for matching viewers to constructs
 const idToViewer = {};
 
@@ -115,14 +116,6 @@ export class ConstructViewer extends Component {
     testIndex: PropTypes.number.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
   };
-
-  /**
-   * construct viewer instance with the focus
-   */
-  static getFocusedViewer() {
-    return ConstructViewer.focusedViewer;
-  }
-  static focusedViewer = null;
 
   /**
    * given a construct ID return the current viewer if there is one
@@ -201,9 +194,6 @@ export class ConstructViewer extends Component {
    */
   componentDidUpdate(prevProps) {
     this.update();
-    if (this.isFocused()) {
-      ConstructViewer.focusedViewer = this;
-    }
   }
 
   /**
@@ -214,10 +204,6 @@ export class ConstructViewer extends Component {
     this.resizeDebounced.cancel();
     window.removeEventListener('resize', this.resizeDebounced);
     this.sg.destroy();
-    if (ConstructViewer.focusedViewer === this) {
-      debugger;
-      ConstructViewer.focusedViewer = null;
-    }
   }
 
   /**
@@ -226,10 +212,10 @@ export class ConstructViewer extends Component {
   onOrderDNA = () => {
     let order = this.props.orderCreate(this.props.currentProjectId, [this.props.construct.id]);
     this.props.orderList(this.props.currentProjectId)
-    .then((orders) => {
-      order = this.props.orderSetName(order.id, `Order ${orders.length}`);
-      this.props.uiShowOrderForm(true, order.id);
-    });
+      .then((orders) => {
+        order = this.props.orderSetName(order.id, `Order ${orders.length}`);
+        this.props.uiShowOrderForm(true, order.id);
+      });
   };
 
   /**
@@ -287,6 +273,7 @@ export class ConstructViewer extends Component {
       ...paletteItems,
     ];
   }
+
   /**
    * accessor for our DOM node.
    *
@@ -733,6 +720,12 @@ export class ConstructViewer extends Component {
       this.props.uiSetGrunt('There are no empty blocks in the current construct');
     }
   }
+  /**
+   * select all blocks
+   */
+  selectAllBlocks() {
+    this.props.focusBlocks(this.props.blockGetComponentsRecursive(this.props.construct.id).map(block => block.id));
+  }
 
   /**
    * window resize, update layout and scene graph with new dimensions
@@ -830,9 +823,9 @@ export class ConstructViewer extends Component {
    */
   upload = () => {
     this.props.projectSave(this.props.currentProjectId)
-    .then(() => {
-      this.props.uiShowGenBankImport(true);
-    });
+      .then(() => {
+        this.props.uiShowGenBankImport(true);
+      });
   };
 
   /**
