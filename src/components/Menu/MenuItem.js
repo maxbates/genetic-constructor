@@ -93,7 +93,7 @@ export default class MenuItem extends Component {
     if (this.props.menuItems && this.props.menuItems.length) {
       subMenu = (
         <div className="arrow">
-          <Arrow direction="right" disabled={false} />
+          {this.props.disabled ? null : <Arrow direction="right" />}
           {this.state.inside &&
           <SubMenu
             menuItems={this.props.menuItems}
