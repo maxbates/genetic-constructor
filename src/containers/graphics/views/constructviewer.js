@@ -117,6 +117,14 @@ export class ConstructViewer extends Component {
   };
 
   /**
+   * construct viewer instance with the focus
+   */
+  static getFocusedViewer() {
+    return ConstructViewer.focusedViewer;
+  }
+  static focusedViewer = null;
+
+  /**
    * given a construct ID return the current viewer if there is one
    */
   static getViewerForConstruct(id) {
@@ -193,6 +201,9 @@ export class ConstructViewer extends Component {
    */
   componentDidUpdate(prevProps) {
     this.update();
+    if (this.isFocused()) {
+      ConstructViewer.focusedViewer = this;
+    }
   }
 
   /**
@@ -203,6 +214,10 @@ export class ConstructViewer extends Component {
     this.resizeDebounced.cancel();
     window.removeEventListener('resize', this.resizeDebounced);
     this.sg.destroy();
+    if (ConstructViewer.focusedViewer === this) {
+      debugger;
+      ConstructViewer.focusedViewer = null;
+    }
   }
 
   /**

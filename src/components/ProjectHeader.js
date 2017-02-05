@@ -43,7 +43,9 @@ import {
 import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
 import TitleAndToolbar from '../components/toolbars/title-and-toolbar';
+import ConstructViewer from '../containers/graphics/views/constructviewer';
 import downloadProject from '../middleware/utils/downloadProject';
+import { stringToShortcut } from '../utils/ui/keyboard-translator';
 import '../styles/ProjectHeader.css';
 
 class ProjectHeader extends Component {
@@ -194,10 +196,10 @@ class ProjectHeader extends Component {
     } else {
       //load another project, avoiding this one
       this.props.projectLoad(null, false, [project.id])
-      //open the new project, skip saving the previous one
-      .then(openProject => this.props.projectOpen(openProject.id, true))
-      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-      .then(() => this.props.projectDelete(project.id));
+        //open the new project, skip saving the previous one
+        .then(openProject => this.props.projectOpen(openProject.id, true))
+        //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+        .then(() => this.props.projectDelete(project.id));
     }
   }
 
@@ -240,6 +242,56 @@ class ProjectHeader extends Component {
     ];
   }
 
+  /**
+   * show the context menu when title is right clicked
+   */
+  showProjectContextMenu = (position) => {
+    const items = [
+      {
+        text: 'Download Project',
+        action: () => { },
+      },
+      {
+        text: 'Duplicate Project',
+        action: () => { },
+      },
+      {
+        text: 'Delete Project',
+        action: () => { },
+      },
+      {},
+      {
+        text: 'Select All',
+        shortcut: stringToShortcut('meta A'),
+        disabled: false,
+        action: () => {
+          if (ConstructViewer.getFocusedViewer()) {
+            alert(ConstructViewer.getFocusedViewer().props.construct.getName());
+          }
+        },
+      }, 
+      {
+        text: 'Cut',
+        shortcut: stringToShortcut('meta X'),
+        disabled: false,
+        action: () => {},
+      }, 
+      {
+        text: 'Copy',
+        shortcut: stringToShortcut('meta C'),
+        disabled: false,
+        action: () => {},
+      }, 
+      {
+        text: 'Paste',
+        shortcut: stringToShortcut('meta V'),
+        disabled: false,
+        action: () => {},
+      }
+    ];
+    this.props.uiShowMenu(items, position);
+  };
+
   render() {
     const { project } = this.props;
     return (
@@ -251,6 +303,7 @@ class ProjectHeader extends Component {
           toolbarItems={this.toolbar()}
           fontSize="1.5rem"
           color="#DFE2EC"
+          onContextMenu={position => this.showProjectContextMenu(position)}
         />
       </div>);
   }
