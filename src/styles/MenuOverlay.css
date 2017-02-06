@@ -16,7 +16,7 @@
   }
   &-menu {
     position: absolute;
-    padding: 0.5em 0;
+    padding: 1.25rem 0;
     background-color: var(--colors-lighterGrey);
     border-radius: 5px;
     display: inline-flex;
