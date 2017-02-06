@@ -17,7 +17,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 
 import { ensureReqUserMiddleware } from '../user/utils';
-import { errorDoesNotExist, errorInvalidModel, errorInvalidRoute } from '../utils/errors';
+import { errorDoesNotExist, errorNoPermission, errorInvalidModel, errorInvalidRoute } from '../utils/errors';
 import { projectPermissionMiddleware } from './permissions';
 import * as blockPersistence from './persistence/blocks';
 import * as projectVersions from './persistence/projectVersions';
@@ -180,8 +180,12 @@ router.route('/projects/:projectId')
       });
   })
   .delete((req, res, next) => {
-    const { projectId, user } = req;
+    const { projectId, user, projectDoesNotExist } = req;
     const forceDelete = !!req.query.force;
+
+    if (projectDoesNotExist === true) {
+      return res.status(403).send(errorNoPermission);
+    }
 
     projectPersistence.projectDelete(projectId, user.uuid, forceDelete)
       .then(() => res.status(200).json({ projectId }))
@@ -204,9 +208,8 @@ router.route('/projects')
       .then(rolls => rolls.map(roll => roll.project))
       .then((manifests) => {
         res.set('Last-Project-ID', mostRecentProject(manifests).id);
-        return manifests;
+        return res.status(200).json(manifests);
       })
-      .then(manifests => res.status(200).json(manifests))
       .catch(err => next(err));
   });
 

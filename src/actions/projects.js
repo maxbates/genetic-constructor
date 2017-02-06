@@ -23,6 +23,7 @@ import { push } from 'react-router-redux';
 
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import * as blockActions from '../actions/blocks';
+import { uiSetGrunt } from '../actions/ui';
 import * as ActionTypes from '../constants/ActionTypes';
 import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
 import { snapshot } from '../middleware/snapshots';
@@ -73,29 +74,6 @@ export const projectList = () => (dispatch, getState) => listProjects()
         });
 
         return projects;
-      });
-
-/**
- * Delete a project. THIS CANNOT BE UNDONE.
- * @function
- * @param {UUID} projectId
- * @returns {UUID} project ID deleted
- */
-export const projectDelete = projectId => (dispatch, getState) => deleteProject(projectId)
-    //catch deleting a project that is not saved (will 404)
-      .catch((resp) => {
-        if (resp.status === 404) {
-          return null;
-        }
-        return Promise.reject(resp);
-      })
-      .then(() => {
-        //don't delete the blocks, as they may be shared between projects (or, could delete and then force loading for next / current project)
-        dispatch({
-          type: ActionTypes.PROJECT_DELETE,
-          projectId,
-        });
-        return projectId;
       });
 
 /**
@@ -264,8 +242,6 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => loadProjec
             return _projectLoad(nextId, ignores, dispatch);
           }
           //if no manifests, create a new rollup
-          //note - this shouldnt happen while users have sample projects
-          //todo - may want to hit the server to re-setup the user's account
           return emptyProjectWithConstruct(true);
         });
     });
@@ -375,6 +351,48 @@ export const projectOpen = (inputProjectId, skipSave = false) => (dispatch, getS
     return projectId;
   });
 };
+
+/**
+ * Delete a project. THIS CANNOT BE UNDONE.
+ *
+ * Recommended usage --- load another project, open it, then call this action
+ * @function
+ * @param {UUID} projectId
+ * @returns {UUID} project ID deleted
+ */
+export const projectDelete = projectId =>
+  (dispatch, getState) => {
+    const project = getState().projects[projectId];
+
+    if (project.rules.frozen) {
+      dispatch(uiSetGrunt('This is a sample project and cannot be deleted.'));
+      return;
+    }
+
+    //wrap deleting in a transaction
+    dispatch(undoActions.transact());
+
+    //optimistically delete the project
+    //don't delete the blocks, as they may be shared between projects (or, could delete and then force loading for next / current project)
+    dispatch({
+      type: ActionTypes.PROJECT_DELETE,
+      projectId,
+    });
+
+    return deleteProject(projectId)
+    //catch deleting a project that is not saved (will 404)
+    .catch((resp) => {
+      if (resp.status === 404) {
+        return null;
+      }
+      dispatch(undoActions.abort());
+      return Promise.reject(resp);
+    })
+    .then(() => {
+      dispatch(undoActions.commit());
+      return projectId;
+    });
+  };
 
 /**
  * Rename a project
