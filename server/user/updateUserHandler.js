@@ -24,6 +24,9 @@ import { verifyCaptchaProductionOnly } from '../utils/captcha';
 import { API_END_POINT, INTERNAL_HOST } from '../urlConstants';
 import { mergeConfigToUserData, pruneUserObject, updateUserAll, updateUserConfig, validateConfig } from './utils';
 
+// send 'true' as a string to enable email verification
+const SEND_VERIFY = 'true';
+
 const logger = debug('constructor:auth');
 
 const authRegisterUrl = `${INTERNAL_HOST}/auth/register`;
@@ -75,6 +78,7 @@ export function registrationHandler(req, res, next) {
     password,
     firstName,
     lastName,
+    sendVerify: SEND_VERIFY,
   }, mergedConfig);
 
   logger('[User Register] Checking Captcha...');

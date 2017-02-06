@@ -1,0 +1,14 @@
+Thank you for creating a Genetic Constructor account. Please open the link below, or copy and paste it into your browser to verify your email address:
+
+**HOST_URL**/auth/verify?v=**VERIFICATION_HASH**&e=**EMAIL**
+
+Thanks!
+The Genetic Constructor Team
+http://www.geneticconstructor.com
+
+Note: If you didn’t create a Genetic Constructor account please ignore this message. It’s possible that someone entered your email address by mistake.
+
+
+Autodesk Bio/Nano Research
+Pier 9 - The Embarcadero
+San Francisco, CA 94111

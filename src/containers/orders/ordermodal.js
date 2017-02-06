@@ -80,7 +80,7 @@ class OrderModal extends Component {
       })
       .catch((response) => {
         this.props.uiSpin();
-        this.setState({ error: response.statusText || 'Unknown' });
+        this.setState({ error: response.statusText || 'Unknown Error' });
       });
   };
 
