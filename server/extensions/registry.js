@@ -76,4 +76,13 @@ export const getClientExtensions = (...filters) => getExtensions(manifestIsClien
 
 export const getServerExtensions = (...filters) => getExtensions(manifestIsServer, ...filters);
 
+export const getExtensionInternalPath = (name, fileName) => {
+  const extensionPath = path.resolve(__dirname, `./node_modules/${name}`);
+
+  //if no file name is sent, this is likely a malformed request (since multiple files may be present)
+  invariant(fileName && typeof fileName === 'string', 'must pass a specific file name');
+
+  return path.resolve(extensionPath, fileName);
+};
+
 export default registry;

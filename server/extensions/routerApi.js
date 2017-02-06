@@ -19,7 +19,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 
 import { pruneUserObjectMiddleware } from '../user/utils';
-import { checkExtensionExistsMiddleware, checkExtensionIsServerMiddleware, checkUserExtensionAccessMiddleware } from './middlewareChecks';
+import { checkExtensionExistsMiddleware, checkExtensionIsServerMiddleware, checkUserExtensionAccessMiddleware } from './routerMiddleware';
 import { getServerExtensions } from './registry';
 
 const router = express.Router(); //eslint-disable-line new-cap
@@ -27,7 +27,6 @@ const jsonParser = bodyParser.json();
 router.use(jsonParser);
 
 //overwrite the user object so that only relevant fields are passed to extensions
-//todo - test works + always run
 router.use(pruneUserObjectMiddleware);
 
 router.all('/:extension/*',
