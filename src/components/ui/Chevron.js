@@ -13,22 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 
 import '../../styles/Chevron.css';
 
-export default class Chevron extends Component {
-  static propTypes = {
-    // ['up', 'down', 'left', 'right']
-    direction: PropTypes.string.isRequired,
-  };
+const Chevron = ({ direction }) => {
+  const classes = `corner ${direction}`;
+  return (
+    <div className="chevron">
+      <div className={classes} />
+    </div>
+  );
+};
 
-  render() {
-    const classes = `corner ${this.props.direction}`;
-    return (
-      <div className="chevron" >
-        <div className={classes} />
-      </div>
-    );
-  }
-}
+Chevron.propTypes = {
+  direction: PropTypes.string.isRequired,
+};
+
+export default Chevron;

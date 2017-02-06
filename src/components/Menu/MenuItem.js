@@ -17,7 +17,6 @@ import React, { Component, PropTypes } from 'react';
 
 import '../../styles/MenuItem.css';
 import { stringToShortcut } from '../../utils/ui/keyboard-translator';
-import Arrow from '../ui/Arrow';
 import Chevron from '../ui/Chevron';
 import SubMenu from './SubMenu';
 
