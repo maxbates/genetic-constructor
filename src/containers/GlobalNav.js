@@ -22,22 +22,21 @@ import { connect } from 'react-redux';
 import { blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename } from '../actions/blocks';
 import { clipboardSetData } from '../actions/clipboard';
 import { focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../actions/focus';
-import { projectAddConstruct, projectCreate, projectDelete, projectLoad, projectOpen, projectSave } from '../actions/projects';
-import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiReportError, uiSetGrunt, uiShowAbout, uiShowDNAImport, uiShowGenBankImport, uiToggleDetailView } from '../actions/ui';
+import { projectAddConstruct, projectCreate, projectOpen, projectSave } from '../actions/projects';
+import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiSetGrunt, uiShowGenBankImport, uiToggleDetailView } from '../actions/ui';
 import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
-import MenuBar from '../components/Menu/MenuBar';
 import UserWidget from '../components/authentication/userwidget';
 import OkCancel from '../components/modal/okcancel';
+import RibbonGrunt from '../components/ribbongrunt';
 import * as clipboardFormats from '../constants/clipboardFormats';
 import { extensionApiPath } from '../middleware/utils/paths';
+import Rollup from '../models/Rollup';
 import { blockGetComponentsRecursive, blockGetParents } from '../selectors/blocks';
-import { focusDetailsExist } from '../selectors/focus';
 import { projectGetVersion } from '../selectors/projects';
 import * as instanceMap from '../store/instanceMap';
 import { commit, redo, transact, undo } from '../store/undo/actions';
 import '../styles/GlobalNav.css';
-import { stringToShortcut } from '../utils/ui/keyboard-translator';
-import { privacy, sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude, tos } from '../utils/ui/uiapi';
+import { sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude } from '../utils/ui/uiapi';
 
 class GlobalNav extends Component {
   static propTypes = {
@@ -46,13 +45,10 @@ class GlobalNav extends Component {
     projectCreate: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
-    projectDelete: PropTypes.func.isRequired,
-    projectLoad: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string,
     blockCreate: PropTypes.func.isRequired,
-    showMenu: PropTypes.bool.isRequired,
+    blockRename: PropTypes.func.isRequired,
     blockGetParents: PropTypes.func.isRequired,
-    focusDetailsExist: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     uiToggleDetailView: PropTypes.func.isRequired,
@@ -74,21 +70,8 @@ class GlobalNav extends Component {
     }).isRequired,
     blockGetComponentsRecursive: PropTypes.func.isRequired,
     blockAddComponents: PropTypes.func.isRequired,
-    uiShowAbout: PropTypes.func.isRequired,
-    uiShowDNAImport: PropTypes.func.isRequired,
-    uiReportError: PropTypes.func.isRequired,
-    inventoryVisible: PropTypes.bool.isRequired,
-    inspectorVisible: PropTypes.bool.isRequired,
-    detailViewVisible: PropTypes.bool.isRequired,
     focus: PropTypes.object.isRequired,
     blocks: PropTypes.object,
-    project: PropTypes.shape({
-      rules: PropTypes.shape({
-        frozen: PropTypes.bool,
-      }),
-      getName: PropTypes.func,
-      metadata: PropTypes.object,
-    }),
   };
 
   static disgorgeDiscourse(path) {
@@ -173,7 +156,6 @@ class GlobalNav extends Component {
   state = {
     showAddProject: false,
     recentProjects: [],
-    showDeleteProject: false,
   };
 
   componentDidMount() {
@@ -210,47 +192,22 @@ class GlobalNav extends Component {
     const project = this.props.projectCreate();
     // add a construct to the new project
     const block = this.props.blockCreate({ projectId: project.id });
-    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id);
+    this.props.blockRename(block.id, 'New Construct');
+    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
 
     //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
     //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
-    instanceMap.saveRollup({
+    instanceMap.saveRollup(new Rollup({
       project: projectWithConstruct,
       blocks: {
         [block.id]: block,
       },
-    });
+    }));
 
     this.props.focusConstruct(block.id);
     this.props.projectOpen(project.id);
   }
 
-  /**
-   * show the delete project dialog
-   *
-   */
-  queryDeleteProject() {
-    this.setState({
-      showDeleteProject: true,
-    });
-  }
-
-  /**
-   * delete the current project and open a different one
-   */
-  deleteProject() {
-    if (this.props.project.rules.frozen) {
-      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
-    } else {
-      const projectId = this.props.currentProjectId;
-      //load another project, avoiding this one
-      this.props.projectLoad(null, false, [projectId])
-      //open the new project, skip saving the previous one
-        .then(project => this.props.projectOpen(project.id, true))
-        //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-        .then(() => this.props.projectDelete(projectId));
-    }
-  }
 
   /**
    * add a new construct to the current project
@@ -258,14 +215,10 @@ class GlobalNav extends Component {
   newConstruct(initialModel = {}) {
     this.props.transact();
     const block = this.props.blockCreate(initialModel);
-    this.props.projectAddConstruct(this.props.currentProjectId, block.id);
+    this.props.projectAddConstruct(this.props.currentProjectId, block.id, true);
     this.props.commit();
     this.props.focusConstruct(block.id);
     return block;
-  }
-
-  newTemplate() {
-    return this.newConstruct({ rules: { authoring: true, fixed: true } });
   }
 
   /**
@@ -438,7 +391,7 @@ class GlobalNav extends Component {
       this.props.focusBlocks(clones.map(clone => clone.id));
     }
   }
-
+/*
   menuBar() {
     return (<MenuBar
       menus={[
@@ -651,49 +604,24 @@ class GlobalNav extends Component {
             },
           ],
         },
-      ]}
-    />);
+      ]}/>);
   }
+*/
 
   render() {
-    const { currentProjectId, showMenu } = this.props;
+    const { currentProjectId } = this.props;
 
     return (
       <div className="GlobalNav">
-        <img className="GlobalNav-logo" role="presentation" src="/images/homepage/app-logo.png" />
-        {showMenu && this.menuBar()}
+        <RibbonGrunt />
+        <div className="GlobalNav-logo">
+          <img src="/images/ui/main_logo.svg" role="presentation" />
+        </div>
+        <div className="GlobalNav-appname">Genetic Constructor</div>
         <span className="GlobalNav-spacer" />
-        {(showMenu && currentProjectId) && <AutosaveTracking projectId={currentProjectId} />}
+        {currentProjectId && <AutosaveTracking projectId={currentProjectId} />}
         <UserWidget />
-        <OkCancel
-          open={this.state.showDeleteProject}
-          titleText="Delete Project"
-          messageHTML={(
-            <div className="message">
-              <br />
-              <span
-                className="line"
-              >{this.props.project ? (`"${this.props.project.getName()}"` || 'Your Project') : ''}</span>
-              <br />
-              <span className="line">and all related project data will be permanently deleted.</span>
-              <br />
-              <span className="line">This action cannot be undone.</span>
-              <br />
-              <br />
-              <br />
-              <br />
-            </div>
-          )}
-          okText="Delete"
-          cancelText="Cancel"
-          ok={() => {
-            this.setState({ showDeleteProject: false });
-            this.deleteProject();
-          }}
-          cancel={() => {
-            this.setState({ showDeleteProject: false });
-          }}
-        />
+        <OkCancel />
       </div>
     );
   }
@@ -704,10 +632,6 @@ function mapStateToProps(state, props) {
     focus: state.focus,
     blocks: state.blocks,
     clipboard: state.clipboard,
-    inspectorVisible: state.ui.inspector.isVisible,
-    inventoryVisible: state.ui.inventory.isVisible,
-    detailViewVisible: state.ui.detailView.isVisible,
-    project: state.projects[props.currentProjectId],
     currentConstruct: state.blocks[state.focus.constructId],
   };
 }
@@ -717,8 +641,6 @@ export default connect(mapStateToProps, {
   projectCreate,
   projectSave,
   projectOpen,
-  projectDelete,
-  projectLoad,
   projectGetVersion,
   blockCreate,
   blockClone,
@@ -730,7 +652,6 @@ export default connect(mapStateToProps, {
   blockRemoveComponent,
   blockGetParents,
   blockGetComponentsRecursive,
-  uiShowDNAImport,
   inventorySelectTab,
   undo,
   redo,
@@ -738,14 +659,11 @@ export default connect(mapStateToProps, {
   commit,
   uiShowGenBankImport,
   uiToggleDetailView,
-  uiShowAbout,
   uiSetGrunt,
-  uiReportError,
   focusBlocks,
   focusBlocksAdd,
   focusBlocksToggle,
   focusConstruct,
-  focusDetailsExist,
   clipboardSetData,
   blockAddComponents,
 })(GlobalNav);

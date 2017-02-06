@@ -15,7 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../../../src/styles/ordermodal.css';
+import '../../../src/styles/selector.css';
 
 export default class Selector extends Component {
   static propTypes = {

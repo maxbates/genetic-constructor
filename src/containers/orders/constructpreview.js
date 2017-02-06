@@ -86,6 +86,7 @@ class ConstructPreview extends Component {
         construct: new Block({
           metadata: {
             color: parentConstruct.metadata.color || 'lightgray',
+            palette: 'anime',
           },
           components: componentIds,
           rules: {

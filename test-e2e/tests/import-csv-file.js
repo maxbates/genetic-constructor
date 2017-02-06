@@ -1,9 +1,6 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
-var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var clickMainMenu = require('../fixtures/click-main-menu');
 var http = require("http");
 var path = require('path');
@@ -27,14 +24,15 @@ module.exports = {
     // start with a new project to ensure no construct viewers are visible
     newProject(browser);
 
-    rightClickAt(browser, '[data-nodetype="construct-title"]', 15, 15);
+    rightClickAt(browser, '.construct-viewer .title-and-toolbar .title .text', 15, 15);
 
     clickContextMenu(browser, 2);
 
     // click the file menu -> Upload Genbank File
-    clickMainMenu(browser, 1, 8);
-
+    openInventoryPanel(browser, 'Projects');
     browser
+      .waitForElementPresent('[data-testid="UploadButton"]', 5000, 'expected upload button')
+      .click('[data-testid="UploadButton"]')
       .waitForElementPresent('.genbank-import-form', 5000, 'Expect the import dialog to appear')
       // click import into new project
       .click('.genbank-import-form input:nth-of-type(1)');

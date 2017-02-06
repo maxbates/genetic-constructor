@@ -40,6 +40,7 @@
 .CSVFileDrop {
   padding: 1em;
   border-radius: 0.5em;
+  color: var(--colors-white);
   background-color: var(--colors-darkerGrey);
   text-align: center;
   transition: background-color var(--timing-fast) ease-out;

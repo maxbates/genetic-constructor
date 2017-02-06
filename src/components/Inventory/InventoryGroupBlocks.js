@@ -50,7 +50,7 @@ export default class InventoryGroupBlocks extends Component {
           onSearchChange={this.handleSearchChange}
         />
 
-        <div className="InventoryGroup-contentInner no-vertical-scroll">
+        <div className="InventoryGroup-contentInner">
           {listingItems.map(item => (<InventoryItemBlock
             key={item.id}
             block={item}

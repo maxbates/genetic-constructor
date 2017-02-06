@@ -21,8 +21,7 @@
     margin: 0 auto;
     display: inline-block;
     text-align: center;
-    .line {
-      margin: 0 auto;
-    }
+    white-space: pre-wrap;
+    font-size: var(--fontsize);
   }
 }

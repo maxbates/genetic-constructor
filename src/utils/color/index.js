@@ -41,6 +41,15 @@ export function getPalette(name) {
   }
 }
 
+/**
+ * name of palette allowing for a default
+ * @param {string|null} name
+ * @returns {string}
+ */
+export function getPaletteName(name) {
+  return name || 'anime';
+}
+
 //generate a random hex color
 export function nextColor() {
   return lastIndex++ % paletteLength;

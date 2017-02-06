@@ -1,0 +1,23 @@
+@import 'variables.css';
+
+.SectionIcon {
+  cursor: pointer;
+  img {
+    width: var(--width-SidePanel-closed);
+    height: var(--width-SidePanel-closed);
+    filter: brightness(1000%);
+  }
+}
+.SectionIcon.Highlighted {
+  background-color: var(--colors-white);
+  img {
+    filter: brightness(100%);
+  }
+}
+.SectionIcon.DragOver {
+  background-color: var(--colors-selected) !important;
+  img {
+    filter: brightness(1000%) !important;
+  }
+}
+

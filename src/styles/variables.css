@@ -33,6 +33,8 @@
   --font-size-action: 16px;
 
   --font-family-base: ArtifaktElementRegular, sans-serif;
+  --font-family-bold: ArtifaktElementBold, sans-serif;
+  --font-family-panels: Helvetica, sans-serif;
 
   /* Media queries breakpoints
   ==================== */
@@ -45,11 +47,12 @@
   /* Layout
  ==================== */
 
-  --SidePanel-width-padding-content: 14px;
+  --SidePanel-width-padding-content: 12px;
   --SidePanel-width-padding-heading: 10px;
   --SidePanel-trigger-width: 17px;
   --width-SidePanel-closed: 50px;
-  --width-SidePanel-open: 300px;
+  --width-SidePanel-open: 332px;
+  --SidePanel-ease: ease;
 
   --GlobalNav-height-chrome: 50px;
 
@@ -90,8 +93,10 @@
   /* List Items
   ===================== */
   --listItem-background: rgba(255,255,255,0.2);
-  --listItem-backgroundHover: var(--colors-selected);
+  --listItem-backgroundHover: var(--colors-grey);
 
   /* Project Details */
-  --projectDetailsHeight: calc(100% - 24px);
+  --projectDetailHeaderHeight: 3rem;
+  --projectDetailFooterHeight: 3rem;
+  --projectDetailsHeight: calc(100% - var(--projectDetailHeaderHeight));
 }

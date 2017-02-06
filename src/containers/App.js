@@ -17,15 +17,16 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import track from '../analytics/ga';
+import MenuOverlay from '../components/Menu/MenuOverlay';
 import AboutForm from '../components/modal/aboutform';
 import InlineEditor from '../components/inline-editor/inline-editor';
-import ExtensionPicker from '../components/modal/ExtensionPicker';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
 import ModalSpinner from '../components/modal/modalspinner';
-import '../styles/App.css';
 import GlobalNav from './GlobalNav';
 import RibbonGrunt from '../components/ribbongrunt';
 import AuthenticationModals from './AuthenticationModals';
+
+import '../styles/App.css';
 
 class App extends Component {
   static propTypes = {
@@ -50,12 +51,29 @@ class App extends Component {
   }
 
   /**
+   * only allow the default context menu on text edit components
+   * @param evt
+   */
+  static rejectContextMenu(evt) {
+    const rx = /INPUT|SELECT|TEXTAREA/i;
+    if (evt.target.hasAttribute('contenteditable')) {
+      return;
+    }
+    if (!rx.test(evt.target.tagName)) {
+      evt.preventDefault();
+    }
+  }
+
+  /**
    * attempt to eat backspace keys ( to prevent navigation ) unless an interactive
    * element is the target
    */
   componentDidMount() {
     document.addEventListener('keydown', App.rejectBackspace);
     document.addEventListener('keypress', App.rejectBackspace);
+
+    // disable context menus since the app generates it own
+    document.addEventListener('contextmenu', App.rejectContextMenu);
 
     // in production, track top level, unhandled exceptions in the app
     // not in production, ignore this so we dont garble the callstack
@@ -92,13 +110,13 @@ class App extends Component {
         <RibbonGrunt atTop={onLanding} />
         <AuthenticationModals />
         <AboutForm />
-        <ExtensionPicker />
         <ReportErrorModal />
         <div className="App-pageContent">
           {this.props.children}
         </div>
         <ModalSpinner spinMessage={this.props.spinMessage} />
         <InlineEditor />
+        <MenuOverlay />
         <DevTools />
       </div>
     );

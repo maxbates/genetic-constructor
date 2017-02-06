@@ -20,6 +20,7 @@ import { projectFileRead, projectFileWrite } from '../middleware/projectFiles';
 import ProjectSchema from '../schemas/Project';
 import safeValidate from '../schemas/fields/safeValidate';
 import { id } from '../schemas/fields/validators';
+import { palettes } from '../utils/color/index';
 import Instance from './Instance';
 
 const idValidator = (input, required = false) => safeValidate(id(), required, input);
@@ -140,6 +141,20 @@ export default class Project extends Instance {
     return this.metadata.name || 'Untitled Project';
   }
 
+  /**
+   * Set a Projects's color palette.
+   * @method setPalette
+   * @memberOf Project
+   * @param {string} [palette] Palette name
+   * @returns {Project}
+   * @example
+   * new Project().setPalette('bright');
+   */
+  setPalette(palette) {
+    invariant(palettes.indexOf(palette) >= 0, 'palette must exist');
+    return this.mutate('metadata.palette', palette);
+  }
+
   //ideally, this would just return the same instance, would be much easier
   /**
    * Update the version of the project. Returns a new Instance, so use {@link Project.compare} to check if two projects are the same and ignore the version
@@ -166,6 +181,21 @@ export default class Project extends Instance {
     invariant(components.length && components.every(comp => idValidator(comp)), 'must pass component IDs');
     return this.mutate('components', components.concat(this.components));
   }
+
+  /**
+   * Add constructs to the Project at the given index
+   * @method addComponents
+   * @memberOf Project
+   * @param {number} index - index to insert components at
+   * @param {...UUID} components IDs of components
+   * @returns {Project}
+   */
+  addComponentsAt(index, ...components) {
+    invariant(components.length && components.every(comp => idValidator(comp)), 'must pass component IDs');
+    invariant(index <= this.components.length && index >= 0, 'index out of bounds');
+    return this.mutate('components', this.components.slice(0, index).concat(components).concat(this.components.slice(index)));
+  }
+
 
   /**
    * Remove constructs from the project

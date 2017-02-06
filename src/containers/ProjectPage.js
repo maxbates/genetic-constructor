@@ -35,7 +35,7 @@ import '../styles/SceneGraphPage.css';
 import Inspector from './Inspector';
 import Inventory from './Inventory';
 import ConstructViewerCanvas from './graphics/views/constructViewerCanvas';
-import ConstructViewer from './graphics/views/constructviewer';
+
 
 class ProjectPage extends Component {
   static propTypes = {
@@ -108,13 +108,14 @@ class ProjectPage extends Component {
     }
 
     // build a list of construct viewers
-    const constructViewers = constructs.filter(construct => construct).map(construct => (
-      <ConstructViewer
-        key={construct.id}
-        projectId={projectId}
-        constructId={construct.id}
-      />
-      ));
+    // debugger;
+    // const constructViewers = constructs.filter(construct => construct).map(construct => (
+    //   <ConstructViewer
+    //     key={construct.id}
+    //     projectId={projectId}
+    //     constructId={construct.id}
+    //   />
+    //   ));
 
     return (
       <div className="ProjectPage">
@@ -124,15 +125,16 @@ class ProjectPage extends Component {
         <SaveErrorModal />
         <OrderModal projectId={projectId} />
 
-        <Inventory projectId={projectId} />
+        <Inventory currentProjectId={projectId} />
 
         <div className="ProjectPage-content">
 
           <ProjectHeader project={project} />
 
-          <ConstructViewerCanvas currentProjectId={projectId}>
-            {constructViewers}
-          </ConstructViewerCanvas>
+          <ConstructViewerCanvas
+            currentProjectId={projectId}
+            constructs={constructs}
+          />
 
           <ProjectDetail project={project} />
         </div>

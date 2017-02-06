@@ -47,15 +47,15 @@ class RibbonGrunt extends Component {
   }
 
   render() {
-    if (this.props.gruntMessage) {
-      return (
-        <div className={`ribbongrunt${this.props.atTop ? ' atTop' : ''}`}>
-          {this.props.gruntMessage}
-          <button onClick={this.close}>&times;</button>
-        </div>
-      );
-    }
-    return null;
+    const classes = `ribbongrunt ${
+      this.props.gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}${
+      this.props.atTop ? ' atTop' : ''}`;
+
+    return (
+      <div className={classes}>{this.props.gruntMessage}
+        <button onClick={this.close}>&times;</button>
+      </div>
+    );
   }
 }
 

@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import D from 'DOMArray';
 import { dispatch } from '../../../store/index';
 import { transact } from '../../../store/undo/actions';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
@@ -21,6 +22,7 @@ import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import UserInterface from '../scenegraph2d/userinterface';
 import Fence from './fence';
+
 
 // # of pixels of mouse movement before a drag is triggered.
 const dragThreshold = 8;
@@ -56,6 +58,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
     this.osType = ConstructViewerUserInterface.checkOS();
   }
 
+  destroy() {
+    super.destroy();
+    DnD.unregisterTarget(this.el);
+  }
+
   /**
    * select all blocks within the given rectangle
    */
@@ -88,10 +95,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     // so work backwards in the list and return the first
     // block found
     for (let i = hits.length - 1; i >= 0; i--) {
-      // hit the title node
-      if (hits[i].isNodeOrChildOf(this.layout.titleNode)) {
-        return hits[i];
-      }
       // a block node
       if (this.layout.elementFromNode(hits[i])) {
         return hits[i];
@@ -114,13 +117,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
   topBlockAt(point) {
     const top = this.topNodeAt(point);
     return top ? this.layout.elementFromNode(top) : null;
-  }
-
-  /**
-   * true if the node is the title node for the construct
-   */
-  isConstructTitleNode(node) {
-    return !!(node && node.isNodeOrChildOf(this.layout.titleNode));
   }
 
   /**
@@ -204,39 +200,15 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
-   * mouse enter/leave are used to ensure no block is in the hover state
-   */
-  mouseEnter(event) {
-    this.setTitleHover();
-  }
-
-  mouseLeave(event) {
-    this.setTitleHover();
-  }
-
-  /**
-   * set hover state for title node
-   */
-  setTitleHover(hover) {
-    // bail on no change
-    if (this.layout.titleNode.hover === hover) {
-      return;
-    }
-
-    this.layout.titleNode.set({
-      hover,
-    });
-    this.layout.titleNode.updateBranch();
-  }
-
-  /**
    * double click handler
    */
   doubleClick(evt, point) {
     const top = this.topNodeAt(point);
-    const block = this.layout.elementFromNode(top);
-    if (block) {
-      this.constructViewer.openInspector();
+    if (top) {
+      const block = this.layout.elementFromNode(top);
+      if (block) {
+        this.constructViewer.openInspector();
+      }
     }
   }
 
@@ -246,13 +218,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
   mouseMove(evt, point) {
     let clickable = false;
     if (!this.collapsed) {
-      const hits = this.sg.findNodesAt(point);
-      const isTitle = this.isConstructTitleNode(hits.length ? hits.pop() : null);
-      const isBlock = this.topBlockAt(point);
-      if (this.construct.isAuthoring() || !this.construct.isFixed()) {
-        this.setTitleHover(isTitle);
-      }
-      clickable = isTitle || isBlock;
+      clickable = this.topBlockAt(point);
     }
     this.setCursor(clickable ? 'pointer' : 'default');
   }
@@ -304,17 +270,9 @@ export default class ConstructViewerUserInterface extends UserInterface {
     evt.preventDefault();
     // select construct regardless of where click occurred.
     this.selectConstruct();
-    // open construct menu for title according to position
-    if (this.titleContextMenu(evt, point)) {
-      return;
-    }
-
     // show context menu for blocks if there are selections of the user is over a block
     const showMenu = () => {
-      this.constructViewer.openPopup({
-        blockPopupMenuOpen: true,
-        menuPosition: this.mouseTrap.mouseToGlobal(evt),
-      });
+      this.constructViewer.showBlockContextMenu(this.mouseTrap.mouseToGlobal(evt));
     };
     // if there are no selections try to select the block at the cursor
     if (!this.selections.length) {
@@ -329,22 +287,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
-   * run the title context menu if the point is over the title block.
-   */
-  titleContextMenu(evt, point) {
-    const hits = this.sg.findNodesAt(point);
-    if (this.isConstructTitleNode(hits.length ? hits.pop() : null)) {
-      this.constructViewer.openPopup({
-        constructPopupMenuOpen: true,
-        menuPosition: this.mouseTrap.mouseToGlobal(evt),
-      });
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * true if the point is in the title expander node ( looks like a triangle )
+   * true if the point is in the expander node ( looks like a triangle )
    * @param  {[type]} evt   [description]
    * @param  {[type]} point [description]
    * @return {Boolean}       [description]
@@ -365,6 +308,16 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
+   * toggle collapsed state, remove selections if collapsing and update view
+   */
+  toggleCollapsedState() {
+    this.layout.setCollapsed(!this.layout.collapsed);
+    if (this.collapsed) {
+      this.constructViewer.blockSelected([]);
+    }
+    this.constructViewer.update();
+  }
+  /**
    * select with mouse including handling ancillary actions like opening the context menu and toggle nested construct
    */
   mouseSelect(evt, point) {
@@ -374,12 +327,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
 
     // text expander toggle first
     if (this.constructExpander(evt, point)) {
-      this.layout.setCollapsed(!this.layout.collapsed);
-      if (this.collapsed) {
-        this.constructViewer.blockSelected([]);
-      }
-      this.constructViewer.update();
-      return;
+      this.toggleCollapsedState();
     }
     // ignore everything else if we are collapsed
     if (this.collapsed) {
@@ -437,7 +385,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         case 'optionSelect':
           break;
         default:
-          if (this.blockIsFocused(block) && (this.construct.isAuthoring() || !this.construct.isFixed())) {
+          if (this.blockIsFocused(block) && !this.construct.isFixed()) {
             const name = this.layout.partName(block);
             const bat = this.getBlockEditorBoundsAndTarget(block);
             this.constructViewer.showInlineEditor((value) => {
@@ -451,19 +399,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     } else {
       // clear block selections
       this.constructViewer.blockSelected([]);
-      // if they clicked the title node then select the construct and initiate editing
-      // of the title of construct via an inline edit.
-      if (this.construct.isAuthoring() || !this.construct.isFixed()) {
-        const topNode = this.topNodeAt(point);
-        if (this.isConstructTitleNode(topNode)) {
-          this.selectConstruct();
-          const bat = this.getTitleEditorBoundsAndTarget();
-          this.constructViewer.showInlineEditor((value) => {
-            this.constructViewer.renameBlock(this.construct.id, value);
-          }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
-          topNode.set({ hover: false });
-        }
-      }
     }
   }
 
@@ -475,21 +410,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const node = this.layout.nodeFromElement(blockId);
     const target = node.el;
     const bounds = new Box2D(target.getBoundingClientRect());
-    return { target, bounds };
-  }
-
-  /**
-   * get the bounds for the construct title editor
-   * @param blockId
-   */
-  getTitleEditorBoundsAndTarget() {
-    const target = this.layout.titleNode.el;
-    const bounds = new Box2D(target.getBoundingClientRect());
-    const aabb = this.layout.getBlocksAABB();
-    bounds.width = Math.min(this.layout.titleNodeTextWidth, aabb.width);
-    bounds.width = Math.max(bounds.width, this.layout.sceneGraph.availableWidth / 2);
-    bounds.top += 6;
-    bounds.height -= 12;
     return { target, bounds };
   }
 
@@ -605,8 +525,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
         if (this.construct.isFrozen()) {
           return;
         }
-        // no mutation of fixed constructs unless authoring
-        if (this.construct.isFixed() && !this.construct.isAuthoring()) {
+        // no mutation of fixed constructs
+        if (this.construct.isFixed()) {
           return;
         }
         // open an undo/redo transaction
@@ -697,6 +617,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     this.hideEdgeInsertionPoint();
     this.hideBlockInsertionPoint();
     this.selectConstruct();
+    this.showDragInside();
   }
 
   /**
@@ -706,6 +627,21 @@ export default class ConstructViewerUserInterface extends UserInterface {
     this.dragInside = false;
     this.hideEdgeInsertionPoint();
     this.hideBlockInsertionPoint();
+    this.hideDragInside();
+  }
+
+  showDragInside() {
+    if (!this.borderElement) {
+      this.borderElement = D('<div class="scenegraph-userinterface-drag-inside"></div>'); //eslint-disable-line new-cap
+      this.el.appendChild(this.borderElement.el);
+    }
+  }
+
+  hideDragInside() {
+    if (this.borderElement) {
+      this.borderElement.remove();
+      this.borderElement = null;
+    }
   }
 
   darken() {
@@ -727,7 +663,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     // select construct on drag over (unless collapsed)
     this.selectConstruct();
     // no drop on frozen or fixed constructs
-    if (this.construct.isFrozen() || (this.construct.isFixed() && !this.construct.isAuthoring())) {
+    if (this.construct.isFrozen() || this.construct.isFixed()) {
       return;
     }
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
@@ -754,7 +690,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
    */
   onDrop(globalPosition, payload, event) {
     // no drop on frozen or fixed constructs or collapsed
-    if (this.layout.collapsed || this.construct.isFrozen() || (this.construct.isFixed() && !this.construct.isAuthoring())) {
+    if (this.layout.collapsed || this.construct.isFrozen() || this.construct.isFixed()) {
       return;
     }
     // for now templates can only be dropped on the new construct target which is part of the canvas

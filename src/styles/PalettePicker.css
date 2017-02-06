@@ -1,0 +1,50 @@
+@import './variables.css';
+
+.color-tabs {
+
+  margin-top: 0.5rem;
+
+  .ribbon {
+
+    display: flex;
+    justify-content: center;
+
+    .tab {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      margin: 0 0.5rem;
+      background-color: var(--colors-lightGrey);
+      color: var(--colors-nearlyBlack);
+      border-radius: 3px 3px 0 0;
+      cursor: pointer;
+      text-transform: capitalize;
+    }
+    .tab.active {
+      background-color: var(--colors-nearlyBlack);
+      color: var(--colors-white);
+    }
+  }
+  .palette-picker-content {
+    padding: 4px 0;
+    background-color: var(--colors-nearlyBlack);
+
+    .color-picker {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+
+      .color {
+        width: 50px;
+        height: 50px;
+        flex-shrink: 0;
+        margin: 0.2rem;
+        border-radius: 100%;
+        background-color: whitesmoke;
+        box-sizing: border-box;
+        cursor: pointer;
+        border: 3px solid transparent;
+      }
+    }
+  }
+}

@@ -18,10 +18,10 @@ module.exports = {
       .pause(1000);
 
     // term matches insulin in IGEM registry
-    searchFor(browser, 'NZ_JUOA01000505');
+    searchFor(browser, 'Ncbi', 'NZ_JUOA01000505');
 
     // drag first result to create new construct
-    dragFromTo(browser, '.InventoryItem-item',10, 10, '.cvc-drop-target', 50, 40);
+    dragFromTo(browser, '.InventoryItem-item',10, 10, '.inter-construct-drop-target', 50, 4);
 
     browser
       // wait for a block to appear

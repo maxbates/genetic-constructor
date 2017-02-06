@@ -99,19 +99,22 @@ export class HomePage extends Component {
   };
 
   render() {
-    const warning = this.state.showCookieWarning ? 'block' : 'none';
+    const warning = this.state.showCookieWarning ? (
+      <div className="homepage-cookie-warning">
+        Genetic Constructor uses cookies to ensure you get the best experience.
+        <a href={privacy} target="_blank" rel="noopener noreferrer">More Information</a>
+        <div onClick={this.cookieWarningClosed} className="homepage-cookie-close">
+          Close
+        </div>
+      </div>
+      ) : null;
+
     return (
       <div className="homepage">
         <div className="homepage-image-area">
-          <img className="homepage-logo" role="presentation" src="/images/homepage/app-logo.png" />
-          <div className="homepage-cookie-warning" style={{ display: warning }}>
-            Genetic Constructor uses cookies to ensure you get the best experience.
-            <a href={privacy} target="_blank" rel="noopener noreferrer">More Information</a>
-            <div onClick={this.cookieWarningClosed} className="homepage-cookie-close">
-              Close
-            </div>
-          </div>
-          <img className="homepage-background" role="presentation" src="/images/homepage/tiles.jpg" />
+          <img className="homepage-logo" src="/images/homepage/app-logo.png" role="presentation" />
+          {warning}
+          <img className="homepage-background" src="/images/homepage/tiles.jpg" role="presentation" />
           <div className="homepage-name">
             <div className="lighter">Autodesk&nbsp;</div>
             <div>Genetic Constructor</div>

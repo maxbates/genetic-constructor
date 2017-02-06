@@ -38,6 +38,12 @@ export default function projects(state = initialState, action) {
       instanceMap.saveProject(project);
       return Object.assign({}, state, { [project.id]: project });
 
+    case ActionTypes.PROJECT_SETPALETTE :
+      action.project.setPalette(action.paletteName);
+      instanceMap.saveProject(action.project);
+      return Object.assign({}, state, { [action.project.id]: action.project });
+
+
     case ActionTypes.PROJECT_SNAPSHOT :
     case ActionTypes.PROJECT_SAVE :
       const { projectId, version, time } = action;
