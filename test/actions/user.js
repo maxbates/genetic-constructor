@@ -31,7 +31,8 @@ describe('Actions', () => {
     });
 
     it('should update user on userLogout', () => {
-      const logoutPromise = userStore.dispatch(actions.userLogout());
+      //false, so also clear state
+      const logoutPromise = userStore.dispatch(actions.userLogout(false));
 
       return logoutPromise.then(() => {
         expect(userStore.getState().user).to.eql(initialState);

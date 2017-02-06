@@ -78,7 +78,7 @@ const startRunAuth = () => {
   );
 };
 
-async function auth() {
+async function authStack() {
   try {
     await run(setup);
     await setupBioNanoPlatform();
@@ -91,4 +91,4 @@ async function auth() {
   }
 }
 
-export default auth;
+export default authStack;

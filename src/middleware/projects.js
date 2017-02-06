@@ -16,10 +16,14 @@
 import invariant from 'invariant';
 
 import { noteFailure, noteSave } from '../store/saveState';
+import safeValidate from '../schemas/fields/safeValidate';
+import * as validators from '../schemas/fields/validators';
 import { getBlockContents } from './querying';
 import { headersDelete, headersGet, headersPost } from './utils/headers';
 import { dataApiPath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
+
+const idValidator = id => safeValidate(validators.id(), true, id);
 
 /******
  API requests
@@ -36,7 +40,7 @@ export const listProjects = () => {
 
 //returns a rollup
 export const loadProject = (projectId) => {
-  if (!projectId) {
+  if (!projectId || !idValidator(projectId)) {
     return Promise.reject(null);
   }
 

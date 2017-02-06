@@ -23,7 +23,6 @@ import { userRegister } from '../../actions/user';
 import { privacy, tos } from '../../utils/ui/uiapi';
 import * as authValidation from './_validation';
 
-import Modal from '../modal/Modal';
 import ModalFooter from '../modal/ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import Checkbox from '../formElements/Checkbox';
@@ -32,10 +31,9 @@ import FormRadio from '../formElements/FormRadio';
 import FormText from '../formElements/FormText';
 import FormPassword from '../formElements/FormPassword';
 
-export class RegisterModal extends Component {
+export class RegisterForm extends Component {
   static propTypes = {
-    isOpen: PropTypes.bool.isRequired,
-    registerType: PropTypes.string,
+    accountType: PropTypes.string,
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiSpin: PropTypes.func.isRequired,
     userRegister: PropTypes.func.isRequired,
@@ -90,7 +88,7 @@ export class RegisterModal extends Component {
       emailDirty: false,
       password: '',
       passwordDirty: false,
-      accountType: props.registerType,
+      accountType: props.accountType,
       captcha: null,
       legal: false,
       submitError: null,
@@ -99,28 +97,27 @@ export class RegisterModal extends Component {
 
     this.actions = [{
       text: 'Sign Up',
+      type: 'submit',
       disabled: () => (
-        !this.state.forceDisabled && !RegisterModal.validateForm(this.state)
+        !this.state.forceDisabled && !RegisterForm.validateForm(this.state)
       ),
-      onClick: () => this.registerUser(this.state),
+      onClick: this.onSubmit,
     }];
   }
 
   onFirstName = (evt) => {
-    if (process.env.BNR_ENVIRONMENT !== 'prod') {
-      //special handling for 'darwin magic' dummy user, except in production (but allow in QA, where NODE_ENV==='production')
-      if (evt.target.value === 'darwin magic') {
-        this.setState({
-          firstName: 'Charles',
-          lastName: 'Darwin',
-          email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
-          password: 'abc123456',
-          accountType: 'free',
-          captcha: true,
-          legal: true,
-        });
-        return;
-      }
+    //special handling for 'darwin magic' dummy user -- will not pass in production environment since captcha will fail
+    if (evt.target.value === 'darwin magic') {
+      this.setState({
+        firstName: 'Charles',
+        lastName: 'Darwin',
+        email: `charlesdarwin_${Date.now()}@royalsociety.co.uk`,
+        password: 'abc123456',
+        accountType: 'free',
+        captcha: true,
+        legal: true,
+      });
+      return;
     }
     this.setState({ firstName: evt.target.value });
   };
@@ -147,8 +144,10 @@ export class RegisterModal extends Component {
 
   onLegalCheck = isChecked => this.setState({ legal: isChecked });
 
-  registerUser() {
-    if (!this.state.forceDisabled && !RegisterModal.validateForm(this.state)) {
+  onSubmit = (evt) => {
+    evt.preventDefault();
+
+    if (!this.state.forceDisabled && !RegisterForm.validateForm(this.state)) {
       this.setState({ submitError: 'Please fill out all fields' });
       return;
     }
@@ -160,7 +159,7 @@ export class RegisterModal extends Component {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       captcha: this.state.captcha,
-    }, RegisterModal.getConfig(this.state))
+    }, RegisterForm.getConfig(this.state))
     .then((json) => {
       // close the form / wait message
       this.props.uiSpin();
@@ -182,7 +181,7 @@ export class RegisterModal extends Component {
         });
       }
     });
-  }
+  };
 
   render() {
     //special dirty-state handling for password and email
@@ -193,18 +192,12 @@ export class RegisterModal extends Component {
     const emailError = showEmailError ? authValidation.emailValidator(this.state.email) : '';
 
     return (
-      <Modal
-        isOpen={this.props.isOpen}
-        onClose={() => this.props.uiShowAuthenticationForm('none')}
-        title="Sign Up"
-        style={{ content: { width: '740px' } }}
+      <form
+        id="auth-register"
+        className="Form"
+        onSubmit={this.onSubmit}
       >
-        <form
-          id="auth-register"
-          action="#"
-          className="Form Modal-paddedContent"
-          onSubmit={this.registerUser}
-        >
+        <div className="Modal-paddedContent">
           <div className="Modal-banner">
             <span>Already have a Genetic Constructor account? </span>
             <a id="auth-showLogin" onClick={() => this.props.uiShowAuthenticationForm('signin')}>Sign In...</a>
@@ -286,15 +279,17 @@ export class RegisterModal extends Component {
                 onChange={this.onLegalCheck}
               />
               <span style={{ marginLeft: '0.5em' }}>
-              I agree to the&nbsp;
+                  I agree to the&nbsp;
                 <a
                   href={tos}
+                  className="link"
                   target="_blank"
                   rel="noopener noreferrer"
                 >Terms of Service</a>
                 &nbsp;and&nbsp;
                 <a
                   href={privacy}
+                  className="link"
                   target="_blank"
                   rel="noopener noreferrer"
                 >Autodesk Privacy Statement</a>
@@ -307,20 +302,19 @@ export class RegisterModal extends Component {
               {this.state.submitError}
             </div>
           )}
-        </form>
+        </div>
 
         <ModalFooter actions={this.actions} />
-      </Modal>
+      </form>
     );
   }
 }
 
 export default connect(state => ({
-  isOpen: state.ui.modals.authenticationForm === 'register',
-  registerType: state.ui.modals.authFormParams.registerType,
+  accountType: state.ui.modals.authFormParams.accountType,
 }), {
   uiShowAuthenticationForm,
   uiSpin,
   userRegister,
   projectOpen,
-})(RegisterModal);
+})(RegisterForm);
