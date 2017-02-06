@@ -17,7 +17,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 
 import { ensureReqUserMiddleware } from '../user/utils';
-import { errorDoesNotExist, errorNoPermission, errorInvalidModel, errorInvalidRoute } from '../utils/errors';
+import { errorDoesNotExist, errorInvalidModel, errorInvalidRoute } from '../utils/errors';
 import { projectPermissionMiddleware } from './permissions';
 import * as blockPersistence from './persistence/blocks';
 import * as projectVersions from './persistence/projectVersions';
@@ -184,7 +184,7 @@ router.route('/projects/:projectId')
     const forceDelete = !!req.query.force;
 
     if (projectDoesNotExist === true) {
-      return res.status(403).send(errorNoPermission);
+      return res.status(404).send(errorDoesNotExist);
     }
 
     projectPersistence.projectDelete(projectId, user.uuid, forceDelete)

@@ -96,7 +96,7 @@ class ProjectPage extends Component {
   render() {
     const { project, projectId, constructs } = this.props;
 
-    //handle project not loaded
+    //handle project not loaded at all
     if (!project || !project.metadata) {
       this.props.projectLoad(projectId, false, true)
         .then((project) => {
@@ -106,6 +106,13 @@ class ProjectPage extends Component {
         });
       return (<Spinner styles={{ fontSize: '40px', margin: '2em auto' }} />);
     }
+
+    //check if the project is fully loaded (i.e. blocks have been loaded)
+    // todo - currently, leads to infinite loop of requests
+    //if (project && project.components.length && project.components.some(constructId => !constructs[constructId])) {
+    //  this.props.projectLoad(projectId);
+    //  return (<Spinner styles={{ fontSize: '40px', margin: '2em auto' }} />);
+    //}
 
     // build a list of construct viewers
     // debugger;

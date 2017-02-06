@@ -355,6 +355,8 @@ export const projectOpen = (inputProjectId, skipSave = false) => (dispatch, getS
 /**
  * Delete a project. THIS CANNOT BE UNDONE.
  *
+ * Returns false if project cannot be deleted
+ *
  * Recommended usage --- load another project, open it, then call this action
  * @function
  * @param {UUID} projectId
@@ -366,7 +368,7 @@ export const projectDelete = projectId =>
 
     if (project.rules.frozen) {
       dispatch(uiSetGrunt('This is a sample project and cannot be deleted.'));
-      return;
+      return false;
     }
 
     //wrap deleting in a transaction
