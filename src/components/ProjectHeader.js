@@ -249,15 +249,18 @@ class ProjectHeader extends Component {
     const items = [
       {
         text: 'Download Project',
-        action: () => { },
+        action: () => {
+          downloadProject(this.props.project.id, this.props.focus.options);
+        },
       },
       {
         text: 'Duplicate Project',
+        disabled: true,
         action: () => { },
       },
       {
         text: 'Delete Project',
-        action: () => { },
+        action: this.onDeleteProject,
       },
     ].concat(GlobalNav.getSingleton().getEditMenuItems());
     this.props.uiShowMenu(items, position);
