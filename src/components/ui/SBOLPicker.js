@@ -15,7 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import symbols, { symbolMap } from '../../inventory/roles';
+import { symbols, symbolMap } from '../../inventory/roles';
 import '../../styles/SBOLPicker.css';
 import RoleSvg from '../RoleSvg';
 

@@ -30,7 +30,7 @@
       visibility: hidden;
     }
 
-    &:hover {
+    &:hover:not([disabled]) {
       background-color: gray;
       border-radius: 2px;
       color: black;

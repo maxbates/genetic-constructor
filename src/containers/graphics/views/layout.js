@@ -384,9 +384,6 @@ export default class Layout {
    * @return {boolean}
    */
   blockIsHidden(blockId) {
-    if (this.isAuthoring()) {
-      return false;
-    }
     const block = this.blocks[blockId];
     return block.isHidden();
   }
@@ -567,19 +564,6 @@ export default class Layout {
   }
 
   /**
-   * nested constructs may be indicate not authoring when the top level construct does
-   * so always check the top level construct.
-   * @return {Boolean}
-   */
-  isAuthoring() {
-    // construct may not be present when used as a preview control in the order form
-    if (this.constructViewer.props.construct) {
-      return this.constructViewer.props.construct.isAuthoring();
-    }
-    return false;
-  }
-
-  /**
    * store layout information on our cloned copy of the data, constructing
    * display elements as required
    *
@@ -679,7 +663,8 @@ export default class Layout {
     // additional vertical space consumed on every row for nested constructs
     let nestedVertical = 0;
 
-    // additional height required by the tallest list on the row
+    // additional height required by the tallest list on the row including an allowance
+    // for empty list blocks which have the text 'Emtpy List' below them.
     let maxListHeight = 0;
 
     // used to track the nested constructs on each row
@@ -714,7 +699,9 @@ export default class Layout {
       const node = this.nodeFromElement(part);
       const block = this.blocks[part];
       const name = this.partName(part);
-      const listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      let listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      // empty list blocks has a message below them so allow for that.
+      listN = block.isList() ? Math.max(listN, 1) : listN;
 
       // set role part name if any
       node.set({

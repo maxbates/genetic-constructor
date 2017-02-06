@@ -72,7 +72,7 @@ class DnD {
     this.proxy.style.zIndex = 2147483647;
     // remove any transform from proxy and make semi-transparent
     this.proxy.style.transform = null;
-    this.proxy.style.opacity = 2 / 3;
+    this.proxy.style.opacity = 0.7;
     // give the proxy the hand cursor
     this.proxy.style.cursor = 'pointer';
 

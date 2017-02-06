@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import D from 'DOMArray';
 import { dispatch } from '../../../store/index';
 import { transact } from '../../../store/undo/actions';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
@@ -21,6 +22,7 @@ import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import UserInterface from '../scenegraph2d/userinterface';
 import Fence from './fence';
+
 
 // # of pixels of mouse movement before a drag is triggered.
 const dragThreshold = 8;
@@ -383,7 +385,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         case 'optionSelect':
           break;
         default:
-          if (this.blockIsFocused(block) && (this.construct.isAuthoring() || !this.construct.isFixed())) {
+          if (this.blockIsFocused(block) && !this.construct.isFixed()) {
             const name = this.layout.partName(block);
             const bat = this.getBlockEditorBoundsAndTarget(block);
             this.constructViewer.showInlineEditor((value) => {
@@ -523,8 +525,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
         if (this.construct.isFrozen()) {
           return;
         }
-        // no mutation of fixed constructs unless authoring
-        if (this.construct.isFixed() && !this.construct.isAuthoring()) {
+        // no mutation of fixed constructs
+        if (this.construct.isFixed()) {
           return;
         }
         // open an undo/redo transaction
@@ -629,11 +631,17 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   showDragInside() {
-    this.el.classList.add('scenegraph-userinterface-drag-inside');
+    if (!this.borderElement) {
+      this.borderElement = D('<div class="scenegraph-userinterface-drag-inside"></div>'); //eslint-disable-line new-cap
+      this.el.appendChild(this.borderElement.el);
+    }
   }
 
   hideDragInside() {
-    this.el.classList.remove('scenegraph-userinterface-drag-inside');
+    if (this.borderElement) {
+      this.borderElement.remove();
+      this.borderElement = null;
+    }
   }
 
   darken() {
@@ -655,7 +663,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     // select construct on drag over (unless collapsed)
     this.selectConstruct();
     // no drop on frozen or fixed constructs
-    if (this.construct.isFrozen() || (this.construct.isFixed() && !this.construct.isAuthoring())) {
+    if (this.construct.isFrozen() || this.construct.isFixed()) {
       return;
     }
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
@@ -682,7 +690,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
    */
   onDrop(globalPosition, payload, event) {
     // no drop on frozen or fixed constructs or collapsed
-    if (this.layout.collapsed || this.construct.isFrozen() || (this.construct.isFixed() && !this.construct.isAuthoring())) {
+    if (this.layout.collapsed || this.construct.isFrozen() || this.construct.isFixed()) {
       return;
     }
     // for now templates can only be dropped on the new construct target which is part of the canvas
