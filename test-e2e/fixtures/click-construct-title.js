@@ -6,7 +6,7 @@ module.exports = function (browser, constructTitle) {
   // generate mouse move events on body from source to destination
   browser.execute(function(constructTitle) {
 
-    var node = document.querySelector('[data-construct-title="' + constructTitle + '"]');
+    var node = document.querySelector(`.construct-viewer .title-and-toolbar .text[data-id="${constructTitle}"]`);
     return node.getBoundingClientRect();
 
   }, [constructTitle], function(result) {

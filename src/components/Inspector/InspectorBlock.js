@@ -31,6 +31,7 @@ import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
 import { getLocal } from '../../utils/localstorage';
+import '../../styles/InspectorBlock.css';
 
 export class InspectorBlock extends Component {
   static propTypes = {
@@ -42,7 +43,6 @@ export class InspectorBlock extends Component {
       }
     }).isRequired,
     construct: PropTypes.object.isRequired, //top-level
-    isAuthoring: PropTypes.bool.isRequired,
     overrides: PropTypes.shape({
       color: PropTypes.string,
       role: PropTypes.string,
@@ -64,6 +64,10 @@ export class InspectorBlock extends Component {
     forceIsConstruct: false,
   };
 
+  state = {
+    colorSymbolText: 'Color & Symbol',
+  };
+
   setBlockName = (name) => {
     this.props.instances.forEach((block) => {
       this.props.blockRename(block.id, name);
@@ -74,6 +78,10 @@ export class InspectorBlock extends Component {
     this.props.instances.forEach((block) => {
       this.props.blockMerge(block.id, { metadata: { description } });
     });
+  };
+
+  setColorSymbolText = (str) => {
+    this.setState({ colorSymbolText: str || 'Color & Symbol' });
   };
 
   selectColor = (colorIndex) => {
@@ -134,8 +142,7 @@ export class InspectorBlock extends Component {
     if (instances.length === 1) {
       return instances[0].getRole(false);
     }
-    //false is specially handled in symbol picker as blank, and is different than null (no symbol)
-    return false;
+    return null;
   }
 
   /**
@@ -200,15 +207,14 @@ export class InspectorBlock extends Component {
   }
 
   render() {
-    const { instances, construct, readOnly, forceIsConstruct, isAuthoring } = this.props;
+    const { instances, construct, readOnly, forceIsConstruct } = this.props;
     const singleInstance = instances.length === 1;
     const isList = singleInstance && instances[0].isList();
-    const isTemplate = singleInstance && instances[0].isTemplate();
     const isConstruct = singleInstance && instances[0].isConstruct();
+    const isFixed = instances.some(inst => inst.isFixed());
     const hasParents = this.props.blockGetParents(instances[0].id).length > 0;
 
     const inputKey = instances.map(inst => inst.id).join(',');
-    const anyIsConstructOrTemplateOrList = instances.some(instance => instance.isConstruct() || instance.isTemplate() || instance.isList());
 
     const palette = construct ? construct.metadata.palette || this.props.project.metadata.palette : null;
 
@@ -304,29 +310,30 @@ export class InspectorBlock extends Component {
           :
             null
         }
-        <ColorPicker
-          current={this.currentColor()}
-          readOnly={readOnly}
-          paletteName={palette}
-          onSelectColor={this.selectColor}
-        />
-        <Expando
-          text="Symbol"
-          content={<SBOLPicker
+        <div className="color-symbol-label">{this.state.colorSymbolText}</div>
+        <div className="color-symbol">
+          <ColorPicker
+            setText={this.setColorSymbolText}
+            current={this.currentColor()}
+            readOnly={readOnly}
+            paletteName={palette}
+            onSelectColor={this.selectColor}
+          />
+          <SBOLPicker
+            setText={this.setColorSymbolText}
             current={this.currentRoleSymbol()}
-            readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList))}
+            readOnly={readOnly || isFixed}
             onSelect={this.selectSymbol}
-          />}
-        />
-
+          />
+        </div>
         <InspectorRow
           heading={`${type} Rules`}
-          condition={isAuthoring}
+          condition={isConstruct}
         >
           <TemplateRules
             block={instances[0]}
-            readOnly={!isAuthoring}
-            isConstruct={isTemplate}
+            readOnly={isFixed}
+            isConstruct={isConstruct}
           />
         </InspectorRow>
 
@@ -351,7 +358,7 @@ export class InspectorBlock extends Component {
           condition={isList}
         >
           <ListOptions
-            toggleOnly={!isAuthoring}
+            toggleOnly={isFixed}
             block={instances[0]}
           />
         </InspectorRow>

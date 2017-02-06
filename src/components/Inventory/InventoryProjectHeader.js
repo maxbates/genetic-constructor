@@ -16,7 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { blockCreate } from '../../actions/blocks';
+import { blockCreate, blockRename } from '../../actions/blocks';
 import { focusConstruct } from '../../actions/focus';
 import { projectAddConstruct, projectCreate, projectOpen, projectSave } from '../../actions/projects';
 import { uiShowGenBankImport } from '../../actions/ui';
@@ -26,6 +26,7 @@ import '../../styles/InventoryProjectHeader.css';
 class InventoryProjectHeader extends Component {
   static propTypes = {
     blockCreate: PropTypes.func.isRequired,
+    blockRename: PropTypes.func.isRequired,
     projectCreate: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
@@ -41,6 +42,7 @@ class InventoryProjectHeader extends Component {
     const project = this.props.projectCreate();
     // add a construct to the new project
     const block = this.props.blockCreate({ projectId: project.id });
+    this.props.blockRename(block.id, 'New Construct');
     const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
 
     //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
@@ -102,6 +104,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   blockCreate,
+  blockRename,
   projectCreate,
   projectOpen,
   projectSave,

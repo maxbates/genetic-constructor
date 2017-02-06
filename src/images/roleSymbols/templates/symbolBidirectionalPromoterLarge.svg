@@ -1,0 +1,7 @@
+<svg id="sbol-svg-bidirectional-promoter-large" xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54">
+  <g fill="none" fill-rule="evenodd" stroke="#292D40" stroke-linecap="square">
+    <polyline points="36 19.5 44 27.5 36 35.5"/>
+    <polyline points="11 19.5 19 27.5 11 35.5" transform="matrix(-1 0 0 1 30 0)"/>
+    <path d="M27.5 27.5L27.5 47.5M11.5 27.5L43.5 27.5"/>
+  </g>
+</svg>

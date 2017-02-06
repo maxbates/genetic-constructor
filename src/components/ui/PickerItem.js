@@ -32,7 +32,6 @@ export default function PickerItem(props) {
     onClick={evt => onClick(evt)}
   >
     {svg && (<RoleSvg
-      stroke={0.5}
       width="100%"
       height="100%"
       color="white"

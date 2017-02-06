@@ -21,13 +21,13 @@ var newproject = function(browser) {
     // wait for symbols to appear
     .waitForElementPresent('.InventoryGroupRole .sbol-tile', 5000, 'expected an inventory item');
 
-  // drag 3 role symbols into construct
-  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(2) .RoleSvg', 10, 10, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(3) .RoleSvg', 10, 10, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(4) .RoleSvg', 10, 10, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(5) .RoleSvg', 10, 10, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
-  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(6) .RoleSvg', 10, 10, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
+  // drag role symbols into construct
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 27, 27, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(2) .RoleSvg', 27, 27, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(3) .RoleSvg', 27, 27, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(4) .RoleSvg', 27, 27, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(5) .RoleSvg', 27, 27, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
+  dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(6) .RoleSvg', 27, 27, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
 
   browser
     .pause(250)

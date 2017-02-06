@@ -83,6 +83,12 @@
 }
 
 .scenegraph-userinterface-drag-inside {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
   border: 1px solid var(--colors-selected);
 }
 
@@ -91,11 +97,24 @@
   width: calc(100% - 3rem);
   background: transparent;
   position: relative;
+  border-top: 1px solid gray;
+
+  .title-and-toolbar-container {
+    position: absolute;
+    width: calc(100% - 40px);
+    right: 0;
+    top: 0;
+    height: 32px;
+  }
+
+  .title-and-toolbar-unfocused {
+    opacity: 0.5;
+  }
 
   .lockIcon {
     position: absolute;
     left: -19px;
-    top: 28px;
+    top: 6px;
   }
 
   .sceneGraphContainer {

@@ -17,7 +17,7 @@ module.exports = {
     dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.inter-construct-drop-target', 50, 4);
 
     browser
-      .click('.order-button')
+      .click('.construct-viewer .title-and-toolbar [data-id="Order DNA"]')
       .waitForElementPresent('.order-form .page1', 10000, 'expected order dialog to appear')
       .pause(3000)
       // goto review page

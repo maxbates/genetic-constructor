@@ -384,9 +384,6 @@ export default class Layout {
    * @return {boolean}
    */
   blockIsHidden(blockId) {
-    if (this.isAuthoring()) {
-      return false;
-    }
     const block = this.blocks[blockId];
     return block.isHidden();
   }
@@ -488,48 +485,11 @@ export default class Layout {
       this.banner.set({
         fill: this.baseColor,
         stroke: this.baseColor,
-        bounds: new Box2D(this.insetX, this.insetY, this.sceneGraph.availableWidth - this.insetX, kT.bannerHeight),
+        bounds: new Box2D(this.insetX, this.insetY, kT.bannerHeight, kT.bannerHeight),
       });
     }
   }
 
-  /**
-   * create title as necessary
-   *
-   *
-   */
-  titleFactory() {
-    if (this.showHeader) {
-      if (!this.titleNode) {
-        // node that carries the text
-        this.titleNode = new Node2D(Object.assign({
-          dataAttribute: { name: 'nodetype', value: 'construct-title' },
-          sg: this.sceneGraph,
-          hoverClass: 'inline-editor-hover-title',
-          textIndent: 4,
-        }, kT.titleAppearance));
-        this.sceneGraph.root.appendChild(this.titleNode);
-      }
-
-      // update title to current position and text and width, also add gray text
-      // to indicate template if appropriate
-      let text = this.construct.getName('New Construct');
-      if (this.construct.isTemplate()) {
-        text += '<span style="color:gray">&nbsp;Template</span>';
-      }
-      if (this.isAuthoring()) {
-        text += '<span style="color:gray">&nbsp;(Authoring)</span>';
-      }
-      this.titleNodeTextWidth = this.titleNode.measureText(text).x + kT.textPad;
-
-      this.titleNode.set({
-        text,
-        color: this.baseColor,
-        bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, this.sceneGraph.availableWidth - this.insetX - kT.rightPad, kT.titleH),
-        dataAttribute: { name: 'construct-title', value: text },
-      });
-    }
-  }
 
   /**
    * create the vertical bar as necessary and update its color
@@ -604,19 +564,6 @@ export default class Layout {
   }
 
   /**
-   * nested constructs may be indicate not authoring when the top level construct does
-   * so always check the top level construct.
-   * @return {Boolean}
-   */
-  isAuthoring() {
-    // construct may not be present when used as a preview control in the order form
-    if (this.constructViewer.props.construct) {
-      return this.constructViewer.props.construct.isAuthoring();
-    }
-    return false;
-  }
-
-  /**
    * store layout information on our cloned copy of the data, constructing
    * display elements as required
    *
@@ -674,7 +621,7 @@ export default class Layout {
    *
    */
   getInitialLayoutPoint() {
-    return new Vector2D(this.insetX + kT.rowBarW, this.insetY + (this.showHeader ? kT.bannerHeight + kT.titleH + kT.rowBarH : kT.rowBarH));
+    return new Vector2D(this.insetX + kT.rowBarW, this.insetY + (this.showHeader ? kT.bannerHeight + kT.bannerGap + kT.rowBarH : kT.rowBarH));
   }
 
   /**
@@ -698,8 +645,6 @@ export default class Layout {
     const ct = this.construct;
     // construct the banner if required
     this.bannerFactory();
-    // create and update title
-    this.titleFactory();
     // maximum x position
     const mx = layoutOptions.xlimit - (this.collapsed ? kT.collapsedMessageWidth : 0);
     // reset nested constructs
@@ -718,7 +663,8 @@ export default class Layout {
     // additional vertical space consumed on every row for nested constructs
     let nestedVertical = 0;
 
-    // additional height required by the tallest list on the row
+    // additional height required by the tallest list on the row including an allowance
+    // for empty list blocks which have the text 'Emtpy List' below them.
     let maxListHeight = 0;
 
     // used to track the nested constructs on each row
@@ -753,7 +699,9 @@ export default class Layout {
       const node = this.nodeFromElement(part);
       const block = this.blocks[part];
       const name = this.partName(part);
-      const listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      let listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      // empty list blocks has a message below them so allow for that.
+      listN = block.isList() ? Math.max(listN, 1) : listN;
 
       // set role part name if any
       node.set({
@@ -1040,7 +988,6 @@ export default class Layout {
     invariant(!this.disposed, 'Layout already disposed');
     this.disposed = true;
     Layout.removeNode(this.banner);
-    Layout.removeNode(this.titleNode);
     Layout.removeNode(this.vertical);
     this.rows.forEach((node) => {
       Layout.removeNode(node);

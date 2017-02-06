@@ -15,9 +15,6 @@ limitations under the License.
 */
 // height of blocks
 const blockH = 30;
-// width of title
-const titleW = 200;
-const titleH = 40;
 // total height of each row
 const rowH = 60;
 // row header bar height
@@ -34,7 +31,9 @@ const contextDotsH = 18;
 // width of condensed text blocks
 const condensedText = 40;
 // height of banner bar above construct name
-const bannerHeight = 18;
+const bannerHeight = 30;
+// gap between banner and start of construct
+const bannerGap = 12;
 // inset of layout in graph
 const insetX = 0;
 const insetY = 0;
@@ -42,7 +41,6 @@ const insetY = 0;
 const nestedInsetX = 20;
 const nestedInsetY = 20;
 // font size
-const titleFontSize = '20px';
 const blockFontSize = '12px';
 // background
 const background = 'rgb(52, 57, 77)';
@@ -50,13 +48,13 @@ const background = 'rgb(52, 57, 77)';
 const roleIcon = 27;
 // min size of layout
 const minWidth = blockH * 4;
-const minHeight = blockH + rowBarH + titleH;
+const minHeight = blockH + rowBarH + bannerHeight;
 // height when collapsed
-const collapsedHeight = blockH + titleH + bannerHeight + rowBarH;
+const collapsedHeight = blockH + bannerHeight + bannerGap + rowBarH;
 // width of message for collapsed constructs e.g. 'and 123 more...'
 const collapsedMessageWidth = 100;
 // padding at right / bottom of scenegraph to make selection easier
-const bottomPad = 50;
+const bottomPad = 30;
 const rightPad = 30;
 // width of reserved space for selection dot on options
 const optionDotW = 16;
@@ -80,8 +78,6 @@ export default {
   optionDotL,
   contextDotsW,
   contextDotsH,
-  titleW,
-  titleH,
   rowH,
   rowBarH,
   rowBarW,
@@ -93,6 +89,7 @@ export default {
   nestedInsetX,
   nestedInsetY,
   bannerHeight,
+  bannerGap,
   roleIcon,
   minWidth,
   minHeight,
@@ -101,15 +98,6 @@ export default {
   bottomPad,
   rightPad,
 
-  // display properties for various elements
-  titleAppearance: {
-    fill: 'transparent',
-    glyph: 'rectangle',
-    strokeWidth: 0,
-    fontSize: titleFontSize,
-    textAlign: 'left',
-    height: titleH,
-  },
   // row bar
   rowAppearance: {
     height: rowBarH,

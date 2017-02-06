@@ -34,8 +34,8 @@ module.exports = {
       .waitForElementPresent('.inventory-project-tree [data-testid^="project"]', 5000, 'expect a list of projects to appear')
       .assert.countelements('.inventory-project-tree [data-testid^="project"]', 2)
 
-      // expand 1st project
-      .click('.inventory-project-tree .tree div:nth-of-type(1) .expando')
+      // expand loaded project
+      .click('.inventory-project-tree .expando .label-selected')
       .pause(1000)
       // expect 2 projects and 3 blocks to be visible
       .assert.countelements('.inventory-project-tree [data-testid^="project"]', 2)

@@ -97,7 +97,7 @@ class InlineEditor extends Component {
     if (!this.openingBounds.equals(new Box2D(this.props.target.getBoundingClientRect()))) {
       this.onCancel();
     }
-  }
+  };
 
   /*
    * render the inline editor only when the commit callback is available
