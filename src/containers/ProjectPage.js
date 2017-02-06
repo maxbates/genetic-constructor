@@ -107,16 +107,6 @@ class ProjectPage extends Component {
       return (<Spinner styles={{ fontSize: '40px', margin: '2em auto' }} />);
     }
 
-    // build a list of construct viewers
-    // debugger;
-    // const constructViewers = constructs.filter(construct => construct).map(construct => (
-    //   <ConstructViewer
-    //     key={construct.id}
-    //     projectId={projectId}
-    //     constructId={construct.id}
-    //   />
-    //   ));
-
     return (
       <div className="ProjectPage">
         <ImportGenBankModal currentProjectId={projectId} />

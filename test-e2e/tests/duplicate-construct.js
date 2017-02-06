@@ -18,7 +18,7 @@ module.exports = {
       .assert.countelements('[data-nodetype="block"]', 6);
     // duplicate via context menu
     rightClickAt(browser, '.construct-viewer .title-and-toolbar .title', 15, 15);
-    clickContextMenu(browser, 3);
+    clickContextMenu(browser, 1);
     browser
       .pause(1000)
       // should have double the blocks we started with

@@ -610,14 +610,33 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
+   * optimistically say if drop operations will be possible
+   * @returns {boolean}
+   */
+  dropPossible(payload) {
+    if (this.layout.collapsed) {
+      return false;
+    }
+    // no drop on frozen or fixed constructs
+    if (this.construct.isFrozen() || this.construct.isFixed()) {
+      return false;
+    }
+    if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
+      return false;
+    }
+    return true;
+  }
+  /**
    * a drag entered the construct viewer
    */
   onDragEnter(globalPoint, payload) {
-    this.dragInside = true;
+    this.selectConstruct();
     this.hideEdgeInsertionPoint();
     this.hideBlockInsertionPoint();
-    this.selectConstruct();
-    this.showDragInside();
+    if (this.dropPossible(payload)) {
+      this.dragInside = true;
+      this.showDragInside();
+    }
   }
 
   /**

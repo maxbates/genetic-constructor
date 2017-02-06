@@ -1,0 +1,6 @@
+@import './variables.css';
+
+.MenuSeparator {
+  border-top: 1px solid white;
+  margin: 0.75rem 0;
+}

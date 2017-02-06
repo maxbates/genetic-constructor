@@ -32,9 +32,14 @@ class InlineToolbar extends Component {
         clicked: () => {},
      */
     items: PropTypes.array.isRequired,
+    // called when any of the items are clicked, enabled or not.
+    itemActivated: PropTypes.func,
   };
 
   itemClicked = (event, item) => {
+    if (this.props.itemActivated) {
+      this.props.itemActivated();
+    }
     if (item.enabled) {
       item.clicked(event, item);
     }

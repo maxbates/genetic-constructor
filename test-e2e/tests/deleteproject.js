@@ -4,7 +4,6 @@ var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var rightClickAt = require('../fixtures/rightClickAt');
 var clickMenuNthItem = require('../fixtures/click-popmenu-nth-item');
 
-
 module.exports = {
   'Test that we can delete a project' : function (browser) {
 
@@ -15,8 +14,8 @@ module.exports = {
       .waitForElementPresent('.inventory-project-tree .expando', 5000, 'expected project tree with one project')
       .assert.countelements('.inventory-project-tree .expando', 1);
 
-    rightClickAt(browser, '.inventory-project-tree .expando', 4, 4 );
-    clickMenuNthItem(browser, 6);
+    rightClickAt(browser, '.inventory-project-tree .expando', 20, 10 );
+    clickMenuNthItem(browser, 8);
 
     browser
       // wait for confirmation dialog and accept
