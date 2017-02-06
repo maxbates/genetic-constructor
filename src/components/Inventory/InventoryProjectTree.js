@@ -224,7 +224,7 @@ export class InventoryProjectTree extends Component {
    * new template construct added to bound project
    * @param project
    */
-  onNewTemplate = project => this.onNewConstruct(project, { rules: { authoring: true, fixed: true } });
+  //onNewTemplate = project => this.onNewConstruct(project, { rules: { } });
 
   /**
    * used want to open the context menu for the project.
@@ -243,7 +243,7 @@ export class InventoryProjectTree extends Component {
       },
       {
         text: this.props.templates ? 'New Template' : 'New Construct',
-        action: this.props.templates ? this.onNewTemplate.bind(this, project) : this.onNewConstruct.bind(this, project),
+        action: this.onNewConstruct.bind(this, project),
       },
       {},
       {

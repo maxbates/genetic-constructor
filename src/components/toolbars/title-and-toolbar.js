@@ -41,6 +41,7 @@ class TitleAndToolbar extends Component {
     color: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
     onContextMenu: PropTypes.func,
+    noHover: PropTypes.bool,
   };
 
   /**
@@ -67,10 +68,14 @@ class TitleAndToolbar extends Component {
   };
 
   render() {
+    const disabledProp = {
+      disabled: !!this.props.noHover,
+    };
     return (
       <div className="title-and-toolbar">
         <div
           className="title"
+          {...disabledProp}
           style={{ fontSize: this.props.fontSize, color: this.props.color }}
           onClick={this.props.onClick}
         >

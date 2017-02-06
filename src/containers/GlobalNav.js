@@ -47,6 +47,7 @@ class GlobalNav extends Component {
     projectSave: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string,
     blockCreate: PropTypes.func.isRequired,
+    blockRename: PropTypes.func.isRequired,
     blockGetParents: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
@@ -191,6 +192,7 @@ class GlobalNav extends Component {
     const project = this.props.projectCreate();
     // add a construct to the new project
     const block = this.props.blockCreate({ projectId: project.id });
+    this.props.blockRename(block.id, 'New Construct');
     const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
 
     //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
@@ -217,10 +219,6 @@ class GlobalNav extends Component {
     this.props.commit();
     this.props.focusConstruct(block.id);
     return block;
-  }
-
-  newTemplate() {
-    return this.newConstruct({ rules: { authoring: true, fixed: true } });
   }
 
   /**
