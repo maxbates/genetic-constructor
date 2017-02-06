@@ -18,6 +18,7 @@ import React, { Component, PropTypes } from 'react';
 import '../../styles/MenuItem.css';
 import { stringToShortcut } from '../../utils/ui/keyboard-translator';
 import Arrow from '../ui/Arrow';
+import Chevron from '../ui/Chevron';
 import SubMenu from './SubMenu';
 
 /**
@@ -93,7 +94,7 @@ export default class MenuItem extends Component {
     if (this.props.menuItems && this.props.menuItems.length) {
       subMenu = (
         <div className="arrow">
-          {this.props.disabled ? null : <Arrow direction="right" />}
+          {this.props.disabled ? null : <Chevron direction="right" />}
           {this.state.inside &&
           <SubMenu
             menuItems={this.props.menuItems}

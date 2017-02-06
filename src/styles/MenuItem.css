@@ -8,7 +8,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.2rem 1.5rem 0.2rem 1.5rem;
+  padding: 0.2rem 1rem 0.2rem 1.5rem;
   cursor: default;
 
   &.disabled {
@@ -19,11 +19,10 @@
   &:hover {
     background-color: var(--colors-selected);
     color: white;
-    > .right {
-      > .arrow {
-        > .arrow-base {
-          border-left-color: var(--colors-white);
-        }
+    .right {
+      .corner {
+        border-top-color: var(--colors-white);
+        border-right-color: var(--colors-white);
       }
     }
   }
@@ -57,7 +56,7 @@
   }
   /*positioning for sub menu*/
   .sub-menu {
-    top: -0.5rem;
+    top: -7px;
     box-shadow: 0px 0px 10px 0px rgba(38,49,66,1);
   }
   .sub-menu-right {
