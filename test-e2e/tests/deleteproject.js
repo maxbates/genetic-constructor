@@ -4,7 +4,6 @@ var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var rightClickAt = require('../fixtures/rightClickAt');
 var clickMenuNthItem = require('../fixtures/click-popmenu-nth-item');
 
-
 module.exports = {
   'Test that we can delete a project' : function (browser) {
 
