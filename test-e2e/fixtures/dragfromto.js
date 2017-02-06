@@ -5,12 +5,15 @@
 module.exports = function (browser, srcSelector, srcX, srcY, dstSelector, dstX, dstY, steps) {
   // click on source element
   browser
-    .moveToElement(srcSelector, srcX, srcY)
-    .pause(100)
-    .mouseButtonDown(0);
+  .waitForElementPresent(srcSelector, 5000, 'drag source expected to be present')
+  .waitForElementPresent(dstSelector, 5000, 'drag target expected to be present')
+  .moveToElement(srcSelector, -10, -10)
+  .moveToElement(srcSelector, srcX, srcY)
+  .pause(100)
+  .mouseButtonDown(0);
 
   // generate mouse move events on body from source to destination
-  browser.execute(function(srcSelector, srcX, srcY, dstSelector, dstX, dstY, steps) {
+  browser.execute(function (srcSelector, srcX, srcY, dstSelector, dstX, dstY, steps) {
     var body = document.body.getBoundingClientRect();
     var src = document.querySelector(srcSelector).getBoundingClientRect();
     var dst = document.querySelector(dstSelector).getBoundingClientRect();
@@ -26,21 +29,21 @@ module.exports = function (browser, srcSelector, srcX, srcY, dstSelector, dstX, 
     var leny = end.y - start.y;
 
     var pts = [];
-    for(var i = 0; i <= 1; i += (1 / (steps || 50))) {
+    for (var i = 0; i <= 1; i += (1 / (steps || 50))) {
       var xp = start.x + lenx * i;
       var yp = start.y + leny * i;
-      pts.push({x:xp, y: yp});
+      pts.push({ x: xp, y: yp });
     }
     return pts;
-  }, [srcSelector, srcX, srcY, dstSelector, dstX, dstY, steps], function(result) {
+  }, [srcSelector, srcX, srcY, dstSelector, dstX, dstY, steps], function (result) {
     var pts = result.value;
-    for(var i = 0; i < pts.length; i +=1 ) {
+    for (var i = 0; i < pts.length; i += 1) {
       browser.moveToElement('body', pts[i].x, pts[i].y);
     }
   });
 
   browser
-    .moveToElement(dstSelector, dstX, dstY)
-    .mouseButtonUp(0)
-    .pause(1000);
+  .moveToElement(dstSelector, dstX, dstY)
+  .mouseButtonUp(0)
+  .pause(1000);
 }

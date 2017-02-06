@@ -44,6 +44,7 @@
     "npm": "3.10.8"
   },
   "dependencies": {
+    "DOMArray": "^1.0.0",
     "ansi-to-html-umd": "^0.4.2",
     "aws-sdk": "^2.6.9",
     "babel-istanbul": "^0.11.0",
@@ -82,8 +83,8 @@
     "md5": "2.0.0",
     "mkdirp": "0.5.1",
     "mkpath": "1.0.0",
-    "moment": "^2.16.0",
     "mocha": "^3.1.2",
+    "moment": "^2.16.0",
     "morgan": "^1.6.1",
     "mousetrap": "^1.5.3",
     "mv": "^2.1.1",

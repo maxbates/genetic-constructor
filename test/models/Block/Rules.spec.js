@@ -30,10 +30,6 @@ describe('Model', () => {
         expect(() => template.addComponent(block.id)).to.throw();
       });
 
-      it('should not allow adding components when fixed, unless authoring', () => {
-        expect(() => template.setAuthoring(true).addComponent(block.id)).to.not.throw();
-      });
-
       it('should reset components when set to list block', () => {
         const componented = new Block({
           components: [Block.classless().id, Block.classless().id],

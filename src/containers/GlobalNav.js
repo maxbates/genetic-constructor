@@ -221,10 +221,6 @@ class GlobalNav extends Component {
     return block;
   }
 
-  newTemplate() {
-    return this.newConstruct({ rules: { authoring: true, fixed: true } });
-  }
-
   /**
    * download the current file as a genbank file
    *
