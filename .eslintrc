@@ -69,6 +69,9 @@
     "jsx-a11y/no-static-element-interactions": 0,
 
     //meh
-    "jsx-a11y/img-has-alt": 1
+    "jsx-a11y/img-has-alt": 1,
+
+    // order of operations are fine, if you don't know them time for a new career
+    "no-mixed-operators": 0
   }
 }
