@@ -126,7 +126,7 @@ class MenuOverlay extends Component {
       width: `${psize}px`,
       height: `${psize}px`,
       left: `${pos.x - 10}px`,
-      top: `${pos.y - (psize * 1.5)}px`,
+      top: `${pos.y - psize * 1.5}px`,
     } : {
       width: `${psize}px`,
       height: `${psize}px`,
@@ -138,7 +138,7 @@ class MenuOverlay extends Component {
       bottom: `${window.innerHeight - pos.y + psize}px`,
     } : {
       left: `${pos.x - 10}px`,
-      top: `${pos.y + (psize / 2)}px`,
+      top: `${pos.y + psize / 2}px`,
     };
     // to be called after render, react sucks
     if (!this.measured) {
