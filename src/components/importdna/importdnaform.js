@@ -53,8 +53,7 @@ class DNAImportForm extends Component {
         return;
       }
       const ncc = nextProps.currentConstruct;
-      const authoring = ncc.isTemplate() && ncc.isAuthoring();
-      if (ncc.isFrozen() || (!authoring && (ncc.isFixed() || ncc.isTemplate()))) {
+      if (ncc.isFrozen() || ncc.isFixed()) {
         this.props.uiShowDNAImport(false);
         this.props.uiSetGrunt('You cannot add sequence to a template block.');
         return;

@@ -5,12 +5,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer;
 
   .title {
     font-family: Helvetica;
     text-indent: 0.5rem;
     white-space: nowrap;
-    width: 100%;
     max-width: calc(100% - 32px);
     display: inline-flex;
     align-items: center;
@@ -30,15 +30,18 @@
       visibility: hidden;
     }
 
-    &:hover {
+    &:hover:not([disabled]) {
       background-color: gray;
       border-radius: 2px;
       color: black;
       img {
         visibility: visible;
       }
+      .text {
+        color: var(--colors-lighterGrey);
+      }
       span {
-        color: gray;
+        color: var(--colors-darkGrey);
       }
     }
   }

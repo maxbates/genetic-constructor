@@ -21,7 +21,7 @@ import { uiSetGrunt, uiSpin } from '../../actions/ui';
 import { role as roleDragType } from '../../constants/DragTypes';
 import DnD from '../../containers/graphics/dnd/dnd';
 import MouseTrap from '../../containers/graphics/mousetrap';
-import inventoryRoles from '../../inventory/roles';
+import { symbols as inventoryRoles, sortOrder } from '../../inventory/roles';
 import Block from '../../models/Block';
 import '../../styles/InventoryGroupRole.css';
 import RoleSvg from '../RoleSvg';
@@ -53,6 +53,7 @@ class InventoryGroupRole extends Component {
     'bidrectional promoter',
     'plasmin backbone',
     'combinatorial list',
+    'list block',
     'no symbol',
   ];
 
@@ -90,17 +91,24 @@ class InventoryGroupRole extends Component {
     // get global point as starting point for drag
     const globalPoint = this.mouseTrap.mouseToGlobal(event);
 
-    // make a block to drag
+    // make a block to drag, mondo hack for list blocks, otherwise just the usual hacks
+    let rules;
+    const isList = this.state.current.id === 'list';
+    if (isList) {
+      rules = { list: true };
+    } else {
+      rules = {
+        role: this.state.current.id === 'null' ? null : this.state.current.id,
+      };
+    }
     const roleBlock = new Block({
       id: this.state.current,
       metadata: {
-        name: this.state.current.name,
-        color: null,
+        name: isList ? 'New List Block' : this.state.current.name,
       },
-      rules: {
-        role: this.state.current.id === 'null' ? null : this.state.current.id,
-      },
+      rules,
     });
+
     // start DND
     DnD.startDrag(this.makeDnDProxy(), globalPoint, {
       item: roleBlock,
@@ -120,7 +128,7 @@ class InventoryGroupRole extends Component {
   makeDnDProxy() {
     const item = this.state.current;
     const proxy = document.createElement('div');
-    proxy.className = 'InventoryRoleGroup-DNDProxy';
+    proxy.className = 'InventoryItemProxy';
     proxy.innerHTML = item.name;
     const element = ReactDOM.findDOMNode(this.refs[item.id]);
     const svg = element.querySelector('svg');
@@ -137,8 +145,8 @@ class InventoryGroupRole extends Component {
 
     // sort items by order given by sortOrder
     const sorted = this.roleSymbols.slice();
-    sorted.sort((itemA, itemB) => InventoryGroupRole.sortOrder.indexOf(itemA.name.toLowerCase()) -
-    InventoryGroupRole.sortOrder.indexOf(itemB.name.toLowerCase()));
+    sorted.sort((itemA, itemB) => sortOrder.indexOf(itemA.name.toLowerCase()) -
+    sortOrder.indexOf(itemB.name.toLowerCase()));
 
     return (
       <div className="InventoryGroup-content InventoryGroupRole">
@@ -161,7 +169,9 @@ class InventoryGroupRole extends Component {
                   onMouseLeave={this.onMouseLeave}
                   ref={item.id}
                 />
-                <div className={`name${current.id === item.id ? ' active' : ''}`}>{item.name}</div>
+                <div
+                  className={`name${current.id === item.id ? ' active' : ''}`}
+                >{item.name === 'No Symbol' ? '' : item.name}</div>
               </div>))}
           </div>
         </div>

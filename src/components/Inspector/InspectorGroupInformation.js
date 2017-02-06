@@ -23,7 +23,7 @@ import InspectorProject from './InspectorProject';
 import InspectorRole from './InspectorRole';
 
 function InspectorGroupInformation(props) {
-  const { focused, orders, overrides, type, readOnly, forceIsConstruct, isAuthoring, project, construct } = props;
+  const { focused, orders, overrides, type, readOnly, forceIsConstruct, project, construct } = props;
 
   // inspect instances, or construct if no instance or project if no construct or instances
   let inspect;
@@ -45,7 +45,6 @@ function InspectorGroupInformation(props) {
         overrides={overrides}
         orders={orders}
         readOnly={readOnly}
-        isAuthoring={isAuthoring}
         project={project}
         construct={construct}
         forceIsConstruct={forceIsConstruct}
@@ -58,7 +57,6 @@ function InspectorGroupInformation(props) {
 
 InspectorGroupInformation.propTypes = {
   readOnly: PropTypes.bool,
-  isAuthoring: PropTypes.bool.isRequired,
   forceIsConstruct: PropTypes.bool.isRequired,
   type: PropTypes.string.isRequired,
   focused: PropTypes.any.isRequired,
@@ -90,8 +88,6 @@ function mapStateToProps(state, props) {
   const forceIsConstruct = (level === 'construct') ||
     blockIds.some(blockId => props.project.components.indexOf(blockId) >= 0);
 
-  const isAuthoring = !!state.focus.constructId && state.blocks[state.focus.constructId].isAuthoring() && focused.length === 1 && type !== 'project' && !readOnly;
-
   const orders = Object.keys(state.orders)
   .map(orderId => state.orders[orderId])
   .filter(order => order.projectId === props.project.id && order.isSubmitted())
@@ -104,7 +100,6 @@ function mapStateToProps(state, props) {
     forceIsConstruct,
     orders,
     overrides,
-    isAuthoring,
   };
 }
 

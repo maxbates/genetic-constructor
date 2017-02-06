@@ -13,11 +13,11 @@ module.exports = {
     homepageRegister(browser);
     testProject(browser);
     browser
-      .waitForElementPresent('[data-nodetype="construct-title"]', 5000, 'expected a title for the construct')
+      .waitForElementPresent('.construct-viewer .title-and-toolbar .title', 5000, 'expected a title for the construct')
       // test project has six blocks
       .assert.countelements('[data-nodetype="block"]', 6);
     // duplicate via context menu
-    rightClickAt(browser, '[data-nodetype="construct-title"]', 15, 15);
+    rightClickAt(browser, '.construct-viewer .title-and-toolbar .title', 15, 15);
     clickContextMenu(browser, 3);
     browser
       .pause(1000)

@@ -138,8 +138,6 @@ function mapStateToProps(state, props) {
   const forceIsConstruct = (level === 'construct') ||
     blockIds.some(blockId => currentProject.components.indexOf(blockId) >= 0);
 
-  const isAuthoring = !!state.focus.constructId && state.blocks[state.focus.constructId].isAuthoring() && focused.length === 1 && type !== 'project' && !readOnly;
-
   const orders = Object.keys(state.orders)
   .map(orderId => state.orders[orderId])
   .filter(order => order.projectId === currentProject.id && order.isSubmitted())
@@ -157,7 +155,6 @@ function mapStateToProps(state, props) {
     focused,
     orders,
     overrides,
-    isAuthoring,
   };
 }
 

@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import _ from 'lodash';
 import { connect } from 'react-redux';
 
 import { blockClone, blockLoad, blockStash } from '../../actions/blocks';
@@ -34,13 +35,20 @@ export class InventoryRoleMap extends Component {
   static propTypes = {
     //blockStash: PropTypes.func.isRequired,
     //blockClone: PropTypes.func.isRequired,
+    projects: PropTypes.object.isRequired,
     blockLoad: PropTypes.func.isRequired,
+    templates: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    templates: false,
   };
 
   state = {
     loadingMap: true,
     loadedTypes: {},
     typeMap: {},
+    expandedTypes: {}, //need to track manually so clear state across templates vs. not templates
   };
 
   componentDidMount() {
@@ -78,11 +86,25 @@ export class InventoryRoleMap extends Component {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    //when change from templates / non-templates, clear our loaded state
+    if (nextProps.templates !== this.props.templates) {
+      this.setState({
+        loadedTypes: {},
+        expandedTypes: {},
+      });
+    }
+  }
+
   componentWillUnmount() {
     this.storeSubscriber();
   }
 
   onToggleType = (nextState, type) => {
+    this.setState({
+      expandedTypes: { ...this.state.expandedTypes, [type]: nextState },
+    });
+
     if (!nextState) return;
     //no caching for now...
     //when update to a cache, this should live update (right now, updates only when change tabs)
@@ -91,41 +113,52 @@ export class InventoryRoleMap extends Component {
     this.setRoleType(type, false);
 
     getBlocksWithRole(type)
-      .then((blockMap) => {
-        const blocks = Object.keys(blockMap).map(blockId => new Block(blockMap[blockId]));
-        this.setRoleType(type, blocks);
-      });
+    .then((blockMap) => {
+      const blocks = _.map(this.filterBlocks(blockMap), block => new Block(block));
+      this.setRoleType(type, blocks);
+    });
   };
 
   onBlockDrop = (item, target) =>
     //get components if its a construct and add blocks to the store
     //note - this may be a very large query
     //note - used to unhide blocks but lets see what desired behavior is
-     this.props.blockLoad(item.id, item.projectId, true, true)
-      .then(blocks => blocks[item.id]);
+    this.props.blockLoad(item.id, item.projectId, true, true)
+    .then(blocks => blocks[item.id]);
 
   //false is for loading
   setRoleType(type, blocks = false) {
     this.setState({
-      loadedTypes: Object.assign(this.state.loadedTypes, { [type]: blocks }),
+      loadedTypes: { ...this.state.loadedTypes, [type]: blocks },
     });
   }
 
+  filterBlocks = (blockMap) => {
+    const templateMap = _.mapValues(this.props.projects, project => project.rules.frozen === true);
+    //filter blocks to tempaltes / not templates, based on projectId and whether that project is a tempalte project
+    return _.filter(blockMap, block => templateMap[block.projectId] === this.props.templates);
+  };
+
   render() {
-    const { typeMap, loadedTypes, loadingMap } = this.state;
+    const { typeMap, loadedTypes, loadingMap, expandedTypes } = this.state;
 
     const content = loadingMap ?
       <Spinner /> :
       Object.keys(typeMap).sort().map((type) => {
-        const count = typeMap[type];
         const name = symbolMap[type] || type;
         const items = loadedTypes[type] || [];
         const isLoading = loadedTypes[type] === false;
+        const isExpanded = expandedTypes[type];
+        //only show the count of loaded ones, since the original query count is for templates and non-templates, until we have the ability to query this better (i.e. storage api can filter instead of us)
+        const count = loadedTypes[type] ? items.length : -1;
+
         return (
           <InventoryListGroup
             key={type}
-            title={`${name} (${count})`}
+            title={`${name}${(count >= 0) ? ` (${count})` : ''}`}
+            manual
             isLoading={isLoading}
+            isExpanded={isExpanded}
             onToggle={nextState => this.onToggleType(nextState, type)}
             dataAttribute={`roleMap ${name}`}
           >
@@ -147,7 +180,9 @@ export class InventoryRoleMap extends Component {
   }
 }
 
-export default connect(() => ({}), {
+export default connect(state => ({
+  projects: state.projects,
+}), {
   blockStash,
   blockLoad,
   blockClone,

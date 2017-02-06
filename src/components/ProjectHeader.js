@@ -28,7 +28,10 @@ import {
   projectLoad,
   projectOpen,
 } from '../actions/projects';
-import { blockCreate } from '../actions/blocks';
+import {
+  blockCreate,
+  blockRename,
+} from '../actions/blocks';
 import {
   inspectorToggleVisibility,
   inventoryToggleVisibility,
@@ -46,9 +49,9 @@ import '../styles/ProjectHeader.css';
 class ProjectHeader extends Component {
   static propTypes = {
     blockCreate: PropTypes.func.isRequired,
+    blockRename: PropTypes.func.isRequired,
     project: PropTypes.object.isRequired,
     focus: PropTypes.object,
-    isFocused: PropTypes.bool.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
@@ -65,6 +68,25 @@ class ProjectHeader extends Component {
     inventoryVisible: PropTypes.bool.isRequired,
   };
 
+  /**
+   * get position for a context menu attached to one of the inline toolbar items
+   * @param anchorElenent
+   */
+  static getToolbarAnchorPosition(anchorElement) {
+    const box = new Box2D(anchorElement.getBoundingClientRect());
+    return new Vector2D(box.cx, box.bottom);
+  }
+
+  /**
+   * add new construct to project
+   */
+  onAddConstruct = () => {
+    const block = this.props.blockCreate({ projectId: this.props.project.id });
+    this.props.blockRename(block.id, 'New Construct');
+    this.props.projectAddConstruct(this.props.project.id, block.id, true);
+    this.props.focusConstruct(block.id);
+  };
+
   onClick = () => {
     this.props.inspectorToggleVisibility(true);
     this.props.focusPrioritize('project');
@@ -77,22 +99,24 @@ class ProjectHeader extends Component {
   };
 
   /**
-   * add new construct to project
+   * delete the given project
+   * @param project
    */
-  onAddConstruct = () => {
-    const block = this.props.blockCreate({ projectId: this.props.project.id });
-    this.props.projectAddConstruct(this.props.project.id, block.id, true);
-    this.props.focusConstruct(block.id);
+  onDeleteProject = (project) => {
+    this.props.uiShowOkCancel(
+      'Delete Project',
+      `${this.props.project.getName() || 'Your project'}\nand all related project data will be permanently deleted.\nThis action cannot be undone.`,
+      () => {
+        this.props.uiShowOkCancel();
+        this.deleteProject(this.props.project);
+      },
+      () => {
+        this.props.uiShowOkCancel();
+      },
+      'Delete Project',
+      'Cancel',
+    );
   };
-
-  /**
-   * get position for a context menu attached to one of the inline toolbar items
-   * @param anchorElement
-   */
-  getToolbarAnchorPosition(anchorElement) {
-    const box = new Box2D(anchorElement.getBoundingClientRect());
-    return new Vector2D(box.cx, box.bottom);
-  }
 
   /**
    * view menu items, can appear on their own menu or the overflow menu
@@ -129,7 +153,7 @@ class ProjectHeader extends Component {
    * @param anchorElement
    */
   showViewMenu = (anchorElement) => {
-    this.props.uiShowMenu(this.getViewMenuItems(), this.getToolbarAnchorPosition(anchorElement), true);
+    this.props.uiShowMenu(this.getViewMenuItems(), ProjectHeader.getToolbarAnchorPosition(anchorElement), true);
   };
 
   /**
@@ -138,26 +162,26 @@ class ProjectHeader extends Component {
    */
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
-        {
-          text: 'New Construct',
-          action: () => { },
+      {
+        text: 'New Construct',
+        action: this.onAddConstruct,
+      },
+      {
+        text: 'View',
+        menuItems: this.getViewMenuItems(),
+      },
+      {
+        text: 'Download Project',
+        action: () => {
+          downloadProject(this.props.project.id, this.props.focus.options);
         },
-        {
-          text: 'View',
-          menuItems: this.getViewMenuItems(),
-        },
-        {
-          text: 'Download Project',
-          action: () => {
-            downloadProject(this.props.project.id, this.props.focus.options);
-          },
-        },
-        {
-          text: 'Delete Project',
-          action: this.onDeleteProject,
-        },
-      ],
-      this.getToolbarAnchorPosition(anchorElement),
+      },
+      {
+        text: 'Delete Project',
+        action: this.onDeleteProject,
+      },
+    ],
+      ProjectHeader.getToolbarAnchorPosition(anchorElement),
       true);
   }
 
@@ -176,26 +200,6 @@ class ProjectHeader extends Component {
       .then(() => this.props.projectDelete(project.id));
     }
   }
-
-  /**
-   * delete the given project
-   * @param project
-   */
-  onDeleteProject = (project) => {
-    this.props.uiShowOkCancel(
-      'Delete Project',
-      `${this.props.project.getName() || 'Your project'}\nand all related project data will be permanently deleted.\nThis action cannot be undone.`,
-      () => {
-        this.props.uiShowOkCancel();
-        this.deleteProject(this.props.project);
-      },
-      () => {
-        this.props.uiShowOkCancel();
-      },
-      'Delete Project',
-      'Cancel',
-    );
-  };
 
   /**
    * jsx/js for project toolbar
@@ -236,46 +240,13 @@ class ProjectHeader extends Component {
     ];
   }
 
-  renderXXX() {
-    const { project, isFocused } = this.props;
-    let hoverElement;
-    if (this.state.hover && !this.props.project.rules.frozen) {
-      hoverElement = (
-        <div className="inline-editor-hover inline-editor-hover-project">
-          <span>{project.metadata.name || 'Untitled Project'}</span>
-          <img src="/images/ui/inline_edit.svg" />
-        </div>
-      );
-    }
-
-    return (
-      <div
-        className={`ProjectHeader${isFocused ? ' focused' : ''}`}
-      >
-        <div
-          className="ProjectHeader-info"
-          onClick={this.onClick}
-          onMouseEnter={this.onMouseEnter}
-          onMouseLeave={this.onMouseLeave}
-        >
-          <div ref="title" className="ProjectHeader-title">{project.metadata.name || 'Untitled Project'}</div>
-          <div className="ProjectHeader-description">{project.metadata.description}</div>
-        </div>
-
-        <div className="ProjectHeader-actions">
-          {this.toolbar()}
-        </div>
-        {hoverElement}
-      </div>
-    );
-  }
-
   render() {
     const { project } = this.props;
     return (
       <div className="ProjectHeader">
         <TitleAndToolbar
           onClick={this.onClick}
+          noHover={this.props.project.rules.frozen}
           title={project.metadata.name || 'Untitled Project'}
           toolbarItems={this.toolbar()}
           fontSize="1.5rem"
@@ -295,6 +266,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   blockCreate,
+  blockRename,
   inspectorToggleVisibility,
   inventoryToggleVisibility,
   focusPrioritize,

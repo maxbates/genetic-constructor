@@ -566,23 +566,6 @@ export const blockSetHidden = (blockId, isHidden = true) => (dispatch, getState)
 };
 
 //todo - doc
-export const blockSetAuthoring = (blockId, isAuthoring = true) => (dispatch, getState) => {
-  const oldBlock = getState().blocks[blockId];
-
-  invariant(oldBlock.isTemplate(), 'can only start authoring a template');
-  invariant(dispatch(selectors.blockIsTopLevelConstruct(blockId)), 'construct must be direct child of project');
-
-  const block = oldBlock.setAuthoring(isAuthoring);
-  dispatch({
-    type: ActionTypes.BLOCK_SET_AUTHORING,
-    undoable: true,
-    isAuthoring,
-    block,
-  });
-  return block;
-};
-
-//todo - doc
 export const blockSetListBlock = (blockId, isList = true) => (dispatch, getState) => {
   const oldBlock = getState().blocks[blockId];
   const block = oldBlock.setListBlock(isList);
@@ -596,7 +579,6 @@ export const blockSetListBlock = (blockId, isList = true) => (dispatch, getState
 };
 
 //todo - doc
-//for authoring template
 export const blockOptionsAdd = (blockId, ...optionIds) => (dispatch, getState) => {
   const state = getState();
   const oldBlock = state.blocks[blockId];
@@ -644,7 +626,6 @@ export const blockOptionsAdd = (blockId, ...optionIds) => (dispatch, getState) =
 };
 
 //todo - doc
-//for authoring template
 export const blockOptionsRemove = (blockId, ...optionIds) => (dispatch, getState) => {
   const oldBlock = getState().blocks[blockId];
   const block = oldBlock.removeOptions(...optionIds);

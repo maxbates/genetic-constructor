@@ -24,7 +24,7 @@ module.exports = {
     // start with a new project to ensure no construct viewers are visible
     newProject(browser);
 
-    rightClickAt(browser, '[data-nodetype="construct-title"]', 15, 15);
+    rightClickAt(browser, '.construct-viewer .title-and-toolbar .title .text', 15, 15);
 
     clickContextMenu(browser, 2);
 

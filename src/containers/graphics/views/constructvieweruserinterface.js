@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import D from 'DOMArray';
 import { dispatch } from '../../../store/index';
 import { transact } from '../../../store/undo/actions';
 import { sortBlocksByIndexAndDepthExclude } from '../../../utils/ui/uiapi';
@@ -21,6 +22,7 @@ import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import UserInterface from '../scenegraph2d/userinterface';
 import Fence from './fence';
+
 
 // # of pixels of mouse movement before a drag is triggered.
 const dragThreshold = 8;
@@ -202,9 +204,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
    */
   doubleClick(evt, point) {
     const top = this.topNodeAt(point);
-    const block = this.layout.elementFromNode(top);
-    if (block) {
-      this.constructViewer.openInspector();
+    if (top) {
+      const block = this.layout.elementFromNode(top);
+      if (block) {
+        this.constructViewer.openInspector();
+      }
     }
   }
 
@@ -281,22 +285,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
       showMenu();
     }
   }
-
-  /**
-   * run the title context menu if the point is over the title block.
-   */
-  // titleContextMenu(evt, point) {
-  //   const hits = this.sg.findNodesAt(point);
-  //   if (this.isConstructTitleNode(hits.length ? hits.pop() : null)) {
-  //     // this.constructViewer.openPopup({
-  //     //   constructPopupMenuOpen: true,
-  //     //   menuPosition: this.mouseTrap.mouseToGlobal(evt),
-  //     // });
-  //     this.constructViewer.showConstructContextMenu(this.mouseTrap.mouseToGlobal(evt));
-  //     return true;
-  //   }
-  //   return false;
-  // }
 
   /**
    * true if the point is in the expander node ( looks like a triangle )
@@ -397,7 +385,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         case 'optionSelect':
           break;
         default:
-          if (this.blockIsFocused(block) && (this.construct.isAuthoring() || !this.construct.isFixed())) {
+          if (this.blockIsFocused(block) && !this.construct.isFixed()) {
             const name = this.layout.partName(block);
             const bat = this.getBlockEditorBoundsAndTarget(block);
             this.constructViewer.showInlineEditor((value) => {
@@ -411,20 +399,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     } else {
       // clear block selections
       this.constructViewer.blockSelected([]);
-      // if they clicked the title node then select the construct and initiate editing
-      // of the title of construct via an inline edit.
-      // TODO, this is how to edit the title
-      // if (this.construct.isAuthoring() || !this.construct.isFixed()) {
-      //   const topNode = this.topNodeAt(point);
-      //   if (this.isConstructTitleNode(topNode)) {
-      //     this.selectConstruct();
-      //     const bat = this.getTitleEditorBoundsAndTarget();
-      //     this.constructViewer.showInlineEditor((value) => {
-      //       this.constructViewer.renameBlock(this.construct.id, value);
-      //     }, this.construct.getName(), bat.bounds, 'inline-editor-construct-title', bat.target);
-      //     topNode.set({ hover: false });
-      //   }
-      // }
     }
   }
 
@@ -438,20 +412,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     const bounds = new Box2D(target.getBoundingClientRect());
     return { target, bounds };
   }
-
-  /**
-   * get the bounds for the construct title editor
-   * @param blockId
-   */
-  // TODO, do we need this?
-  // getTitleEditorBoundsAndTarget() {
-  //   const target = this.layout.titleNode.el;
-  //   const bounds = new Box2D(target.getBoundingClientRect());
-  //   bounds.top += 4;
-  //   bounds.height -= 8;
-  //   bounds.x -= 3;
-  //   return { target, bounds };
-  // }
 
   /**
    * selected construct is lighter than unselected constructs
@@ -565,8 +525,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
         if (this.construct.isFrozen()) {
           return;
         }
-        // no mutation of fixed constructs unless authoring
-        if (this.construct.isFixed() && !this.construct.isAuthoring()) {
+        // no mutation of fixed constructs
+        if (this.construct.isFixed()) {
           return;
         }
         // open an undo/redo transaction
@@ -671,11 +631,17 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   showDragInside() {
-    this.el.classList.add('scenegraph-userinterface-drag-inside');
+    if (!this.borderElement) {
+      this.borderElement = D('<div class="scenegraph-userinterface-drag-inside"></div>'); //eslint-disable-line new-cap
+      this.el.appendChild(this.borderElement.el);
+    }
   }
 
   hideDragInside() {
-    this.el.classList.remove('scenegraph-userinterface-drag-inside');
+    if (this.borderElement) {
+      this.borderElement.remove();
+      this.borderElement = null;
+    }
   }
 
   darken() {
@@ -697,7 +663,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
     // select construct on drag over (unless collapsed)
     this.selectConstruct();
     // no drop on frozen or fixed constructs
-    if (this.construct.isFrozen() || (this.construct.isFixed() && !this.construct.isAuthoring())) {
+    if (this.construct.isFrozen() || this.construct.isFixed()) {
       return;
     }
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
@@ -724,7 +690,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
    */
   onDrop(globalPosition, payload, event) {
     // no drop on frozen or fixed constructs or collapsed
-    if (this.layout.collapsed || this.construct.isFrozen() || (this.construct.isFixed() && !this.construct.isAuthoring())) {
+    if (this.layout.collapsed || this.construct.isFrozen() || this.construct.isFixed()) {
       return;
     }
     // for now templates can only be dropped on the new construct target which is part of the canvas

@@ -15,6 +15,8 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import ReactDOM from 'react-dom';
+import MouseTrap from '../../containers/graphics/mousetrap';
 import '../../../src/styles/title-and-toolbar.css';
 import InlineToolbar from './inline-toolbar';
 
@@ -38,18 +40,51 @@ class TitleAndToolbar extends Component {
     fontSize: PropTypes.string.isRequired,
     color: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
+    onContextMenu: PropTypes.func,
+    noHover: PropTypes.bool,
+  };
+
+  /**
+   * run a mouse trap instance to get context menu events
+   */
+  componentDidMount() {
+    const self = ReactDOM.findDOMNode(this);
+    // mouse trap is used for coordinate transformation
+    this.mouseTrap = new MouseTrap({
+      element: self,
+      contextMenu: this.onContextMenu,
+    });
+  }
+
+  componentWillUnmount() {
+    this.mouseTrap.dispose();
+    this.mouseTrap = null;
+  }
+
+  onContextMenu = (mouseEvent, position) => {
+    if (this.props.onContextMenu) {
+      this.props.onContextMenu(this.mouseTrap.mouseToGlobal(mouseEvent));
+    }
   };
 
   render() {
+    const disabledProp = {
+      disabled: !!this.props.noHover,
+    };
     return (
       <div className="title-and-toolbar">
         <div
           className="title"
+          {...disabledProp}
           style={{ fontSize: this.props.fontSize, color: this.props.color }}
           onClick={this.props.onClick}
         >
-          <div className="text">{this.props.title}</div>
-          <span>{this.props.subTitle}</span>
+          <div
+            className="text"
+            data-id={this.props.title}
+          >{this.props.title}
+            <span>{this.props.subTitle}</span>
+          </div>
           <img src="/images/ui/edit.svg" />
         </div>
         <div className="bar">

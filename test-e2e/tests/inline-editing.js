@@ -37,12 +37,12 @@ module.exports = {
 
     // project title
     browser
-      .click('.ProjectHeader-info')
+      .click('.ProjectHeader .title-and-toolbar .title')
       .waitForElementPresent('.inline-editor-project', 5000, 'expected inline editor to appear for project title')
       .clearValue('.inline-editor-project')
       .setValue('.inline-editor-project', ['Bernie Saunders', browser.Keys.ENTER])
       .pause(5000)
-      .assert.containsText( '.ProjectHeader-title', 'Bernie Saunders', 'expected project name to update')
+      .assert.containsText('.ProjectHeader .title-and-toolbar .title .text', 'Bernie Saunders', 'expected project name to update')
       .end();
   }
 };

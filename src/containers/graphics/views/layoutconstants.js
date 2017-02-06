@@ -48,7 +48,7 @@ const background = 'rgb(52, 57, 77)';
 const roleIcon = 27;
 // min size of layout
 const minWidth = blockH * 4;
-const minHeight = blockH + rowBarH;
+const minHeight = blockH + rowBarH + bannerHeight;
 // height when collapsed
 const collapsedHeight = blockH + bannerHeight + bannerGap + rowBarH;
 // width of message for collapsed constructs e.g. 'and 123 more...'
