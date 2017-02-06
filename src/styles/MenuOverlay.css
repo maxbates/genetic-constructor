@@ -25,7 +25,7 @@
   }
   /* top level menu gets a different shadow than sub menus */
   &-top {
-    box-shadow: 0px 0px 10px 0px rgba(38,49,66,1);
+    box-shadow: 0px 0px 10px 0px rgba(38,49,66, 0.6);
   }
 
   &-left {
