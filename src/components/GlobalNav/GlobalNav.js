@@ -196,30 +196,57 @@ class GlobalNav extends Component {
   }
 
   /**
-   * new project and navigate to new project
+   * return menu items for select all, cut, copy, paste, undo, redo
+   * @returns {[*,*,*,*,*,*,*,*]}
    */
-  newProject() {
-    // create project and add a default construct
-    const project = this.props.projectCreate();
-    // add a construct to the new project
-    const block = this.props.blockCreate({ projectId: project.id });
-    this.props.blockRename(block.id, 'New Construct');
-    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
-
-    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
-    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
-    instanceMap.saveRollup(new Rollup({
-      project: projectWithConstruct,
-      blocks: {
-        [block.id]: block,
+  getEditMenuItems() {
+    return [
+      {},
+      {
+        text: 'Select All',
+        shortcut: stringToShortcut('meta A'),
+        disabled: !this.props.focus.constructId,
+        action: () => {
+          this.onSelectAll();
+        },
+      }, {
+        text: 'Cut',
+        shortcut: stringToShortcut('meta X'),
+        disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
+        action: () => {
+          this.cutFocusedBlocksToClipboard();
+        },
+      }, {
+        text: 'Copy',
+        shortcut: stringToShortcut('meta C'),
+        disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
+        action: () => {
+          this.copyFocusedBlocksToClipboard();
+        },
+      }, {
+        text: 'Paste',
+        shortcut: stringToShortcut('meta V'),
+        disabled: !(this.props.clipboard.formats.indexOf(clipboardFormats.blocks) >= 0) || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
+        action: () => {
+          this.pasteBlocksToConstruct();
+        },
       },
-    }));
-
-    this.props.focusConstruct(block.id);
-    this.props.projectOpen(project.id);
+      {},
+      {
+        text: 'Undo',
+        shortcut: stringToShortcut('meta z'),
+        action: () => {
+          this.props.undo();
+        },
+      }, {
+        text: 'Redo',
+        shortcut: stringToShortcut('shift meta z'),
+        action: () => {
+          this.props.redo();
+        },
+      },
+    ];
   }
-
-
   /**
    * add a new construct to the current project
    */
@@ -404,274 +431,246 @@ class GlobalNav extends Component {
   }
 
   /**
-   * return menu items for select all, cut, copy, paste, undo, redo
-   * @returns {[*,*,*,*,*,*,*,*]}
+   * new project and navigate to new project
    */
-  getEditMenuItems() {
-    return [
-      {},
-      {
-        text: 'Select All',
-        shortcut: stringToShortcut('meta A'),
-        disabled: !this.props.focus.constructId,
-        action: () => {
-          this.onSelectAll();
-        },
-      }, {
-        text: 'Cut',
-        shortcut: stringToShortcut('meta X'),
-        disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
-        action: () => {
-          debugger;
-          this.cutFocusedBlocksToClipboard();
-        },
-      }, {
-        text: 'Copy',
-        shortcut: stringToShortcut('meta C'),
-        disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
-        action: () => {
-          this.copyFocusedBlocksToClipboard();
-        },
-      }, {
-        text: 'Paste',
-        shortcut: stringToShortcut('meta V'),
-        disabled: !(this.props.clipboard.formats.indexOf(clipboardFormats.blocks) >= 0) || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
-        action: () => {
-          this.pasteBlocksToConstruct();
-        },
+  newProject() {
+    // create project and add a default construct
+    const project = this.props.projectCreate();
+    // add a construct to the new project
+    const block = this.props.blockCreate({ projectId: project.id });
+    this.props.blockRename(block.id, 'New Construct');
+    const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
+
+    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
+    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
+    instanceMap.saveRollup(new Rollup({
+      project: projectWithConstruct,
+      blocks: {
+        [block.id]: block,
       },
-      {},
-      {
-        text: 'Undo',
-        shortcut: stringToShortcut('meta z'),
-        action: () => {
-          this.props.undo();
-        },
-      }, {
-        text: 'Redo',
-        shortcut: stringToShortcut('shift meta z'),
-        action: () => {
-          this.props.redo();
-        },
-      },
-    ];
+    }));
+
+    this.props.focusConstruct(block.id);
+    this.props.projectOpen(project.id);
   }
-/*
-  menuBar() {
-    return (<MenuBar
-      menus={[
-        {
-          text: 'FILE',
-          items: [
-            {
-              text: 'Save Project',
-              shortcut: stringToShortcut('meta S'),
-              action: () => {
-                this.saveProject();
+
+
+  /*
+    menuBar() {
+      return (<MenuBar
+        menus={[
+          {
+            text: 'FILE',
+            items: [
+              {
+                text: 'Save Project',
+                shortcut: stringToShortcut('meta S'),
+                action: () => {
+                  this.saveProject();
+                },
               },
-            },
-            {
-              text: 'Delete Project',
-              action: () => {
-                this.queryDeleteProject();
+              {
+                text: 'Delete Project',
+                action: () => {
+                  this.queryDeleteProject();
+                },
               },
-            },
-            {
-              text: 'Open Project',
-              shortcut: stringToShortcut('meta O'),
-              action: () => {
-                this.props.inventoryToggleVisibility(true);
-                this.props.inventorySelectTab('projects');
+              {
+                text: 'Open Project',
+                shortcut: stringToShortcut('meta O'),
+                action: () => {
+                  this.props.inventoryToggleVisibility(true);
+                  this.props.inventorySelectTab('projects');
+                },
               },
-            },
-            {
-              text: 'Search',
-              shortcut: stringToShortcut('meta F'),
-              action: () => {
-                this.props.inventoryToggleVisibility(true);
-                this.props.inventorySelectTab('search');
+              {
+                text: 'Search',
+                shortcut: stringToShortcut('meta F'),
+                action: () => {
+                  this.props.inventoryToggleVisibility(true);
+                  this.props.inventorySelectTab('search');
+                },
               },
-            },
-            {},
-            {
-              text: 'New Project',
-              shortcut: stringToShortcut('option N'),
-              action: () => {
-                this.newProject();
+              {},
+              {
+                text: 'New Project',
+                shortcut: stringToShortcut('option N'),
+                action: () => {
+                  this.newProject();
+                },
               },
-            },
-            {
-              text: 'New Construct',
-              shortcut: stringToShortcut('shift option N'),
-              action: () => {
-                this.newConstruct();
+              {
+                text: 'New Construct',
+                shortcut: stringToShortcut('shift option N'),
+                action: () => {
+                  this.newConstruct();
+                },
               },
-            },
-            {
-              text: 'New Template',
-              action: () => {
-                this.newTemplate();
+              {
+                text: 'New Template',
+                action: () => {
+                  this.newTemplate();
+                },
               },
-            },
-            {},
-            {
-              text: 'Import Genbank or CSV File...',
-              action: () => {
-                this.uploadGenbankFile();
+              {},
+              {
+                text: 'Import Genbank or CSV File...',
+                action: () => {
+                  this.uploadGenbankFile();
+                },
               },
-            },
-            {
-              text: 'Download Genbank/Zip File',
-              action: () => {
-                this.downloadProjectGenbank();
+              {
+                text: 'Download Genbank/Zip File',
+                action: () => {
+                  this.downloadProjectGenbank();
+                },
               },
-            },
-          ],
-        },
-        {
-          text: 'EDIT',
-          items: [
-            {
-              text: 'Undo',
-              shortcut: stringToShortcut('meta z'),
-              action: () => {
-                this.props.undo();
+            ],
+          },
+          {
+            text: 'EDIT',
+            items: [
+              {
+                text: 'Undo',
+                shortcut: stringToShortcut('meta z'),
+                action: () => {
+                  this.props.undo();
+                },
+              }, {
+                text: 'Redo',
+                shortcut: stringToShortcut('shift meta z'),
+                action: () => {
+                  this.props.redo();
+                },
+              }, {}, {
+                text: 'Select All',
+                shortcut: stringToShortcut('meta A'),
+                disabled: !this.props.focus.constructId,
+                action: () => {
+                  this.onSelectAll();
+                },
+              }, {
+                text: 'Cut',
+                shortcut: stringToShortcut('meta X'),
+                disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
+                action: () => {
+                  this.cutFocusedBlocksToClipboard();
+                },
+              }, {
+                text: 'Copy',
+                shortcut: stringToShortcut('meta C'),
+                disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
+                action: () => {
+                  this.copyFocusedBlocksToClipboard();
+                },
+              }, {
+                text: 'Paste',
+                shortcut: stringToShortcut('meta V'),
+                disabled: !(this.props.clipboard.formats.indexOf(clipboardFormats.blocks) >= 0) || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
+                action: () => {
+                  this.pasteBlocksToConstruct();
+                },
+              }, {}, {
+                text: 'Add Sequence',
+                action: () => {
+                  this.props.uiShowDNAImport(true);
+                },
+              }, {
+                text: 'Select Empty Blocks',
+                disabled: !this.props.focus.constructId,
+                action: () => {
+                  this.selectEmptyBlocks();
+                },
               },
-            }, {
-              text: 'Redo',
-              shortcut: stringToShortcut('shift meta z'),
-              action: () => {
-                this.props.redo();
+            ],
+          },
+          {
+            text: 'VIEW',
+            items: [
+              {
+                text: 'Inventory',
+                checked: this.props.inventoryVisible,
+                action: () => {
+                  this.props.inventoryToggleVisibility(!this.props.inventoryVisible);
+                },
+                shortcut: stringToShortcut('shift meta i'),
+              }, {
+                text: 'Inspector',
+                checked: this.props.inspectorVisible,
+                action: () => {
+                  this.props.inspectorToggleVisibility(!this.props.inspectorVisible);
+                },
+                shortcut: stringToShortcut('meta i'),
+              }, {
+                text: 'Sequence Details',
+                disabled: !this.props.focusDetailsExist(),
+                action: () => {
+                  this.props.uiToggleDetailView();
+                },
+                checked: this.props.detailViewVisible,
+                shortcut: stringToShortcut('meta u'),
+              }, {},
+              {
+                text: 'Sketch Library',
+                shortcut: stringToShortcut('meta B'),
+                action: () => {
+                  this.props.inventoryToggleVisibility(true);
+                  this.props.inventorySelectTab('role');
+                },
               },
-            }, {}, {
-              text: 'Select All',
-              shortcut: stringToShortcut('meta A'),
-              disabled: !this.props.focus.constructId,
-              action: () => {
-                this.onSelectAll();
+            ],
+          },
+          {
+            text: 'HELP',
+            items: [
+              {
+                text: 'User Guide and Tutorials',
+                action: () => { window.open('https://geneticconstructor.readme.io', '_blank'); },
               },
-            }, {
-              text: 'Cut',
-              shortcut: stringToShortcut('meta X'),
-              disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
-              action: () => {
-                this.cutFocusedBlocksToClipboard();
+              {
+                text: 'Forums',
+                action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
               },
-            }, {
-              text: 'Copy',
-              shortcut: stringToShortcut('meta C'),
-              disabled: !this.props.focus.blockIds.length || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
-              action: () => {
-                this.copyFocusedBlocksToClipboard();
+              {
+                text: 'Get Support',
+                action: () => { window.open('https://geneticconstructor.readme.io/discuss', '_blank'); },
               },
-            }, {
-              text: 'Paste',
-              shortcut: stringToShortcut('meta V'),
-              disabled: !(this.props.clipboard.formats.indexOf(clipboardFormats.blocks) >= 0) || !this.focusedConstruct() || this.focusedConstruct().isFixed() || this.focusedConstruct().isFrozen(),
-              action: () => {
-                this.pasteBlocksToConstruct();
+              {},
+              {
+                text: 'Report a Bug',
+                action: () => { this.props.uiReportError(true); },
               },
-            }, {}, {
-              text: 'Add Sequence',
-              action: () => {
-                this.props.uiShowDNAImport(true);
+              {
+                text: 'Give Us Feedback',
+                action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
               },
-            }, {
-              text: 'Select Empty Blocks',
-              disabled: !this.props.focus.constructId,
-              action: () => {
-                this.selectEmptyBlocks();
+              {},
+              {
+                text: 'API Documentation',
+                action: () => { window.open('/help/docs', '_blank'); },
               },
-            },
-          ],
-        },
-        {
-          text: 'VIEW',
-          items: [
-            {
-              text: 'Inventory',
-              checked: this.props.inventoryVisible,
-              action: () => {
-                this.props.inventoryToggleVisibility(!this.props.inventoryVisible);
+              {},
+              {
+                text: 'About Genetic Constructor',
+                action: () => {
+                  this.props.uiShowAbout(true);
+                },
+              }, {
+                text: 'Terms of Use',
+                action: () => {
+                  window.open(tos, '_blank');
+                },
+              }, {
+                text: 'Privacy Policy',
+                action: () => {
+                  window.open(privacy, '_blank');
+                },
               },
-              shortcut: stringToShortcut('shift meta i'),
-            }, {
-              text: 'Inspector',
-              checked: this.props.inspectorVisible,
-              action: () => {
-                this.props.inspectorToggleVisibility(!this.props.inspectorVisible);
-              },
-              shortcut: stringToShortcut('meta i'),
-            }, {
-              text: 'Sequence Details',
-              disabled: !this.props.focusDetailsExist(),
-              action: () => {
-                this.props.uiToggleDetailView();
-              },
-              checked: this.props.detailViewVisible,
-              shortcut: stringToShortcut('meta u'),
-            }, {},
-            {
-              text: 'Sketch Library',
-              shortcut: stringToShortcut('meta B'),
-              action: () => {
-                this.props.inventoryToggleVisibility(true);
-                this.props.inventorySelectTab('role');
-              },
-            },
-          ],
-        },
-        {
-          text: 'HELP',
-          items: [
-            {
-              text: 'User Guide and Tutorials',
-              action: () => { window.open('https://geneticconstructor.readme.io', '_blank'); },
-            },
-            {
-              text: 'Forums',
-              action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor'),
-            },
-            {
-              text: 'Get Support',
-              action: () => { window.open('https://geneticconstructor.readme.io/discuss', '_blank'); },
-            },
-            {},
-            {
-              text: 'Report a Bug',
-              action: () => { this.props.uiReportError(true); },
-            },
-            {
-              text: 'Give Us Feedback',
-              action: GlobalNav.disgorgeDiscourse.bind(this, '/c/genetic-constructor/feedback'),
-            },
-            {},
-            {
-              text: 'API Documentation',
-              action: () => { window.open('/help/docs', '_blank'); },
-            },
-            {},
-            {
-              text: 'About Genetic Constructor',
-              action: () => {
-                this.props.uiShowAbout(true);
-              },
-            }, {
-              text: 'Terms of Use',
-              action: () => {
-                window.open(tos, '_blank');
-              },
-            }, {
-              text: 'Privacy Policy',
-              action: () => {
-                window.open(privacy, '_blank');
-              },
-            },
-          ],
-        },
-      ]}/>);
-  }
-*/
+            ],
+          },
+        ]}/>);
+    }
+  */
 
   render() {
     const { currentProjectId } = this.props;
