@@ -35,7 +35,7 @@ function generateConnectString(config) {
     pgConnString = process.env.DATABASE_URL;
   }
 
-  console.log("pgConnString", pgConnString);
+  // console.log("pgConnString", pgConnString);
   return pgConnString;
 }
 
