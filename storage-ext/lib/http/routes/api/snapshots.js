@@ -187,6 +187,17 @@ var saveSnapshot = function (req, res) {
     tags = body.tags;
   }
 
+  var keywords = [];
+  if (body.keywords != null) {
+    if (! Array.isArray(body.keywords)) {
+      return res.status(400).send({
+        message: '\'keywords\' should be an array',
+      }).end();
+    }
+
+    keywords = body.keywords;
+  }
+
   // lookup the project UUID to save a strict reference to a project version
   // assume the snapshot hasn't been created, because that should be the normal use case
   // catch a unique constraint and then update
@@ -263,6 +274,7 @@ var saveSnapshot = function (req, res) {
         type: body.type,
         message: body.message,
         tags: tags,
+        keywords: keywords,
       }).then(function (newSnapshot) {
         return cb(null, newSnapshot.get());
       }).catch(Sequelize.UniqueConstraintError, function () {
@@ -270,9 +282,10 @@ var saveSnapshot = function (req, res) {
           type: body.type,
           message: body.message,
           tags: tags,
+          keywords: keywords,
         }, {
           returning: true,
-          fields: ['type', 'message', 'tags'],
+          fields: ['type', 'message', 'tags', 'keywords'],
           where: {
             owner: body.owner,
             projectId: body.projectId,
@@ -338,6 +351,50 @@ var fetchByTags = function (req, res) {
 
   if ((req.query.project != null) && (req.query.project != "")) {
     where.projectId = req.query.project;
+  }
+
+  return Snapshot.findAll({
+    where: where,
+  }).then(function (results) {
+    if(results.length < 1) {
+      return res.status(200).send([]).end();
+    }
+
+    return res.status(200).send(map(results, function (result) { return result.get(); })).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
+var fetchByKeywords = function (req, res) {
+  if (! req.body || ! req.body.keywords || ! Array.isArray(req.body.keywords)) {
+    return res.status(400).send({
+      message: 'post an array of STRING keywords with the key \'keywords\' in POST request body',
+    }).end();
+  }
+
+  var keywordsArray = req.body.keywords;
+  if (keywordsArray.length < 1) {
+    return res.status(400).send({
+      message: 'keywords array in POST request body may not be empty',
+    }).end();
+  }
+
+  // console.log('keywords', keywordsArray);
+  var where = {
+    keywords: { $contains: keywordsArray },
+    status: 1,
+  };
+
+  if ((req.query.project != null) && (req.query.project != "")) {
+    where.projectId = req.query.project;
+  }
+
+  if((req.body.tags != null) && (typeof req.body.tags === 'object') && (! isEmpty(req.body.tags))) {
+    where.tags = req.body.tags;
   }
 
   return Snapshot.findAll({
@@ -427,6 +484,7 @@ var routes = [
   route('GET /uuid/:uuid', fetchSnapshotByUUID),
   route('DELETE /uuid/:uuid', deleteByUUID),
   route('POST /tags', fetchByTags),
+  route('POST /keywords', fetchByKeywords),
   route('POST /', saveSnapshot),
 ];
 
