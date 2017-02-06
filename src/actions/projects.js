@@ -388,6 +388,7 @@ export const projectDelete = projectId =>
         return null;
       }
       dispatch(undoActions.abort());
+      dispatch(uiSetGrunt('There was a problem deleting your project. Please try again.'));
       return Promise.reject(resp);
     })
     .then(() => {
