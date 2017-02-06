@@ -65,7 +65,6 @@ class ProjectHeader extends Component {
     inventoryVisible: PropTypes.bool.isRequired,
   };
 
-
   onClick = () => {
     this.props.inspectorToggleVisibility(true);
     this.props.focusPrioritize('project');
@@ -86,27 +85,14 @@ class ProjectHeader extends Component {
     this.props.focusConstruct(block.id);
   };
 
-  titleEditorBounds() {
-    return new Box2D(ReactDOM.findDOMNode(this).querySelector('.title').getBoundingClientRect());
-  }
-
   /**
    * get position for a context menu attached to one of the inline toolbar items
-   * @param anchorElenent
+   * @param anchorElement
    */
   getToolbarAnchorPosition(anchorElement) {
     const box = new Box2D(anchorElement.getBoundingClientRect());
     return new Vector2D(box.cx, box.bottom);
   }
-
-  /**
-   * toggle the side panels
-   */
-  togglePanels = () => {
-    const showPanels = !this.props.inventoryVisible;
-    this.props.inventoryToggleVisibility(showPanels);
-    this.props.inspectorToggleVisibility(showPanels);
-  };
 
   /**
    * view menu items, can appear on their own menu or the overflow menu
@@ -126,6 +112,19 @@ class ProjectHeader extends Component {
   }
 
   /**
+   * toggle the side panels
+   */
+  togglePanels = () => {
+    const showPanels = !this.props.inventoryVisible;
+    this.props.inventoryToggleVisibility(showPanels);
+    this.props.inspectorToggleVisibility(showPanels);
+  };
+
+  titleEditorBounds() {
+    return new Box2D(ReactDOM.findDOMNode(this).querySelector('.title').getBoundingClientRect());
+  }
+
+  /**
    * show view menu for toolbar view item
    * @param anchorElement
    */
@@ -139,25 +138,25 @@ class ProjectHeader extends Component {
    */
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
-      {
-        text: 'New Construct',
-        action: () => { },
-      },
-      {
-        text: 'View',
-        menuItems: this.getViewMenuItems(),
-      },
-      {
-        text: 'Download Project',
-        action: () => {
-          downloadProject(this.props.project.id, this.props.focus.options);
+        {
+          text: 'New Construct',
+          action: () => { },
         },
-      },
-      {
-        text: 'Delete Project',
-        action: this.onDeleteProject,
-      },
-    ],
+        {
+          text: 'View',
+          menuItems: this.getViewMenuItems(),
+        },
+        {
+          text: 'Download Project',
+          action: () => {
+            downloadProject(this.props.project.id, this.props.focus.options);
+          },
+        },
+        {
+          text: 'Delete Project',
+          action: this.onDeleteProject,
+        },
+      ],
       this.getToolbarAnchorPosition(anchorElement),
       true);
   }
@@ -237,20 +236,6 @@ class ProjectHeader extends Component {
     ];
   }
 
-  render() {
-    const { project } = this.props;
-    return (
-      <div className="ProjectHeader">
-        <TitleAndToolbar
-          onClick={this.onClick}
-          title={project.metadata.name || 'Untitled Project'}
-          toolbarItems={this.toolbar()}
-          fontSize="1.5rem"
-          color="#DFE2EC"
-        />
-      </div>);
-  }
-
   renderXXX() {
     const { project, isFocused } = this.props;
     let hoverElement;
@@ -283,6 +268,20 @@ class ProjectHeader extends Component {
         {hoverElement}
       </div>
     );
+  }
+
+  render() {
+    const { project } = this.props;
+    return (
+      <div className="ProjectHeader">
+        <TitleAndToolbar
+          onClick={this.onClick}
+          title={project.metadata.name || 'Untitled Project'}
+          toolbarItems={this.toolbar()}
+          fontSize="1.5rem"
+          color="#DFE2EC"
+        />
+      </div>);
   }
 }
 
