@@ -12,7 +12,8 @@
   &-pointer {
     position: absolute;
     transform: rotate(45deg);
-    background-color: lightgray;
+    background-color: var(--colors-lighterGrey);
+    z-index: 1;
   }
   &-menu {
     position: absolute;
