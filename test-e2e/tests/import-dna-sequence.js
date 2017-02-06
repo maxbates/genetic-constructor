@@ -42,7 +42,7 @@ module.exports = {
       .waitForElementNotPresent('.ribbongrunt-visible');
 
     openNthBlockContextMenu(browser, '.sceneGraph', 0);
-    clickNthContextMenuItem(browser, 3);
+    clickNthContextMenuItem(browser, 4);
 
     // wait for the import DNA modal window
     browser
