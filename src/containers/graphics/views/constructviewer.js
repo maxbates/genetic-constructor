@@ -359,7 +359,7 @@ export class ConstructViewer extends Component {
     const singleBlock = this.props.focus.blockIds.length === 1;
     const firstBlock = this.props.blocks[this.props.focus.blockIds[0]];
     const canListify = singleBlock && !firstBlock.hasSequence();
-    const authoringListItems = singleBlock ? [
+    const listItems = singleBlock ? [
       {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
         disabled: !canListify,
@@ -370,13 +370,7 @@ export class ConstructViewer extends Component {
     ] : [];
 
     return [
-      {
-        text: 'Inspect Block',
-        disabled: !singleBlock,
-        action: () => {
-          this.openInspector();
-        },
-      },
+      ...listItems,
       {
         text: `Delete ${singleBlock ? 'Block' : 'Blocks'}`,
         disabled: this.props.construct.isFixed() || this.props.construct.isFrozen(),
@@ -384,13 +378,15 @@ export class ConstructViewer extends Component {
           this.removePartsList(this.sg.ui.selectedElements);
         },
       },
+      {},
       {
-        text: 'Import DNA Sequence',
+        text: 'Edit Sequence',
         disabled: !singleBlock || (this.props.construct.isFixed() || this.props.construct.isFrozen()),
         action: () => {
           this.props.uiShowDNAImport(true);
         },
       },
+      {},
       {
         text: 'Select Empty Blocks',
         disabled: false,
@@ -398,7 +394,6 @@ export class ConstructViewer extends Component {
           this.selectEmptyBlocks();
         },
       },
-      ...authoringListItems,
       ...GlobalNav.getSingleton().getEditMenuItems(),
     ];
   };
@@ -426,21 +421,6 @@ export class ConstructViewer extends Component {
 
     return [
       {
-        text: `Inspect ${typeName}`,
-        action: () => {
-          this.openInspector();
-          this.props.focusBlocks([]);
-          this.props.focusConstruct(this.props.constructId);
-        },
-      },
-      {
-        text: `Delete ${typeName}`,
-        disabled: this.isSampleProject(),
-        action: () => {
-          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
-        },
-      },
-      {
         text: `Duplicate ${typeName}`,
         disabled: this.isSampleProject(),
         action: () => {
@@ -452,6 +432,13 @@ export class ConstructViewer extends Component {
           }
           this.props.projectAddConstruct(this.props.projectId, clone.id, true);
           this.props.focusConstruct(clone.id);
+        },
+      },
+      {
+        text: `Delete ${typeName}`,
+        disabled: this.isSampleProject(),
+        action: () => {
+          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
         },
       },
       {
