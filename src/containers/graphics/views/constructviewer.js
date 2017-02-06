@@ -21,6 +21,7 @@ import { connect } from 'react-redux';
 import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import { palettes } from '../../../utils/color/index';
+import GlobalNav from '../../../components/GlobalNav/GlobalNav';
 
 import {
   blockAddComponent,
@@ -69,6 +70,7 @@ import UserInterface from './constructvieweruserinterface';
 import Layout from './layout';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
 import downloadProject from '../../../middleware/utils/downloadProject';
+
 
 // static hash for matching viewers to constructs
 const idToViewer = {};
@@ -136,6 +138,10 @@ export class ConstructViewer extends Component {
     idToViewer[this.props.constructId] = this;
     this.update = debounce(this._update.bind(this), 16);
   }
+
+  state = {
+    showHidden: false,
+  };
 
   /**
    * setup the scene graph and layout component.
@@ -207,10 +213,10 @@ export class ConstructViewer extends Component {
   onOrderDNA = () => {
     let order = this.props.orderCreate(this.props.currentProjectId, [this.props.construct.id]);
     this.props.orderList(this.props.currentProjectId)
-    .then((orders) => {
-      order = this.props.orderSetName(order.id, `Order ${orders.length}`);
-      this.props.uiShowOrderForm(true, order.id);
-    });
+      .then((orders) => {
+        order = this.props.orderSetName(order.id, `Order ${orders.length}`);
+        this.props.uiShowOrderForm(true, order.id);
+      });
   };
 
   /**
@@ -268,6 +274,7 @@ export class ConstructViewer extends Component {
       ...paletteItems,
     ];
   }
+
   /**
    * accessor for our DOM node.
    *
@@ -294,6 +301,7 @@ export class ConstructViewer extends Component {
       currentBlocks: this.props.focus.blockIds,
       currentConstructId: this.props.focus.constructId,
       focusedOptions: this.props.focus.options,
+      showHidden: this.state.showHidden,
     });
     this.sg.update();
     this.sg.ui.update();
@@ -350,11 +358,11 @@ export class ConstructViewer extends Component {
   blockContextMenuItems = () => {
     const singleBlock = this.props.focus.blockIds.length === 1;
     const firstBlock = this.props.blocks[this.props.focus.blockIds[0]];
-
-    const authoringListItems = singleBlock ? [
+    const canListify = singleBlock && !firstBlock.hasSequence();
+    const listItems = singleBlock ? [
       {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
-        disabled: !singleBlock,
+        disabled: !canListify,
         action: () => {
           this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
         },
@@ -362,13 +370,7 @@ export class ConstructViewer extends Component {
     ] : [];
 
     return [
-      {
-        text: 'Inspect Block',
-        disabled: !singleBlock,
-        action: () => {
-          this.openInspector();
-        },
-      },
+      ...listItems,
       {
         text: `Delete ${singleBlock ? 'Block' : 'Blocks'}`,
         disabled: this.props.construct.isFixed() || this.props.construct.isFrozen(),
@@ -376,13 +378,15 @@ export class ConstructViewer extends Component {
           this.removePartsList(this.sg.ui.selectedElements);
         },
       },
+      {},
       {
-        text: 'Import DNA Sequence',
+        text: 'Edit Sequence',
         disabled: !singleBlock || (this.props.construct.isFixed() || this.props.construct.isFrozen()),
         action: () => {
           this.props.uiShowDNAImport(true);
         },
       },
+      {},
       {
         text: 'Select Empty Blocks',
         disabled: false,
@@ -390,7 +394,7 @@ export class ConstructViewer extends Component {
           this.selectEmptyBlocks();
         },
       },
-      ...authoringListItems,
+      ...GlobalNav.getSingleton().getEditMenuItems(),
     ];
   };
 
@@ -398,13 +402,16 @@ export class ConstructViewer extends Component {
    * return JSX for construct context menu
    */
   showConstructContextMenu(menuPosition) {
+    // select construct
+    this.sg.ui.selectConstruct();
     // add the blocks context menu items if there are selected blocks
-    let items = this.constructContextMenuItems();
-    if (this.props.focus.blockIds.length) {
-      items = [...items, {}, ...this.blockContextMenuItems()];
-    }
+    const items = [...this.constructContextMenuItems(), ...GlobalNav.getSingleton().getEditMenuItems()];
     this.props.uiShowMenu(items, menuPosition);
   }
+
+  toggleHiddenBlocks = () => {
+    this.setState({ showHidden: !this.state.showHidden });
+  };
 
   /**
    * menu items for the construct context menu
@@ -413,21 +420,6 @@ export class ConstructViewer extends Component {
     const typeName = this.props.construct.getType('Construct');
 
     return [
-      {
-        text: `Inspect ${typeName}`,
-        action: () => {
-          this.openInspector();
-          this.props.focusBlocks([]);
-          this.props.focusConstruct(this.props.constructId);
-        },
-      },
-      {
-        text: `Delete ${typeName}`,
-        disabled: this.isSampleProject(),
-        action: () => {
-          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
-        },
-      },
       {
         text: `Duplicate ${typeName}`,
         disabled: this.isSampleProject(),
@@ -441,6 +433,17 @@ export class ConstructViewer extends Component {
           this.props.projectAddConstruct(this.props.projectId, clone.id, true);
           this.props.focusConstruct(clone.id);
         },
+      },
+      {
+        text: `Delete ${typeName}`,
+        disabled: this.isSampleProject(),
+        action: () => {
+          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
+        },
+      },
+      {
+        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+        action: this.toggleHiddenBlocks,
       },
     ];
   };
@@ -703,6 +706,12 @@ export class ConstructViewer extends Component {
       this.props.uiSetGrunt('There are no empty blocks in the current construct');
     }
   }
+  /**
+   * select all blocks
+   */
+  selectAllBlocks() {
+    this.props.focusBlocks(this.props.blockGetComponentsRecursive(this.props.construct.id).map(block => block.id));
+  }
 
   /**
    * window resize, update layout and scene graph with new dimensions
@@ -754,8 +763,12 @@ export class ConstructViewer extends Component {
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
       {
-        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
+        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} Nested Blocks`,
         action: () => { this.sg.ui.toggleCollapsedState(); },
+      },
+      {
+        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+        action: this.toggleHiddenBlocks,
       },
       {
         text: 'Color',
@@ -796,9 +809,9 @@ export class ConstructViewer extends Component {
    */
   upload = () => {
     this.props.projectSave(this.props.currentProjectId)
-    .then(() => {
-      this.props.uiShowGenBankImport(true);
-    });
+      .then(() => {
+        this.props.uiShowGenBankImport(true);
+      });
   };
 
   /**
@@ -888,6 +901,7 @@ export class ConstructViewer extends Component {
             color={construct.getColor()}
             onClick={this.onTitleClicked}
             onContextMenu={position => this.showConstructContextMenu(position)}
+            itemActivated={() => this.props.focusConstruct(this.props.constructId)}
           />
         </div>
         {this.lockIcon()}

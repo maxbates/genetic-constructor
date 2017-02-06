@@ -162,7 +162,7 @@ class DNAImportForm extends Component {
       }}
       payload={
         <form className="gd-form importdnaform" onSubmit={this.onSubmit}>
-          <div className="title">Add Sequence</div>
+          <div className="title">Edit Sequence</div>
           <textarea
             onKeyDown={(event) => {
               if (event.key === 'Enter') {

@@ -110,14 +110,6 @@ class InspectorGroupOrders extends Component {
 }
 
 function mapStateToProps(state, props) {
-// const orders = Object.keys(state.orders).reduce((accumulator, orderId) => {
-//   return accumulator.concat([state.orders[orderId]]);
-// }, []);
-// debugger;
-// return {
-//   orders,
-//   projects: state.projects,
-// };
   return {};
 }
 

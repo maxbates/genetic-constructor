@@ -32,23 +32,23 @@
 
   .dropdown {
     position: absolute;
-    padding: 4px 0;
-    left: -1px;
+    padding: 4px 18px;
+    left: -12px;
     top: 68px;
-    width: 258px;
-    background-color: var(--colors-nearlyBlack);
+    width: 282px;
+    background-color: var(--colors-darkerGrey);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
 
     .arrow {
       width: 20px;
       height: 20px;
-      background-color: var(--colors-nearlyBlack);
+      background-color: var(--colors-darkerGrey);
       position: absolute;
       transform: rotate(45deg);
-      left: 17px;
+      left: 27px;
       top: -10px;
     }
   }

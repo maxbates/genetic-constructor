@@ -22,7 +22,7 @@ import AboutForm from '../components/modal/aboutform';
 import InlineEditor from '../components/inline-editor/inline-editor';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
 import ModalSpinner from '../components/modal/modalspinner';
-import GlobalNav from './GlobalNav';
+import GlobalNav from '../components/GlobalNav/GlobalNav';
 import RibbonGrunt from '../components/ribbongrunt';
 import AuthenticationModals from './AuthenticationModals';
 

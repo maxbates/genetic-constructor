@@ -55,8 +55,9 @@ export default class Selector extends Component {
   render() {
     let menu = null;
     if (this.state.menuOpen) {
-      const items = this.props.options.map(item => (
+      const items = this.props.options.map((item, index) => (
         <div
+          key={index}
           className="menu-item"
           onClick={(evt) => {
             evt.preventDefault();
