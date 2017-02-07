@@ -32,10 +32,6 @@ const fieldDefs = {
     fields.string({ max: 2048 }),
     'Description of instance',
   ],
-  authors: [
-    fields.arrayOf(validators.id(), { required: true }).required,
-    'IDs of authors',
-  ],
   created: [
     fields.number(),
     'POSIX time when object was created',

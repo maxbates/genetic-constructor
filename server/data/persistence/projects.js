@@ -192,13 +192,9 @@ export const projectWrite = (projectId, roll = {}, userId, bypassValidation = fa
   //do we want to require userId? if so, need to update all block writing etc. to include userId in call, since block writing goes through this function
   //invariant(userId, 'user id is required to write project');
 
-  //todo - when do we not want to overwrite project / blocks? verify not corrupting e.g. EGF project or tests
-
   merge(roll.project, {
     id: projectId,
-    metadata: {
-      authors: [userId], // (future) - merge author IDs, not just assign
-    },
+    owner: userId, //todo - collaboration - is this correct? Should we overwrite the author / owner
   });
 
   //force projectId, and ensure block Id matches block data
