@@ -1,6 +1,7 @@
 import { expect, assert } from 'chai';
 import Block from '../../../src/models/Block';
 import Project from '../../../src/models/Project';
+import { testUserId } from '../../constants';
 
 describe('Model', () => {
   describe('Block', () => {
@@ -10,7 +11,7 @@ describe('Model', () => {
         block = new Block();
       });
 
-      const dummyProject = new Project();
+      const dummyProject = new Project({ owner: testUserId });
 
       it('clone() should add to history', () => {
         block = block.setProjectId(dummyProject.id);

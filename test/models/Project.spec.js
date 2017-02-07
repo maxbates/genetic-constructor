@@ -1,6 +1,7 @@
 import { expect, assert } from 'chai';
-import Project from '../../src/models/Project';
 import { merge, isEqual } from 'lodash';
+import Project from '../../src/models/Project';
+import { testUserId } from '../constants';
 
 describe('Model', () => {
   describe('Project', () => {
@@ -21,7 +22,7 @@ describe('Model', () => {
     });
 
     it('validate can throw, or not', () => {
-      const good = Project.classless();
+      const good = Project.classless({ owner: testUserId });
       const bad = merge({}, good, { version: 'adsfasdfasdfasdf' });
 
       expect(Project.validate(good)).to.equal(true);

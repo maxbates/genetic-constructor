@@ -124,6 +124,7 @@ describe('Server', () => {
           const url = `/data/${projectId}`;
           const newProject = new Project({
             id: 'randomId',
+            owner: testUserId,
           });
 
           request(server)

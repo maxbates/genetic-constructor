@@ -17,6 +17,7 @@ import { expect } from 'chai';
 import RollupSchema from '../../src/schemas/Rollup';
 import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
+import { testUserId } from '../constants';
 import { createExampleRollup, createSequencedRollup } from '../_utils/rollup';
 
 describe('Schema', () => {
@@ -30,7 +31,10 @@ describe('Schema', () => {
     });
 
     it('should validate a simply created rollup, requiring version', () => {
-      const project = new Project();
+      const project = new Project({
+        owner: testUserId,
+      });
+
       const block = new Block({
         projectId: project.id,
       });
@@ -64,7 +68,7 @@ describe('Schema', () => {
       // { md5: sequence } format
       RollupSchema.validate(createSequencedRollup(), true);
 
-      const project = new Project();
+      const project = new Project({ owner: testUserId });
       const seq = 'CAGTCGATCGATCGTCAGTACGTGCTAGCTGACTGACATCTAGCAGCTAGC';
       const block = new Block({
         projectId: project.id,
@@ -98,7 +102,10 @@ describe('Schema', () => {
     });
 
     it('should make sure projectIds in blocks match the rollup project Id', () => {
-      const project = new Project();
+      const project = new Project({
+        owner: testUserId,
+      });
+
       const block = new Block({
         projectId: Project.classless().id,
       });

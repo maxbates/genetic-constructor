@@ -24,7 +24,6 @@ export default {
   metadata: {
     name: 'BBa_Q04121',
     description: 'QPI (B0034.C0012.B0015.R0011)',
-    authors: [],
     tags: {},
     color: '#D28482',
     author: 'Caitlin Conboy',

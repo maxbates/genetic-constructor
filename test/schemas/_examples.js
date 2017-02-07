@@ -11,7 +11,6 @@ export const Block = {
   id: uuid.v4(),
   parents: [],
   metadata: {
-    authors: [],
     tags: {},
   },
   sequence: {
@@ -26,10 +25,10 @@ export const Block = {
 
 export const Project = {
   id: uuid.v4(),
+  owner: uuid.v1(),
   version: 12,
   parents: [],
   metadata: {
-    authors: [],
     tags: {},
   },
   components: [],

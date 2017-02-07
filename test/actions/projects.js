@@ -22,6 +22,7 @@ import * as selectors from '../../src/selectors/projects';
 import configureStore from '../../src/store/configureStore';
 import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
+import { testUserId } from '../constants';
 
 describe('Actions', () => {
   describe('Projects', () => {
@@ -37,6 +38,7 @@ describe('Actions', () => {
 
     it('projectCreate() makes a project', () => {
       project = store.dispatch(actions.projectCreate({
+        owner: testUserId,
         components: [block.id],
       }));
 

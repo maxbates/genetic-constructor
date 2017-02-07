@@ -33,7 +33,7 @@ describe('Model', () => {
     });
 
     it('validate() works on simple one', () => {
-      const pr = Project.classless();
+      const pr = Project.classless({ owner: testUserId });
       const bl = Block.classless({ projectId: pr.id });
       const rl = {
         schema: 1,
@@ -48,7 +48,7 @@ describe('Model', () => {
     });
 
     it('validate() cheap validation just checks basic shape, e.g. ignores block projectId', () => {
-      const pr = Project.classless();
+      const pr = Project.classless({ owner: testUserId });
       const bl = Block.classless();
       const rl = {
         schema: 1,
@@ -62,7 +62,7 @@ describe('Model', () => {
     });
 
     it('validate() catches wrong projectId, in non-light validation', () => {
-      const pr = Project.classless();
+      const pr = Project.classless({ owner: testUserId });
       const bl = Block.classless({
         projectId: Project.classless().id,
       });
@@ -82,7 +82,7 @@ describe('Model', () => {
     });
 
     it('validate() checks for weird keys', () => {
-      const pr = Project.classless();
+      const pr = Project.classless({ owner: testUserId });
       const bl = Block.classless({
         projectId: Project.classless().id,
       });
@@ -99,7 +99,7 @@ describe('Model', () => {
     });
 
     it('validate checks if each block is valid', () => {
-      const proj = Project.classless();
+      const proj = Project.classless({ owner: testUserId });
       const invalidBlock = Object.assign(Block.classless({projectId: proj.id}), { metadata: 'invalid' });
 
       const rl = {
