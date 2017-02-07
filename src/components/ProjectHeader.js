@@ -35,6 +35,7 @@ import {
 import {
   inspectorToggleVisibility,
   inventoryToggleVisibility,
+  uiToggleDetailView,
   uiInlineEditor,
   uiShowMenu,
   uiSetGrunt,
@@ -57,6 +58,7 @@ class ProjectHeader extends Component {
     focusConstruct: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
+    uiToggleDetailView: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
@@ -144,6 +146,9 @@ class ProjectHeader extends Component {
     const showPanels = !this.props.inventoryVisible;
     this.props.inventoryToggleVisibility(showPanels);
     this.props.inspectorToggleVisibility(showPanels);
+    if (!showPanels) {
+      this.props.uiToggleDetailView(false);
+    }
   };
 
   titleEditorBounds() {
@@ -307,4 +312,5 @@ export default connect(mapStateToProps, {
   projectDelete,
   projectLoad,
   projectRename,
+  uiToggleDetailView,
 })(ProjectHeader);
