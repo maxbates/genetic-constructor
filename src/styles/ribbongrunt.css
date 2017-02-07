@@ -33,6 +33,7 @@
 
   span {
     margin: 0 5rem;
+    font-family: var(--font-family-base);
   }
 
   img {
