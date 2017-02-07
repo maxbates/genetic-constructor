@@ -18,5 +18,5 @@ import _ from 'lodash';
 import { fixedExtensions } from '../extensions/constants';
 
 export default {
-  extensions: _.mapValues(fixedExtensions, (active) => { active }),
+  extensions: _.mapValues(fixedExtensions, active => ({ active })),
 };

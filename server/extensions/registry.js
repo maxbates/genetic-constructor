@@ -15,9 +15,9 @@
  */
 import fs from 'fs';
 import path from 'path';
-
 import debug from 'debug';
 import { pickBy } from 'lodash';
+import invariant from 'invariant';
 
 import { manifestIsClient, manifestIsServer, validateManifest } from './manifestUtils';
 
