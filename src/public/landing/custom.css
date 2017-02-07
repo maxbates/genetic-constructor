@@ -4,7 +4,7 @@
 {
     --black: rgba(0, 0, 0, 0.8);
     --white: white;
-    --spot: #2FE695;
+    --spot: #5981FF;
     --lightBackground: white;
     --lightGrey: #E7E7E7;
     --darkGrey: #D8D8D8;
@@ -45,6 +45,10 @@
     margin-right: auto;
 }
 
+.triangle
+{
+   padding-top: 60px   
+}
 
 body
 {
@@ -99,6 +103,13 @@ h1
 
 h2
 {
+    font-size: 4em;
+    font-family: 'art-thin';
+    cursor: default;
+}
+
+.cardHeader
+{
     font-size: 3em;
     font-family: 'art-thin';
     cursor: default;
@@ -151,6 +162,12 @@ p
     cursor: default;
 }
 
+.fontBy
+{
+    margin-top: -10px;
+}
+
+
 #heroText
 {
     width: 100%;
@@ -185,7 +202,7 @@ p
 
 #cookiesModal
 {
-    position: absolute;
+    position: fixed;
     top: 0px;
     width: 100%;
     color: rgba(0, 0, 0, 0.8);
@@ -197,7 +214,7 @@ p
 .cookiesButton
 {
     position: absolute;
-    color: rgba(0, 0, 0, 0.8);
+    color: white;
     top: 0px;
     right: 0;
     height: 100%;
@@ -262,49 +279,72 @@ p
 {
     color: rgba(0, 0, 0, 0.8);
     padding-top: 120px;
-    padding-bottom: 120px;
     text-align: center;
+    position: relative;
+}
+
+.back1 
+{
+    position: absolute;
+    top: 350px;
+}
+
+.textBlockColor
+{
+    padding: 10px;
+    background: #5981FF;
+    color: var(--white)   
 }
 
 .feature1
 {
-    background-image: url("assets/images/back1.png");
-    background-size: 100% 100%;
-    background-position: top right;
-    background-repeat: no-repeat;
-    color: white;
+    color: var(--black);
     padding-top: 120px;
-    padding-bottom: 180px;
+    position: relative;
+}
+
+.back2 
+{
+    position: absolute;
+    top: 300px;
+    right: 0px;
 }
 
 .feature2
 {
-    background-image: url("assets/images/back2.png");
-    background-size: 100% 100%;
-    background-position: top right;
-    background-repeat: no-repeat;
-    color: rgba(0, 0, 0, 0.8);
+    color: var(--black);
     padding-top: 120px;
-    padding-bottom: 180px;
+    padding-bottom: 400px;
+    position: relative;
+}
+
+.back3
+{
+    position: absolute;
+    top: 400px;
+    left: 0px;
 }
 
 .feature3 {
-    background-image: url("assets/images/back3.png");
-    background-size: 100% 100%;
-    background-position: top right;
-    background-repeat: no-repeat;
-    color: white;
+    color: var(--black);
     padding-top: 120px;
-    padding-bottom: 180px;
+    padding-bottom: 60px;
+    position: relative;
+}
+
+.back4 
+{
+    position: absolute;
+    top: -150px;
+    right: 0px;
 }
 
 #futureSection
 {
-    color: rgba(0, 0, 0, 0.8);
-    background: white;
+    color: var(--black);
     text-align: left;
     padding-top: 100px;
-    padding-bottom: 180px;
+    padding-bottom: 60px;
 }
 
 .trySectionTop
@@ -317,10 +357,7 @@ p
 
 .trySectionCards
 {
-    background-image: url("assets/images/back4.png");
-    background-size: 100% 100%;
-    background-position: top left;
-    background-repeat: no-repeat;
+    background-image: url("assets/images/back5.png");
     text-align: center;
     padding-top: 80px;
     padding-bottom: 180px;
@@ -328,14 +365,10 @@ p
 
 #autodeskSection
 {
-    color: rgba(0, 0, 0, 0.8);
-    background-image: url("assets/images/back3.png");
-    background-size: 100% 100%;
-    background-position: top left;
-    background-repeat: no-repeat;
+    color: var(--black);
     text-align: center;
     padding-top: 120px;
-    padding-bottom: 180px;
+    padding-bottom: 60px;
 }
 
 #teamSection
@@ -344,14 +377,14 @@ p
     background: white;
     text-align: center;
     padding-top: 120px;
-    padding-bottom: 180px;
+    padding-bottom: 60px;
 }
 
 #footerSection
 {
-    color: rgba(0, 0, 0, 0.8);
-    background: white;
-    padding-top: 30px;
+    color: var(--black);
+    background: var(--white);
+    padding-top: 120px;
 }
 
 /* ---------------------- CONTROLS --------------------- */
@@ -366,8 +399,8 @@ p
     padding: 15px 30px 15px 30px;
     width: 100%;
     max-width: 250px;
-    background-color: #2FE695;
-    color: rgba(0, 0, 0, 0.8);
+    background-color: var(--spot);
+    color: var(--white);
     outline: none;
     opacity: 0.9;
     -webkit-transition: 0.2s;
@@ -381,8 +414,38 @@ p
     -webkit-transition: 0.2s;
     transition: 0.2s;
     text-decoration: none;
-    color: rgba(0, 0, 0, 0.8);
+    color: var(--white);
 }
+
+.smallButton, .smallButton:focus
+{
+    display: block;
+    margin: 0 auto;
+    border-radius: 50px;
+    font-family: 'art-bold';
+    border: none;
+    padding: 12px 20px 12px 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 220px;
+    background-color: var(--white);
+    color: var(--black);
+    outline: none;
+    opacity: 0.9;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+}
+
+.smallButton:hover
+{
+    opacity: 1;
+    transform: translate3d(0px, -1px, 0px);
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+    text-decoration: none;
+    color: var(--black);
+}
+
 
 .downButton
 {
@@ -403,7 +466,7 @@ p
     background: #3A2C4D;
     color: white;
     height: 400px;
-    margin-top: 0px;
+    margin-top: -40px;
 }
 
 .card3
@@ -417,13 +480,16 @@ p
 {
     background: #2FE695;
     padding: 20px;
-    color: rgba(0, 0, 0, 0.8);
+    margin-top: 40px;
+    color: var(--white);
 }
 
 .cardBody
 {
     padding: 20px;
 }
+
+
 
 /* ---------------------- SLIDESHOW --------------------- */
 
@@ -437,16 +503,17 @@ p
 
 .slideEnd
 {
-    animation-name: slideShowEnd;
+    animation-name: slideShow;
     animation-duration: 4s;
     animation-iteration-count: infinite;
     position: absolute;
     width: 100%;
     max-width: 650px;
     right: 0;
+    padding-right: 30px;
 }
 
-@keyframes slideShowEnd{
+@keyframes slideShow{
     0%   {opacity: 0; }
     25%  {opacity: 1; }
     50%  {opacity: 1; }
@@ -460,23 +527,34 @@ p
 
 /* ---------------------- RESPONSIVE --------------------- */
 
-
 @media (max-width:992px)
 {
     .cardHeader
     {
-        font-size: 2.0em;
-    }
-    .card2
-    {
-        margin-top: 100px;
-        margin-bottom: 50px;
+        font-size: 2em;
+        font-family: 'art-light';
     }
 }
 
 
 @media (max-width:768px)
 {
+    .back1
+    {
+        top: 300px;
+    }
+    .back2
+    {
+        top: 400px;
+    }
+    .back3
+    {
+        top: 350px;
+    }
+    .back4
+    {
+        top: 250px;
+    }
     h1
     {
         font-size: 3em;
@@ -487,10 +565,6 @@ p
         font-family: 'art-thin';
         cursor: default;
     }
-        .cardHeader
-    {
-        font-size: 2.5em;
-    }
     #interfaceSection
     {
         padding-top: 60px;
@@ -498,21 +572,16 @@ p
     }
     .feature1
     {
-        background-size: cover;
-        background-position: top left;
         padding-top: 60px;
         padding-bottom: 60px;
     }
     .feature2
     {
-        background-image: none;
         padding-top: 60px;
         padding-bottom: 60px;
     }
     .feature3
     {
-        background-size: cover;
-        background-position: top center;
         padding-top: 60px;
         padding-bottom: 60px;
     }
@@ -547,8 +616,12 @@ p
     }
     .card2
     {
-        margin-top: 100px;
-        margin-bottom: 50px;
+        margin-top: 0px;
+    }
+    .cardHeader
+    {
+        font-size: 3em;
+        font-family: 'art-thin';
     }
 }
 
