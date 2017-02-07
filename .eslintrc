@@ -72,15 +72,6 @@
     "jsx-a11y/img-has-alt": 1,
 
     // order of operations are fine, if you don't know them time for a new career
-    "no-mixed-operators": ["error,
-        {
-            "groups": [
-                ["&", "|", "^", "~", "<<", ">>", ">>>"],
-                ["==", "!=", "===", "!==", ">", ">=", "<", "<="],
-                ["&&", "||"],
-                ["in", "instanceof"]
-            ],
-            "allowSamePrecedence": true
-        }
+    "no-mixed-operators": 0
   }
 }
