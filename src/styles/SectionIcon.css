@@ -20,4 +20,10 @@
     filter: brightness(1000%) !important;
   }
 }
+.SectionIcon.Closed {
+  img {
+    filter: brightness(1000%) !important;
+    opacity: 0.25;
+  }
+}
 
