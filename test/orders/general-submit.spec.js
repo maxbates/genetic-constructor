@@ -42,20 +42,25 @@ describe('Ordering', () => {
 
     before(() => {
       return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
-        .then(() => projectPersistence.projectWrite(roll.project.id, updated, testUserId));
+      .then(() => projectPersistence.projectWrite(roll.project.id, updated, testUserId));
     });
 
     describe('Validate', () => {
       foundries.forEach(foundry => {
         it(`submit() does not throw unexpectedly to foundry: ${foundry}`, () => {
           return api.validateOrder(onePotOrder, foundry, makeOrderPositionals(roll, 0))
-            .catch(resp => {
-              //ok if we get a 422, means wasnt valid, but handled properly
-              if (resp.status === 422) {
-                return true;
-              }
-              throw Error('unexpected error');
-            });
+          .catch(resp => {
+            if (foundry === 'test' && !resp.ok) {
+              throw Error('should work for test foundry');
+            }
+
+            //ok if we get a 422, means wasnt valid, but handled properly
+            if (resp.status === 422) {
+              return true;
+            }
+
+            throw Error('unexpected error');
+          });
         });
 
         //note - EGF will fail, since not all parts from EGF
@@ -67,13 +72,17 @@ describe('Ordering', () => {
       foundries.forEach(foundry => {
         it(`submit() does not throw unexpectedly to foundry: ${foundry}`, () => {
           return api.submitOrder(onePotOrder, foundry, makeOrderPositionals(roll, 0))
-            .catch(resp => {
-              //ok if we get a 422, means wasnt valid, but handled properly
-              if (resp.status === 422) {
-                return true;
-              }
-              throw Error('unexpected error');
-            });
+          .catch(resp => {
+            if (foundry === 'test' && !resp.ok) {
+              throw Error('should work for test foundry');
+            }
+
+            //ok if we get a 422, means wasnt valid, but handled properly
+            if (resp.status === 422) {
+              return true;
+            }
+            throw Error('unexpected error');
+          });
         });
 
         //note - EGF will fail, since not all parts from EGF

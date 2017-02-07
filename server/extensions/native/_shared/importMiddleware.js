@@ -26,7 +26,7 @@ import Rollup from '../../../../src/models/Rollup';
 import { resetColorSeed } from '../../../../src/utils/color/index';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as fileSystem from '../../../data/middleware/fileSystem';
-import { errorDoesNotExist, errorNoPermission } from '../../../utils/errors';
+import { errorDoesNotExist, errorNoPermission } from '../../../errors/errorConstants';
 
 const logger = debug('constructor:import');
 
@@ -258,7 +258,7 @@ export function mergeRollupMiddleware(req, res, next) {
         .then(() => roll);
     })
     .then((roll) => {
-      logger(`project written, import complete (${projectId}`);
+      logger(`project written, import complete (${projectId})`);
 
       //if we did a conversion, we don't want a project ID on the blocks
       if (conversion) {

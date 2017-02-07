@@ -15,7 +15,7 @@
  */
 import invariant from 'invariant';
 
-import { errorDoesNotExist, errorInvalidModel } from '../../utils/errors';
+import { errorDoesNotExist, errorInvalidModel } from '../../errors/errorConstants';
 import { validateOrder } from '../../utils/validation';
 import { dbDelete, dbGet, dbHead, dbPost, dbPruneResult } from '../middleware/db';
 import * as projectVersions from './projectVersions';
