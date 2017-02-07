@@ -70,7 +70,8 @@ export const updateUserConfig = (user, newConfig) => {
   const oldConfig = getConfigFromUser(user);
 
   //Shallow assign so have to explicitly include default projects + extensions for them to show up
-  const config = Object.assign({}, oldConfig, newConfig);
+  //explicitly merge with defaults again, for when we add new fields
+  const config = Object.assign({}, userConfigDefaults, oldConfig, newConfig);
   //merge on forced config
   merge(config, userConfigOverrides);
 
