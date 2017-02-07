@@ -4,6 +4,21 @@
   margin: 0 auto;
 }
 
+.tos .heading {
+  padding: 20px 0;
+}
+
+.tos .logo {
+  height: 30px;
+  width: 30px;
+}
+
+.tos .autodesk {
+  float: right;
+  height: 30px;
+  width: 180px;
+}
+
 .tos b,
 .tos a {
   font-family: 'art-bold';
