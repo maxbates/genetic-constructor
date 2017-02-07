@@ -19,7 +19,9 @@
   }
 
   &-title {
-    color: var(--colors-grey);
+    font-family: var(--font-family-base);
+    font-size: 16px;
+    color: var(--colors-slightlyDarkGrey);
   }
 
   &-content {

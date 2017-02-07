@@ -9,10 +9,6 @@
     font-family: var(--font-family-panels);
   }
 
-  .container * {
-    font-family: var(--font-family-panels) !important;
-  }
-
   .vertical-menu {
     position: absolute;
     width: var(--width-SidePanel-closed);
@@ -32,7 +28,7 @@
     width: calc(var(--width-SidePanel-open) - var(--width-SidePanel-closed));
     height: 100%;
     background-color: var(--colors-white);
-    color: var(--colors-nearlyBlack);
+    color: var(--colors-mediumDarkGrey);
     transform: translateX(0);
     transition: transform var(--timing-fast) var(--SidePanel-ease);
     padding: 0 var(--SidePanel-width-padding-content);
