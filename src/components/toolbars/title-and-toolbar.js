@@ -42,6 +42,7 @@ class TitleAndToolbar extends Component {
     onClick: PropTypes.func.isRequired,
     onContextMenu: PropTypes.func,
     noHover: PropTypes.bool,
+    itemActivated: PropTypes.func,
   };
 
   /**
@@ -88,7 +89,7 @@ class TitleAndToolbar extends Component {
           <img src="/images/ui/edit.svg" />
         </div>
         <div className="bar">
-          <InlineToolbar items={this.props.toolbarItems} />
+          <InlineToolbar items={this.props.toolbarItems} itemActivated={this.props.itemActivated} />
         </div>
       </div>
     );

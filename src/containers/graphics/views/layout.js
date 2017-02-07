@@ -570,6 +570,7 @@ export default class Layout {
    */
   update(options) {
     this.options = options;
+    this.showHidden = options.showHidden;
     this.construct = options.construct;
     this.palette = this.rootLayout ? this.construct.metadata.palette || this.constructViewer.getProject().metadata.palette : this.palette;
     this.blocks = options.blocks;
@@ -678,7 +679,7 @@ export default class Layout {
     let clippedBlocks = 0;
 
     // display only non hidden blocks
-    const components = ct.components.filter(blockId => !this.blockIsHidden(blockId));
+    const components = this.showHidden ? ct.components : ct.components.filter(blockId => !this.blockIsHidden(blockId));
 
     // layout all non hidden blocks
     components.forEach((part) => {
@@ -762,7 +763,11 @@ export default class Layout {
       this.updateListForBlock(block, td.x);
 
       // render children unless user has collapsed the block or it is hidden OR all its children are hidden
-      if (node.showChildren && !this.blockIsHidden(part) && this.someChildrenVisible(part) && !this.collapsed) {
+      let hidden = this.blockIsHidden(part);
+      if (hidden && this.showHidden) {
+        hidden = false;
+      }
+      if (node.showChildren && !hidden && this.someChildrenVisible(part) && !this.collapsed) {
         // establish the position
         const nestedX = this.insetX + kT.nestedInsetX;
         const nestedY = yp + nestedVertical + kT.blockH + kT.nestedInsetY;
@@ -801,6 +806,7 @@ export default class Layout {
           blocks: this.blocks,
           currentBlocks: this.currentBlocks,
           currentConstructId: this.currentConstructId,
+          showHidden: this.showHidden,
         }).height + kT.nestedInsetY;
 
         // remove from old collection so the layout won't get disposed
@@ -828,6 +834,7 @@ export default class Layout {
             blocks: this.blocks,
             currentBlocks: this.currentBlocks,
             currentConstructId: this.currentConstructId,
+            showHidden: this.showHidden,
           });
         });
       }

@@ -1,29 +1,28 @@
 @import './variables.css';
 
 .menu-item {
-  color: var(--colors-nearlyBlack);
-  font-size: 1em;
+  color: var(--colors-menutext);
+  font-size: 14px;
   user-select: none;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.2rem 1rem 0.2rem 1rem;
+  padding: 0.2rem 1rem 0.2rem 1.5rem;
   cursor: default;
 
   &.disabled {
-    color: #999999;
+    color: var(--colors-menutext-disabled);
     pointer-events: none;
   }
 
   &:hover {
-    background-color: var(--colors-bluetext);
+    background-color: var(--colors-selected);
     color: white;
-    > .right {
-      > .arrow {
-        > .arrow-base {
-          border-left-color: var(--colors-white);
-        }
+    .right {
+      .corner {
+        border-top-color: var(--colors-white);
+        border-right-color: var(--colors-white);
       }
     }
   }
@@ -57,8 +56,8 @@
   }
   /*positioning for sub menu*/
   .sub-menu {
-    top: -0.5rem;
-    box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.5);
+    top: -15px;
+    box-shadow: 0px 0px 10px 0px rgba(38,49,66,1);
   }
   .sub-menu-right {
     left: calc(100% - 4px);

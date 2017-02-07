@@ -5,8 +5,8 @@ var newconstruct = function(browser) {
     browser
       .pause(250)
 
-    rightClickAt(browser, '.inventory-project-tree [data-testid^="project"]', 4, 4);
-    clickNthContextMenuItem(browser, 3);
+    rightClickAt(browser, '.inventory-project-tree [data-testid^="project"]', 20, 10);
+    clickNthContextMenuItem(browser, 4);
 
     browser
       .pause(1000)

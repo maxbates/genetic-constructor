@@ -42,7 +42,7 @@ export class TemplateRules extends Component {
       ['list',
         'List Block',
         value => this.props.blockSetListBlock(this.props.block.id, value),
-        () => this.props.block.isConstruct()],
+        () => this.props.block.isConstruct() || this.props.block.hasSequence()],
       /*
       ['frozen',
         'Frozen',

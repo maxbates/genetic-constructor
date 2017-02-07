@@ -75,6 +75,7 @@ class MenuOverlay extends Component {
   stopKillTimer() {
     window.clearTimeout(this.killTimer);
   }
+
   startKillTimer() {
     this.stopKillTimer();
     this.killTimer = window.setTimeout(() => {
@@ -115,18 +116,29 @@ class MenuOverlay extends Component {
     if (!this.props.menuItems) {
       return null;
     }
+    // required position of menu
     const pos = this.props.menuPosition;
+    // true if position falls in bottom half of screen
+    const bottomHalf = pos.y > window.innerHeight / 2;
     // size and position hat and menu
     const psize = this.props.menuHat ? 20 : 0;
-    const pointerPosition = {
+    const pointerPosition = bottomHalf ? {
+      width: `${psize}px`,
+      height: `${psize}px`,
+      left: `${pos.x - 10}px`,
+      top: `${pos.y - psize * 1.5}px`,
+    } : {
       width: `${psize}px`,
       height: `${psize}px`,
       left: `${pos.x - 10}px`,
       top: `${pos.y}px`,
     };
-    const menuPosition = {
+    const menuPosition = bottomHalf ? {
       left: `${pos.x - 10}px`,
-      top: `${pos.y + (psize / 2)}px`,
+      bottom: `${window.innerHeight - pos.y + psize}px`,
+    } : {
+      left: `${pos.x - 10}px`,
+      top: `${pos.y + psize / 2}px`,
     };
     // to be called after render, react sucks
     if (!this.measured) {
