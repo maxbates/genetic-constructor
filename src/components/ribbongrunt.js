@@ -26,7 +26,7 @@ class RibbonGrunt extends Component {
   static propTypes = {
     gruntMessage: PropTypes.string,
     uiSetGrunt: PropTypes.func.isRequired,
-    atTop: PropTypes.bool, //pending new UI, where always at top
+    atTop: PropTypes.bool,
   };
 
   // if we going to show a message then start or extend the close timer
@@ -42,18 +42,17 @@ class RibbonGrunt extends Component {
     this.props.uiSetGrunt('');
   };
 
-  cancelTimer() {
-    window.clearTimeout(this.closeTimer);
-  }
-
   render() {
+    const message = this.props.gruntMessage || this.lastMessage;
+    this.lastMessage = this.props.gruntMessage;
     const classes = `ribbongrunt ${
       this.props.gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}${
       this.props.atTop ? ' atTop' : ''}`;
 
     return (
-      <div className={classes}>{this.props.gruntMessage}
-        <button onClick={this.close}>&times;</button>
+      <div className={classes}>
+        <span>{message}</span>
+        <img src="/images/ui/close_icon_dark.svg" onClick={this.close} />
       </div>
     );
   }
