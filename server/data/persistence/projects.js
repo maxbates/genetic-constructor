@@ -59,6 +59,7 @@ export const mergeMetadataOntoProject = (data) => {
   merge(transformedData.data, {
     project: {
       version: transformedData.version,
+      owner: data.owner,
       metadata: {
         updated: transformedData.updated,
       },
