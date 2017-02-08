@@ -2,6 +2,7 @@ import { assert, expect } from 'chai';
 import { merge } from 'lodash';
 import { login, getUser, getUserConfig, setUserConfig } from '../../src/middleware/auth';
 import userConfigDefaults from '../../server/onboarding/userConfigDefaults';
+import userConfigOverrides from '../../server/onboarding/userConfigOverrides';
 
 //noinspection JSUnusedLocalSymbols
 const devServer = require('../../server/server'); // starts the server which will be accessed by methods below
@@ -49,7 +50,7 @@ describe('middleware', () => {
 
     it('setUserConfig() should set user config', () => {
       const allInactive = Object.keys(userConfigDefaults.extensions).reduce((acc, key) => Object.assign(acc, { [key]: { active: false } }), {});
-      const nextConfig = merge({}, userConfigDefaults, { extensions: allInactive });
+      const nextConfig = merge({}, userConfigDefaults, { extensions: allInactive }, userConfigOverrides);
 
       return getUserConfig()
         .then(oldConfig => {
