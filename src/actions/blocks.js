@@ -324,7 +324,7 @@ export const blockClone = (blockInput, parentObjectInput = null) => (dispatch, g
 };
 
 /**
- * Freeze a block, so that no further changes can be made to it without cloning it first
+ * Freeze a block, so that no further changes can be made to it without cloning it first. By default, recursive
  * @function
  * @param {UUID} blockId
  * @param {boolean} [recursive=true] Apply to contents (components + options)
@@ -358,8 +358,8 @@ export const blockDelete = (...blockIds) => (dispatch, getState) => {
   dispatch(undoActions.transact());
 
   blockIds.forEach((blockId) => {
-      //find parent, remove component from parent
-
+    //find parent, remove component from parent
+    //todo - account for multiple parents (symbolic linking)
     const parent = dispatch(selectors.blockGetParents(blockId)).shift();
 
       //may not have parent (is construct) or parent was deleted
@@ -392,7 +392,8 @@ export const blockDetach = (...blockIds) => (dispatch, getState) => {
   dispatch(undoActions.transact());
 
   blockIds.forEach((blockId) => {
-      //find parent, remove component from parent
+    //find parent, remove component from parent
+    //todo - account for multiple parents (symbolic linking)
     const parent = dispatch(selectors.blockGetParents(blockId)).shift();
       //may not have parent (is construct) or parent was deleted
     if (parent) {
