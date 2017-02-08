@@ -150,7 +150,7 @@ class InventoryGroupRole extends Component {
 
     return (
       <div className="InventoryGroup-content InventoryGroupRole">
-        <div className="InventoryGroup-contentInner">
+        <div className="InventoryGroup-contentInner no-vertical-scroll">
           <p>
             Drag a sketch block to the canvas to add it to your project. Hold down the option ( alt ) key
             to reverse the direction of the block.

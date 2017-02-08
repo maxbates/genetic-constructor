@@ -105,7 +105,7 @@ export default class InventorySearchResults extends Component {
     return (
       <div className="InventoryGroup-contentNester InventorySearchResults">
         {!sourcesToggling && (
-          <div className="InventoryGroup-contentInner">
+          <div className="InventoryGroup-contentInner no-vertical-scroll">
             {groupsContent}
           </div>
         )}
