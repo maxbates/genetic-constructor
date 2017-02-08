@@ -96,12 +96,12 @@ export class Inspector extends Component {
 
     return (
       <div className={`SidePanel Inspector${isVisible ? ' visible' : ''}`}>
+        <span className="title">{tabInfo ? tabInfo.title : 'Unknown'}</span>
+        <div className="vertical-menu">
+          {icons}
+        </div>
         <div className="container">
-          <div className="vertical-menu">
-            {icons}
-          </div>
           <div className={contentClasses}>
-            <span className="title">{tabInfo ? tabInfo.title : 'Unknown'}</span>
             {tab}
           </div>
         </div>
