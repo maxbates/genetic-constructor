@@ -43,7 +43,7 @@ export default class InventoryGroupBlocks extends Component {
     const listingItems = items.filter(item => searchRegex.test(item.metadata.name) || searchRegex.test(item.rules.role));
 
     return (
-      <div className="InventoryGroup-content InventoryGroupBlocks">
+      <div className="InventoryGroup-content InventoryGroupBlocks0">
         <InventorySearch
           searchTerm={searchTerm}
           placeholder="Filter by name or biological function"

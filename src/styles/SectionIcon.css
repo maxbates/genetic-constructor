@@ -24,6 +24,9 @@
   img {
     filter: brightness(1000%) !important;
     opacity: 0.25;
+    &:hover {
+      opacity: 1;
+    }
   }
 }
 

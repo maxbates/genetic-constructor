@@ -85,7 +85,7 @@ export default class InventoryGroupProjects extends Component {
           :
             null
         }
-        <div className="InventoryGroup-contentInner">
+        <div className="InventoryGroup-contentInner no-vertical-scroll">
           {currentList}
         </div>
       </div>
