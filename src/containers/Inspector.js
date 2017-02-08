@@ -47,6 +47,10 @@ export class Inspector extends Component {
       type: 'information',
       title: 'Information',
     },
+    Orders: {
+      type: 'orders',
+      title: 'Orders',
+    },
     // Settings: {
     //   type: 'settings',
     //   title: 'Settings',
@@ -58,10 +62,6 @@ export class Inspector extends Component {
     Help: {
       type: 'help',
       title: 'Help',
-    },
-    Orders: {
-      type: 'orders',
-      title: 'Orders',
     },
     // History: {
     //   type: 'history',
