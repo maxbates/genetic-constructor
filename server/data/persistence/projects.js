@@ -292,16 +292,15 @@ export const projectDelete = (projectId, userId, forceDelete = false) => {
     .then(() => projectId);
   }
 
-  return projectExists(projectId)
-  .then(() => projectGet(projectId))
-  .then((roll) => {
-    if (roll && roll.project.rules.frozen) {
-      return Promise.reject('cannot delete sample projects');
-    }
-  })
-  .then(() => _projectDelete(projectId, userId))
-  //no need to commit... its deleted (and permissions out of scope of data folder)
-  .then(() => projectId);
+  return projectGet(projectId)
+    .then((roll) => {
+      if (roll && roll.project.rules.frozen) {
+        return Promise.reject('cannot delete sample projects');
+      }
+    })
+    .then(() => _projectDelete(projectId, userId))
+    //no need to commit... its deleted (and permissions out of scope of data folder)
+    .then(() => projectId);
 };
 
 //should not be exposed on router... easy to get into a bad state
