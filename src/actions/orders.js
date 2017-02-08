@@ -37,25 +37,26 @@ const spaceFiller = 10; //eslint-disable-line no-unused-vars
  * @param {boolean} [avoidCache=false]
  * @returns {Array.<Order>} Manifests of user's Orders
  */
-export const orderList = (projectId, avoidCache = false) => (dispatch, getState) => {
-  const cached = instanceMap.projectOrdersLoaded(projectId);
-  if (cached && avoidCache !== true) {
-    return Promise.resolve(instanceMap.getProjectOrders(projectId));
-  }
+export const orderList = (projectId, avoidCache = false) =>
+  (dispatch, getState) => {
+    const cached = instanceMap.projectOrdersLoaded(projectId);
+    if (cached && avoidCache !== true) {
+      return Promise.resolve(instanceMap.getProjectOrders(projectId));
+    }
 
-  return getOrders(projectId)
-      .then((ordersData) => {
-        const orders = ordersData.map(order => new Order(order));
+    return getOrders(projectId)
+    .then((ordersData) => {
+      const orders = ordersData.map(order => new Order(order));
 
-        instanceMap.saveProjectOrders(projectId, ...orders);
+      instanceMap.saveProjectOrders(projectId, ...orders);
 
-        dispatch({
-          type: ActionTypes.ORDER_STASH,
-          orders,
-        });
-        return orders;
+      dispatch({
+        type: ActionTypes.ORDER_STASH,
+        orders,
       });
-};
+      return orders;
+    });
+  };
 
 /**
  * Retreive an order
@@ -67,26 +68,27 @@ export const orderList = (projectId, avoidCache = false) => (dispatch, getState)
  * @resolve {Order}
  * @reject {Response}
  */
-export const orderGet = (projectId, orderId, avoidCache = false) => (dispatch, getState) => {
-  const cached = instanceMap.orderLoaded(orderId);
+export const orderGet = (projectId, orderId, avoidCache = false) =>
+  (dispatch, getState) => {
+    const cached = instanceMap.orderLoaded(orderId);
 
-  if (cached && avoidCache !== true) {
-    return Promise.resolve(instanceMap.getOrder(orderId));
-  }
+    if (cached && avoidCache !== true) {
+      return Promise.resolve(instanceMap.getOrder(orderId));
+    }
 
-  return getOrder(projectId, orderId)
-      .then((orderData) => {
-        const order = new Order(orderData);
+    return getOrder(projectId, orderId)
+    .then((orderData) => {
+      const order = new Order(orderData);
 
-        instanceMap.saveOrder(order);
+      instanceMap.saveOrder(order);
 
-        dispatch({
-          type: ActionTypes.ORDER_STASH,
-          order,
-        });
-        return order;
+      dispatch({
+        type: ActionTypes.ORDER_STASH,
+        order,
       });
-};
+      return order;
+    });
+  };
 
 /**
  * Create an order with basic fields
@@ -96,33 +98,34 @@ export const orderGet = (projectId, orderId, avoidCache = false) => (dispatch, g
  * @param {Object} parameters
  * @returns {Order}
  */
-export const orderCreate = (projectId, constructIds = [], parameters = {}) => (dispatch, getState) => {
-  invariant(projectId, 'must pass project ID');
+export const orderCreate = (projectId, constructIds = [], parameters = {}) =>
+  (dispatch, getState) => {
+    invariant(projectId, 'must pass project ID');
 
-  invariant(Array.isArray(constructIds) && constructIds.length, 'must pass array of construct IDs to use in order');
+    invariant(Array.isArray(constructIds) && constructIds.length, 'must pass array of construct IDs to use in order');
     //make sure we have specs
-  invariant(constructIds.every(id => dispatch(blockSelectors.blockIsSpec(id))), 'all constructs must be specs (no empty option lists, and each leaf node must have a sequence)');
+    invariant(constructIds.every(id => dispatch(blockSelectors.blockIsSpec(id))), 'all constructs must be specs (no empty option lists, and each leaf node must have a sequence)');
 
-  invariant(typeof parameters === 'object', 'paramaters must be object');
-  invariant(!Object.keys(parameters).length || Order.validateParameters(parameters), 'parameters must pass validation if you pass them in on creation');
+    invariant(typeof parameters === 'object', 'paramaters must be object');
+    invariant(!Object.keys(parameters).length || Order.validateParameters(parameters), 'parameters must pass validation if you pass them in on creation');
 
-  const numberCombinations = constructIds.reduce((acc, constructId) => acc + dispatch(blockSelectors.blockGetNumberCombinations(constructId, false)), 0);
+    const numberCombinations = constructIds.reduce((acc, constructId) => acc + dispatch(blockSelectors.blockGetNumberCombinations(constructId, false)), 0);
 
-  const order = new Order({
-    projectId,
-    constructIds,
-    parameters,
-    numberCombinations,
-  });
+    const order = new Order({
+      projectId,
+      constructIds,
+      parameters,
+      numberCombinations,
+    });
 
     //add order to the store
-  dispatch({
-    type: ActionTypes.ORDER_CREATE,
-    order,
-  });
+    dispatch({
+      type: ActionTypes.ORDER_CREATE,
+      order,
+    });
 
-  return order;
-};
+    return order;
+  };
 
 //todo - selector / put in order model directly
 //todo - ensure this code (generating constructs from order + rollup) is shared between client and server
@@ -136,24 +139,25 @@ export const orderCreate = (projectId, constructIds = [], parameters = {}) => (d
  * @throws If the constructs are not specs
  * @returns {function(*, *)}
  */
-export const orderGenerateConstructs = (orderId, allPossibilities = false) => (dispatch, getState) => {
-  const state = getState();
-  const order = state.orders[orderId];
-  const { constructIds, parameters } = order;
-  invariant(Order.validateParameters(parameters), 'parameters must pass validation');
+export const orderGenerateConstructs = (orderId, allPossibilities = false) =>
+  (dispatch, getState) => {
+    const state = getState();
+    const order = state.orders[orderId];
+    const { constructIds, parameters } = order;
+    invariant(Order.validateParameters(parameters), 'parameters must pass validation');
 
     //for each constructId, get construct combinations as blocks
     //flatten all combinations into a single list of combinations
-  const combinations = flatten(constructIds.map(constructId => dispatch(blockSelectors.blockGetCombinations(constructId, true))));
+    const combinations = flatten(constructIds.map(constructId => dispatch(blockSelectors.blockGetCombinations(constructId, true))));
 
-  if (!order.onlySubset() || allPossibilities === true) {
-    return combinations;
-  }
+    if (!order.onlySubset() || allPossibilities === true) {
+      return combinations;
+    }
 
-  return combinations.filter((el, idx, arr) => parameters.activeIndices[idx] === true);
-};
+    return combinations.filter((el, idx, arr) => parameters.activeIndices[idx] === true);
+  };
 
-//todo - this logic should go into order model, wrap in try catch
+//todo - this logic should go into order class, and just assume the component will handle before calling action
 /**
  * Set the parameters of the order
  * @function
@@ -162,40 +166,45 @@ export const orderGenerateConstructs = (orderId, allPossibilities = false) => (d
  * @param {boolean} [shouldMerge=false]
  * @returns {Order}
  */
-export const orderSetParameters = (orderId, inputParameters = {}, shouldMerge = false) => (dispatch, getState) => {
-  const oldOrder = getState().orders[orderId];
-  const parameters = shouldMerge ? merge(cloneDeep(oldOrder.parameters), inputParameters) : inputParameters;
+export const orderSetParameters = (orderId, inputParameters = {}, shouldMerge = false) =>
+  (dispatch, getState) => {
+    const oldOrder = getState().orders[orderId];
+    const parameters = shouldMerge ? merge(cloneDeep(oldOrder.parameters), inputParameters) : inputParameters;
 
-  const { numberCombinations } = oldOrder;
-  if (!parameters.onePot && parameters.permutations < numberCombinations) {
-    const keepers = (parameters.combinatorialMethod === 'Maximum Unique Set')
+    const { numberCombinations } = oldOrder;
+
+    //if not a one pot, define how the combinations will be selected
+    if (!parameters.onePot) {
+      //options are "random" and "maximum unique"
+      const keepers = (parameters.combinatorialMethod === 'Maximum Unique Set')
         ?
         //may generate extras so slice at the end
         range(numberCombinations)
-          .filter(idx => idx % Math.floor(numberCombinations / parameters.permutations) === 0)
+        .filter(idx => idx % Math.floor(numberCombinations / parameters.permutations) === 0)
         :
         shuffle(range(numberCombinations));
 
-    const map = keepers.slice(0, parameters.permutations)
-        .reduce((acc, idx) => Object.assign(acc, { [idx]: true }), {});
+      const map = keepers.slice(0, parameters.permutations)
+      .reduce((acc, idx) => Object.assign(acc, { [idx]: true }), {});
 
-    parameters.activeIndices = map;
-  }
+      parameters.activeIndices = map;
+    }
 
-  if (parameters.onePot) {
-    parameters.sequenceAssemblies = false;
-  }
+    //EGF specific
+    if (parameters.onePot) {
+      parameters.sequenceAssemblies = false;
+    }
 
-  invariant(Order.validateParameters(parameters), 'parameters must pass validation');
-  const order = oldOrder.setParameters(parameters);
+    invariant(Order.validateParameters(parameters), 'parameters must pass validation');
+    const order = oldOrder.setParameters(parameters);
 
-  dispatch({
-    type: ActionTypes.ORDER_SET_PARAMETERS,
-    order,
-  });
+    dispatch({
+      type: ActionTypes.ORDER_SET_PARAMETERS,
+      order,
+    });
 
-  return order;
-};
+    return order;
+  };
 
 /**
  * Set the name of an order
@@ -226,43 +235,44 @@ export const orderSetName = (orderId, name) => (dispatch, getState) => {
  * @resolve {order} The fully valid order, with status set
  * @reject {String|Object} reason for failure, dependent on the foundry
  */
-export const orderSubmit = (orderId, foundry) => (dispatch, getState) => {
-  const state = getState();
-  const retrievedOrder = state.orders[orderId];
-  invariant(retrievedOrder, 'order not in the store...');
-  invariant(!retrievedOrder.isSubmitted(), 'Cant submit an order twice');
+export const orderSubmit = (orderId, foundry) =>
+  (dispatch, getState) => {
+    const state = getState();
+    const retrievedOrder = state.orders[orderId];
+    invariant(retrievedOrder, 'order not in the store...');
+    invariant(!retrievedOrder.isSubmitted(), 'Cant submit an order twice');
 
-  const { projectId, projectVersion } = retrievedOrder;
-  const project = state.projects[projectId];
+    const { projectId, projectVersion } = retrievedOrder;
+    const project = state.projects[projectId];
 
-  invariant(project, 'project must be loaded');
+    invariant(project, 'project must be loaded');
 
     //todo - should be generated on the server. no need to do that here.
 
-  const positionalCombinations = retrievedOrder.constructIds.reduce((acc, constructId) => Object.assign(acc, { [constructId]: dispatch(blockSelectors.blockGetPositionalCombinations(constructId, true)) }), {});
+    const positionalCombinations = retrievedOrder.constructIds.reduce((acc, constructId) => Object.assign(acc, { [constructId]: dispatch(blockSelectors.blockGetPositionalCombinations(constructId, true)) }), {});
 
     //if want the latest state, so need to save first
     //can set projectVersion, or server will do it, so lets just be specific
-  const savePromise = (!Number.isInteger(projectVersion))
+    const savePromise = (!Number.isInteger(projectVersion))
       ?
       dispatch(projectActions.projectSave(projectId, true))
-        .then(version => retrievedOrder.mutate('projectVersion', version))
+      .then(version => retrievedOrder.mutate('projectVersion', version))
       :
       Promise.resolve(retrievedOrder);
 
-  return savePromise
-      .then(order => order.submit(foundry, positionalCombinations))
-      .then((orderData) => {
-        const order = new Order(orderData);
+    return savePromise
+    .then(order => order.submit(foundry, positionalCombinations))
+    .then((orderData) => {
+      const order = new Order(orderData);
 
-        dispatch({
-          type: ActionTypes.ORDER_SUBMIT,
-          order,
-        });
-
-        return order;
+      dispatch({
+        type: ActionTypes.ORDER_SUBMIT,
+        order,
       });
-};
+
+      return order;
+    });
+  };
 
 /**
  * Remove an order from the store
@@ -270,14 +280,15 @@ export const orderSubmit = (orderId, foundry) => (dispatch, getState) => {
  * @param {UUID} orderId
  * @returns {UUID} Order ID
  */
-export const orderDetach = orderId => (dispatch, getState) => {
-  const order = getState().orders[orderId];
+export const orderDetach = orderId =>
+  (dispatch, getState) => {
+    const order = getState().orders[orderId];
 
-  invariant(!order.isSubmitted(), 'cannot delete a submitted order');
+    invariant(!order.isSubmitted(), 'cannot delete a submitted order');
 
-  dispatch({
-    type: ActionTypes.ORDER_DETACH,
-    orderId,
-  });
-  return orderId;
-};
+    dispatch({
+      type: ActionTypes.ORDER_DETACH,
+      orderId,
+    });
+    return orderId;
+  };

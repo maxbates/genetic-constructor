@@ -123,6 +123,8 @@ if (process.env.BIO_NANO_AUTH) {
     }),
     //onLogin: (req, res, next) => next(req, res), //mock
     registerRedirect: false,
+    emailDirectory: 'emails',
+    verifyLanding: '/homepage',
   };
   app.use(initAuthMiddleware(authConfig));
 } else {
