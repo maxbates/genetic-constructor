@@ -180,8 +180,12 @@ router.route('/projects/:projectId')
       });
   })
   .delete((req, res, next) => {
-    const { projectId, user } = req;
+    const { projectId, user, projectDoesNotExist } = req;
     const forceDelete = !!req.query.force;
+
+    if (projectDoesNotExist === true) {
+      return res.status(404).send(errorDoesNotExist);
+    }
 
     projectPersistence.projectDelete(projectId, user.uuid, forceDelete)
       .then(() => res.status(200).json({ projectId }))
@@ -204,9 +208,8 @@ router.route('/projects')
       .then(rolls => rolls.map(roll => roll.project))
       .then((manifests) => {
         res.set('Last-Project-ID', mostRecentProject(manifests).id);
-        return manifests;
+        return res.status(200).json(manifests);
       })
-      .then(manifests => res.status(200).json(manifests))
       .catch(err => next(err));
   });
 

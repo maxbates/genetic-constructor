@@ -116,7 +116,6 @@ export class InventoryProjectTree extends Component {
     .then(() => this.setState({ isLoading: false }));
   }
 
-
   /**
    * when a project is expanded, we need to load to get the blocks and also inspect it
    * @param projectId
@@ -186,6 +185,8 @@ export class InventoryProjectTree extends Component {
 
     this.props.focusConstruct(block.id);
     this.props.projectOpen(project.id);
+
+    return project;
   };
 
   /**
@@ -309,31 +310,10 @@ export class InventoryProjectTree extends Component {
     return items;
   }
 
-  /**
-   * perform the actual deletion.
-   */
-  deleteProject(project) {
-    if (project.rules.frozen) {
-      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
-    } else {
-      //load another project, avoiding this one
-      this.props.projectLoad(null, false, [project.id])
-      //open the new project, skip saving the previous one
-      .then(openProject => this.props.projectOpen(openProject.id, true))
-      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-      .then(() => this.props.projectDelete(project.id));
-    }
-  }
+  getSortedProjectManifests = () => {
+    const { projects, templates, filter } = this.props;
 
-  render() {
-    const { projects, templates, currentProjectId } = this.props;
-    const { isLoading } = this.state;
-
-    if (isLoading) {
-      return <Spinner />;
-    }
-
-    const treeItems = _.chain(projects)
+    return _.chain(projects)
     .pickBy((project) => {
       //if want template, and dont have frozen project, skip
       //double bang to handle undefined
@@ -343,11 +323,11 @@ export class InventoryProjectTree extends Component {
 
       //if filtering, and name doesnt match, skip
       const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
-      const filter = this.props.filter.toLowerCase();
-      if (!filter) {
+      const filterString = filter.toLowerCase();
+      if (!filterString) {
         return true;
       }
-      return name.indexOf(filter) >= 0;
+      return name.indexOf(filterString) >= 0;
     })
     .sortBy((one, two) => {
       if (!one || !two) {
@@ -355,6 +335,50 @@ export class InventoryProjectTree extends Component {
       }
       return two.metadata.created - one.metadata.created;
     })
+    .value();
+  };
+
+  /**
+   * perform the actual deletion.
+   */
+  deleteProject(project) {
+    if (project.rules.frozen) {
+      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
+      return;
+    }
+
+    //NB - assumes that loaded projects already available in the list
+    //just use the projects we have already listed, and if there are none or there is a problem, then explicitly load from server
+    const nextProject = _.find(this.getSortedProjectManifests(), manifest => manifest.id !== project.id);
+
+    //create an empty project if none available
+    if (!nextProject) {
+      const datNewNew = this.onNewProject();
+      //force save, so that they have an empty project next time they load
+      return this.props.projectSave(datNewNew.id, true)
+      //delete in the background and hope it works, showing banner if it doesnt
+      //wait until after save, so we can be sure they have a project
+      .then(() => this.props.projectDelete(project.id));
+    }
+
+    //to further optimize, coudl just skip the loading, so that projectPage handles it itself
+
+    //load another project and open before deleting, or project page will complain about project not being loaded
+    return this.props.projectLoad(nextProject.id, false, [project.id])
+    .then(() => this.props.projectOpen(nextProject.id, true))
+    //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+    .then(() => this.props.projectDelete(project.id));
+  }
+
+  render() {
+    const { currentProjectId } = this.props;
+    const { isLoading } = this.state;
+
+    if (isLoading) {
+      return <Spinner />;
+    }
+
+    const treeItems = this.getSortedProjectManifests()
     .map(project => ({
       text: project.getName(),
       testid: project.id,
@@ -375,8 +399,7 @@ export class InventoryProjectTree extends Component {
           className="label-hover-bright"
         />,
       ],
-    }))
-    .value();
+    }));
 
     return (
       <div>
