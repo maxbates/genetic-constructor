@@ -16,6 +16,7 @@ webapp:
     STORAGE_API: http://internal-lb${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    EMAIL: ${EMAIL}
   command:
     npm run server-auth
   log_driver: json-file
