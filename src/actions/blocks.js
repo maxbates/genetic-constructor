@@ -256,13 +256,13 @@ export const blockClone = (blockInput, parentObjectInput = {}) => (dispatch, get
 
     //get the project ID to use for parent, considering the block may be detached from a project (e.g. inventory block)
   const parentProjectId = oldBlock.projectId || null;
-    //will default to null if parentProjectId is undefined
-  const parentProjectVersion = dispatch(projectSelectors.projectGetVersion(parentProjectId));
+  const oldProject = dispatch(projectSelectors.projectGet(parentProjectId)) || {};
 
     //partial object about project, block ID handled in block.clone()
   const parentObject = Object.assign({
     projectId: parentProjectId,
-    version: parentProjectVersion,
+    owner: oldProject.owner,
+    version: oldProject.version,
   }, parentObjectInput);
 
     //overwrite to set the correct projectId

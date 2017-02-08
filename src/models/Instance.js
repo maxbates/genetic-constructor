@@ -17,6 +17,7 @@ import invariant from 'invariant';
 import { assign, cloneDeep, merge } from 'lodash';
 
 import InstanceSchema from '../schemas/Instance';
+import ParentSchema from '../schemas/Parent';
 import safeValidate from '../schemas/fields/safeValidate';
 import { number } from '../schemas/fields/validators';
 import Immutable from './Immutable';
@@ -91,10 +92,12 @@ export default class Instance extends Immutable {
 
       const parentObject = Object.assign({
         id: cloned.id,
+        owner: cloned.owner,
         version: cloned.version,
       }, inputObject);
 
-      invariant(versionValidator(parentObject.version), `must pass a valid version (SHA), got ${parentObject.version}`);
+      //throw if invalid parent
+      ParentSchema.validate(parentObject, true);
 
       const parents = [parentObject, ...cloned.parents];
 

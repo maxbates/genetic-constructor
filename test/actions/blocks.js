@@ -7,6 +7,7 @@ import { simpleStore } from '../store/mocks';
 import configureStore from '../../src/store/configureStore';
 import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
+import { testUserId } from '../constants';
 
 describe('Actions', () => {
   describe('Blocks', () => {
@@ -41,7 +42,10 @@ describe('Actions', () => {
 
       describe('Cloning', () => {
         it('blockClone() removes the projectId', () => {
-          const clone = blockStore.dispatch(actions.blockClone(storeBlock.id));
+          const clone = blockStore.dispatch(actions.blockClone(storeBlock.id, {
+            owner: testUserId,
+            version: 0,
+          }));
 
           expect(storeBlock.projectId).to.be.defined;
           expect(clone.projectId).to.eql(null);
@@ -50,16 +54,19 @@ describe('Actions', () => {
         it('blockClone() clones a block with a new id + proper parents', () => {
           const projectVersion = 12;
           //stub project ID for now because requires reliance on focus / projects store if we put it in storeBlock directly
-          const projectIdStub = 'dummy';
+          const projectIdStub = (new Project()).id;
           const clone = blockStore.dispatch(actions.blockClone(storeBlock.id, {
             projectId: projectIdStub,
+            owner: testUserId,
             version: projectVersion,
           }));
           expect(clone.id).to.not.equal(storeBlock.id);
           expect(clone.parents).to.eql([{
             id: storeBlock.id,
+            owner: testUserId,
             projectId: projectIdStub,
             version: projectVersion,
+            created: clone.parents[0].created, //hack, but can't get exact time otherwise
           }]);
 
           const comparable = Object.assign({}, clone, {
@@ -75,10 +82,11 @@ describe('Actions', () => {
         it('blockClone() deep clones by default, and updates children IDs', () => {
           const projectVersion = 23;
           //stub project ID for now because requires reliance on focus / projects store if we put it in storeBlock directly
-          const projectIdStub = 'dummy';
+          const projectIdStub = (new Project()).id;
           const storePreClone = blockStore.getState().blocks;
           const rootClone = blockStore.dispatch(actions.blockClone(root.id, {
             projectId: projectIdStub,
+            owner: testUserId,
             version: projectVersion,
           }));
           const stateAfterClone = blockStore.getState().blocks;
@@ -86,24 +94,30 @@ describe('Actions', () => {
           expect(Object.keys(storePreClone).length + 5).to.equal(Object.keys(stateAfterClone).length);
           expect(rootClone.parents).to.eql([{
             id: root.id,
+            owner: testUserId,
             projectId: projectIdStub,
             version: projectVersion,
+            created: rootClone.parents[0].created, //hack, but can't get exact time otherwise
           }]);
 
           const children = rootClone.components.map(componentId => stateAfterClone[componentId]);
           const cloneA = children[0];
           expect(cloneA.parents).to.eql([{
             id: childA.id,
+            owner: testUserId,
             projectId: projectIdStub,
             version: projectVersion,
+            created: cloneA.parents[0].created, //hack, but can't get exact time otherwise
           }]);
           expect(cloneA.components.length).to.equal(2);
 
           const grandchildren = cloneA.components.map(componentId => stateAfterClone[componentId]);
           expect(grandchildren[0].parents).to.eql([{
             id: grandchildA1.id,
+            owner: testUserId,
             projectId: projectIdStub,
             version: projectVersion,
+            created: grandchildren[0].parents[0].created, //hack, but can't get exact time otherwise
           }]);
         });
 
@@ -143,7 +157,7 @@ describe('Actions', () => {
           rules: { frozen: true },
         }));
         block = store.dispatch(actions.blockCreate());
-        project = store.dispatch(projectActions.projectCreate());
+        project = store.dispatch(projectActions.projectCreate({ owner: testUserId }));
         list = store.dispatch(actions.blockCreate({
           projectId: project.id,
           rules: { list: true },

@@ -17,7 +17,7 @@ describe('Model', () => {
         block = block.setProjectId(dummyProject.id);
         assert(block.parents.length === 0, 'should have no parents');
 
-        const cloned = block.clone();
+        const cloned = block.clone({ owner: testUserId, version: 0 });
         assert(cloned.parents.length === 1, 'should have parent');
         expect(cloned.parents[0].projectId).to.equal(dummyProject.id);
         expect(cloned.parents[0].id).to.equal(block.id);

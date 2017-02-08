@@ -106,8 +106,8 @@ export default class Block extends Instance {
    * note that if you are cloning multiple blocks / blocks with components, you likely need to clone the components as well. You will need to re-map the IDs outside of this function. See {@link blockClone} action for an example.
    * @method clone
    * @memberOf Block
-   * @param {object|null} parentInfo Parent info for denoting ancestry. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
-   * @param overwrites
+   * @param {object|null} parentInfo Parent info for denoting ancestry. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID). Parent info, if passed, should include project information: owner and version
+   * @param {object} overwrites Overwrites to make to the cloned block, e.g. { owner: userId }
    * @returns {Block} Cloned block
    */
   clone(parentInfo = {}, overwrites = {}) {
@@ -129,6 +129,7 @@ export default class Block extends Instance {
       id: this.id,
       projectId: this.projectId,
       version: (firstParent && firstParent.projectId === this.projectId) ? firstParent.version : null,
+      created: Date.now(),
     }, parentInfo);
 
     return super.clone(parentObject, mergeWith);
@@ -404,7 +405,7 @@ export default class Block extends Instance {
     //hack to accommodate adding frozen block to construct / list
     //need to determine how to handle adding frozen blocks
     if (this.isFrozen()) {
-      return this.clone(undefined, {
+      return this.clone(null, {
         projectId,
         rules: { frozen: false },
       });

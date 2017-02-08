@@ -50,7 +50,8 @@ export const Annotation = {
 
 export const makeParent = () => ({
   id: uuid.v4(),
-  sha: sha1('' + Math.floor(Math.random() * 10000000)),
+  owner: uuid.v1(),
+  version: 0,
 });
 
 export const blockWithParents = merge(Block, {
