@@ -29,15 +29,13 @@ import SaveErrorModal from '../components/modal/SaveErrorModal';
 import Spinner from '../components/ui/Spinner';
 import OrderModal from '../containers/orders/ordermodal';
 import loadAllExtensions from '../extensions/loadExtensions';
-import autosaveInstance from '../store/autosave/autosaveInstance';
 import '../styles/ProjectPage.css';
 import '../styles/SceneGraphPage.css';
 import Inspector from './Inspector';
 import Inventory from './Inventory';
 import ConstructViewerCanvas from './graphics/views/constructViewerCanvas';
 
-
-class ProjectPage extends Component {
+export class ProjectPage extends Component {
   static propTypes = {
     userId: PropTypes.string,
     projectId: PropTypes.string.isRequired,
@@ -51,18 +49,15 @@ class ProjectPage extends Component {
     //uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
+    autosave: PropTypes.shape({
+      dirty: PropTypes.bool.isRequired,
+    }),
   };
-
-  static onWindowUnload(evt) {
-    if (autosaveInstance.isDirty() && process.env.NODE_ENV === 'production') {
-      return 'Project has unsaved work! Please save before leaving this page';
-    }
-  }
 
   componentDidMount() {
     // todo - use react router History to do this:
     // https://github.com/mjackson/history/blob/master/docs/ConfirmingNavigation.md
-    window.onbeforeunload = window.onunload = ProjectPage.onWindowUnload;
+    window.onbeforeunload = window.onunload = this.onWindowUnload.bind(this);
 
     //load extensions (also see componentWillReceiveProps)
     if (this.props.userId) {
@@ -91,6 +86,12 @@ class ProjectPage extends Component {
 
   componentWillUnmount() {
     window.onbeforeunload = window.onunload = () => {};
+  }
+
+  onWindowUnload(evt) {
+    if (this.props.autosave && this.props.autosave.dirty === true && process.env.NODE_ENV === 'production') {
+      return 'Project has unsaved work! Please save before leaving this page';
+    }
   }
 
   render() {
@@ -144,6 +145,7 @@ class ProjectPage extends Component {
 
 function mapStateToProps(state, ownProps) {
   const userId = state.user.userid;
+  const autosave = state.autosave;
 
   const projectId = ownProps.params.projectId;
   const project = state.projects[projectId];
@@ -166,6 +168,7 @@ function mapStateToProps(state, ownProps) {
     constructs,
     orders,
     userId,
+    autosave,
   };
 }
 
