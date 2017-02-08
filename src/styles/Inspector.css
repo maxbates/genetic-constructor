@@ -2,6 +2,16 @@
 
 .Inspector {
 
+  .right-nav {
+    display: flex;
+    align-items: center;
+    background-color: var(--colors-darkerGrey);
+    height: var(--GlobalNav-height-chrome);
+    flex-shrink: 0;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+  }
+
   .container {
     position: relative;
     height: 100%;
@@ -23,7 +33,8 @@
   .vertical-menu {
     position: absolute;
     width: var(--width-SidePanel-closed);
-    height: 100%;
+    height: calc(100vh - var(--GlobalNav-height-chrome));
+    top: var(--GlobalNav-height-chrome);
     right: 0;
     background-color: var(--colors-darkerGrey);
     z-index: 1;

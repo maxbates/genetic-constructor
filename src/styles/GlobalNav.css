@@ -2,7 +2,8 @@
 
 .GlobalNav {
   position: relative;
-  display: flex;
+  display: inline-flex;
+  width: 400px;
   align-items: center;
   flex-direction: row;
   flex-shrink: 0;
@@ -31,7 +32,4 @@
     }
   }
 
-  &-spacer {
-    flex-grow: 1;
-  }
 }

@@ -24,8 +24,6 @@ import { clipboardSetData } from '../../actions/clipboard';
 import { focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../actions/focus';
 import { projectAddConstruct, projectCreate, projectOpen, projectSave } from '../../actions/projects';
 import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiSetGrunt, uiShowGenBankImport, uiToggleDetailView } from '../../actions/ui';
-import AutosaveTracking from './autosaveTracking';
-import UserWidget from '../authentication/userwidget';
 import OkCancel from '../modal/okcancel';
 import RibbonGrunt from '../ribbongrunt';
 import * as clipboardFormats from '../../constants/clipboardFormats';
@@ -682,9 +680,6 @@ class GlobalNav extends Component {
           <img src="/images/ui/main_logo.svg" role="presentation" />
         </div>
         <div className="GlobalNav-appname">Genetic Constructor</div>
-        <span className="GlobalNav-spacer" />
-        {currentProjectId && <AutosaveTracking projectId={currentProjectId} />}
-        <UserWidget />
         <OkCancel />
       </div>
     );
