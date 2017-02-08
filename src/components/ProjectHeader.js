@@ -46,6 +46,7 @@ import Vector2D from '../containers/graphics/geometry/vector2d';
 import TitleAndToolbar from '../components/toolbars/title-and-toolbar';
 import downloadProject from '../middleware/utils/downloadProject';
 import GlobalNav from './GlobalNav/GlobalNav';
+import ConstructViewer from '../containers/graphics/views/constructviewer';
 
 import '../styles/ProjectHeader.css';
 
@@ -127,14 +128,20 @@ class ProjectHeader extends Component {
    */
   getViewMenuItems() {
     const showPanels = !this.props.inventoryVisible;
+    const firstViewer = ConstructViewer.getAllViewers()[0];
     return [
       {
         text: `${showPanels ? 'Show' : 'Hide'} all panels`,
         action: this.togglePanels,
       },
       {
-        text: 'Show/Hide Nested Blocks',
-        action: () => { }, // will need to toggle ALL construct viewers
+        text: `${firstViewer && firstViewer.isMinimized() ? 'Show' : 'Hide'} Nested Blocks`,
+        disabled: !firstViewer,
+        action: () => {
+          ConstructViewer.getAllViewers().forEach((viewer) => {
+            viewer.setMinimized(!firstViewer.isMinimized());
+          })
+        },
       },
     ];
   }

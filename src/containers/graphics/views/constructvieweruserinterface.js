@@ -194,11 +194,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     return this.constructViewer.props.construct;
   }
 
-  // syntax sugar to determine if collapsed
-  get collapsed() {
-    return this.layout.collapsed;
-  }
-
   /**
    * double click handler
    */
@@ -216,10 +211,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * mouse move handler ( note, not the same as drag which is with a button held down )
    */
   mouseMove(evt, point) {
-    let clickable = false;
-    if (!this.collapsed) {
-      clickable = this.topBlockAt(point);
-    }
+    const clickable = this.topBlockAt(point) || this.constructExpander(evt, point);
     this.setCursor(clickable ? 'pointer' : 'default');
   }
 
@@ -307,16 +299,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
     return false;
   }
 
-  /**
-   * toggle collapsed state, remove selections if collapsing and update view
-   */
-  toggleCollapsedState() {
-    this.layout.setCollapsed(!this.layout.collapsed);
-    if (this.collapsed) {
-      this.constructViewer.blockSelected([]);
-    }
-    this.constructViewer.update();
-  }
 
   /**
    * show or hide all children
@@ -341,17 +323,13 @@ export default class ConstructViewerUserInterface extends UserInterface {
 
     // text expander toggle first
     if (this.constructExpander(evt, point)) {
-      this.toggleCollapsedState();
-    }
-    // ignore everything else if we are collapsed
-    if (this.collapsed) {
-      return;
+      this.constructViewer.toggleMinimized();
     }
 
     // check for block select
     const block = this.topBlockAt(point);
     if (block) {
-      // if the user clicks a sub component ( ... menu accessor or expand / collapse for example )
+      // if the user clicks a sub component ( ... menu accessor etc )
       // the clicked block is just added to the selections, otherwise it replaces the selection.
       // Also, if the shift key is used the block is added and does not replace the selection
       let action = 'replace';
@@ -522,10 +500,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * to the DND manager to handle
    */
   mouseDrag(evt, point, startPoint, distance) {
-    // ignore if collapsed
-    if (this.collapsed) {
-      return;
-    }
 
     // ignore drags until they reach a certain vector threshold
     if (distance > dragThreshold && !this.fence) {
@@ -628,9 +602,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * @returns {boolean}
    */
   dropPossible(payload) {
-    if (this.layout.collapsed) {
-      return false;
-    }
     // no drop on frozen or fixed constructs
     if (this.construct.isFrozen() || this.construct.isFixed()) {
       return false;
@@ -689,11 +660,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * drag over event
    */
   onDragOver(globalPosition, payload, proxySize) {
-    // ignore if collapsed
-    if (this.layout.collapsed) {
-      return;
-    }
-    // select construct on drag over (unless collapsed)
+    // select construct on drag over
     this.selectConstruct();
     // no drop on frozen or fixed constructs
     if (this.construct.isFrozen() || this.construct.isFixed()) {
@@ -722,8 +689,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * to our actual constructViewer which has all the necessary props
    */
   onDrop(globalPosition, payload, event) {
-    // no drop on frozen or fixed constructs or collapsed
-    if (this.layout.collapsed || this.construct.isFrozen() || this.construct.isFixed()) {
+    // no drop on frozen or fixed constructs
+    if (this.construct.isFrozen() || this.construct.isFixed()) {
       return;
     }
     // for now templates can only be dropped on the new construct target which is part of the canvas

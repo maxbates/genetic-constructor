@@ -124,9 +124,18 @@ export class ConstructViewer extends Component {
   static getViewerForConstruct(id) {
     return idToViewer[id];
   }
+
+  /**
+   * return all instantiated viewers
+   * @returns {Array}
+   */
+  static getAllViewers() {
+    return Object.keys(idToViewer).map(cid => idToViewer[cid]);
+  }
+
   /**
    * get position for a context menu attached to one of the inline toolbar items
-   * @param anchorElenent
+   * @param anchorElement
    */
   static getToolbarAnchorPosition(anchorElement) {
     const box = new Box2D(anchorElement.getBoundingClientRect());
@@ -630,7 +639,6 @@ export class ConstructViewer extends Component {
       },
       {
         text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
-        //action: () => { this.sg.ui.toggleCollapsedState(); },
         action: () => { this.toggleMinimized(); },
       },
     ],
@@ -731,7 +739,22 @@ export class ConstructViewer extends Component {
    * toggle the expand / collapsed state of children for all nodes.
    */
   toggleMinimized() {
-    const minimized = !this.state.minimized;
+    this.setMinimized(!this.state.minimized);
+  }
+
+  /**
+   * expose the minimized state
+   * @returns {boolean}
+   */
+  isMinimized() {
+    return this.state.minimized;
+  }
+
+  /**
+   * set state of minimized property
+   * @param minimized
+   */
+  setMinimized(minimized) {
     this.sg.ui.setMinimized(minimized);
     this.setState({ minimized });
   }
