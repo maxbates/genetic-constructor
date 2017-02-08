@@ -254,16 +254,22 @@ export const blockClone = (blockInput, parentObjectInput = {}) => (dispatch, get
     throw new Error('invalid input to blockClone', blockInput);
   }
 
-    //get the project ID to use for parent, considering the block may be detached from a project (e.g. inventory block)
+    //get the project ID to use for parent, considering the block may be detached from a project or inventory block
   const parentProjectId = oldBlock.projectId || null;
-  const oldProject = dispatch(projectSelectors.projectGet(parentProjectId)) || {};
+  let parentObject = null;
 
-    //partial object about project, block ID handled in block.clone()
-  const parentObject = Object.assign({
-    projectId: parentProjectId,
-    owner: oldProject.owner,
-    version: oldProject.version,
-  }, parentObjectInput);
+  //if we have a parent projectId, get the project and generate parent information
+  //if we dont, nothing really we can do, so just clone without adding lineage
+  if (parentProjectId) {
+    const oldProject = dispatch(projectSelectors.projectGet(parentProjectId)) || {};
+
+    //partial object about project, block ID handled in block.clone(), and changes if dealing with nested blocks
+    parentObject = Object.assign({
+      projectId: parentProjectId,
+      owner: oldProject.owner,
+      version: oldProject.version,
+    }, parentObjectInput);
+  }
 
     //overwrite to set the correct projectId
   const overwriteObject = { projectId: null };
