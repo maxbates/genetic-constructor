@@ -15,24 +15,29 @@ limitations under the License.
 */
 import { LOCATION_CHANGE } from 'react-router-redux';
 
-import * as ActionTypes from '../../constants/ActionTypes';
-import autosaveCreator from './autosaveCreator';
+import * as ActionTypes from '../constants/ActionTypes';
 
-const purgeEvents = [
+//options
+
+export const purgeEvents = [
   //ActionTypes.PROJECT_SAVE, //dont purge on this, since call it on save, will never throttle
   ActionTypes.PROJECT_SNAPSHOT,
   LOCATION_CHANGE, //we handle saving in projectOpen, which changes the route, so purge when the route changes
+  ActionTypes.USER_SET_USER,
 ];
 
-const simulateEvents = [
+export const simulateEvents = [
   ActionTypes.PROJECT_SAVE,
   ActionTypes.PROJECT_SNAPSHOT,
   LOCATION_CHANGE,
 ];
 
-const autosave = autosaveCreator({
-  //filter to undoable actions, which basically are the ones that are state changes (undoable reducer relies on these)
-  filter: (action, alreadyDirty, nextState, lastState) => !!action.undoable,
+//filter to undoable actions, which basically are the ones that are state changes (undoable reducer relies on these)
+// in the actual root reducer, we also filter to omit when we are in a transaction, since there is an implicit connection between the autosave and undo reducer enhancers. They are annoyingly coupled.
+export const filterFn = (action, alreadyDirty, nextState, lastState) => !!action.undoable;
+
+export const autosaveInstanceDefaultOptions = {
+  filter: filterFn,
 
   //no longer need to autosave when route changes, since projectOpen does this
   //however, if change route with something other than projectOpen then should re-enable
@@ -55,6 +60,4 @@ const autosave = autosaveCreator({
   purgeOn: ({ type }, alreadyDirty, nextState, lastState) => purgeEvents.some(eventType => eventType === type),
 
   simulateOn: ({ type }, alreadyDirty) => simulateEvents.some(eventType => eventType === type),
-});
-
-export default autosave;
+};
