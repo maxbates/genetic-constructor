@@ -237,11 +237,12 @@ export const blockMerge = (blockId, toMerge) => (dispatch, getState) => {
  * Sets projectId to null for all cloned elements. Project ID is set when added back to the project.
  * @function
  * @param blockInput {ID|Object} JSON of block directly, or ID. Accept both since inventory items may not be in the store, so we need to pass the block directly. Prefer to use ID.
- * @param parentObjectInput {Object} information about parent, defaults to generated:
+ * @param [parentObjectInput=null] {Object} information about parent, defaults to generated:
  *  {id: from block input
  *   projectId - same as block being cloned, or block.projectId
   *  version - that of project ID if in the store, or first parent if available and same project id
   * }
+ * If null, the block is simply cloned, and no ancestry is added
  * @returns {Block} clone block (root node if has children)
  */
 export const blockClone = (blockInput, parentObjectInput = null) => (dispatch, getState) => {
