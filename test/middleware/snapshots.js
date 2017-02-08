@@ -14,8 +14,11 @@
  limitations under the License.
  */
 import { assert, expect } from 'chai';
+import uuid from 'uuid';
 import _ from 'lodash';
+
 import * as api from '../../src/middleware/snapshots';
+import * as snapshots from '../../server/data/persistence/snapshots';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import { testUserId } from '../constants';
 import { createExampleRollup } from '../_utils/rollup';
@@ -30,96 +33,129 @@ describe('Middleware', () => {
     const projectId = project.id;
 
     before(() => projectPersistence.projectWrite(projectId, roll, testUserId)
-      .then(() => projectPersistence.projectWrite(projectId, updated, testUserId))
-      .then(() => projectPersistence.projectWrite(projectId, latest, testUserId))
-    );
+    .then(() => projectPersistence.projectWrite(projectId, updated, testUserId))
+    .then(() => projectPersistence.projectWrite(projectId, latest, testUserId)));
 
     it('snapshotList() before projects exists gets 404', (done) => {
       api.snapshotList(createExampleRollup().project.id)
-        .then(result => {
-          done('shouldnt resolve');
-        })
-        .catch(resp => {
-          expect(resp.status).to.equal(404);
-          done();
-        })
-        .catch(done);
+      .then(result => {
+        done('shouldnt resolve');
+      })
+      .catch(resp => {
+        expect(resp.status).to.equal(404);
+        done();
+      })
+      .catch(done);
     });
 
     it('snapshotList() on project with no snapshots gets 200', () => {
-      return api.snapshotList(roll.project.id)
-        .then(versions => {
-          expect(versions.length).to.equal(0);
-        });
+      return api.snapshotList(projectId)
+      .then(versions => {
+        expect(versions.length).to.equal(0);
+      });
     });
 
     const version = 1;
 
     it('shapshot() a specific version', () => {
       return api.snapshot(projectId, version)
-        .then(() => api.snapshotList(projectId))
-        .then(snapshots => {
-          const found = snapshots.find(snapshot => snapshot.version === version);
-          assert(found, 'expected a snapshot with version specified');
-        });
+      .then(() => api.snapshotList(projectId))
+      .then(snapshots => {
+        const found = snapshots.find(snapshot => snapshot.version === version);
+        assert(found, 'expected a snapshot with version specified');
+      });
     });
 
     it('snapshot() overwrites a snapshot at specific version', () => {
       const newMessage = 'some new message';
       return api.snapshot(projectId, version, newMessage)
-        .then(() => api.snapshotGet(projectId, version))
-        .then(snapshot => {
-          expect(snapshot.message).to.equal(newMessage);
-        });
+      .then(() => api.snapshotGet(projectId, version))
+      .then(snapshot => {
+        expect(snapshot.message).to.equal(newMessage);
+      });
     });
 
     const commitMessage = 'my fancy message';
 
     it('snapshotWrite() creates a snapshot, returns version, time, message, defaults to latest', () => {
       return api.snapshot(projectId, null, commitMessage)
-        .then(info => {
-          assert(info.version === 2, 'should be version 2 (latest)');
-          assert(info.message === commitMessage, 'should have commit message');
-          assert(Number.isInteger(info.time), 'time should be number');
-        });
+      .then(info => {
+        assert(info.version === 2, 'should be version 2 (latest)');
+        assert(info.message === commitMessage, 'should have commit message');
+        assert(Number.isInteger(info.time), 'time should be number');
+      });
     });
 
     it('snapshotGet() gets a snapshot', () => {
       return api.snapshotGet(projectId, 2)
-        .then(snapshot => {
-          expect(snapshot.version).to.equal(2);
-          expect(snapshot.message).to.equal(commitMessage);
-        });
+      .then(snapshot => {
+        expect(snapshot.version).to.equal(2);
+        expect(snapshot.message).to.equal(commitMessage);
+      });
     });
 
     it('snapshotWrite() given rollup bumps verion and creates a snapshot', () => {
       const newest = _.merge({}, roll, { project: { some: 'final' } });
 
       return api.snapshot(projectId, null, undefined, null, newest)
-        .then(info => {
-          assert(info.version === 3, 'should be version 3 (new latest)');
-        });
+      .then(info => {
+        assert(info.version === 3, 'should be version 3 (new latest)');
+      });
     });
 
     it('snapshotList() gets the projects snapshots', () => {
       return api.snapshotList(projectId)
-        .then(snapshots => {
-          assert(Array.isArray(snapshots), 'should be array');
-          expect(snapshots.length).to.equal(3);
-        });
+      .then(snapshots => {
+        assert(Array.isArray(snapshots), 'should be array');
+        expect(snapshots.length).to.equal(3);
+      });
     });
 
     it('cant snapshot a version which doesnt exist', (done) => {
       api.snapshot(projectId, 99)
-        .then(info => {
-          done('shouldnt resolve');
-        })
-        .catch(err => {
-          done();
-        });
+      .then(info => {
+        done('shouldnt resolve');
+      })
+      .catch(err => {
+        done();
+      });
     });
 
-    //future
-    it('snapshot() accepts tags, snapshotList() can filter on tags');
+    describe('permissions', () => {
+      const otherUser = uuid.v1();
+      const otherRoll = createExampleRollup();
+
+      before(async () => {
+        await projectPersistence.projectWrite(otherRoll.project.id, otherRoll, otherUser);
+        await snapshots.snapshotWrite(otherRoll.project.id, otherUser, 0);
+      });
+
+      it('snapshotGet() returns 403 when dont have access to the snapshot', async() => {
+        try {
+          await api.snapshotGet(otherRoll.project.id, 0);
+          assert(false, 'should not have retreived');
+        } catch (resp) {
+          assert(resp.status === 403, 'should get a 403');
+        }
+      });
+
+      it('snapshotList() only queries snapshots you have access to', async () => {
+        try {
+          await api.snapshotList(otherRoll.project.id);
+          assert(false, 'should not have queries');
+        } catch (resp) {
+          assert(resp.status === 403, 'should get a 403');
+        }
+      });
+
+      it('snapshotWrite() fails when dont have access to project', async () => {
+        try {
+          await api.snapshot(otherRoll.project.id);
+          assert(false, 'should not have written');
+        } catch (resp) {
+          assert(resp.status === 403, 'should get a 403');
+        }
+      });
+    });
   });
 });

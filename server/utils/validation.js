@@ -18,7 +18,7 @@ import Order from '../../src/models/Order';
 import Project from '../../src/models/Project';
 import * as validators from '../../src/schemas/fields/validators';
 import { id as idRegex } from '../../src/utils/regex';
-import { errorInvalidId, errorNoIdProvided } from './errors';
+import { errorInvalidId, errorNoIdProvided } from '../errors/errorConstants';
 
 export const validateBlock = instance => Block.validate(instance, false);
 

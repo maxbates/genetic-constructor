@@ -16,29 +16,34 @@
 
 import express from 'express';
 
-import { errorDoesNotExist, errorInvalidModel, errorVersioningSystem } from './../utils/errors';
+import { errorDoesNotExist } from '../errors/errorConstants';
 import * as projectPersistence from './persistence/projects';
 import * as snapshots from './persistence/snapshots';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
+//NB - this route is for a particular project, permissions have already been checked for project... querying across projects would need to be separate to avoid permissions issues
+
+router.param('version', (req, res, next, id) => {
+  Object.assign(req, { version: parseInt(id, 10) });
+  next();
+});
+
 router.route('/:version?')
   .get((req, res, next) => {
     //pass the version you want, otherwise send commit log
-    const { user, projectId, projectDoesNotExist } = req;
-    const { version } = req.params;
-    const { tags } = req.query;
+    const { projectId, projectDoesNotExist, version } = req;
 
     if (projectDoesNotExist === true) {
       return res.status(404).send(errorDoesNotExist);
     }
 
     if (version) {
-      snapshots.snapshotGet(projectId, user.uuid, version)
+      snapshots.snapshotGet(projectId, version)
         .then(snapshot => res.status(200).json(snapshot))
         .catch(err => next(err));
     } else {
-      snapshots.snapshotList(projectId, user.uuid, tags)
+      snapshots.snapshotList(projectId)
         .then(log => res.status(200).json(log))
         .catch((err) => {
           //return 200 if project exists (implicit, due to prior middleware) but no snapshots found
@@ -49,23 +54,26 @@ router.route('/:version?')
         });
     }
   })
+
+  //todo - separate post (specific version) and put (with rollup)
+
   .post((req, res, next) => {
     //you can POST a field 'message' for the commit, and an object of 'tags'
     //can also post a field 'rollup' for save a new rollup for the commit
     //receive the version
-    const { user, projectId, projectDoesNotExist } = req;
-    const { version } = req.params;
+    const { user, projectId, projectDoesNotExist, version } = req;
     const { message, rollup: roll, tags } = req.body;
 
     if (projectDoesNotExist && !roll) {
       return res.status(404).send(errorDoesNotExist);
     }
 
-    if (!!version && !!roll) {
+    if (version && roll) {
       return res.status(422).send('cannot send version and roll');
     }
 
-    const rollupDefined = !!roll && roll.project && roll.blocks;
+    //will validate when attempt to write, so this check is enough
+    const rollupDefined = roll && roll.project && roll.blocks;
 
     //use version they gave or get latest
     const getVersionPromise = version ?
@@ -82,15 +90,7 @@ router.route('/:version?')
       .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, message, tags))
       .then(snapshot => res.status(200).json(snapshot))
       //may want better error handling here
-      .catch((err) => {
-        if (err === errorInvalidModel) {
-          return res.status(422).send(err);
-        }
-        if (err === errorVersioningSystem) {
-          return res.status(500).send(err);
-        }
-        return next(err);
-      });
+      .catch(next);
   });
 
 export default router;

@@ -16,11 +16,11 @@
 import express from 'express';
 
 import uuid from 'uuid';
-import { projectPermissionMiddleware } from './permissions';
+import { projectIdParamAssignment, userOwnsProjectMiddleware } from './permissions';
 
 import {
   errorDoesNotExist,
-} from '../utils/errors';
+} from '../errors/errorConstants';
 
 import * as projectPersistence from './persistence/projects';
 
@@ -28,8 +28,10 @@ import Block from '../../src/models/Block';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
+router.param('projectId', projectIdParamAssignment);
+
 router.route('/savecomponent/:projectId?')
-  .all(projectPermissionMiddleware)
+  .all(userOwnsProjectMiddleware)
   .get((req, res, next) => {
     const { user } = req;
     const { projectId } = req.params;

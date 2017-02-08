@@ -18,7 +18,7 @@ import { assert, expect } from 'chai';
 import _ from 'lodash';
 import { testUserId } from '../../../constants';
 import { createExampleRollup } from '../../../_utils/rollup';
-import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/utils/errors';
+import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/errors/errorConstants';
 import Project from '../../../../src/models/Project';
 import Order from '../../../../src/models/Order';
 

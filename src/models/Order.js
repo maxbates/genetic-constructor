@@ -176,7 +176,7 @@ export default class Order extends Instance {
    * @returns {boolean}
    */
   isSubmitted() {
-    return this.status.foundry && this.status.remoteId;
+    return !!this.status.foundry && !!this.status.remoteId;
   }
 
   /**

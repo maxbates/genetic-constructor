@@ -16,13 +16,20 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 
-import { ensureReqUserMiddleware } from '../user/utils';
-import errorHandlingMiddleware from '../utils/errorHandlingMiddleware';
-import { errorDoesNotExist } from '../utils/errors';
+import { ensureReqUserMiddleware } from '../data/permissions';
+import errorHandlingMiddleware from '../errors/lastDitchErrorMiddleware';
+import { errorDoesNotExist } from '../errors/errorConstants';
 import extensionApiRouter from './apiRouter';
 import { getExtensionInternalPath } from './loadExtension';
 import { manifestIsClient, manifestIsServer } from './manifestUtils';
-import { checkClientExtensionFilePath, checkExtensionExistsMiddleware, checkExtensionIsClientMiddleware, checkUserExtensionAccess, checkUserExtensionAccessMiddleware, checkUserExtensionActive } from './middlewareChecks';
+import {
+  checkClientExtensionFilePath,
+  checkExtensionExistsMiddleware,
+  checkExtensionIsClientMiddleware,
+  checkUserExtensionAccess,
+  checkUserExtensionAccessMiddleware,
+  checkUserExtensionActive,
+} from './middlewareChecks';
 import csvRouter from './native/csv/index';
 import fastaRouter from './native/fasta/index';
 import genbankRouter from './native/genbank/index';

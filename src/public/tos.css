@@ -1,0 +1,34 @@
+.tos {
+  max-width: 800px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+.tos .heading {
+  padding: 20px 0;
+}
+
+.tos .logo {
+  height: 30px;
+  width: 30px;
+}
+
+.tos .autodesk {
+  float: right;
+  height: 30px;
+  width: 180px;
+}
+
+.tos b,
+.tos a {
+  font-family: 'art-bold';
+}
+
+.tos a {
+  color: #3F82FF;
+  text-decoration: none;
+}
+
+.tos a:hover {
+  cursor: pointer;
+}
