@@ -33,7 +33,7 @@ async function startDb() {
       return Promise.resolve(null);
     }
 
-    await promisedExec(buildDb, {}, { comment: 'Building DB Docker container...' });
+    await promisedExec(buildDb, {}, { comment: `Building DB Docker container (@ port ${STORAGE_PORT})...` });
 
     const dbProcess = await checkPortFree(STORAGE_PORT)
       .catch(err =>

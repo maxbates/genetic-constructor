@@ -25,7 +25,7 @@ import colors from 'colors/safe';
 
 import pkg from '../package.json';
 import dataRouter from './data/router';
-import extensionsRouter from './extensions/index';
+import extensionsRouter from './extensions/router';
 import checkUserSetup from './onboarding/userSetup';
 import orderRouter from './order/router';
 import reportRouter from './report/index';
