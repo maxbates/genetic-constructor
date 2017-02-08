@@ -1,7 +1,7 @@
 @import './variables.css';
 
 :root {
-  --label-color: var(--colors-nearlyBlack);
+  --label-color: var(--colors-mediumDarkGrey);
   --label-background: var(--colors-white);
   --label-hover-background: var(--colors-grey);
   --label-hover-color: var(--colors-white);
