@@ -22,6 +22,7 @@ import { _getFocused } from '../selectors/focus';
 import '../styles/Inspector.css';
 import '../styles/SidePanel.css';
 import SectionIcon from './SectionIcon';
+import InspectorRightNav from './InspectorRightNav';
 
 export class Inspector extends Component {
   static propTypes = {
@@ -96,6 +97,7 @@ export class Inspector extends Component {
 
     return (
       <div className={`SidePanel Inspector${isVisible ? ' visible' : ''}`}>
+        <InspectorRightNav isVisible={isVisible} currentProjectId={this.props.projectId} />
         <span className="title">{tabInfo ? tabInfo.title : 'Unknown'}</span>
         <div className="vertical-menu">
           {icons}

@@ -6,7 +6,11 @@
     position: relative;
     height: 100%;
     overflow: hidden;
-    font-family: var(--font-family-panels);
+    font-family: var(--font-family-pacnels);
+
+    .inner-content {
+      margin-top: -4px;
+    }
   }
 
   .vertical-menu {
@@ -26,7 +30,7 @@
     position: absolute;
     left: 50px;
     width: calc(var(--width-SidePanel-open) - var(--width-SidePanel-closed));
-    height: 100%;
+    height: calc(100vh - var(--GlobalNav-height-chrome));
     background-color: var(--colors-white);
     color: var(--colors-mediumDarkGrey);
     transform: translateX(0);

@@ -22,7 +22,6 @@ import AboutForm from '../components/modal/aboutform';
 import InlineEditor from '../components/inline-editor/inline-editor';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
 import ModalSpinner from '../components/modal/modalspinner';
-import GlobalNav from '../components/GlobalNav/GlobalNav';
 import RibbonGrunt from '../components/ribbongrunt';
 import AuthenticationModals from './AuthenticationModals';
 
@@ -31,7 +30,6 @@ import '../styles/App.css';
 class App extends Component {
   static propTypes = {
     children: PropTypes.node, // Injected by React Router
-    currentProjectId: PropTypes.string,
     location: PropTypes.shape({
       pathname: PropTypes.string.isRequired,
     }).isRequired,
@@ -99,14 +97,9 @@ class App extends Component {
     const DevTools = (process.env.DEBUG_REDUX) ? require('./DevTools') : 'noscript'; //eslint-disable-line global-require
     //todo - should we check this better
     const onLanding = this.props.location.pathname.indexOf('homepage') >= 0;
-    const onProjectPage = this.props.location.pathname.indexOf('project/') >= 0;
 
     return (
       <div className="App">
-        {!onLanding && <GlobalNav
-          currentProjectId={this.props.currentProjectId}
-          showMenu={onProjectPage}
-        />}
         <RibbonGrunt atTop={onLanding} />
         <AuthenticationModals />
         <AboutForm />

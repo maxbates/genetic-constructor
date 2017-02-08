@@ -57,6 +57,11 @@ var schema = {
     allowNull: false,
     defaultValue: {},
   },
+  keywords: {
+    type: Sequelize.ARRAY(Sequelize.STRING),
+    allowNull: false,
+    defaultValue: [],
+  }
 };
 
 var Snapshot = DB.define('snapshot', schema, {

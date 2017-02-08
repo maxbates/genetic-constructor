@@ -53,12 +53,19 @@ export const snapshotList = (projectId) => {
     .then(resp => resp.json());
 };
 
+//future - when needed
+//export const snapshotQuery = (tags, projectId) => {}
+
 export const snapshotGet = (projectId, version) => {
   invariant(projectId, 'Project ID required to snapshot');
-  invariant(version, 'version is necessary');
+  invariant(Number.isInteger(version), 'version is necessary');
 
   const url = dataApiPath(`snapshots/${projectId}/${version}`);
 
   return rejectingFetch(url, headersGet())
     .then(resp => resp.json());
 };
+
+//future -  when needed
+//note - need to distinguish between types of snapshots. Probably only want to let them delete the explicit ones they made (not orders, etc.)
+//export const snapshotDelete = (projectId, version) => {}

@@ -21,6 +21,7 @@ import InventoryGroup from '../components/Inventory/InventoryGroup';
 import '../styles/Inventory.css';
 import '../styles/SidePanel.css';
 import SectionIcon from './SectionIcon';
+import GlobalNav from '../components/GlobalNav/GlobalNav';
 
 export class Inventory extends Component {
   static propTypes = {
@@ -98,11 +99,14 @@ export class Inventory extends Component {
     return (
       <div className={`SidePanel Inventory${isVisible ? ' visible' : ''}`}>
         <div className="container">
-          <div className="vertical-menu">
-            {icons}
-          </div>
-          <div className={contentClasses}>
-            {tab}
+          <GlobalNav currentProjectId={this.props.currentProjectId} />
+          <div className="inner-content">
+            <div className="vertical-menu">
+              {icons}
+            </div>
+            <div className={contentClasses}>
+              {tab}
+            </div>
           </div>
         </div>
       </div>

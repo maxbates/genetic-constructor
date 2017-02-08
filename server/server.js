@@ -27,14 +27,15 @@ import pkg from '../package.json';
 import dataRouter from './data/router';
 import extensionsRouter from './extensions/index';
 import checkUserSetup from './onboarding/userSetup';
-import orderRouter from './order/index';
+import orderRouter from './order/router';
 import reportRouter from './report/index';
 import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
 import { pruneUserObject } from './user/utils';
 import checkPortFree from './utils/checkPortFree';
-import errorHandlingMiddleware from './utils/errorHandlingMiddleware';
+import customErrorMiddleware from './errors/customErrorMiddleware';
+import lastDitchErrorMiddleware from './errors/lastDitchErrorMiddleware';
 
 /* eslint global-require: 0 */
 
@@ -62,8 +63,6 @@ app.use(bodyParser.json({
   limit: '50mb',
   strict: false,
 }));
-
-app.use(errorHandlingMiddleware);
 
 //HTTP logging middleware
 const logLevel = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
@@ -205,6 +204,12 @@ app.get('*', (req, res) => {
 
   res.render(path.join(`${pathContent}/index.pug`), params);
 });
+
+//handle our custom errors with appropriate codes
+app.use(customErrorMiddleware);
+
+//basically, just return a 500 if we hit this
+app.use(lastDitchErrorMiddleware);
 
 /*** running ***/
 /* eslint-disable no-console */

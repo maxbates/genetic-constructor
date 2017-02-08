@@ -1,10 +1,10 @@
 import express from 'express';
 import invariant from 'invariant';
 
-import { projectPermissionMiddleware } from '../../../../server/data/permissions';
+import { projectIdParamAssignment, userOwnsProjectMiddleware } from '../../../../server/data/permissions';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as sequences from '../../../../server/data/persistence/sequence';
-import { errorDoesNotExist } from '../../../../server/utils/errors';
+import { errorDoesNotExist } from '../../../errors/errorConstants';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as fileSystem from '../../../data/middleware/fileSystem';
 
@@ -20,6 +20,9 @@ const createFilePath = (fileName) => {
 
 //create the router
 const router = express.Router(); //eslint-disable-line new-cap
+
+//assigns req.projectId / req.projectDoesNotExist / req.projectOwner
+router.param('projectId', projectIdParamAssignment);
 
 //route to download files
 router.get('/file/:fileId', (req, res, next) => {
@@ -40,7 +43,7 @@ router.get('/file/:fileId', (req, res, next) => {
 
 //EXPORT - project, each construct as a FASTA
 router.get('/export/project/:projectId',
-  projectPermissionMiddleware,
+  userOwnsProjectMiddleware,
   (req, res, next) => {
     //this is tricky because need to handle list blocks + hierarchy...
     //probably want to share this code with selectors (and genbank extension)
@@ -50,7 +53,7 @@ router.get('/export/project/:projectId',
 
 //EXPORT - specific blocks from a project (expects blocks with sequence only). comma-separated
 router.get('/export/blocks/:projectId/:blockIdList',
-  projectPermissionMiddleware,
+  userOwnsProjectMiddleware,
   (req, res, next) => {
     const { projectId, blockIdList } = req.params;
     const blockIds = blockIdList.split(',');

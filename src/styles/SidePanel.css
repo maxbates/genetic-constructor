@@ -7,7 +7,7 @@
   position: relative;
   flex-direction: column;
   width: var(--width-SidePanel-closed);
-  height: calc(100vh - var(--GlobalNav-height-chrome));
+  height: 100vh;
   top: 0;
   bottom: 0;
   background: var(--colors-nearlyBlack);

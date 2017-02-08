@@ -174,5 +174,5 @@ export function domSummary() {
   // });
 }
 
-export const tos = 'http://www.autodesk.com/company/legal-notices-trademarks/terms-of-service-autodesk360-web-services';
+export const tos = '/tos.html';
 export const privacy = 'http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement';
