@@ -24,7 +24,7 @@ import {
   errorInvalidModel,
   errorAlreadyExists,
   errorDoesNotExist,
-} from '../../../../server/utils/errors';
+} from '../../../../server/errors/errorConstants';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
 import Rollup from '../../../../src/models/Rollup';

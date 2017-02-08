@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 
 import { getConfigFromUser } from '../user/utils';
-import { errorExtensionNotFound, errorNoPermission } from '../utils/errors';
+import { errorExtensionNotFound, errorNoPermission } from '../errors/errorConstants';
 import { manifestClientFiles, manifestIsClient, manifestIsServer } from './manifestUtils';
 import extensionRegistry from './registry';
 

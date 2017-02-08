@@ -4,12 +4,12 @@ import express from 'express';
 import invariant from 'invariant';
 import _ from 'lodash';
 
-import { errorDoesNotExist } from '../../../../server/utils/errors';
+import { errorDoesNotExist } from '../../../errors/errorConstants';
 import Block from '../../../../src/models/Block';
 import Project from '../../../../src/models/Project';
 import * as filePaths from '../../../data/middleware/filePaths';
 import * as fileSystem from '../../../data/middleware/fileSystem';
-import { projectPermissionMiddleware } from '../../../data/permissions';
+import { projectIdParamAssignment, userOwnsProjectMiddleware } from '../../../data/permissions';
 import * as projectPesistence from '../../../data/persistence/projects';
 import * as sequencePersistence from '../../../data/persistence/sequence';
 import importMiddleware, { mergeRollupMiddleware } from '../_shared/importMiddleware';
@@ -35,10 +35,8 @@ const router = express.Router(); //eslint-disable-line new-cap
 
 const formParser = bodyParser.urlencoded({ extended: true });
 
-router.param('projectId', (req, res, next, id) => {
-  Object.assign(req, { projectId: id });
-  next();
-});
+//assigns req.projectId / req.projectDoesNotExist / req.projectOwner
+router.param('projectId', projectIdParamAssignment);
 
 /***** FILES ******/
 
@@ -65,7 +63,7 @@ router.get('/file/:fileId', (req, res, next) => {
 
 /***** EXPORT ******/
 
-router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware, (req, res, next) => {
+router.get('/export/blocks/:projectId/:blockIdList', userOwnsProjectMiddleware, (req, res, next) => {
   const { projectId, blockIdList } = req.params;
   const blockIds = blockIdList.split(',');
 
@@ -114,7 +112,7 @@ router.get('/export/blocks/:projectId/:blockIdList', projectPermissionMiddleware
 });
 
 router.all('/export/:projectId/:constructId?',
-  projectPermissionMiddleware,
+  userOwnsProjectMiddleware,
   formParser,
   (req, res, next) => {
     const { projectId, constructId } = req.params;
@@ -158,41 +156,57 @@ router.all('/export/:projectId/:constructId?',
 
 /***** IMPORT ******/
 
-//todo - ensure got genbank
-router.post('/import/:projectId?',
+router.post('/import/convert',
+  (req, res, next) => {
+    //for import middleware to work properly, expects projectId = convert
+    Object.assign(req, { projectId: 'convert' });
+    Object.assign(req.params, { projectId: 'convert' });
+    next();
+  },
   importMiddleware,
   (req, res, next) => {
-    const { projectId, files } = req;
+    const { files } = req;
     const { constructsOnly } = req.body;
 
-    logger(`importing genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
+    logger(`/import/convert genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
 
     //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
     const { name, string, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
 
-    //could probably unify this better...
     //on conversions, project is irrelevant, sometimes we only want the construct blocks, never wrap
-    if (projectId === 'convert') {
-      return convert(filePath, fileUrl)
-        .then((converted) => {
-          logger('converted');
+    return convert(filePath, fileUrl)
+    .then((converted) => {
+      logger('converted');
 
-          const roots = converted.roots;
-          const rootBlocks = _.pickBy(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
-          const roll = {
-            project: Project.classless({
-              components: roots,
-            }),
-            blocks: constructsOnly ? rootBlocks : converted.blocks,
-            sequences: converted.sequences,
-          };
+      const roots = converted.roots;
+      const rootBlocks = _.pickBy(converted.blocks, (block, blockId) => roots.indexOf(blockId) >= 0);
+      const roll = {
+        project: Project.classless({
+          components: roots,
+        }),
+        blocks: constructsOnly ? rootBlocks : converted.blocks,
+        sequences: converted.sequences,
+      };
 
-          Object.assign(req, { roll });
+      Object.assign(req, { roll });
 
-          next();
-        })
-        .catch(err => next(err));
-    }
+      next();
+    })
+    .catch(err => next(err));
+  },
+  mergeRollupMiddleware,
+);
+
+//todo - ensure got genbank file
+router.post('/import/:projectId?',
+  importMiddleware,
+  (req, res, next) => {
+    const { projectId, files } = req;
+
+    logger(`/import/${projectId} genbank (${req.user.uuid}) @ ${files.map(file => file.filePath).join(', ')}`);
+
+    //future - handle multiple files. expect only one right now. need to reduce into single object before proceeding\
+    const { name, string, filePath, fileUrl } = files[0]; //eslint-disable-line no-unused-vars
 
     return importProject(filePath, fileUrl)
     //wrap all the childless blocks in a construct (so they dont appear as top-level constructs), update rollup with construct Ids

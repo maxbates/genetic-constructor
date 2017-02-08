@@ -17,7 +17,7 @@ import debug from 'debug';
 import invariant from 'invariant';
 import AWS from 'aws-sdk';
 
-import { errorDoesNotExist } from '../../utils/errors';
+import { errorDoesNotExist } from '../../errors/errorConstants';
 
 const log = debug('constructor:data:s3');
 

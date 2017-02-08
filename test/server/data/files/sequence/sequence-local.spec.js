@@ -24,7 +24,7 @@ import {
   directoryMake,
   directoryDelete
 } from '../../../../../server/data/middleware/fileSystem';
-import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../../server/utils/errors';
+import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../../server/errors/errorConstants';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 
 import * as filePaths from '../../../../../server/data/middleware/filePaths';

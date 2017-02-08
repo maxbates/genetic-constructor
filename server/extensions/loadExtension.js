@@ -17,7 +17,7 @@ import path from 'path';
 
 import invariant from 'invariant';
 
-import { errorDoesNotExist } from '../utils/errors';
+import { errorDoesNotExist } from '../errors/errorConstants';
 import registry from './registry';
 
 //everything is statically avaialbe in the beginning, but other code expects this to be a promise, and may have dynamic extensions in the future

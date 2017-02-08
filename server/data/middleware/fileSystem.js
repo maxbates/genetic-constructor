@@ -21,7 +21,7 @@ import mkpath from 'mkpath';
 import mv from 'mv';
 import rimraf from 'rimraf';
 
-import { errorDoesNotExist, errorFileSystem } from '../../utils/errors';
+import { errorDoesNotExist, errorFileSystem } from '../../errors/errorConstants';
 
 const parser = (string) => {
   if (typeof string !== 'string') {
