@@ -35,14 +35,13 @@ const fieldDefs = {
     fields.id({ prefix: 'project' }),
     'ID of project of parent (if not a project)',
   ],
-  //todo - this should be reuqired
   version: [
-    fields.number({ min: 0 }),
-    'Version of project, git SHA',
+    fields.number({ min: 0 }).required,
+    'Version of project',
   ],
   created: [
     fields.number(),
-    'When the chld was created',
+    'When the child was created',
   ],
 };
 

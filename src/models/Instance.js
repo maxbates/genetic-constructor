@@ -18,11 +18,7 @@ import { assign, cloneDeep, merge } from 'lodash';
 
 import InstanceSchema from '../schemas/Instance';
 import ParentSchema from '../schemas/Parent';
-import safeValidate from '../schemas/fields/safeValidate';
-import { number } from '../schemas/fields/validators';
 import Immutable from './Immutable';
-
-const versionValidator = (ver, required = false) => safeValidate(number(), required, ver);
 
 /**
  * Instances are immutable objects, which conform to a schema, and provide an explicit API for modifying their data.

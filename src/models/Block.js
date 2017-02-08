@@ -102,11 +102,11 @@ export default class Block extends Instance {
   /**
    * Clone a block, adding parent to the ancestry.
    * Calls {@link Instance.clone} internally, but structure of block history is different than that of the Instance class.
-   * Cloning a block will disable the frozen rule.
+   * Cloning a block will disable the frozen rule, unless you pass in overwrite
    * note that if you are cloning multiple blocks / blocks with components, you likely need to clone the components as well. You will need to re-map the IDs outside of this function. See {@link blockClone} action for an example.
    * @method clone
    * @memberOf Block
-   * @param {object|null} parentInfo Parent info for denoting ancestry. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID). Parent info, if passed, should include project information: owner and version
+   * @param {object|null} parentInfo Parent info for denoting ancestry. Parent info should include project information: owner and version. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
    * @param {object} overwrites Overwrites to make to the cloned block, e.g. { owner: userId }
    * @returns {Block} Cloned block
    */

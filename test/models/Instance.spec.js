@@ -118,8 +118,8 @@ describe('Model', () => {
         owner: uuid.v1(),
       });
 
-      expect(inst.clone.bind(inst, badVersion)).to.throw();
-      expect(inst.clone.bind(inst, goodVersion)).to.not.throw();
+      expect(inst.clone.bind(inst, { version: badVersion })).to.throw();
+      expect(inst.clone.bind(inst, { version: goodVersion })).to.not.throw();
     });
 
     it('clone(null) does not change ID or add to history', () => {

@@ -29,6 +29,11 @@ const instanceFields = {
     fields.id().required,
     'ID of the instance',
   ],
+  owner: [
+    fields.id(),
+    'Owner of the instance',
+    { avoidScaffold: true },
+  ],
   parents: [
     fields.arrayOf(ParentSchema.validate.bind(ParentSchema)).required,
     'Ancestral parents from which object is derived, with newest first',
