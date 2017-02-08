@@ -13,27 +13,28 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import UserWidget from '../components/authentication/userwidget';
 import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 
 
-export default class InspectorRightNav extends Component {
-  static propTypes = {
-    currentProjectId: PropTypes.string.isRequired,
-    isVisible: PropTypes.bool.isRequired,
-  };
-
-  render() {
-    let autoSave;
-    if (this.props.currentProjectId && this.props.isVisible) {
-      autoSave = <AutosaveTracking projectId={this.props.currentProjectId} />;
-    }
-    return (
-      <div className="right-nav" >
-        <UserWidget />
-        {autoSave}
-      </div>
-    );
+const InspectorRightNav = ({ currentProjectId, isVisible }) => {
+  let autoSave;
+  if (currentProjectId && isVisible) {
+    autoSave = <AutosaveTracking projectId={currentProjectId} />;
   }
-}
+  return (
+    <div className="right-nav" >
+      <UserWidget />
+      {autoSave}
+    </div>
+  );
+};
+
+InspectorRightNav.propTypes = {
+  currentProjectId: PropTypes.string.isRequired,
+  isVisible: PropTypes.bool.isRequired,
+};
+
+export default InspectorRightNav;
+

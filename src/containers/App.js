@@ -22,7 +22,6 @@ import AboutForm from '../components/modal/aboutform';
 import InlineEditor from '../components/inline-editor/inline-editor';
 import ReportErrorModal from '../components/modal/ReportErrorModal';
 import ModalSpinner from '../components/modal/modalspinner';
-import GlobalNav from '../components/GlobalNav/GlobalNav';
 import RibbonGrunt from '../components/ribbongrunt';
 import AuthenticationModals from './AuthenticationModals';
 
@@ -31,7 +30,6 @@ import '../styles/App.css';
 class App extends Component {
   static propTypes = {
     children: PropTypes.node, // Injected by React Router
-    currentProjectId: PropTypes.string,
     location: PropTypes.shape({
       pathname: PropTypes.string.isRequired,
     }).isRequired,
