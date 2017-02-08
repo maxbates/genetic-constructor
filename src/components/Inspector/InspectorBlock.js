@@ -31,6 +31,7 @@ import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
 import { getLocal } from '../../utils/localstorage';
+import { getPaletteName } from '../../utils/color/index';
 import '../../styles/InspectorBlock.css';
 
 export class InspectorBlock extends Component {
@@ -216,7 +217,7 @@ export class InspectorBlock extends Component {
 
     const inputKey = instances.map(inst => inst.id).join(',');
 
-    const palette = construct ? construct.metadata.palette || this.props.project.metadata.palette : null;
+    const palette = getPaletteName(construct ? construct.metadata.palette || this.props.project.metadata.palette : null);
 
     const defaultType = forceIsConstruct ? 'Construct' : 'Block';
     const type = singleInstance ? instances[0].getType(defaultType) : 'Blocks';
