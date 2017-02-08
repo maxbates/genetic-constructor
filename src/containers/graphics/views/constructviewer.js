@@ -881,10 +881,11 @@ export class ConstructViewer extends Component {
   render() {
     const { construct } = this.props;
     const isFocused = construct.id === this.props.focus.constructId;
+    const viewerClasses = `construct-viewer${isFocused ? ' construct-viewer-focused' : ''}`;
     const subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
     return (
       <div
-        className="construct-viewer"
+        className={viewerClasses}
         key={this.props.construct.id}
         data-index={this.props.testIndex}
       >
