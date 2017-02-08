@@ -21,63 +21,93 @@
  * @module permissions
  */
 import debug from 'debug';
+import invariant from 'invariant';
 
+import { errorInvalidId, errorDoesNotExist, errorNoIdProvided } from '../errors/errorConstants';
+import * as projectPersistence from './persistence/projects';
 import { id as idRegex } from '../../src/utils/regex';
-import { errorDoesNotExist, errorInvalidId, errorNoIdProvided, errorNoPermission } from '../utils/errors';
-import { userOwnsProject } from './persistence/projects';
 
-const logger = debug('constructor:permissions');
+const logger = debug('constructor:data:permissions');
 
-export const projectPermissionMiddleware = (req, res, next) => {
+export const projectIdParamAssignment = (req, res, next, id) => {
   const { user } = req;
-  const { projectId } = req.params;
+  const projectId = id;
 
-  logger(`[projectPermissionMiddleware] Checking ${projectId} for ${user ? user.uuid : 'null'}`);
+  logger(`[projectIdParamAssignment] Looking up project:
+Project: ${projectId}
+User: ${user ? user.uuid : 'null'}
+Route: ${req.url}`);
 
-  //in case havent already checked for user on request
-  if (!user || !user.uuid) {
-    res.status(401);
-    logger('no user attached by auth middleware @', req.url);
-    next('[projectPermissionMiddleware] user not attached to request by middleware');
+  if (projectId && !idRegex().test(projectId)) {
+    logger(`[projectIdParamAssignment] projectId ${projectId} invalid @ ${req.url}`);
+    res.status(400).send(errorInvalidId);
     return;
   }
+
+  Object.assign(req, { projectId });
+
+  projectPersistence.getProjectOwner(projectId)
+  .then((owner) => {
+    logger(`[projectIdParamAssignment] Found project:
+Project: ${projectId}
+Owner: ${owner}`);
+
+    Object.assign(req, { projectOwner: owner });
+    next();
+  })
+  .catch((err) => {
+    if (err === errorDoesNotExist) {
+      logger(`[projectIdParamAssignment] projectId ${projectId} does not exist, continuing...`);
+      Object.assign(req, { projectDoesNotExist: true, projectOwner: null });
+      return next();
+    }
+
+    logger('[projectIdParamAssignment] uncaught error checking access');
+    logger(err);
+    res.status(500).send('error checking project access');
+  });
+};
+
+export const ensureReqUserMiddleware = (req, res, next) => {
+  //logger('[ensureReqUserMiddleware] checking req.user');
+
+  if (!req.user || !req.user.uuid) {
+    logger('[ensureReqUserMiddleware] no user attached by auth middleware @', req.url);
+    return res.status(401).send('no user associated with request');
+  }
+
+  next();
+};
+
+//assumes req.projectId, req.user, req.projectOwner (see projectIdParamAssignment)
+export const userOwnsProjectMiddleware = (req, res, next) => {
+  const { user, projectId, projectOwner, projectDoesNotExist } = req;
+
+  logger(`[userOwnsProjectMiddleware]
+  Checking project: ${projectId}
+  User: ${user ? user.uuid : 'null'}
+  exists: ${projectDoesNotExist}
+  owner: ${projectOwner}`);
 
   if (!projectId) {
-    logger(`[projectPermissionMiddleware] no projectId provided @ ${req.url}`);
-    res.status(400).send(errorNoIdProvided);
-    next('projectId not found on route request. This is probably an internal error.');
-    return;
+    return res.status(400).send(errorNoIdProvided);
   }
 
-  if (!idRegex().test(projectId)) {
-    logger(`[projectPermissionMiddleware] invalid projectId @ ${req.url}`);
-    res.status(400).send(errorInvalidId);
-    //don't need to delegate to errorHandlingMiddleware, just return error response
-    //next(`projectId is not valid, got ${projectId}`);
-    return;
+  if (!user || !user.uuid) {
+    logger('[userOwnsProjectMiddleware] no user attached');
+    return res.status(401).send('no user associated with request');
   }
 
-  userOwnsProject(user.uuid, projectId)
-    .then(() => {
-      logger(`[projectPermissionMiddleware] user ${user.uuid} owns project ${projectId}`);
-      next();
-    })
-    .catch((err) => {
-      //if the project doesnt exist, mark the req and can handle downstream, but usually we want this to just fall through
-      if (err === errorDoesNotExist) {
-        logger(`[projectPermissionMiddleware] project does not exist (${projectId})`);
-        Object.assign(req, { projectDoesNotExist: true });
-        return next();
-      }
+  //todo - instead of throwing, lets just run the query and assignment here
+  //todo - can we just look at req.params.projectId and do it that way? is that safe?
 
-      if (err === errorNoPermission) {
-        logger(`[projectPermissionMiddleware] user ${user.uuid} cannot access ${projectId}`);
-        return res.status(403).send(`User does not have access to project ${projectId}`);
-      }
+  //if you hit this, you didnt set req params properly to use this function
+  invariant(projectDoesNotExist || projectOwner, '[userOwnsProjectMiddleware] if req.projectId and req.user and project exists, req.projectOwner must be defined');
 
-      logger('project permission check error');
-      logger(err);
-      logger(err.stack);
-      res.status(500).send('error checking project access');
-    });
+  if (!projectDoesNotExist && projectOwner !== user.uuid) {
+    logger(`[userOwnsProjectMiddleware] user ${user.uuid} cannot access ${projectId} (owner: ${projectOwner})`);
+    return res.status(403).send(`User does not have access to project ${projectId}`);
+  }
+
+  next();
 };

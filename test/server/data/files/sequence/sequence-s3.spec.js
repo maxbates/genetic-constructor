@@ -16,7 +16,7 @@
 import { assert, expect } from 'chai';
 import uuid from 'node-uuid';
 import md5 from 'md5';
-import { errorDoesNotExist } from '../../../../../server/utils/errors';
+import { errorDoesNotExist } from '../../../../../server/errors/errorConstants';
 import rejectingFetch from '../../../../../src/middleware/utils/rejectingFetch';
 import { validPseudoMd5, generatePseudoMd5, parsePseudoMd5 } from '../../../../../src/utils/sequenceMd5';
 

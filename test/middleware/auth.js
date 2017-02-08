@@ -4,9 +4,6 @@ import { login, getUser, getUserConfig, setUserConfig } from '../../src/middlewa
 import userConfigDefaults from '../../server/onboarding/userConfigDefaults';
 import userConfigOverrides from '../../server/onboarding/userConfigOverrides';
 
-//noinspection JSUnusedLocalSymbols
-const devServer = require('../../server/server'); // starts the server which will be accessed by methods below
-
 describe('middleware', () => {
   describe('auth', () => {
     const dummyUser = {
