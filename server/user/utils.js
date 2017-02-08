@@ -17,6 +17,7 @@ import invariant from 'invariant';
 import { merge } from 'lodash';
 
 import userConfigDefaults from '../onboarding/userConfigDefaults';
+import userConfigOverrides from '../onboarding/userConfigOverrides';
 import { userConfigKey } from './userConstants';
 
 //these are the fields we expect on the client user object
@@ -68,8 +69,11 @@ export const getConfigFromUser = (user = {}, def = userConfigDefaults) => {
 export const updateUserConfig = (user, newConfig) => {
   const oldConfig = getConfigFromUser(user);
 
-  //question!!!! - merge deeply, or shallow assign? For now, shallow assign so have to explicitly include default projects + extensions for them to show up
-  const config = Object.assign({}, oldConfig, newConfig);
+  //Shallow assign so have to explicitly include default projects + extensions for them to show up
+  //explicitly merge with defaults again, for when we add new fields
+  const config = Object.assign({}, userConfigDefaults, oldConfig, newConfig);
+  //merge on forced config
+  merge(config, userConfigOverrides);
 
   validateConfig(config);
 

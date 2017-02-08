@@ -25,7 +25,7 @@ import colors from 'colors/safe';
 
 import pkg from '../package.json';
 import dataRouter from './data/router';
-import extensionsRouter from './extensions/index';
+import extensionsRouter from './extensions/router';
 import checkUserSetup from './onboarding/userSetup';
 import orderRouter from './order/router';
 import reportRouter from './report/index';
@@ -176,8 +176,8 @@ app.get('/version', (req, res) => {
 // PAGE LOADING
 
 app.get('*', (req, res) => {
-  //on root request if not logged in, show them the landing page
-  if (req.url === '/' && !req.user) {
+  //on root request (ignoring query params), if not logged in, show them the landing page
+  if ((req.path === '' || req.path === '/') && !req.user) {
     res.sendFile(`${pathPublic}/landing.html`);
     return;
   }

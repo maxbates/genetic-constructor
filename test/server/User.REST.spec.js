@@ -15,8 +15,9 @@
  */
 import { assert, expect } from 'chai';
 import request from 'supertest';
-import { merge } from 'lodash';
+import _, { merge } from 'lodash';
 import userConfigDefaults from '../../server/onboarding/userConfigDefaults';
+import userConfigOverrides from '../../server/onboarding/userConfigOverrides';
 import devServer from '../../server/server';
 
 describe('Server', () => {
@@ -47,7 +48,7 @@ describe('Server', () => {
       const agent = request.agent(server);
 
       const allInactive = Object.keys(userConfigDefaults.extensions).reduce((acc, key) => Object.assign(acc, { [key]: { active: false } }), {});
-      const nextConfig = merge({}, userConfigDefaults, { extensions: allInactive });
+      const nextConfig = merge({}, userConfigDefaults, { extensions: allInactive }, userConfigOverrides);
 
       agent.post('/user/config')
         .send(nextConfig)
@@ -152,7 +153,7 @@ describe('Server', () => {
 
           assert(user.email === retrivedUser.email, 'expected same email');
           expect(retrivedUser.uuid).to.be.defined;
-          expect(retrivedUser.config).to.eql(Object.assign({}, retrivedUser.config, nextConfig));
+          expect(retrivedUser.config).to.eql(_.merge({}, retrivedUser.config, nextConfig, userConfigOverrides));
         })
         .end(done);
     });

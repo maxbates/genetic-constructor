@@ -70,7 +70,7 @@ const startRunAuth = () => {
       }, process.env),
     },
     {
-      comment: 'Starting Constructor with Authentication...',
+      comment: '\n\nStarting Constructor with Authentication...',
       waitUntil: `Server listening at ${HOST_URL}/`,
       forceOutput: true,
       failOnStderr: false,
