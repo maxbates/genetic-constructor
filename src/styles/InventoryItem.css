@@ -41,7 +41,6 @@
     justify-content: flex-start;
     align-items: center;
     cursor: pointer;
-    padding-top: 4px;
     width: 100%;
     max-width: 100%;
   }
@@ -52,7 +51,7 @@
     white-space: nowrap;
     overflow: hidden;
     flex-shrink: 1;
-    padding: 0 4px;
+    padding: 4px 4px;
   }
 
   &-image {
@@ -65,6 +64,7 @@
 
   &-detail {
     padding-left: 0.75em;
+    padding-top: 4px;
     opacity: 0.5;
     flex-shrink: 0;
     align-self: flex-start;
