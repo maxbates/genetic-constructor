@@ -317,6 +317,20 @@ export default class ConstructViewerUserInterface extends UserInterface {
     }
     this.constructViewer.update();
   }
+
+  /**
+   * show or hide all children
+   * @param minimized
+   */
+  setMinimized(minimized) {
+    this.constructViewer.getAllBlocks().forEach((block) => {
+      const node = this.layout.nodeFromElement(block.id);
+      if (node && node.hasChildren) {
+        node.showChildren = !minimized;
+      }
+    });
+  }
+
   /**
    * select with mouse including handling ancillary actions like opening the context menu and toggle nested construct
    */

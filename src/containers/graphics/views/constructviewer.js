@@ -141,6 +141,7 @@ export class ConstructViewer extends Component {
 
   state = {
     showHidden: false,
+    minimized: false, // controls the toggle between hide all / show all children
   };
 
   /**
@@ -181,10 +182,15 @@ export class ConstructViewer extends Component {
       const willFocus = nextProps.construct.id === nextProps.focus.constructId;
       if (!hasFocus && willFocus) {
         const element = ReactDOM.findDOMNode(this);
-        if (element.scrollIntoViewIfNeeded) {
-          element.scrollIntoViewIfNeeded(true);
-        } else {
-          element.scrollIntoView();
+        const parent = element.parentElement;
+        const box1 = new Box2D(element.getBoundingClientRect());
+        const box2 = new Box2D(parent.getBoundingClientRect());
+        if (!box1.intersectWithBox(box2)) {
+          if (element.scrollIntoViewIfNeeded) {
+            element.scrollIntoViewIfNeeded(true);
+          } else {
+            element.scrollIntoView();
+          }
         }
       }
     }
@@ -623,8 +629,9 @@ export class ConstructViewer extends Component {
         action: this.togglePanels,
       },
       {
-        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
-        action: () => { this.sg.ui.toggleCollapsedState(); },
+        text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
+        //action: () => { this.sg.ui.toggleCollapsedState(); },
+        action: () => { this.toggleMinimized(); },
       },
     ],
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
@@ -714,6 +721,22 @@ export class ConstructViewer extends Component {
   }
 
   /**
+   * return all blocks in our construct
+   */
+  getAllBlocks() {
+    return this.props.blockGetComponentsRecursive(this.props.construct.id);
+  }
+
+  /**
+   * toggle the expand / collapsed state of children for all nodes.
+   */
+  toggleMinimized() {
+    const minimized = !this.state.minimized;
+    this.sg.ui.setMinimized(minimized);
+    this.setState({ minimized });
+  }
+
+  /**
    * window resize, update layout and scene graph with new dimensions
    *
    */
@@ -763,8 +786,9 @@ export class ConstructViewer extends Component {
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
       {
-        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} Nested Blocks`,
-        action: () => { this.sg.ui.toggleCollapsedState(); },
+        text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
+        //action: () => { this.sg.ui.toggleCollapsedState(); },
+        action: () => { this.toggleMinimized(); },
       },
       {
         text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
