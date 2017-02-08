@@ -15,8 +15,6 @@
  */
 import invariant from 'invariant';
 import { values as objectValues } from 'lodash';
-
-import { getLocal, setLocal } from '../../../utils/localstorage';
 import Box2D from '../geometry/box2d';
 import Line2D from '../geometry/line2d';
 import Vector2D from '../geometry/vector2d';

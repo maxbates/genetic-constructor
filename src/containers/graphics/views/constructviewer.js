@@ -291,19 +291,19 @@ export class ConstructViewer extends Component {
   }
 
   /**
-   * accessor for our DOM node.
-   *
+   * set state of minimized property
+   * @param minimized
    */
-  get dom() {
-    return ReactDOM.findDOMNode(this);
+  setMinimized(minimized) {
+    this.sg.ui.setMinimized(minimized);
+    this.setState({ minimized });
   }
 
   /**
-   * accessor that fetches the actual scene graph element within our DOM
-   *
+   * return all blocks in our construct
    */
-  get sceneGraphEl() {
-    return this.dom.querySelector('.sceneGraph');
+  getAllBlocks() {
+    return this.props.blockGetComponentsRecursive(this.props.construct.id);
   }
 
   /**
@@ -729,17 +729,11 @@ export class ConstructViewer extends Component {
   }
 
   /**
-   * return all blocks in our construct
+   * accessor that fetches the actual scene graph element within our DOM
+   *
    */
-  getAllBlocks() {
-    return this.props.blockGetComponentsRecursive(this.props.construct.id);
-  }
-
-  /**
-   * toggle the expand / collapsed state of children for all nodes.
-   */
-  toggleMinimized() {
-    this.setMinimized(!this.state.minimized);
+  get sceneGraphEl() {
+    return this.dom.querySelector('.sceneGraph');
   }
 
   /**
@@ -751,12 +745,18 @@ export class ConstructViewer extends Component {
   }
 
   /**
-   * set state of minimized property
-   * @param minimized
+   * toggle the expand / collapsed state of children for all nodes.
    */
-  setMinimized(minimized) {
-    this.sg.ui.setMinimized(minimized);
-    this.setState({ minimized });
+  toggleMinimized() {
+    this.setMinimized(!this.state.minimized);
+  }
+
+  /**
+   * accessor for our DOM node.
+   *
+   */
+  get dom() {
+    return ReactDOM.findDOMNode(this);
   }
 
   /**

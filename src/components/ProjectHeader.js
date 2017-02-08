@@ -140,7 +140,7 @@ class ProjectHeader extends Component {
         action: () => {
           ConstructViewer.getAllViewers().forEach((viewer) => {
             viewer.setMinimized(!firstViewer.isMinimized());
-          })
+          });
         },
       },
     ];
