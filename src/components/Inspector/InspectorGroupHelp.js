@@ -54,7 +54,7 @@ class InspectorGroupHelp extends Component {
       <br />
       <div className="Section">Information</div>
       <a target="_blank" rel="noopener noreferrer" href="http://bionano.autodesk.com/GeneticDesign/index.html">About Genetic Constructor</a>
-      <a target="_blank" rel="noopener noreferrer" href="http://www.autodesk.com/company/legal-notices-trademarks/terms-of-service-autodesk360-web-services">Terms of Use</a>
+      <a target="_blank" rel="noopener noreferrer" href="/tos.html">Terms of Use</a>
       <a target="_blank" rel="noopener noreferrer" href="http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement">Privacy Policy</a>
       <a target="_blank" rel="noopener noreferrer" href="http://bionano.autodesk.com/">More from Autodesk® BioNano Research</a>
     </div>);
