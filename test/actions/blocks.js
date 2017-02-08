@@ -129,16 +129,16 @@ describe('Actions', () => {
 
         it('blockSetSequence() sets the length', () => {
           blockStore.dispatch(actions.blockSetSequence(storeBlock.id, sequence))
-            .then(() => {
-              const newBlock = blockStore.getState().blocks[storeBlock.id];
-              expect(newBlock.sequence.length).to.equal(sequence.length);
-            });
+          .then(() => {
+            const newBlock = blockStore.getState().blocks[storeBlock.id];
+            expect(newBlock.sequence.length).to.equal(sequence.length);
+          });
         });
 
         it('blockSetSequence() validates the sequence', () => {
           blockStore.dispatch(actions.blockSetSequence(storeBlock.id, 'ACACTGKJXXAHSF'))
-            .then(() => assert(false, 'should not happen'))
-            .catch((err) => expect(err).to.be.defined);
+          .then(() => assert(false, 'should not happen'))
+          .catch((err) => expect(err).to.be.defined);
         });
       });
     });
@@ -208,19 +208,26 @@ describe('Actions', () => {
         }).to.not.throw();
       });
 
-      it('blockClone() should unset projectId in clone', () => {
-        expect(store.getState().blocks[block.id].projectId).to.equal(project.id);
-        const clone = store.dispatch(actions.blockClone(block.id));
-        expect(store.getState().blocks[block.id].projectId).to.equal(project.id);
-        expect(store.getState().blocks[clone.id].projectId).to.equal(null);
-      });
+      describe('Cloning', () => {
+        it('blockClone() should unset projectId in clone', () => {
+          expect(store.getState().blocks[block.id].projectId).to.equal(project.id);
+          const clone = store.dispatch(actions.blockClone(block.id));
+          expect(store.getState().blocks[block.id].projectId).to.equal(project.id);
+          expect(store.getState().blocks[clone.id].projectId).to.equal(null);
+        });
 
-      it('blockClone should clone frozen things too', () => {
-        const option = store.dispatch(actions.blockCreate());
-        store.dispatch(actions.blockOptionsAdd(list.id, option.id));
-        store.dispatch(actions.blockFreeze(option.id));
-        const clone = store.dispatch(actions.blockClone(list.id));
-        assert(Object.keys(clone.options).indexOf(option.id) < 0, 'frozen block should have cloned');
+        it('blockClone should clone frozen things too', () => {
+          const option = store.dispatch(actions.blockCreate());
+          store.dispatch(actions.blockOptionsAdd(list.id, option.id));
+          store.dispatch(actions.blockFreeze(option.id));
+          const clone = store.dispatch(actions.blockClone(list.id));
+          assert(Object.keys(clone.options).indexOf(option.id) < 0, 'frozen block should have cloned');
+        });
+
+        //todo
+        it('blockClone() simply clones if there is no projectId');
+        it('blockClone() simply clones if there is no project in the store');
+        it('blockClone() adds ancestor if project is defined');
       });
     });
   });

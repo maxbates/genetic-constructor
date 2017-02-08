@@ -90,5 +90,10 @@ describe('Model', () => {
       assert(!isEqual(one, two));
       assert(Project.compare(one, two), 'compare should ignore version');
     });
+
+    //todo
+    it('Project.clone() null just clones');
+    it('Project.clone() unlocks frozen project');
+    it('Project.clone() adds ancestor properly');
   });
 });

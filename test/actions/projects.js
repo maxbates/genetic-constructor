@@ -69,5 +69,10 @@ describe('Actions', () => {
           });
       });
     });
+
+    //todo
+    describe('Cloning', () => {
+      it('projectClone() clones the project');
+    });
   });
 });

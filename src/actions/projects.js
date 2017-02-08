@@ -214,6 +214,31 @@ export const projectCreate = initialModel => (dispatch, getState) => {
 };
 
 /**
+ * Clone a project
+ * @function
+ * @param {UUID} projectId Project ID to clone (must be in store)
+ * @returns {Project} Cloned project
+ */
+export const projectClone = projectId =>
+  (dispatch, getState) => {
+    const oldProject = getState().projects[projectId];
+    invariant(oldProject, 'old project must exist');
+
+    const userId = getState().user.userid;
+
+    const project = oldProject.clone({}, {
+      owner: userId,
+    });
+
+    dispatch({
+      type: ActionTypes.PROJECT_CLONE,
+      project,
+    });
+
+    return project;
+  };
+
+/**
  * Internal method to load a project. Attempt to load another on failure. Used internally by projectLoad, can recursive in this verison.
  * @function
  * @private

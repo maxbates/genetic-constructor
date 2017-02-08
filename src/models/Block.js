@@ -129,7 +129,6 @@ export default class Block extends Instance {
       id: this.id,
       projectId: this.projectId,
       version: (firstParent && firstParent.projectId === this.projectId) ? firstParent.version : null,
-      created: Date.now(),
     }, parentInfo);
 
     return super.clone(parentObject, mergeWith);
