@@ -260,6 +260,7 @@ export const blockClone = (blockInput, parentObjectInput = {}) => (dispatch, get
 
   //if we have a parent projectId, get the project and generate parent information
   //if we dont, nothing really we can do, so just clone without adding lineage
+  //NOTE - assumes that project.owner is defnied... will error if its not
   if (parentProjectId) {
     const oldProject = dispatch(projectSelectors.projectGet(parentProjectId)) || {};
 
