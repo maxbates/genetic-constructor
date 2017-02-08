@@ -15,8 +15,6 @@
  */
 import invariant from 'invariant';
 import { values as objectValues } from 'lodash';
-
-import { getLocal, setLocal } from '../../../utils/localstorage';
 import Box2D from '../geometry/box2d';
 import Line2D from '../geometry/line2d';
 import Vector2D from '../geometry/vector2d';
@@ -88,11 +86,7 @@ export default class Layout {
     if (this.rootLayout) {
       const aabb = this.getBlocksAABB();
       this.sceneGraph.width = Math.max(aabb.right, kT.minWidth);
-      if (this.collapsed) {
-        this.sceneGraph.height = kT.collapsedHeight;
-      } else {
-        this.sceneGraph.height = Math.max(aabb.bottom, kT.minHeight) + kT.bottomPad;
-      }
+      this.sceneGraph.height = Math.max(aabb.bottom, kT.minHeight) + kT.bottomPad;
       this.sceneGraph.updateSize();
     }
   }
@@ -341,19 +335,12 @@ export default class Layout {
         hoverClass: props.roleName ? 'inline-editor-hover-block' : 'inline-editor-hover-block-noimage',
       });
     }
-    // hide/show child expand/collapse glyph
+    // hide/show child expand glyph
     node.set({
       hasChildren: this.someChildrenVisible(part),
     });
     // mark part as in use
     this.usePart(part);
-  }
-
-  /**
-   * return one of the meta data properties for a part.
-   */
-  partMeta(part, meta) {
-    return this.blocks[part].metadata[meta];
   }
 
   /**
@@ -582,9 +569,6 @@ export default class Layout {
 
     this.baseColor = this.construct.getColor();
 
-    // get collapsed state, if present from local storage
-    this.collapsed = getLocal(`${this.construct.id}-collapsed`, false);
-
     // perform layout and remember how much vertical was required
     const layoutResults = this.layoutWrap();
 
@@ -596,14 +580,6 @@ export default class Layout {
 
     // return our layout results for our parent, if any
     return layoutResults;
-  }
-
-  /**
-   * set collapsed state and persist to local storage
-   */
-  setCollapsed(state) {
-    this.collapsed = state;
-    setLocal(`${this.construct.id}-collapsed`, this.collapsed);
   }
 
   /**
@@ -647,7 +623,7 @@ export default class Layout {
     // construct the banner if required
     this.bannerFactory();
     // maximum x position
-    const mx = layoutOptions.xlimit - (this.collapsed ? kT.collapsedMessageWidth : 0);
+    const mx = layoutOptions.xlimit;
     // reset nested constructs
     this.resetNestedConstructs();
     // layout all the various components, constructing elements as required
@@ -674,9 +650,6 @@ export default class Layout {
     // width of first row is effected by parent block, so we have to track
     // which row we are on.
     let rowIndex = 0;
-
-    // if collapsed will track the number of clipped blocks
-    let clippedBlocks = 0;
 
     // display only non hidden blocks
     const components = this.showHidden ? ct.components : ct.components.filter(blockId => !this.blockIsHidden(blockId));
@@ -711,11 +684,6 @@ export default class Layout {
 
       // measure element text or used condensed spacing
       const td = Layout.measureText(node, name);
-
-      // if collapsed and this isn't the first row then this block will be clipped
-      if (rowIndex > 0 && this.collapsed) {
-        clippedBlocks += 1;
-      }
 
       // measure the max required width of all list blocks
       Object.keys(block.options).filter(opt => block.options[opt]).forEach((blockId) => {
@@ -762,12 +730,12 @@ export default class Layout {
       // update any list parts for this blocks
       this.updateListForBlock(block, td.x);
 
-      // render children unless user has collapsed the block or it is hidden OR all its children are hidden
+      // render children unless it is hidden OR all its children are hidden
       let hidden = this.blockIsHidden(part);
       if (hidden && this.showHidden) {
         hidden = false;
       }
-      if (node.showChildren && !hidden && this.someChildrenVisible(part) && !this.collapsed) {
+      if (node.showChildren && !hidden && this.someChildrenVisible(part)) {
         // establish the position
         const nestedX = this.insetX + kT.nestedInsetX;
         const nestedY = yp + nestedVertical + kT.blockH + kT.nestedInsetY;
@@ -880,10 +848,9 @@ export default class Layout {
       this.sceneGraph.ui.setSelections(selectedNodes);
     }
 
-    // return height and number of clipped blocks
+    // return height
     return {
       height: heightUsed + nestedVertical + kT.rowBarH + maxListHeight,
-      clippedBlocks: this.collapsed && this.rootLayout ? clippedBlocks : 0,
     };
   }
 
@@ -891,39 +858,16 @@ export default class Layout {
    * update connections after the layout
    */
   postLayout(layoutResults) {
-    if (!this.collapsed) {
-      // update / make all the parts
-      this.construct.components.forEach((part) => {
-        // render children ( nested constructs )
-        if (this.hasChildren(part) && !this.blockIsHidden(part) && !this.allChildrenHidden(part) &&
-          this.nodeFromElement(part).showChildren) {
-          // update / create connection
-          this.updateConnection(part);
-        }
-      });
-      if (this.collapsedLabel) {
-        this.collapsedLabel.detach();
-        this.collapsedLabel = null;
+    // update / make all the parts
+    this.construct.components.forEach((part) => {
+      // render children ( nested constructs )
+      if (this.hasChildren(part) && !this.blockIsHidden(part) && !this.allChildrenHidden(part) &&
+        this.nodeFromElement(part).showChildren) {
+        // update / create connection
+        this.updateConnection(part);
       }
-    } else {
-      // if collapsed and there were clipped blocks, display the number
-      if (!this.collapsedLabel) {
-        this.collapsedLabel = new Node2D(Object.assign({}, {
-          sg: this.sceneGraph,
-          glyph: 'rectangle',
-          dataAttribute: { name: 'nodetype', value: 'moreLabel' },
-        }, kT.labelAppearance));
-        this.sceneGraph.root.appendChild(this.collapsedLabel);
-      }
-      const text = layoutResults.clippedBlocks ? `${layoutResults.clippedBlocks} more...` : 'More';
-      this.collapsedLabel.set({
-        text,
-        bounds: new Box2D(this.sceneGraph.availableWidth - kT.collapsedMessageWidth,
-          this.getInitialLayoutPoint().y,
-          kT.collapsedMessageWidth,
-          kT.blockH),
-      });
-    }
+    });
+
     // dispose dangling connections
     this.disposeConnections();
   }

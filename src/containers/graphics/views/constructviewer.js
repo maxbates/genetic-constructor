@@ -124,9 +124,18 @@ export class ConstructViewer extends Component {
   static getViewerForConstruct(id) {
     return idToViewer[id];
   }
+
+  /**
+   * return all instantiated viewers
+   * @returns {Array}
+   */
+  static getAllViewers() {
+    return Object.keys(idToViewer).map(cid => idToViewer[cid]);
+  }
+
   /**
    * get position for a context menu attached to one of the inline toolbar items
-   * @param anchorElenent
+   * @param anchorElement
    */
   static getToolbarAnchorPosition(anchorElement) {
     const box = new Box2D(anchorElement.getBoundingClientRect());
@@ -141,6 +150,7 @@ export class ConstructViewer extends Component {
 
   state = {
     showHidden: false,
+    minimized: false, // controls the toggle between hide all / show all children
   };
 
   /**
@@ -181,10 +191,15 @@ export class ConstructViewer extends Component {
       const willFocus = nextProps.construct.id === nextProps.focus.constructId;
       if (!hasFocus && willFocus) {
         const element = ReactDOM.findDOMNode(this);
-        if (element.scrollIntoViewIfNeeded) {
-          element.scrollIntoViewIfNeeded(true);
-        } else {
-          element.scrollIntoView();
+        const parent = element.parentElement;
+        const box1 = new Box2D(element.getBoundingClientRect());
+        const box2 = new Box2D(parent.getBoundingClientRect());
+        if (!box1.intersectWithBox(box2)) {
+          if (element.scrollIntoViewIfNeeded) {
+            element.scrollIntoViewIfNeeded(true);
+          } else {
+            element.scrollIntoView();
+          }
         }
       }
     }
@@ -276,19 +291,19 @@ export class ConstructViewer extends Component {
   }
 
   /**
-   * accessor for our DOM node.
-   *
+   * set state of minimized property
+   * @param minimized
    */
-  get dom() {
-    return ReactDOM.findDOMNode(this);
+  setMinimized(minimized) {
+    this.sg.ui.setMinimized(minimized);
+    this.setState({ minimized });
   }
 
   /**
-   * accessor that fetches the actual scene graph element within our DOM
-   *
+   * return all blocks in our construct
    */
-  get sceneGraphEl() {
-    return this.dom.querySelector('.sceneGraph');
+  getAllBlocks() {
+    return this.props.blockGetComponentsRecursive(this.props.construct.id);
   }
 
   /**
@@ -623,8 +638,8 @@ export class ConstructViewer extends Component {
         action: this.togglePanels,
       },
       {
-        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} nested blocks`,
-        action: () => { this.sg.ui.toggleCollapsedState(); },
+        text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
+        action: () => { this.toggleMinimized(); },
       },
     ],
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
@@ -714,6 +729,37 @@ export class ConstructViewer extends Component {
   }
 
   /**
+   * accessor that fetches the actual scene graph element within our DOM
+   *
+   */
+  get sceneGraphEl() {
+    return this.dom.querySelector('.sceneGraph');
+  }
+
+  /**
+   * expose the minimized state
+   * @returns {boolean}
+   */
+  isMinimized() {
+    return this.state.minimized;
+  }
+
+  /**
+   * toggle the expand / collapsed state of children for all nodes.
+   */
+  toggleMinimized() {
+    this.setMinimized(!this.state.minimized);
+  }
+
+  /**
+   * accessor for our DOM node.
+   *
+   */
+  get dom() {
+    return ReactDOM.findDOMNode(this);
+  }
+
+  /**
    * window resize, update layout and scene graph with new dimensions
    *
    */
@@ -763,8 +809,9 @@ export class ConstructViewer extends Component {
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
       {
-        text: `${this.sg.ui.collapsed ? 'Show' : 'Hide'} Nested Blocks`,
-        action: () => { this.sg.ui.toggleCollapsedState(); },
+        text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
+        //action: () => { this.sg.ui.toggleCollapsedState(); },
+        action: () => { this.toggleMinimized(); },
       },
       {
         text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,

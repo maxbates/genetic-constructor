@@ -49,10 +49,6 @@ const roleIcon = 27;
 // min size of layout
 const minWidth = blockH * 4;
 const minHeight = blockH + rowBarH + bannerHeight;
-// height when collapsed
-const collapsedHeight = blockH + bannerHeight + bannerGap + rowBarH;
-// width of message for collapsed constructs e.g. 'and 123 more...'
-const collapsedMessageWidth = 100;
 // padding at right / bottom of scenegraph to make selection easier
 const bottomPad = 30;
 const rightPad = 30;
@@ -93,8 +89,6 @@ export default {
   roleIcon,
   minWidth,
   minHeight,
-  collapsedHeight,
-  collapsedMessageWidth,
   bottomPad,
   rightPad,
 
