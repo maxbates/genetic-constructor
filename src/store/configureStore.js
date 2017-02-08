@@ -36,23 +36,18 @@ const middleware = [
   routerMiddleware(browserHistory),
 ];
 
-let finalCreateStore;
+const storeCreationFunctions = [
+  applyMiddleware(...middleware),
+  pausableStore(),
+];
 
 //set by webpack
 if (process.env.DEBUG_REDUX) {
   const DevTools = require('../containers/DevTools.js'); //eslint-disable-line global-require
-
-  finalCreateStore = compose(
-    applyMiddleware(...middleware),
-    pausableStore(),
-    DevTools.instrument(),
-  )(createStore);
-} else {
-  finalCreateStore = compose(
-    applyMiddleware(...middleware),
-    pausableStore(),
-  )(createStore);
+  storeCreationFunctions.push(DevTools.instrument());
 }
+
+const finalCreateStore = compose(...storeCreationFunctions)(createStore);
 
 // expose reducer so you can pass in only one reducer for tests
 // (probably need to compose the way reducer does, e.g. using combineReducers, so retrieving data from store is correct)
