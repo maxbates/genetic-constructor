@@ -17,9 +17,10 @@ import { LOCATION_CHANGE, routerReducer as router } from 'react-router-redux';
 import { combineReducers } from 'redux';
 
 import { USER_SET_USER } from '../constants/ActionTypes';
-import { autosaveReducerEnhancer } from '../store/autosave/autosaveInstance';
 import freezeReducerEnhancer from '../store/freezeReducerEnhancer';
-import { undoReducer, undoReducerEnhancerCreator } from '../store/undo/reducerEnhancer';
+import autosaveCreator from '../store/autosave/autosaveCreator';
+import { autosaveInstanceDefaultOptions } from '../store/autosaveOptions';
+import { undoReducerEnhancerCreator } from '../store/undo/reducerEnhancer';
 import blocks from './blocks';
 import clipboard from './clipboard';
 import focus from './focus';
@@ -30,16 +31,30 @@ import projects from './projects';
 import ui from './ui';
 import user from './user';
 
-//undo
-
-const purgingEvents = [LOCATION_CHANGE, USER_SET_USER];
-
-//export a function, so we can create multiple configurations (e.g. undoEnhancer is backed by a singleton which supports coordination across reducers)
+//export a function, so we can create multiple configurations (e.g. in tests... b/c e.g. undoEnhancer is backed by a singleton which supports coordination across reducers)
 
 export const createRootReducer = () => {
+  //undo
+
+  const undoPurgingEvents = [LOCATION_CHANGE, USER_SET_USER];
+
   const undoReducerEnhancer = undoReducerEnhancerCreator({
-    purgeOn: action => purgingEvents.some(type => type === action.type),
+    purgeOn: action => undoPurgingEvents.some(type => type === action.type),
   });
+
+  //auto save (which annoyingly depends on undo manager transaction state for proper filtering)
+
+  const autosaveFilterFn = (action, alreadyDirty, nextState, lastState) => !!action.undoable && !undoReducerEnhancer.manager.inTransaction();
+
+  const autosaveInstance = autosaveCreator({
+    ...autosaveInstanceDefaultOptions,
+    //filter on undoable actions (basically, the state changes we care about) UNLESS in a transaction
+    filter: autosaveFilterFn,
+  });
+
+  const { autosaveReducer, autosaveReducerEnhancer } = autosaveInstance;
+
+  //final reducer
 
   return freezeReducerEnhancer(combineReducers({
     blocks: autosaveReducerEnhancer(undoReducerEnhancer(blocks, 'blocks')),
@@ -52,7 +67,7 @@ export const createRootReducer = () => {
     focus,
     user,
     orders,
-    undo: undoReducer,
+    autosave: autosaveReducer,
   }));
 };
 

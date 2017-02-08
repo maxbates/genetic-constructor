@@ -276,8 +276,7 @@ export const projectDelete = (projectId, userId, forceDelete = false) => {
       .then(() => projectId);
   }
 
-  return projectExists(projectId)
-    .then(() => projectGet(projectId))
+  return projectGet(projectId)
     .then((roll) => {
       if (roll && roll.project.rules.frozen) {
         return Promise.reject('cannot delete sample projects');
