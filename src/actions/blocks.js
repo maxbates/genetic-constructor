@@ -244,7 +244,7 @@ export const blockMerge = (blockId, toMerge) => (dispatch, getState) => {
   * }
  * @returns {Block} clone block (root node if has children)
  */
-export const blockClone = (blockInput, parentObjectInput = {}) => (dispatch, getState) => {
+export const blockClone = (blockInput, parentObjectInput = null) => (dispatch, getState) => {
   let oldBlock;
   if (typeof blockInput === 'string') {
     oldBlock = getState().blocks[blockInput];
@@ -256,7 +256,7 @@ export const blockClone = (blockInput, parentObjectInput = {}) => (dispatch, get
 
     //get the project ID to use for parent, considering the block may be detached from a project or inventory block
   const parentProjectId = oldBlock.projectId || null;
-  let parentObject = null;
+  let parentObject = parentObjectInput;
 
   //if we have a parent projectId, get the project and generate parent information
   //if we dont, nothing really we can do, so just clone without adding lineage
