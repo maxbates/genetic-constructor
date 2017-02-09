@@ -50,6 +50,7 @@ Returns the full snapshot object with fields populated by the RDBMS.
 
 * Required: `owner`, `projectId`, `type`, `message`
 * Optional: `keywords`, `tags`, `projectVersion`
+* `keywords` will be converted to lowercase and de-duped
 * Returns `404` if the specified `projectId` doesn't exist
 
 #### Fetch Snapshots with ProjectId
@@ -92,8 +93,8 @@ The above example would match the `tags` value in the creation example above.
 
 Returns an array of snapshot records.
 
+* Returns 200 and an empty array if no Snapshots matched search parameters
 * Employs JSON subset comparision. Does the target snapshot contain the key-value pairs in the post body? NOT strict object comparision.
-* Returns 404 if no snapshots exist.
 
 * Optional `project` query string can be provided to limit query to a particular project
 
@@ -118,11 +119,37 @@ The above example would match both the `keywords` and the `tags` value in the cr
 
 Returns an array of snapshot records.
 
+* Returns 200 and an empty array if no Snapshots matched search parameters
 * Employs the *IN* operator for the `keywords` provided. Does the target snapshot contain these keywords?
 * Employs JSON subset comparision for `tags`. Does the target snapshot contain the key-value pairs in the post body? NOT strict object comparision.
-* Returns `200` if no snapshots exist.
 
 * Optional `project` query string can be provided to limit query to a particular project
+
+#### Fetch a Map of Snapshot Keyword Counts
+
+Primarily to support type-ahead keyword input and Snapshot exploration, a map of keywords and their respective counts can be fetched with optional search parameters.
+
+`POST /api/snapshots/kwm`
+
+A post body is required but _CAN_ be empty. The following example shows all optional, supported search parameters.
+
+```
+{
+  "projectId": "project-fe5b5340-8991-11e6-b86a-b5fa2a5eb9ca",
+  "keywords": ["tangle"],
+  "tags": {
+    "worldSeries": "cubs",
+  },
+}
+
+```
+
+Returns a map in which the `keys` are the unique `keyword` strings used in the Snapshots found by the query. The `values` are integers indicating the number of Snapshots containing the keyword.
+
+* Returns 200 and an empty map if no Snapshots matched search parameters
+* If a `projectId` string is provided, an exact match will be attempted.
+* Employs the *IN* operator for the `keywords` provided. Does the target snapshot contain these keywords?
+* Employs JSON subset comparision for `tags`. Does the target snapshot contain the key-value pairs in the post body? NOT strict object comparision.
 
 #### Manage Snapshots with UUID
 

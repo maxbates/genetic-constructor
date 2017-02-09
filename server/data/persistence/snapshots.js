@@ -131,6 +131,7 @@ export const snapshotWrite = (
   invariant((!version && version !== 0) || Number.isInteger(version), 'version must be a number');
   invariant(typeof message === 'string', 'message must be a string');
   invariant(typeof tags === 'object' && !Array.isArray(tags), 'tags must be object');
+  invariant(Array.isArray(keywords) && keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
   invariant(typeof type === 'string', 'type must be a string');
 
   logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${message}`);
@@ -186,7 +187,7 @@ export const snapshotMerge = (
 
     logger(`[snapshotMerge] updating @ V${version} on ${projectId} - ${newMessage}, ${newType}, ${JSON.stringify(newTags)}`);
 
-    return snapshotWrite(projectId, userId, version, newMessage, newTags, newType, newKeywords);
+    return snapshotWrite(projectId, userId, version, newMessage, newTags, newKeywords, newType);
   });
 
 //if want to support - need to do by uuid, so need to fetch via projectId + version and delete that way, or list and delete
@@ -197,4 +198,16 @@ export const snapshotDelete = (projectId, version) => {
   return snapshotExists(projectId, version)
   .then(uuid => dbDelete(`snapshots/uuid/${uuid}`))
   .then(json => true);
+};
+
+/* KEYWORDS */
+
+/**
+ * Get counts of each keyword
+ * @param {Object} [filters] All optional: { projectId, keywords: [], tags: {} }
+ * @param [userId]
+ */
+export const snapshotGetKeywordMap = (filters = {}, userId = null) => {
+  logger('[snapshotGetKeywordMap]');
+  return dbPost('snapshots/kwm', null, {}, [], filters);
 };

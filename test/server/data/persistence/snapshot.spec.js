@@ -39,14 +39,14 @@ describe('Server', () => {
         let otherSnapshot;
 
         const exampleTag = { some: ' tag' };
-        const exampleKeywords = ['Special phrase', 'E Coli'];
+        const exampleKeywords = ['special phrase', 'e coli'];
 
         before(async () => {
           await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
           await projectPersistence.projectWrite(roll.project.id, updated, testUserId);
           await projectPersistence.projectWrite(roll.project.id, latest, testUserId);
           await projectPersistence.projectWrite(otherProject.project.id, otherProject, testUserId);
-          otherSnapshot = await snapshots.snapshotWrite(otherProject.project.id, testUserId, 0, 'Some message', exampleTag);
+          otherSnapshot = await snapshots.snapshotWrite(otherProject.project.id, testUserId, 0, 'Some message', exampleTag, exampleKeywords);
         });
 
         it('snapshotExists() returns 404 when does not exist', () => {
@@ -211,6 +211,17 @@ describe('Server', () => {
             //console.log(err);
             done();
           });
+        });
+
+        describe('keywords', () => {
+          it('can list keywords without parameters', async() => {
+            const map = await snapshots.snapshotGetKeywordMap();
+            expect(typeof map).to.equal('object');
+            assert(_.every(exampleKeywords, keyword => map[keyword] > 0), 'keywords should be present in map');
+          });
+
+          it('can filter by projectId');
+          it('can filter by tags');
         });
       });
     });

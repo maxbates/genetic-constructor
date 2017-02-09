@@ -5,6 +5,8 @@ var async = require('async');
 var isEmpty = require('underscore').isEmpty;
 var map = require('underscore').map;
 var max = require('underscore').max;
+var uniq = require('underscore').uniq;
+var reduce = require('underscore').reduce;
 
 var uuidValidate = require("uuid-validate");
 
@@ -195,7 +197,9 @@ var saveSnapshot = function (req, res) {
       }).end();
     }
 
-    keywords = body.keywords;
+    keywords = uniq(map(body.keywords, function (keyword) {
+      return keyword.toLowerCase();
+    }));
   }
 
   // lookup the project UUID to save a strict reference to a project version
@@ -478,6 +482,71 @@ var deleteByUUID = function (req, res) {
   });
 };
 
+var fetchKeywordMap = function (req, res) {
+  if (!req.body) {
+    return res.status(400).send({
+      message: 'no POST body',
+    }).end();
+  }
+
+  var where = {};
+
+  if (req.body.keywords) {
+    if (! Array.isArray(req.body.keywords)) {
+      return res.status(400).send({
+        message: '\'keywords\' must be an array',
+      }).end();
+    }
+
+    where.keywords = { $contains: req.body.keywords };
+  }
+
+  if (req.body.tags) {
+    if (typeof req.body.tags !== 'object') {
+      return res.status(400).send({
+        message: '\'tags\' must be an object',
+      }).end();
+    }
+
+    where.tags = req.body.tags;
+  }
+
+  if (req.body.projectId) {
+    if (typeof req.body.projectId !== 'string') {
+      return res.status(400).send({
+        message: '\'projectId\' must be a string',
+      }).end();
+    }
+
+    where.projectId = req.body.projectId;
+  }
+
+  return Snapshot.findAll({
+    where: where,
+  }).then(function (results) {
+    // return an empty map if nothing matched
+    if(results.length < 1) {
+      return res.status(200).send({}).end();
+    }
+
+    return res.status(200).send(reduce(results, function (memo, snapshot) {
+      return reduce(snapshot.get().keywords, function (memoRef, keyword) {
+        if (memoRef[keyword]) {
+          memoRef[keyword] = memoRef[keyword] + 1;
+        } else {
+          memoRef[keyword] = 1;
+        }
+        return memoRef;
+      }, memo);
+    }, {})).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
 var routes = [
   route('GET /:projectId', fetchSnapshots),
   route('HEAD /:projectId', checkSnapshots),
@@ -485,6 +554,7 @@ var routes = [
   route('DELETE /uuid/:uuid', deleteByUUID),
   route('POST /tags', fetchByTags),
   route('POST /keywords', fetchByKeywords),
+  route('POST /kwm', fetchKeywordMap),
   route('POST /', saveSnapshot),
 ];
 
