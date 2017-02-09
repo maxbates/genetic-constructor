@@ -32,6 +32,12 @@ const projectFields = {
     'Project UUID',
   ],
 
+  owner: [
+    fields.id(),
+    'Owner user ID, automatically set on get/set from server',
+    { avoidScaffold: true },
+  ],
+
   version: [
     fields.number(),
     'numeric version of project',

@@ -194,7 +194,7 @@ ${projects.join(', ')}`);
 
     return batchPromises(
       _.map(usersToMigrate, (projects, userId) => () => {
-        const egfRoll = makeEgfRollup();
+        const egfRoll = makeEgfRollup(userId);
         return projectPersistence.projectWrite(egfRoll.project.id, egfRoll, userId)
           .catch(err => {
             console.log(`error writing EGF project for user ${userId}`);

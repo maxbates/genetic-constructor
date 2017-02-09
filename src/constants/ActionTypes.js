@@ -83,6 +83,7 @@ export const FOCUS_ROLE = 'FOCUS_ROLE';
 
 export const PROJECT_LIST = 'PROJECT_LIST';
 export const PROJECT_CREATE = 'PROJECT_CREATE';
+export const PROJECT_CLONE = 'PROJECT_CLONE';
 export const PROJECT_SAVE = 'PROJECT_SAVE';
 export const PROJECT_SNAPSHOT = 'PROJECT_SNAPSHOT';
 export const PROJECT_LOAD = 'PROJECT_LOAD';

@@ -24,7 +24,7 @@ const foundryKey = 'egf';
 
 describe('Ordering', () => {
   describe('EGF', () => {
-    const templatesProject = makeEgfRollup();
+    const templatesProject = makeEgfRollup(testUserId);
 
     //hack so dont need to clone the project to order from it
     delete templatesProject.project.rules.frozen;

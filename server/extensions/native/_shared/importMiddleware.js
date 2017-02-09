@@ -191,7 +191,7 @@ export default function importMiddleware(req, res, next) {
  * }]
  */
 export function mergeRollupMiddleware(req, res, next) {
-  const { projectId, mintedProjectId, roll, noSave, conversion } = req;
+  const { user, projectId, mintedProjectId, roll, noSave, conversion } = req;
   const { project, blocks, sequences = {} } = roll;
 
   logger(`merging project (project=${projectId})`);
@@ -233,7 +233,7 @@ export function mergeRollupMiddleware(req, res, next) {
         //if we didnt recieve a projectId, we've assigned one already in importMiddleware above (for job file), so use here
         //even if we are running a conversion, we had a dummy project to be rollup-compliant, so make sure blocks are ok
         // if we are converting, ultimately we remove the project ID, but to generate the rollup (and run initial validation), a project ID is necessary
-        Object.assign(project, { id: mintedProjectId });
+        Object.assign(project, { id: mintedProjectId, owner: user.uuid });
         _.forEach(blocks, block => Object.assign(block, { projectId: mintedProjectId }));
 
         return Promise.resolve(new Rollup({

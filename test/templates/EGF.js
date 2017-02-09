@@ -15,11 +15,12 @@
  */
 import path from 'path';
 import { expect, assert } from 'chai';
+import _ from 'lodash';
 import makeEgfRollup from '../../data/egf_parts/index';
 import Rollup from '../../src/models/Rollup';
-import _ from 'lodash';
 import * as fileSystem from '../../server/data/middleware/fileSystem';
 import * as sequencePersistence from '../../server/data/persistence/sequence';
+import { testUserId } from '../constants';
 
 const withJenkins = !!process.env.JENKINS;
 
@@ -55,19 +56,19 @@ describe('Templates', () => {
     });
 
     it('should create a valid rollup, blocks with correct projectId', () => {
-      const roll = makeEgfRollup();
+      const roll = makeEgfRollup(testUserId);
       Rollup.validate(roll, true);
     });
 
     it('should be different project each time', () => {
-      const one = makeEgfRollup();
-      const two = makeEgfRollup();
+      const one = makeEgfRollup(testUserId);
+      const two = makeEgfRollup(testUserId);
 
       assert(one.project.id !== two.project.id, 'shouldnt have same projectId');
     });
 
     it('should have same blocks for same position in different constructs', () => {
-      const roll = makeEgfRollup();
+      const roll = makeEgfRollup(testUserId);
       //maps of construct name -> expected
       const expectedConnectors = {};
       const expectedOptions = {};
@@ -113,7 +114,7 @@ describe('Templates', () => {
       }
 
       const rolls = _.range(number).map((ind) => {
-        makeEgfRollup();
+        makeEgfRollup(testUserId);
       });
 
       done();

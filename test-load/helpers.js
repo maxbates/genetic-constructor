@@ -72,11 +72,11 @@ function createSimpleProjectJSON(requestParams, context, ee, next) {
   const project = {
     'project': {
       'id': projectId,
+      'owner': uuid.v1(),
       'parents': [],
       'metadata': {
         'name': '',
         'description': '',
-        'authors': [],
         'created': past,
         'tags': {},
       },
@@ -94,7 +94,6 @@ function createSimpleProjectJSON(requestParams, context, ee, next) {
     'metadata': {
       'name': '',
       'description': '',
-      'authors': [],
       'created': past,
       'tags': {},
       'color': '#D28482',
@@ -127,7 +126,6 @@ function createSimpleProjectJSON(requestParams, context, ee, next) {
     'metadata': {
       'name': '',
       'description': '',
-      'authors': [],
       'created': 1474922226091,
       'tags': {},
       'color': '#e7aaa9',

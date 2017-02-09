@@ -322,13 +322,11 @@ describeAppTest("http", function (app) {
     it('should find a project that contains a blockId', function testGetByBlockId(done) {
       var project = {
         "id": "project-364d0c6a-6f08-4fff-a292-425ca3eb91cc",
+        "owner": "11111111-1111-1111-9111-111111111111",
         "parents": [],
         "metadata": {
           "name": "EGF Sample Templates",
           "description": "This project includes a set of templates - combinatorial constructs with biological function - which can be fabricated at the Edinburgh Genome Foundry. This sample project is locked. To use the templates, drag them from the inventory list on the left, into one of your own projects.",
-          "authors": [
-            "11111111-1111-1111-9111-111111111111"
-          ],
           "created": 1477335218195,
           "tags": {}
         },

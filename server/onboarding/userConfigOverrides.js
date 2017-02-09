@@ -14,11 +14,9 @@
  limitations under the License.
  */
 
-import { merge } from 'lodash';
-import { testUserId } from '../constants';
+import _ from 'lodash';
+import { fixedExtensions } from '../extensions/constants';
 
-export const updateProjectWithTestAuthor = (project = {}, userId = testUserId) => {
-  return merge({}, project, {
-    owner: userId,
-  });
+export default {
+  extensions: _.mapValues(fixedExtensions, active => ({ active })),
 };

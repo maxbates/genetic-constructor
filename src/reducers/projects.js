@@ -28,6 +28,7 @@ if (process.env.NODE_ENV === 'test') {
 export default function projects(state = initialState, action) {
   switch (action.type) {
     case ActionTypes.PROJECT_CREATE :
+    case ActionTypes.PROJECT_CLONE :
     case ActionTypes.PROJECT_LOAD :
     case ActionTypes.PROJECT_MERGE :
     case ActionTypes.PROJECT_RENAME :
