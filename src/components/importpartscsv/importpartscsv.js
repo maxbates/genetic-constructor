@@ -115,7 +115,7 @@ class ImportPartsCSVModal extends Component {
         this.props.uiSpin();
       });
     }
-  }
+  };
 
   showFiles() {
     const files = this.state.files.map((file, index) => <div className="file-name" key={index}>{file.name}</div>);
@@ -171,7 +171,7 @@ class ImportPartsCSVModal extends Component {
               </button>
               <div className="link">
                 <span>Format documentation and sample .CSV files can be found
-                    <a className="blue-link" href="https://geneticconstructor.readme.io/docs/csv-upload" target="_blank" rel="noopener noreferrer"> here</a>
+                    <a className="blue-link" href="https://geneticconstructor.readme.io/v0.1/docs/csv-upload" target="_blank" rel="noopener noreferrer"> here</a>
                 </span>
               </div>
             </form>

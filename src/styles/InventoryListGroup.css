@@ -8,13 +8,13 @@
 
   &-heading {
     flex-shrink: 0;
+    font-weight: bold;
     display: flex;
     flex-direction: row;
     flex-wrap: no-wrap;
+    align-items: center;
     justify-content: space-between;
     user-select: none;
-    padding: 2px 5px;
-    border-radius: 3px;
     position: relative;
 
     &-filler {
@@ -27,12 +27,20 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding: 5px 0.25rem;
+    border-radius: 3px;
+
+    &:hover {
+      background-color: var(--colors-selected);
+      color: var(--colors-white);
+    }
+
   }
 
   &-contents {
     flex-grow: 1;
-    margin: 0 0 0 1.5em;
-    padding: 0.25em 0;
+    margin: 0 0 0 1em;
+    padding: 0;
     overflow-y: scroll;
 
     > *:last-child > .InventoryListGroup {

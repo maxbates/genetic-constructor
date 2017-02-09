@@ -1,48 +1,73 @@
-@import './variables.css';
+@import 'variables.css';
 
 .Inspector {
-  &-trigger {
-    background-image: url('/images/ui/inspector_icon.svg');
-  }
-}
 
-.InspectorContent {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  color: var(--colors-lighterGrey);
-  padding-bottom: 1rem;
-  width: 100%;
-
-  &Block {
-
-    &-Annotations {
-      display: block;
-    }
-
-    &-Annotation {
-      display: inline-block;
-      padding: 2px 4px;
-      margin: 2px;
-      border-radius: 2px;
-      color: var(--colors-slightlyDarkGrey);
-      background-color: var(--colors-white);
-
-      &:hover {
-
-      }
-    }
-  }
-
-  &-pickerWrap {
+  .right-nav {
     display: flex;
-    flex-direction: row;
+    align-items: center;
+    background-color: var(--colors-darkerGrey);
+    height: var(--GlobalNav-height-chrome);
+    flex-shrink: 0;
+    justify-content: space-between;
+    flex-direction: row-reverse;
   }
 
-  &-section {
-    display: block;
-    background: var(--colors-lightGrey);
-    margin: 0 -var(--SidePanel-width-padding-content);
-    padding: var(--SidePanel-width-padding-content);
+  .container {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-family-panels);
+  }
+
+  .title {
+    font-family: var(--font-family-base);
+    font-size: 16px;
+    color: var(--colors-slightlyDarkGrey);
+    height: var(--width-SidePanel-closed);
+    line-height: var(--width-SidePanel-closed);
+    background-color: var(--colors-white);
+    width: calc(var(--width-SidePanel-open) - var(--width-SidePanel-closed));
+    text-indent: var(--SidePanel-width-padding-content);
+  }
+
+  .vertical-menu {
+    position: absolute;
+    width: var(--width-SidePanel-closed);
+    height: calc(100vh - var(--GlobalNav-height-chrome));
+    top: var(--GlobalNav-height-chrome);
+    right: 0;
+    background-color: var(--colors-darkerGrey);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content {
+    position: absolute;
+    left: 0px;
+    width: calc(var(--width-SidePanel-open) - var(--width-SidePanel-closed));
+    height: 100%;
+    overflow-y: scroll;
+    background-color: var(--colors-white);
+    color: var(--colors-nearlyBlack);
+    transform: translateX(0);
+    transition: transform var(--timing-fast) var(--SidePanel-ease);
+  }
+
+  .content-closed {
+    transform: translateX(250px);
+  }
+
+  // force font in expandos and labels
+  .label-base * {
+    font-weight: normal !important;
+    font-family: var(--font-family-panels) !important;
+  }
+  .label-bold * {
+    font-weight: bold !important;
+    font-family: var(--font-family-panels) !important;
+  }
+  .expando * {
+    font-family: var(--font-family-panels) !important;
   }
 }

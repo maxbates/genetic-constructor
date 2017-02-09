@@ -1,0 +1,12 @@
+<svg id="sbol-svg-ribonuclease-large" xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54">
+  <g fill="none" fill-rule="evenodd" stroke="#292D40">
+    <path d="M27.5 51L27.5 46M27.5 42L27.5 37"/>
+    <g transform="translate(15 15)" stroke-linecap="square">
+      <g transform="translate(8 8)">
+        <path d="M-.7533531e-14 9L9 .8817842e-16M9 9L0 0"/>
+      </g>
+      <path d="M21 4L25 0M4 4L0 0"/>
+    </g>
+    <path d="M15 40L19 36M40 40L36 36" stroke-linecap="square"/>
+  </g>
+</svg>

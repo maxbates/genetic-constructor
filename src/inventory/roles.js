@@ -38,7 +38,33 @@ export const symbolMap = {
   rnaStability: 'RNA stability',
   restrictionSite: 'Restriction Site',
   structural: 'Structural',
+  list: 'List Block',
 };
+
+/**
+ * dictates the sort order of sbol tiles
+ * //todo - should be in roles.js so shared with role picker
+ */
+export const sortOrder = [
+  'promoter',
+  'cds',
+  'rbs',
+  'terminator',
+  'protease',
+  'ribonuclease',
+  'rna stability',
+  'protein stability',
+  'origin of replication',
+  'operator',
+  'insulator',
+  'restriction site',
+  'structural',
+  'bidrectional promoter',
+  'plasmin backbone',
+  'combinatorial list',
+  'list block',
+  'no symbol',
+];
 
 export const roleMassager = {
   gene: 'cds',
@@ -67,9 +93,8 @@ export const roleMassager = {
  */
 
 
-const symbols = Object.keys(symbolMap).map(key => ({
+export const symbols = Object.keys(symbolMap).map(key => ({
   id: key,
   name: symbolMap[key],
 }));
 
-export default symbols;

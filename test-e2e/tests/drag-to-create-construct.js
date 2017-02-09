@@ -1,16 +1,10 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
-var dragFromTo = require('../fixtures/dragfromto');
-var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
-var openInventory = require('../fixtures/open-inventory');
 var testProject = require('../fixtures/testproject');
 var size = require('../fixtures/size');
 module.exports = {
   'Test that dropping on the project canvas creates a new construct.' : function (browser) {
     size(browser);
-    var credentials = homepageRegister(browser);
+    homepageRegister(browser);
 
     // now we can go to the project page
     browser

@@ -1,5 +1,55 @@
-.ColorPicker {
-  .Picker-item {
+@import './variables.css';
 
+.single-color-picker {
+
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 0.5rem 0;
+
+  .label {
+    text-transform: capitalize;
+  }
+
+  .color-wrapper {
+    z-index: 1;
+    padding: 0.2rem;
+    border-radius: 2px;
+    &:hover {
+      background-color: var(--colors-selected);
+    }
+  }
+  .color {
+    width: 54px;
+    height: 54px;
+    border-radius: 100%;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .dropdown {
+    position: absolute;
+    padding: 4px 18px;
+    left: -12px;
+    top: 68px;
+    width: 282px;
+    background-color: var(--colors-darkerGrey);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-around;
+
+    .arrow {
+      width: 20px;
+      height: 20px;
+      background-color: var(--colors-darkerGrey);
+      position: absolute;
+      transform: rotate(45deg);
+      left: 27px;
+      top: -10px;
+    }
   }
 }

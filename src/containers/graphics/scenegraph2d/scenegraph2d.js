@@ -59,6 +59,12 @@ export default class SceneGraph2D {
     this.updateSize();
   }
 
+  destroy() {
+    if (this.ui) {
+      this.ui.destroy();
+    }
+  }
+
   /**
    * darken by changing opacity on parent el
    */

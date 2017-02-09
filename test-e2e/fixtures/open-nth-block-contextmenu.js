@@ -19,6 +19,6 @@ module.exports = function (browser, srcSelector, blockIndex) {
     browser
       .moveToElement('body', b.left + b.width - 8, b.top + 15)
       .mouseButtonClick('right')
-      .waitForElementPresent('.menu-popup-blocker-visible .menu-popup-container', 5000, 'expected an open menu')
+      .waitForElementPresent('.menu-overlay .menu-overlay-menu', 5000, 'expected an open menu')
   });
 }

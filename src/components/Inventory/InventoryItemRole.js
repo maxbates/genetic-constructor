@@ -25,6 +25,7 @@ export default class InventoryItemRole extends Component {
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
     }).isRequired,
+    hover: PropTypes.string.isRequired,
   };
 
   constructor(props) {
@@ -46,16 +47,29 @@ export default class InventoryItemRole extends Component {
     });
   }
 
+  state = {
+    inside: false,
+  };
+
   render() {
     const { role, ...rest } = this.props;
+    const highlight = this.props.hover && this.state.inside;
 
     return (
-      <div className="InventoryItemRole">
+      <div
+        className="InventoryItemRole"
+        onMouseEnter={() => this.setState({ inside: true })}
+        onMouseLeave={() => this.setState({ inside: false })}
+      >
         <InventoryItem
           {...rest}
           inventoryType={roleDragType}
           svg={role.id}
           item={this.roleBlock}
+          svgProps={{
+            fill: 'transparent',
+            color: highlight ? this.props.hover : '#1D222D',
+          }}
           dataAttribute={`sbol ${role.id}`}
         />
       </div>

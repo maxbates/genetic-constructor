@@ -2,11 +2,11 @@
   "comment": "Register a user and create and save a very simple construct.",
   "config": {
     "processor": "./helpers.js",
-    "target": "https://geneticconstructor.bionano.autodesk.com",
+    "target": "https://geneticconstructor.dev.bionano.autodesk.com",
     "timeout": 120,
     "phases": [
       {
-        "duration": 10,
+        "duration": 60,
         "arrivalCount": 1
       }
     ]

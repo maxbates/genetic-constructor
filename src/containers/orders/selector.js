@@ -15,7 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../../../src/styles/ordermodal.css';
+import '../../../src/styles/selector.css';
 
 export default class Selector extends Component {
   static propTypes = {
@@ -55,8 +55,9 @@ export default class Selector extends Component {
   render() {
     let menu = null;
     if (this.state.menuOpen) {
-      const items = this.props.options.map(item => (
+      const items = this.props.options.map((item, index) => (
         <div
+          key={index}
           className="menu-item"
           onClick={(evt) => {
             evt.preventDefault();
