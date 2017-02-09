@@ -43,7 +43,7 @@ export class InspectorBlock extends Component {
         return new Error(`Must pass valid instances of blocks to the inspector, got ${JSON.stringify(instance)}`);
       }
     }).isRequired,
-    construct: PropTypes.object.isRequired, //top-level
+    construct: PropTypes.object,
     overrides: PropTypes.shape({
       color: PropTypes.string,
       role: PropTypes.string,
@@ -212,7 +212,7 @@ export class InspectorBlock extends Component {
     const singleInstance = instances.length === 1;
     const isList = singleInstance && instances[0].isList();
     const isConstruct = singleInstance && instances[0].isConstruct();
-    const isFixed = construct.isFixed() || instances.some(inst => inst.isFixed());
+    const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
     const hasParents = this.props.blockGetParents(instances[0].id).length > 0;
 
     const inputKey = instances.map(inst => inst.id).join(',');
