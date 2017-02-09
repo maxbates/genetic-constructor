@@ -10,7 +10,7 @@ var registerViaHomepage = function (browser, cb) {
   .waitForElementPresent('.LandingPage', 5000, 'Expected landing page to be present')
 
   // wait for login form to be present
-  .waitForElementPresent('#auth-signin', 5000, 'Expected signin form to become visible')
+  .waitForElementPresent('#auth-signin', 10000, 'Expected signin form to become visible')
   // ensure it is the sign in dialog
   .pause(1000)
   .getText('.Modal-header-title', function (result) {
@@ -21,7 +21,7 @@ var registerViaHomepage = function (browser, cb) {
 
   // wait for registration dialog to appear
   //.pause(2000)
-  .waitForElementPresent('#auth-register', 5000, 'Expected register form to become visible')
+  .waitForElementPresent('#auth-register', 10000, 'Expected register form to become visible')
   .waitForElementPresent('#auth-register input[name="firstName"]', 1000, 'Expected input name=firstName')
   //wait a second for the form....
   .pause(100)
