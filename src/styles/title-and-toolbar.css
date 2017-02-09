@@ -1,0 +1,54 @@
+@import './variables.css';
+
+.title-and-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+
+  .title {
+    font-family: Helvetica;
+    text-indent: 0.5rem;
+    white-space: nowrap;
+    max-width: calc(100% - 32px);
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 1;
+
+    .text {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      flex-shrink: 1;
+      user-select: none;
+      span {
+        margin-left: 1rem;
+        color: gray;
+      }
+    }
+    img {
+      flex-shrink: 0;
+      visibility: hidden;
+    }
+
+    &:hover:not([disabled]) {
+      background-color: gray;
+      border-radius: 2px;
+      color: black;
+      img {
+        visibility: visible;
+      }
+      .text {
+        color: var(--colors-lighterGrey);
+      }
+      span {
+        color: var(--colors-darkGrey);
+      }
+    }
+  }
+  .bar {
+    min-width: 32px;
+    height: 32px;
+    overflow: hidden;
+  }
+}

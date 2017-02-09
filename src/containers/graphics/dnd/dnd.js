@@ -72,7 +72,7 @@ class DnD {
     this.proxy.style.zIndex = 2147483647;
     // remove any transform from proxy and make semi-transparent
     this.proxy.style.transform = null;
-    this.proxy.style.opacity = 2 / 3;
+    this.proxy.style.opacity = 0.7;
     // give the proxy the hand cursor
     this.proxy.style.cursor = 'pointer';
 
@@ -291,11 +291,10 @@ class DnD {
    * unregister a drop target via the registered element
    */
   unregisterTarget(element) {
-    const targetIndex = this.targets.findIndex(obj => obj.element);
+    const targetIndex = this.targets.findIndex(record => record.element === element);
     invariant(targetIndex >= 0, 'element is not registered');
     this.targets.splice(targetIndex, 1);
   }
-
   /**
    * a monitor element will get called regardless of it zorder relative to
    * other drop target and monitors. It is primary use is to allow things
@@ -312,7 +311,7 @@ class DnD {
    * unregister a drop target via the registered element
    */
   unregisterMonitor(element) {
-    const monitor = [...this.monitors].find(obj => obj.element);
+    const monitor = [...this.monitors].find(obj => obj.element === element);
     invariant(monitor, 'element is not registered');
     this.monitors.delete(monitor);
   }

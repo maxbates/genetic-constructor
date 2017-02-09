@@ -83,6 +83,21 @@ export const inventorySelectTab = tab => (dispatch, getState) => {
   return tab;
 };
 
+/**
+ * Select which tab of the inventory is active
+ * @function inventorySelectTab
+ * @todo - validate a legitimate tab is selected
+ * @param {string} tab Key of tab to be active
+ * @returns {string} Tab active
+ */
+export const inspectorSelectTab = tab => (dispatch, getState) => {
+  dispatch({
+    type: ActionTypes.INSPECTOR_SELECT_TAB,
+    tab,
+  });
+  return tab;
+};
+
 /* detail view */
 
 /**
@@ -192,6 +207,29 @@ export const uiSetGrunt = gruntMessage => (dispatch, getState) => {
   return gruntMessage;
 };
 
+export const uiShowMenu = (menuItems, menuPosition, menuHat) => (dispatch, getState) => {
+  dispatch({
+    type: ActionTypes.UI_SHOW_MENU,
+    menuItems,
+    menuPosition,
+    menuHat,
+  });
+  return { menuItems, menuPosition };
+};
+
+export const uiShowOkCancel = (title, message, onOk, onCancel = null, okText = 'Ok', cancelText = 'Cancel') => (dispatch, getState) => {
+  dispatch({
+    type: ActionTypes.UI_OK_CANCEL,
+    title,
+    message,
+    onOk,
+    onCancel,
+    okText,
+    cancelText,
+  });
+  return title;
+};
+
 export const uiSpin = (spinMessage = '') => (dispatch, getState) => {
   dispatch({
     type: ActionTypes.UI_SPIN,
@@ -228,10 +266,3 @@ export const uiReportError = nextState => (dispatch, getState) => {
   return null;
 };
 
-export const uiShowExtensionPicker = (nextState = true) => (dispatch, getState) => {
-  dispatch({
-    type: ActionTypes.UI_SHOW_EXTENSION_PICKER,
-    pickerState: nextState,
-  });
-  return nextState;
-};

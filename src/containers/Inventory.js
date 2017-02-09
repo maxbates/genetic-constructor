@@ -20,65 +20,93 @@ import { inventorySelectTab, inventoryToggleVisibility } from '../actions/ui';
 import InventoryGroup from '../components/Inventory/InventoryGroup';
 import '../styles/Inventory.css';
 import '../styles/SidePanel.css';
+import SectionIcon from './SectionIcon';
+import GlobalNav from '../components/GlobalNav/GlobalNav';
 
 export class Inventory extends Component {
   static propTypes = {
-    projectId: PropTypes.string,
+    currentProjectId: PropTypes.string,
     isVisible: PropTypes.bool.isRequired,
     currentTab: PropTypes.string,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     inventorySelectTab: PropTypes.func.isRequired,
   };
 
+  state = {
+    gslActive: false,
+  };
+
+  setActive = (group) => {
+    this.props.inventorySelectTab(group);
+  };
+
   toggle = (forceVal) => {
     this.props.inventoryToggleVisibility(forceVal);
   };
 
+  sections = {
+    Projects: {
+      type: 'projects',
+      title: 'Projects',
+      dragTarget: true,
+    },
+    Templates: {
+      type: 'templates',
+      title: 'Templates',
+    },
+    Sketch: {
+      type: 'role',
+      title: 'Sketch Blocks',
+    },
+    // Commons: null,
+    Ncbi: {
+      type: 'search-ncbi',
+      title: 'NCBI Search',
+    },
+    Igem: {
+      type: 'search-igem',
+      title: 'IGEM Search',
+    },
+    Egf: {
+      type: 'search-egf',
+      title: 'EGF Search',
+    },
+  };
+
   render() {
-    //may be better way to pass in projectId
-    const { isVisible, projectId, currentTab, inventorySelectTab } = this.props;
+    const { isVisible } = this.props;
+    // classes for content area
+    const contentClasses = `content${isVisible ? '' : ' content-closed'}`;
+    // map sections to icons
+    const icons = Object.keys(this.sections).map(sectionName => (
+      <SectionIcon
+        key={sectionName}
+        open={isVisible}
+        onSelect={this.setActive}
+        onToggle={() => this.toggle(!isVisible)}
+        selected={this.props.currentTab === sectionName && isVisible}
+        section={sectionName}
+        dragTarget={this.sections[sectionName].dragTarget}
+      />
+      ));
+    // setup content area
+    const tabInfo = this.sections[this.props.currentTab];
+    let tab;
+    if (tabInfo) {
+      tab = <InventoryGroup currentProjectId={this.props.currentProjectId} tabInfo={tabInfo} />;
+    }
 
     return (
-      <div
-        className={`SidePanel Inventory${
-      isVisible ? ' visible' : ''}`}
-      >
-        <div className="SidePanel-heading">
-          <span
-            className="SidePanel-heading-trigger Inventory-trigger"
-            onClick={() => this.toggle()}
-          />
-          <div className="SidePanel-heading-content">
-            <span className="SidePanel-heading-title">Inventory</span>
-            <a
-              className="SidePanel-heading-close"
-              ref="close"
-              onClick={() => this.toggle(false)}
-            />
-          </div>
-        </div>
-
-        <div className="SidePanel-content no-vertical-scroll">
-          <div className="Inventory-groups">
-            <InventoryGroup
-              title="Search"
-              type="search"
-              isActive={currentTab === 'search' || !currentTab}
-              setActive={() => inventorySelectTab('search')}
-            />
-            <InventoryGroup
-              title="My Projects"
-              type="projects"
-              currentProject={projectId}
-              isActive={currentTab === 'projects'}
-              setActive={() => inventorySelectTab('projects')}
-            />
-            <InventoryGroup
-              title="Sketch Library"
-              type="role"
-              isActive={currentTab === 'role'}
-              setActive={() => inventorySelectTab('role')}
-            />
+      <div className={`SidePanel Inventory${isVisible ? ' visible' : ''}`}>
+        <div className="container">
+          <GlobalNav currentProjectId={this.props.currentProjectId} />
+          <div className="inner-content">
+            <div className="vertical-menu">
+              {icons}
+            </div>
+            <div className={contentClasses}>
+              {tab}
+            </div>
           </div>
         </div>
       </div>

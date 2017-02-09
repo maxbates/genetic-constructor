@@ -53,8 +53,7 @@ class DNAImportForm extends Component {
         return;
       }
       const ncc = nextProps.currentConstruct;
-      const authoring = ncc.isTemplate() && ncc.isAuthoring();
-      if (ncc.isFrozen() || (!authoring && (ncc.isFixed() || ncc.isTemplate()))) {
+      if (ncc.isFrozen() || ncc.isFixed()) {
         this.props.uiShowDNAImport(false);
         this.props.uiSetGrunt('You cannot add sequence to a template block.');
         return;
@@ -163,7 +162,7 @@ class DNAImportForm extends Component {
       }}
       payload={
         <form className="gd-form importdnaform" onSubmit={this.onSubmit}>
-          <div className="title">Add Sequence</div>
+          <div className="title">Edit Sequence</div>
           <textarea
             onKeyDown={(event) => {
               if (event.key === 'Enter') {

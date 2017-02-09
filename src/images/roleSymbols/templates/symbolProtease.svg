@@ -1,0 +1,8 @@
+<svg id="sbol-svg-protease" xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27">
+  <g fill="none" fill-rule="evenodd" stroke="#292D40">
+    <path d="M13.5,26 L13.5,13"/>
+    <g transform="translate(6.5 6)" stroke-linecap="square">
+      <path d="M-.84741111e-13 14L14 .8817842e-15M14 14L0 0"/>
+    </g>
+  </g>
+</svg>

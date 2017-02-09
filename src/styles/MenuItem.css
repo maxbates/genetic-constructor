@@ -1,0 +1,68 @@
+@import './variables.css';
+
+.menu-item {
+  color: var(--colors-menutext);
+  font-size: 14px;
+  user-select: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 1rem 0.2rem 1.5rem;
+  cursor: default;
+
+  &.disabled {
+    color: var(--colors-menutext-disabled);
+    pointer-events: none;
+  }
+
+  &:hover {
+    background-color: var(--colors-selected);
+    color: white;
+    .right {
+      .corner {
+        border-top-color: var(--colors-white);
+        border-right-color: var(--colors-white);
+      }
+    }
+  }
+
+  .menu-item-checked {
+    width: 1.5rem;
+    display: inline-block;
+  }
+  .menu-item-checked:before {
+    content: '✓';
+  }
+  .menu-item-unchecked {
+    width: 1.5rem;
+    display: inline-block;
+  }
+
+  .left {
+    margin-right: 4rem;
+    display: inline-flex;
+    align-items: center;
+    .text {
+      white-space: nowrap;
+    }
+  }
+  .right {
+    display: inline-flex;
+    align-items: center;
+    .arrow {
+      margin-left: 0.5rem;
+    }
+  }
+  /*positioning for sub menu*/
+  .sub-menu {
+    top: -15px;
+    box-shadow: 0px 0px 10px 0px rgba(38,49,66,1);
+  }
+  .sub-menu-right {
+    left: calc(100% - 4px);
+  }
+  .sub-menu-left {
+    right: calc(100% - 4px);
+  }
+}

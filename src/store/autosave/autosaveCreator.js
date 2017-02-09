@@ -106,12 +106,11 @@ export default function autosavingCreator(config) {
       }
 
       if (options.simulateOn(action, dirty, nextState, state) === true) {
-        //todo - need to handle errors for these simulations.... these just look like they worked.. only want to mark !dirty on success
         noteSave();
       }
 
       //function call so easy to transition to debounced version
-      if (checkSave(action, nextState, state) && !!initialized) {
+      if (checkSave(action, nextState, state) && initialized) {
         debouncedInitiateSave(nextState);
       }
 
@@ -121,8 +120,16 @@ export default function autosavingCreator(config) {
     };
   };
 
+  //a reducer that can be mounted into the store, to expose information about dirty, time unsaved, etc.
+  const initialState = { dirty: false, timeUnsaved: 0 };
+  const autosaveReducer = (state = initialState, action) => ({
+    dirty: isDirty(),
+    timeUnsaved: getTimeUnsaved(),
+  });
+
   return {
     autosaveReducerEnhancer,
+    autosaveReducer,
     getTimeUnsaved,
     isDirty,
   };

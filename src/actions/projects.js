@@ -23,6 +23,7 @@ import { push } from 'react-router-redux';
 
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import * as blockActions from '../actions/blocks';
+import { uiSetGrunt } from '../actions/ui';
 import * as ActionTypes from '../constants/ActionTypes';
 import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
 import { snapshot } from '../middleware/snapshots';
@@ -73,29 +74,6 @@ export const projectList = () => (dispatch, getState) => listProjects()
         });
 
         return projects;
-      });
-
-/**
- * Delete a project. THIS CANNOT BE UNDONE.
- * @function
- * @param {UUID} projectId
- * @returns {UUID} project ID deleted
- */
-export const projectDelete = projectId => (dispatch, getState) => deleteProject(projectId)
-    //catch deleting a project that is not saved (will 404)
-      .catch((resp) => {
-        if (resp.status === 404) {
-          return null;
-        }
-        return Promise.reject(resp);
-      })
-      .then(() => {
-        //don't delete the blocks, as they may be shared between projects (or, could delete and then force loading for next / current project)
-        dispatch({
-          type: ActionTypes.PROJECT_DELETE,
-          projectId,
-        });
-        return projectId;
       });
 
 /**
@@ -288,8 +266,6 @@ const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) => lo
             return _projectLoad(nextId, ignores, dispatch);
           }
           //if no manifests, create a new rollup
-          //note - this shouldnt happen while users have sample projects
-          //todo - may want to hit the server to re-setup the user's account
           return emptyProjectWithConstruct(userId, true);
         });
     });
@@ -402,6 +378,51 @@ export const projectOpen = (inputProjectId, skipSave = false) => (dispatch, getS
 };
 
 /**
+ * Delete a project. THIS CANNOT BE UNDONE.
+ *
+ * Returns false if project cannot be deleted
+ *
+ * Recommended usage --- load another project, open it, then call this action
+ * @function
+ * @param {UUID} projectId
+ * @returns {UUID} project ID deleted
+ */
+export const projectDelete = projectId =>
+  (dispatch, getState) => {
+    const project = getState().projects[projectId];
+
+    if (project.rules.frozen) {
+      dispatch(uiSetGrunt('This is a sample project and cannot be deleted.'));
+      return false;
+    }
+
+    //wrap deleting in a transaction
+    dispatch(undoActions.transact());
+
+    //optimistically delete the project
+    //don't delete the blocks, as they may be shared between projects (or, could delete and then force loading for next / current project)
+    dispatch({
+      type: ActionTypes.PROJECT_DELETE,
+      projectId,
+    });
+
+    return deleteProject(projectId)
+    //catch deleting a project that is not saved (will 404)
+    .catch((resp) => {
+      if (resp.status === 404) {
+        return null;
+      }
+      dispatch(undoActions.abort());
+      dispatch(uiSetGrunt('There was a problem deleting your project. Please try again.'));
+      return Promise.reject(resp);
+    })
+    .then(() => {
+      dispatch(undoActions.commit());
+      return projectId;
+    });
+  };
+
+/**
  * Rename a project
  * @function
  * @param {UUID} projectId
@@ -420,6 +441,24 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
 };
 
 /**
+ * set the palette for the project
+ * @param projectId
+ * @param paletteName
+ */
+export const projectSetPalette = (projectId, paletteName) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.mutate('metadata.palette', paletteName);
+  dispatch({
+    type: ActionTypes.PROJECT_SETPALETTE,
+    paletteName,
+    undoable: true,
+    project,
+  });
+  return project;
+};
+
+
+/**
  * Adds a construct to a project. Does not create the construct. Use a Block Action.
  * The added construct should have the project ID of the current project, or pass forceProjectId = true
  * @function
@@ -428,9 +467,14 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
  * @param {boolean} [forceProjectId=true] set the projectId if not set
  * @returns {Project}
  */
-export const projectAddConstruct = (projectId, constructId, forceProjectId = true) => (dispatch, getState) => {
+export const projectAddConstruct = (projectId, constructId, forceProjectId = true, index = -1) => (dispatch, getState) => {
   const oldProject = getState().projects[projectId];
-  const project = oldProject.addComponents(constructId);
+  let project;
+  if (index < 0) {
+    project = oldProject.addComponents(constructId);
+  } else {
+    project = oldProject.addComponentsAt(index, constructId);
+  }
 
   const component = getState().blocks[constructId];
   const componentProjectId = component.projectId;

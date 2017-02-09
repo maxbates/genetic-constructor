@@ -37,11 +37,11 @@ const getKey = (key, shouldPrefix = true) => {
 export function getLocal(key, defaultObject, shouldPrefix = true) {
   // many things could go wrong here, no localStorage, unserializable object etc.
   try {
-    let item = localStorage.getItem(getKey(key, shouldPrefix));
+    const item = localStorage.getItem(getKey(key, shouldPrefix));
     if (item) {
-      item = JSON.parse(item);
+      return JSON.parse(item);
     }
-    return item || defaultObject;
+    return defaultObject;
   } catch (error) {
     console.error('error getting localStorage:', key, ' - removing.');//eslint-disable-line no-console
     try {

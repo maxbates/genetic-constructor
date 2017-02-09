@@ -46,6 +46,13 @@ export default class UserInterface {
       contextMenu: this.contextMenu.bind(this),
     });
   }
+
+  destroy() {
+    invariant(!this.destroyed, 'already destroyed');
+    this.destroyed = true;
+    this.mouseTrap.dispose();
+  }
+
   /**
    * replace current selections, call with falsey to reset selections
    *

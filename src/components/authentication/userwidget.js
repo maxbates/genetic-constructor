@@ -17,44 +17,47 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 
-import { uiSetGrunt, uiShowAuthenticationForm, uiShowExtensionPicker } from '../../actions/ui';
+import { uiSetGrunt, uiShowAuthenticationForm, uiShowMenu } from '../../actions/ui';
 import { userLogout } from '../../actions/user';
-import PopupMenu from '../../components/Menu/PopupMenu';
+import Box2D from '../../containers/graphics/geometry/box2d';
 import Vector2D from '../../containers/graphics/geometry/vector2d';
 import '../../styles/userwidget.css';
 
 class UserWidget extends Component {
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
-    uiShowExtensionPicker: PropTypes.func.isRequired,
+    uiShowMenu: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     user: PropTypes.object,
     userLogout: PropTypes.func.isRequired,
     userWidgetVisible: PropTypes.bool.isRequired,
   };
 
-  state = {
-    menuOpen: false,
-    menuPosition: new Vector2D(),
-  };
-
-  onSignIn = (evt) => {
-    evt.preventDefault();
-    this.props.uiShowAuthenticationForm('signin');
-  };
-
+  /**
+   * show the content menu
+   */
   onShowMenu = () => {
-    const box = ReactDOM.findDOMNode(this).getBoundingClientRect();
-    this.setState({
-      menuOpen: true,
-      menuPosition: new Vector2D(box.left - 200, box.top + box.height),
-    });
-  };
+    const box = new Box2D(ReactDOM.findDOMNode(this).getBoundingClientRect());
+    const menuPosition = new Vector2D(box.cx, box.bottom);
+    const name = `${this.props.user.firstName} ${this.props.user.lastName}`;
 
-  closeMenu = () => {
-    this.setState({
-      menuOpen: false,
-    });
+    this.props.uiShowMenu([
+      {
+        text: name,
+        disabled: true,
+      },
+      {
+        text: 'Account Settings',
+        action: () => {
+          this.props.uiShowAuthenticationForm('account');
+        },
+      },
+      {
+        text: 'Sign Out',
+        action: this.signOut,
+      },
+    ],
+    menuPosition, true);
   };
 
   signOut = () => {
@@ -64,56 +67,14 @@ class UserWidget extends Component {
     });
   };
 
-  contextMenu = () => (
-    <PopupMenu
-      open={this.state.menuOpen}
-      position={this.state.menuPosition}
-      closePopup={this.closeMenu}
-      menuItems={[
-        {
-          text: `${this.props.user.firstName} ${this.props.user.lastName}`,
-          disabled: true,
-          classes: 'blue-menu-items',
-        },
-        {
-          text: 'Extension Settings',
-          action: () => {
-            this.props.uiShowExtensionPicker(true);
-          },
-        },
-        {
-          text: 'Account Settings',
-          action: () => {
-            this.props.uiShowAuthenticationForm('account');
-          },
-        },
-        {
-          text: 'Sign Out',
-          action: this.signOut,
-        },
-      ]}
-    />
-  );
-
   render() {
     if (!this.props.userWidgetVisible) {
       return null;
     }
 
-    if (this.props.user.userid) {
-      // signed in user
-      return (
-        <div className="userwidget">
-          <div onClick={this.onShowMenu} className="signed-in">
-            {this.props.user.firstName ? this.props.user.firstName.substr(0, 1) : '?'}</div>
-          {this.contextMenu()}
-        </div>
-      );
-    }
-    // signed out user
     return (
       <div className="userwidget">
-        <a className="signed-out" onClick={this.onSignIn}>SIGN IN</a>
+        <img onClick={this.onShowMenu} src="/images/ui/user.svg" />
       </div>
     );
   }
@@ -128,7 +89,7 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   uiShowAuthenticationForm,
-  uiShowExtensionPicker,
   uiSetGrunt,
+  uiShowMenu,
   userLogout,
 })(UserWidget);

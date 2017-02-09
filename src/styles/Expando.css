@@ -1,0 +1,19 @@
+@import './variables';
+
+.expando {
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .content-hidden {
+    display: none;
+  }
+  .content-visible {
+    display: block;
+  }
+  .header-extras {
+    display: flex;
+    align-items: center;
+  }
+}

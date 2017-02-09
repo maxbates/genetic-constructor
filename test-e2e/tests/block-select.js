@@ -1,13 +1,9 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
-var dragFromTo = require('../fixtures/dragfromto');
 var dragRegion = require('../fixtures/dragregion');
 var testProject = require('../fixtures/testproject');
-var newConstruct = require('../fixtures/newconstruct');
 var clickNthBlock = require('../fixtures/click-nth-block-bounds');
 var clickAt = require('../fixtures/clickAt');
-var openInventory = require('../fixtures/open-inventory');
+
 var size = require('../fixtures/size');
 
 module.exports = {
@@ -58,7 +54,7 @@ module.exports = {
     browser.pause(1000);
     browser.assert.countelements(".scenegraph-userinterface-selection", 0);
 
-    dragRegion(browser, '.scenegraph-userinterface', 800, 110, 30, 10, 100);
+    dragRegion(browser, '.scenegraph-userinterface', 800, 100, 30, 10, 100);
     browser
       .waitForElementPresent('.scenegraph-userinterface-selection', 5000, 'expected selections')
       // ensure we have all elements selected

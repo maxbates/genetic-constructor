@@ -56,6 +56,16 @@ export const inventorySetSearchTerm = searchTerm => (dispatch, getState) => {
   return searchTerm;
 };
 
+export const inventorySearchReset = () => (dispatch, getState) => {
+  const state = getState();
+  const { sourceList } = state.inventory;
+  dispatch({
+    type: ActionTypes.INVENTORY_SEARCH_RESET,
+    sourceList,
+  });
+  return Promise.resolve();
+};
+
 /**
  * Search for a term across active search sources
  * @function
