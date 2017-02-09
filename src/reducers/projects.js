@@ -32,6 +32,7 @@ export default function projects(state = initialState, action) {
     case ActionTypes.PROJECT_LOAD :
     case ActionTypes.PROJECT_MERGE :
     case ActionTypes.PROJECT_RENAME :
+    case ActionTypes.PROJECT_SET_KEYWORDS :
     case ActionTypes.PROJECT_REMOVE_CONSTRUCT:
     case ActionTypes.PROJECT_ADD_CONSTRUCT :
     case ActionTypes.PROJECT_FILE_WRITE :

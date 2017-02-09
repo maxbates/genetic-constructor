@@ -420,6 +420,24 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
 };
 
 /**
+ * Set the keywords for a project
+ * @function
+ * @param {UUID} projectId
+ * @param {Array<string>} keywords
+ * @returns {Project}
+ */
+export const projectSetKeywords = (projectId, keywords) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.mutate('metadata.keywords', keywords);
+  dispatch({
+    type: ActionTypes.PROJECT_SET_KEYWORDS,
+    undoable: true,
+    project,
+  });
+  return project;
+};
+
+/**
  * Adds a construct to a project. Does not create the construct. Use a Block Action.
  * The added construct should have the project ID of the current project, or pass forceProjectId = true
  * @function
