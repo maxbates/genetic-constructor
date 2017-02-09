@@ -212,7 +212,7 @@ export class InspectorBlock extends Component {
     const singleInstance = instances.length === 1;
     const isList = singleInstance && instances[0].isList();
     const isConstruct = singleInstance && instances[0].isConstruct();
-    const isFixed = instances.some(inst => inst.isFixed());
+    const isFixed = construct.isFixed() || instances.some(inst => inst.isFixed());
     const hasParents = this.props.blockGetParents(instances[0].id).length > 0;
 
     const inputKey = instances.map(inst => inst.id).join(',');
