@@ -29,12 +29,8 @@ export const SNAPSHOT_TYPE_PUBLISH = 'SNAPSHOT_PUBLISH';
 export const COMMONS_TAG = 'COMMONS_TAG';
 
 export const defaultMessage = 'Published Project';
-
-const defaultSnapshotBody = {
-  message: '',
-  tags: {},
-  keywords: [],
-};
+const snapshotBodyScaffold = { tags: {}, keywords: [] };
+const defaultSnapshotBody = Object.assign({ message: defaultMessage }, snapshotBodyScaffold);
 
 const snapshotIsPublished = snapshot => snapshot.tags[COMMONS_TAG];
 
@@ -156,19 +152,20 @@ export const commonsRetrieve = (projectId, version, lockProject = true) =>
  * @param projectId
  * @param userId
  * @param version
- * @param [body] Information about snapshot. Defaults to { message: '', tags: {}, keywords: [] }
+ * @param [body] Information about snapshot. Defaults to { message: <default>, tags: {}, keywords: [] }
  * @returns {Promise}
  * @resolve snapshot
  */
 //keep message undefined by default, so don't overwrite on merge with default
-export const commonsPublishVersion = (projectId, userId, version, body = defaultSnapshotBody) => {
+export const commonsPublishVersion = (projectId, userId, version, body) => {
   invariant(projectId, 'projectId required');
   invariant(userId, 'userId required');
   invariant(Number.isInteger(version), 'version required');
   invariant(typeof body === 'object', 'body must be an object');
 
+  const snapshotBody = Object.assign({}, snapshotBodyScaffold, body);
   //add publishing tag
-  body.tags[COMMONS_TAG] = true;
+  snapshotBody.tags[COMMONS_TAG] = true;
 
   //try to update the existing snapshot, without changing the type
   return snapshots.snapshotMerge(projectId, userId, version, body)
@@ -179,8 +176,7 @@ export const commonsPublishVersion = (projectId, userId, version, body = default
       return Promise.reject(err);
     }
 
-    //add message if didn't give us one
-    body.message = body.message.length ? body.message : defaultMessage;
+    snapshotBody.message = body.message || defaultMessage;
 
     return snapshots.snapshotWrite(projectId, userId, version, body, SNAPSHOT_TYPE_PUBLISH);
   });
@@ -199,20 +195,22 @@ export const commonsPublishVersion = (projectId, userId, version, body = default
  * @resolve snapshot
  */
 //todo - test (when expose route)
-export const commonsPublish = (projectId, userId, roll, body = defaultSnapshotBody) => {
+export const commonsPublish = (projectId, userId, roll, body) => {
   invariant(projectId, 'projectId required');
   invariant(userId, 'userId required');
 
   //will properly validate roll when attempt to write
   invariant(roll && roll.project && roll.blocks, 'roll is required');
 
+  const snapshotBody = Object.assign({}, defaultSnapshotBody, body);
+
   return projectPersistence.projectWrite(projectId, roll)
   .then((writtenRoll) => {
     //add publishing tag + default message if didn't give us one
-    body.tags[COMMONS_TAG] = true;
-    body.message = body.message ? body.message.length : defaultMessage;
+    snapshotBody.tags[COMMONS_TAG] = true;
+    snapshotBody.message = body.message || defaultMessage;
 
-    return snapshots.snapshotWrite(projectId, userId, writtenRoll.version, body, SNAPSHOT_TYPE_PUBLISH);
+    return snapshots.snapshotWrite(projectId, userId, writtenRoll.version, snapshotBody, SNAPSHOT_TYPE_PUBLISH);
   });
 };
 

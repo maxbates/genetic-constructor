@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+import _ from 'lodash';
 import debug from 'debug';
 
 import { errorDoesNotExist } from '../../errors/errorConstants';
@@ -116,7 +117,7 @@ export const snapshotGet = (projectId, version) => {
  * @param projectId
  * @param userId
  * @param [version] If no version provided, snapshot latest
- * @param [body] Snapshot information Defaults to { message: 'Project Snapshot', tags: {}, keywords: [] }
+ * @param [body] Snapshot information. Merges with default: { message: 'Project Snapshot', tags: {}, keywords: [] }
  * @param [type]
  * @returns Promise
  * @resolve snapshot
@@ -125,23 +126,25 @@ export const snapshotWrite = (
   projectId,
   userId,
   version,
-  body = defaultSnapshotBody,
+  body,
   type = SNAPSHOT_TYPE_USER,
 ) => {
   //version optional, defaults to latest
   invariant(projectId && userId, 'must pass projectId, userId');
   invariant((!version && version !== 0) || Number.isInteger(version), 'version must be a number');
-  invariant(typeof body.message === 'string', 'message must be a string');
-  invariant(typeof body.tags === 'object' && !Array.isArray(body.tags), 'tags must be object');
-  invariant(Array.isArray(body.keywords) && body.keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
+
+  const snapshotBody = Object.assign({}, defaultSnapshotBody, body);
+  invariant(typeof snapshotBody.message === 'string', 'message must be a string');
+  invariant(typeof snapshotBody.tags === 'object' && !Array.isArray(snapshotBody.tags), 'tags must be object');
+  invariant(Array.isArray(snapshotBody.keywords) && snapshotBody.keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
   invariant(typeof type === 'string', 'type must be a string');
 
-  logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${body.message}`);
+  logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${snapshotBody.message}`);
 
   const postBody = {
     projectId,
     type,
-    ...body,
+    ...snapshotBody,
   };
 
   if (Number.isInteger(version)) {
@@ -172,13 +175,15 @@ export const snapshotMerge = (
   version,
   body = {},
   type,
-) =>
-  snapshotGet(projectId, version)
+) => {
+  invariant(typeof body === 'object', 'snapshot body must be an object');
+
+  return snapshotGet(projectId, version)
   .then((snapshot) => {
     //prefer new things if defined, otherwise default to snapshot (which must have defaults)
     const newMessage = body.message || snapshot.message;
-    const newTags = { ...snapshot.tags, ...body.tags };
-    const newKeywords = [...snapshot.keywords, ...body.keywords];
+    const newTags = Object.assign({}, snapshot.tags, body.tags);
+    const newKeywords = _.compact(snapshot.keywords.concat(body.keywords));
     const newType = type || snapshot.type;
 
     logger(`[snapshotMerge] updating @ V${version} on ${projectId} - ${newMessage}, ${newType}, ${JSON.stringify(newTags)}`);
@@ -191,6 +196,7 @@ export const snapshotMerge = (
 
     return snapshotWrite(projectId, userId, version, newBody, newType);
   });
+};
 
 //if want to support - need to do by uuid, so need to fetch via projectId + version and delete that way, or list and delete
 export const snapshotDelete = (projectId, version) => {

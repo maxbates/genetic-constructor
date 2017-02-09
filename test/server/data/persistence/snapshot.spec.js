@@ -41,7 +41,7 @@ describe('Server', () => {
         const exampleTag = { some: ' tag' };
         const exampleKeywords = ['special phrase', 'e coli'];
 
-        before(async () => {
+        before(async() => {
           await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
           await projectPersistence.projectWrite(roll.project.id, updated, testUserId);
           await projectPersistence.projectWrite(roll.project.id, latest, testUserId);
@@ -68,7 +68,7 @@ describe('Server', () => {
         });
 
         it('snapshotMerge() throws when snapshot does not exist', () => {
-          return snapshots.snapshotMerge(roll.project.id, testUserId, 0, 'new message')
+          return snapshots.snapshotMerge(roll.project.id, testUserId, 0, { message: 'new message' })
           .then(() => Promise.reject('shouldnt exist'))
           .catch(err => {
             expect(err).to.equal(errorDoesNotExist);
@@ -162,7 +162,7 @@ describe('Server', () => {
           });
         });
 
-        it('snapshotMerge() updates a snapshot', async () => {
+        it('snapshotMerge() updates a snapshot', async() => {
           const newMessage = 'Some new message';
 
           const initial = await snapshots.snapshotGet(otherSnapshot.projectId, otherSnapshot.version);
@@ -171,7 +171,7 @@ describe('Server', () => {
             otherSnapshot.projectId,
             otherSnapshot.owner,
             otherSnapshot.version,
-            newMessage,
+            { message: newMessage },
           );
 
           expect(updated.version).to.equal(initial.version);
@@ -189,7 +189,7 @@ describe('Server', () => {
           expect(retrieved.uuid).to.equal(initial.uuid);
         });
 
-        it('snapshotDelete() with version removes a single snapshot', async () => {
+        it('snapshotDelete() with version removes a single snapshot', async() => {
           await snapshots.snapshotDelete(otherSnapshot.projectId, otherSnapshot.version);
 
           return snapshots.snapshotExists(otherSnapshot.projectId, otherSnapshot.version)
