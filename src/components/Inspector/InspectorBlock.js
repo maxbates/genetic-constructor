@@ -305,7 +305,7 @@ export class InspectorBlock extends Component {
                 <PalettePicker
                   paletteName={palette}
                   onSelectPalette={this.selectPalette}
-                  readOnly={readOnly}
+                  readOnly={readOnly || isFixed}
                 />}
             />
           :
@@ -316,7 +316,7 @@ export class InspectorBlock extends Component {
           <ColorPicker
             setText={this.setColorSymbolText}
             current={this.currentColor()}
-            readOnly={readOnly}
+            readOnly={readOnly || isFixed}
             paletteName={palette}
             onSelectColor={this.selectColor}
           />
