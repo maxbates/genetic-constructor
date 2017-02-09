@@ -402,12 +402,13 @@ export default class Block extends Instance {
     }
 
     //hack to accommodate adding frozen block to construct / list
+    //todo - why do we need this? Should only allow setting projectId on non-frozen blocks (clone first)
     //need to determine how to handle adding frozen blocks
     if (this.isFrozen()) {
       return this.clone(null, {
         projectId,
         rules: { frozen: false },
-      });
+      }).mutate('id', this.id);
     }
     return this.mutate('projectId', projectId);
   }

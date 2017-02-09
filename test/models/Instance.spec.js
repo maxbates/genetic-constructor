@@ -127,7 +127,7 @@ describe('Model', () => {
       expect(inst.clone.bind(inst, { version: goodVersion })).to.not.throw();
     });
 
-    it('clone(null) does not change ID or add to history', () => {
+    it('clone(null) does not change ID or add to history, or require owner to be present', () => {
       const inst = new Instance();
       const clone = inst.clone(null);
 
