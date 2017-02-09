@@ -24,7 +24,7 @@ import { testUserId } from '../constants';
 import { createExampleRollup } from '../_utils/rollup';
 
 describe('Middleware', () => {
-  describe.only('Snapshots', () => {
+  describe('Snapshots', () => {
     const roll = createExampleRollup();
     const updated = _.merge({}, roll, { project: { blah: 'blah' } });
     const latest = _.merge({}, updated, { project: { another: 'field' } });
