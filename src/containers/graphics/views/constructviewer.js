@@ -58,6 +58,7 @@ import {
   uiShowGenBankImport,
   uiShowOrderForm,
   uiToggleDetailView,
+  inspectorSelectTab,
 } from '../../../actions/ui';
 import RoleSvg from '../../../components/RoleSvg';
 import { role as roleDragType } from '../../../constants/DragTypes';
@@ -82,6 +83,7 @@ export class ConstructViewer extends Component {
     construct: PropTypes.object.isRequired,
     constructId: PropTypes.string.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
+    inspectorSelectTab: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     focusBlocksAdd: PropTypes.func.isRequired,
@@ -345,6 +347,7 @@ export class ConstructViewer extends Component {
    */
   openInspector() {
     this.props.inspectorToggleVisibility(true);
+    this.props.inspectorSelectTab('Information');
   }
 
   /**
@@ -990,6 +993,7 @@ export default connect(mapStateToProps, {
   projectSave,
   projectAddConstruct,
   inspectorToggleVisibility,
+  inspectorSelectTab,
   inventoryToggleVisibility,
   uiShowDNAImport,
   uiShowOrderForm,
