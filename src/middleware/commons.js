@@ -21,6 +21,12 @@ import { headersDelete, headersGet, headersPost, headersPut } from './utils/head
 import { commonsApiPath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
+const defaultSnapshotBody = {
+  message: 'Publish Project',
+  tags: {},
+  keywords: [],
+};
+
 export const commonsRetrieve = (projectId, version) => {
   invariant(projectId, 'Project ID required to retrieve');
 
@@ -37,21 +43,18 @@ export const commonsPublish = (rollup) => {
 };
 
 // Publish an existing version
-export const commonsPublishVersion = (projectId, version, message, tags = {}) => {
+export const commonsPublishVersion = (projectId, version, body = defaultSnapshotBody) => {
   invariant(projectId, 'Project ID required to publish');
   invariant(version, 'Version required to publish specific version');
 
-  const stringified = JSON.stringify({
-    message,
-    tags,
-  });
+  const stringified = JSON.stringify(body);
 
   return rejectingFetch(commonsApiPath(projectId, version), headersPost(stringified))
   .then(resp => resp.json());
 };
 
 //todo, if we want this
-//export const commonsPublish = (projectId, roll, message, tags) => {}
+//export const commonsPublish = (projectId, roll, body) => {}
 
 //Unpublish either a whole project (no version given), or a specific version (version given)
 export const commonsUnpublish = (projectId, version) => {

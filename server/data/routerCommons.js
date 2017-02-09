@@ -89,7 +89,7 @@ router.route('/:projectId/:version?')
     const { message, tags } = req.body;
     convertTagsStrings(tags);
 
-    commons.commonsPublishVersion(projectId, user.uuid, version, message, tags)
+    commons.commonsPublishVersion(projectId, user.uuid, version, { message, tags })
     .then(info => res.json(info))
     .catch(next);
   })
@@ -105,7 +105,7 @@ router.route('/:projectId/:version?')
  const { rollup, message, tags } = req.body;
  convertTagsStrings(tags);
 
- commons.commonsPublish(projectId, user.uuid, rollup, message, tags)
+ commons.commonsPublish(projectId, user.uuid, rollup, { message, tags })
  .then(info => res.json(info))
  .catch(next);
  })

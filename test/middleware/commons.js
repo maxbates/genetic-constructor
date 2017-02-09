@@ -76,9 +76,7 @@ describe('middleware', () => {
         rollOtherPublic.project.id,
         otherUserId,
         rollOtherPublic.project.version,
-        'Another users snapshot!',
-        makeTag(true),
-        keywords,
+        { message: 'Another users snapshot!', tags: makeTag(true), keywords },
         commons.SNAPSHOT_TYPE_PUBLISH,
       );
 
@@ -92,18 +90,14 @@ describe('middleware', () => {
         rollPublic1.project.id,
         testUserId,
         rollPublic1.project.version,
-        undefined,
-        makeTag(true),
-        keywords,
+        { tags: makeTag(true), keywords },
       );
 
       snapshotPublic2 = await snapshots.snapshotWrite(
         rollPublic2.project.id,
         testUserId,
         rollPublic2.project.version,
-        'Some message',
-        makeTag(true),
-        keywords,
+        { message: 'Some message', tags: makeTag(true), keywords },
         commons.SNAPSHOT_TYPE_PUBLISH,
       );
     });

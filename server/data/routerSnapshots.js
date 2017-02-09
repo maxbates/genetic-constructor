@@ -103,8 +103,10 @@ router.route('/:projectId/:version?')
         .then(({ version }) => version) :
       getVersionPromise;
 
+    const snapshotBody = { message, tags, keywords };
+
     writePromise
-      .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, message, tags, keywords))
+      .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, snapshotBody))
       .then(snapshot => res.status(200).json(snapshot))
       //may want better error handling here
       .catch(next);

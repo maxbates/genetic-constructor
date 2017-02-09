@@ -30,6 +30,12 @@ export const COMMONS_TAG = 'COMMONS_TAG';
 
 export const defaultMessage = 'Published Project';
 
+const defaultSnapshotBody = {
+  message: '',
+  tags: {},
+  keywords: [],
+};
+
 const snapshotIsPublished = snapshot => snapshot.tags[COMMONS_TAG];
 
 //NB - mutates the json directly
@@ -150,22 +156,22 @@ export const commonsRetrieve = (projectId, version, lockProject = true) =>
  * @param projectId
  * @param userId
  * @param version
- * @param [message]
- * @param [tags={}]
- * @param [keywords=[]]
+ * @param [body] Information about snapshot. Defaults to { message: '', tags: {}, keywords: [] }
  * @returns {Promise}
  * @resolve snapshot
  */
 //keep message undefined by default, so don't overwrite on merge with default
-export const commonsPublishVersion = (projectId, userId, version, message, tags = {}, keywords) => {
+export const commonsPublishVersion = (projectId, userId, version, body = defaultSnapshotBody) => {
   invariant(projectId, 'projectId required');
   invariant(userId, 'userId required');
   invariant(Number.isInteger(version), 'version required');
+  invariant(typeof body === 'object', 'body must be an object');
 
-  const newTags = { ...tags, [COMMONS_TAG]: true };
+  //add publishing tag
+  body.tags[COMMONS_TAG] = true;
 
   //try to update the existing snapshot, without changing the type
-  return snapshots.snapshotMerge(projectId, userId, version, message, newTags, keywords)
+  return snapshots.snapshotMerge(projectId, userId, version, body)
   //if snapshot doesn't exist, make a new + public one
   .catch((err) => {
     //if we got a different error, pass it through
@@ -173,9 +179,10 @@ export const commonsPublishVersion = (projectId, userId, version, message, tags 
       return Promise.reject(err);
     }
 
-    const newMessage = message || defaultMessage;
+    //add message if didn't give us one
+    body.message = body.message.length ? body.message : defaultMessage;
 
-    return snapshots.snapshotWrite(projectId, userId, version, newMessage, newTags, keywords, SNAPSHOT_TYPE_PUBLISH);
+    return snapshots.snapshotWrite(projectId, userId, version, body, SNAPSHOT_TYPE_PUBLISH);
   });
 };
 
@@ -187,14 +194,12 @@ export const commonsPublishVersion = (projectId, userId, version, message, tags 
  * @param projectId
  * @param userId
  * @param roll
- * @param message
- * @param tags
- * @param keywords
+ * @param [body]
  * @returns {Promise}
  * @resolve snapshot
  */
 //todo - test (when expose route)
-export const commonsPublish = (projectId, userId, roll, message = defaultMessage, tags = {}, keywords = []) => {
+export const commonsPublish = (projectId, userId, roll, body = defaultSnapshotBody) => {
   invariant(projectId, 'projectId required');
   invariant(userId, 'userId required');
 
@@ -203,8 +208,11 @@ export const commonsPublish = (projectId, userId, roll, message = defaultMessage
 
   return projectPersistence.projectWrite(projectId, roll)
   .then((writtenRoll) => {
-    const newTags = { ...tags, [COMMONS_TAG]: true };
-    return snapshots.snapshotWrite(projectId, userId, writtenRoll, message, newTags, keywords, SNAPSHOT_TYPE_PUBLISH);
+    //add publishing tag + default message if didn't give us one
+    body.tags[COMMONS_TAG] = true;
+    body.message = body.message ? body.message.length : defaultMessage;
+
+    return snapshots.snapshotWrite(projectId, userId, writtenRoll.version, body, SNAPSHOT_TYPE_PUBLISH);
   });
 };
 
@@ -231,13 +239,13 @@ export const commonsUnpublish = (projectId, userId, version) => {
 
   //if version is passed, unpublish just that version
   if (Number.isInteger(version)) {
-    return snapshots.snapshotMerge(projectId, userId, version, undefined, tagOverride);
+    return snapshots.snapshotMerge(projectId, userId, version, { tags: tagOverride });
   }
 
   //otherwise, unpublish all snapshots of the project
   return snapshots.snapshotList(projectId)
   .then(projectSnapshots => Promise.all(projectSnapshots.map(snapshot =>
-    snapshots.snapshotMerge(projectId, userId, snapshot.version, snapshot.message, tagOverride),
+    snapshots.snapshotMerge(projectId, userId, snapshot.version, { tags: tagOverride }),
   )));
 };
 

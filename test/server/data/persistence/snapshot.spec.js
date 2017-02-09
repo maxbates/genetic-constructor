@@ -46,7 +46,9 @@ describe('Server', () => {
           await projectPersistence.projectWrite(roll.project.id, updated, testUserId);
           await projectPersistence.projectWrite(roll.project.id, latest, testUserId);
           await projectPersistence.projectWrite(otherProject.project.id, otherProject, testUserId);
-          otherSnapshot = await snapshots.snapshotWrite(otherProject.project.id, testUserId, 0, 'Some message', exampleTag, exampleKeywords);
+
+          const snapshotBody = { message: 'Some message', tags: exampleTag, keywords: exampleKeywords };
+          otherSnapshot = await snapshots.snapshotWrite(otherProject.project.id, testUserId, 0, snapshotBody);
         });
 
         it('snapshotExists() returns 404 when does not exist', () => {
@@ -109,7 +111,8 @@ describe('Server', () => {
           const type = 'SOME TYPE';
           const version = 1;
 
-          return snapshots.snapshotWrite(roll.project.id, testUserId, version, message, exampleTag, exampleKeywords, type)
+          const body = { message, tags: exampleTag, keywords: exampleKeywords };
+          return snapshots.snapshotWrite(roll.project.id, testUserId, version, body, type)
           .then(result => {
             expect(result.version).to.equal(version);
             expect(result.projectId).to.equal(roll.project.id);

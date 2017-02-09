@@ -225,9 +225,14 @@ User ${user.uuid}
       }
 
       const keywords = order.metadata.keywords || [];
+      const snapshotBody = {
+        message,
+        tags: snapshotTags,
+        keywords,
+      };
 
       //write or update the snapshot
-      return snapshots.snapshotWrite(projectId, user.uuid, projectVersion, message, snapshotTags, keywords, snapshots.SNAPSHOT_TYPE_ORDER)
+      return snapshots.snapshotWrite(projectId, user.uuid, projectVersion, snapshotBody, snapshots.SNAPSHOT_TYPE_ORDER)
       .then((snapshot) => {
         merge(order, {
           status: {

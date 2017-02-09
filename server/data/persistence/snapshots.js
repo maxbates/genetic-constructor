@@ -42,6 +42,12 @@ export const SNAPSHOT_TYPE_ORDER = 'SNAPSHOT_ORDER';
 
 export const defaultMessage = 'Project Snapshot';
 
+const defaultSnapshotBody = {
+  message: defaultMessage,
+  tags: {},
+  keywords: [],
+};
+
 /**
  * Query snapshots, returning a list of snapshots
  * @param {Object} tags Required to have at least one key
@@ -110,9 +116,7 @@ export const snapshotGet = (projectId, version) => {
  * @param projectId
  * @param userId
  * @param [version] If no version provided, snapshot latest
- * @param [message]
- * @param [tags={}]
- * @param [keywords=[]]
+ * @param [body] Snapshot information Defaults to { message: 'Project Snapshot', tags: {}, keywords: [] }
  * @param [type]
  * @returns Promise
  * @resolve snapshot
@@ -121,35 +125,31 @@ export const snapshotWrite = (
   projectId,
   userId,
   version,
-  message = defaultMessage,
-  tags = {},
-  keywords = [],
-  type = SNAPSHOT_TYPE_USER,                  //todo - dear god the arity
+  body = defaultSnapshotBody,
+  type = SNAPSHOT_TYPE_USER,
 ) => {
   //version optional, defaults to latest
   invariant(projectId && userId, 'must pass projectId, userId');
   invariant((!version && version !== 0) || Number.isInteger(version), 'version must be a number');
-  invariant(typeof message === 'string', 'message must be a string');
-  invariant(typeof tags === 'object' && !Array.isArray(tags), 'tags must be object');
-  invariant(Array.isArray(keywords) && keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
+  invariant(typeof body.message === 'string', 'message must be a string');
+  invariant(typeof body.tags === 'object' && !Array.isArray(body.tags), 'tags must be object');
+  invariant(Array.isArray(body.keywords) && body.keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
   invariant(typeof type === 'string', 'type must be a string');
 
-  logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${message}`);
+  logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${body.message}`);
 
-  const body = {
+  const postBody = {
     projectId,
     type,
-    message,
-    tags,
-    keywords,
+    ...body,
   };
 
   if (Number.isInteger(version)) {
-    body.projectVersion = version;
+    postBody.projectVersion = version;
   }
 
   //signature is weird - no data to pass, just several body parameters
-  return dbPost('snapshots/', userId, {}, {}, body)
+  return dbPost('snapshots/', userId, {}, {}, postBody)
   .then(transformDbVersion);
 };
 
@@ -160,9 +160,7 @@ export const snapshotWrite = (
  * @param projectId
  * @param userId
  * @param version Version is required to merge
- * @param [message]
- * @param [tags={}]                           //todo - should replace, not merge, so can remove. update usage to big map with the option
- * @param [keywords=[]]                       //todo - should replace, not merge, so can remove. update usage to big map with the option
+ * @param [body={}] //todo - should replace, not merge, tags - so can remove. update usage to big map with the option
  * @param [type]
  * @returns Promise
  * @resolve merged snapshot
@@ -172,22 +170,26 @@ export const snapshotMerge = (
   projectId,
   userId,
   version,
-  message,
-  tags = {},
-  keywords = [],
+  body = {},
   type,
 ) =>
   snapshotGet(projectId, version)
   .then((snapshot) => {
     //prefer new things if defined, otherwise default to snapshot (which must have defaults)
-    const newMessage = message || snapshot.message;
+    const newMessage = body.message || snapshot.message;
+    const newTags = { ...snapshot.tags, ...body.tags };
+    const newKeywords = [...snapshot.keywords, ...body.keywords];
     const newType = type || snapshot.type;
-    const newTags = { ...snapshot.tags, ...tags };
-    const newKeywords = [...snapshot.keywords, ...keywords];
 
     logger(`[snapshotMerge] updating @ V${version} on ${projectId} - ${newMessage}, ${newType}, ${JSON.stringify(newTags)}`);
 
-    return snapshotWrite(projectId, userId, version, newMessage, newTags, newKeywords, newType);
+    const newBody = {
+      message: newMessage,
+      tags: newTags,
+      keywords: newKeywords,
+    };
+
+    return snapshotWrite(projectId, userId, version, newBody, newType);
   });
 
 //if want to support - need to do by uuid, so need to fetch via projectId + version and delete that way, or list and delete
@@ -209,5 +211,5 @@ export const snapshotDelete = (projectId, version) => {
  */
 export const snapshotGetKeywordMap = (filters = {}, userId = null) => {
   logger('[snapshotGetKeywordMap]');
-  return dbPost('snapshots/kwm', null, {}, [], filters);
+  return dbPost('snapshots/kwm', userId, {}, [], filters);
 };
