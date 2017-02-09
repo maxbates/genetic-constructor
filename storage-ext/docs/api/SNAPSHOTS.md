@@ -72,7 +72,7 @@ Check to see if any snapshots exist for the given `projectId`. Also allows an op
 
 * HTTP Response Headers
   * `Latest-Snapshot` -> `uuid` of the last snapshot created/updated for the specified `projectId` and optional `projectVersion`
-* Returns `404` if no snapshots exist for the given `projectId`
+* Returns `200` if no snapshots exist for the given `projectId`
 
 #### Fetch Snapshot with Tags
 
@@ -120,7 +120,7 @@ Returns an array of snapshot records.
 
 * Employs the *IN* operator for the `keywords` provided. Does the target snapshot contain these keywords?
 * Employs JSON subset comparision for `tags`. Does the target snapshot contain the key-value pairs in the post body? NOT strict object comparision.
-* Returns 404 if no snapshots exist.
+* Returns `200` if no snapshots exist.
 
 * Optional `project` query string can be provided to limit query to a particular project
 
