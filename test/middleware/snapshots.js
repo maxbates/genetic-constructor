@@ -24,10 +24,13 @@ import { testUserId } from '../constants';
 import { createExampleRollup } from '../_utils/rollup';
 
 describe('Middleware', () => {
-  describe('Snapshots', () => {
+  describe.only('Snapshots', () => {
     const roll = createExampleRollup();
     const updated = _.merge({}, roll, { project: { blah: 'blah' } });
     const latest = _.merge({}, updated, { project: { another: 'field' } });
+
+    const testTags = { mytag: 'value' };
+    const testKeywords = [uuid.v4()];
 
     const project = roll.project;
     const projectId = project.id;
@@ -68,7 +71,7 @@ describe('Middleware', () => {
 
     it('snapshot() overwrites a snapshot at specific version', () => {
       const newMessage = 'some new message';
-      return api.snapshot(projectId, version, newMessage)
+      return api.snapshot(projectId, version, { message: newMessage })
       .then(() => api.snapshotGet(projectId, version))
       .then(snapshot => {
         expect(snapshot.message).to.equal(newMessage);
@@ -78,7 +81,7 @@ describe('Middleware', () => {
     const commitMessage = 'my fancy message';
 
     it('snapshotWrite() creates a snapshot, returns version, time, message, defaults to latest', () => {
-      return api.snapshot(projectId, null, commitMessage)
+      return api.snapshot(projectId, null, { message: commitMessage, tags: testTags, keywords: testKeywords })
       .then(info => {
         assert(info.version === 2, 'should be version 2 (latest)');
         assert(info.message === commitMessage, 'should have commit message');
@@ -97,7 +100,7 @@ describe('Middleware', () => {
     it('snapshotWrite() given rollup bumps verion and creates a snapshot', () => {
       const newest = _.merge({}, roll, { project: { some: 'final' } });
 
-      return api.snapshot(projectId, null, undefined, null, newest)
+      return api.snapshot(projectId, null, {}, newest)
       .then(info => {
         assert(info.version === 3, 'should be version 3 (new latest)');
       });
@@ -119,6 +122,13 @@ describe('Middleware', () => {
       .catch(err => {
         done();
       });
+    });
+
+    it('can list keywords for a bunch of snapshots', async () => {
+      const map = await api.snapshotsListKeywords();
+
+      expect(typeof map).to.equal('object');
+      assert(_.every(testKeywords, word => map[word] >= 1), 'keywords should be present');
     });
 
     describe('permissions', () => {

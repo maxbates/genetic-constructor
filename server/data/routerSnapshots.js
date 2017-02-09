@@ -17,19 +17,36 @@
 import express from 'express';
 
 import { errorDoesNotExist } from '../errors/errorConstants';
+import { projectIdParamAssignment, userOwnsProjectMiddleware } from './permissions';
 import * as projectPersistence from './persistence/projects';
 import * as snapshots from './persistence/snapshots';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
-//NB - this route is for a particular project, permissions have already been checked for project... querying across projects would need to be separate to avoid permissions issues
+router.param('projectId', projectIdParamAssignment);
 
 router.param('version', (req, res, next, id) => {
   Object.assign(req, { version: parseInt(id, 10) });
   next();
 });
 
-router.route('/:version?')
+router.route('/keywords')
+.get((req, res, next) => {
+  snapshots.snapshotGetKeywordMap()
+  .then(map => res.status(200).send(map))
+  .catch(next);
+})
+.post((req, res, next) => {
+  const { user } = req;
+  const filters = req.body;
+
+  snapshots.snapshotGetKeywordMap(filters, user.uuid)
+  .then(map => res.status(200).send(map))
+  .catch(next);
+});
+
+router.route('/:projectId/:version?')
+  .all(userOwnsProjectMiddleware)
   .get((req, res, next) => {
     //pass the version you want, otherwise send commit log
     const { projectId, projectDoesNotExist, version } = req;
