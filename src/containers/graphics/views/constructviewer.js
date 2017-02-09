@@ -380,7 +380,7 @@ export class ConstructViewer extends Component {
     const listItems = singleBlock ? [
       {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
-        disabled: !canListify,
+        disabled: this.props.construct.isFixed() || !canListify,
         action: () => {
           this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
         },
