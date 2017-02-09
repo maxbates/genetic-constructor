@@ -18,7 +18,7 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import { every, filter, uniq, values } from 'lodash';
+import _, { every, filter, values } from 'lodash';
 
 import * as ActionTypes from '../constants/ActionTypes';
 import { loadBlock } from '../middleware/projects';
@@ -234,18 +234,22 @@ export const blockMerge = (blockId, toMerge) => (dispatch, getState) => {
 
 /**
  * Clone a block (and its contents - components + list options)
+ * Attempts to add ancestor to block.parents (unless parentObjectInput === null), by inspecting block.projectId if present and getting the project from the store, otherwise just clones as copy
  * Sets projectId to null for all cloned elements. Project ID is set when added back to the project.
+ * All contents of root block must have the same project ID.
  * @function
  * @param blockInput {ID|Object} JSON of block directly, or ID. Accept both since inventory items may not be in the store, so we need to pass the block directly. Prefer to use ID.
- * @param [parentObjectInput=null] {Object} information about parent, defaults to generated:
+ * @param [parentObjectInput=null] {Object|null} information about parent.
+ * if block.projectId === null, defaults to null, and the block is simply cloned, with no ancestry added
+ * if block.projectId is set, defaults to generated:
  *  {id: from block input
  *   projectId - same as block being cloned, or block.projectId
   *  version - that of project ID if in the store, or first parent if available and same project id
   * }
- * If null, the block is simply cloned, and no ancestry is added
  * @returns {Block} clone block (root node if has children)
+ * @throws if block.projectId is defined, but project not in the store, or if components have different projectId
  */
-export const blockClone = (blockInput, parentObjectInput = null) => (dispatch, getState) => {
+export const blockClone = (blockInput, parentObjectInput) => (dispatch, getState) => {
   let oldBlock;
   if (typeof blockInput === 'string') {
     oldBlock = getState().blocks[blockInput];
@@ -255,22 +259,27 @@ export const blockClone = (blockInput, parentObjectInput = null) => (dispatch, g
     throw new Error('invalid input to blockClone', blockInput);
   }
 
-    //get the project ID to use for parent, considering the block may be detached from a project or inventory block
+  //get the project ID to use for parent, considering the block may be detached from a project or inventory block
   const parentProjectId = oldBlock.projectId || null;
-  let parentObject = parentObjectInput;
+  let parentObject = parentObjectInput || null;
 
-  //if we have a parent projectId, get the project and generate parent information
-  //if we dont, nothing really we can do, so just clone without adding lineage
-  //NOTE - assumes that project.owner is defnied... will error if its not
-  if (parentProjectId) {
+  // if we have a parent projectId, get the project and generate parent information (unless simply copy-cloning)
+  // if we dont, nothing really we can do, so just clone without adding lineage
+  // NOTE - assumes that project.owner is defined... will error if its not
+  if (parentProjectId && parentObjectInput !== null) {
     const oldProject = dispatch(projectSelectors.projectGet(parentProjectId)) || {};
+    invariant(oldProject, `project ${parentProjectId} was not found`);
 
-    //partial object about project, block ID handled in block.clone(), and changes if dealing with nested blocks
-    parentObject = Object.assign({
+    // partial object about project
+    // block ID handled in block.clone() and changes if dealing with nested blocks
+    const parentDefaults = {
       projectId: parentProjectId,
       owner: oldProject.owner,
       version: oldProject.version,
-    }, parentObjectInput);
+    };
+
+    //assign to the parent, this will account for it being null (and leave it null)
+    parentObject = Object.assign(parentDefaults, parentObject);
   }
 
     //overwrite to set the correct projectId
@@ -289,7 +298,11 @@ export const blockClone = (blockInput, parentObjectInput = null) => (dispatch, g
   }
 
   const allToClone = [oldBlock, ...contents];
-    //all blocks must be from same project, so we can give them the same parent projectId + verion
+
+  //all blocks must be from same project (or null), so we can give them the same parent projectId + verion
+  //console.log(_.uniqBy(allToClone, 'projectId')); //debugging for line below
+  invariant(parentProjectId === null || every(allToClone, block => block.projectId === parentProjectId || !block.projectId), 'project ID must be the same for all blocks (or null)');
+
   const unmappedClones = allToClone.map(block => block.clone(parentObject, overwriteObject));
 
     //update IDs in components
@@ -453,7 +466,7 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
   const nextParentProjectId = oldBlock.projectId;
 
   const contents = dispatch(selectors.blockGetContentsRecursive(componentId));
-  const contentProjectIds = uniq(values(contents).map(block => block.projectId));
+  const contentProjectIds = _.uniq(values(contents).map(block => block.projectId));
 
   dispatch(pauseAction());
   dispatch(undoActions.transact());

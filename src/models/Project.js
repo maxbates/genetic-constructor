@@ -121,7 +121,7 @@ export default class Project extends Instance {
    * Clone a project, adding parent to the ancestry.
    * Calls {@link Instance.clone} internally
    * Cloning a project will disable the frozen rule, unless you pass in overwrite
-   * note that if you are cloning multiple blocks / blocks with components, you likely need to clone the components as well. You will need to re-map the IDs outside of this function. See {@link blockClone} action for an example.
+   * note that this does not handle cloning the blocks, and updating component IDs
    * @method clone
    * @memberOf Project
    * @param {object|null} [parentInfo={}] Parent info for denoting ancestry. Required parent info is already available on the project, but can pass additional fields or overrides. If pass null to parentInfo, the Project is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
@@ -135,10 +135,6 @@ export default class Project extends Instance {
     //don't want to add the field if unnecessary, otherwise could add to mergeWith scaffold
     if (this.rules.frozen === true && (!mergeWith.rules || mergeWith.rules.frozen !== true)) {
       merge(mergeWith, { rules: { frozen: false } });
-    }
-
-    if (parentInfo === null) {
-      return super.clone(parentInfo, mergeWith);
     }
 
     return super.clone(parentInfo, mergeWith);

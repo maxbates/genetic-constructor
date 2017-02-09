@@ -61,6 +61,7 @@ describe('Actions', () => {
             version: projectVersion,
           }));
           expect(clone.id).to.not.equal(storeBlock.id);
+          expect(clone.parents.length).to.equal(1);
           expect(clone.parents).to.eql([{
             id: storeBlock.id,
             owner: testUserId,
@@ -71,6 +72,7 @@ describe('Actions', () => {
 
           const comparable = Object.assign({}, clone, {
             id: storeBlock.id,
+            projectId: null,
             parents: [],
           });
 
@@ -157,61 +159,66 @@ describe('Actions', () => {
           rules: { frozen: true },
         }));
         block = store.dispatch(actions.blockCreate());
-        project = store.dispatch(projectActions.projectCreate({ owner: testUserId }));
+        project = store.dispatch(projectActions.projectCreate());
         list = store.dispatch(actions.blockCreate({
           projectId: project.id,
           rules: { list: true },
         }));
       });
 
+      //all the suites rely on ID setting of this test, so lets just run it first
       it('projectAddConstruct() should set projectId', () => {
         store.dispatch(projectActions.projectAddConstruct(project.id, block.id));
         expect(store.getState().blocks[block.id].projectId).to.equal(project.id);
       });
 
-      it('blockAddComponent() should set projectId', () => {
-        const child = store.dispatch(actions.blockCreate());
-        store.dispatch(actions.blockAddComponent(block.id, child.id));
-
-        expect(store.getState().blocks[child.id].projectId).to.equal(project.id);
-      });
-
-      it('blockAddComponent() should error if wrong project ID', () => {
-        expect(() => {
-          const child = store.dispatch(actions.blockCreate({ projectId: extraProjectId }));
+      describe('Setting ID', () => {
+        it('blockAddComponent() should set projectId', () => {
+          const child = store.dispatch(actions.blockCreate());
           store.dispatch(actions.blockAddComponent(block.id, child.id));
-        }).to.throw();
-      });
 
-      it('blockAddComponent() should not error if block is frozen', () => {
-        expect(() => {
-          store.dispatch(actions.blockAddComponent(block.id, frozenBlock.id));
-        }).to.not.throw();
-      });
+          expect(store.getState().blocks[child.id].projectId).to.equal(project.id);
+        });
 
-      it('blockOptionsAdd() should set ID', () => {
-        const option = store.dispatch(actions.blockCreate());
-        store.dispatch(actions.blockOptionsAdd(list.id, option.id));
-        expect(store.getState().blocks[option.id].projectId).to.equal(project.id);
-      });
+        it('blockAddComponent() should error if wrong project ID', () => {
+          expect(() => {
+            const child = store.dispatch(actions.blockCreate({ projectId: extraProjectId }));
+            store.dispatch(actions.blockAddComponent(block.id, child.id));
+          }).to.throw();
+        });
 
-      it('blockOptionsAdd() should error if wrong project ID', () => {
-        expect(() => {
-          const option = store.dispatch(actions.blockCreate({ projectId: extraProjectId }));
+        it('blockOptionsAdd() should set ID', () => {
+          const option = store.dispatch(actions.blockCreate());
           store.dispatch(actions.blockOptionsAdd(list.id, option.id));
-        }).to.throw();
+          expect(store.getState().blocks[option.id].projectId).to.equal(project.id);
+        });
+
+        it('blockOptionsAdd() should error if wrong project ID', () => {
+          expect(() => {
+            const option = store.dispatch(actions.blockCreate({ projectId: extraProjectId }));
+            store.dispatch(actions.blockOptionsAdd(list.id, option.id));
+          }).to.throw();
+        });
       });
 
-      it('blockOptionsAdd() should not error if block is frozen', () => {
-        expect(() => {
-          store.dispatch(actions.blockOptionsAdd(list.id, frozenBlock.id));
-        }).to.not.throw();
+      describe('Frozen', () => {
+        it('blockAddComponent() should not error if block is frozen', () => {
+          expect(() => {
+            store.dispatch(actions.blockAddComponent(block.id, frozenBlock.id));
+          }).to.not.throw();
+        });
+
+        it('blockOptionsAdd() should not error if block is frozen', () => {
+          expect(() => {
+            store.dispatch(actions.blockOptionsAdd(list.id, frozenBlock.id));
+          }).to.not.throw();
+        });
       });
 
       describe('Cloning', () => {
         it('blockClone() should unset projectId in clone', () => {
           expect(store.getState().blocks[block.id].projectId).to.equal(project.id);
-          const clone = store.dispatch(actions.blockClone(block.id));
+          const clone = store.dispatch(actions.blockClone(block.id, null));
           expect(store.getState().blocks[block.id].projectId).to.equal(project.id);
           expect(store.getState().blocks[clone.id].projectId).to.equal(null);
         });
@@ -224,10 +231,38 @@ describe('Actions', () => {
           assert(Object.keys(clone.options).indexOf(option.id) < 0, 'frozen block should have cloned');
         });
 
-        //todo
-        it('blockClone() simply clones if there is no projectId');
-        it('blockClone() simply clones if there is no project in the store');
-        it('blockClone() adds ancestor if project is defined');
+        it('blockClone() simply clones if there is no projectId', () => {
+          const block = store.dispatch(actions.blockCreate());
+          const clone = store.dispatch(actions.blockClone(block.id));
+          expect(clone.parents.length).to.equal(0);
+        });
+
+        it('blockClone() simply clones if pass parentInfo = null and unsets projectId', () => {
+          const block = store.dispatch(actions.blockCreate({ projectId: project.id }));
+          const clone = store.dispatch(actions.blockClone(block.id, null));
+          expect(clone.parents.length).to.equal(0);
+          expect(clone).to.eql(Object.assign({}, block, { id: clone.id, projectId: null }));
+        });
+
+        it('blockClone() throws if projectId is defined but project not in the store, and trying to add to ancestry', () => {
+          const block = store.dispatch(actions.blockCreate({ projectId: (new Project()).id }));
+          expect(() => store.dispatch(actions.blockClone(block.id))).to.throw();
+        });
+
+        it('blockClone() adds ancestor if project is defined', () => {
+          const block = store.dispatch(actions.blockCreate({ projectId: project.id }));
+          const clone = store.dispatch(actions.blockClone(block.id));
+
+          expect(clone.parents.length).to.equal(1);
+          expect(clone.parents[0].id).to.equal(block.id);
+          expect(clone.parents[0]).to.eql({
+            id: block.id,
+            projectId: project.id,
+            owner: project.owner,
+            version: project.version,
+            created: clone.parents[0].created,
+          });
+        });
       });
     });
   });

@@ -43,7 +43,7 @@ export default class Instance extends Immutable {
     //not sure why this is complaining...
     //eslint-disable-next-line constructor-super
     return super(merge(
-      assign(InstanceSchema.scaffold(), subclassBase), //perf. NB - this is only valid so long as no overlapping fields
+      assign(InstanceSchema.scaffold(), subclassBase), //perf. NB - this is only valid so long as no overlapping fields (esp. nested ones)
       input,
     ), frozen);
   }
@@ -67,7 +67,9 @@ export default class Instance extends Immutable {
   }
 
   /**
-   * Clone an instance, adding the parent to the ancestry of the child Instance.
+   * Clone an instance, with a new ID
+   * parentInfo === null -> simply copy
+   * parentInfo !== null, add the parent to the ancestry of the child Instance.
    * @method clone
    * @memberOf Instance
    * @param {object|null} [parentInfo={}] Parent info for denoting ancestry. If pass null to parentInfo, the instance is simply cloned, and nothing is added to the history.
@@ -96,8 +98,10 @@ export default class Instance extends Immutable {
 
       //unclear why, but merging parents was not overwriting the clone, so shallow assign parents specifically
       clone = Object.assign(merge(cloned, overwrites), { parents });
-      delete clone.id;
     }
+
+    //unset the ID
+    delete clone.id;
 
     return new this.constructor(clone);
   }

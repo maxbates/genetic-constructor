@@ -15,12 +15,11 @@
  */
 
 import { assert, expect } from 'chai';
+import _ from 'lodash';
 import * as blockActions from '../../src/actions/blocks';
-import * as blockSelectors from '../../src/selectors/blocks';
 import * as actions from '../../src/actions/projects';
 import * as selectors from '../../src/selectors/projects';
 import configureStore from '../../src/store/configureStore';
-import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
 import { testUserId } from '../constants';
 
@@ -29,7 +28,6 @@ describe('Actions', () => {
     let store;
     let block;
     let project;
-    const extraProjectId = Project.classless().id;
 
     before(() => {
       store = configureStore();
@@ -70,9 +68,14 @@ describe('Actions', () => {
       });
     });
 
-    //todo
     describe('Cloning', () => {
-      it('projectClone() clones the project');
+      it('projectClone() clones the project', () => {
+        const clone = store.dispatch(actions.projectClone(project.id));
+        expect(clone.id).to.not.equal(project.id);
+        expect(clone.parents.length).to.equal(1);
+        expect(clone.parents[0].id).to.equal(project.id);
+        expect(clone).to.eql(_.merge({}, project, { parents: clone.parents, id: clone.id }));
+      });
     });
   });
 });

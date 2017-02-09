@@ -100,13 +100,18 @@ describe('Model', () => {
 
       const clone = inst.clone();
       expect(clone.parents.length).to.equal(1);
-      expect(clone.parents[0]).to.eql({ id: inst.id, owner, version: parentVersion });
+      expect(clone.parents[0]).to.eql({
+        id: inst.id,
+        owner,
+        version: parentVersion,
+        created: clone.parents[0].created,
+      });
 
       const second = clone.clone();
       expect(second.parents.length).to.equal(2);
       expect(second.parents).to.eql([
-        { id: clone.id, owner, version: parentVersion },
-        { id: inst.id, owner, version: parentVersion },
+        { id: clone.id, owner, version: parentVersion, created: second.parents[0].created },
+        { id: inst.id, owner, version: parentVersion, created: second.parents[1].created },
       ]);
     });
 
@@ -123,12 +128,11 @@ describe('Model', () => {
     });
 
     it('clone(null) does not change ID or add to history', () => {
-      const inst = new Instance({
-        owner: uuid.v1(),
-      });
+      const inst = new Instance();
       const clone = inst.clone(null);
+
       assert(clone !== inst, 'should not be the same instance');
-      assert(clone.id === inst.id, 'should have same id after clone(null)');
+      assert(clone.id !== inst.id, 'should not have same id after clone(null)');
       assert(clone.parents.length === inst.parents.length, 'should not add a parent');
     });
   });

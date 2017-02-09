@@ -18,16 +18,18 @@ describe('Model', () => {
         assert(block.parents.length === 0, 'should have no parents');
 
         const cloned = block.clone({ owner: testUserId, version: 0 });
+
+        expect(cloned.id).to.not.equal(block.id);
         assert(cloned.parents.length === 1, 'should have parent');
         expect(cloned.parents[0].projectId).to.equal(dummyProject.id);
         expect(cloned.parents[0].id).to.equal(block.id);
       });
 
-      it('clone(null) should not change the ID, or add to history', () => {
+      it('clone(null) should change the ID, or add to history', () => {
         const frozen = block.setFrozen(true);
         const cloned = frozen.clone(null);
         assert(cloned !== frozen, 'should not be the same instance');
-        assert(cloned.id === frozen.id, 'should have same id ' + cloned.id + ' ' + frozen.id);
+        assert(cloned.id !== frozen.id, 'should not have same id ' + cloned.id + ' ' + frozen.id);
       });
 
       it('clone() should unfreeze', () => {
