@@ -17,7 +17,7 @@ import invariant from 'invariant';
 
 import Rollup from '../models/Rollup';
 import { noteFailure, noteSave } from '../store/saveState';
-import { headersGet, headersPost } from './utils/headers';
+import { headersGet, headersPost, headersPut } from './utils/headers';
 import { dataApiPath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
@@ -64,6 +64,30 @@ export const snapshot = (projectId, version = null, body = {}, rollup = null) =>
     return Promise.reject(err);
   });
 };
+
+/**
+ * Update an existing snapshot's message, tags, keywords
+ * @param projectId
+ * @param version
+ * @param {Object} body { message, tags, keywords }
+ */
+export const snapshotUpdate = (projectId, version, body = {}) => {
+  invariant(projectId, 'Project ID required to snapshot');
+  invariant(Number.isInteger(version), 'version is necessary');
+  invariant(!body.message || typeof body.message === 'string', 'message must be string');
+  invariant(!body.tags || typeof body.tags === 'object', 'tags must be object');
+  invariant(!body.keywords || Array.isArray(body.keywords), 'keywords must be array');
+
+  const keys = ['message', 'tags', 'keywords'];
+  invariant(keys.some(key => body.key), `must update the snapshot, with one of: ${keys.join(', ')}`);
+
+  const url = dataApiPath(`snapshots/${projectId}/${version}`);
+  const stringified = JSON.stringify(body);
+
+  return rejectingFetch(url, headersPut(stringified))
+  .then(resp => resp.json());
+};
+
 
 /**
  * List snapshots for a project

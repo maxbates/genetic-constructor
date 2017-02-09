@@ -46,70 +46,86 @@ router.route('/keywords')
 });
 
 router.route('/:projectId/:version?')
-  .all(userOwnsProjectMiddleware)
-  .get((req, res, next) => {
-    //pass the version you want, otherwise send commit log
-    const { projectId, projectDoesNotExist, version } = req;
+.all(userOwnsProjectMiddleware)
+.get((req, res, next) => {
+  //pass the version you want, otherwise send commit log
+  const { projectId, projectDoesNotExist, version } = req;
 
-    if (projectDoesNotExist === true) {
-      return res.status(404).send(errorDoesNotExist);
-    }
+  if (projectDoesNotExist === true) {
+    return res.status(404).send(errorDoesNotExist);
+  }
 
-    if (version) {
-      snapshots.snapshotGet(projectId, version)
-        .then(snapshot => res.status(200).json(snapshot))
-        .catch(err => next(err));
-    } else {
-      snapshots.snapshotList(projectId)
-        .then(log => res.status(200).json(log))
-        .catch((err) => {
-          //return 200 if project exists (implicit, due to prior middleware) but no snapshots found
-          if (err === errorDoesNotExist) {
-            return res.status(200).json([]);
-          }
-          next(err);
-        });
-    }
-  })
-
-  //todo - separate post (specific version) and put (with rollup)
-
-  .post((req, res, next) => {
-    //you can POST a field 'message' for the commit, and an object of 'tags'
-    //can also post a field 'rollup' for save a new rollup for the commit
-    //receive the version
-    const { user, projectId, projectDoesNotExist, version } = req;
-    const { message, rollup: roll, tags, keywords } = req.body;
-
-    if (projectDoesNotExist && !roll) {
-      return res.status(404).send(errorDoesNotExist);
-    }
-
-    if (version && roll) {
-      return res.status(422).send('cannot send version and roll');
-    }
-
-    //will validate when attempt to write, so this check is enough
-    const rollupDefined = roll && roll.project && roll.blocks;
-
-    //use version they gave or get latest
-    const getVersionPromise = version ?
-      Promise.resolve(version) :
-      projectPersistence.projectExists(projectId).then(version => version);
-
-    //write rollup if passed (will validate it), or just pass version to snapshot writing
-    const writePromise = rollupDefined ?
-      projectPersistence.projectWrite(projectId, roll, user.uuid)
-        .then(({ version }) => version) :
-      getVersionPromise;
-
-    const snapshotBody = { message, tags, keywords };
-
-    writePromise
-      .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, snapshotBody))
+  if (version) {
+    snapshots.snapshotGet(projectId, version)
       .then(snapshot => res.status(200).json(snapshot))
-      //may want better error handling here
-      .catch(next);
-  });
+      .catch(err => next(err));
+  } else {
+    snapshots.snapshotList(projectId)
+      .then(log => res.status(200).json(log))
+      .catch((err) => {
+        //return 200 if project exists (implicit, due to prior middleware) but no snapshots found
+        if (err === errorDoesNotExist) {
+          return res.status(200).json([]);
+        }
+        next(err);
+      });
+  }
+})
+
+//todo - deprecate posting rollup
+.post((req, res, next) => {
+  //you can POST a field 'message' for the commit, and an object of 'tags', and array 'keywords'
+  //can also post a field 'rollup' for save a new rollup for the commit
+  //receive the version
+  const { user, projectId, projectDoesNotExist, version } = req;
+  const { message, rollup: roll, tags, keywords } = req.body;
+
+  //will validate when attempt to write, so this check is enough
+  const rollupDefined = roll && roll.project && roll.blocks;
+
+  if (projectDoesNotExist && !rollupDefined) {
+    return res.status(404).send(errorDoesNotExist);
+  }
+
+  if (version && rollupDefined) {
+    return res.status(422).send('cannot send version and roll');
+  }
+
+  //use version they gave or get latest
+  const getVersionPromise = version ?
+    Promise.resolve(version) :
+    projectPersistence.projectExists(projectId).then(version => version);
+
+  //write rollup if passed (will validate it), or just pass version to snapshot writing
+  const writePromise = rollupDefined ?
+    projectPersistence.projectWrite(projectId, roll, user.uuid)
+      .then(({ version }) => version) :
+    getVersionPromise;
+
+  const snapshotBody = { message, tags, keywords };
+
+  writePromise
+    .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, snapshotBody))
+    .then(snapshot => res.status(200).json(snapshot))
+    //may want better error handling here
+    .catch(next);
+})
+
+//update a snapshot, given project and version
+.put((req, res, next) => {
+  const { user, projectId, projectDoesNotExist, version } = req;
+  const { message, tags, keywords } = req.body;
+
+  if (projectDoesNotExist) {
+    return res.status(404).send(errorDoesNotExist);
+  }
+
+  const snapshotUpdate = { message, tags, keywords };
+
+  //this will handle if it does not exist and error accordingly
+  snapshots.snapshotMerge(projectId, user.uuid, version, snapshotUpdate)
+  .then(snapshot => res.status(200).json(snapshot))
+  .catch(next);
+});
 
 export default router;

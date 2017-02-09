@@ -95,6 +95,7 @@ router.route('/:projectId/:version?')
   })
 
 /*
+ //deprecate
  //publish, given rollup, at new version
  .put(
  userOwnsProjectMiddleware,

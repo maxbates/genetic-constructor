@@ -140,14 +140,13 @@ describe('middleware', () => {
 
     it('commonsQuery() should query published projects, ignore private projects');
 
-    it('commonsPublish() should take project, create a snapshot at the newest version, return snapshot');
-
     it('commonsPublishVersion() publishes an existing version, which was not snapshotted, return snapshot');
     it('commonsPublishVersion() publishes an existing version, which was snapshotted, return snapshot');
 
+    it('commonsUpdateVersion() updates an existing published version');
+
     it('commonsUnpublish() should unpublish a snapshot, but not delete it');
 
-    it('commonsPublish() allows custom tags');
     it('commonsPublishVersion() allows custom tags');
 
     it('commonsQuery() queries for newly added + tagged snapshots');
