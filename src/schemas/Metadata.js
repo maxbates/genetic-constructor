@@ -15,7 +15,6 @@ limitations under the License.
 */
 import Schema from './SchemaClass';
 import fields from './fields/index';
-import * as validators from './fields/validators';
 
 /**
  * Metadata is a subfield of Instances
