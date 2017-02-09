@@ -14,7 +14,7 @@ module.exports = {
       .waitForElementPresent('.inventory-project-tree .expando', 5000, 'expected project tree with one project')
       .assert.countelements('.inventory-project-tree .expando', 1);
 
-    rightClickAt(browser, '.inventory-project-tree .expando', 20, 10 );
+    rightClickAt(browser, '.inventory-project-tree .expando', 40, 10);
     clickMenuNthItem(browser, 8);
 
     browser
