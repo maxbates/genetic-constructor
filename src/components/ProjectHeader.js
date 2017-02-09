@@ -217,7 +217,7 @@ class ProjectHeader extends Component {
   }
 
   /**
-   * jsx/js for project toolbar
+   * toolbar items
    * @returns {XML}
    */
   toolbar() {
