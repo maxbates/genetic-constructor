@@ -189,22 +189,17 @@ export class InventoryProjectTree extends Component {
     return project;
   };
 
+  /**
+   * delete the given project
+   * @param project
+   */
   onDeleteProject = (project) => {
     this.props.uiShowOkCancel(
       'Delete Project',
       `${project.getName() || 'Your project'}\nand all related project data will be permanently deleted.\nThis action cannot be undone.`,
       () => {
         this.props.uiShowOkCancel();
-        if (project.rules.frozen) {
-          this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
-        } else {
-          //load another project, avoiding this one
-          this.props.projectLoad(null, false, [project.id])
-          //open the new project, skip saving the previous one
-          .then(openProject => this.props.projectOpen(openProject.id, true))
-          //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-          .then(() => this.props.projectDelete(project.id));
-        }
+        this.deleteProject(project);
       },
       () => {
         this.props.uiShowOkCancel();
@@ -213,7 +208,6 @@ export class InventoryProjectTree extends Component {
       'Cancel',
     );
   };
-
 
   /**
    * add a new construct to the bound project ( initial model used for templates )
@@ -237,7 +231,7 @@ export class InventoryProjectTree extends Component {
         text: 'Open Project',
         action: this.onOpenProject.bind(this, project),
       },
-    {},
+      {},
       {
         text: 'New Project',
         action: this.onNewProject,
@@ -246,7 +240,7 @@ export class InventoryProjectTree extends Component {
         text: this.props.templates ? 'New Template' : 'New Construct',
         action: this.onNewConstruct.bind(this, project),
       },
-    {},
+      {},
       {
         text: 'Download Project',
         action: () => this.onDownloadProject(project),
@@ -268,20 +262,20 @@ export class InventoryProjectTree extends Component {
     });
   };
 
-/**
- * download the current file as a genbank file
- */
+  /**
+   * download the current file as a genbank file
+   */
   onDownloadProject = (project) => {
     this.props.projectSave(project.id)
-  .then(() => {
-    downloadProject(project.id, this.props.focus.options);
-  });
+    .then(() => {
+      downloadProject(project.id, this.props.focus.options);
+    });
   };
 
-/**
- * build a nested set of tree items from the given components array
- * @param components
- */
+  /**
+   * build a nested set of tree items from the given components array
+   * @param components
+   */
   getProjectBlocksRecursive(components, depth, maxDepth = Number.MAX_VALUE) {
     const items = [];
     if (depth < maxDepth) {
@@ -314,29 +308,61 @@ export class InventoryProjectTree extends Component {
     const { projects, templates, filter } = this.props;
 
     return _.chain(projects)
-  .pickBy((project) => {
-    //if want template, and dont have frozen project, skip
-    //double bang to handle undefined
-    if (!!templates !== !!project.rules.frozen) {
-      return false;
+    .pickBy((project) => {
+      //if want template, and dont have frozen project, skip
+      //double bang to handle undefined
+      if (!!templates !== !!project.rules.frozen) {
+        return false;
+      }
+
+      //if filtering, and name doesnt match, skip
+      const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
+      const filterString = filter.toLowerCase();
+      if (!filterString) {
+        return true;
+      }
+      return name.indexOf(filterString) >= 0;
+    })
+    .sortBy((one, two) => {
+      if (!one || !two) {
+        return 0;
+      }
+      return two.metadata.created - one.metadata.created;
+    })
+    .value();
+  };
+
+  /**
+   * perform the actual deletion.
+   */
+  deleteProject(project) {
+    if (project.rules.frozen) {
+      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
+      return;
     }
 
-    //if filtering, and name doesnt match, skip
-    const name = project.metadata.name ? project.metadata.name.toLowerCase() : '';
-    const filterString = filter.toLowerCase();
-    if (!filterString) {
-      return true;
+    //NB - assumes that loaded projects already available in the list
+    //just use the projects we have already listed, and if there are none or there is a problem, then explicitly load from server
+    const nextProject = _.find(this.getSortedProjectManifests(), manifest => manifest.id !== project.id);
+
+    //create an empty project if none available
+    if (!nextProject) {
+      const datNewNew = this.onNewProject();
+      //force save, so that they have an empty project next time they load
+      return this.props.projectSave(datNewNew.id, true)
+      //delete in the background and hope it works, showing banner if it doesnt
+      //wait until after save, so we can be sure they have a project
+      .then(() => this.props.projectDelete(project.id));
     }
-    return name.indexOf(filterString) >= 0;
-  })
-  .sortBy((one, two) => {
-    if (!one || !two) {
-      return 0;
-    }
-    return two.metadata.created - one.metadata.created;
-  })
-  .value();
-  };
+
+    //to further optimize, could just skip the loading, so that projectPage handles it itself (need to update that component to handle)
+
+    //load another project and open before deleting, or project page will complain about project not being loaded
+    return this.props.projectLoad(nextProject.id, false, [project.id])
+    .then(() => this.props.projectOpen(nextProject.id, true))
+    //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+    .then(() => this.props.projectDelete(project.id));
+  }
 
   render() {
     const { currentProjectId } = this.props;
@@ -347,27 +373,27 @@ export class InventoryProjectTree extends Component {
     }
 
     const treeItems = this.getSortedProjectManifests()
-  .map(project => ({
-    text: project.getName(),
-    testid: project.id,
-    stateKey: project.id,
-    bold: true,
-    selected: project.id === currentProjectId,
-    onExpand: () => this.onExpandProject(project),
-    onContextMenu: (evt) => {
-      this.onProjectContextMenu(project, evt);
-    },
-    items: this.getProjectBlocksRecursive(project.components, 0, project.rules.frozen ? 1 : Number.MAX_VALUE),
-    labelWidgets: [
-      <img
-        key="open"
-        role="presentation"
-        src="/images/ui/open.svg"
-        onClick={evt => this.onOpenProject(project, evt)}
-        className="label-hover-bright"
-      />,
-    ],
-  }));
+    .map(project => ({
+      text: project.getName(),
+      testid: project.id,
+      stateKey: project.id,
+      bold: true,
+      selected: project.id === currentProjectId,
+      onExpand: () => this.onExpandProject(project),
+      onContextMenu: (evt) => {
+        this.onProjectContextMenu(project, evt);
+      },
+      items: this.getProjectBlocksRecursive(project.components, 0, project.rules.frozen ? 1 : Number.MAX_VALUE),
+      labelWidgets: [
+        <img
+          key="open"
+          role="presentation"
+          src="/images/ui/open.svg"
+          onClick={evt => this.onOpenProject(project, evt)}
+          className="label-hover-bright"
+        />,
+      ],
+    }));
 
     return (
       <div>
