@@ -30,6 +30,7 @@ const transformDbVersion = result => ({
   projectId: result.projectId,
   version: parseInt(result.projectVersion, 10),
   type: result.type,
+  keywords: result.keywords,
   tags: result.tags,
   message: result.message,
   time: (new Date(result.createdAt)).valueOf(),
@@ -110,7 +111,8 @@ export const snapshotGet = (projectId, version) => {
  * @param userId
  * @param [version] If no version provided, snapshot latest
  * @param [message]
- * @param [tags]
+ * @param [tags={}]
+ * @param [keywords=[]]
  * @param [type]
  * @returns Promise
  * @resolve snapshot
@@ -121,7 +123,8 @@ export const snapshotWrite = (
   version,
   message = defaultMessage,
   tags = {},
-  type = SNAPSHOT_TYPE_USER,
+  keywords = [],
+  type = SNAPSHOT_TYPE_USER,                  //todo - dear god the arity
 ) => {
   //version optional, defaults to latest
   invariant(projectId && userId, 'must pass projectId, userId');
@@ -137,6 +140,7 @@ export const snapshotWrite = (
     type,
     message,
     tags,
+    keywords,
   };
 
   if (Number.isInteger(version)) {
@@ -156,7 +160,8 @@ export const snapshotWrite = (
  * @param userId
  * @param version Version is required to merge
  * @param [message]
- * @param [tags]
+ * @param [tags={}]                           //todo - should replace, not merge, so can remove. update usage to big map with the option
+ * @param [keywords=[]]                       //todo - should replace, not merge, so can remove. update usage to big map with the option
  * @param [type]
  * @returns Promise
  * @resolve merged snapshot
@@ -168,6 +173,7 @@ export const snapshotMerge = (
   version,
   message,
   tags = {},
+  keywords = [],
   type,
 ) =>
   snapshotGet(projectId, version)
@@ -176,10 +182,11 @@ export const snapshotMerge = (
     const newMessage = message || snapshot.message;
     const newType = type || snapshot.type;
     const newTags = { ...snapshot.tags, ...tags };
+    const newKeywords = [...snapshot.keywords, ...keywords];
 
     logger(`[snapshotMerge] updating @ V${version} on ${projectId} - ${newMessage}, ${newType}, ${JSON.stringify(newTags)}`);
 
-    return snapshotWrite(projectId, userId, version, newMessage, newTags, newType);
+    return snapshotWrite(projectId, userId, version, newMessage, newTags, newType, newKeywords);
   });
 
 //if want to support - need to do by uuid, so need to fetch via projectId + version and delete that way, or list and delete

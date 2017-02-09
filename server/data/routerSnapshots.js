@@ -62,7 +62,7 @@ router.route('/:version?')
     //can also post a field 'rollup' for save a new rollup for the commit
     //receive the version
     const { user, projectId, projectDoesNotExist, version } = req;
-    const { message, rollup: roll, tags } = req.body;
+    const { message, rollup: roll, tags, keywords } = req.body;
 
     if (projectDoesNotExist && !roll) {
       return res.status(404).send(errorDoesNotExist);
@@ -87,7 +87,7 @@ router.route('/:version?')
       getVersionPromise;
 
     writePromise
-      .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, message, tags))
+      .then(version => snapshots.snapshotWrite(projectId, user.uuid, version, message, tags, keywords))
       .then(snapshot => res.status(200).json(snapshot))
       //may want better error handling here
       .catch(next);

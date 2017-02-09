@@ -150,12 +150,14 @@ export const commonsRetrieve = (projectId, version, lockProject = true) =>
  * @param projectId
  * @param userId
  * @param version
- * @param message
- * @param tags
+ * @param [message]
+ * @param [tags={}]
+ * @param [keywords=[]]
  * @returns {Promise}
  * @resolve snapshot
  */
-export const commonsPublishVersion = (projectId, userId, version, message, tags = {}) => {
+//keep message undefined by default, so don't overwrite on merge with default
+export const commonsPublishVersion = (projectId, userId, version, message, tags = {}, keywords) => {
   invariant(projectId, 'projectId required');
   invariant(userId, 'userId required');
   invariant(Number.isInteger(version), 'version required');
@@ -163,7 +165,7 @@ export const commonsPublishVersion = (projectId, userId, version, message, tags 
   const newTags = { ...tags, [COMMONS_TAG]: true };
 
   //try to update the existing snapshot, without changing the type
-  return snapshots.snapshotMerge(projectId, userId, version, message, newTags)
+  return snapshots.snapshotMerge(projectId, userId, version, message, newTags, keywords)
   //if snapshot doesn't exist, make a new + public one
   .catch((err) => {
     //if we got a different error, pass it through
@@ -173,7 +175,7 @@ export const commonsPublishVersion = (projectId, userId, version, message, tags 
 
     const newMessage = message || defaultMessage;
 
-    return snapshots.snapshotWrite(projectId, userId, version, newMessage, newTags, SNAPSHOT_TYPE_PUBLISH);
+    return snapshots.snapshotWrite(projectId, userId, version, newMessage, newTags, keywords, SNAPSHOT_TYPE_PUBLISH);
   });
 };
 
@@ -187,11 +189,12 @@ export const commonsPublishVersion = (projectId, userId, version, message, tags 
  * @param roll
  * @param message
  * @param tags
+ * @param keywords
  * @returns {Promise}
  * @resolve snapshot
  */
 //todo - test (when expose route)
-export const commonsPublish = (projectId, userId, roll, message, tags) => {
+export const commonsPublish = (projectId, userId, roll, message = defaultMessage, tags = {}, keywords = []) => {
   invariant(projectId, 'projectId required');
   invariant(userId, 'userId required');
 
@@ -201,7 +204,7 @@ export const commonsPublish = (projectId, userId, roll, message, tags) => {
   return projectPersistence.projectWrite(projectId, roll)
   .then((writtenRoll) => {
     const newTags = { ...tags, [COMMONS_TAG]: true };
-    return snapshots.snapshotWrite(projectId, userId, writtenRoll, message, newTags, SNAPSHOT_TYPE_PUBLISH);
+    return snapshots.snapshotWrite(projectId, userId, writtenRoll, message, newTags, keywords, SNAPSHOT_TYPE_PUBLISH);
   });
 };
 

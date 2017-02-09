@@ -29,6 +29,7 @@ import Rollup from '../../src/models/Rollup';
 
 describe('middleware', () => {
   describe('commons', () => {
+    const keywords = [ uuid.v4() ];
     const publicTag = { [commons.COMMONS_TAG]: true };
 
     const makeTag = (isPublic) => {
@@ -77,6 +78,7 @@ describe('middleware', () => {
         rollOtherPublic.project.version,
         'Another users snapshot!',
         makeTag(true),
+        keywords,
         commons.SNAPSHOT_TYPE_PUBLISH,
       );
 
@@ -92,6 +94,7 @@ describe('middleware', () => {
         rollPublic1.project.version,
         undefined,
         makeTag(true),
+        keywords,
       );
 
       snapshotPublic2 = await snapshots.snapshotWrite(
@@ -100,6 +103,7 @@ describe('middleware', () => {
         rollPublic2.project.version,
         'Some message',
         makeTag(true),
+        keywords,
         commons.SNAPSHOT_TYPE_PUBLISH,
       );
     });

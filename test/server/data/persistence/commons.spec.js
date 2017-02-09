@@ -33,6 +33,7 @@ describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
       describe('commons', () => {
+        const keywords = ['something'];
         const publicTag = { [commons.COMMONS_TAG]: true };
         const makeTag = (isPublic, index) => {
           const base = { indexTag: index, customTag: 'custom' };
@@ -72,6 +73,7 @@ describe('Server', () => {
               index,
               `Snapshot ${index}`,
               makeTag(isPublic, index),
+              keywords,
               isPublic ? commons.SNAPSHOT_TYPE_PUBLISH : undefined,
             )),
           );

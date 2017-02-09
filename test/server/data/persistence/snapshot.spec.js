@@ -39,6 +39,7 @@ describe('Server', () => {
         let otherSnapshot;
 
         const exampleTag = { some: ' tag' };
+        const exampleKeywords = ['Special phrase', 'E Coli'];
 
         before(async () => {
           await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
@@ -108,12 +109,13 @@ describe('Server', () => {
           const type = 'SOME TYPE';
           const version = 1;
 
-          return snapshots.snapshotWrite(roll.project.id, testUserId, version, message, exampleTag, type)
+          return snapshots.snapshotWrite(roll.project.id, testUserId, version, message, exampleTag, exampleKeywords, type)
           .then(result => {
             expect(result.version).to.equal(version);
             expect(result.projectId).to.equal(roll.project.id);
             expect(result.message).to.equal(message);
             expect(result.tags).to.eql(exampleTag);
+            expect(result.keywords).to.eql(exampleKeywords);
             expect(result.owner).to.equal(testUserId);
             expect(result.type).to.equal(type);
           });
