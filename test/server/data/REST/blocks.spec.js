@@ -14,7 +14,7 @@ describe('Server', () => {
       describe('Blocks', () => {
         let server;
         const userId = testUserId; //for test environment
-        const projectData = new Project();
+        const projectData = new Project({ owner: testUserId });
         const projectId = projectData.id;
 
         const initialFields = { initial: 'value', projectId };

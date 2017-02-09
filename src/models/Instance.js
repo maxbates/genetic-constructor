@@ -17,11 +17,8 @@ import invariant from 'invariant';
 import { assign, cloneDeep, merge } from 'lodash';
 
 import InstanceSchema from '../schemas/Instance';
-import safeValidate from '../schemas/fields/safeValidate';
-import { number } from '../schemas/fields/validators';
+import ParentSchema from '../schemas/Parent';
 import Immutable from './Immutable';
-
-const versionValidator = (ver, required = false) => safeValidate(number(), required, ver);
 
 /**
  * Instances are immutable objects, which conform to a schema, and provide an explicit API for modifying their data.
@@ -46,7 +43,7 @@ export default class Instance extends Immutable {
     //not sure why this is complaining...
     //eslint-disable-next-line constructor-super
     return super(merge(
-      assign(InstanceSchema.scaffold(), subclassBase), //perf. NB - this is only valid so long as no overlapping fields
+      assign(InstanceSchema.scaffold(), subclassBase), //perf. NB - this is only valid so long as no overlapping fields (esp. nested ones)
       input,
     ), frozen);
   }
@@ -70,10 +67,12 @@ export default class Instance extends Immutable {
   }
 
   /**
-   * Clone an instance, adding the parent to the ancestry of the child Instance.
+   * Clone an instance, with a new ID
+   * parentInfo === null -> simply copy
+   * parentInfo !== null, add the parent to the ancestry of the child Instance.
    * @method clone
    * @memberOf Instance
-   * @param {object|null|string} [parentInfo={}] Parent info for denoting ancestry. If pass null to parentInfo, the instance is simply cloned, and nothing is added to the history. If pass a string, it will be used as the version.
+   * @param {object|null} [parentInfo={}] Parent info for denoting ancestry. If pass null to parentInfo, the instance is simply cloned, and nothing is added to the history.
    * @param {Object} [overwrites={}] object to merge into the cloned Instance
    * @throws if version is invalid (not provided and no field version on the instance)
    * @returns {Instance}
@@ -85,23 +84,24 @@ export default class Instance extends Immutable {
     if (parentInfo === null) {
       clone = merge(cloned, overwrites);
     } else {
-      const inputObject = (typeof parentInfo === 'string') ?
-      { version: parentInfo } :
-        parentInfo;
-
       const parentObject = Object.assign({
         id: cloned.id,
+        owner: cloned.owner,
         version: cloned.version,
-      }, inputObject);
+        created: Date.now(),
+      }, parentInfo);
 
-      invariant(versionValidator(parentObject.version), `must pass a valid version (SHA), got ${parentObject.version}`);
+      //throw if invalid parent
+      ParentSchema.validate(parentObject, true);
 
       const parents = [parentObject, ...cloned.parents];
 
       //unclear why, but merging parents was not overwriting the clone, so shallow assign parents specifically
       clone = Object.assign(merge(cloned, overwrites), { parents });
-      delete clone.id;
     }
+
+    //unset the ID
+    delete clone.id;
 
     return new this.constructor(clone);
   }

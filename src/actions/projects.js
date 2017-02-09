@@ -193,7 +193,7 @@ export const projectSnapshot = (projectId, version = null, message, tags = {}, w
 };
 
 /**
- * Create a project
+ * Create a project manifest
  * @function
  * @param {Object} [initialModel={}] Data to merge onto scaffold
  * @returns {Project} New project
@@ -201,9 +201,7 @@ export const projectSnapshot = (projectId, version = null, message, tags = {}, w
 export const projectCreate = initialModel => (dispatch, getState) => {
   const userId = getState().user.userid;
   const defaultModel = {
-    metadata: {
-      authors: [userId],
-    },
+    owner: userId,
   };
 
   const project = new Project(merge(defaultModel, initialModel));
@@ -216,17 +214,43 @@ export const projectCreate = initialModel => (dispatch, getState) => {
 };
 
 /**
+ * Clone a project
+ * @function
+ * @param {UUID} projectId Project ID to clone (must be in store)
+ * @returns {Project} Cloned project
+ */
+export const projectClone = projectId =>
+  (dispatch, getState) => {
+    const oldProject = getState().projects[projectId];
+    invariant(oldProject, 'old project must exist');
+
+    const userId = getState().user.userid;
+
+    const project = oldProject.clone({}, {
+      owner: userId,
+    });
+
+    dispatch({
+      type: ActionTypes.PROJECT_CLONE,
+      project,
+    });
+
+    return project;
+  };
+
+/**
  * Internal method to load a project. Attempt to load another on failure. Used internally by projectLoad, can recursive in this verison.
  * @function
  * @private
  * @param projectId
+ * @param userId
  * @param {Array|boolean} [loadMoreOnFail=false] Pass array for list of IDs to ignore
  * @param dispatch Pass in the dispatch function for the store
  * @returns Promise
  * @resolve {Rollup} loaded Project + Block Map
  * @reject
  */
-const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => loadProject(projectId)
+const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) => loadProject(projectId)
     .then((rollup) => {
       const { project, blocks } = rollup;
       const projectModel = new Project(project);
@@ -266,7 +290,7 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => loadProjec
           //if no manifests, create a new rollup
           //note - this shouldnt happen while users have sample projects
           //todo - may want to hit the server to re-setup the user's account
-          return emptyProjectWithConstruct(true);
+          return emptyProjectWithConstruct(userId, true);
         });
     });
 
@@ -282,9 +306,10 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => loadProjec
  */
 export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = false) => (dispatch, getState) => {
   const isCached = !!projectId && instanceMap.projectLoaded(projectId);
+  const userId = getState().user.userid;
   const promise = (avoidCache !== true && isCached) ?
       Promise.resolve(instanceMap.getRollup(projectId)) :
-      _projectLoad(projectId, loadMoreOnFail, dispatch);
+      _projectLoad(projectId, userId, loadMoreOnFail, dispatch);
 
     //rollup by this point has been converted to class instances
   return promise.then((rollup) => {

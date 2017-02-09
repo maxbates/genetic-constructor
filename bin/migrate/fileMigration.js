@@ -166,7 +166,7 @@ batchPromises(_.map(files, (fileObject) => () => {
             });
           });
 
-          const userId = manifest.metadata.authors[0];
+          const userId = manifest.owner;
 
           return projectPersistence.projectWriteManifest(projectId, newManifest, userId)
             .catch(err => {

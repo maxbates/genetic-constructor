@@ -14,13 +14,11 @@
  limitations under the License.
  */
 
-import { testUserId } from '../constants';
 import { merge } from 'lodash';
+import { testUserId } from '../constants';
 
 export const updateProjectWithTestAuthor = (project = {}, userId = testUserId) => {
   return merge({}, project, {
-    metadata: {
-      authors: [ userId ],
-    },
+    owner: userId,
   });
 };

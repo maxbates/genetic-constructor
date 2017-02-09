@@ -19,7 +19,15 @@ import * as ActionTypes from '../constants/ActionTypes';
 import { setExtensionConfig } from '../extensions/clientRegistry';
 import loadAllExtensions from '../extensions/loadExtensions';
 
+//grab the user off the window
 const flashedUser = global.flashedUser || {};
+
+if (process.env.NODE_ENV === 'test') {
+  //if in test environment, assign the test user to the flashed user
+  const testUser = require('../../test/constants').testUserClient(); //eslint-disable-line global-require
+  Object.assign(flashedUser, testUser);
+}
+
 const initialState = {
   userid: flashedUser.userid || null,
   email: flashedUser.email || null,

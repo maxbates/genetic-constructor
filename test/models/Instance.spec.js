@@ -1,7 +1,7 @@
 import Instance from '../../src/models/Instance';
 import InstanceSchema from '../../src/schemas/Instance';
 import chai from 'chai';
-import sha1 from 'sha1';
+import uuid from 'uuid';
 import { merge } from 'lodash';
 
 const { assert, expect } = chai;
@@ -90,7 +90,9 @@ describe('Model', () => {
 
     it('can be cloned, and update the parents array, with newest first', () => {
       const parentVersion = 135;
+      const owner = uuid.v1();
       const inst = new Instance({
+        owner,
         version: parentVersion,
         prior: 'field',
       });
@@ -98,13 +100,18 @@ describe('Model', () => {
 
       const clone = inst.clone();
       expect(clone.parents.length).to.equal(1);
-      expect(clone.parents[0]).to.eql({ id: inst.id, version: parentVersion });
+      expect(clone.parents[0]).to.eql({
+        id: inst.id,
+        owner,
+        version: parentVersion,
+        created: clone.parents[0].created,
+      });
 
       const second = clone.clone();
       expect(second.parents.length).to.equal(2);
       expect(second.parents).to.eql([
-        { id: clone.id, version: parentVersion },
-        { id: inst.id, version: parentVersion },
+        { id: clone.id, owner, version: parentVersion, created: second.parents[0].created },
+        { id: inst.id, owner, version: parentVersion, created: second.parents[1].created },
       ]);
     });
 
@@ -112,17 +119,20 @@ describe('Model', () => {
       const badVersion = 'bad!';
       const goodVersion = 352;
 
-      const inst = new Instance();
+      const inst = new Instance({
+        owner: uuid.v1(),
+      });
 
-      expect(inst.clone.bind(inst, badVersion)).to.throw();
-      expect(inst.clone.bind(inst, goodVersion)).to.not.throw();
+      expect(inst.clone.bind(inst, { version: badVersion })).to.throw();
+      expect(inst.clone.bind(inst, { version: goodVersion })).to.not.throw();
     });
 
-    it('clone(null) does not change ID or add to history', () => {
+    it('clone(null) does not change ID or add to history, or require owner to be present', () => {
       const inst = new Instance();
       const clone = inst.clone(null);
+
       assert(clone !== inst, 'should not be the same instance');
-      assert(clone.id === inst.id, 'should have same id after clone(null)');
+      assert(clone.id !== inst.id, 'should not have same id after clone(null)');
       assert(clone.parents.length === inst.parents.length, 'should not add a parent');
     });
   });
