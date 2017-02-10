@@ -178,6 +178,7 @@ class ProjectHeader extends Component {
     this.props.uiShowMenu([
       {
         text: 'New Construct',
+        disabled: this.props.project.rules.frozen,
         action: this.onAddConstruct,
       },
       {
@@ -216,7 +217,7 @@ class ProjectHeader extends Component {
   }
 
   /**
-   * jsx/js for project toolbar
+   * toolbar items
    * @returns {XML}
    */
   toolbar() {
@@ -224,7 +225,7 @@ class ProjectHeader extends Component {
       {
         text: 'Add Construct',
         imageURL: '/images/ui/add.svg',
-        enabled: true,
+        enabled: !this.props.project.rules.frozen,
         clicked: this.onAddConstruct,
       }, {
         text: 'View',

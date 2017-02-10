@@ -87,17 +87,17 @@ class InspectorGroupExtensions extends Component {
           isServer: manifestIsServer(extension),
           Region: extensionRegion(extension),
         };
+        // hack to prevent sequence viewer being turned off
+        const headerWidgets = extension.name === 'GC-Sequence-Viewer' ? [] : [(<Switch
+          key={index}
+          on={this.checkExtensionActive(extension.name)}
+          switched={() => this.extensionToggled(extension.name)}
+        />)];
         return (<Expando
           openByDefault
           key={index}
           text={values.Name}
-          headerWidgets={[
-            (<Switch
-              key={index}
-              on={this.checkExtensionActive(extension.name)}
-              switched={() => this.extensionToggled(extension.name)}
-            />),
-          ]}
+          headerWidgets={headerWidgets}
           content={
             <div className="content-dropdown">
               <div className="row">
