@@ -88,7 +88,7 @@ router.route('/versions/:projectId/:version?')
   }
 });
 
-router.use('/snapshots/:projectId', userOwnsProjectMiddleware, snapshotRouter);
+router.use('/snapshots/', snapshotRouter);
 
 /* info queries */
 

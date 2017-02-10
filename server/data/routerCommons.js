@@ -18,7 +18,6 @@ import express from 'express';
 import _ from 'lodash';
 
 import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
-import { errorNotPublished } from '../errors/errorConstants';
 import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap
@@ -43,19 +42,14 @@ router.use(ensureReqUserMiddleware);
 
 // routes
 
+//expects object in form { tags: {}, keywords: [] }
 router.route('/query')
 .post((req, res, next) => {
   const query = req.body;
 
   return commons.commonsQuery(query)
   .then(results => res.json(results))
-  .catch((err) => {
-    //hide forbidden, just say it doesn't exist
-    if (err === errorNotPublished) {
-      return res.status(404).send();
-    }
-    next(err);
-  });
+  .catch(next);
 });
 
 router.route('/:projectId/:version?')
@@ -89,12 +83,13 @@ router.route('/:projectId/:version?')
     const { message, tags } = req.body;
     convertTagsStrings(tags);
 
-    commons.commonsPublishVersion(projectId, user.uuid, version, message, tags)
+    commons.commonsPublishVersion(projectId, user.uuid, version, { message, tags })
     .then(info => res.json(info))
     .catch(next);
   })
 
 /*
+ //deprecate
  //publish, given rollup, at new version
  .put(
  userOwnsProjectMiddleware,
@@ -105,7 +100,7 @@ router.route('/:projectId/:version?')
  const { rollup, message, tags } = req.body;
  convertTagsStrings(tags);
 
- commons.commonsPublish(projectId, user.uuid, rollup, message, tags)
+ commons.commonsPublish(projectId, user.uuid, rollup, { message, tags })
  .then(info => res.json(info))
  .catch(next);
  })

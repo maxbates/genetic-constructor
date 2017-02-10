@@ -136,12 +136,13 @@ export const projectSave = (inputProjectId, forceSave = false) => (dispatch, get
  * @param {number} version project version, or null to default to latest
  * @param {string} message Commit message
  * @param {object} tags Metadata tags to include in the snapshot
+ * @param {Array} keywords Metadata keywords to include in the snapshot
  * @param {boolean} [withRollup=true] Save the current version of the project
  * @returns {Promise}
  * @resolve {number} version for snapshot
  * @reject {string|Response} Error message
  */
-export const projectSnapshot = (projectId, version = null, message, tags = {}, withRollup = true) => (dispatch, getState) => {
+export const projectSnapshot = (projectId, version = null, message, tags = {}, keywords = [], withRollup = true) => (dispatch, getState) => {
   const roll = withRollup ?
       dispatch(projectSelectors.projectCreateRollup(projectId)) :
     {};
@@ -154,7 +155,13 @@ export const projectSnapshot = (projectId, version = null, message, tags = {}, w
     }
   }
 
-  return snapshot(projectId, version, message, tags, roll)
+  const snapshotBody = {
+    message,
+    tags,
+    keywords,
+  };
+
+  return snapshot(projectId, version, snapshotBody, roll)
       .then((commitInfo) => {
         if (!commitInfo) {
           return null;
@@ -441,6 +448,24 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
 };
 
 /**
+ * Set the keywords for a project
+ * @function
+ * @param {UUID} projectId
+ * @param {Array<string>} keywords
+ * @returns {Project}
+ */
+export const projectSetKeywords = (projectId, keywords) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.mutate('metadata.keywords', keywords);
+  dispatch({
+    type: ActionTypes.PROJECT_SET_KEYWORDS,
+    undoable: true,
+    project,
+  });
+  return project;
+};
+
+/**
  * set the palette for the project
  * @param projectId
  * @param paletteName
@@ -465,6 +490,7 @@ export const projectSetPalette = (projectId, paletteName) => (dispatch, getState
  * @param {UUID} projectId
  * @param {UUID} constructId
  * @param {boolean} [forceProjectId=true] set the projectId if not set
+ * @param {number} [index=-1] Where to add construct
  * @returns {Project}
  */
 export const projectAddConstruct = (projectId, constructId, forceProjectId = true, index = -1) => (dispatch, getState) => {

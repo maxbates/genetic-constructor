@@ -29,6 +29,9 @@ describe('Middleware', () => {
     const updated = _.merge({}, roll, { project: { blah: 'blah' } });
     const latest = _.merge({}, updated, { project: { another: 'field' } });
 
+    const testTags = { mytag: 'value' };
+    const testKeywords = [uuid.v4()];
+
     const project = roll.project;
     const projectId = project.id;
 
@@ -68,7 +71,7 @@ describe('Middleware', () => {
 
     it('snapshot() overwrites a snapshot at specific version', () => {
       const newMessage = 'some new message';
-      return api.snapshot(projectId, version, newMessage)
+      return api.snapshot(projectId, version, { message: newMessage })
       .then(() => api.snapshotGet(projectId, version))
       .then(snapshot => {
         expect(snapshot.message).to.equal(newMessage);
@@ -78,7 +81,7 @@ describe('Middleware', () => {
     const commitMessage = 'my fancy message';
 
     it('snapshotWrite() creates a snapshot, returns version, time, message, defaults to latest', () => {
-      return api.snapshot(projectId, null, commitMessage)
+      return api.snapshot(projectId, null, { message: commitMessage, tags: testTags, keywords: testKeywords })
       .then(info => {
         assert(info.version === 2, 'should be version 2 (latest)');
         assert(info.message === commitMessage, 'should have commit message');
@@ -97,7 +100,7 @@ describe('Middleware', () => {
     it('snapshotWrite() given rollup bumps verion and creates a snapshot', () => {
       const newest = _.merge({}, roll, { project: { some: 'final' } });
 
-      return api.snapshot(projectId, null, undefined, null, newest)
+      return api.snapshot(projectId, null, {}, newest)
       .then(info => {
         assert(info.version === 3, 'should be version 3 (new latest)');
       });
@@ -119,6 +122,36 @@ describe('Middleware', () => {
       .catch(err => {
         done();
       });
+    });
+
+    it('can list keywords for a bunch of snapshots', async () => {
+      const map = await api.snapshotsListKeywords();
+
+      expect(typeof map).to.equal('object');
+      assert(_.every(testKeywords, word => map[word] >= 1), 'keywords should be present');
+    });
+
+    it('snapshotUpdateVersion() updates info about an existing version', async () => {
+      let roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
+      roll = writeResult.data;
+
+      const snap = await api.snapshot(roll.project.id, writeResult.version);
+
+      const update1 = { message: uuid.v4(), tags: { fancyTag: 'yassss' } };
+
+      const snapUpdate1 = await api.snapshotUpdate(roll.project.id, writeResult.version, update1);
+
+      expect(snapUpdate1.tags).to.eql(update1.tags);
+      expect(snapUpdate1.message).to.eql(update1.message);
+      expect(snapUpdate1.keywords).to.eql([]);              //test for default
+
+      const update2 = { message: uuid.v4(), keywords: [uuid.v4(), uuid.v4()], tags: {} };
+      const snapUpdate2 = await api.snapshotUpdate(roll.project.id, writeResult.version, update2);
+
+      expect(snapUpdate2.message).to.eql(update2.message);
+      expect(snapUpdate2.keywords).to.eql(update2.keywords);
+      expect(snapUpdate2.tags).to.eql(update1.tags);            //tags should merge
     });
 
     describe('permissions', () => {

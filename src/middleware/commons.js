@@ -16,10 +16,16 @@
 
 import invariant from 'invariant';
 
-import Rollup from '../models/Rollup';
-import { headersDelete, headersGet, headersPost, headersPut } from './utils/headers';
+//import Rollup from '../models/Rollup';
+import { headersDelete, headersGet, headersPost } from './utils/headers';
 import { commonsApiPath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
+
+const defaultSnapshotBody = {
+  message: 'Publish Project',
+  tags: {},
+  keywords: [],
+};
 
 export const commonsRetrieve = (projectId, version) => {
   invariant(projectId, 'Project ID required to retrieve');
@@ -28,35 +34,21 @@ export const commonsRetrieve = (projectId, version) => {
   .then(resp => resp.json());
 };
 
-//snapshot and publish rollup in one go
-export const commonsPublish = (rollup) => {
-  Rollup.validate(rollup, true, true);
-
-  return rejectingFetch(commonsApiPath(rollup.project.id), headersPut())
-  .then(resp => resp.json());
-};
-
 // Publish an existing version
-export const commonsPublishVersion = (projectId, version, message, tags = {}) => {
+export const commonsPublishVersion = (projectId, version, body = defaultSnapshotBody) => {
   invariant(projectId, 'Project ID required to publish');
-  invariant(version, 'Version required to publish specific version');
+  invariant(Number.isInteger(version), 'Version required to publish specific version');
 
-  const stringified = JSON.stringify({
-    message,
-    tags,
-  });
+  const stringified = JSON.stringify(body);
 
   return rejectingFetch(commonsApiPath(projectId, version), headersPost(stringified))
   .then(resp => resp.json());
 };
 
-//todo, if we want this
-//export const commonsPublish = (projectId, roll, message, tags) => {}
-
 //Unpublish either a whole project (no version given), or a specific version (version given)
 export const commonsUnpublish = (projectId, version) => {
   invariant(projectId, 'Project ID required to publish');
-  invariant(version, 'Version required to publish specific version');
+  invariant(version === undefined || Number.isInteger(version), 'version must be a number');
 
   return rejectingFetch(commonsApiPath(projectId, version), headersDelete())
   .then(resp => resp.json());
@@ -69,3 +61,15 @@ export const commonsQuery = (tags = {}) => {
   return rejectingFetch(commonsApiPath('query'), headersPost(stringified))
   .then(resp => resp.json());
 };
+
+/*
+ //deprecate
+ //snapshot and publish rollup in one go
+ export const commonsPublish = (rollup, body = defaultSnapshotBody) => {
+   Rollup.validate(rollup, true, true);
+   const stringified = JSON.stringify(body);
+
+   return rejectingFetch(commonsApiPath(rollup.project.id), headersPut(stringified))
+   .then(resp => resp.json());
+ };
+ */

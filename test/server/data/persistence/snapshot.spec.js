@@ -39,13 +39,16 @@ describe('Server', () => {
         let otherSnapshot;
 
         const exampleTag = { some: ' tag' };
+        const exampleKeywords = ['special phrase', 'e coli'];
 
-        before(async () => {
+        before(async() => {
           await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
           await projectPersistence.projectWrite(roll.project.id, updated, testUserId);
           await projectPersistence.projectWrite(roll.project.id, latest, testUserId);
           await projectPersistence.projectWrite(otherProject.project.id, otherProject, testUserId);
-          otherSnapshot = await snapshots.snapshotWrite(otherProject.project.id, testUserId, 0, 'Some message', exampleTag);
+
+          const snapshotBody = { message: 'Some message', tags: exampleTag, keywords: exampleKeywords };
+          otherSnapshot = await snapshots.snapshotWrite(otherProject.project.id, testUserId, 0, snapshotBody);
         });
 
         it('snapshotExists() returns 404 when does not exist', () => {
@@ -65,7 +68,7 @@ describe('Server', () => {
         });
 
         it('snapshotMerge() throws when snapshot does not exist', () => {
-          return snapshots.snapshotMerge(roll.project.id, testUserId, 0, 'new message')
+          return snapshots.snapshotMerge(roll.project.id, testUserId, 0, { message: 'new message' })
           .then(() => Promise.reject('shouldnt exist'))
           .catch(err => {
             expect(err).to.equal(errorDoesNotExist);
@@ -108,12 +111,14 @@ describe('Server', () => {
           const type = 'SOME TYPE';
           const version = 1;
 
-          return snapshots.snapshotWrite(roll.project.id, testUserId, version, message, exampleTag, type)
+          const body = { message, tags: exampleTag, keywords: exampleKeywords };
+          return snapshots.snapshotWrite(roll.project.id, testUserId, version, body, type)
           .then(result => {
             expect(result.version).to.equal(version);
             expect(result.projectId).to.equal(roll.project.id);
             expect(result.message).to.equal(message);
             expect(result.tags).to.eql(exampleTag);
+            expect(result.keywords).to.eql(exampleKeywords);
             expect(result.owner).to.equal(testUserId);
             expect(result.type).to.equal(type);
           });
@@ -138,7 +143,7 @@ describe('Server', () => {
 
         it('snapshotQuery() queries by tags', async() => {
           try {
-            const results = await snapshots.snapshotQuery(exampleTag);
+            const results = await snapshots.snapshotQuery({ tags: exampleTag });
             const projects = _.uniq(_.map(results, 'projectId'));
 
             expect(projects.length).to.equal(2);
@@ -150,14 +155,14 @@ describe('Server', () => {
         });
 
         it('snapshotQuery() can limit to a project', () => {
-          return snapshots.snapshotQuery(exampleTag, roll.project.id)
+          return snapshots.snapshotQuery({ tags: exampleTag }, roll.project.id)
           .then(results => {
             assert(results.length === 1, 'should have 1 snapshot with tag');
             expect(results[0].version).to.equal(1);
           });
         });
 
-        it('snapshotMerge() updates a snapshot', async () => {
+        it('snapshotMerge() updates a snapshot', async() => {
           const newMessage = 'Some new message';
 
           const initial = await snapshots.snapshotGet(otherSnapshot.projectId, otherSnapshot.version);
@@ -166,7 +171,7 @@ describe('Server', () => {
             otherSnapshot.projectId,
             otherSnapshot.owner,
             otherSnapshot.version,
-            newMessage,
+            { message: newMessage },
           );
 
           expect(updated.version).to.equal(initial.version);
@@ -184,7 +189,7 @@ describe('Server', () => {
           expect(retrieved.uuid).to.equal(initial.uuid);
         });
 
-        it('snapshotDelete() with version removes a single snapshot', async () => {
+        it('snapshotDelete() with version removes a single snapshot', async() => {
           await snapshots.snapshotDelete(otherSnapshot.projectId, otherSnapshot.version);
 
           return snapshots.snapshotExists(otherSnapshot.projectId, otherSnapshot.version)
@@ -209,6 +214,17 @@ describe('Server', () => {
             //console.log(err);
             done();
           });
+        });
+
+        describe('keywords', () => {
+          it('can list keywords without parameters', async() => {
+            const map = await snapshots.snapshotGetKeywordMap();
+            expect(typeof map).to.equal('object');
+            assert(_.every(exampleKeywords, keyword => map[keyword] > 0), 'keywords should be present in map');
+          });
+
+          it('can filter by projectId');
+          it('can filter by tags');
         });
       });
     });

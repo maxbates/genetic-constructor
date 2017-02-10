@@ -1,5 +1,4 @@
 import uuid from 'node-uuid';
-import sha1 from 'sha1';
 import merge from 'lodash.merge';
 
 /*
@@ -12,6 +11,7 @@ export const Block = {
   parents: [],
   metadata: {
     tags: {},
+    keywords: [],
   },
   sequence: {
     annotations: [],
@@ -30,6 +30,7 @@ export const Project = {
   parents: [],
   metadata: {
     tags: {},
+    keywords: [],
   },
   components: [],
   settings: {},

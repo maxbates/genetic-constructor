@@ -33,6 +33,7 @@ describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
       describe('commons', () => {
+        const keywords = ['something'];
         const publicTag = { [commons.COMMONS_TAG]: true };
         const makeTag = (isPublic, index) => {
           const base = { indexTag: index, customTag: 'custom' };
@@ -70,8 +71,7 @@ describe('Server', () => {
               projectId,
               testUserId,
               index,
-              `Snapshot ${index}`,
-              makeTag(isPublic, index),
+              { message: `Snapshot ${index}`, tags: makeTag(isPublic, index), keywords },
               isPublic ? commons.SNAPSHOT_TYPE_PUBLISH : undefined,
             )),
           );
@@ -122,14 +122,14 @@ describe('Server', () => {
         });
 
         it('can query public snapshot by tag, returning latest per project by default', async () => {
-          const query = await commons.commonsQuery({ customTag: 'custom' });
+          const query = await commons.commonsQuery({ tags: { customTag: 'custom' } });
 
           expect(query.length).to.equal(1);
           expect(query[0]).to.eql(allSnapshots[lastPublishedIndex]);
         });
 
         it('can query, without collapsing to one per project', async () => {
-          const query = await commons.commonsQuery({ customTag: 'custom' }, false);
+          const query = await commons.commonsQuery({ tags: { customTag: 'custom' } }, false);
 
           expect(query.length).to.equal(numberPublished);
         });
@@ -157,7 +157,8 @@ describe('Server', () => {
           const newestWrite = await projectPersistence.projectWrite(projectId, newestProject, testUserId);
           const versionToPub = newestWrite.version;
 
-          const snapshot = await commons.commonsPublishVersion(projectId, testUserId, versionToPub, 'Some message', { myTag: 'yay' });
+          const body = { message: 'Some message', tags: { myTag: 'yay' } };
+          const snapshot = await commons.commonsPublishVersion(projectId, testUserId, versionToPub, body);
 
           assert(snapshot && snapshot.snapshotUUID, 'should get snapshot');
           assert(snapshot.version === versionToPub, 'shoudl be version passed in');
@@ -170,7 +171,8 @@ describe('Server', () => {
         it('can publish an existing snapshot, doesnt change type', async () => {
           const versionToPub = snapsPublic.indexOf(false);
 
-          const snapshot = await commons.commonsPublishVersion(projectId, testUserId, versionToPub, 'Some message', { myTag: 'yay' });
+          const body = { message: 'Some message', tags: { myTag: 'yay' } };
+          const snapshot = await commons.commonsPublishVersion(projectId, testUserId, versionToPub, body);
 
           assert(snapshot && snapshot.snapshotUUID, 'should get snapshot');
           assert(snapshot.version === versionToPub, 'shoudl be version passed in');

@@ -7,7 +7,10 @@ var describeAppTest = require("../../../api-app");
 
 var each = require('underscore').each;
 var keys = require('underscore').keys;
+var map = require('underscore').map;
 var pick = require('underscore').pick;
+var omit = require('underscore').omit;
+var uniq = require('underscore').uniq;
 
 var Project = require('../../../../lib/project');
 var Snapshot = require('../../../../lib/snapshot');
@@ -656,7 +659,7 @@ describeAppTest("http", function (app) {
           stuff: ["bing", "bang", "bong"],
           worldSeries: "cubs",
         },
-        keywords: ["dangle", "tangle", "mangle"],
+        keywords: ["dangle", "tangle", "Mangle", "Tangle"],
       };
 
       request(app.proxy)
@@ -670,7 +673,8 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body.uuid, null);
           snapshotUUID0 = res.body.uuid;
           // console.log(res.body);
-          assert.deepEqual(pick(res.body, keys(data)), data);
+          assert.deepEqual(omit(pick(res.body, keys(data)), 'keywords'), omit(data, 'keywords'));
+          assert.deepEqual(res.body.keywords, uniq(map(data.keywords, function (kw) { return kw.toLowerCase(); })));
           assert.notEqual(res.body.projectUUID, null);
           assert.notEqual(res.body.createdAt, null);
           assert.notEqual(res.body.updatedAt, null);
@@ -738,6 +742,144 @@ describeAppTest("http", function (app) {
           done();
         });
     });
+
+    it('should fetch a keywords map for all snapshots', function fetchAllKeywordsMap(done) {
+      request(app.proxy)
+        .post('/api/snapshots/kwm')
+        .send({})
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.equal(typeof res.body, 'object');
+          var kwMap = res.body;
+          assert.deepEqual(keys(kwMap), ['fangle', 'dangle', 'tangle', 'mangle']);
+          assert.equal(kwMap.fangle, 1);
+          assert.equal(kwMap.dangle, 2);
+          assert.equal(kwMap.tangle, 2);
+          assert.equal(kwMap.mangle, 1);
+          done();
+        });
+    });
+
+    it('should fetch a keywords map for snapshots matching specified keywords',
+      function fetchKeywordsMapWithKeywords(done) {
+        request(app.proxy)
+          .post('/api/snapshots/kwm')
+          .send({
+            keywords: ['dangle'],
+          })
+          .expect(200)
+          .end(function (err, res) {
+            assert.ifError(err);
+            assert.notEqual(res, null);
+            assert.notEqual(res.body, null);
+            assert.equal(typeof res.body, 'object');
+            var kwMap = res.body;
+            assert.deepEqual(keys(kwMap), ['fangle', 'dangle', 'tangle', 'mangle']);
+            assert.equal(kwMap.fangle, 1);
+            assert.equal(kwMap.dangle, 2);
+            assert.equal(kwMap.tangle, 2);
+            assert.equal(kwMap.mangle, 1);
+            done();
+          });
+      });
+
+    it('should fetch a keywords map for snapshots matching specified tags', function fetchKeywordsMapWithTags(done) {
+      request(app.proxy)
+        .post('/api/snapshots/kwm')
+        .send({
+          tags: {
+            worldSeries: "cubs",
+          },
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.equal(typeof res.body, 'object');
+          var kwMap = res.body;
+          assert.deepEqual(keys(kwMap), ['fangle', 'dangle', 'tangle', 'mangle']);
+          assert.equal(kwMap.fangle, 1);
+          assert.equal(kwMap.dangle, 2);
+          assert.equal(kwMap.tangle, 2);
+          assert.equal(kwMap.mangle, 1);
+          done();
+        });
+    });
+
+    it('should fetch a keywords map for snapshots matching specified tags',
+      function fetchKeywordsMapWithTagsAndKeywords(done) {
+        request(app.proxy)
+          .post('/api/snapshots/kwm')
+          .send({
+            keywords: ['mangle'],
+            tags: {
+              worldSeries: "cubs",
+            },
+          })
+          .expect(200)
+          .end(function (err, res) {
+            assert.ifError(err);
+            assert.notEqual(res, null);
+            assert.notEqual(res.body, null);
+            assert.equal(typeof res.body, 'object');
+            var kwMap = res.body;
+            assert.deepEqual(keys(kwMap), ['dangle', 'tangle', 'mangle']);
+            assert.equal(kwMap.dangle, 1);
+            assert.equal(kwMap.tangle, 1);
+            assert.equal(kwMap.mangle, 1);
+            done();
+          });
+      });
+
+    it('should fetch a keywords map for snapshots matching specified tags',
+      function fetchKeywordsMapWithProjectId(done) {
+        request(app.proxy)
+          .post('/api/snapshots/kwm')
+          .send({
+            projectId: 'fooNO',
+          })
+          .expect(200)
+          .end(function (err, res) {
+            assert.ifError(err);
+            assert.notEqual(res, null);
+            assert.notEqual(res.body, null);
+            assert.equal(typeof res.body, 'object');
+            var kwMap = res.body;
+            assert.deepEqual(kwMap, {});
+            done();
+          });
+      });
+
+    it('should fetch a keywords map for snapshots matching specified tags',
+      function fetchKeywordsMapWithTagsAndKeywordsAndProjectId(done) {
+        request(app.proxy)
+          .post('/api/snapshots/kwm')
+          .send({
+            projectId: projectId,
+            keywords: ['tangle'],
+            tags: {
+              worldSeries: "cubs",
+            },
+          })
+          .expect(200)
+          .end(function (err, res) {
+            assert.ifError(err);
+            assert.notEqual(res, null);
+            assert.notEqual(res.body, null);
+            assert.equal(typeof res.body, 'object');
+            var kwMap = res.body;
+            assert.deepEqual(keys(kwMap), ['fangle', 'dangle', 'tangle', 'mangle']);
+            assert.equal(kwMap.fangle, 1);
+            assert.equal(kwMap.dangle, 2);
+            assert.equal(kwMap.tangle, 2);
+            assert.equal(kwMap.mangle, 1);
+            done();
+          });
+      });
 
     it('should delete a snapshot by UUID', function deleteByUUID(done) {
       async.series([
