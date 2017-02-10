@@ -272,6 +272,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
       if (block) {
         this.constructViewer.blockSelected([block]);
         showMenu();
+      } else {
+        this.constructViewer.showConstructContextMenu(this.mouseTrap.mouseToGlobal(evt));
       }
     } else {
       showMenu();

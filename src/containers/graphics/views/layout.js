@@ -552,14 +552,19 @@ export default class Layout {
 
   /**
    * store layout information on our cloned copy of the data, constructing
-   * display elements as required
+   * display elements as required.
+   * NOTE: The project might have been delete while we are updating. So handle that edge case.
    *
    */
   update(options) {
+    const project = this.constructViewer.getProject();
+    if (!project) {
+      return;
+    }
     this.options = options;
     this.showHidden = options.showHidden;
     this.construct = options.construct;
-    this.palette = this.rootLayout ? this.construct.metadata.palette || this.constructViewer.getProject().metadata.palette : this.palette;
+    this.palette = this.rootLayout ? this.construct.metadata.palette || project.metadata.palette : this.palette;
     this.blocks = options.blocks;
     this.currentConstructId = options.currentConstructId;
     this.currentBlocks = options.currentBlocks;
