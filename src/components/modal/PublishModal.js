@@ -23,8 +23,12 @@ import {
   projectSetKeywords,
   projectPublish,
 } from '../../actions/projects';
+
 import Modal from './Modal';
 import ModalFooter from './ModalFooter';
+import FormGroup from '../formElements/FormGroup';
+import FormText from '../formElements/FormText';
+import Checkbox from '../formElements/Checkbox';
 
 import '../../styles/PublishModal.css';
 
@@ -51,8 +55,16 @@ class PublishModal extends Component {
 
     this.state = {
       versionNote: '',
+      name: props.project.metadata.name,
+      description: props.project.metadata.description,
+      keywords: props.project.metadata.keywords,
     };
   }
+
+  onSubmit = (evt) => {
+    //todo - update project with state metadata
+    //todo - submit (need an action)
+  };
 
   formValid() {
     const { project } = this.props;
@@ -63,7 +75,10 @@ class PublishModal extends Component {
   }
 
   render() {
-    if (!this.props.open) {
+    const { open } = this.props;
+    const { name, description, keywords, versionNote } = this.state;
+
+    if (open !== true) {
       return null;
     }
 
@@ -73,9 +88,64 @@ class PublishModal extends Component {
         onClose={() => this.props.uiShowPublishDialog(false)}
         title={'Publish'}
       >
-        <div>Hi</div>
+        <form
+          id="publish-modal"
+          className="Form"
+          onSubmit={this.onSubmit}
+        >
+          <div className="Modal-paddedContent">
+            <div className="Modal-banner">
+              <span>Share a version of your project in the Genetic Constructor Public Inventory. <a href="">Learn more...</a></span>
+            </div>
 
-        <ModalFooter actions={this.actions} />
+            <FormGroup label="Project Title*">
+              <FormText
+                value={name}
+                name="name"
+                placeholder="Title of your project"
+                onChange={evt => this.setState({ name: evt.target.value })}
+              />
+            </FormGroup>
+
+            <FormGroup label="Project Description*">
+              <FormText
+                value={description}
+                name="description"
+                placeholder="Decription of your project"
+                onChange={evt => this.setState({ description: evt.target.value })}
+              />
+            </FormGroup>
+
+            <FormGroup label="Keywords*">
+              <FormText
+                value={keywords.join(',')}
+                name="keywords"
+                placeholder="Enter keywords to help people find your project"
+                onChange={evt => this.setState({ keywords: evt.target.value.split(',') })}
+              />
+            </FormGroup>
+
+            <FormGroup label="Version Note">
+              <FormText
+                value={versionNote}
+                name="keywords"
+                placeholder="Provide information about this version (optional)"
+                onChange={evt => this.setState({ versionNote: evt.target.value })}
+              />
+            </FormGroup>
+
+            <FormGroup label="License" labelTop>
+              <div style={{ width: '350px' }}>
+                <p>By selecting &apos;Publish&apos; below, you agree that your project will become available
+                  license-free in the public domain under the Create Commons CCØ license. Learn more...</p>
+                <p><a href="mailto:support@geneticconstructor.com">Contact us</a> if your project requires a more
+                  restrictive license.</p>
+              </div>
+            </FormGroup>
+
+          </div>
+          <ModalFooter actions={this.actions} />
+        </form>
       </Modal>
     );
   }

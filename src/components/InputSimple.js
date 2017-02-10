@@ -18,6 +18,8 @@ import ReactDom from 'react-dom';
 
 import '../styles/InputSimple.css';
 
+//todo - merge this functionality with formText
+
 export default class InputSimple extends Component {
   static propTypes = {
     value: PropTypes.string.isRequired,
