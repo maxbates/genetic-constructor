@@ -43,7 +43,6 @@ class TitleAndToolbar extends Component {
     onContextMenu: PropTypes.func,
     noHover: PropTypes.bool,
     itemActivated: PropTypes.func,
-    readOnly: PropTypes.bool,
   };
 
   /**

@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 
 import '../../../src/styles/MenuOverlay.css';
 import { uiShowMenu } from '../../actions/ui';
-import Box2D from '../../containers/graphics/geometry/box2d';
 import SubMenu from './SubMenu';
 
 /**
