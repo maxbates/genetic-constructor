@@ -40,6 +40,7 @@ import {
   uiShowMenu,
   uiSetGrunt,
   uiShowOkCancel,
+  uiShowPublishDialog,
 } from '../actions/ui';
 import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
@@ -64,6 +65,7 @@ class ProjectHeader extends Component {
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
     uiShowOkCancel: PropTypes.func.isRequired,
+    uiShowPublishDialog: PropTypes.func.isRequired,
     focusPrioritize: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
@@ -121,6 +123,10 @@ class ProjectHeader extends Component {
       'Delete Project',
       'Cancel',
     );
+  };
+
+  onShareProject = () => {
+    this.props.uiShowPublishDialog();
   };
 
   /**
@@ -239,6 +245,11 @@ class ProjectHeader extends Component {
           downloadProject(this.props.project.id, this.props.focus.options);
         },
       }, {
+        text: 'Share',
+        imageUrl: '/images/ui/gear.svg', //todo
+        enabled: true,
+        clicked: () => this.onShareProject(),
+      }, {
         text: 'Delete Project',
         imageURL: '/images/ui/delete.svg',
         enabled: true,
@@ -320,4 +331,5 @@ export default connect(mapStateToProps, {
   projectLoad,
   projectRename,
   uiToggleDetailView,
+  uiShowPublishDialog,
 })(ProjectHeader);

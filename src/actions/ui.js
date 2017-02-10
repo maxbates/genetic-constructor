@@ -266,3 +266,11 @@ export const uiReportError = nextState => (dispatch, getState) => {
   return null;
 };
 
+export const uiShowPublishDialog = forceState => (dispatch, getState) => {
+  const nextState = forceState === undefined ? !getState().ui.modals.publishDialog : forceState;
+  dispatch({
+    type: ActionTypes.UI_SHOW_PUBLISH_DIALOG,
+    publishDialog: nextState,
+  });
+  return nextState;
+};

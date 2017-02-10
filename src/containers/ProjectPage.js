@@ -26,6 +26,7 @@ import ImportGenBankModal from '../components/genbank/import';
 import ImportDNAForm from '../components/importdna/importdnaform';
 import ImportPartsCSVModal from '../components/importpartscsv/importpartscsv';
 import SaveErrorModal from '../components/modal/SaveErrorModal';
+import PublishModal from '../components/modal/PublishModal';
 import Spinner from '../components/ui/Spinner';
 import OrderModal from '../containers/orders/ordermodal';
 import loadAllExtensions from '../extensions/loadExtensions';
@@ -122,6 +123,7 @@ export class ProjectPage extends Component {
         <ImportPartsCSVModal />
         <SaveErrorModal />
         <OrderModal projectId={projectId} />
+        <PublishModal projectId={projectId} />
 
         <Inventory currentProjectId={projectId} />
 

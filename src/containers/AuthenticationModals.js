@@ -18,7 +18,7 @@ import { connect } from 'react-redux';
 
 import { uiShowAuthenticationForm } from '../actions/ui';
 
-//old forms
+//old forms - todo - deprecate
 import AccountForm from '../components/authentication/account';
 import ModalWindow from '../components/modal/modalwindow';
 
@@ -89,7 +89,6 @@ function AuthenticationModals(props) {
         isOpen={!!form}
         onClose={onClose}
         title={nameMap[props.authenticationForm]}
-        style={{ content: { width: '740px' } }}
       >
         {form}
       </Modal>

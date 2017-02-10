@@ -14,7 +14,6 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
 import '../../../src/styles/inline-toolbar.css';
 
 /**
@@ -23,23 +22,25 @@ import '../../../src/styles/inline-toolbar.css';
  * If the modal was closed via a button the button text is supplied.
  *
  */
-class InlineToolbar extends Component {
+export default class InlineToolbar extends Component {
   static propTypes = {
-    /*
-        text: "Blah",
-        imageURL: "/images/blah.svg",
-        enabled: true,
-        clicked: () => {},
-     */
-    items: PropTypes.array.isRequired,
+    items: PropTypes.arrayOf(PropTypes.shape({
+      text: PropTypes.string,
+      imageURL: PropTypes.string,
+      enabled: PropTypes.bool,
+      clicked: PropTypes.func,
+    })).isRequired,
     // called when any of the items are clicked, enabled or not.
     itemActivated: PropTypes.func,
   };
 
+  static defaultProps = {
+    items: [],
+    itemActivated: () => {},
+  };
+
   itemClicked = (event, item) => {
-    if (this.props.itemActivated) {
-      this.props.itemActivated();
-    }
+    this.props.itemActivated();
     if (item.enabled) {
       item.clicked(event, item);
     }
@@ -67,14 +68,4 @@ class InlineToolbar extends Component {
       </div>
     );
   }
-
 }
-
-function mapStateToProps(state, props) {
-  return {
-  };
-}
-
-export default connect(mapStateToProps, {
-
-})(InlineToolbar);

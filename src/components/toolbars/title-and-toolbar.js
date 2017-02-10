@@ -14,7 +14,6 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import MouseTrap from '../../containers/graphics/mousetrap';
 import '../../../src/styles/title-and-toolbar.css';
@@ -32,7 +31,7 @@ import InlineToolbar from './inline-toolbar';
  * If the modal was closed via a button the button text is supplied.
  *
  */
-class TitleAndToolbar extends Component {
+export default class TitleAndToolbar extends Component {
   static propTypes = {
     toolbarItems: PropTypes.array.isRequired,
     title: PropTypes.string.isRequired,
@@ -95,12 +94,3 @@ class TitleAndToolbar extends Component {
     );
   }
 }
-
-function mapStateToProps(state, props) {
-  return {
-  };
-}
-
-export default connect(mapStateToProps, {
-
-})(TitleAndToolbar);
