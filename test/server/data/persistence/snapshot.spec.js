@@ -143,7 +143,7 @@ describe('Server', () => {
 
         it('snapshotQuery() queries by tags', async() => {
           try {
-            const results = await snapshots.snapshotQuery(exampleTag);
+            const results = await snapshots.snapshotQuery({ tags: exampleTag });
             const projects = _.uniq(_.map(results, 'projectId'));
 
             expect(projects.length).to.equal(2);
@@ -155,7 +155,7 @@ describe('Server', () => {
         });
 
         it('snapshotQuery() can limit to a project', () => {
-          return snapshots.snapshotQuery(exampleTag, roll.project.id)
+          return snapshots.snapshotQuery({ tags: exampleTag }, roll.project.id)
           .then(results => {
             assert(results.length === 1, 'should have 1 snapshot with tag');
             expect(results[0].version).to.equal(1);

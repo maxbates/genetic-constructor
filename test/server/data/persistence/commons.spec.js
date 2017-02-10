@@ -122,14 +122,14 @@ describe('Server', () => {
         });
 
         it('can query public snapshot by tag, returning latest per project by default', async () => {
-          const query = await commons.commonsQuery({ customTag: 'custom' });
+          const query = await commons.commonsQuery({ tags: { customTag: 'custom' } });
 
           expect(query.length).to.equal(1);
           expect(query[0]).to.eql(allSnapshots[lastPublishedIndex]);
         });
 
         it('can query, without collapsing to one per project', async () => {
-          const query = await commons.commonsQuery({ customTag: 'custom' }, false);
+          const query = await commons.commonsQuery({ tags: { customTag: 'custom' } }, false);
 
           expect(query.length).to.equal(numberPublished);
         });

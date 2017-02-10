@@ -102,9 +102,6 @@ export const snapshotList = (projectId) => {
     .then(resp => resp.json());
 };
 
-//future - when needed
-//export const snapshotQuery = (tags, projectId) => {}
-
 /**
  * Retrieve a information about a snapshot
  * @param projectId

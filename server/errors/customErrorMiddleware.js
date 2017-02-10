@@ -25,6 +25,7 @@ export default function customErrorMiddleware(err, req, res, next) {
   logger(err);
 
   if (err === errors.errorNotPublished) {
+    //hide forbidden, just say it doesn't exist
     return res.status(404).send(errors.errorDoesNotExist);
   } else if (err === errors.errorDoesNotExist) {
     return res.status(404).send(errors.errorDoesNotExist);

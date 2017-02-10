@@ -43,19 +43,14 @@ router.use(ensureReqUserMiddleware);
 
 // routes
 
+//expects object in form { tags: {}, keywords: [] }
 router.route('/query')
 .post((req, res, next) => {
   const query = req.body;
 
   return commons.commonsQuery(query)
   .then(results => res.json(results))
-  .catch((err) => {
-    //hide forbidden, just say it doesn't exist
-    if (err === errorNotPublished) {
-      return res.status(404).send();
-    }
-    next(err);
-  });
+  .catch(next);
 });
 
 router.route('/:projectId/:version?')

@@ -89,7 +89,7 @@ published? ${isPublished}`);
 Project: ${projectId}
 Version: [latest]`);
 
-  return snapshots.snapshotQuery({ [COMMONS_TAG]: true }, projectId)
+  return snapshots.snapshotQuery({ tags: { [COMMONS_TAG]: true } }, projectId)
   .then((results) => {
     const hasResults = results && results.length > 0;
     const latestVersion = hasResults ?
@@ -111,12 +111,17 @@ latest: ${latestVersion && latestVersion.version}`);
 /**
  * Query the commons
  * Prune each project to the latest version only
- * @param {Object} tags
+ * @param {Object} query
  * @param {boolean} collapse Collapse to one per project
+ * @returns {Array}
  */
-export const commonsQuery = (tags = {}, collapse = true) => {
-  const query = { ...tags, [COMMONS_TAG]: true };
-  return snapshots.snapshotQuery(query)
+export const commonsQuery = (query = {}, collapse = true) => {
+  invariant(typeof query === 'object', 'must pass object');
+
+  const queryObject = Object.assign({ tags: {}, keywords: [] }, query);
+  queryObject.tags[COMMONS_TAG] = true;
+
+  return snapshots.snapshotQuery(queryObject)
   .then(results => collapse === true ? reduceSnapshotsToLatestPerProject(results) : results);
 };
 

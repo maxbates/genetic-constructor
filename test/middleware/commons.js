@@ -61,7 +61,13 @@ describe('middleware', () => {
     let snapshotPublic2 = null;
 
     //todo - create in tests
-    let rollPublic3;
+    let rollPublic3 = _.merge(rollPublic1, {
+      project: {
+        metadata: {
+          oneMore: 'value',
+        },
+      },
+    });
     let snapshotPublic3;
 
     before(async () => {
@@ -133,23 +139,41 @@ describe('middleware', () => {
       const ret = await api.commonsRetrieve(rollPublic1.project.id);
 
       assert(ret.project.rules.frozen, 'project should be frozen');
-      assert(_.every(ret.blocks, (block) => block.rules.frozen), 'blocks should be frozen');
+      assert(_.every(ret.blocks, block => block.rules.frozen), 'blocks should be frozen');
     });
 
-    //todo - need to finish this suite
+    it('commonsQuery() should query published projects, ignore private projects', async () => {
+      const query = await api.commonsQuery();
 
-    it('commonsQuery() should query published projects, ignore private projects');
+      assert(Array.isArray(query), 'expect array');
+      assert(!_.some(query, result => result.projectId === rollPrivate.project.id), 'should not find private project');
+
+      assert(_.every(query, result => result.tags[commons.COMMONS_TAG]), 'should all be public');
+
+      //make sure one is there
+      const found = query.find(result => result.projectId === rollPublic1.project.id);
+      assert(found, 'should find published project');
+      expect(found.version).to.equal(1); //should get latest
+    });
+
+    it('commonsQuery() only gets latest per project', async () => {
+      const query = await api.commonsQuery();
+
+      const uniqueByProject = _.uniqBy(query, 'projectId');
+      expect(uniqueByProject.length).to.equal(query.length);
+    });
+
+    it('commonsQuery() can search by tags');
+    it('commonsQuery() can search by keywords');
 
     it('commonsPublishVersion() publishes an existing version, which was not snapshotted, return snapshot');
     it('commonsPublishVersion() publishes an existing version, which was snapshotted, return snapshot');
+    it('commonsPublishVersion() allows custom tags');
 
-    it('commonsUpdateVersion() updates an existing published version');
+    it('commonsUpdateVersion() updates info about an existing published version');
 
     it('commonsUnpublish() should unpublish a snapshot, but not delete it');
 
-    it('commonsPublishVersion() allows custom tags');
-
     it('commonsQuery() queries for newly added + tagged snapshots');
-    it('commonsQuery() only gets latest per project');
   });
 });
