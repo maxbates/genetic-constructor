@@ -22,14 +22,24 @@ import React, { PropTypes } from 'react';
 import '../../styles/FormText.css';
 
 export default function FormText(props) {
-  const { className, ...rest } = props;
+  const { className, useTextarea, ...rest } = props;
 
   const classes = `formElement FormText errorStyle ${className}`;
 
+  if (useTextarea === true) {
+    return (
+      <textarea
+        rows="2"
+        className={classes}
+        {...rest}
+      />
+    );
+  }
+
   return (
     <input
-      className={classes}
       type="text"
+      className={classes}
       {...rest}
     />
   );
@@ -40,4 +50,5 @@ FormText.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   className: PropTypes.string,
+  useTextarea: PropTypes.bool,
 };

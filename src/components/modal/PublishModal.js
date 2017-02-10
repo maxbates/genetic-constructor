@@ -62,6 +62,7 @@ class PublishModal extends Component {
   }
 
   onSubmit = (evt) => {
+    evt.preventDefault();
     //todo - update project with state metadata
     //todo - submit (need an action)
   };
@@ -71,7 +72,7 @@ class PublishModal extends Component {
 
     return project.metadata.name &&
       project.metadata.description &&
-      project.keywords.length > 0;
+      project.metadata.keywords.length > 0;
   }
 
   render() {
@@ -109,6 +110,7 @@ class PublishModal extends Component {
 
             <FormGroup label="Project Description*">
               <FormText
+                useTextarea
                 value={description}
                 name="description"
                 placeholder="Decription of your project"
@@ -127,6 +129,7 @@ class PublishModal extends Component {
 
             <FormGroup label="Version Note">
               <FormText
+                useTextarea
                 value={versionNote}
                 name="keywords"
                 placeholder="Provide information about this version (optional)"
@@ -137,7 +140,8 @@ class PublishModal extends Component {
             <FormGroup label="License" labelTop>
               <div style={{ width: '350px' }}>
                 <p>By selecting &apos;Publish&apos; below, you agree that your project will become available
-                  license-free in the public domain under the Create Commons CCØ license. Learn more...</p>
+                  license-free in the public domain under the <a>Create Commons CCØ</a> license. <a>Learn more...</a></p>
+                <br />
                 <p><a href="mailto:support@geneticconstructor.com">Contact us</a> if your project requires a more
                   restrictive license.</p>
               </div>

@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import ReactDom from 'react-dom';
 
@@ -124,39 +124,35 @@ export default class InputSimple extends Component {
   };
 
   render() {
+    const sharedProps = {
+      value: this.state.value,
+      maxLength: this.props.maxLength,
+      className: 'InputSimple-input',
+      disabled: this.props.readOnly,
+      placeholder: this.props.placeholder,
+      onChange: this.handleChange,
+      onBlur: this.handleBlur,
+      onFocus: this.handleFocus,
+      onKeyUp: this.handleKeyUp,
+    };
+
     return (
       <div
         className={`InputSimple no-vertical-scroll${
-      this.props.readOnly ? ' readOnly' : ''}`}
+          this.props.readOnly ? ' readOnly' : ''}`}
       >
         {(this.props.useTextarea) &&
         <textarea
           ref="input"
           rows="5"
-          value={this.state.value}
-          maxLength={this.props.maxLength}
-          className="InputSimple-input"
-          disabled={this.props.readOnly}
-          placeholder={this.props.placeholder}
-          onChange={this.handleChange}
-          onBlur={this.handleBlur}
-          onFocus={this.handleFocus}
-          onKeyUp={this.handleKeyUp}
+          {...sharedProps}
         />
         }
         {(!this.props.useTextarea) &&
         <input
           size="30"
           ref="input"
-          value={this.state.value}
-          maxLength={this.props.maxLength}
-          disabled={this.props.readOnly}
-          className="InputSimple-input"
-          placeholder={this.props.placeholder}
-          onChange={this.handleChange}
-          onBlur={this.handleBlur}
-          onFocus={this.handleFocus}
-          onKeyUp={this.handleKeyUp}
+          {...sharedProps}
         />
         }
       </div>
