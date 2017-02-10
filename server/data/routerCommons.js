@@ -18,7 +18,6 @@ import express from 'express';
 import _ from 'lodash';
 
 import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
-import { errorNotPublished } from '../errors/errorConstants';
 import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap

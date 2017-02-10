@@ -111,7 +111,7 @@ latest: ${latestVersion && latestVersion.version}`);
 /**
  * Query the commons
  * Prune each project to the latest version only
- * @param {Object} query
+ * @param {Object} query in form { tags: {}, keywords: [] }
  * @param {boolean} collapse Collapse to one per project
  * @returns {Array}
  */
