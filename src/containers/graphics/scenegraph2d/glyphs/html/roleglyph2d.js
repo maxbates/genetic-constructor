@@ -52,6 +52,11 @@ export default class RoleGlyph2D extends Glyph2D {
     this.el.style.width = `${this.node.width + sw}px`;
     this.el.style.height = `${this.node.height + sw}px`;
     this.el.style.backgroundColor = this.node.fill;
+    if (this.node.hidden) {
+      this.el.style.filter = 'brightness(50%)';
+    } else {
+      this.el.style.filter = null;
+    }
     this.el.style.border = sw ? `${sw}px solid ${this.node.stroke}` : 'none';
     if (this.node.roleName) {
       if (this.roleName !== this.node.roleName) {
