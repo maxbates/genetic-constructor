@@ -133,8 +133,8 @@ export default class Rollup {
       case 1: {
         const update = { keywords: [] };
         //assign keywords
-        _.defaults(roll.project, update);
-        _.forEach(roll.blocks, block => _.defaults(block, update));
+        _.defaults(roll.project.metadata, update);
+        _.forEach(roll.blocks, block => _.defaults(block.metadata, update));
       }
     }
     /* eslint-enable no-fallthrough,default-case */
