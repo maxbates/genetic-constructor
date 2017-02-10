@@ -18,7 +18,6 @@ import invariant from 'invariant';
 import _, { every, isEqual } from 'lodash';
 
 import Project from '../models/Project';
-import BlockSchema from '../schemas/Block';
 import RollupSchema, { currentDataModelVersion } from '../schemas/Rollup';
 
 //note - not immutable, this is just a helper, primarily on the server
