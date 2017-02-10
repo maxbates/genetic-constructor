@@ -136,7 +136,7 @@ describe('Model', () => {
       });
     });
 
-    describe.only('upgrade()', () => {
+    describe('upgrade()', () => {
       it('upgrade() updates to the latest schema number', () => {
         const rl = Object.assign(RollupSchema.scaffold(), { schema: 1 });
         Rollup.upgrade(rl);
