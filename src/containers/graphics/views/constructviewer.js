@@ -58,6 +58,7 @@ import {
   uiShowGenBankImport,
   uiShowOrderForm,
   uiToggleDetailView,
+  inspectorSelectTab,
 } from '../../../actions/ui';
 import RoleSvg from '../../../components/RoleSvg';
 import { role as roleDragType } from '../../../constants/DragTypes';
@@ -82,6 +83,7 @@ export class ConstructViewer extends Component {
     construct: PropTypes.object.isRequired,
     constructId: PropTypes.string.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
+    inspectorSelectTab: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     focusBlocksAdd: PropTypes.func.isRequired,
@@ -239,9 +241,10 @@ export class ConstructViewer extends Component {
    */
   onTitleClicked = (event) => {
     const { construct } = this.props;
+    const wasFocused = construct.id === this.props.focus.constructId;
     this.props.focusBlocks([]);
     this.props.focusConstruct(construct.id);
-    if (!construct.isFixed()) {
+    if (!construct.isFixed() && wasFocused) {
       // there might be an autoscroll when focusing the construct so wait for that to complete
       window.setTimeout(() => {
         const target = ReactDOM.findDOMNode(this).querySelector('.title-and-toolbar-container .title');
@@ -345,6 +348,7 @@ export class ConstructViewer extends Component {
    */
   openInspector() {
     this.props.inspectorToggleVisibility(true);
+    this.props.inspectorSelectTab('Information');
   }
 
   /**
@@ -377,7 +381,7 @@ export class ConstructViewer extends Component {
     const listItems = singleBlock ? [
       {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
-        disabled: !canListify,
+        disabled: this.props.construct.isFixed() || !canListify,
         action: () => {
           this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
         },
@@ -945,7 +949,7 @@ export class ConstructViewer extends Component {
             title={this.props.construct.getName('New Construct')}
             subTitle={subTitle}
             fontSize="16px"
-            noHover={construct.isFixed()}
+            noHover={construct.isFixed() || !isFocused}
             color={construct.getColor()}
             onClick={this.onTitleClicked}
             onContextMenu={position => this.showConstructContextMenu(position)}
@@ -990,6 +994,7 @@ export default connect(mapStateToProps, {
   projectSave,
   projectAddConstruct,
   inspectorToggleVisibility,
+  inspectorSelectTab,
   inventoryToggleVisibility,
   uiShowDNAImport,
   uiShowOrderForm,

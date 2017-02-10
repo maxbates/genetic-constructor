@@ -47,7 +47,7 @@ const fieldDefs = {
   ],
   keywords: [
     fields.arrayOf((value => typeof value === 'string')).required,
-    'Dictionary of tags defining object',
+    'Keywords (lowercase)',
   ],
   palette: [
     fields.string(),

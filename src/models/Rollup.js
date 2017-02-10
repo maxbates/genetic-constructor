@@ -18,7 +18,7 @@ import invariant from 'invariant';
 import _, { every, isEqual } from 'lodash';
 
 import Project from '../models/Project';
-import RollupSchema from '../schemas/Rollup';
+import RollupSchema, { currentDataModelVersion } from '../schemas/Rollup';
 
 //note - not immutable, this is just a helper, primarily on the server
 
@@ -35,14 +35,17 @@ export default class Rollup {
   constructor(input = {}) {
     invariant(typeof input === 'object', 'input must be an object');
 
-    //assign since merging twice would be hellllla slow
+    // assign to override basic fields, and ensure old schema version etc. intact
     const scaffolded = _.assign(RollupSchema.scaffold(), input);
+
+    //update the models and schema version if needed
+    Rollup.upgrade(scaffolded);
 
     if (Object.keys(input).length) {
       Rollup.validate(scaffolded, true);
     }
 
-    //assign is fine, since should be empty
+    //assign is fine, since this should be empty
     return _.assign(this, scaffolded);
   }
 
@@ -57,7 +60,8 @@ export default class Rollup {
    * @throws if `throwOnError===true`, will throw when invalid
    * @returns {boolean} if `throwOnError===false`, whether input is a valid block
    * @example
-   * Rollup.validate(new Block()); //false
+   * Rollup.validate(new Block(), false); // false
+   * Rollup.validate(new Block(), true); // throws
    * Rollup.validate(new Rollup()); //true
    */
   static validate(input, throwOnError, heavy) {
@@ -121,6 +125,26 @@ export default class Rollup {
     });
   }
 
+  //updates the rollup itself
+  static upgrade(roll) {
+    //waterfall through all the upgrades needed
+    /* eslint-disable no-fallthrough,default-case */
+    switch (roll.schema) {
+      case 1: {
+        //remove authors, project.owner will be added automatically
+        _.unset(roll, 'project.metadata.authors');
+        //assign keywords
+        const keywordsUpdate = { metadata: { keywords: [] } };
+        _.defaultsDeep(roll.project, keywordsUpdate);
+        _.forEach(roll.blocks, block => _.defaultsDeep(block, keywordsUpdate));
+      }
+    }
+    /* eslint-enable no-fallthrough,default-case */
+
+    roll.schema = currentDataModelVersion;
+    return roll;
+  }
+
   getManifest() {
     return this.project;
   }
@@ -153,8 +177,8 @@ export default class Rollup {
       const { options } = block;
 
       return Object.keys(options)
-        .map(optionId => this.getBlock(optionId))
-        .reduce((acc, option) => Object.assign(acc, { [option.id]: option }), {});
+      .map(optionId => this.getBlock(optionId))
+      .reduce((acc, option) => Object.assign(acc, { [option.id]: option }), {});
     }
 
     //if no id provided, get all blocks which are options
@@ -201,12 +225,12 @@ export default class Rollup {
     const components = this.getComponents(blockId);
 
     const options = Object.keys(components)
-      .map(compId => components[compId])
-      .filter(comp => comp.rules.list === true)
-      .reduce((optionsAcc, component) => {
-        const componentOptions = this.getOptions(component.id);
-        return Object.assign(optionsAcc, componentOptions);
-      }, {});
+    .map(compId => components[compId])
+    .filter(comp => comp.rules.list === true)
+    .reduce((optionsAcc, component) => {
+      const componentOptions = this.getOptions(component.id);
+      return Object.assign(optionsAcc, componentOptions);
+    }, {});
 
     return {
       components,

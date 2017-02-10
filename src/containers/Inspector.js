@@ -33,11 +33,24 @@ export class Inspector extends Component {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object,
     construct: PropTypes.object,
+    type: PropTypes.object.isRequired,
   };
 
   setActive = (group) => {
     this.props.inspectorSelectTab(group);
   };
+
+  getTitle(tabInfo) {
+    let title = tabInfo ? tabInfo.title : '';
+    if (title === 'Information') {
+      switch (this.props.type) {
+        case 'project': title = 'Project Information'; break;
+        case 'construct': title = 'Construct Information'; break;
+        default: title = 'Block Information';
+      }
+    }
+    return title;
+  }
 
   toggle = (forceVal) => {
     this.props.inspectorToggleVisibility(forceVal);
@@ -98,7 +111,7 @@ export class Inspector extends Component {
     return (
       <div className={`SidePanel Inspector${isVisible ? ' visible' : ''}`}>
         <InspectorRightNav isVisible={isVisible} currentProjectId={this.props.projectId} />
-        <span className="title">{tabInfo ? tabInfo.title : 'Unknown'}</span>
+        <span className="title">{this.getTitle(tabInfo)}</span>
         <div className="vertical-menu">
           {icons}
         </div>

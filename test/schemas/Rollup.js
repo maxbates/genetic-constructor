@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import { expect } from 'chai';
-import RollupSchema from '../../src/schemas/Rollup';
+import RollupSchema, { currentDataModelVersion } from '../../src/schemas/Rollup';
 import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
 import { testUserId } from '../constants';
@@ -48,7 +48,7 @@ describe('Schema', () => {
 
       expect(RollupSchema.validate(roll)).to.equal(false);
 
-      Object.assign(roll, { schema: 1 });
+      Object.assign(roll, { schema: currentDataModelVersion });
 
       expect(RollupSchema.validate(roll)).to.equal(true);
     });
@@ -78,7 +78,7 @@ describe('Schema', () => {
       });
 
       const roll = {
-        schema: 1,
+        schema: currentDataModelVersion,
         project,
         blocks: {
           [block.id]: block,
