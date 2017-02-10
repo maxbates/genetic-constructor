@@ -448,6 +448,29 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
 };
 
 /**
+ * Set description of a project
+ * @function
+ * @param {UUID} projectId
+ * @param {string} newDescription
+ * @returns {Project}
+ */
+export const projectSetDescription = (projectId, newDescription) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+
+  if (newDescription === oldProject.metadata.description) {
+    return oldProject;
+  }
+
+  const project = oldProject.mutate('metadata.description', newDescription);
+  dispatch({
+    type: ActionTypes.PROJECT_SET_DESCRIPTION,
+    undoable: true,
+    project,
+  });
+  return project;
+};
+
+  /**
  * Set the keywords for a project
  * @function
  * @param {UUID} projectId

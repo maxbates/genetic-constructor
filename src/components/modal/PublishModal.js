@@ -17,14 +17,49 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { uiShowPublishDialog } from '../../actions/ui';
+import {
+  projectRename,
+  projectSetDescription,
+  projectSetKeywords,
+  projectPublish,
+} from '../../actions/projects';
 import Modal from './Modal';
+import ModalFooter from './ModalFooter';
 
 import '../../styles/PublishModal.css';
 
 class PublishModal extends Component {
   static propTypes = {
+    projectId: PropTypes.string.isRequired,
+    project: PropTypes.object.isRequired,
     open: PropTypes.bool.isRequired,
     uiShowPublishDialog: PropTypes.func.isRequired,
+    projectPublish: PropTypes.func.isRequired,
+    projectRename: PropTypes.func.isRequired,
+    projectSetDescription: PropTypes.func.isRequired,
+    projectSetKeywords: PropTypes.func.isRequired,
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.actions = [{
+      text: 'Publish',
+      onClick: () => this.props.projectPublish(this.props.projectId),
+      disabled: () => !this.formValid(),
+    }];
+
+    this.state = {
+      versionNote: '',
+    };
+  }
+
+  formValid() {
+    const { project } = this.props;
+
+    return project.metadata.name &&
+      project.metadata.description &&
+      project.keywords.length > 0;
   }
 
   render() {
@@ -39,13 +74,20 @@ class PublishModal extends Component {
         title={'Publish'}
       >
         <div>Hi</div>
+
+        <ModalFooter actions={this.actions} />
       </Modal>
     );
   }
 }
 
 export default connect((state, props) => ({
+  project: state.projects[props.projectId],
   open: state.ui.modals.publishDialog,
 }), {
+  projectRename,
+  projectSetDescription,
+  projectSetKeywords,
+  projectPublish,
   uiShowPublishDialog,
 })(PublishModal);

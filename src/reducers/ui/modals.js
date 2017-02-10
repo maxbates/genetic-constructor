@@ -36,7 +36,7 @@ export const initialState = {
   showReportError: false,
   showPartsCSVImport: false,
   listBlock: null,
-  publishDialog: false, //project when open
+  publishDialog: true,
 };
 
 export default function modals(state = initialState, action) {

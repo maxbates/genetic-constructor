@@ -16,7 +16,7 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { projectMerge, projectRename, projectSetPalette } from '../../actions/projects';
+import { projectSetDescription, projectRename, projectSetPalette } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
 import Project from '../../models/Project';
 import { abort, commit, transact } from '../../store/undo/actions';
@@ -41,7 +41,7 @@ export class InspectorProject extends Component {
     projectRename: PropTypes.func.isRequired,
     projectSetPalette: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
-    projectMerge: PropTypes.func.isRequired,
+    projectSetDescription: PropTypes.func.isRequired,
     readOnly: PropTypes.bool,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
@@ -66,9 +66,7 @@ export class InspectorProject extends Component {
   };
 
   setProjectDescription = (description) => {
-    if (description !== this.props.instance.metadata.description) {
-      this.props.projectMerge(this.props.instance.id, { metadata: { description } });
-    }
+    this.props.projectSetDescription(this.props.instance.id, { metadata: { description } });
   };
 
   handleOpenOrder = (orderId) => {
@@ -165,7 +163,7 @@ export class InspectorProject extends Component {
 export default connect(null, {
   projectRename,
   projectSetPalette,
-  projectMerge,
+  projectSetDescription,
   transact,
   commit,
   abort,
