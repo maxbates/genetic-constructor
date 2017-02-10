@@ -37,7 +37,7 @@ export const commonsRetrieve = (projectId, version) => {
 // Publish an existing version
 export const commonsPublishVersion = (projectId, version, body = defaultSnapshotBody) => {
   invariant(projectId, 'Project ID required to publish');
-  invariant(version, 'Version required to publish specific version');
+  invariant(Number.isInteger(version), 'Version required to publish specific version');
 
   const stringified = JSON.stringify(body);
 
@@ -48,7 +48,7 @@ export const commonsPublishVersion = (projectId, version, body = defaultSnapshot
 //Unpublish either a whole project (no version given), or a specific version (version given)
 export const commonsUnpublish = (projectId, version) => {
   invariant(projectId, 'Project ID required to publish');
-  invariant(version, 'Version required to publish specific version');
+  invariant(version === undefined || Number.isInteger(version), 'version must be a number');
 
   return rejectingFetch(commonsApiPath(projectId, version), headersDelete())
   .then(resp => resp.json());

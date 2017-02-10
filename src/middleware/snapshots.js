@@ -79,7 +79,7 @@ export const snapshotUpdate = (projectId, version, body = {}) => {
   invariant(!body.keywords || Array.isArray(body.keywords), 'keywords must be array');
 
   const keys = ['message', 'tags', 'keywords'];
-  invariant(keys.some(key => body.key), `must update the snapshot, with one of: ${keys.join(', ')}`);
+  invariant(keys.some(key => body[key]), `must update the snapshot, with one of: ${keys.join(', ')}`);
 
   const url = dataApiPath(`snapshots/${projectId}/${version}`);
   const stringified = JSON.stringify(body);

@@ -131,6 +131,29 @@ describe('Middleware', () => {
       assert(_.every(testKeywords, word => map[word] >= 1), 'keywords should be present');
     });
 
+    it('snapshotUpdateVersion() updates info about an existing version', async () => {
+      let roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
+      roll = writeResult.data;
+
+      const snap = await api.snapshot(roll.project.id, writeResult.version);
+
+      const update1 = { message: uuid.v4(), tags: { fancyTag: 'yassss' } };
+
+      const snapUpdate1 = await api.snapshotUpdate(roll.project.id, writeResult.version, update1);
+
+      expect(snapUpdate1.tags).to.eql(update1.tags);
+      expect(snapUpdate1.message).to.eql(update1.message);
+      expect(snapUpdate1.keywords).to.eql([]);              //test for default
+
+      const update2 = { message: uuid.v4(), keywords: [uuid.v4(), uuid.v4()], tags: {} };
+      const snapUpdate2 = await api.snapshotUpdate(roll.project.id, writeResult.version, update2);
+
+      expect(snapUpdate2.message).to.eql(update2.message);
+      expect(snapUpdate2.keywords).to.eql(update2.keywords);
+      expect(snapUpdate2.tags).to.eql(update1.tags);            //tags should merge
+    });
+
     describe('permissions', () => {
       const otherUser = uuid.v1();
       const otherRoll = createExampleRollup();

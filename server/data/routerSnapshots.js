@@ -55,7 +55,7 @@ router.route('/:projectId/:version?')
     return res.status(404).send(errorDoesNotExist);
   }
 
-  if (version) {
+  if (Number.isInteger(version)) {
     snapshots.snapshotGet(projectId, version)
       .then(snapshot => res.status(200).json(snapshot))
       .catch(err => next(err));
@@ -87,12 +87,12 @@ router.route('/:projectId/:version?')
     return res.status(404).send(errorDoesNotExist);
   }
 
-  if (version && rollupDefined) {
+  if (Number.isInteger(version) && rollupDefined) {
     return res.status(422).send('cannot send version and roll');
   }
 
   //use version they gave or get latest
-  const getVersionPromise = version ?
+  const getVersionPromise = Number.isInteger(version) ?
     Promise.resolve(version) :
     projectPersistence.projectExists(projectId).then(version => version);
 

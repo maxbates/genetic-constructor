@@ -166,7 +166,7 @@ export const commonsPublishVersion = (projectId, userId, version, body) => {
   invariant(projectId, 'projectId required');
   invariant(userId, 'userId required');
   invariant(Number.isInteger(version), 'version required');
-  invariant(typeof body === 'object', 'body must be an object');
+  invariant(!body || typeof body === 'object', 'body must be an object');
 
   const snapshotBody = Object.assign({}, snapshotBodyScaffold, body);
   //add publishing tag
@@ -181,7 +181,7 @@ export const commonsPublishVersion = (projectId, userId, version, body) => {
       return Promise.reject(err);
     }
 
-    snapshotBody.message = body.message || defaultMessage;
+    snapshotBody.message = (body && body.message && body.message.length) ? body.message : defaultMessage;
 
     return snapshots.snapshotWrite(projectId, userId, version, body, SNAPSHOT_TYPE_PUBLISH);
   });

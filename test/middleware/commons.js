@@ -18,6 +18,7 @@ import uuid from 'uuid';
 import _ from 'lodash';
 
 import * as api from '../../src/middleware/commons';
+import * as snapshotApi from '../../src/middleware/snapshots';
 import * as commons from '../../server/data/persistence/commons';
 import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
@@ -29,16 +30,25 @@ import Rollup from '../../src/models/Rollup';
 
 describe('middleware', () => {
   describe('commons', () => {
-    const keywords = [ uuid.v4() ];
+    const keywords = [ uuid.v4(), uuid.v4() ];
     const publicTag = { [commons.COMMONS_TAG]: true };
 
+    const baseTag = { someCustomTag: 'my value' };
     const makeTag = (isPublic) => {
-      const base = { someCustomTag: 'my value' };
       if (isPublic) {
-        Object.assign(base, publicTag);
+        return Object.assign({}, baseTag, publicTag);
       }
-      return base;
+      return baseTag;
     };
+
+    const updateRollupName = (roll) => _.merge(roll, {
+      project: {
+        metadata: {
+          name: uuid.v4(),
+        },
+      },
+    });
+
 
     //roll for another user, to check permissions
     const otherUserId = uuid.v1();
@@ -49,26 +59,10 @@ describe('middleware', () => {
     let rollPrivate = createExampleRollup();
     let rollPrivateSnapshotted = createExampleRollup();
     let rollPublic1 = createExampleRollup();
-    let rollPublic2 = _.merge(rollPublic1, {
-      project: {
-        metadata: {
-          addition: 'field',
-        },
-      },
-    });
+    let rollPublic2 = updateRollupName(rollPublic1);
     let snapshotPrivate = null;
     let snapshotPublic1 = null;
     let snapshotPublic2 = null;
-
-    //todo - create in tests
-    let rollPublic3 = _.merge(rollPublic1, {
-      project: {
-        metadata: {
-          oneMore: 'value',
-        },
-      },
-    });
-    let snapshotPublic3;
 
     before(async () => {
       //write the projects
@@ -163,17 +157,124 @@ describe('middleware', () => {
       expect(uniqueByProject.length).to.equal(query.length);
     });
 
-    it('commonsQuery() can search by tags');
-    it('commonsQuery() can search by keywords');
+    it('commonsQuery() can search by tags', async () => {
+      const query = await api.commonsQuery({ tags: baseTag });
 
-    it('commonsPublishVersion() publishes an existing version, which was not snapshotted, return snapshot');
-    it('commonsPublishVersion() publishes an existing version, which was snapshotted, return snapshot');
-    it('commonsPublishVersion() allows custom tags');
+      assert(query.length > 0, 'should find things by tag');
+    });
 
-    it('commonsUpdateVersion() updates info about an existing published version');
+    it('commonsQuery() can search by keywords', async () => {
+      const query = await api.commonsQuery({ keywords: [keywords[0]] });
 
-    it('commonsUnpublish() should unpublish a snapshot, but not delete it');
+      assert(query.length > 0, 'should find things by tag');
+    });
 
-    it('commonsQuery() queries for newly added + tagged snapshots');
+    //create in tests
+
+    const newTag = { funNewTag: 'yay' };
+
+    it('commonsPublishVersion() publishes an existing version, which was not snapshotted, return snapshot', async () => {
+      let roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
+      roll = writeResult.data;
+
+      const snap = await api.commonsPublishVersion(roll.project.id, writeResult.version);
+
+      expect(snap.version).to.equal(writeResult.version);
+      expect(snap.tags[commons.COMMONS_TAG]).to.equal(true);
+
+      const ret = await api.commonsRetrieve(rollPublic1.project.id, writeResult.version);
+      assert(ret);
+    });
+
+    it('commonsPublishVersion() publishes an existing version, which was snapshotted, return snapshot', async () => {
+      let roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
+      roll = writeResult.data;
+
+      const snap = await snapshots.snapshotWrite(roll.project.id, testUserId, writeResult.version);
+      assert(!snap.tags[commons.COMMONS_TAG], 'shouldnt be published');
+
+      const publishedSnap = await api.commonsPublishVersion(roll.project.id, writeResult.version);
+      expect(publishedSnap.tags[commons.COMMONS_TAG]).to.equal(true);
+    });
+
+    it('commonsPublishVersion() allows custom tags', async () => {
+      let roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
+      roll = writeResult.data;
+
+      const message = uuid.v4();
+      const body = { message, tags: newTag };
+
+      const snap = await api.commonsPublishVersion(roll.project.id, writeResult.version, body);
+      expect(snap.tags[commons.COMMONS_TAG]).to.equal(true);
+      expect(snap.tags).to.eql({ ...snap.tags, ...newTag });
+      expect(snap.message).to.equal(message);
+    });
+
+    it('commonsPublishVersion() fails on another users project', async () => {
+      let roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, otherUserId);
+      roll = writeResult.data;
+
+      try {
+        await api.commonsPublishVersion(roll.project.id, writeResult.version);
+        assert(false, 'should error');
+      } catch (resp) {
+        expect(resp.status).to.equal(403);
+      }
+    });
+
+    it('snapshots.snapshotUpdateVersion() fails on another users published project', async () => {
+      let roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, otherUserId);
+      roll = writeResult.data;
+
+      await commons.commonsPublishVersion(roll.project.id, otherUserId, writeResult.version);
+
+      const update = { message: uuid.v4() };
+
+      try {
+        await snapshotApi.snapshotUpdate(roll.project.id, writeResult.version, update);
+        assert(false, 'should not work');
+      } catch (resp) {
+        expect(resp.status).to.equal(403);
+      }
+    });
+
+    it('commonsUnpublish() can unpublish a version, but not delete it', async () => {
+      const roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
+
+      const snap = await api.commonsPublishVersion(roll.project.id, writeResult.version);
+
+      expect(snap.version).to.equal(writeResult.version);
+      expect(snap.tags[commons.COMMONS_TAG]).to.equal(true);
+
+      const unpub = await api.commonsUnpublish(roll.project.id, writeResult.version);
+
+      expect(unpub.tags[commons.COMMONS_TAG]).to.equal(false);
+
+      const ret = await snapshotApi.snapshotGet(roll.project.id, writeResult.version);
+
+      console.log(ret);
+
+      expect(ret.tags[commons.COMMONS_TAG]).to.equal(false);
+    });
+
+    it('commonsUnpublish() can unpublish whole project', async () => {
+      await api.commonsUnpublish(rollPublic1.project.id);
+
+      try {
+        await api.commonsRetrieve(rollPublic1.project.id);
+        assert(false, 'shouldnt be published');
+      } catch (resp) {
+        expect(resp.status).to.equal(404);
+      }
+
+      const ret = await snapshotApi.snapshotList(rollPublic1.project.id);
+      assert(ret.length > 0, 'should still have snapshots');
+    });
   });
 });
