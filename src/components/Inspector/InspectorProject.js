@@ -66,7 +66,7 @@ export class InspectorProject extends Component {
   };
 
   setProjectDescription = (description) => {
-    this.props.projectSetDescription(this.props.instance.id, { metadata: { description } });
+    this.props.projectSetDescription(this.props.instance.id, description);
   };
 
   handleOpenOrder = (orderId) => {
