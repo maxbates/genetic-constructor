@@ -2,14 +2,12 @@
 
 .BlockSource {
   text-decoration: none;
-  color: var(--colors-white);
 
   &[href] {
     cursor: pointer;
   }
 
   &-name {
-    color: var(--colors-white);
   }
 
   &-icon {
