@@ -16,11 +16,13 @@
 import { testUserId } from '../constants';
 import { createExampleRollup } from '../_utils/rollup';
 import { expect, assert } from 'chai';
+import _ from 'lodash';
+
+import RollupSchema, { currentDataModelVersion } from '../../src/schemas/Rollup';
 import Rollup from '../../src/models/Rollup';
 import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
 import * as projectPersistence from '../../server/data/persistence/projects'
-import _ from 'lodash';
 
 describe('Model', () => {
   describe('Rollup', () => {
@@ -36,7 +38,7 @@ describe('Model', () => {
       const pr = Project.classless({ owner: testUserId });
       const bl = Block.classless({ projectId: pr.id });
       const rl = {
-        schema: 1,
+        schema: currentDataModelVersion,
         project: pr,
         blocks: {
           [bl.id]: bl,
@@ -50,13 +52,12 @@ describe('Model', () => {
     it('validate() cheap validation just checks basic shape, e.g. ignores block projectId', () => {
       const pr = Project.classless({ owner: testUserId });
       const bl = Block.classless();
-      const rl = {
-        schema: 1,
+      const rl = Object.assign(RollupSchema.scaffold(), {
         project: pr,
         blocks: {
           [bl.id]: bl,
         },
-      };
+      });
 
       expect(Rollup.validate(rl, false, false)).to.equal(true);
     });
@@ -67,7 +68,7 @@ describe('Model', () => {
         projectId: Project.classless().id,
       });
       const rl = {
-        schema: 1,
+        schema: currentDataModelVersion,
         project: pr,
         blocks: {
           [bl.id]: bl,
@@ -86,31 +87,46 @@ describe('Model', () => {
       const bl = Block.classless({
         projectId: Project.classless().id,
       });
-      const rl = {
-        schema: 1,
+      const rl = Object.assign(RollupSchema.scaffold(), {
         project: pr,
         blocks: {
           [bl.id]: bl,
         },
         random: 'value',
-      };
+      });
 
       expect(Rollup.validate(rl, false)).to.equal(false);
     });
 
     it('validate checks if each block is valid', () => {
       const proj = Project.classless({ owner: testUserId });
-      const invalidBlock = Object.assign(Block.classless({projectId: proj.id}), { metadata: 'invalid' });
+      const invalidBlock = Object.assign(Block.classless({ projectId: proj.id }), { metadata: 'invalid' });
 
-      const rl = {
-        schema: 1,
+      const rl = Object.assign(RollupSchema.scaffold(), {
         project: proj,
         blocks: {
           [invalidBlock.id]: invalidBlock,
         },
-      };
+      });
 
       expect(() => Rollup.validate(rl, true)).to.throw();
+    });
+
+    it('upgrade() updates to the latest schema number', () => {
+      const rl = Object.assign(RollupSchema.scaffold(), { schema: 1 });
+      Rollup.upgrade(rl);
+      expect(rl.schema).to.equal(currentDataModelVersion);
+    });
+
+    it('constructor() automatically updates', () => {
+      const roll = new Rollup();
+      expect(roll.schema).to.equal(currentDataModelVersion);
+
+      const upgraded = new Rollup({
+        schema: 1,
+        project: new Project({}, false),
+      });
+      expect(upgraded.schema).to.equal(currentDataModelVersion);
     });
 
     it('compare() can throw', () => {
@@ -128,9 +144,9 @@ describe('Model', () => {
       const roll = createExampleRollup();
 
       return projectPersistence.projectWrite(roll.project.id, roll, testUserId)
-        .then(info => {
-          Rollup.compare(info.data, roll, true);
-        });
+      .then(info => {
+        Rollup.compare(info.data, roll, true);
+      });
     });
   });
 });
