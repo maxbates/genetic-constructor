@@ -134,7 +134,7 @@ export default class SBOLPicker extends Component {
     if (this.state.expanded) {
       chips = (
         <div className="dropdown">
-          {symbols.map((symbolObj) => {
+          {symbols.filter(symbolObj => symbolObj.id !== 'list').map((symbolObj) => {
             const { id } = symbolObj;
             return this.makeSymbol(id);
           })}

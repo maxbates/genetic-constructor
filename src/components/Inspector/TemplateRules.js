@@ -17,7 +17,13 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { blockFreeze, blockMerge, blockSetHidden, blockSetListBlock } from '../../actions/blocks';
+import {
+  blockFreeze,
+  blockMerge,
+  blockSetHidden,
+  blockSetListBlock,
+  blockSetRole,
+} from '../../actions/blocks';
 import '../../styles/TemplateRules.css';
 import Checkbox from '../formElements/Checkbox';
 
@@ -30,6 +36,7 @@ export class TemplateRules extends Component {
     //blockFreeze: PropTypes.func.isRequired,
     blockSetListBlock: PropTypes.func.isRequired,
     blockSetHidden: PropTypes.func.isRequired,
+    blockSetRole: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -41,7 +48,10 @@ export class TemplateRules extends Component {
         () => this.props.isConstruct],
       ['list',
         'List Block',
-        value => this.props.blockSetListBlock(this.props.block.id, value),
+        (value) => {
+          this.props.blockSetListBlock(this.props.block.id, value);
+          this.props.blockSetRole(this.props.block.id, value ? 'list' : null);
+        },
         () => this.props.block.isConstruct() || this.props.block.hasSequence()],
       /*
       ['frozen',
@@ -88,4 +98,5 @@ export default connect(mapStateToProps, {
   blockFreeze,
   blockSetListBlock,
   blockSetHidden,
+  blockSetRole,
 })(TemplateRules);
