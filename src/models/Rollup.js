@@ -131,10 +131,12 @@ export default class Rollup {
     /* eslint-disable no-fallthrough,default-case */
     switch (roll.schema) {
       case 1: {
-        const update = { keywords: [] };
+        //remove authors, project.owner will be added automatically
+        _.unset(roll, 'project.metadata.authors');
         //assign keywords
-        _.defaults(roll.project.metadata, update);
-        _.forEach(roll.blocks, block => _.defaults(block.metadata, update));
+        const keywordsUpdate = { metadata: { keywords: [] } };
+        _.defaultsDeep(roll.project, keywordsUpdate);
+        _.forEach(roll.blocks, block => _.defaultsDeep(block, keywordsUpdate));
       }
     }
     /* eslint-enable no-fallthrough,default-case */
@@ -175,8 +177,8 @@ export default class Rollup {
       const { options } = block;
 
       return Object.keys(options)
-        .map(optionId => this.getBlock(optionId))
-        .reduce((acc, option) => Object.assign(acc, { [option.id]: option }), {});
+      .map(optionId => this.getBlock(optionId))
+      .reduce((acc, option) => Object.assign(acc, { [option.id]: option }), {});
     }
 
     //if no id provided, get all blocks which are options
@@ -223,12 +225,12 @@ export default class Rollup {
     const components = this.getComponents(blockId);
 
     const options = Object.keys(components)
-      .map(compId => components[compId])
-      .filter(comp => comp.rules.list === true)
-      .reduce((optionsAcc, component) => {
-        const componentOptions = this.getOptions(component.id);
-        return Object.assign(optionsAcc, componentOptions);
-      }, {});
+    .map(compId => components[compId])
+    .filter(comp => comp.rules.list === true)
+    .reduce((optionsAcc, component) => {
+      const componentOptions = this.getOptions(component.id);
+      return Object.assign(optionsAcc, componentOptions);
+    }, {});
 
     return {
       components,
