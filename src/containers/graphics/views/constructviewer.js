@@ -239,9 +239,10 @@ export class ConstructViewer extends Component {
    */
   onTitleClicked = (event) => {
     const { construct } = this.props;
+    const wasFocused = construct.id === this.props.focus.constructId;
     this.props.focusBlocks([]);
     this.props.focusConstruct(construct.id);
-    if (!construct.isFixed()) {
+    if (!construct.isFixed() && wasFocused) {
       // there might be an autoscroll when focusing the construct so wait for that to complete
       window.setTimeout(() => {
         const target = ReactDOM.findDOMNode(this).querySelector('.title-and-toolbar-container .title');
@@ -945,7 +946,7 @@ export class ConstructViewer extends Component {
             title={this.props.construct.getName('New Construct')}
             subTitle={subTitle}
             fontSize="16px"
-            noHover={construct.isFixed()}
+            noHover={construct.isFixed() || !isFocused}
             color={construct.getColor()}
             onClick={this.onTitleClicked}
             onContextMenu={position => this.showConstructContextMenu(position)}
