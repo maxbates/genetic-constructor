@@ -28,7 +28,7 @@ export default class SBOLPicker extends Component {
   };
 
   static makeHoverText(symbolId) {
-    return symbolMap[symbolId] || symbolId || 'No Symbol';
+    return `Symbol: ${symbolMap[symbolId] || symbolId || 'No Symbol'}`;
   }
 
   constructor(props) {

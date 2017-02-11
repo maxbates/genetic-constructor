@@ -90,7 +90,7 @@ export default class ColorPicker extends Component {
               className="color-wrapper"
               key={index}
               onClick={() => this.props.onSelectColor(index)}
-              onMouseEnter={() => this.props.setText(color.name || color.hex)}
+              onMouseEnter={() => this.props.setText(`Color: ${color.name || color.hex}`)}
               onMouseLeave={() => this.props.setText('')}
             >
               <div
