@@ -320,12 +320,12 @@ export class InspectorBlock extends Component {
             paletteName={palette}
             onSelectColor={this.selectColor}
           />
-          <SBOLPicker
+          {isConstruct && singleInstance && !hasParents ? null : <SBOLPicker
             setText={this.setColorSymbolText}
             current={this.currentRoleSymbol()}
             readOnly={readOnly || isFixed}
             onSelect={this.selectSymbol}
-          />
+          />}
         </div>
         <InspectorRow
           heading={`${type} Rules`}
