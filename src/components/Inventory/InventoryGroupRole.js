@@ -95,7 +95,10 @@ class InventoryGroupRole extends Component {
     let rules;
     const isList = this.state.current.id === 'list';
     if (isList) {
-      rules = { list: true };
+      rules = {
+        list: true,
+        role: this.state.current.id === 'null' ? null : this.state.current.id,
+      };
     } else {
       rules = {
         role: this.state.current.id === 'null' ? null : this.state.current.id,
