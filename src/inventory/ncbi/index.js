@@ -27,6 +27,8 @@ const fetchOpts = {
 // NCBI limits number of requests per user/ IP, so better to initate from the client and I support process on client...
 export const name = 'NCBI';
 
+const makeNcbiUrl = id => `https://www.ncbi.nlm.nih.gov/nuccore/${id}`;
+
 const makeFastaUrl = id => `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${id}&rettype=fasta&retmode=text`;
 
 //todo - handle RNA? reject it? what do we want to do?
@@ -47,6 +49,7 @@ const genbankToBlock = (gb, onlyConstruct) => convert(gb, onlyConstruct)
 const wrapBlock = (block, id) => new Block(merge({}, block, {
   source: {
     source: 'ncbi',
+    url: makeNcbiUrl(id),
     id,
   },
 }));
@@ -205,5 +208,5 @@ export const sourceUrl = ({ url, id }) => {
   if (!id && !url) {
     return null;
   }
-  return id ? `https://www.ncbi.nlm.nih.gov/nuccore/${id}` : url;
+  return id ? makeNcbiUrl(id) : url;
 };

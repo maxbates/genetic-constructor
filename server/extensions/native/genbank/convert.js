@@ -116,6 +116,7 @@ const createBlockStructure = (block, fileUrl) => {
     },
     source: {
       url: fileUrl,
+      file: fileUrl,
       source: 'genbank',
     },
     rules: block.rules,
