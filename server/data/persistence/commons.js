@@ -168,12 +168,12 @@ export const commonsPublishVersion = (projectId, userId, version, body) => {
   invariant(Number.isInteger(version), 'version required');
   invariant(!body || typeof body === 'object', 'body must be an object');
 
-  const snapshotBody = Object.assign({}, snapshotBodyScaffold, body);
+  const snapshotBody = _.defaultsDeep({}, body, snapshotBodyScaffold);
   //add publishing tag
   snapshotBody.tags[COMMONS_TAG] = true;
 
   //try to update the existing snapshot, without changing the type
-  return snapshots.snapshotMerge(projectId, userId, version, body)
+  return snapshots.snapshotMerge(projectId, userId, version, snapshotBody)
   //if snapshot doesn't exist, make a new + public one
   .catch((err) => {
     //if we got a different error, pass it through
@@ -181,9 +181,9 @@ export const commonsPublishVersion = (projectId, userId, version, body) => {
       return Promise.reject(err);
     }
 
-    snapshotBody.message = (body && body.message && body.message.length) ? body.message : defaultMessage;
+    snapshotBody.message = (body && body.message && body.message.length > 0) ? body.message : defaultMessage;
 
-    return snapshots.snapshotWrite(projectId, userId, version, body, SNAPSHOT_TYPE_PUBLISH);
+    return snapshots.snapshotWrite(projectId, userId, version, snapshotBody, SNAPSHOT_TYPE_PUBLISH);
   });
 };
 

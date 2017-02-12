@@ -22,7 +22,7 @@ import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
-const convertTagsStrings = tags => _.forEach(tags, (val, key) => {
+const convertTagsStrings = (tags = {}) => _.forEach(tags, (val, key) => {
   if (typeof val !== 'string') {
     tags[key] = String(val);
   }
@@ -80,10 +80,10 @@ router.route('/:projectId/:version?')
     }
 
     const { user, projectId, version } = req;
-    const { message, tags } = req.body;
+    const { message, keywords, tags } = req.body;
     convertTagsStrings(tags);
 
-    commons.commonsPublishVersion(projectId, user.uuid, version, { message, tags })
+    commons.commonsPublishVersion(projectId, user.uuid, version, { message, keywords, tags })
     .then(info => res.json(info))
     .catch(next);
   })

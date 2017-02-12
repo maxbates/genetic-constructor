@@ -18,7 +18,7 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import { merge, uniq, values } from 'lodash';
+import { isEqual, merge, uniq, values } from 'lodash';
 import { push } from 'react-router-redux';
 
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
@@ -27,6 +27,7 @@ import { uiSetGrunt } from '../actions/ui';
 import * as ActionTypes from '../constants/ActionTypes';
 import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
 import { snapshot } from '../middleware/snapshots';
+import { commonsPublishVersion } from '../middleware/commons';
 import Block from '../models/Block';
 import Project from '../models/Project';
 import Rollup from '../models/Rollup';
@@ -134,47 +135,64 @@ export const projectSave = (inputProjectId, forceSave = false) => (dispatch, get
  * @function
  * @param {UUID} projectId
  * @param {number} version project version, or null to default to latest
- * @param {string} message Commit message
- * @param {object} tags Metadata tags to include in the snapshot
- * @param {Array} keywords Metadata keywords to include in the snapshot
- * @param {boolean} [withRollup=true] Save the current version of the project
+ * @param {object} body { message, tags = {}, keywords = [] }
  * @returns {Promise}
  * @resolve {number} version for snapshot
  * @reject {string|Response} Error message
  */
-export const projectSnapshot = (projectId, version = null, message, tags = {}, keywords = [], withRollup = true) => (dispatch, getState) => {
-  const roll = withRollup ?
-      dispatch(projectSelectors.projectCreateRollup(projectId)) :
-    {};
+export const projectSnapshot = (projectId, version = null, body = {}) =>
+  (dispatch, getState) => {
+    invariant(projectId, 'must pass projectId');
+    invariant(Number.isInteger(version), 'must pass version');
 
-  if (withRollup) {
-    if (rollupDefined(roll)) {
-      instanceMap.saveRollup(roll);
-    } else {
-      return Promise.reject(projectNotLoadedError);
-    }
-  }
+    return snapshot(projectId, version, body)
+    .then((commitInfo) => {
+      if (!commitInfo) {
+        return null;
+      }
 
-  const snapshotBody = {
-    message,
-    tags,
-    keywords,
+      //todo - there is no reason to capture this in the store if save first
+
+      const { version } = commitInfo;
+      dispatch({
+        type: ActionTypes.PROJECT_SNAPSHOT,
+        projectId,
+        version,
+      });
+      return version;
+    });
   };
 
-  return snapshot(projectId, version, snapshotBody, roll)
-      .then((commitInfo) => {
-        if (!commitInfo) {
-          return null;
-        }
+/**
+ * Publish a project, creating a public snapshot.
+ * @function
+ * @param {UUID} projectId
+ * @param {number} version project version, or null to default to latest
+ * @param {object} body { message, tags = {}, keywords = [] }
+ * @returns {Promise}
+ * @resolve {number} version for snapshot
+ * @reject {string|Response} Error message
+ */
+export const projectPublish = (projectId, version, body = {}) => (dispatch, getState) => {
+  invariant(projectId, 'must pass projectId');
+  invariant(Number.isInteger(version), 'must pass version');
 
-        const { version } = commitInfo;
-        dispatch({
-          type: ActionTypes.PROJECT_SNAPSHOT,
-          projectId,
-          version,
-        });
-        return version;
-      });
+  return commonsPublishVersion(projectId, version, body)
+  .then((commitInfo) => {
+    if (!commitInfo) {
+      return null;
+    }
+
+    //todo - there is no reason to capture this in the store if save first
+
+    const { version } = commitInfo;
+    dispatch({
+      type: ActionTypes.PROJECT_PUBLISH,
+      projectId,
+      version,
+    });
+    return version;
+  });
 };
 
 /**
@@ -456,11 +474,6 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
  */
 export const projectSetDescription = (projectId, newDescription) => (dispatch, getState) => {
   const oldProject = getState().projects[projectId];
-
-  if (newDescription === oldProject.metadata.description) {
-    return oldProject;
-  }
-
   const project = oldProject.mutate('metadata.description', newDescription);
   dispatch({
     type: ActionTypes.PROJECT_SET_DESCRIPTION,

@@ -144,7 +144,8 @@ export const snapshotWrite = (
   invariant(projectId && userId, 'must pass projectId, userId');
   invariant((!version && version !== 0) || Number.isInteger(version), 'version must be a number');
 
-  const snapshotBody = Object.assign({}, defaultSnapshotBody, body);
+  const snapshotBody = _.defaultsDeep({}, body, defaultSnapshotBody);
+
   invariant(typeof snapshotBody.message === 'string', 'message must be a string');
   invariant(typeof snapshotBody.tags === 'object' && !Array.isArray(snapshotBody.tags), 'tags must be object');
   invariant(Array.isArray(snapshotBody.keywords) && snapshotBody.keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
@@ -204,6 +205,9 @@ export const snapshotMerge = (
       tags: newTags,
       keywords: newKeywords,
     };
+
+    console.log('merge');
+    console.log(newBody);
 
     return snapshotWrite(projectId, userId, version, newBody, newType);
   });
