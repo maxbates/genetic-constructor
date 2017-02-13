@@ -641,6 +641,10 @@ export class ConstructViewer extends Component {
         text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
         action: () => { this.toggleMinimized(); },
       },
+      {
+        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+        action: this.toggleHiddenBlocks,
+      },
     ],
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
       true);
