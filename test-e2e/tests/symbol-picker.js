@@ -15,7 +15,7 @@ module.exports = {
     .waitForElementPresent('.SBOLPicker', 1000, 'expected a symbol picker')
     .click('.SBOLPicker')
     .waitForElementPresent('.SBOLPicker .dropdown')
-    .assert.countelements('.SBOLPicker .RoleSvg', 16)
+    .assert.countelements('.SBOLPicker .RoleSvg', 15)
     .end();
   },
 };
