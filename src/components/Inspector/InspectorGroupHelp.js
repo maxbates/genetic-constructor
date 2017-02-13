@@ -51,8 +51,8 @@ class InspectorGroupHelp extends Component {
       <br />
       <div className="Section">Get Support</div>
       <a target="_blank" rel="noopener noreferrer" href="https://geneticconstructor.readme.io/discuss">Community Discussions</a>
-      <a href="#" onClick={this.onBugOrFeedback}>Report a Bug</a>
-      <a href="#" onClick={this.onBugOrFeedback}>Give us Feedback</a>
+      <a onClick={this.onBugOrFeedback}>Report a Bug</a>
+      <a onClick={this.onBugOrFeedback}>Give us Feedback</a>
       <br />
       <div className="Section">Information</div>
       <a target="_blank" rel="noopener noreferrer" href="http://bionano.autodesk.com/GeneticDesign/index.html">About Genetic Constructor</a>
