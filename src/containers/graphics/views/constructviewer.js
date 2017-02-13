@@ -70,7 +70,7 @@ import SceneGraph2D from '../scenegraph2d/scenegraph2d';
 import UserInterface from './constructvieweruserinterface';
 import Layout from './layout';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
-import downloadProject from '../../../middleware/utils/downloadProject';
+import { downloadConstruct } from '../../../middleware/utils/downloadProject';
 
 
 // static hash for matching viewers to constructs
@@ -844,7 +844,7 @@ export class ConstructViewer extends Component {
         text: 'Download Construct',
         disabled: false,
         action: () => {
-          downloadProject(this.props.currentProjectId, this.props.focus.options);
+          downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
         },
       },
       {
@@ -908,7 +908,7 @@ export class ConstructViewer extends Component {
         imageURL: '/images/ui/download.svg',
         enabled: true,
         clicked: () => {
-          downloadProject(this.props.currentProjectId, this.props.focus.options);
+          downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
         },
       },
       {

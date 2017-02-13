@@ -51,7 +51,7 @@ import '../../styles/InventoryProjectTree.css';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
 import BasePairCount from '../ui/BasePairCount';
-import downloadProject from '../../middleware/utils/downloadProject';
+import { downloadProject } from '../../middleware/utils/downloadProject';
 
 export class InventoryProjectTree extends Component {
   static propTypes = {
