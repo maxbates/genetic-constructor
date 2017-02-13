@@ -41,6 +41,12 @@
     border-radius: 0 0 var(--modal-rounding) var(--modal-rounding);
     transform: translate(0, -100%);
     transition: transform var(--timing-fast) ease-out;
+
+    a {
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--colors-selected);
+    }
   }
 
   &-header {
@@ -82,17 +88,13 @@
 
   &-banner {
     margin-bottom: 1em;
+    padding: 0.5em 0;
     text-align: center;
     font-family: ArtifaktElementBold;
     font-size: 12px;
     font-style: italic;
     font-stretch: normal;
     color: var(--colors-mediumDarkGrey);
-
-    a {
-      cursor: pointer;
-      color: var(--colors-selected);
-    }
   }
 
   &-footer {
