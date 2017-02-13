@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 
 import '../../../src/styles/MenuOverlay.css';
 import { uiShowMenu } from '../../actions/ui';
-import Box2D from '../../containers/graphics/geometry/box2d';
 import SubMenu from './SubMenu';
 
 /**
@@ -47,8 +46,12 @@ class MenuOverlay extends Component {
     window.addEventListener('resize', this.close);
   }
 
-  componentWillReceiveProps() {
-    this.measured = false;
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.menuItems && nextProps.menuItems.length) {
+      this.setState({
+        openLeft: nextProps.menuPosition.x > window.innerWidth / 2,
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -140,21 +143,6 @@ class MenuOverlay extends Component {
       left: `${pos.x - 10}px`,
       top: `${pos.y + psize / 2}px`,
     };
-    // to be called after render, react sucks
-    if (!this.measured) {
-      this.measured = true;
-      window.setTimeout(() => {
-        // determine which side to open sub menus once we have updated.
-        const element = ReactDOM.findDOMNode(this).querySelector('.menu-overlay-menu');
-        if (element) {
-          const box = new Box2D(element.getBoundingClientRect());
-          const openLeft = box.right > document.body.clientWidth / 2;
-          if (openLeft !== this.state.openLeft) {
-            this.setState({ openLeft });
-          }
-        }
-      }, 10);
-    }
 
     return (
       <div

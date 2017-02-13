@@ -17,6 +17,7 @@
     text-decoration: none;
     display: block;
     text-indent: 1.5rem;
+    cursor: pointer;
   }
   a:hover {
     text-decoration: underline;

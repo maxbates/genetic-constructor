@@ -272,6 +272,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
       if (block) {
         this.constructViewer.blockSelected([block]);
         showMenu();
+      } else {
+        this.constructViewer.showConstructContextMenu(this.mouseTrap.mouseToGlobal(evt));
       }
     } else {
       showMenu();
@@ -348,10 +350,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
           const node = this.layout.nodeFromElement(block);
           node.showChildren = !node.showChildren;
           this.constructViewer.update();
-          // change replace to add if opening the menu
-          if (action === 'replace') {
-            action = 'add';
-          }
+          // expand / collapse should not effect a selection change
+          action = 'none';
           break;
         }
 
@@ -375,6 +375,8 @@ export default class ConstructViewerUserInterface extends UserInterface {
           this.constructViewer.blockAddToSelectionsRange(block, this.selectedElements);
           break;
         case 'optionSelect':
+          break;
+        case 'none':
           break;
         default:
           if (this.blockIsFocused(block) && !this.construct.isFixed()) {

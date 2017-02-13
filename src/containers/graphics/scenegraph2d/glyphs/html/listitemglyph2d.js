@@ -30,7 +30,6 @@ export default class RoleGlyph2D extends Glyph2D {
     // dot selector
     this.dot = document.createElement('div');
     this.dot.className = 'listSelected';
-
     this.dot.style.top = `${kT.optionH / 2 - kT.optionDotS / 2}px`;
     this.dot.style.left = `${kT.optionDotL}px`;
     this.dot.style.width = this.dot.style.height = `${kT.optionDotS}px`;
@@ -50,6 +49,11 @@ export default class RoleGlyph2D extends Glyph2D {
     this.el.style.width = `${this.node.width + sw}px`;
     this.el.style.height = `${this.node.height + sw}px`;
     this.el.style.backgroundColor = this.node.fill;
+    if (this.node.hidden) {
+      this.el.style.filter = 'brightness(50%)';
+    } else {
+      this.el.style.filter = null;
+    }
 
     this.el.style.borderLeft = sw ? `${sw}px solid ${this.node.stroke}` : 'none';
     this.el.style.borderRight = sw ? `${sw}px solid ${this.node.stroke}` : 'none';

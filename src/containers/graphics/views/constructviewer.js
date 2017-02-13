@@ -59,7 +59,7 @@ import {
   uiShowOrderForm,
   uiToggleDetailView,
   detailViewSelectExtension,
-
+  inspectorSelectTab,
 } from '../../../actions/ui';
 import RoleSvg from '../../../components/RoleSvg';
 import { role as roleDragType } from '../../../constants/DragTypes';
@@ -77,6 +77,9 @@ import downloadProject from '../../../middleware/utils/downloadProject';
 // static hash for matching viewers to constructs
 const idToViewer = {};
 
+// sequence viewer extension name
+const sequenceViewerName = 'GC-Sequence-Viewer';
+
 export class ConstructViewer extends Component {
   static propTypes = {
     currentProjectId: PropTypes.string.isRequired,
@@ -84,6 +87,7 @@ export class ConstructViewer extends Component {
     construct: PropTypes.object.isRequired,
     constructId: PropTypes.string.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
+    inspectorSelectTab: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     focusBlocksAdd: PropTypes.func.isRequired,
@@ -120,6 +124,7 @@ export class ConstructViewer extends Component {
     focus: PropTypes.object,
     testIndex: PropTypes.number.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
+    visibleExtension: PropTypes.string,
   };
 
   /**
@@ -243,9 +248,10 @@ export class ConstructViewer extends Component {
    */
   onTitleClicked = (event) => {
     const { construct } = this.props;
+    const wasFocused = construct.id === this.props.focus.constructId;
     this.props.focusBlocks([]);
     this.props.focusConstruct(construct.id);
-    if (!construct.isFixed()) {
+    if (!construct.isFixed() && wasFocused) {
       // there might be an autoscroll when focusing the construct so wait for that to complete
       window.setTimeout(() => {
         const target = ReactDOM.findDOMNode(this).querySelector('.title-and-toolbar-container .title');
@@ -349,6 +355,7 @@ export class ConstructViewer extends Component {
    */
   openInspector() {
     this.props.inspectorToggleVisibility(true);
+    this.props.inspectorSelectTab('Information');
   }
 
   /**
@@ -381,7 +388,7 @@ export class ConstructViewer extends Component {
     const listItems = singleBlock ? [
       {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
-        disabled: !canListify,
+        disabled: this.props.construct.isFixed() || !canListify,
         action: () => {
           this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
         },
@@ -406,11 +413,8 @@ export class ConstructViewer extends Component {
         },
       },
       {
-        text: 'View Sequence',
-        action: () => {
-          this.props.detailViewSelectExtension('GC-Sequence-Viewer');
-          this.props.uiToggleDetailView(true);
-        },
+        text: `${this.props.visibleExtension === sequenceViewerName ? 'Hide' : 'Show'} Sequence`,
+        action: this.toggleSequenceViewer,
       },
       {},
       {
@@ -472,13 +476,8 @@ export class ConstructViewer extends Component {
         action: this.toggleHiddenBlocks,
       },
       {
-        text: 'Show Sequence',
-        action: () => {
-          this.props.focusBlocks([]);
-          this.props.focusConstruct(this.props.construct.id);
-          this.props.detailViewSelectExtension('GC-Sequence-Viewer');
-          this.props.uiToggleDetailView(true);
-        },
+        text: `${this.props.visibleExtension === sequenceViewerName ? 'Hide' : 'Show'} Sequence`,
+        action: this.toggleSequenceViewer,
       },
     ];
   };
@@ -643,8 +642,39 @@ export class ConstructViewer extends Component {
     const showPanels = !this.props.inventoryVisible;
     this.props.inventoryToggleVisibility(showPanels);
     this.props.inspectorToggleVisibility(showPanels);
+    if (showPanels) {
+      this.showSequenceViewer();
+    } else {
+      this.hideSequenceViewer();
+    }
   };
 
+  /**
+   * hide sequence viewer
+   */
+  hideSequenceViewer() {
+    this.props.uiToggleDetailView(false);
+  }
+
+  /**
+   * show the sequence viewer
+   */
+  showSequenceViewer() {
+    this.props.focusBlocks([]);
+    this.props.focusConstruct(this.props.construct.id);
+    this.props.detailViewSelectExtension(sequenceViewerName);
+    this.props.uiToggleDetailView(true);
+  }
+  /**
+   * toggle the sequence viewer visibility
+   */
+  toggleSequenceViewer = () => {
+    if (this.props.visibleExtension === sequenceViewerName) {
+      this.hideSequenceViewer();
+    } else {
+      this.showSequenceViewer();
+    }
+  };
 
   /**
    * show the view context menu beneath the given element ( from the inline toolbar )
@@ -660,6 +690,10 @@ export class ConstructViewer extends Component {
       {
         text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
         action: () => { this.toggleMinimized(); },
+      },
+      {
+        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+        action: this.toggleHiddenBlocks,
       },
     ],
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
@@ -965,7 +999,7 @@ export class ConstructViewer extends Component {
             title={this.props.construct.getName('New Construct')}
             subTitle={subTitle}
             fontSize="16px"
-            noHover={construct.isFixed()}
+            noHover={construct.isFixed() || !isFocused}
             color={construct.getColor()}
             onClick={this.onTitleClicked}
             onContextMenu={position => this.showConstructContextMenu(position)}
@@ -984,6 +1018,7 @@ function mapStateToProps(state, props) {
     construct: state.blocks[props.constructId],
     blocks: state.blocks,
     inventoryVisible: state.ui.inventory.isVisible,
+    visibleExtension: state.ui.detailView.isVisible ? state.ui.detailView.currentExtension : null,
   };
 }
 
@@ -1010,6 +1045,7 @@ export default connect(mapStateToProps, {
   projectSave,
   projectAddConstruct,
   inspectorToggleVisibility,
+  inspectorSelectTab,
   inventoryToggleVisibility,
   uiShowDNAImport,
   uiShowOrderForm,

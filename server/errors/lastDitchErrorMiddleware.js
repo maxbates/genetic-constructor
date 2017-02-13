@@ -17,7 +17,8 @@
 //last ditch error handler, should be mounted as last middleware
 export default function generalErrorHandler(err, req, res, next) {
   console.log('unhandled server error @ url: ', req.originalUrl);
-  console.error(err, err.stack);
+  console.error(err);
+  console.error(err.stack);
 
   //only want a string, dont leak to client
   const message = typeof err === 'string' ? err : err.message;
