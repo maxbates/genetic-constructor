@@ -360,7 +360,7 @@ export class ConstructViewer extends Component {
     const block = this.props.blocks[blockId];
     invariant(block, 'expected to get a block');
     // list blocks cannot have children
-    return !block.isList();
+    return !block.isList() && !block.isHidden();
   }
 
   /**
