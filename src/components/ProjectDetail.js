@@ -16,7 +16,6 @@
 import { throttle } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-
 import { detailViewSelectExtension, uiToggleDetailView } from '../actions/ui';
 import { extensionsByRegion, getExtensionName, onRegister } from '../extensions/clientRegistry';
 import '../styles/ProjectDetail.css';
@@ -105,15 +104,6 @@ export class ProjectDetail extends Component {
   };
 
   /** end resize things **/
-
-  handleClickToggle = (evt) => {
-    if (this.props.isVisible) {
-      return this.toggle(false);
-    }
-
-    this.toggle(true);
-    this.openExtension(this.extensions[0]);
-  };
 
   toggle = (forceVal) => {
     this.props.uiToggleDetailView(forceVal);

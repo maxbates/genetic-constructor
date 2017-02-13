@@ -58,6 +58,8 @@ import {
   uiShowGenBankImport,
   uiShowOrderForm,
   uiToggleDetailView,
+  detailViewSelectExtension,
+
 } from '../../../actions/ui';
 import RoleSvg from '../../../components/RoleSvg';
 import { role as roleDragType } from '../../../constants/DragTypes';
@@ -96,6 +98,8 @@ export class ConstructViewer extends Component {
     blockAddComponent: PropTypes.func,
     blockAddComponents: PropTypes.func,
     blockDetach: PropTypes.func,
+    uiToggleDetailView: PropTypes.func,
+    detailViewSelectExtension: PropTypes.func,
     uiShowDNAImport: PropTypes.func,
     uiShowMenu: PropTypes.func,
     uiShowOrderForm: PropTypes.func.isRequired,
@@ -401,6 +405,13 @@ export class ConstructViewer extends Component {
           this.props.uiShowDNAImport(true);
         },
       },
+      {
+        text: 'View Sequence',
+        action: () => {
+          this.props.detailViewSelectExtension('GC-Sequence-Viewer');
+          this.props.uiToggleDetailView(true);
+        },
+      },
       {},
       {
         text: 'Select Empty Blocks',
@@ -459,6 +470,15 @@ export class ConstructViewer extends Component {
       {
         text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
         action: this.toggleHiddenBlocks,
+      },
+      {
+        text: 'Show Sequence',
+        action: () => {
+          this.props.focusBlocks([]);
+          this.props.focusConstruct(this.props.construct.id);
+          this.props.detailViewSelectExtension('GC-Sequence-Viewer');
+          this.props.uiToggleDetailView(true);
+        },
       },
     ];
   };
@@ -998,6 +1018,7 @@ export default connect(mapStateToProps, {
   uiSetGrunt,
   uiInlineEditor,
   uiToggleDetailView,
+  detailViewSelectExtension,
   orderCreate,
   orderList,
   orderSetName,
