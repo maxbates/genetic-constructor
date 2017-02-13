@@ -130,9 +130,11 @@ export default class Schema {
       const isValid = validator(instanceFieldValue);
 
       if (!isValid) {
+        const isObject = typeof instanceFieldValue === 'object';
+        const printedFieldValue = isObject ? JSON.stringify(instanceFieldValue, null, 2) : instanceFieldValue;
         const errorMessage = `Validation Failed:
 Field "${field.name}" of type "${field.type}"
-Got ${instanceFieldValue} (type: ${typeof instanceFieldValue}).
+Got ${printedFieldValue} (type: ${typeof instanceFieldValue}).
 [${field.description || field.typeDescription}]`;
 
         if (shouldThrow) {
