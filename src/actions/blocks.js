@@ -267,7 +267,7 @@ export const blockClone = (blockInput, parentObjectInput) => (dispatch, getState
   // if we dont, nothing really we can do, so just clone without adding lineage
   // NOTE - assumes that project.owner is defined... will error if its not
   if (parentProjectId && parentObjectInput !== null) {
-    const oldProject = dispatch(projectSelectors.projectGet(parentProjectId)) || {};
+    const oldProject = dispatch(projectSelectors.projectGet(parentProjectId));
     invariant(oldProject, `project ${parentProjectId} was not found`);
 
     // partial object about project
