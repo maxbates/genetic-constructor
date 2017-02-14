@@ -146,12 +146,10 @@ export class InspectorProject extends Component {
           hasToggle
           condition={orders.length > 0}
         >
-          <div className="InspectorContent-section">
-            <OrderList
-              orders={orders}
-              onClick={orderId => this.handleOpenOrder(orderId)}
-            />
-          </div>
+          <OrderList
+            orders={orders}
+            onClick={orderId => this.handleOpenOrder(orderId)}
+          />
         </InspectorRow>
 
       </div>

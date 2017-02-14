@@ -21,6 +21,7 @@ import InspectorGroupFeedback from './InspectorGroupFeedback';
 import InspectorGroupHelp from './InspectorGroupHelp';
 import InspectorGroupInformation from './InspectorGroupInformation';
 import InspectorGroupOrders from './InspectorGroupOrders';
+import InspectorGroupHistory from './InspectorGroupHistory';
 import InspectorGroupSettings from './InspectorGroupSettings';
 
 export default class InspectorGroup extends Component {
@@ -44,6 +45,8 @@ export default class InspectorGroup extends Component {
         return (<InspectorGroupSettings />);
       case 'orders' :
         return (<InspectorGroupOrders />);
+      case 'history' :
+        return (<InspectorGroupHistory project={this.props.project} />);
       default:
       //throw new Error(`Type ${type} is not registered in InspectorGroup`);
     }

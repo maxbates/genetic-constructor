@@ -20,8 +20,10 @@ import { connect } from 'react-redux';
 import { orderList } from '../../actions/orders';
 import { projectList } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
-import '../../styles/InspectorGroupOrders.css';
 import Expando from '../ui/Expando';
+import InspectorDetailSection from './InspectorDetailSection';
+
+import '../../styles/InspectorGroupOrders.css';
 
 class InspectorGroupOrders extends Component {
   static propTypes = {
@@ -62,49 +64,36 @@ class InspectorGroupOrders extends Component {
   render() {
     return (<div className="InspectorGroupOrders">
       {this.state.loaded && this.state.orders.length === 0 ? <div className="no-label">No Orders Found</div> : null}
-      {this.state.orders.map((order, index) => (
-        <Expando
-          key={index}
-          text={order.metadata.name}
-          content={
-            <div className="content-dropdown">
-              <div className="row">
-                <div className="key">Project</div>
-                <div
-                  className="value"
-                >{this.projects.find(project => project.id === order.projectId).metadata.name || 'Unnamed Project'}</div>
-              </div>
-              <div className="row">
-                <div className="key">Order Created</div>
-                <div className="value">{moment(order.metadata.created).format('llll')}</div>
-              </div>
-              <div className="row">
-                <div className="key">Foundry</div>
-                <div className="value">{order.status.foundry}</div>
-              </div>
-              <div className="row">
-                <div className="key">Remote ID</div>
-                <div className="value">{order.status.remoteId}</div>
-              </div>
-              <div className="row">
-                <div className="key">Time Sent</div>
-                <div className="value">{moment(order.status.timeSent).format('llll')}</div>
-              </div>
-              <div className="row">
-                <div className="value">
-                  <a
-                    className="link"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      this.props.uiShowOrderForm(true, order.id);
-                    }}
-                  >Review Order</a>
-                </div>
-              </div>
-            </div>
-          }
-        />
-      ))}
+      {this.state.orders.map((order, index) => {
+        const items = [{
+          key: 'Project',
+          value: this.projects.find(project => project.id === order.projectId).metadata.name || 'Unnamed Project',
+        }, {
+          key: 'Order Created',
+          value: moment(order.metadata.created).format('llll'),
+        },
+        {
+          key: 'Foundry',
+          value: order.status.foundry,
+        },
+        {
+          key: 'Remote ID',
+          value: order.status.remoteId,
+        },
+        {
+          key: 'Time Sent',
+          value: moment(order.status.timeSent).format('llll'),
+        }];
+        const content = <InspectorDetailSection items={items} />;
+
+        return (
+          <Expando
+            key={index}
+            text={order.metadata.name}
+            content={content}
+          />
+        )
+      })}
     </div>);
   }
 }

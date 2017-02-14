@@ -117,7 +117,6 @@ export class InspectorBlock extends Component {
     this.props.commit();
   };
 
-
   /**
    * color of selected instance or null if multiple blocks selected
    */
@@ -285,31 +284,35 @@ export class InspectorBlock extends Component {
 
 
         { hasNotes
-          ? <Expando
-            text={`${type} Metadata`}
-            stateKey="inspector-template-metadata"
-            content={<div className="InspectorContent-section">
-              <BlockNotes notes={instances[0].notes} />
-            </div>}
-          />
+          ? (
+            <div style={{ padding: '0.5em 0' }}>
+              <Expando
+                text={`${type} Metadata`}
+                stateKey="inspector-template-metadata"
+                content={(
+                  <BlockNotes notes={instances[0].notes} />
+                )}
+              />
+            </div>
+          )
           : null
         }
         {isConstruct && singleInstance && !hasParents
           ?
-            <Expando
-              text={colorPaletteText}
-              capitalize
-              stateKey={paletteStateKey}
-              onClick={() => this.forceUpdate()}
-              content={
-                <PalettePicker
-                  paletteName={palette}
-                  onSelectPalette={this.selectPalette}
-                  readOnly={readOnly || isFixed}
-                />}
-            />
+          <Expando
+            text={colorPaletteText}
+            capitalize
+            stateKey={paletteStateKey}
+            onClick={() => this.forceUpdate()}
+            content={
+              <PalettePicker
+                paletteName={palette}
+                onSelectPalette={this.selectPalette}
+                readOnly={readOnly || isFixed}
+              />}
+          />
           :
-            null
+          null
         }
         <div className="color-symbol-label">{this.state.colorSymbolText}</div>
         <div className="color-symbol">
@@ -350,7 +353,7 @@ export class InspectorBlock extends Component {
               >
                 {annotation.name || annotation.description || '?'}
               </span>
-              ))}
+            ))}
           </div>
         </InspectorRow>
 

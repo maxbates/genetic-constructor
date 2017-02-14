@@ -1,0 +1,42 @@
+@import './variables.css';
+
+.InspectorDetailSection {
+  background-color: var(--colors-lighterGrey);
+  margin: 0.5rem 0 0 -var(--SidePanel-width-padding-content);
+  width: calc(100% + var(--SidePanel-width-padding-content) + var(--SidePanel-width-padding-content));
+  padding: 0.5rem var(--SidePanel-width-padding-content) 1rem;
+
+  .row {
+    padding: 0.5rem 0 0;
+  }
+
+  .key {
+    color: var(--colors-grey);
+  }
+
+  .value {
+    color: var(--colors-nearlyBlack);
+    font-family: var(--font-family-bold);
+
+    &.indented {
+      text-indent: 2rem;
+    }
+  }
+
+  &.inline {
+    .row {
+      display: flex;
+      align-items: top;
+    }
+
+    .key {
+      width: 30%;
+      text-align: right;
+      margin-right: 5%;
+    }
+
+    .value {
+      width: 60%;
+    }
+  }
+}
