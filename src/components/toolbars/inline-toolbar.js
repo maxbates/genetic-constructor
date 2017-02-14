@@ -54,6 +54,7 @@ export default class InlineToolbar extends Component {
             (
               <img
                 data-id={item.text}
+                role="presentation"
                 key={index}
                 title={item.text}
                 src={item.imageURL}

@@ -41,7 +41,6 @@ function AuthenticationModals(props) {
     return null;
   }
 
-  let oldform;
   let form;
 
   //new ones
