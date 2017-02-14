@@ -83,6 +83,7 @@ NCBI Accession: ${summary.accessionversion}`,
     source: {
       source: 'ncbi',
       id: summary.accessionversion,
+      url: makeNcbiUrl(summary.accessionversion),
     },
     notes: mapSummaryToNotes({
       Organism: 'organism',
