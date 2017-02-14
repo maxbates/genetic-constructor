@@ -20,6 +20,7 @@ import { connect } from 'react-redux';
 import { orderList } from '../../actions/orders';
 import { projectList } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
+import Spinner from '../ui/Spinner';
 import Expando from '../ui/Expando';
 import InspectorDetailSection from './InspectorDetailSection';
 
@@ -63,6 +64,8 @@ class InspectorGroupOrders extends Component {
 
   render() {
     return (<div className="InspectorGroupOrders">
+      {!this.state.loaded && <Spinner />}
+
       {!this.state.orders.length && (
         <div className="InspectorContentPlaceholder">No orders found</div>
       )}
