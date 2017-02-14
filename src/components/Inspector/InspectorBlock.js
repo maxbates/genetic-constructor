@@ -303,7 +303,8 @@ export class InspectorBlock extends Component {
               text={colorPaletteText}
               capitalize
               stateKey={paletteStateKey}
-              onClick={() => this.forceUpdate()}>
+              onClick={() => this.forceUpdate()}
+            >
               <PalettePicker
                 paletteName={palette}
                 onSelectPalette={this.selectPalette}

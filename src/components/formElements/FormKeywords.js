@@ -15,6 +15,8 @@
  */
 
 import React, { Component, PropTypes } from 'react';
+import _ from 'lodash';
+
 import { snapshotsListKeywords } from '../../middleware/snapshots';
 import FormSelect from '../formElements/FormSelect';
 
@@ -30,7 +32,7 @@ export default class FormKeywords extends Component {
   };
 
   componentDidMount() {
-    snapshotsListKeywords().then(keywordsMap => {
+    snapshotsListKeywords().then((keywordsMap) => {
       this.setState({
         keywordList: _.map(keywordsMap, (number, keyword) => ({ value: keyword, label: keyword })),
         keywordListLoading: false,
@@ -43,7 +45,7 @@ export default class FormKeywords extends Component {
     const { keywordList, keywordListLoading } = this.state;
 
     const cleanInput = input => input.toLowerCase().trim();
-    const setKeywords = values => {
+    const setKeywords = (values) => {
       onChange(values.map(({ value }) => cleanInput(value)));
     };
 

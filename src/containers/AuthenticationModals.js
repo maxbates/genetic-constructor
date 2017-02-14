@@ -82,7 +82,7 @@ function AuthenticationModals(props) {
     >
       {form}
     </Modal>
-  )
+  );
 }
 
 AuthenticationModals.propTypes = {

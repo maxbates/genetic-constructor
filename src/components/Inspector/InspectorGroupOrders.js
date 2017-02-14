@@ -86,6 +86,15 @@ class InspectorGroupOrders extends Component {
         {
           key: 'Time Sent',
           value: moment(order.status.timeSent).format('llll'),
+        }, {
+          key: 'Order Details',
+          value: (<a
+            className="link"
+            onClick={(event) => {
+              event.preventDefault();
+              this.props.uiShowOrderForm(true, order.id);
+            }}
+          >Review Order</a>),
         }];
         const content = <InspectorDetailSection items={items} />;
 

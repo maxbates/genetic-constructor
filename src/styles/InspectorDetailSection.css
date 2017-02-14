@@ -39,4 +39,9 @@
       width: 60%;
     }
   }
+
+  a {
+    color: var(--colors-selected);
+    cursor: pointer;
+  }
 }

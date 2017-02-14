@@ -85,19 +85,16 @@ class PublishModal extends Component {
       }
 
       savePromise = projectSave(projectId)
-      .then(version => {
+      .then(version =>
         //return null when save was not necessary
-        return Number.isInteger(version) ? version : project.version;
-      });
+         Number.isInteger(version) ? version : project.version);
     }
 
     savePromise
-    .then(version => {
-      return projectPublish(projectId, version, {
-        message: versionNote,
-        keywords,
-      });
-    })
+    .then(version => projectPublish(projectId, version, {
+      message: versionNote,
+      keywords,
+    }))
     .then(() => {
       uiShowPublishDialog(false);
       uiSetGrunt('Your project has been published');
@@ -127,9 +124,11 @@ class PublishModal extends Component {
       >
         <div className="Modal-paddedContent">
           <div className="Modal-banner">
-            <span>Share a version of your project in the Genetic Constructor Public Inventory. <a href={readmeLink}
-                                                                                                  target="_blank"
-                                                                                                  rel="noopener noreferrer">Learn more...</a></span>
+            <span>Share a version of your project in the Genetic Constructor Public Inventory. <a
+              href={readmeLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >Learn more...</a></span>
           </div>
 
           <FormGroup label="Project Title*">
@@ -173,8 +172,10 @@ class PublishModal extends Component {
           <FormGroup label="License" labelTop>
             <div style={{ width: '350px' }}>
               <p>By selecting &apos;Publish&apos; below, you agree that your project will become available
-                license-free in the public domain under the <a href="https://creativecommons.org/publicdomain/zero/1.0/"
-                                                               target="_blank" rel="noopener noreferrer">Create Commons
+                license-free in the public domain under the <a
+                  href="https://creativecommons.org/publicdomain/zero/1.0/"
+                  target="_blank" rel="noopener noreferrer"
+                >Create Commons
                   CCØ</a> license. <a href={readmeLink} target="_blank" rel="noopener noreferrer">Learn more...</a></p>
               <br />
               <p><a href="mailto:geneticconstructor@autodesk.com">Contact us</a> if your project requires a more

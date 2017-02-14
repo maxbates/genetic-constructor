@@ -19,7 +19,7 @@ import InspectorDetailSection from './InspectorDetailSection';
 export default function BlockNotes({ notes }) {
   return (
     <div className="BlockNotes">
-      <InspectorDetailSection items={Object.keys(notes).map((key) => ({key, value: notes[key]}))} />
+      <InspectorDetailSection items={Object.keys(notes).map(key => ({ key, value: notes[key] }))} />
     </div>
   );
 }

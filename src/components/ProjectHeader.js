@@ -41,6 +41,7 @@ import {
   uiSetGrunt,
   uiShowOkCancel,
   uiShowPublishDialog,
+  uiShowUnpublishDialog,
 } from '../actions/ui';
 import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
@@ -66,6 +67,7 @@ class ProjectHeader extends Component {
     uiShowMenu: PropTypes.func.isRequired,
     uiShowOkCancel: PropTypes.func.isRequired,
     uiShowPublishDialog: PropTypes.func.isRequired,
+    uiShowUnpublishDialog: PropTypes.func.isRequired,
     focusPrioritize: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
@@ -127,6 +129,10 @@ class ProjectHeader extends Component {
 
   onShareProject = () => {
     this.props.uiShowPublishDialog();
+  };
+
+  onUnpublishProject = () => {
+    this.props.uiShowUnpublishDialog();
   };
 
   /**
@@ -198,6 +204,11 @@ class ProjectHeader extends Component {
         },
       },
       {
+        text: 'Unpublish Project',
+        disabled: true, //need to get the snapshots and store in the store, they are not just used i nthe version history inspector
+        action: this.onUnpublishProject,
+      },
+      {
         text: 'Delete Project',
         action: this.onDeleteProject,
       },
@@ -247,9 +258,9 @@ class ProjectHeader extends Component {
         },
       }, {
         text: 'Share',
-        imageUrl: '/images/ui/gear.svg', //todo
+        imageURL: '/images/ui/share.svg',
         enabled: true,
-        clicked: () => this.onShareProject(),
+        clicked: this.onShareProject,
       }, {
         text: 'Delete Project',
         imageURL: '/images/ui/delete.svg',
@@ -333,4 +344,5 @@ export default connect(mapStateToProps, {
   projectRename,
   uiToggleDetailView,
   uiShowPublishDialog,
+  uiShowUnpublishDialog,
 })(ProjectHeader);

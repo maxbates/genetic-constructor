@@ -18,7 +18,7 @@
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import { isEqual, merge, uniq, values } from 'lodash';
+import { merge, uniq, values } from 'lodash';
 import { push } from 'react-router-redux';
 
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
