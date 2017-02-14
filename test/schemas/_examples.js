@@ -6,6 +6,8 @@ import merge from 'lodash.merge';
  * These models are intentionally to note when changes to the schema occurs - see rest of /test/schemas
  */
 
+/* NB - IF YOU ARE CHANGING THESE MODELS, THEN IT IS LIKELY THE DATABASE NEEDS TO BE UPDATED */
+
 export const Block = {
   id: uuid.v4(),
   parents: [],
