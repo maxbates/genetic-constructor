@@ -22,8 +22,6 @@ import { Creatable } from 'react-select';
 
 import '../../styles/FormSelect.css';
 
-//todo - prevent spaces, force lowercase
-
 export default function FormSelect(props) {
   const { className, ...rest } = props;
 
@@ -37,6 +35,7 @@ export default function FormSelect(props) {
   );
 }
 
+//some example important ones, see documentation
 
 FormSelect.propTypes = {
   className: PropTypes.string,

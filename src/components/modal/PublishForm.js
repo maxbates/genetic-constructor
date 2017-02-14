@@ -25,11 +25,10 @@ import {
   projectSave,
   projectPublish,
 } from '../../actions/projects';
-
 import ModalFooter from './ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import FormText from '../formElements/FormText';
-import FormSelect from '../formElements/FormSelect';
+import FormKeywords from '../formElements/FormKeywords';
 
 import '../../styles/PublishModal.css';
 
@@ -109,8 +108,7 @@ class PublishModal extends Component {
       >
         <div className="Modal-paddedContent">
           <div className="Modal-banner">
-            <span>Share a version of your project in the Genetic Constructor Public Inventory. <a
-              href="">Learn more...</a></span>
+            <span>Share a version of your project in the Genetic Constructor Public Inventory. <a href="">Learn more...</a></span>
           </div>
 
           <FormGroup label="Project Title*">
@@ -133,12 +131,9 @@ class PublishModal extends Component {
           </FormGroup>
 
           <FormGroup label="Keywords*">
-            <FormSelect
-              name="keywords"
-              multi
-              value={keywords}
-              onChange={value => this.setState({ keywords: value })}
-              placeholder="Enter keywords to help people find your project"
+            <FormKeywords
+              keywords={keywords}
+              onChange={keywords => this.setState({ keywords })}
             />
           </FormGroup>
 
