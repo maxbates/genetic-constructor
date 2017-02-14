@@ -53,7 +53,7 @@ ModalFooter.propTypes = {
     text: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
     disabled: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-    danger: PropTypes.bool,
-    secondary: PropTypes.bool,
+    danger: PropTypes.bool, //red
+    secondary: PropTypes.bool, //white
   })).isRequired,
 };

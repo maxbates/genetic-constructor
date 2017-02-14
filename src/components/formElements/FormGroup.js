@@ -19,15 +19,16 @@ import React, { PropTypes } from 'react';
 import '../../styles/FormGroup.css';
 
 export default function FormGroup(props) {
-  const { label, labelTop, children, error } = props;
+  const { label, labelTop, centered, children, error } = props;
 
   return (
-    <div className={`FormGroup${error ? ' hasError' : ''}`}>
+    <div className={`FormGroup${error ? ' hasError' : ''}${centered ? ' centered' : ''}`}>
       <div className={`FormGroup-label${labelTop ? ' FormGroup-label--top' : ''}`}>{label}</div>
       <div className="FormGroup-element">
         {children}
       </div>
-      {error && (<div className={`FormGroup-error${labelTop ? ' FormGroup-error--top' : ''}`}>{error}</div>)}
+      {centered && <div className="FormGroup-spacer" />}
+      {error && !centered && (<div className={`FormGroup-error${labelTop ? ' FormGroup-error--top' : ''}`}>{error}</div>)}
     </div>
   );
 }
@@ -37,4 +38,5 @@ FormGroup.propTypes = {
   label: PropTypes.string,
   labelTop: PropTypes.bool,
   error: PropTypes.string,
+  centered: PropTypes.bool,
 };

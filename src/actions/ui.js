@@ -274,3 +274,13 @@ export const uiShowPublishDialog = forceState => (dispatch, getState) => {
   });
   return nextState;
 };
+
+export const uiShowUnpublishDialog = (forceState, unpublishDialogVersion) => (dispatch, getState) => {
+  const nextState = forceState === undefined ? !getState().ui.modals.unpublishDialog : forceState;
+  dispatch({
+    type: ActionTypes.UI_SHOW_UNPUBLISH_DIALOG,
+    unpublishDialog: nextState,
+    unpublishDialogVersion,
+  });
+  return nextState;
+};
