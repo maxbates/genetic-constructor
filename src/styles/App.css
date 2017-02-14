@@ -84,3 +84,19 @@ svg text::selection,
 svg text tspan::selection{
   background: none;
 }
+
+:placeholder-shown {
+  color: #888b96 !important;
+}
+
+::-webkit-input-placeholder {
+  color: #888b96;
+}
+
+::-moz-placeholder {
+  color: #888b96;
+}
+
+:-ms-input-placeholder {
+  color: #888b96;
+}
