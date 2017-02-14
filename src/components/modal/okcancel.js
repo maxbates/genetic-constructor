@@ -77,7 +77,7 @@ OkCancel.propTypes = {
   message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   okText: PropTypes.string,
   cancelText: PropTypes.string,
-  onOk: PropTypes.func.isRequired,
+  onOk: PropTypes.func,
   onCancel: PropTypes.func,
 };
 

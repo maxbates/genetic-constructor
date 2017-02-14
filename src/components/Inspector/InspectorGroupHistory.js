@@ -76,6 +76,7 @@ export class InspectorHistory extends Component {
   render() {
     //todo - handle no shapshots
     //todo - show glyph
+    //todo - enable context menu
 
     if (this.state.loading) {
       return <Spinner />;
