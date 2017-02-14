@@ -114,12 +114,9 @@ export class ProjectDetail extends Component {
    * return our extensions list with the sequence viewer first
    */
   forceSequenceViewerFirst() {
-    let list = this.extensions;
-    const index = this.extensions.indexOf('GC-Sequence-Viewer');
-    if (index > 0) {
-      list = list.slice();
-      list.splice(0, 0, ...list.splice(index, 1));
-    }
+    const list = [...this.extensions];
+    const sequenceViewer = list.filter(key => key === 'GC-Sequence-Viewer');
+    list.splice(0, 0, ...sequenceViewer);
     return list;
   }
 
