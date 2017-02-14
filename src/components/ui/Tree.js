@@ -21,7 +21,16 @@ import Expando from './Expando';
 
 export default class Tree extends Component {
   static propTypes = {
-    items: PropTypes.array,
+    items: PropTypes.arrayOf(PropTypes.shape({
+      text: PropTypes.string,
+      textWidgets: PropTypes.arrayOf(PropTypes.node),
+      labelWidgets: PropTypes.arrayOf(PropTypes.node),
+      bold: PropTypes.bool,
+      selected: PropTypes.bool,
+      locked: PropTypes.bool,
+      startDrag: PropTypes.func,
+      onContextMenu: PropTypes.func,
+    })),
     depth: PropTypes.number.isRequired,
   };
 
@@ -59,7 +68,7 @@ export default class Tree extends Component {
      */
     return (
       <div className="tree">
-        {(this.props.items || []).map((item, index) => (
+        {(this.props.items).map((item, index) => (
           <div
             key={index}
             style={{

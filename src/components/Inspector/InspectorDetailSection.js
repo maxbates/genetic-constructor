@@ -19,7 +19,7 @@ import '../../styles/InspectorDetailSection.css';
 
 export default function InspectorDetailSection(props) {
   return (
-    <div className={`InspectorDetailSection${props.indented ? ' indented' : ''}`}>
+    <div className={`InspectorDetailSection${props.inline ? ' inline' : ''}`}>
       {props.items.map(({ key, value }) => {
         if (!value) {
           return null;

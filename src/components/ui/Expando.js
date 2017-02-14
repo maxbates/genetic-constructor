@@ -96,7 +96,7 @@ export default class Expando extends Component {
   };
 
   render() {
-    const showArrow = this.props.content || this.props.showArrowWhenEmpty;
+    const showArrow = this.props.children || this.props.showArrowWhenEmpty;
     return (
       <div
         data-testid={this.props.testid}
@@ -138,7 +138,7 @@ export default class Expando extends Component {
           </div>
         </div>
         <div className={this.state.open ? 'content-visible' : 'content-hidden'}>
-          {this.state.open ? this.props.content : null}
+          {this.state.open ? this.props.children : null}
         </div>
       </div>
     );
