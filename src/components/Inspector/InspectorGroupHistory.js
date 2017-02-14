@@ -30,14 +30,15 @@ export class InspectorHistory extends Component {
     }).isRequired,
   };
 
-  //todo - should be shared
-  //todo - should inherit constants
+  //todo - should be shared, inherit constants
   static nameSnapshot(snapshot) {
     switch (snapshot.type) {
       case 'SNAPSHOT_PUBLISH':
         return 'Published to Commons';
-      case 'SNAPSHOT_ORDER':
-        return 'Project Ordered'; //todo - get foundry
+      case 'SNAPSHOT_ORDER': {
+        const foundry = snapshot.tags.foundry;
+        return `Order${foundry ? ` at ${foundry}` : ''}`;
+      }
       case 'SNAPSHOT_USER':
       default:
         return 'Saved Snapshot';
@@ -63,7 +64,7 @@ export class InspectorHistory extends Component {
   setVersionsAndSnapshots() {
     const projectId = this.props.project.id;
 
-    //todo - get versions
+    //todo - support all versions
     //todo - collapse versions by day
     //todo - merge snapshots + versions (and handle when only have snapshots (e.g. public)
 

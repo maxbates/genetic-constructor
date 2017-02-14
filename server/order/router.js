@@ -212,6 +212,8 @@ User ${user.uuid}
       //possible that multiple orders happen at the same snapshot
       const snapshotTags = order.constructIds.reduce((acc, id) => Object.assign(acc, { [id]: true }),
         {
+          foundry,
+          orderId: order.id,
           [order.id]: true,
           [foundry]: true,
           [orderResponse.jobId]: true,

@@ -18,10 +18,6 @@ import { connect } from 'react-redux';
 
 import { uiShowAuthenticationForm } from '../actions/ui';
 
-//old forms - todo - deprecate
-import AccountForm from '../components/authentication/account';
-import ModalWindow from '../components/modal/modalwindow';
-
 //new auth modals
 import Modal from '../components/modal/Modal';
 import SignInForm from '../components/authentication/SignInForm';
@@ -63,16 +59,11 @@ function AuthenticationModals(props) {
       form = <ResetForm />;
       break;
     default:
+      console.warn(`form ${props.authenticationForm} not recognized`); //eslint-disable-line no-console
   }
 
-  //handle the old modals
-  switch (props.authenticationForm) {
-    case 'account' :
-      oldform = <AccountForm />;
-      break;
-    default:
-      oldform = null;
-      break;
+  if (!form) {
+    return null;
   }
 
   const onClose = () => {
@@ -83,25 +74,15 @@ function AuthenticationModals(props) {
     props.uiShowAuthenticationForm('none');
   };
 
-  return form
-    ?
-      <Modal
-        isOpen={!!form}
-        onClose={onClose}
-        title={nameMap[props.authenticationForm]}
-      >
-        {form}
-      </Modal>
-    :
-      <ModalWindow
-        open
-        title="Auth Modal"
-        payload={oldform}
-        closeOnClickOutside
-        closeModal={(buttonText) => {
-          props.uiShowAuthenticationForm('none');
-        }}
-      />;
+  return (
+    <Modal
+      isOpen={!!form}
+      onClose={onClose}
+      title={nameMap[props.authenticationForm]}
+    >
+      {form}
+    </Modal>
+  )
 }
 
 AuthenticationModals.propTypes = {
