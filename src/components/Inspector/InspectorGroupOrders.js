@@ -90,9 +90,10 @@ class InspectorGroupOrders extends Component {
           <Expando
             key={index}
             text={order.metadata.name}
-            content={content}
-          />
-        )
+          >
+            {content}
+          </Expando>
+        );
       })}
     </div>);
   }

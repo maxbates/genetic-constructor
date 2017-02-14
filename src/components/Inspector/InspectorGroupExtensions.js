@@ -108,13 +108,16 @@ class InspectorGroupExtensions extends Component {
         ];
         const content = (<InspectorDetailSection items={items} />);
 
-        return (<Expando
-          openByDefault
-          key={index}
-          text={values.Name}
-          headerWidgets={headerWidgets}
-          content={content}
-        />);
+        return (
+          <Expando
+            openByDefault
+            key={index}
+            text={values.Name}
+            headerWidgets={headerWidgets}
+          >
+            {content}
+          </Expando>
+        );
       })}
     </div>);
   }

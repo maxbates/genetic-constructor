@@ -298,21 +298,19 @@ export class InspectorBlock extends Component {
           : null
         }
         {isConstruct && singleInstance && !hasParents
-          ?
-          <Expando
-            text={colorPaletteText}
-            capitalize
-            stateKey={paletteStateKey}
-            onClick={() => this.forceUpdate()}
-            content={
+          ? (
+            <Expando
+              text={colorPaletteText}
+              capitalize
+              stateKey={paletteStateKey}
+              onClick={() => this.forceUpdate()}>
               <PalettePicker
                 paletteName={palette}
                 onSelectPalette={this.selectPalette}
                 readOnly={readOnly || isFixed}
-              />}
-          />
-          :
-          null
+              />
+            </Expando>
+          ) : null
         }
         <div className="color-symbol-label">{this.state.colorSymbolText}</div>
         <div className="color-symbol">

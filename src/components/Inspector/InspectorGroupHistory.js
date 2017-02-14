@@ -22,8 +22,6 @@ import Spinner from './../ui/Spinner';
 import Expando from './../ui/Expando';
 import InspectorDetailSection from './InspectorDetailSection';
 
-//import '../../styles/InspectorHistory.css';
-
 export class InspectorHistory extends Component {
   static propTypes = {
     project: PropTypes.shape({
@@ -35,7 +33,7 @@ export class InspectorHistory extends Component {
   //todo - should be shared
   //todo - should inherit constants
   static nameSnapshot(snapshot) {
-    switch(snapshot.type) {
+    switch (snapshot.type) {
       case 'SNAPSHOT_PUBLISH':
         return 'Published to Commons';
       case 'SNAPSHOT_ORDER':
@@ -65,9 +63,9 @@ export class InspectorHistory extends Component {
   setVersionsAndSnapshots() {
     const projectId = this.props.project.id;
 
-    //todo - collapse versions by day
     //todo - get versions
-    //todo - merge snapshots + versions
+    //todo - collapse versions by day
+    //todo - merge snapshots + versions (and handle when only have snapshots (e.g. public)
 
     snapshotList(projectId).then(snapshots => {
       this.setState({ snapshots, loading: false });
@@ -76,7 +74,7 @@ export class InspectorHistory extends Component {
 
   render() {
     //todo - handle no shapshots
-    //todo - handle published snapshots - only show the version / snapshots available, show glyph
+    //todo - show glyph
 
     if (this.state.loading) {
       return <Spinner />;
@@ -94,8 +92,9 @@ export class InspectorHistory extends Component {
             <Expando
               key={snapshot.snapshotUUID}
               text={`${time} ${name}`}
-              content={content}
-            />
+            >
+              {content}
+            </Expando>
           );
         })}
       </div>

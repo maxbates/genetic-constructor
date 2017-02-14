@@ -24,9 +24,9 @@ import { getLocal, setLocal } from '../../utils/localstorage';
 
 export default class Expando extends Component {
   static propTypes = {
+    children: PropTypes.node, //can be null
     text: PropTypes.string.isRequired,
     selected: PropTypes.bool,
-    content: PropTypes.object,
     textWidgets: PropTypes.array,
     labelWidgets: PropTypes.array,
     headerWidgets: PropTypes.array,

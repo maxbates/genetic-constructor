@@ -80,13 +80,14 @@ export default class Tree extends Component {
               startDrag={item.startDrag}
               selected={item.selected}
               showLock={item.locked}
-              content={item.items && item.items.length
+            >
+              {item.items && item.items.length
                 ? <Tree
                   items={item.items}
                   depth={this.props.depth + 1}
                 />
                 : null}
-            />
+            </Expando>
           </div>))}
       </div>
     );
