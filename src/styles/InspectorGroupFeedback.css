@@ -89,6 +89,9 @@
   .dropdown-container {
     background-color: var(--colors-lighterGrey);
     padding: 0.5rem;
+    .dropdown {
+      width: 18rem;
+    }
   }
   textarea {
     border: none;
