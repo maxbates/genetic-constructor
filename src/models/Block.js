@@ -363,7 +363,6 @@ export default class Block extends Instance {
    metadata
    ************/
 
-  //todo - avoid setting project ID once already associated? force clone? or allow moving block from one project to another?
   /**
    * Set Project ID for block.
    * @method setProjectId
@@ -377,16 +376,6 @@ export default class Block extends Instance {
 
     if (this.projectId === projectId) {
       return this;
-    }
-
-    //hack to accommodate adding frozen block to construct / list
-    //todo - why do we need this? Should only allow setting projectId on non-frozen blocks (clone first)
-    //need to determine how to handle adding frozen blocks
-    if (this.isFrozen()) {
-      return this.clone(null, {
-        projectId,
-        rules: { frozen: false },
-      }).mutate('id', this.id);
     }
     return this.mutate('projectId', projectId);
   }
