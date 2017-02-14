@@ -24,3 +24,10 @@
     margin-left: 1rem;
   }
 }
+
+::-webkit-input-placeholder,
+:-moz-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+  color: var(--colors-grey);
+}
