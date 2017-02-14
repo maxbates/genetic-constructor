@@ -163,6 +163,9 @@ export class ConstructViewerCanvas extends Component {
 
     const elements = [];
     this.props.constructs.forEach((construct, index) => {
+      if (!construct) {
+        return;
+      }
       if (!this.isSampleProject()) {
         elements.push(<DropTarget
           currentProjectId={this.props.currentProjectId}

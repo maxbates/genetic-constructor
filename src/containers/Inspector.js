@@ -33,7 +33,7 @@ export class Inspector extends Component {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object,
     construct: PropTypes.object,
-    type: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
   };
 
   setActive = (group) => {

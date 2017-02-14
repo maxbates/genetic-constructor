@@ -28,7 +28,7 @@ const fieldDefs = {
     'ID of parent instance',
   ],
   owner: [
-    fields.id().required,
+    fields.id(),
     'Owner of the parent',
   ],
   projectId: [
@@ -36,7 +36,7 @@ const fieldDefs = {
     'ID of project of parent (if not a project)',
   ],
   version: [
-    fields.number({ min: 0 }).required,
+    fields.number({ min: 0 }),
     'Version of project',
   ],
   created: [

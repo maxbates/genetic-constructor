@@ -15,9 +15,7 @@
 */
 import { extensionApiPath } from './paths';
 
-export default function downloadProject(projectId, options) {
-  const url = extensionApiPath('genbank', `export/${projectId}`);
-  const postBody = options;
+function downloadViaIFrame(url, postBody) {
   const iframeTarget = `${Math.floor(Math.random() * 10000)}${+Date.now()}`;
 
   // for now use an iframe otherwise any errors will corrupt the page
@@ -51,5 +49,17 @@ export default function downloadProject(projectId, options) {
     document.body.removeChild(form);
     document.body.removeChild(iframe);
   }, 60 * 1000);
+}
+
+export function downloadProject(projectId, options) {
+  const url = extensionApiPath('genbank', `export/${projectId}`);
+  const postBody = options;
+  downloadViaIFrame(url, postBody);
+}
+
+export function downloadConstruct(projectId, constructId, options) {
+  const url = extensionApiPath('genbank', `export/${projectId}/${constructId}`);
+  const postBody = options;
+  downloadViaIFrame(url, postBody);
 }
 
