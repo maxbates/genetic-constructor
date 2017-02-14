@@ -113,7 +113,7 @@ class ConstructPreview extends Component {
    * this is because the layout object thinks we are construct viewer. At the very least we have to
    * return an object with a .metadata property
    */
-  getProject() {
+  getProject() { //eslint-disable-line class-methods-use-this
     return {
       metadata: {
 
