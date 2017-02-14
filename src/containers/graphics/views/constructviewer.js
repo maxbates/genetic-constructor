@@ -58,6 +58,7 @@ import {
   uiShowGenBankImport,
   uiShowOrderForm,
   uiToggleDetailView,
+  detailViewSelectExtension,
   inspectorSelectTab,
 } from '../../../actions/ui';
 import RoleSvg from '../../../components/RoleSvg';
@@ -75,6 +76,9 @@ import { downloadConstruct } from '../../../middleware/utils/downloadProject';
 
 // static hash for matching viewers to constructs
 const idToViewer = {};
+
+// sequence viewer extension name
+const sequenceViewerName = 'GC-Sequence-Viewer';
 
 export class ConstructViewer extends Component {
   static propTypes = {
@@ -98,6 +102,8 @@ export class ConstructViewer extends Component {
     blockAddComponent: PropTypes.func,
     blockAddComponents: PropTypes.func,
     blockDetach: PropTypes.func,
+    uiToggleDetailView: PropTypes.func,
+    detailViewSelectExtension: PropTypes.func,
     uiShowDNAImport: PropTypes.func,
     uiShowMenu: PropTypes.func,
     uiShowOrderForm: PropTypes.func.isRequired,
@@ -118,6 +124,7 @@ export class ConstructViewer extends Component {
     focus: PropTypes.object,
     testIndex: PropTypes.number.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
+    visibleExtension: PropTypes.string,
   };
 
   /**
@@ -405,6 +412,10 @@ export class ConstructViewer extends Component {
           this.props.uiShowDNAImport(true);
         },
       },
+      {
+        text: `${this.props.visibleExtension === sequenceViewerName ? 'Hide' : 'Show'} Sequence`,
+        action: this.toggleSequenceViewer,
+      },
       {},
       {
         text: 'Select Empty Blocks',
@@ -463,6 +474,10 @@ export class ConstructViewer extends Component {
       {
         text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
         action: this.toggleHiddenBlocks,
+      },
+      {
+        text: `${this.props.visibleExtension === sequenceViewerName ? 'Hide' : 'Show'} Sequence`,
+        action: this.toggleSequenceViewer,
       },
     ];
   };
@@ -627,8 +642,39 @@ export class ConstructViewer extends Component {
     const showPanels = !this.props.inventoryVisible;
     this.props.inventoryToggleVisibility(showPanels);
     this.props.inspectorToggleVisibility(showPanels);
+    if (showPanels) {
+      this.showSequenceViewer();
+    } else {
+      this.hideSequenceViewer();
+    }
   };
 
+  /**
+   * hide sequence viewer
+   */
+  hideSequenceViewer() {
+    this.props.uiToggleDetailView(false);
+  }
+
+  /**
+   * show the sequence viewer
+   */
+  showSequenceViewer() {
+    this.props.focusBlocks([]);
+    this.props.focusConstruct(this.props.construct.id);
+    this.props.detailViewSelectExtension(sequenceViewerName);
+    this.props.uiToggleDetailView(true);
+  }
+  /**
+   * toggle the sequence viewer visibility
+   */
+  toggleSequenceViewer = () => {
+    if (this.props.visibleExtension === sequenceViewerName) {
+      this.hideSequenceViewer();
+    } else {
+      this.showSequenceViewer();
+    }
+  };
 
   /**
    * show the view context menu beneath the given element ( from the inline toolbar )
@@ -972,6 +1018,7 @@ function mapStateToProps(state, props) {
     construct: state.blocks[props.constructId],
     blocks: state.blocks,
     inventoryVisible: state.ui.inventory.isVisible,
+    visibleExtension: state.ui.detailView.isVisible ? state.ui.detailView.currentExtension : null,
   };
 }
 
@@ -1007,6 +1054,7 @@ export default connect(mapStateToProps, {
   uiSetGrunt,
   uiInlineEditor,
   uiToggleDetailView,
+  detailViewSelectExtension,
   orderCreate,
   orderList,
   orderSetName,
