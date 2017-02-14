@@ -37,6 +37,7 @@ export const initialState = {
   showPartsCSVImport: false,
   listBlock: null,
   publishDialog: false,
+  publishDialogVersion: undefined,
   unpublishDialog: true,
   unpublishDialogVersion: undefined,
 };
@@ -126,8 +127,8 @@ export default function modals(state = initialState, action) {
       return { ...state, showReportError: modalState };
 
     case ActionTypes.UI_SHOW_PUBLISH_DIALOG:
-      const { publishDialog } = action;
-      return { ...state, publishDialog };
+      const { publishDialog, publishDialogVersion } = action;
+      return { ...state, publishDialog, publishDialogVersion };
 
     case ActionTypes.UI_SHOW_UNPUBLISH_DIALOG:
       const { unpublishDialog, unpublishDialogVersion } = action;

@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { uiShowPublishDialog } from '../../actions/ui';
+import { uiSetGrunt, uiShowPublishDialog } from '../../actions/ui';
 import {
   projectRename,
   projectSetDescription,
@@ -35,7 +35,9 @@ import '../../styles/PublishModal.css';
 class PublishModal extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
+    projectVersion: PropTypes.number,
     project: PropTypes.object.isRequired,
+    uiSetGrunt: PropTypes.func.isRequired,
     uiShowPublishDialog: PropTypes.func.isRequired,
     projectPublish: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
@@ -62,33 +64,44 @@ class PublishModal extends Component {
   }
 
   onSubmit = (evt) => {
-    const { projectId, project, projectRename, projectSetDescription, projectSetKeywords, projectSave, projectPublish, uiShowPublishDialog } = this.props;
+    const { projectId, projectVersion, project, projectRename, projectSetDescription, projectSetKeywords, projectSave, projectPublish, uiSetGrunt, uiShowPublishDialog } = this.props;
     const { name, description, keywords, versionNote } = this.state;
 
     evt.preventDefault();
 
-    //update based on form
-    if (name !== project.metadata.name) {
-      projectRename(projectId, name);
-    }
-    if (description !== project.metadata.description) {
-      projectSetDescription(projectId, description);
-    }
-    if (!_.isEqual(keywords, project.metadata.keywords)) {
-      projectSetKeywords(projectId, keywords);
+    //if we got a version, we are updating. Don't update the project, just the snapshot
+    let savePromise = Promise.resolve(projectVersion);
+
+    //if no version, update project based on form and then save, returning the version
+    if (!Number.isInteger(projectVersion)) {
+      if (name !== project.metadata.name) {
+        projectRename(projectId, name);
+      }
+      if (description !== project.metadata.description) {
+        projectSetDescription(projectId, description);
+      }
+      if (!_.isEqual(keywords, project.metadata.keywords)) {
+        projectSetKeywords(projectId, keywords);
+      }
+
+      savePromise = projectSave(projectId)
+      .then(version => {
+        //return null when save was not necessary
+        return Number.isInteger(version) ? version : project.version;
+      });
     }
 
-    //save and publish
-    return projectSave(projectId)
+    savePromise
     .then(version => {
-      //return null when save was not necessary
-      const snapshotVersion = Number.isInteger(version) ? version : project.version;
-      return projectPublish(projectId, snapshotVersion, {
+      return projectPublish(projectId, version, {
         message: versionNote,
         keywords,
       });
     })
-    .then(() => uiShowPublishDialog(false));
+    .then(() => {
+      uiShowPublishDialog(false);
+      uiSetGrunt('Your project has been published');
+    });
   };
 
   formValid() {
@@ -98,7 +111,13 @@ class PublishModal extends Component {
   }
 
   render() {
+    const { projectVersion } = this.props;
     const { name, description, keywords, versionNote } = this.state;
+
+    //if we have a project version, dont allow changing the name etc. that actually update the project
+    const hasProjectVersion = Number.isInteger(projectVersion);
+
+    const readmeLink = 'https://geneticconstructor.readme.io/docs';
 
     return (
       <form
@@ -108,12 +127,15 @@ class PublishModal extends Component {
       >
         <div className="Modal-paddedContent">
           <div className="Modal-banner">
-            <span>Share a version of your project in the Genetic Constructor Public Inventory. <a href="">Learn more...</a></span>
+            <span>Share a version of your project in the Genetic Constructor Public Inventory. <a href={readmeLink}
+                                                                                                  target="_blank"
+                                                                                                  rel="noopener noreferrer">Learn more...</a></span>
           </div>
 
           <FormGroup label="Project Title*">
             <FormText
               value={name}
+              disabled={hasProjectVersion}
               name="name"
               placeholder="Title of your project"
               onChange={evt => this.setState({ name: evt.target.value })}
@@ -124,6 +146,7 @@ class PublishModal extends Component {
             <FormText
               useTextarea
               value={description}
+              disabled={hasProjectVersion}
               name="description"
               placeholder="Decription of your project"
               onChange={evt => this.setState({ description: evt.target.value })}
@@ -150,9 +173,11 @@ class PublishModal extends Component {
           <FormGroup label="License" labelTop>
             <div style={{ width: '350px' }}>
               <p>By selecting &apos;Publish&apos; below, you agree that your project will become available
-                license-free in the public domain under the <a>Create Commons CCØ</a> license. <a>Learn more...</a></p>
+                license-free in the public domain under the <a href="https://creativecommons.org/publicdomain/zero/1.0/"
+                                                               target="_blank" rel="noopener noreferrer">Create Commons
+                  CCØ</a> license. <a href={readmeLink} target="_blank" rel="noopener noreferrer">Learn more...</a></p>
               <br />
-              <p><a href="mailto:support@geneticconstructor.com">Contact us</a> if your project requires a more
+              <p><a href="mailto:geneticconstructor@autodesk.com">Contact us</a> if your project requires a more
                 restrictive license.</p>
             </div>
           </FormGroup>
@@ -166,11 +191,13 @@ class PublishModal extends Component {
 
 export default connect((state, props) => ({
   project: state.projects[props.projectId],
+  projectVersion: state.ui.modals.publishDialogVersion,
 }), {
   projectRename,
   projectSetDescription,
   projectSetKeywords,
   projectSave,
   projectPublish,
+  uiSetGrunt,
   uiShowPublishDialog,
 })(PublishModal);

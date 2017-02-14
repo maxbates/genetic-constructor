@@ -70,4 +70,13 @@
   .expando * {
     font-family: var(--font-family-panels) !important;
   }
+
+  .InspectorContent {
+
+  }
+
+  .InspectorContentPlaceholder {
+    color: var(--colors-grey);
+    text-align: center;
+  }
 }

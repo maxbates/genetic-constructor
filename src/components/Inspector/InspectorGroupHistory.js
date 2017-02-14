@@ -68,8 +68,12 @@ export class InspectorHistory extends Component {
     //todo - collapse versions by day
     //todo - merge snapshots + versions (and handle when only have snapshots (e.g. public)
 
-    snapshotList(projectId).then(snapshots => {
+    snapshotList(projectId)
+    .then(snapshots => {
       this.setState({ snapshots, loading: false });
+    })
+    .catch(err => {
+
     });
   }
 
@@ -84,6 +88,10 @@ export class InspectorHistory extends Component {
 
     return (
       <div className="InspectorContent InspectorContentHistory">
+        {!this.state.snapshots.length && (
+          <div className="InspectorContentPlaceholder">No snapshots created</div>
+        )}
+
         {this.state.snapshots.map(snapshot => {
           const time = moment(snapshot.time).format('H:mm:s');
           const name = InspectorHistory.nameSnapshot(snapshot);

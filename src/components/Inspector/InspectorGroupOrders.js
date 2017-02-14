@@ -63,7 +63,10 @@ class InspectorGroupOrders extends Component {
 
   render() {
     return (<div className="InspectorGroupOrders">
-      {this.state.loaded && this.state.orders.length === 0 ? <div className="no-label">No Orders Found</div> : null}
+      {!this.state.orders.length && (
+        <div className="InspectorContentPlaceholder">No orders found</div>
+      )}
+
       {this.state.orders.map((order, index) => {
         const items = [{
           key: 'Project',
