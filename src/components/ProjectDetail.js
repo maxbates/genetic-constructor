@@ -109,11 +109,26 @@ export class ProjectDetail extends Component {
     this.props.uiToggleDetailView(forceVal);
   };
 
+
+  /**
+   * return our extensions list with the sequence viewer first
+   */
+  forceSequenceViewerFirst() {
+    let list = this.extensions;
+    const index = this.extensions.indexOf('GC-Sequence-Viewer');
+    if (index > 0) {
+      list = list.slice();
+      list.splice(0, 0, ...list.splice(index, 1));
+    }
+    return list;
+  }
+
   render() {
     const { isVisible, currentExtension } = this.props;
     if (!this.extensions.length) {
       return null;
     }
+    const list = this.forceSequenceViewerFirst();
 
     if (isVisible) {
       return (
@@ -126,7 +141,7 @@ export class ProjectDetail extends Component {
           <div className="ProjectDetail-open-header">
             {/* Left side of header, extension tabls */}
             <div className="ProjectDetail-open-header-left">
-              {this.extensions.map((key) => {
+              {list.map((key) => {
                 const name = getExtensionName(key);
                 const active = key === currentExtension ? ' ProjectDetail-open-header-left-active' : '';
                 const className = `ProjectDetail-open-header-left-extension${active}`;
@@ -160,7 +175,7 @@ export class ProjectDetail extends Component {
     // just a list of extensions if closed
     return (
       <div className="ProjectDetail-closed">
-        {this.extensions.map((key) => {
+        {list.map((key) => {
           const name = getExtensionName(key);
           return (
             <a
