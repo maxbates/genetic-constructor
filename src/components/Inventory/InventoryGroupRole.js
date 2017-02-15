@@ -134,11 +134,13 @@ class InventoryGroupRole extends Component {
     proxy.className = 'InventoryItemProxy';
     proxy.innerHTML = item.name;
     const element = ReactDOM.findDOMNode(this.refs[item.id]);
-    const svg = element.querySelector('svg');
-    if (svg) {
-      const svgClone = svg.cloneNode(true);
-      svgClone.removeAttribute('data-reactid');
-      proxy.appendChild(svgClone);
+    if (item.id !== 'null') {
+      const svg = element.querySelector('svg');
+      if (svg) {
+        const svgClone = svg.cloneNode(true);
+        svgClone.removeAttribute('data-reactid');
+        proxy.appendChild(svgClone);
+      }
     }
     return proxy;
   }
