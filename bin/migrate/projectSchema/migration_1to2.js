@@ -13,8 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { dbGet, dbDelete } from '../middleware/db';
 
-export const deleteUser = userId => dbDelete(`admin/owner/${userId}`);
+import { listAllProjects } from '../../../server/data/persistence/admin';
 
-export const listAllProjects = () => dbGet(`admin/allprojects`);
+(async () => {
+  try {
+    const allProjects = await listAllProjects();
+    console.log(allProjects);
+
+
+  }
+  catch (err) {
+    console.error(err);
+  }
+})();
