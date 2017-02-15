@@ -35,15 +35,12 @@ import {
   inspectorToggleVisibility,
   inventorySelectTab,
   inventoryToggleVisibility,
-  uiSetGrunt,
-  uiShowGenBankImport,
   uiToggleDetailView,
   detailViewSelectExtension,
 } from '../../actions/ui';
 import OkCancel from '../modal/okcancel';
 import RibbonGrunt from '../ribbongrunt';
 import * as clipboardFormats from '../../constants/clipboardFormats';
-import { extensionApiPath } from '../../middleware/utils/paths';
 import Rollup from '../../models/Rollup';
 import { blockGetComponentsRecursive, blockGetParents } from '../../selectors/blocks';
 import { projectGetVersion } from '../../selectors/projects';
@@ -76,12 +73,10 @@ class GlobalNav extends Component {
     focusConstruct: PropTypes.func.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
-    uiShowGenBankImport: PropTypes.func.isRequired,
     projectGetVersion: PropTypes.func.isRequired,
     blockClone: PropTypes.func.isRequired,
     clipboardSetData: PropTypes.func.isRequired,
     inventorySelectTab: PropTypes.func.isRequired,
-    uiSetGrunt: PropTypes.func.isRequired,
     blockDetach: PropTypes.func.isRequired,
     clipboard: PropTypes.shape({
       formats: PropTypes.array.isRequired,
@@ -474,9 +469,7 @@ export default connect(mapStateToProps, {
   redo,
   transact,
   commit,
-  uiShowGenBankImport,
   uiToggleDetailView,
-  uiSetGrunt,
   focusBlocks,
   focusBlocksAdd,
   focusBlocksToggle,
