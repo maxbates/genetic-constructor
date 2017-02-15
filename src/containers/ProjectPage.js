@@ -20,6 +20,7 @@ import { focusConstruct } from '../actions/focus';
 import { orderList } from '../actions/orders';
 import { projectCreate, projectList, projectLoad, projectOpen } from '../actions/projects';
 import { uiSetGrunt } from '../actions/ui';
+
 import ProjectDetail from '../components/ProjectDetail';
 import ProjectHeader from '../components/ProjectHeader';
 import ImportGenBankModal from '../components/genbank/import';
@@ -28,14 +29,17 @@ import ImportPartsCSVModal from '../components/importpartscsv/importpartscsv';
 import SaveErrorModal from '../components/modal/SaveErrorModal';
 import PublishModal from '../components/modal/PublishModal';
 import UnpublishModal from '../components/modal/UnpublishModal';
-import Spinner from '../components/ui/Spinner';
+import DeleteProjectModal from '../components/modal/DeleteProjectModal';
 import OrderModal from '../containers/orders/ordermodal';
-import loadAllExtensions from '../extensions/loadExtensions';
-import '../styles/ProjectPage.css';
-import '../styles/SceneGraphPage.css';
 import Inspector from './Inspector';
 import Inventory from './Inventory';
+import Spinner from '../components/ui/Spinner';
+
+import loadAllExtensions from '../extensions/loadExtensions';
 import ConstructViewerCanvas from './graphics/views/constructViewerCanvas';
+
+import '../styles/ProjectPage.css';
+import '../styles/SceneGraphPage.css';
 
 export class ProjectPage extends Component {
   static propTypes = {
@@ -124,6 +128,7 @@ export class ProjectPage extends Component {
         <ImportPartsCSVModal />
         <SaveErrorModal />
         <OrderModal projectId={projectId} />
+        <DeleteProjectModal projectId={projectId} />
         <PublishModal projectId={projectId} />
         <UnpublishModal projectId={projectId} />
 

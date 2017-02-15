@@ -285,3 +285,12 @@ export const uiShowUnpublishDialog = (forceState, unpublishDialogVersion) => (di
   });
   return nextState;
 };
+
+export const uiShowProjectDeleteModal = forceState => (dispatch, getState) => {
+  const nextState = forceState === undefined ? !getState().ui.modals.projectDeleteDialog : forceState;
+  dispatch({
+    type: ActionTypes.UI_SHOW_PROJECT_DELETE_DIALOG,
+    projectDeleteDialog: nextState,
+  });
+  return nextState;
+};

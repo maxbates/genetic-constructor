@@ -443,6 +443,7 @@ export const projectDelete = projectId =>
     })
     .then(() => {
       dispatch(undoActions.commit());
+      setLocal(recentProjectKey, null);
       return projectId;
     });
   };

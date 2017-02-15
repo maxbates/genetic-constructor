@@ -105,7 +105,7 @@ export class InspectorHistory extends Component {
           const items = [{ key: 'Version Note', value: snapshot.message }];
           const content = <InspectorDetailSection items={items} />;
           const widgets = InspectorHistory.snapshotIsPublished(snapshot) ?
-            [(<img src="/images/ui/commonsVersion.svg" role="presentation" />)] :
+            [(<img src="/images/ui/commonsVersion.svg" role="presentation" key={snapshot.snapshotUUID} />)] :
             [];
 
           return (

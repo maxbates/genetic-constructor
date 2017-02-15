@@ -42,6 +42,7 @@ import {
   uiShowOkCancel,
   uiShowPublishDialog,
   uiShowUnpublishDialog,
+  uiShowProjectDeleteModal,
 } from '../actions/ui';
 import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
@@ -68,6 +69,7 @@ class ProjectHeader extends Component {
     uiShowOkCancel: PropTypes.func.isRequired,
     uiShowPublishDialog: PropTypes.func.isRequired,
     uiShowUnpublishDialog: PropTypes.func.isRequired,
+    uiShowProjectDeleteModal: PropTypes.func.isRequired,
     focusPrioritize: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
@@ -109,22 +111,9 @@ class ProjectHeader extends Component {
 
   /**
    * delete the given project
-   * @param project
    */
-  onDeleteProject = (project) => {
-    this.props.uiShowOkCancel(
-      'Delete Project',
-      `${this.props.project.getName() || 'Your project'}\nand all related project data will be permanently deleted.\nThis action cannot be undone.`,
-      () => {
-        this.props.uiShowOkCancel();
-        this.deleteProject(this.props.project);
-      },
-      () => {
-        this.props.uiShowOkCancel();
-      },
-      'Delete Project',
-      'Cancel',
-    );
+  onDeleteProject = () => {
+    this.props.uiShowProjectDeleteModal(true);
   };
 
   onShareProject = () => {
@@ -345,4 +334,5 @@ export default connect(mapStateToProps, {
   uiToggleDetailView,
   uiShowPublishDialog,
   uiShowUnpublishDialog,
+  uiShowProjectDeleteModal,
 })(ProjectHeader);
