@@ -16,11 +16,12 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 
-import { errorDoesNotExist, errorInvalidModel, errorInvalidRoute } from '../errors/errorConstants';
+import { errorDoesNotExist, errorInvalidModel, errorInvalidRoute, errorNotPublished, errorIsPublished } from '../errors/errorConstants';
 import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from './permissions';
 import * as blockPersistence from './persistence/blocks';
 import * as projectVersions from './persistence/projectVersions';
 import * as projectPersistence from './persistence/projects';
+import * as commons from './persistence/commons';
 import jobFileRouter from './routerJobs';
 import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
@@ -180,9 +181,23 @@ router.route('/projects/:projectId')
     return res.status(404).send(errorDoesNotExist);
   }
 
-  projectPersistence.projectDelete(projectId, user.uuid, forceDelete)
+  //check if the project has been published, and prevent if it is
+  commons.checkProjectPublic(projectId)
+  .then(isPublished => {
+    if (isPublished) {
+      return Promise.reject(errorIsPublished);
+    }
+    return true;
+  })
+  .catch(err => {
+    if (err === errorNotPublished) {
+      return true;
+    }
+    return Promise.reject(err);
+  })
+  .then(() => projectPersistence.projectDelete(projectId, user.uuid, forceDelete)
   .then(() => res.status(200).json({ projectId }))
-  .catch(next);
+  .catch(next));
 });
 
 //separate route because dont use project permission middleware
