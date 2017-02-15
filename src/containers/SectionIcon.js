@@ -134,11 +134,14 @@ export default class SectionIcon extends Component {
 
 
   render() {
-    const highlight = this.props.selected || this.state.hover;
+    const highlight = this.props.selected;
     let containerClass = 'SectionIcon';
     if (this.props.open) {
-      containerClass += highlight ? ' Highlighted' : '';
-      containerClass += this.state.dragInside ? ' DragOver' : '';
+      if (highlight) {
+        containerClass += ' Highlighted';
+      } else {
+        containerClass += ' Closed';
+      }
     } else {
       containerClass += ' Closed';
     }
