@@ -15,10 +15,10 @@
  */
 import path from 'path';
 import fs from 'fs';
-import batchPromises from './batchPromises';
-import * as fileSystem from '../../server/data/middleware/fileSystem';
-import * as s3 from '../../server/data/middleware/s3';
-import * as seqPersistence from '../../server/data/persistence/sequence';
+import batchPromises from '../batchPromises';
+import * as fileSystem from '../../../server/data/middleware/fileSystem';
+import * as s3 from '../../../server/data/middleware/s3';
+import * as seqPersistence from '../../../server/data/persistence/sequence';
 
 if (!s3.useRemote) {
   throw new Error('must use S3 - pass s3 credentials to propcess');

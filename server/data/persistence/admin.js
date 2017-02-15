@@ -13,6 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { dbDelete } from '../middleware/db';
+import { dbGet, dbDelete } from '../middleware/db';
 
 export const deleteUser = userId => dbDelete(`admin/owner/${userId}`);
+
+export const listAllProjects = () => dbGet('admin/allprojects');
