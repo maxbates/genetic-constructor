@@ -158,24 +158,26 @@ class InventoryGroupRole extends Component {
             Drag a sketch block to the canvas to add it to your project. Hold down the option ( alt ) key
             to reverse the direction of the block.
           </p>
-          <div className="list">
-            {sorted.map(item => (
-              <div className="sbol-tile" key={item.id}>
-                <RoleSvg
-                  width="54px"
-                  height="54px"
-                  large={true}//eslint-disable-line react/jsx-boolean-value
-                  color={current.id === item.id ? 'white' : 'black'}
-                  classes={current.id === item.id ? 'active' : null}
-                  symbolName={item.id}
-                  onMouseEnter={() => this.onMouseEnter(item)}
-                  onMouseLeave={this.onMouseLeave}
-                  ref={item.id}
-                />
-                <div
-                  className={`name${current.id === item.id ? ' active' : ''}`}
-                >{item.name === 'No Symbol' ? '' : item.name}</div>
-              </div>))}
+          <div className="list-container">
+            <div className="list">
+              {sorted.map(item => (
+                <div className="sbol-tile" key={item.id}>
+                  <RoleSvg
+                    width="54px"
+                    height="54px"
+                    large={true}//eslint-disable-line react/jsx-boolean-value
+                    color={current.id === item.id ? 'white' : 'black'}
+                    classes={current.id === item.id ? 'active' : null}
+                    symbolName={item.id}
+                    onMouseEnter={() => this.onMouseEnter(item)}
+                    onMouseLeave={this.onMouseLeave}
+                    ref={item.id}
+                  />
+                  <div
+                    className={`name${current.id === item.id ? ' active' : ''}`}
+                  >{item.name === 'No Symbol' ? '' : item.name}</div>
+                </div>))}
+            </div>
           </div>
         </div>
       </div>);
