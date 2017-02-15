@@ -53,13 +53,7 @@ class UnpublishModal extends Component {
 
     this.actions = [{
       text: 'Remove',
-      danger: true,
       onClick: this.onSubmit,
-    }, {
-      text: 'Cancel',
-      type: 'submit',
-      secondary: true,
-      onClick: () => props.uiShowUnpublishDialog(false),
     }];
 
     this.state = {

@@ -35,25 +35,21 @@ export function OkCancel(props) {
     onOk();
   };
 
+  const onClose = (evt) => {
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
   const actions = [{
     text: okText || 'Continue...',
     onClick: onSubmit,
-  }, {
-    text: cancelText || 'Cancel',
-    type: 'submit',
-    secondary: true,
-    onClick: (evt) => {
-      evt.preventDefault();
-      if (onCancel) {
-        onCancel();
-      }
-    },
   }];
 
   return (
     <Modal
       isOpen
-      onClose={onCancel}
+      onClose={onClose}
       title={title}
     >
       <div className="Modal-paddedContent">

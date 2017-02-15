@@ -17,19 +17,21 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 
 import MouseTrap from '../../containers/graphics/mousetrap';
-import '../../styles/Expando.css';
 import Arrow from './Arrow';
 import Label from './Label';
 import { getLocal, setLocal } from '../../utils/localstorage';
+
+import '../../styles/Expando.css';
 
 export default class Expando extends Component {
   static propTypes = {
     children: PropTypes.node, //can be null
     text: PropTypes.string.isRequired,
+    secondary: PropTypes.string,
     selected: PropTypes.bool,
-    textWidgets: PropTypes.array,
-    labelWidgets: PropTypes.array,
-    headerWidgets: PropTypes.array,
+    textWidgets: PropTypes.arrayOf(PropTypes.node),
+    labelWidgets: PropTypes.arrayOf(PropTypes.node),
+    headerWidgets: PropTypes.arrayOf(PropTypes.node),
     bold: PropTypes.bool,
     onExpand: PropTypes.func,
     onClick: PropTypes.func,
@@ -100,9 +102,12 @@ export default class Expando extends Component {
     return (
       <div
         data-testid={this.props.testid}
-        className="expando" data-expando={this.props.text}
+        data-expando={this.props.text}
+        className="expando"
         onContextMenu={(evt) => {
-          evt.preventDefault();
+          if (process.env.NODE_ENV === 'production') {
+            evt.preventDefault();
+          }
           evt.stopPropagation();
           if (this.props.onContextMenu) {
             this.props.onContextMenu(evt);
@@ -118,6 +123,7 @@ export default class Expando extends Component {
           <Label
             ref="label"
             text={this.props.text}
+            secondary={this.props.secondary}
             bold={this.props.bold}
             hover
             onClick={this.onClick}

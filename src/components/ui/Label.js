@@ -24,6 +24,7 @@ export default class Label extends Component {
     bold: PropTypes.bool,
     onClick: PropTypes.func,
     text: PropTypes.string.isRequired,
+    secondary: PropTypes.string,
     styles: PropTypes.object,
     selected: PropTypes.bool,
     textWidgets: PropTypes.array,
@@ -60,7 +61,10 @@ export default class Label extends Component {
         <div className="left">
           <div className="primary-enclosure">
             {this.props.showLock ? <div className="lock" /> : null}
-            <span className="primary" title={this.props.text}>{this.props.text}</span>
+            <span className="primary" title={this.props.text}>
+              {this.props.text}
+            </span>
+            {!!this.props.secondary && (<span className="secondary">{this.props.secondary}</span>)}
           </div>
           {this.props.textWidgets}
         </div>

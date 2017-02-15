@@ -45,6 +45,11 @@ export class InspectorHistory extends Component {
     }
   }
 
+  //todo - use constants
+  static snapshotIsPublished(snapshot) {
+    return snapshot.tags['COMMONS_TAG'] === true;
+  }
+
   state = {
     loading: true,
     versions: [],
@@ -82,6 +87,8 @@ export class InspectorHistory extends Component {
     //todo - show glyph
     //todo - enable context menu
 
+    //todo - should be able to inline edit the snapshot message
+
     if (this.state.loading) {
       return <Spinner />;
     }
@@ -93,15 +100,20 @@ export class InspectorHistory extends Component {
         )}
 
         {this.state.snapshots.map((snapshot) => {
-          const time = moment(snapshot.time).format('H:mm:s');
+          const time = moment(snapshot.time).format('D MMM YYYY H:mm:s');
           const name = InspectorHistory.nameSnapshot(snapshot);
           const items = [{ key: 'Version Note', value: snapshot.message }];
           const content = <InspectorDetailSection items={items} />;
+          const widgets = InspectorHistory.snapshotIsPublished(snapshot) ?
+            [(<img src="/images/ui/commonsVersion.svg" role="presentation" />)] :
+            [];
 
           return (
             <Expando
               key={snapshot.snapshotUUID}
-              text={`${time} ${name}`}
+              text={name}
+              secondary={time}
+              headerWidgets={widgets}
             >
               {content}
             </Expando>
