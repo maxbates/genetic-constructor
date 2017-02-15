@@ -61,10 +61,12 @@ export default class Label extends Component {
         <div className="left">
           <div className="primary-enclosure">
             {this.props.showLock ? <div className="lock" /> : null}
-            <span className="primary" title={this.props.text}>
-              {this.props.text}
-            </span>
-            {!!this.props.secondary && (<span className="secondary">{this.props.secondary}</span>)}
+            <div className="Label-text">
+              <span className="primary" title={this.props.text}>
+                {this.props.text}
+              </span>
+              {!!this.props.secondary && (<span className="secondary">{this.props.secondary}</span>)}
+            </div>
           </div>
           {this.props.textWidgets}
         </div>

@@ -26,7 +26,6 @@
 
     .primary-enclosure {
       display: inline-flex;
-      flex-direction: column;
       align-items: center;
       overflow: hidden;
     }
@@ -37,18 +36,24 @@
       background-image: url('/images/ui/lock.svg');
       background-repeat: no-repeat;
       background-size: contain;
-      margin-right: 2px;
+      margin-right: 4px;
       flex-shrink: 0;
+    }
+
+    .Label-text {
+      flex-direction: column;
     }
 
     span.primary,
     span.secondary {
+      display: block;
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 1.5rem;
       padding-top: 2px;
       white-space: nowrap;
       align-self: flex-start;
+      text-align: left;
     }
 
     .BasePairCount {

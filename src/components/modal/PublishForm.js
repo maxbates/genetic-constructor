@@ -29,6 +29,7 @@ import ModalFooter from './ModalFooter';
 import FormGroup from '../formElements/FormGroup';
 import FormText from '../formElements/FormText';
 import FormKeywords from '../formElements/FormKeywords';
+import { SHARING_CREATIVE_COMMONS_CC0, SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 
 import '../../styles/PublishModal.css';
 
@@ -114,8 +115,6 @@ class PublishModal extends Component {
     //if we have a project version, dont allow changing the name etc. that actually update the project
     const hasProjectVersion = Number.isInteger(projectVersion);
 
-    const readmeLink = 'https://geneticconstructor.readme.io/docs';
-
     return (
       <form
         id="publish-modal"
@@ -125,7 +124,7 @@ class PublishModal extends Component {
         <div className="Modal-paddedContent">
           <div className="Modal-banner">
             <span>Share a version of your project in the Genetic Constructor Public Inventory. <a
-              href={readmeLink}
+              href={SHARING_IN_PUBLIC_INVENTORY}
               target="_blank"
               rel="noopener noreferrer"
             >Learn more...</a></span>
@@ -176,7 +175,7 @@ class PublishModal extends Component {
                   href="https://creativecommons.org/publicdomain/zero/1.0/"
                   target="_blank" rel="noopener noreferrer"
                 >Create Commons
-                  CCØ</a> license. <a href={readmeLink} target="_blank" rel="noopener noreferrer">Learn more...</a></p>
+                  CCØ</a> license. <a href={SHARING_CREATIVE_COMMONS_CC0} target="_blank" rel="noopener noreferrer">Learn more...</a></p>
               <br />
               <p><a href="mailto:geneticconstructor@autodesk.com">Contact us</a> if your project requires a more
                 restrictive license.</p>
