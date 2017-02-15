@@ -16,7 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
+import { uiShowAuthenticationForm, uiSpin, uiSetGrunt } from '../../actions/ui';
 import { userLogin } from '../../actions/user';
 import { projectOpen } from '../../actions/projects';
 import { passwordValidator, errorMessageDefault } from './_validation';
@@ -147,5 +147,6 @@ export default connect(null, {
   uiShowAuthenticationForm,
   uiSpin,
   userLogin,
+  uiSetGrunt,
   projectOpen,
 })(ResetForm);
