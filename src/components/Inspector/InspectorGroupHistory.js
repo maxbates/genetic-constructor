@@ -24,10 +24,8 @@ import InspectorDetailSection from './InspectorDetailSection';
 
 export class InspectorHistory extends Component {
   static propTypes = {
-    project: PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      version: PropTypes.number.isRequired,
-    }).isRequired,
+    projectId: PropTypes.string.isRequired,
+    projectVersion: PropTypes.number.isRequired,
   };
 
   //todo - should be shared, inherit constants
@@ -61,13 +59,13 @@ export class InspectorHistory extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.project.id !== nextProps.project.id || this.props.project.version !== nextProps.project.version) {
+    if (this.props.projectId !== nextProps.projectId || this.props.projectVersion !== nextProps.projectVersion) {
       this.setVersionsAndSnapshots();
     }
   }
 
   setVersionsAndSnapshots() {
-    const projectId = this.props.project.id;
+    const { projectId } = this.props;
 
     //todo - support all versions
     //todo - collapse versions by day
@@ -78,7 +76,7 @@ export class InspectorHistory extends Component {
       this.setState({ snapshots, loading: false });
     })
     .catch((err) => {
-
+      //todo - handle error ?
     });
   }
 

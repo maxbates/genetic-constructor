@@ -14,11 +14,12 @@
  limitations under the License.
  */
 import moment from 'moment';
+import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import { orderList } from '../../actions/orders';
-import { projectList } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
 import Spinner from '../ui/Spinner';
 import Expando from '../ui/Expando';
@@ -28,7 +29,9 @@ import '../../styles/InspectorGroupOrders.css';
 
 class InspectorGroupOrders extends Component {
   static propTypes = {
-    projectList: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
+    project: PropTypes.object.isRequired,
+    orders: PropTypes.object.isRequired,
     orderList: PropTypes.func.isRequired,
     uiShowOrderForm: PropTypes.func.isRequired,
   };
@@ -41,85 +44,107 @@ class InspectorGroupOrders extends Component {
   /**
    * get all projects and reduce to an array of promises for the orders
    */
-  //todo - this is inefficient... why do we need to get them all?
   componentDidMount() {
-    this.props.projectList()
-    .then((projects) => {
-      this.projects = projects;
+    //in case already loaded
+    this.setOrders(this.props.orders, this.props.projectId);
 
-      Promise.all(this.projects.map(project => this.props.orderList(project.id)))
-      .then((orderLists) => {
-        const flatOrders = orderLists.reduce((acc, orders) => {
-          acc.push(...orders);
-          return acc;
-        }, []);
+    //might have already fetched them, but lets double check fetch again
+    this.props.orderList(this.props.projectId)
+    .then(() => {
+      this.setOrders(this.props.orders, this.props.projectId);
+    });
+  }
 
-        this.setState({
-          orders: flatOrders,
-          loaded: true,
-        });
-      });
+  componentWillReceiveProps(nextProps) {
+    if (this.props.projectId !== nextProps.projectId || this.props.orders !== nextProps.orders) {
+      this.setOrders(nextProps.orders, nextProps.projectId);
+    }
+  }
+
+  setOrders(orders, projectId) {
+    invariant(orders && projectId, 'must pass orders and projectId');
+
+    this.setState({
+      loaded: true,
+      orders: _(orders)
+      .filter(order => order.projectId === projectId && order.isSubmitted())
+      .sortBy(order => order.dateSubmitted)
+      .value(),
     });
   }
 
   render() {
-    return (<div className="InspectorGroupOrders">
-      {!this.state.loaded && <Spinner />}
+    if (!this.state.loaded && !this.state.orders.length) {
+      return <Spinner />;
+    }
 
-      {!this.state.orders.length && (
-        <div className="InspectorContentPlaceholder">No orders found</div>
-      )}
-
-      {this.state.orders.map((order, index) => {
-        const items = [{
-          key: 'Project',
-          value: this.projects.find(project => project.id === order.projectId).metadata.name || 'Unnamed Project',
-        }, {
-          key: 'Order Created',
-          value: moment(order.metadata.created).format('llll'),
-        },
-        {
-          key: 'Foundry',
-          value: order.status.foundry,
-        },
-        {
-          key: 'Remote ID',
-          value: order.status.remoteId,
-        },
-        {
-          key: 'Time Sent',
-          value: moment(order.status.timeSent).format('llll'),
-        }, {
-          key: 'Order Details',
-          value: (<a
-            className="link"
-            onClick={(event) => {
-              event.preventDefault();
-              this.props.uiShowOrderForm(true, order.id);
-            }}
-          >Review Order</a>),
-        }];
-        const content = <InspectorDetailSection items={items} />;
+    const content = !this.state.orders.length
+      ?
+      (<div className="InspectorContentPlaceholder">No orders found</div>)
+      :
+      this.state.orders.map((order, index) => {
+        const items = [
+          {
+            key: 'Project',
+            value: this.props.project.metadata.name || 'Unnamed Project',
+          }, {
+            key: 'Order Created',
+            value: moment(order.metadata.created).format('llll'),
+          },
+          {
+            key: 'Foundry',
+            value: order.status.foundry,
+          },
+          {
+            key: 'Remote ID',
+            value: order.status.remoteId,
+          },
+          {
+            key: 'Time Sent',
+            value: moment(order.status.timeSent).format('llll'),
+          }, {
+            key: 'Order Details',
+            value: (
+              <a
+                className="link"
+                onClick={(event) => {
+                  event.preventDefault();
+                  this.props.uiShowOrderForm(true, order.id);
+                }}
+              >
+                Review Order
+              </a>
+            ),
+          },
+        ];
+        const orderContent = <InspectorDetailSection items={items} />;
 
         return (
           <Expando
             key={index}
             text={order.metadata.name}
           >
-            {content}
+            {orderContent}
           </Expando>
         );
-      })}
-    </div>);
+      });
+
+    return (
+      <div className="InspectorGroupOrders">
+        {content}
+      </div>
+    );
   }
 }
 
 function mapStateToProps(state, props) {
-  return {};
+  return {
+    project: state.projects[props.projectId],
+    orders: state.orders,
+  };
 }
 
 export default connect(mapStateToProps, {
   uiShowOrderForm,
-  projectList,
   orderList,
 })(InspectorGroupOrders);

@@ -44,9 +44,9 @@ export default class InspectorGroup extends Component {
       case 'settings' :
         return (<InspectorGroupSettings />);
       case 'orders' :
-        return (<InspectorGroupOrders />);
+        return (<InspectorGroupOrders projectId={this.props.project.id} />);
       case 'history' :
-        return (<InspectorGroupHistory project={this.props.project} />);
+        return (<InspectorGroupHistory projectId={this.props.project.id} projectVersion={this.props.project.version} />);
       default:
       //throw new Error(`Type ${type} is not registered in InspectorGroup`);
     }

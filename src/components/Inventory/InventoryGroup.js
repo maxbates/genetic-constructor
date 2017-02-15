@@ -21,6 +21,7 @@ import '../../styles/InventoryGroup.css';
 import InventoryGroupBlocks from './InventoryGroupBlocks';
 import InventoryGroupProjects from './InventoryGroupProjects';
 import InventoryGroupRole from './InventoryGroupRole';
+import InventoryGroupCommons from './InventoryGroupCommons';
 import InventoryGroupSearch from './InventoryGroupSearch';
 import InventoryProjectHeader from './InventoryProjectHeader';
 import DnD from '../../containers/graphics/dnd/dnd';
@@ -131,6 +132,8 @@ class InventoryGroup extends Component {
         return (<InventoryGroupProjects {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
       case 'block':
         return (<InventoryGroupBlocks {...props} />);
+      case 'commons':
+        return (<InventoryGroupCommons {...props} />);
       default:
         throw new Error(`Type ${type} is not registered in InventoryGroup`);
     }
