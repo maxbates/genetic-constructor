@@ -17,4 +17,4 @@ import { dbGet, dbDelete } from '../middleware/db';
 
 export const deleteUser = userId => dbDelete(`admin/owner/${userId}`);
 
-export const listAllProjects = () => dbGet(`admin/allprojects`);
+export const listAllProjects = () => dbGet('admin/allprojects');
