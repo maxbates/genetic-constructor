@@ -19,11 +19,27 @@ import KeyboardTrap from 'mousetrap';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { blockAddComponents, blockClone, blockCreate, blockDelete, blockDetach, blockRemoveComponent, blockRename } from '../../actions/blocks';
+import {
+  blockAddComponents,
+  blockClone,
+  blockCreate,
+  blockDelete,
+  blockDetach,
+  blockRemoveComponent,
+  blockRename,
+} from '../../actions/blocks';
 import { clipboardSetData } from '../../actions/clipboard';
 import { focusBlocks, focusBlocksAdd, focusBlocksToggle, focusConstruct } from '../../actions/focus';
 import { projectAddConstruct, projectCreate, projectOpen, projectSave } from '../../actions/projects';
-import { inspectorToggleVisibility, inventorySelectTab, inventoryToggleVisibility, uiSetGrunt, uiShowGenBankImport, uiToggleDetailView } from '../../actions/ui';
+import {
+  inspectorToggleVisibility,
+  inventorySelectTab,
+  inventoryToggleVisibility,
+  uiSetGrunt,
+  uiShowGenBankImport,
+  uiToggleDetailView,
+  detailViewSelectExtension,
+} from '../../actions/ui';
 import OkCancel from '../modal/okcancel';
 import RibbonGrunt from '../ribbongrunt';
 import * as clipboardFormats from '../../constants/clipboardFormats';
@@ -36,6 +52,9 @@ import { commit, redo, transact, undo } from '../../store/undo/actions';
 import { stringToShortcut } from '../../utils/ui/keyboard-translator';
 import '../../styles/GlobalNav.css';
 import { sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude } from '../../utils/ui/uiapi';
+
+// sequence viewer extension name
+const sequenceViewerName = 'GC-Sequence-Viewer';
 
 class GlobalNav extends Component {
   static propTypes = {
@@ -51,6 +70,7 @@ class GlobalNav extends Component {
     focusBlocks: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     uiToggleDetailView: PropTypes.func.isRequired,
+    detailViewSelectExtension: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
@@ -71,12 +91,8 @@ class GlobalNav extends Component {
     blockAddComponents: PropTypes.func.isRequired,
     focus: PropTypes.object.isRequired,
     blocks: PropTypes.object,
+    inventoryVisible: PropTypes.bool.isRequired,
   };
-
-  static disgorgeDiscourse(path) {
-    const uri = window.discourseDomain + path;
-    window.open(uri, '_blank');
-  }
 
   /**
    * singleton instance of GlobalNav
@@ -188,11 +204,6 @@ class GlobalNav extends Component {
     this.props.focusBlocks(this.props.blockGetComponentsRecursive(this.props.focus.constructId).map(block => block.id));
   }
 
-  // get parent of block
-  getBlockParentId(blockId) {
-    return this.props.blockGetParents(blockId)[0].id;
-  }
-
   /**
    * return menu items for select all, cut, copy, paste, undo, redo
    * @returns {[*,*,*,*,*,*,*,*]}
@@ -258,63 +269,6 @@ class GlobalNav extends Component {
   }
 
   /**
-   * download the current file as a genbank file
-   *
-   */
-  downloadProjectGenbank() {
-    this.saveProject()
-      .then(() => {
-        //todo - maybe this whole complicated bit should go in middleware as its own function
-
-        const url = extensionApiPath('genbank', `export/${this.props.currentProjectId}`);
-        const postBody = this.props.focus.options;
-        const iframeTarget = `${Math.floor(Math.random() * 10000)}${+Date.now()}`;
-
-        // for now use an iframe otherwise any errors will corrupt the page
-        const iframe = document.createElement('iframe');
-        iframe.name = iframeTarget;
-        iframe.style.display = 'none';
-        iframe.src = '';
-        document.body.appendChild(iframe);
-
-        //make form to post to iframe
-        const form = document.createElement('form');
-        form.style.display = 'none';
-        form.action = url;
-        form.method = 'post';
-        form.target = iframeTarget;
-
-        //add inputs to the form for each value in postBody
-        Object.keys(postBody).forEach((key) => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = postBody[key];
-          form.appendChild(input);
-        });
-
-        document.body.appendChild(form);
-        form.submit();
-
-        //removing elements will cancel, so give them a nice timeout
-        setTimeout(() => {
-          document.body.removeChild(form);
-          document.body.removeChild(iframe);
-        }, 60 * 1000);
-      });
-  }
-
-  /**
-   * upload a genbank into current or new project
-   */
-  uploadGenbankFile() {
-    this.saveProject()
-      .then(() => {
-        this.props.uiShowGenBankImport(true);
-      });
-  }
-
-  /**
    * get parent block of block with given id
    */
   blockGetParent(blockId) {
@@ -353,18 +307,6 @@ class GlobalNav extends Component {
       }));
       // put clones on the clipboardparentObjectInput
       this.props.clipboardSetData([clipboardFormats.blocks], [clones]);
-    }
-  }
-
-  /**
-   * select all the empty blocks in the current construct
-   */
-  selectEmptyBlocks() {
-    const allChildren = this.props.blockGetComponentsRecursive(this.props.focus.constructId);
-    const emptySet = allChildren.filter(block => !block.hasSequence()).map(block => block.id);
-    this.props.focusBlocks(emptySet);
-    if (!emptySet.length) {
-      this.props.uiSetGrunt('There are no empty blocks in the current construct');
     }
   }
 
@@ -452,12 +394,46 @@ class GlobalNav extends Component {
     this.props.projectOpen(project.id);
   }
 
+  /**
+   * toggle the side panels
+   */
+  togglePanels = () => {
+    const showPanels = !this.props.inventoryVisible;
+    this.props.inventoryToggleVisibility(showPanels);
+    this.props.inspectorToggleVisibility(showPanels);
+    if (showPanels) {
+      this.showSequenceViewer();
+    } else {
+      this.hideSequenceViewer();
+    }
+  };
+
+  /**
+   * hide sequence viewer
+   */
+  hideSequenceViewer() {
+    this.props.uiToggleDetailView(false);
+  }
+
+  /**
+   * show the sequence viewer
+   */
+  showSequenceViewer() {
+    this.props.focusBlocks([]);
+    this.props.detailViewSelectExtension(sequenceViewerName);
+    this.props.uiToggleDetailView(true);
+  }
+
   render() {
     return (
       <div className="GlobalNav">
         <RibbonGrunt />
         <div className="GlobalNav-logo">
-          <img src="/images/ui/main_logo.svg" role="presentation" />
+          <img
+            src="/images/ui/main_logo.svg"
+            role="presentation"
+            onClick={this.togglePanels}
+          />
         </div>
         <div className="GlobalNav-appname">Genetic Constructor</div>
         <OkCancel />
@@ -472,6 +448,8 @@ function mapStateToProps(state, props) {
     blocks: state.blocks,
     clipboard: state.clipboard,
     currentConstruct: state.blocks[state.focus.constructId],
+    inventoryVisible: state.ui.inventory.isVisible,
+    visibleExtension: state.ui.detailView.isVisible ? state.ui.detailView.currentExtension : null,
   };
 }
 
@@ -505,4 +483,5 @@ export default connect(mapStateToProps, {
   focusConstruct,
   clipboardSetData,
   blockAddComponents,
+  detailViewSelectExtension,
 })(GlobalNav);
