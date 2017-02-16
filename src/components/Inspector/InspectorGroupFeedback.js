@@ -16,16 +16,30 @@
 import debounce from 'lodash.debounce';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-
+import { reportError } from '../../middleware/reporting';
 import { uiSetGrunt } from '../../actions/ui';
 import Selector from '../../containers/orders/selector';
+import { userGetUser } from '../../selectors/user';
 import '../../styles/InspectorGroupFeedback.css';
 
-const heap = window.heap || { track: () => {} };
+
+/**
+ * tracking via heap
+ * @param message
+ * @param object
+ */
+const heapTrack = function (message, object) {
+  try {
+    heap.track(message, object);
+  } catch (error) {
+    console.warn('Heap Error:', error);
+  }
+};
 
 class InspectorGroupFeedback extends Component {
   static propTypes = {
     uiSetGrunt: PropTypes.func.isRequired,
+    userGetUser: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -52,7 +66,7 @@ class InspectorGroupFeedback extends Component {
     // value is 0..4
     const sliderRating = Number.parseFloat(this.refs.rangeSlider.value);
     this.props.uiSetGrunt('Thanks for your feedback.');
-    heap.track('Slider rating', { sliderRating });
+    heapTrack('Slider rating', { sliderRating });
   }, 2000, { leading: false, trailing: true });
 
   /**
@@ -71,11 +85,19 @@ class InspectorGroupFeedback extends Component {
     const message = this.refs.feedbackText.value.trim();
     if (message) {
       this.props.uiSetGrunt('Thanks for your feedback.');
-      heap.track('Feedback', {
+      heapTrack('Feedback', {
         team,
         anonymous,
         message,
       });
+      const user = this.state.anon ? null : this.props.userGetUser();
+      reportError(team, message, window.location.toString(), user)
+        .then((json) => {
+          this.props.uiSetGrunt('Thanks for your feedback.');
+        })
+        .catch((resp) => {
+          this.props.uiSetGrunt('There was a problem sending your feedback. Please try again.');
+        });
     } else {
       this.props.uiSetGrunt('Please enter some feedback first.');
     }
@@ -89,7 +111,7 @@ class InspectorGroupFeedback extends Component {
     const value = Number.parseFloat(index);
     this.setState({ starClicked: true });
     this.props.uiSetGrunt('Thanks for your feedback.');
-    heap.track('Star Rating', { value });
+    heapTrack('Star Rating', { value });
   }
 
   /**
@@ -221,4 +243,5 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   uiSetGrunt,
+  userGetUser,
 })(InspectorGroupFeedback);
