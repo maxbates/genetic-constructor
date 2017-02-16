@@ -15,8 +15,9 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
-import { snapshotsCommonsRetrieve } from '../../actions/snapshots';
+import { snapshotsCommonsQuery, snapshotsCommonsRetrieve } from '../../actions/snapshots';
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryTabs from './InventoryTabs';
 
@@ -26,6 +27,7 @@ export class InventoryGroupCommons extends Component {
   static propTypes = {
     currentProjectId: PropTypes.string.isRequired,
     snapshots: PropTypes.object.isRequired,
+    snapshotsCommonsQuery: PropTypes.func.isRequired,
     snapshotsCommonsRetrieve: PropTypes.func.isRequired,
   };
 
@@ -38,14 +40,27 @@ export class InventoryGroupCommons extends Component {
     ];
   }
 
-  componentDidMount() {
-    //get all the snapshots
-  }
-
   state = {
+    snapshots: [],
     groupBy: 'author',
     filter: '',
   };
+
+  componentDidMount() {
+    this.props.snapshotsCommonsQuery();
+  }
+
+  componentWillReceiveProps(nextProps, nextState) {
+    if (this.props.snapshots !== nextProps.snapshots) {
+      this.setState({
+        snapshots: _(nextProps.snapshots)
+        .groupBy('projectId')
+        .mapValues((projectSnapshots, projectId) => _.maxBy(projectSnapshots, 'version'))
+        .values()
+        .value(),
+      });
+    }
+  }
 
   onTabSelect = (key) => {
     this.setState({ groupBy: key });
@@ -60,15 +75,29 @@ export class InventoryGroupCommons extends Component {
   };
 
   render() {
-    const { snapshots, currentProjectId } = this.props;
-    const { filter, groupBy } = this.state;
+    const { currentProjectId } = this.props;
+    const { snapshots, filter, groupBy } = this.state;
+
+    console.log(snapshots);
 
     //todo - fetch all the published projects ---- where should they be stored?
     //todo
-    const currentList = groupBy === 'author' ? null : null;
+    const grouped = groupBy === 'author' ? null : null;
+
+    const currentList = snapshots.map((snapshot) => (
+      <div key={snapshot.snapshotUUID}>
+        <div>{snapshot.snapshotUUID}</div>
+        <div>{snapshot.owner}</div>
+        <div>{snapshot.tags.author}</div>
+        <div>{snapshot.message}</div>
+      </div>
+    ));
 
     return (
       <div className="InventoryGroup-content InventoryGroupCommons">
+        <div className="InventoryGroup-banner">
+          Share and reuse content. <a href={SHARING_IN_PUBLIC_INVENTORY} target="_blank" rel="noopener noreferrer">Learn more...</a>
+        </div>
         <InventoryTabs
           tabs={this.inventoryTabs}
           activeTabKey={groupBy}
@@ -83,5 +112,6 @@ export class InventoryGroupCommons extends Component {
 }
 
 export default connect((state, props) => ({ snapshots: state.snapshots }), {
+  snapshotsCommonsQuery,
   snapshotsCommonsRetrieve,
 })(InventoryGroupCommons);

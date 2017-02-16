@@ -80,7 +80,12 @@ export class InspectorHistory extends Component {
     this.props.snapshotsList(projectId)
     .then(() => this.setState({
       loading: false,
-    }));
+    }))
+    .catch(err => {
+      //if they don't own the project, will error. handle accordingly
+      console.log(err);
+      throw err;
+    });
   }
 
   render() {

@@ -17,7 +17,6 @@ import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import '../../styles/InventoryGroup.css';
 import InventoryGroupBlocks from './InventoryGroupBlocks';
 import InventoryGroupProjects from './InventoryGroupProjects';
 import InventoryGroupRole from './InventoryGroupRole';
@@ -30,6 +29,8 @@ import { projectAddConstruct, projectCreate, projectOpen } from '../../actions/p
 import { focusConstruct } from '../../actions/focus';
 import ConstructViewer from '../../containers/graphics/views/constructviewer';
 import { block as blockDragType } from '../../constants/DragTypes';
+
+import '../../styles/InventoryGroup.css';
 
 class InventoryGroup extends Component {
   static propTypes = {
