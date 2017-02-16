@@ -47,16 +47,23 @@ export class InspectorHistory extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const newProject = this.props.projectId !== nextProps.projectId;
+
     //update snapshots shown if:
     // 1) new project
     // 2) published and commons versions change
     // 3) not published and snapshots change
-    if (this.props.projectId !== nextProps.projectId) {
+    if (newProject) {
       this.setSnapshots(nextProps);
     } else if (nextProps.projectIsPublished && this.props.commonsVersions !== nextProps.commonsVersions) {
       this.setSnapshots(nextProps);
     } else if (!nextProps.projectIsPublished && this.props.snapshots !== nextProps.snapshots) {
       this.setSnapshots(nextProps);
+    }
+
+    //if published, project page does not fetch versions, so do it here
+    if (newProject && nextProps.projectIsPublished) {
+      this.fetchSnapshots();
     }
   }
 
@@ -73,8 +80,8 @@ export class InspectorHistory extends Component {
   }
 
   /*
-   //todo - support all versions
-   //todo - merge snapshots + versions (and handle when only have snapshots (e.g. public)
+   //future - support all versions
+   //future - merge snapshots + versions (and handle when only have snapshots (e.g. public)
    setVersionsAndSnapshots(projectId) {}
    */
 
@@ -85,10 +92,9 @@ export class InspectorHistory extends Component {
     const { projectId, projectIsPublished, snapshotsList, commonsRetrieveProjectVersions } = this.props;
 
     if (projectIsPublished) {
-      commonsRetrieveProjectVersions(projectId);
-    } else {
-      snapshotsList(projectId);
+      return commonsRetrieveProjectVersions(projectId);
     }
+    return snapshotsList(projectId);
   }
 
   render() {

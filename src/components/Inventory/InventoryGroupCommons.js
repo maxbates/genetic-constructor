@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { commonsQuery, commonsRetrieve } from '../../actions/commons';
+import { commonsQuery, commonsRetrieveProject, commonsRetrieveProjectVersions } from '../../actions/commons';
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryTabs from './InventoryTabs';
 
@@ -28,9 +28,11 @@ export class InventoryGroupCommons extends Component {
     currentProjectId: PropTypes.string.isRequired,
     commons: PropTypes.shape({
       projects: PropTypes.object.isRequired,
+      versions: PropTypes.object.isRequired,
     }).isRequired,
     commonsQuery: PropTypes.func.isRequired,
-    commonsRetrieve: PropTypes.func.isRequired,
+    commonsRetrieveProject: PropTypes.func.isRequired,
+    commonsRetrieveProjectVersions: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -58,7 +60,7 @@ export class InventoryGroupCommons extends Component {
 
       //todo - update this
       this.setState({
-        snapshots: _(nextProps.snapshots)
+        snapshots: _(nextProps.commons.versions)
         .groupBy('projectId')
         .mapValues((projectSnapshots, projectId) => _.maxBy(projectSnapshots, 'version'))
         .values()
@@ -118,5 +120,6 @@ export class InventoryGroupCommons extends Component {
 
 export default connect((state, props) => ({ commons: state.commons }), {
   commonsQuery,
-  commonsRetrieve,
+  commonsRetrieveProject,
+  commonsRetrieveProjectVersions,
 })(InventoryGroupCommons);
