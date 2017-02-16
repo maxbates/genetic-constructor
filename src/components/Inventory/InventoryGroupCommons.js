@@ -104,7 +104,7 @@ export class InventoryGroupCommons extends Component {
       },
       {
         text: 'Duplicate Project',
-        disabled: true, //todo - clone the whole project
+        disabled: true, //todo - ability to clone the whole project
         action: () => {},
       },
     ], {

@@ -19,6 +19,9 @@ import debug from 'debug';
 
 import { errorDoesNotExist } from '../../errors/errorConstants';
 import { dbHead, dbGet, dbPost, dbDelete } from '../middleware/db';
+import { projectGet } from './projects';
+import { projectVersionGet } from './projectVersions';
+import internalUserLookup from '../../user/internalUserLookup';
 
 const logger = debug('constructor:data:persistence:snapshots');
 
@@ -145,28 +148,43 @@ export const snapshotWrite = (
   invariant(projectId && userId, 'must pass projectId, userId');
   invariant((!version && version !== 0) || Number.isInteger(version), 'version must be a number');
 
-  const snapshotBody = _.defaultsDeep({}, body, defaultSnapshotBody);
+  //get the project an user objects, so can enforce tags.author and tags.project = project.metadata.name
+  //todo - perf - this sucks. its slow. is there faster way, while enforce these tags (author, projectName) will be present (always)
+  //tricky since may create snapshot somewhere and then expose later, and need to ensure these fields are available
+  return Promise.all([
+    (Number.isInteger(version) ? projectVersionGet(projectId, version) : projectGet(projectId)),
+    internalUserLookup(userId),
+  ])
+  .then(([project, user]) => {
+    const snapshotBody = _.defaultsDeep({}, body, defaultSnapshotBody);
 
-  invariant(typeof snapshotBody.message === 'string', 'message must be a string');
-  invariant(typeof snapshotBody.tags === 'object' && !Array.isArray(snapshotBody.tags), 'tags must be object');
-  invariant(Array.isArray(snapshotBody.keywords) && snapshotBody.keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
-  invariant(typeof type === 'string', 'type must be a string');
+    invariant(typeof snapshotBody.message === 'string', 'message must be a string');
+    invariant(typeof snapshotBody.tags === 'object' && !Array.isArray(snapshotBody.tags), 'tags must be object');
+    invariant(Array.isArray(snapshotBody.keywords) && snapshotBody.keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
+    invariant(typeof type === 'string', 'type must be a string');
 
-  logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${snapshotBody.message}`);
+    //assign author and projectName to the snapshot
+    Object.assign(snapshotBody.tags, {
+      author: (user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : 'Anonymous',
+      projectName: project.project.metadata.name || 'Untitled Project',
+    });
 
-  const postBody = {
-    projectId,
-    type,
-    ...snapshotBody,
-  };
+    logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${snapshotBody.message}`);
 
-  if (Number.isInteger(version)) {
-    postBody.projectVersion = version;
-  }
+    const postBody = {
+      projectId,
+      type,
+      ...snapshotBody,
+    };
 
-  //signature is weird - no data to pass, just several body parameters
-  return dbPost('snapshots/', userId, {}, {}, postBody)
-  .then(transformDbVersion);
+    if (Number.isInteger(version)) {
+      postBody.projectVersion = version;
+    }
+
+    //signature is weird - no data to pass, just several body parameters
+    return dbPost('snapshots/', userId, {}, {}, postBody)
+    .then(transformDbVersion);
+  });
 };
 
 /**
@@ -206,9 +224,6 @@ export const snapshotMerge = (
       tags: newTags,
       keywords: newKeywords,
     };
-
-    console.log('merge');
-    console.log(newBody);
 
     return snapshotWrite(projectId, userId, version, newBody, newType);
   });

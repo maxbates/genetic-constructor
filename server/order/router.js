@@ -15,7 +15,7 @@
  */
 import debug from 'debug';
 import express from 'express';
-import { merge } from 'lodash';
+import _, { merge } from 'lodash';
 
 import Order from '../../src/models/Order';
 import saveCombinations from '../../src/utils/generators/orderConstructs';
@@ -219,14 +219,15 @@ User ${user.uuid}
           [orderResponse.jobId]: true,
         });
       let message = `Order ${order.id} @ ${foundry}: ${order.metadata.constructNames.join(' ')}`;
+      const keywords = order.metadata.keywords || [];
 
       //merge tags if snapshot existed
       if (snapshot) {
         merge(snapshotTags, snapshot.tags);
-        message = `${snapshot.message} |  ${message}`;
+        message = `${snapshot.message} | ${message}`;
+        keywords.push(..._.difference(snapshot.keywords, keywords));
       }
 
-      const keywords = order.metadata.keywords || [];
       const snapshotBody = {
         message,
         tags: snapshotTags,

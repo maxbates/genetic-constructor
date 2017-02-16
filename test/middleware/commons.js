@@ -25,9 +25,6 @@ import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import * as snapshots from '../../server/data/persistence/snapshots';
 import { testUserId } from '../constants';
-import Block from '../../src/models/Block';
-import Project from '../../src/models/Project';
-import Rollup from '../../src/models/Rollup';
 
 describe('middleware', () => {
   describe('commons', () => {
