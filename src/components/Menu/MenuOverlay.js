@@ -119,28 +119,30 @@ class MenuOverlay extends Component {
     if (!this.props.menuItems) {
       return null;
     }
+    // length of side of arrow
+    const arrow = 12;
     // required position of menu
     const pos = this.props.menuPosition;
     // true if position falls in bottom half of screen
     const bottomHalf = pos.y > window.innerHeight / 2;
     // size and position hat and menu
-    const psize = this.props.menuHat ? 20 : 0;
+    const psize = this.props.menuHat ? arrow : 0;
     const pointerPosition = bottomHalf ? {
       width: `${psize}px`,
       height: `${psize}px`,
-      left: `${pos.x - 10}px`,
-      top: `${pos.y - psize * 1.5}px`,
+      left: `${pos.x - arrow / 2}px`,
+      top: `${pos.y - psize * 4}px`,
     } : {
       width: `${psize}px`,
       height: `${psize}px`,
-      left: `${pos.x - 10}px`,
+      left: `${pos.x - arrow / 2}px`,
       top: `${pos.y}px`,
     };
     const menuPosition = bottomHalf ? {
-      left: `${pos.x - 10}px`,
-      bottom: `${window.innerHeight - pos.y + psize}px`,
+      left: `${pos.x - arrow / 2}px`,
+      bottom: `${window.innerHeight - pos.y + psize * 3.5}px`,
     } : {
-      left: `${pos.x - 10}px`,
+      left: `${pos.x - arrow / 2}px`,
       top: `${pos.y + psize / 2}px`,
     };
 

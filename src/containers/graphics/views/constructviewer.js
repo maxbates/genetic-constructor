@@ -882,8 +882,8 @@ export class ConstructViewer extends Component {
         action: this.onOrderDNA,
       },
       {
-        text: 'Upload',
-        disabled: false,
+        text: 'Upload Genbank or CSV',
+        disabled: this.isSampleProject(),
         action: this.upload,
       },
       {
