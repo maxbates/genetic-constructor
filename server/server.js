@@ -125,6 +125,7 @@ if (process.env.BIO_NANO_AUTH) {
     registerRedirect: false,
     emailDirectory: 'emails',
     verifyLanding: '/homepage',
+    loginPath: '/homepage/signin',
   };
   app.use(initAuthMiddleware(authConfig));
 } else {
