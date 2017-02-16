@@ -68,7 +68,7 @@ class InspectorGroupOrders extends Component {
       loaded: true,
       orders: _(orders)
       .filter(order => order.projectId === projectId && order.isSubmitted())
-      .sortBy(order => order.dateSubmitted)
+      .orderBy([order => order.dateSubmitted()], ['desc'])
       .value(),
     });
   }

@@ -16,6 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import _ from 'lodash';
 
 import { snapshotList } from '../../middleware/snapshots';
 import Spinner from './../ui/Spinner';
@@ -55,25 +56,25 @@ export class InspectorHistory extends Component {
   };
 
   componentDidMount() {
-    this.setVersionsAndSnapshots();
+    this.setVersionsAndSnapshots(this.props.projectId);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.projectId !== nextProps.projectId || this.props.projectVersion !== nextProps.projectVersion) {
-      this.setVersionsAndSnapshots();
+      this.setVersionsAndSnapshots(nextProps.projectId);
     }
   }
 
-  setVersionsAndSnapshots() {
-    const { projectId } = this.props;
-
+  setVersionsAndSnapshots(projectId) {
     //todo - support all versions
     //todo - collapse versions by day
     //todo - merge snapshots + versions (and handle when only have snapshots (e.g. public)
 
     snapshotList(projectId)
     .then((snapshots) => {
-      this.setState({ snapshots, loading: false });
+      this.setState({
+        snapshots: _.orderBy(snapshots, ['time'], ['desc']),
+        loading: false });
     })
     .catch((err) => {
       //todo - handle error ?
