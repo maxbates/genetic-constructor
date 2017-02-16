@@ -62,15 +62,3 @@ export const commonsQuery = (query = {}) => {
   return rejectingFetch(commonsApiPath('query'), headersPost(stringified))
   .then(resp => resp.json());
 };
-
-/*
- //deprecate
- //snapshot and publish rollup in one go
- export const commonsPublish = (rollup, body = defaultSnapshotBody) => {
-   Rollup.validate(rollup, true, true);
-   const stringified = JSON.stringify(body);
-
-   return rejectingFetch(commonsApiPath(rollup.project.id), headersPut(stringified))
-   .then(resp => resp.json());
- };
- */

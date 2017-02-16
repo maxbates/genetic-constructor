@@ -16,10 +16,12 @@
 
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
+import { snapshotIsPublished } from '../../../server/data/util/commons';
 import { uiSetGrunt, uiShowProjectDeleteModal } from '../../actions/ui';
 import { projectDelete } from '../../actions/projects';
-import { snapshotsCommonsRetrieve } from '../../actions/snapshots';
+import { snapshotsList } from '../../actions/snapshots';
 
 import Modal from './Modal';
 import ModalFooter from './ModalFooter';
@@ -29,7 +31,7 @@ class DeleteProjectModal extends Component {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object.isRequired,
     open: PropTypes.bool,
-    snapshotCommonsRetrieve: PropTypes.func.isRequired,
+    snapshotsList: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowProjectDeleteModal: PropTypes.func.isRequired,
@@ -41,11 +43,11 @@ class DeleteProjectModal extends Component {
   };
 
   componentDidMount() {
-    this.props.snapshotCommonsRetrieve(this.props.projectId)
-    .then(versions => {
+    this.props.snapshotsList(this.props.projectId)
+    .then(snapshots => {
       this.setState({
         loading: false,
-        isPublished: versions.length > 0,
+        isPublished: _.some(snapshots, snapshotIsPublished),
       });
     })
     .catch(err => {
@@ -95,7 +97,7 @@ export default connect((state, props) => ({
   project: state.projects[props.projectId],
 }), {
   projectDelete,
-  snapshotsCommonsRetrieve,
+  snapshotsList,
   uiSetGrunt,
   uiShowProjectDeleteModal,
 })(DeleteProjectModal);

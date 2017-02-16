@@ -135,7 +135,11 @@ class InventoryGroup extends Component {
       case 'commons':
         return (<InventoryGroupCommons {...props} />);
       default:
-        throw new Error(`Type ${type} is not registered in InventoryGroup`);
+        //don't throw in production, let it just render empty
+        if (process.env.NODE_ENV !== 'production') {
+          throw new Error(`Type ${type} is not registered in InventoryGroup`);
+        }
+        return null;
     }
   };
 

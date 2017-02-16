@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import { focusConstruct } from '../actions/focus';
 import { orderList } from '../actions/orders';
 import { projectCreate, projectList, projectLoad, projectOpen } from '../actions/projects';
-import { snapshotsCommonsRetrieve } from '../actions/snapshots';
+import { snapshotsList } from '../actions/snapshots';
 import { uiSetGrunt } from '../actions/ui';
 
 import ProjectDetail from '../components/ProjectDetail';
@@ -56,7 +56,7 @@ export class ProjectPage extends Component {
     //uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
-    snapshotsCommonsRetrieve: PropTypes.func.isRequired,
+    snapshotsList: PropTypes.func.isRequired,
     autosave: PropTypes.shape({
       dirty: PropTypes.bool.isRequired,
     }),
@@ -83,7 +83,7 @@ export class ProjectPage extends Component {
       //get all the projects orders + snapshots lazily, will re-render when have them
       //run in project page so only request them when we actually load the project
       this.props.orderList(nextProps.projectId);
-      this.props.snapshotsCommonsRetrieve(nextProps.projectId);
+      this.props.snapshotsList(nextProps.projectId);
     }
 
     //reload extensions if user changed
@@ -192,5 +192,5 @@ export default connect(mapStateToProps, {
   uiSetGrunt,
   focusConstruct,
   orderList,
-  snapshotsCommonsRetrieve,
+  snapshotsList,
 })(ProjectPage);

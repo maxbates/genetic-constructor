@@ -16,7 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { snapshotCommonsList } from '../../actions/snapshots';
+import { snapshotsCommonsRetrieve } from '../../actions/snapshots';
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryTabs from './InventoryTabs';
 
@@ -26,6 +26,7 @@ export class InventoryGroupCommons extends Component {
   static propTypes = {
     currentProjectId: PropTypes.string.isRequired,
     snapshots: PropTypes.object.isRequired,
+    snapshotsCommonsRetrieve: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -82,5 +83,5 @@ export class InventoryGroupCommons extends Component {
 }
 
 export default connect((state, props) => ({ snapshots: state.snapshots }), {
-
+  snapshotsCommonsRetrieve,
 })(InventoryGroupCommons);

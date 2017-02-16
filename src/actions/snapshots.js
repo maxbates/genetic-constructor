@@ -19,21 +19,43 @@ import * as snapshots from '../middleware/snapshots';
 import * as commons from '../middleware/commons';
 
 /**
- * Retrieve the published snapshots of the project, or of a specific version
- * @function
+ * Get snapshots for a given project
  * @param projectId
- * @param [version]
- * @returns {Array<snapshots>|snapshot|null} Array of snapshots if no verison, or specific snapshot if version passed
+ * @return {Promise}
+ * @resolve {Array<snapshot>} Array of snapshots
  */
-export const snapshotsCommonsRetrieve = (projectId, version) =>
+export const snapshotsList = projectId =>
   (dispatch, getState) =>
-    commons.commonsRetrieve(projectId, version)
+    snapshots.snapshotList(projectId)
     .then(snapshots => {
       dispatch({
-        type: ActionTypes.COMMONS_RETRIEVE,
+        type: ActionTypes.SNAPSHOT_LIST,
         snapshots,
       });
       return snapshots;
+    });
+
+/**
+ * Retrieve a published project, either latest or a specific version
+ * @function
+ * @param projectId
+ * @param [version]
+ * @returns {promise}
+ * @resolve {Array<snapshots>|snapshot|null} Array of snapshots if no verison, or specific snapshot if version passed, or null if not published
+ * @reject error fetching
+ */
+export const snapshotsCommonsRetrieveProject = (projectId, version) =>
+  (dispatch, getState) =>
+    commons.commonsRetrieve(projectId, version)
+    .then(roll => {
+      //todo - dispatch to projects and blocks
+      throw new Error('todo - handle retrieval');
+
+      dispatch({
+        type: ActionTypes.COMMONS_RETRIEVE_PROJECT,
+        snapshots,
+      });
+      return roll;
     });
 
 export const snapshotsQuery = query =>

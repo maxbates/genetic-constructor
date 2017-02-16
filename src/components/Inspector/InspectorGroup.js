@@ -48,7 +48,11 @@ export default class InspectorGroup extends Component {
       case 'history' :
         return (<InspectorGroupHistory projectId={this.props.project.id} projectVersion={this.props.project.version} />);
       default:
-      //throw new Error(`Type ${type} is not registered in InspectorGroup`);
+        //don't throw in production, let it just render empty
+        if (process.env.NODE_ENV !== 'production') {
+          throw new Error(`Type ${type} is not registered in InspectorGroup`);
+        }
+        return null;
     }
   };
 

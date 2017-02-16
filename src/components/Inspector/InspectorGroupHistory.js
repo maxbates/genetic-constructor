@@ -18,9 +18,9 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import _ from 'lodash';
 
-import { snapshotIsPublished } from '../../../server/data/util/commons';
+import { nameSnapshot, snapshotIsPublished } from '../../../server/data/util/commons';
 
-import { snapshotList } from '../../middleware/snapshots';
+import { snapshotsList } from '../../actions/snapshots';
 import Spinner from './../ui/Spinner';
 import Expando from './../ui/Expando';
 import InspectorDetailSection from './InspectorDetailSection';
@@ -29,27 +29,9 @@ export class InspectorHistory extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
     projectVersion: PropTypes.number.isRequired,
+    snapshots: PropTypes.object.isRequired,
+    snapshotsList: PropTypes.func.isRequired,
   };
-
-  //todo - should be shared, inherit constants
-  static nameSnapshot(snapshot) {
-    switch (snapshot.type) {
-      case 'SNAPSHOT_PUBLISH':
-        return 'Published to Commons';
-      case 'SNAPSHOT_ORDER': {
-        const foundry = snapshot.tags.foundry;
-        return `Order${foundry ? ` at ${foundry}` : ''}`;
-      }
-      case 'SNAPSHOT_USER':
-      default:
-        return 'Saved Snapshot';
-    }
-  }
-
-  //todo - use constants
-  static snapshotIsPublished(snapshot) {
-    return snapshot.tags['COMMONS_TAG'] === true;
-  }
 
   state = {
     loading: true,
@@ -58,13 +40,20 @@ export class InspectorHistory extends Component {
   };
 
   componentDidMount() {
-    setSnapshots(this.props.snapshots)
-    this.setVersionsAndSnapshots(this.props.projectId);
+    this.setSnapshots(this.props.snapshots, this.props.projectId);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.projectId !== nextProps.projectId || this.props.projectVersion !== nextProps.projectVersion) {
-      this.setVersionsAndSnapshots(nextProps.projectId);
+    const newProject = this.props.projectId !== nextProps.projectId;
+
+    if (newProject) {
+      this.setState({
+        loading: true,
+      });
+    }
+
+    if (newProject || this.props.projectVersion !== nextProps.projectVersion || this.props.snapshots !== nextProps.snapshots) {
+      this.setSnapshots(nextProps.snapshots, nextProps.projectId);
     }
   }
 
@@ -78,18 +67,20 @@ export class InspectorHistory extends Component {
     });
   }
 
-  setVersionsAndSnapshots(projectId) {
-    //todo - support all versions
-    //todo - collapse versions by day
-    //todo - merge snapshots + versions (and handle when only have snapshots (e.g. public)
+  /*
+  //todo - support all versions
+  //todo - merge snapshots + versions (and handle when only have snapshots (e.g. public)
+  setVersionsAndSnapshots(projectId) {}
+  */
 
-    snapshotList(projectId)
-    .then((snapshots) => {
-
-    })
-    .catch((err) => {
-      //todo - handle error ?
-    });
+  //snapshots are fetched by ProjectPage when it loads a new project
+  // only need this when we want to show for another project
+  fetchSnapshots(projectId) {
+    //will setSnapshots when props change, if there was a change
+    this.props.snapshotsList(projectId)
+    .then(() => this.setState({
+      loading: false,
+    }));
   }
 
   render() {
@@ -108,7 +99,7 @@ export class InspectorHistory extends Component {
 
         {this.state.snapshots.map((snapshot) => {
           const time = moment(snapshot.time).format('D MMM YYYY H:mm:s');
-          const name = InspectorHistory.nameSnapshot(snapshot);
+          const name = nameSnapshot(snapshot);
           const items = [{ key: 'Version Note', value: snapshot.message }];
           const content = <InspectorDetailSection items={items} />;
           const widgets = snapshotIsPublished(snapshot) ?
@@ -132,5 +123,5 @@ export class InspectorHistory extends Component {
 }
 
 export default connect((state, props) => ({ snapshots: state.snapshots }), {
-
+  snapshotsList,
 })(InspectorHistory);

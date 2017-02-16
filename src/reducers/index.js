@@ -28,6 +28,7 @@ import inspector from './inspector';
 import inventory from './inventory';
 import orders from './orders';
 import projects from './projects';
+import snapshots from './snapshots';
 import ui from './ui';
 import user from './user';
 
@@ -57,17 +58,20 @@ export const createRootReducer = () => {
   //final reducer
 
   return freezeReducerEnhancer(combineReducers({
+    router,
+    autosave: autosaveReducer,
+
     blocks: autosaveReducerEnhancer(undoReducerEnhancer(blocks, 'blocks')),
     projects: autosaveReducerEnhancer(undoReducerEnhancer(projects, 'projects')),
-    router,
-    inventory,
-    inspector,
-    ui,
+
     clipboard,
     focus,
-    user,
+    inventory,
+    inspector,
     orders,
-    autosave: autosaveReducer,
+    snapshots,
+    ui,
+    user,
   }));
 };
 

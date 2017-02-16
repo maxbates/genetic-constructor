@@ -26,14 +26,14 @@ export default function snapshots(state = initialState, action) {
     case ActionTypes.PROJECT_SNAPSHOT:
     case ActionTypes.PROJECT_PUBLISH:
     case ActionTypes.SNAPSHOT_QUERY:
-    case ActionTypes.COMMONS_RETRIEVE:
+    case ActionTypes.SNAPSHOT_LIST:
     case ActionTypes.COMMONS_QUERY:
       const { snapshot, snapshots } = action;
       if (Array.isArray(snapshots)) {
-        return { ...state, ...keyBy(snapshots, 'id') };
+        return { ...state, ...keyBy(snapshots, 'snapshotUUID') };
       }
 
-      return { ...state, [snapshot.id]: snapshot };
+      return { ...state, [snapshot.snapshotUUID]: snapshot };
 
     case ActionTypes.USER_SET_USER :
       return { ...initialState };
