@@ -7,11 +7,18 @@
     margin: 0 1rem 1rem 1rem;
   }
 
-  .list {
+  .list-container {
     display: flex;
-    align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
+
+    .list {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      width: 220px;
+      margin-left: 1rem;
+    }
   }
 
   .sbol-tile {

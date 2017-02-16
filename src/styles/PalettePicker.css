@@ -20,13 +20,13 @@
       text-transform: capitalize;
     }
     .tab.active {
-      background-color: var(--colors-darkerGrey);
+      background-color: var(--colors-darkGrey);
       color: var(--colors-white);
     }
   }
   .palette-picker-content {
     padding: 4px 18px;
-    background-color: var(--colors-darkerGrey);
+    background-color: var(--colors-darkGrey);
     width: 282px;
     transform: translateX(-12px);
 

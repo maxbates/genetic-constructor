@@ -24,7 +24,7 @@ limitations under the License.
 
 export const symbolMap = {
   //include null for string matching, but the value will be the object null in blocks, not the string 'null'
-  null: 'No Symbol',
+  null: 'Blank',
   promoter: 'Promoter',
   cds: 'CDS',
   terminator: 'Terminator',
