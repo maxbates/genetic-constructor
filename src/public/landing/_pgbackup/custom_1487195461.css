@@ -306,7 +306,7 @@ p
 {
     color: rgba(0, 0, 0, 0.8);
     padding-top: 120px;
-    padding-bottom: 200px;
+    padding-bottom: 400px;
     position: relative;
 }
 
@@ -327,9 +327,8 @@ p
 .back4 
 {
     position: absolute;
-    top: -300px;
+    top: -150px;
     right: 0px;
-    z-index: -1;
 }
 
 .slideStart
@@ -731,7 +730,7 @@ h6
     margin-left: -36px;
     margin-top: -36px;
     position: absolute;
-    background: url("assets/images/play.png") no-repeat;
+    background: url("//i.imgur.com/TxzC70f.png") no-repeat;
     cursor: pointer;
 }
 
