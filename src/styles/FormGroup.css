@@ -17,6 +17,7 @@
     > .formElement,
     > div {
       flex: 1 0 auto;
+      max-width: 100%;
     }
   }
 
