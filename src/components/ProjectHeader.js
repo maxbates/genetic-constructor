@@ -27,6 +27,7 @@ import {
   projectDelete,
   projectLoad,
   projectOpen,
+  projectSave,
 } from '../actions/projects';
 import {
   blockCreate,
@@ -40,6 +41,7 @@ import {
   uiShowMenu,
   uiSetGrunt,
   uiShowOkCancel,
+  uiShowGenBankImport,
 } from '../actions/ui';
 import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
@@ -69,8 +71,10 @@ class ProjectHeader extends Component {
     projectDelete: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
+    projectSave: PropTypes.func.isRequired,
     projectRename: PropTypes.func.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
+    uiShowGenBankImport: PropTypes.func.isRequired,
   };
 
   /**
@@ -171,6 +175,16 @@ class ProjectHeader extends Component {
   };
 
   /**
+   * start an upload
+   */
+  upload = () => {
+    this.props.projectSave(this.props.project.id)
+    .then(() => {
+      this.props.uiShowGenBankImport(true);
+    });
+  };
+
+  /**
    * the concatenation of all the inline toolbar actions and sub menus
    * @param anchorElement
    */
@@ -190,6 +204,11 @@ class ProjectHeader extends Component {
         action: () => {
           downloadProject(this.props.project.id, this.props.focus.options);
         },
+      },
+      {
+        text: 'Upload Genbank or CSV',
+        disabled: this.props.project.rules.frozen,
+        action: this.upload,
       },
       {
         text: 'Delete Project',
@@ -239,6 +258,11 @@ class ProjectHeader extends Component {
         clicked: () => {
           downloadProject(this.props.project.id, this.props.focus.options);
         },
+      }, {
+        text: 'Upload Genbank or CSV',
+        imageURL: '/images/ui/upload.svg',
+        enabled: !this.props.project.rules.frozen,
+        clicked: this.upload,
       }, {
         text: 'Delete Project',
         imageURL: '/images/ui/delete.svg',
@@ -319,6 +343,8 @@ export default connect(mapStateToProps, {
   projectOpen,
   projectDelete,
   projectLoad,
+  projectSave,
   projectRename,
   uiToggleDetailView,
+  uiShowGenBankImport,
 })(ProjectHeader);

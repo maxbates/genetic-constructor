@@ -12,7 +12,7 @@ module.exports = {
     .pause(3000)
     // start with 1 samples templates 'EGF Sample Templates'
     .assert.countelements('[data-testid^="egf_project"]', 1);
-    clickText(browser, 'By Kind', '.InventoryTabs a');
+    clickText(browser, 'By Block', '.InventoryTabs a');
     browser
       .pause(3000)
       .assert.countelements('.InventoryListGroup', 12, 'expected 12 kinds of blocks')

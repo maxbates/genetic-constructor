@@ -35,6 +35,7 @@ class InventoryProjectHeader extends Component {
     uiShowGenBankImport: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string.isRequired,
     dragInside: PropTypes.bool,
+    templates: PropTypes.bool.isRequired,
   };
 
   onAddNewProject = () => {
@@ -69,6 +70,9 @@ class InventoryProjectHeader extends Component {
   };
 
   render() {
+    if (this.props.templates) {
+      return null;
+    }
     return (
       <div className="InventoryProjectHeader">
         <div className={`imgWrapper ${this.props.dragInside ? 'highlight' : ''}`}>
