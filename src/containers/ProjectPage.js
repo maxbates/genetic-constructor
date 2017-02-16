@@ -47,13 +47,12 @@ export class ProjectPage extends Component {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object, //if have a project (not fetching)
     constructs: PropTypes.array, //if have a project (not fetching)
-    projectIsPublished: PropTypes.bool, //if have a project (not fetching)
+    projectIsPublished: PropTypes.bool, //if have a project (not fetching) //eslint-disable-line
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
     snapshotsList: PropTypes.func.isRequired,
-    commonsRetrieveProjectVersions: PropTypes.func.isRequired,
     autosave: PropTypes.shape({
       dirty: PropTypes.bool.isRequired,
     }),

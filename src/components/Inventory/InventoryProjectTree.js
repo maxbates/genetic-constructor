@@ -47,27 +47,33 @@ import { block as blockDragType } from '../../constants/DragTypes';
 import DnD from '../../containers/graphics/dnd/dnd';
 import * as instanceMap from '../../store/instanceMap';
 import { commit, transact } from '../../store/undo/actions';
-import '../../styles/InventoryProjectTree.css';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
 import BasePairCount from '../ui/BasePairCount';
 import downloadProject from '../../middleware/utils/downloadProject';
 
+import '../../styles/InventoryProjectTree.css';
+
 export class InventoryProjectTree extends Component {
   static propTypes = {
+    //props
     currentProjectId: PropTypes.string,
+    filter: PropTypes.string.isRequired,
+    templates: PropTypes.bool.isRequired,
+    //state
     projects: PropTypes.object.isRequired,
+    blocks: PropTypes.object.isRequired,
+    focus: PropTypes.object.isRequired,
+    //actions
     blockCreate: PropTypes.func.isRequired,
     blockGetParents: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
-    templates: PropTypes.bool.isRequired,
     projectCreate: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
-    focus: PropTypes.object.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
@@ -79,8 +85,6 @@ export class InventoryProjectTree extends Component {
     uiShowMenu: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowOkCancel: PropTypes.func.isRequired,
-    blocks: PropTypes.object.isRequired,
-    filter: PropTypes.string.isRequired,
   };
 
   /**
@@ -106,9 +110,13 @@ export class InventoryProjectTree extends Component {
     });
   }
 
-  state = {
-    isLoading: true,
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isLoading: _.filter(props.projects, project => !!props.templates === !!project.rules.frozen).length === 0,
+    };
+  }
 
   //will retrigger on each load
   componentDidMount() {
@@ -275,6 +283,8 @@ export class InventoryProjectTree extends Component {
   /**
    * build a nested set of tree items from the given components array
    * @param components
+   * @param depth
+   * @param maxDepth
    */
   getProjectBlocksRecursive(components, depth, maxDepth = Number.MAX_VALUE) {
     const items = [];
@@ -289,14 +299,14 @@ export class InventoryProjectTree extends Component {
             stateKey: block.id,
             text: block.getName(),
             textWidgets: [
-              hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }} /> : null,
+              hasSequence ? <BasePairCount count={block.sequence.length} style={{ color: 'gray' }} /> : null,
             ],
             onClick: this.onClickBlock.bind(this, block),
             items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
             startDrag: (globalPosition) => {
               InventoryProjectTree.onBlockDrag(block, globalPosition);
             },
-            locked: block.isFrozen(),
+            // locked: block.isFrozen(), //hide locks in the inventory
           });
         }
       });

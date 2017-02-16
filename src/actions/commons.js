@@ -38,7 +38,7 @@ export const commonsRetrieveProject = (projectId, version) =>
     });
 
 /**
- * Get published versions of a project
+ * Get all published snapshots of a project
  * @function
  * @param projectId
  * @return {Promise}
@@ -56,7 +56,7 @@ export const commonsRetrieveProjectVersions = projectId =>
   });
 
 /**
- * Query the commons
+ * Query the commons, fetching snapshots for latest version of each project matching query
  * @function
  * @param {Object} query in form { tags: {}, keywords: [] }
  * @returns Promise

@@ -77,6 +77,16 @@ export const projectList = () => (dispatch, getState) => listProjects()
         return projects;
       });
 
+export const projectStash = projectInput =>
+  (dispatch, getState) => {
+    const project = projectInput instanceof Project ? projectInput : new Project(projectInput);
+    dispatch({
+      type: ActionTypes.PROJECT_STASH,
+      project,
+    });
+    return project;
+  };
+
 /**
  * Save the project, e.g. for autosave.
  * @function
@@ -252,19 +262,7 @@ export const projectClone = projectId =>
  * @reject
  */
 const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) => loadProject(projectId)
-    .then((rollup) => {
-      const { project, blocks } = rollup;
-      const projectModel = new Project(project);
-      const blockMap = Object.keys(blocks)
-        .map(blockId => blocks[blockId])
-        .map(blockObject => new Block(blockObject))
-        .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
-
-      return new Rollup({
-        project: projectModel,
-        blocks: blockMap,
-      });
-    })
+    .then(rollup => Rollup.classify(rollup))
     .catch((resp) => {
       if ((resp === null || resp.status === 404) && loadMoreOnFail !== true && !Array.isArray(loadMoreOnFail)) {
         return Promise.reject(resp);
@@ -319,7 +317,7 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
 
     dispatch({
       type: ActionTypes.BLOCK_STASH,
-      blocks: Object.keys(rollup.blocks).map(blockId => rollup.blocks[blockId]),
+      blocks: values(rollup.blocks),
     });
 
     dispatch({

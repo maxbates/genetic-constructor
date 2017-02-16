@@ -17,11 +17,17 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { commonsQuery, commonsRetrieveProject, commonsRetrieveProjectVersions } from '../../actions/commons';
-import InventoryProjectTree from './InventoryProjectTree';
-import InventoryTabs from './InventoryTabs';
-
+import { block as blockDragType } from '../../constants/DragTypes';
 import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
+
+import { blockStash } from '../../actions/blocks';
+import { projectOpen, projectStash } from '../../actions/projects';
+import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
+import { uiShowMenu } from '../../actions/ui';
+import DnD from '../../containers/graphics/dnd/dnd';
+import InventoryProjectTree from './InventoryProjectTree';
+import Tree from '../ui/Tree';
+import InventoryTabs from './InventoryTabs';
 
 export class InventoryGroupCommons extends Component {
   static propTypes = {
@@ -30,10 +36,25 @@ export class InventoryGroupCommons extends Component {
       projects: PropTypes.object.isRequired,
       versions: PropTypes.object.isRequired,
     }).isRequired,
+    blockStash: PropTypes.func.isRequired,
+    projectOpen: PropTypes.func.isRequired,
+    projectStash: PropTypes.func.isRequired,
     commonsQuery: PropTypes.func.isRequired,
     commonsRetrieveProject: PropTypes.func.isRequired,
-    commonsRetrieveProjectVersions: PropTypes.func.isRequired,
+    uiShowMenu: PropTypes.func.isRequired,
   };
+
+  static onCommonsProjectDrag(snapshot, globalPoint) {
+    //todo
+  }
+
+  static onCommonsConstructDrag(block, globalPoint) {
+    DnD.startDrag(InventoryProjectTree.makeDnDProxy(block), globalPoint, {
+      item: block,
+      type: blockDragType,
+      source: 'inventory',
+    });
+  }
 
   constructor(props) {
     super(props);
@@ -57,8 +78,6 @@ export class InventoryGroupCommons extends Component {
 
   componentWillReceiveProps(nextProps, nextState) {
     if (this.props.commons !== nextProps.commons) {
-
-      //todo - update this
       this.setState({
         snapshots: _(nextProps.commons.versions)
         .groupBy('projectId')
@@ -73,37 +92,122 @@ export class InventoryGroupCommons extends Component {
     this.setState({ groupBy: key });
   };
 
-  /**
-   * project filter changed
-   * @param filter
-   */
-  handleFilterChange = (filter) => {
+  onExpandSnapshot = (snapshot) => {
+    this.props.commonsRetrieveProject(snapshot.projectId);
+  };
+
+  onSnapshotContextMenu = (snapshot, evt) => {
+    this.props.uiShowMenu([
+      {
+        text: 'Open Project',
+        action: this.onOpenCommonsProject.bind(this, snapshot),
+      },
+      {
+        text: 'Duplicate Project',
+        disabled: true, //todo - clone the whole project
+        action: () => {},
+      },
+    ], {
+      x: evt.pageX,
+      y: evt.pageY,
+    });
+  };
+
+  onOpenCommonsProject = (snapshot, evt) => {
+    const projectId = snapshot.projectId;
+    const roll = this.props.commons.projects[projectId];
+    const promise = roll ?
+      Promise.resolve(roll) :
+      this.props.commonsRetrieveProject(snapshot.projectId);
+
+    promise
+    .then((roll) => {
+      this.stashProject(roll);
+      this.props.projectOpen(projectId);
+    });
+  };
+
+  onFilterChange = (filter) => {
     this.setState({ filter });
   };
 
+  //only allow looking at constructs
+  getCommonsProjectBlocks = (projectId) => {
+    const roll = this.props.commons.projects[projectId];
+    if (!roll) {
+      // don't fetch here, fetch on expand only
+      return [];
+    }
+
+    return roll.project.components.map((componentId) => {
+      const block = roll.blocks[componentId];
+      return {
+        block,
+        text: block.getName(),
+        items: [], //only one level allowed
+        startDrag: globalPoint => {
+          this.stashProject(roll);
+          return InventoryGroupCommons.onCommonsConstructDrag(block, globalPoint);
+        },
+        stateKey: block.id,
+      };
+    });
+  };
+
+  //need to stash project + blocks, since the commons is stored separately from projects and blocks
+  //todo - perf = only store the blocks we need. Rollup should have method for getting this
+  stashProject(roll) {
+    this.props.projectStash(roll.project);
+    this.props.blockStash(..._.values(roll.blocks));
+    return roll;
+  }
+
   render() {
     const { currentProjectId } = this.props;
-    const { snapshots, filter, groupBy } = this.state;
+    const { snapshots, groupBy } = this.state;
 
-    console.log(snapshots);
+    let grouped;
+    if (groupBy === 'author') {
+      grouped = _.groupBy(snapshots, 'tags.author');
+    } else {
+      //todo - perf - this will be really slow with lots of projects
+      const allKeywords = _.union(_.flatMap(snapshots, _.property('keywords')));
+      grouped = _.reduce(
+        allKeywords,
+        (acc, key) => Object.assign(acc, { [key]: _.filter(snapshots, snap => _.includes(snap.keywords, key)) }),
+        {},
+      );
+    }
 
-    //todo - fetch all the published projects ---- where should they be stored?
-    //todo
-    const grouped = groupBy === 'author' ? null : null;
+    //todo - use grouped
 
-    const currentList = snapshots.map((snapshot) => (
-      <div key={snapshot.snapshotUUID}>
-        <div>{snapshot.snapshotUUID}</div>
-        <div>{snapshot.owner}</div>
-        <div>{snapshot.tags.author}</div>
-        <div>{snapshot.message}</div>
-      </div>
-    ));
+    const treeItems = snapshots.map(snapshot => ({
+      text: snapshot.tags.project || 'Project Name', //todo
+      bold: true,
+      selected: currentProjectId === snapshot.projectId,
+      onExpand: () => this.onExpandSnapshot(snapshot),
+      onContextMenu: evt => this.onSnapshotContextMenu(snapshot, evt),
+      // todo - what to do on project drag?
+      // startDrag: globalPoint => InventoryGroupCommons.onCommonsProjectDrag(snapshot, globalPoint),
+      items: this.getCommonsProjectBlocks(snapshot.projectId),
+      labelWidgets: [
+        <img
+          key="open"
+          role="presentation"
+          src="/images/ui/open.svg"
+          onClick={evt => this.onOpenCommonsProject(snapshot, evt)}
+          className="label-hover-bright"
+        />,
+      ],
+    }));
+
+    const currentList = <Tree items={treeItems} />;
 
     return (
       <div className="InventoryGroup-content InventoryGroupCommons">
         <div className="InventoryGroup-banner">
-          Share and reuse content. <a href={SHARING_IN_PUBLIC_INVENTORY} target="_blank" rel="noopener noreferrer">Learn more...</a>
+          Share and reuse content. <a href={SHARING_IN_PUBLIC_INVENTORY} target="_blank" rel="noopener noreferrer">Learn
+          more...</a>
         </div>
         <InventoryTabs
           tabs={this.inventoryTabs}
@@ -119,7 +223,10 @@ export class InventoryGroupCommons extends Component {
 }
 
 export default connect((state, props) => ({ commons: state.commons }), {
+  blockStash,
+  projectStash,
+  projectOpen,
   commonsQuery,
   commonsRetrieveProject,
-  commonsRetrieveProjectVersions,
+  uiShowMenu,
 })(InventoryGroupCommons);

@@ -18,6 +18,7 @@ import invariant from 'invariant';
 import _, { every, isEqual } from 'lodash';
 
 import Project from '../models/Project';
+import Block from '../models/Block';
 import RollupSchema, { currentDataModelVersion } from '../schemas/Rollup';
 
 //note - not immutable, this is just a helper, primarily on the server
@@ -143,6 +144,23 @@ export default class Rollup {
 
     roll.schema = currentDataModelVersion;
     return roll;
+  }
+
+  // input POJO rollup
+  // returns model instances for blocks, project, and roll
+  // will error if invalid
+  static classify(roll) {
+    const project = new Project(roll.project);
+    const blocks = _.reduce(
+      roll.blocks,
+      (acc, block) => Object.assign(acc, { [block.id]: new Block(block) }),
+      {},
+    );
+
+    return new Rollup({
+      project,
+      blocks,
+    });
   }
 
   getManifest() {

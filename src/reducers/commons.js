@@ -13,10 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { keyBy } from 'lodash';
+import { keyBy, map } from 'lodash';
 import invariant from 'invariant';
 
 import * as ActionTypes from '../constants/ActionTypes';
+
+import Rollup from '../models/Rollup';
 
 export const initialState = {
   projects: {}, //rollups, the latest version only
@@ -29,7 +31,7 @@ export default function commons(state = initialState, action) {
     case ActionTypes.COMMONS_QUERY:
       const { snapshots } = action;
       return {
-        versions: { ...state.versions, ...keyBy(snapshots, 'projectId') },
+        versions: { ...state.versions, ...keyBy(snapshots, 'snapshotUUID') },
         projects: state.projects,
       };
 
@@ -40,9 +42,9 @@ export default function commons(state = initialState, action) {
 
       if (projects) {
         invariant(Array.isArray(projects), 'projects must be array');
-        Object.assign(nextProjects, ...keyBy(projects, 'project.id'));
+        Object.assign(nextProjects, ...keyBy(map(projects, Rollup.classify), 'project.id'));
       } else {
-        Object.assign(nextProjects, { [project.project.id]: project });
+        Object.assign(nextProjects, { [project.project.id]: Rollup.classify(project) });
       }
 
       return {

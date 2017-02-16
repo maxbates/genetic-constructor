@@ -22,7 +22,8 @@ import Expando from './Expando';
 export default class Tree extends Component {
   static propTypes = {
     items: PropTypes.arrayOf(PropTypes.shape({
-      text: PropTypes.string,
+      text: PropTypes.string.isRequired,
+      items: PropTypes.array,
       textWidgets: PropTypes.arrayOf(PropTypes.node),
       labelWidgets: PropTypes.arrayOf(PropTypes.node),
       bold: PropTypes.bool,
@@ -53,11 +54,11 @@ export default class Tree extends Component {
    * when a branch is expanded
    * @param item
    */
-  onExpandBranch = (item) => {
+  static onExpandBranch(item) {
     if (item.onExpand) {
       item.onExpand(item);
     }
-  };
+  }
 
   render() {
     /* add to expando to make state persistent but project must be loaded for this to work
@@ -77,7 +78,7 @@ export default class Tree extends Component {
           >
             <Expando
               showArrowWhenEmpty={this.props.depth === 0}
-              onExpand={() => this.onExpandBranch(item)}
+              onExpand={() => Tree.onExpandBranch(item)}
               onClick={() => Tree.onClickBlock(item)}
               key={index}
               text={item.text}

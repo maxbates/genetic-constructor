@@ -28,15 +28,15 @@ export default class Label extends Component {
     styles: PropTypes.object,
     selected: PropTypes.bool,
     textWidgets: PropTypes.array,
-    widgets: PropTypes.array,
+    widgets: PropTypes.arrayOf(PropTypes.node),
     showLock: PropTypes.bool,
   };
 
-  onClick = (evt) => {
-    if (this.props.onClick) {
-      this.props.onClick(evt);
-    }
+  static defaultProps = {
+    onClick: () => {}
   };
+
+  onClick = (evt) => this.props.onClick(evt);
 
   render() {
     let labelClasses = 'label-base';

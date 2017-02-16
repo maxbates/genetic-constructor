@@ -212,7 +212,8 @@ export const blockCreate = (initialModel = {}) => (dispatch, getState) => {
  * @returns {...Block}
  */
 export const blockStash = (...inputBlocks) => (dispatch, getState) => {
-  const blocks = inputBlocks.map(blockObj => new Block(blockObj));
+  const safeClassify = (input) => (input instanceof Block) ? input : new Block(input);
+  const blocks = inputBlocks.map(safeClassify);
   dispatch({
     type: ActionTypes.BLOCK_STASH,
     blocks,
