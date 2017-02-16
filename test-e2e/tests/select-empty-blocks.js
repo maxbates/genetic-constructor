@@ -11,7 +11,7 @@ module.exports = {
     homepageRegister(browser);
     testProject(browser);
     openNthBlockContextMenu(browser, '.construct-viewer[data-index="0"] .sceneGraph', 5);
-    clickNthContextMenuItem(browser, 6);
+    clickNthContextMenuItem(browser, 7);
     browser
       .pause(1000)
       // ensure we have all 3 blocks elements selected

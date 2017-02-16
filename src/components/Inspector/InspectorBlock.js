@@ -320,16 +320,16 @@ export class InspectorBlock extends Component {
             paletteName={palette}
             onSelectColor={this.selectColor}
           />
-          {isConstruct && singleInstance && !hasParents ? null : <SBOLPicker
+          {singleInstance && hasParents ? <SBOLPicker
             setText={this.setColorSymbolText}
             current={this.currentRoleSymbol()}
             readOnly={readOnly || isFixed}
             onSelect={this.selectSymbol}
-          />}
+          /> : null}
         </div>
         <InspectorRow
           heading={`${type} Rules`}
-          condition={!isConstruct && singleInstance}
+          condition={!isConstruct && singleInstance && hasParents}
         >
           <TemplateRules
             block={instances[0]}

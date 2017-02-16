@@ -109,6 +109,18 @@ class ConstructPreview extends Component {
     this.setState({ index });
   };
 
+  /**
+   * this is because the layout object thinks we are construct viewer. At the very least we have to
+   * return an object with a .metadata property
+   */
+  getProject() { //eslint-disable-line class-methods-use-this
+    return {
+      metadata: {
+
+      },
+    };
+  }
+
   get dom() {
     return ReactDOM.findDOMNode(this);
   }

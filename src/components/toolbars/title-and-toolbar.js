@@ -73,7 +73,7 @@ class TitleAndToolbar extends Component {
       disabled: !!this.props.noHover,
     };
     return (
-      <div className="title-and-toolbar">
+      <div className="title-and-toolbar" onClick={this.props.itemActivated}>
         <div
           className="title"
           {...disabledProp}
