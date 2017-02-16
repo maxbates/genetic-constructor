@@ -46,7 +46,6 @@ import { orderCreate, orderList, orderSetName } from '../../../actions/orders';
 import {
   projectAddConstruct,
   projectRemoveConstruct,
-  projectSave,
 } from '../../../actions/projects';
 import {
   inspectorToggleVisibility,
@@ -55,7 +54,6 @@ import {
   uiSetGrunt,
   uiShowDNAImport,
   uiShowMenu,
-  uiShowGenBankImport,
   uiShowOrderForm,
   uiToggleDetailView,
   detailViewSelectExtension,
@@ -108,7 +106,6 @@ export class ConstructViewer extends Component {
     uiShowMenu: PropTypes.func,
     uiShowOrderForm: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
-    uiShowGenBankImport: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
     orderCreate: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
@@ -118,7 +115,6 @@ export class ConstructViewer extends Component {
     blockGetParents: PropTypes.func,
     projectGet: PropTypes.func,
     projectRemoveConstruct: PropTypes.func,
-    projectSave: PropTypes.func,
     projectAddConstruct: PropTypes.func,
     blocks: PropTypes.object,
     focus: PropTypes.object,
@@ -882,11 +878,6 @@ export class ConstructViewer extends Component {
         action: this.onOrderDNA,
       },
       {
-        text: 'Upload Genbank or CSV',
-        disabled: this.isSampleProject(),
-        action: this.upload,
-      },
-      {
         text: 'Download Construct',
         disabled: false,
         action: () => {
@@ -904,16 +895,6 @@ export class ConstructViewer extends Component {
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
       true);
   }
-
-  /**
-   * start an upload
-   */
-  upload = () => {
-    this.props.projectSave(this.props.currentProjectId)
-      .then(() => {
-        this.props.uiShowGenBankImport(true);
-      });
-  };
 
   /**
    * toolbar items / states and actions
@@ -942,12 +923,6 @@ export class ConstructViewer extends Component {
         imageURL: '/images/ui/order.svg',
         enabled: this.allowOrder(),
         clicked: this.onOrderDNA,
-      },
-      {
-        text: 'Upload Genbank or CSV',
-        imageURL: '/images/ui/upload.svg',
-        enabled: !this.isSampleProject(),
-        clicked: this.upload,
       },
       {
         text: 'Download Construct',
@@ -1042,14 +1017,12 @@ export default connect(mapStateToProps, {
   focusConstruct,
   projectGet,
   projectRemoveConstruct,
-  projectSave,
   projectAddConstruct,
   inspectorToggleVisibility,
   inspectorSelectTab,
   inventoryToggleVisibility,
   uiShowDNAImport,
   uiShowOrderForm,
-  uiShowGenBankImport,
   uiShowMenu,
   uiSetGrunt,
   uiInlineEditor,

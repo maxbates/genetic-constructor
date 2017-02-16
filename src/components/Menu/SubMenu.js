@@ -29,7 +29,7 @@ export default function SubMenu(props) {
       {props.menuItems.map((item, index) => {
         const boundAction = (evt) => {
           if (!item.disabled && item.action) {
-            item.action(evt);
+            item.action();
             props.close();
           }
         };
