@@ -30,7 +30,7 @@ export default class InventoryGroupProjects extends Component {
 
     this.inventoryTabs = [
       { key: 'project', name: 'By Project' },
-      { key: 'type', name: 'By Kind' },
+      { key: 'type', name: 'By Block' },
     ];
   }
 
