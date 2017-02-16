@@ -50,12 +50,6 @@ class PublishModal extends Component {
   constructor(props) {
     super(props);
 
-    this.actions = [{
-      text: 'Publish',
-      onClick: this.onSubmit,
-      disabled: () => !this.formValid(),
-    }];
-
     this.state = {
       versionNote: '',
       name: props.project.metadata.name,
@@ -88,7 +82,7 @@ class PublishModal extends Component {
       savePromise = projectSave(projectId)
       .then(version =>
         //return null when save was not necessary
-         Number.isInteger(version) ? version : project.version);
+        Number.isInteger(version) ? version : project.version);
     }
 
     savePromise
@@ -114,6 +108,12 @@ class PublishModal extends Component {
 
     //if we have a project version, dont allow changing the name etc. that actually update the project
     const hasProjectVersion = Number.isInteger(projectVersion);
+
+    const actions = [{
+      text: hasProjectVersion ? 'Update' : 'Publish',
+      onClick: this.onSubmit,
+      disabled: () => !this.formValid(),
+    }];
 
     return (
       <form
@@ -175,7 +175,8 @@ class PublishModal extends Component {
                   href="https://creativecommons.org/publicdomain/zero/1.0/"
                   target="_blank" rel="noopener noreferrer"
                 >Create Commons
-                  CCØ</a> license. <a href={SHARING_CREATIVE_COMMONS_CC0} target="_blank" rel="noopener noreferrer">Learn more...</a></p>
+                  CCØ</a> license. <a href={SHARING_CREATIVE_COMMONS_CC0} target="_blank" rel="noopener noreferrer">Learn
+                  more...</a></p>
               <br />
               <p><a href="mailto:geneticconstructor@autodesk.com">Contact us</a> if your project requires a more
                 restrictive license.</p>
@@ -183,7 +184,7 @@ class PublishModal extends Component {
           </FormGroup>
 
         </div>
-        <ModalFooter actions={this.actions} />
+        <ModalFooter actions={actions} />
       </form>
     );
   }
