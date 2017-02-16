@@ -131,6 +131,10 @@ describe('Middleware', () => {
       assert(_.every(testKeywords, word => map[word] >= 1), 'keywords should be present');
     });
 
+    it('snapshotQuery() can search by keywords', () => { throw Error('todo'); });
+
+    it('snapshotQuery() can search by tags', () => { throw Error('todo'); });
+
     it('snapshotUpdateVersion() updates info about an existing version', async () => {
       let roll = createExampleRollup();
       const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
@@ -189,6 +193,8 @@ describe('Middleware', () => {
           assert(resp.status === 403, 'should get a 403');
         }
       });
+
+      it('snapshotQuery() limits to a user', () => { throw Error('todo'); });
     });
   });
 });

@@ -54,9 +54,10 @@ export const commonsUnpublish = (projectId, version) => {
   .then(resp => resp.json());
 };
 
-//default, no tags, just list all the public stuff
-export const commonsQuery = (tags = {}) => {
-  const stringified = JSON.stringify(tags);
+// query in the form { tags: {}, keywords: [] }
+// default, list everything public
+export const commonsQuery = (query = {}) => {
+  const stringified = JSON.stringify(query);
 
   return rejectingFetch(commonsApiPath('query'), headersPost(stringified))
   .then(resp => resp.json());

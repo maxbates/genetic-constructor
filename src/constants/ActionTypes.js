@@ -137,3 +137,7 @@ export const ORDER_STASH = 'ORDER_STASH';
 export const ORDER_SUBMIT = 'ORDER_SUBMIT';
 export const ORDER_SET_NAME = 'ORDER_SET_NAME';
 export const ORDER_DETACH = 'ORDER_DETACH';
+
+export const SNAPSHOT_QUERY = 'SNAPSHOT_QUERY';
+export const COMMONS_RETRIEVE = 'COMMONS_RETRIEVE';
+export const COMMONS_QUERY = 'COMMONS_QUERY';

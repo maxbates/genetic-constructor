@@ -53,9 +53,10 @@ const defaultSnapshotBody = {
  * Query snapshots, returning a list of snapshots
  * @param {Object} query Required to have at least one tag or one keyword, in form: { tags: {}, keywords: [] }
  * @param [projectId] Can limit to a project
+ * @param [userId] Can limit to a user
  * @throws if tags is empty
  */
-export const snapshotQuery = (query = {}, projectId) => {
+export const snapshotQuery = (query = {}, projectId = null, userId = null) => {
   logger(`[snapshotQuery] ${JSON.stringify(query)}`);
   invariant(typeof query === 'object', 'must pass object');
 
@@ -66,12 +67,12 @@ export const snapshotQuery = (query = {}, projectId) => {
 
   //if have keywords, use keywords endpoint (tags endpoint does not support keywords)
   if (haveKeywords) {
-    return dbPost(`snapshots/keywords${projectId ? `?project=${projectId}` : ''}`, null, null, {}, query)
+    return dbPost(`snapshots/keywords${projectId ? `?project=${projectId}` : ''}`, userId, null, {}, query)
     .then(results => results.map(transformDbVersion));
   }
 
   //if just tags, use the tags endpoint, and only pass the tags
-  return dbPost(`snapshots/tags${projectId ? `?project=${projectId}` : ''}`, null, null, {}, query.tags)
+  return dbPost(`snapshots/tags${projectId ? `?project=${projectId}` : ''}`, userId, null, {}, query.tags)
   .then(results => results.map(transformDbVersion));
 };
 

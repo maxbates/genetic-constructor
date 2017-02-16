@@ -18,6 +18,8 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import _ from 'lodash';
 
+import { snapshotIsPublished } from '../../../server/data/util/commons';
+
 import { snapshotList } from '../../middleware/snapshots';
 import Spinner from './../ui/Spinner';
 import Expando from './../ui/Expando';
@@ -56,6 +58,7 @@ export class InspectorHistory extends Component {
   };
 
   componentDidMount() {
+    setSnapshots(this.props.snapshots)
     this.setVersionsAndSnapshots(this.props.projectId);
   }
 
@@ -65,6 +68,16 @@ export class InspectorHistory extends Component {
     }
   }
 
+  setSnapshots(snapshots, projectId) {
+    this.setState({
+      loading: false,
+      snapshots: _(snapshots)
+      .filter({ projectId })
+      .orderBy(['time'], ['desc'])
+      .value(),
+    });
+  }
+
   setVersionsAndSnapshots(projectId) {
     //todo - support all versions
     //todo - collapse versions by day
@@ -72,9 +85,7 @@ export class InspectorHistory extends Component {
 
     snapshotList(projectId)
     .then((snapshots) => {
-      this.setState({
-        snapshots: _.orderBy(snapshots, ['time'], ['desc']),
-        loading: false });
+
     })
     .catch((err) => {
       //todo - handle error ?
@@ -82,13 +93,10 @@ export class InspectorHistory extends Component {
   }
 
   render() {
-    //todo - handle no shapshots
-    //todo - show glyph
     //todo - enable context menu
-
     //todo - should be able to inline edit the snapshot message
 
-    if (this.state.loading) {
+    if (this.state.loading && !this.state.snapshots.length) {
       return <Spinner />;
     }
 
@@ -103,7 +111,7 @@ export class InspectorHistory extends Component {
           const name = InspectorHistory.nameSnapshot(snapshot);
           const items = [{ key: 'Version Note', value: snapshot.message }];
           const content = <InspectorDetailSection items={items} />;
-          const widgets = InspectorHistory.snapshotIsPublished(snapshot) ?
+          const widgets = snapshotIsPublished(snapshot) ?
             [(<img src="/images/ui/commonsVersion.svg" role="presentation" key={snapshot.snapshotUUID} />)] :
             [];
 
@@ -123,4 +131,6 @@ export class InspectorHistory extends Component {
   }
 }
 
-export default connect(null, {})(InspectorHistory);
+export default connect((state, props) => ({ snapshots: state.snapshots }), {
+
+})(InspectorHistory);

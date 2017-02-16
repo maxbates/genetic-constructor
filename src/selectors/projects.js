@@ -20,7 +20,6 @@
 import invariant from 'invariant';
 
 import * as projectFilesApi from '../middleware/projectFiles';
-import * as commons from '../middleware/commons';
 import Rollup from '../models/Rollup';
 import * as blockSelectors from './blocks';
 
@@ -47,7 +46,6 @@ export const projectGet = projectId => (dispatch, getState) => _getProjectFromSt
 /**
  * Get current project ID, from the URL
  * @function
- * @param {UUID} projectId
  * @returns {UUID} current project ID
  */
 export const projectGetCurrentId = () => (dispatch, getState) => _getCurrentProjectId();
@@ -195,13 +193,3 @@ export const projectFileList = (projectId, namespace) =>
   (dispatch, getState) =>
   projectFilesApi.projectFileList(projectId, namespace);
 
-/**
- * Retrieve the published snapshots of the project, or of a specific version
- * @function
- * @param projectId
- * @param [version]
- * @returns {Array<snapshots>|snapshot|null} Array of snapshots if no verison, or specific snapshot if version passed
- */
-export const projectCommonsRetrieve = (projectId, version) =>
-  (dispatch, getState) =>
-  commons.commonsRetrieve(projectId, version);

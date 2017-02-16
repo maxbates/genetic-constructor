@@ -146,17 +146,16 @@ export const projectSnapshot = (projectId, version = null, body = {}) =>
     invariant(Number.isInteger(version), 'must pass version');
 
     return snapshot(projectId, version, body)
-    .then((commitInfo) => {
-      if (!commitInfo) {
+    .then((snapshot) => {
+      if (!snapshot) {
         return null;
       }
 
-      //todo - there is no reason to capture this in the store if save first
-
-      const { version } = commitInfo;
+      const { version } = snapshot;
       dispatch({
         type: ActionTypes.PROJECT_SNAPSHOT,
         projectId,
+        snapshot,
         version,
       });
       return version;
@@ -178,17 +177,16 @@ export const projectPublish = (projectId, version, body = {}) => (dispatch, getS
   invariant(Number.isInteger(version), 'must pass version');
 
   return commonsPublishVersion(projectId, version, body)
-  .then((commitInfo) => {
-    if (!commitInfo) {
+  .then((snapshot) => {
+    if (!snapshot) {
       return null;
     }
 
-    //todo - there is no reason to capture this in the store if save first
-
-    const { version } = commitInfo;
+    const { version } = snapshot;
     dispatch({
       type: ActionTypes.PROJECT_PUBLISH,
       projectId,
+      snapshot,
       version,
     });
     return version;

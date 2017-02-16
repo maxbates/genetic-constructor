@@ -18,6 +18,7 @@ import debug from 'debug';
 import invariant from 'invariant';
 import _ from 'lodash';
 
+import { SNAPSHOT_TYPE_PUBLISH, COMMONS_TAG, snapshotIsPublished, commonsDefaultMessage } from '../util/commons';
 import * as projectPersistence from './projects';
 import * as projectVersions from './projectVersions';
 import * as snapshots from './snapshots';
@@ -25,14 +26,8 @@ import { errorNotPublished, errorDoesNotExist } from '../../errors/errorConstant
 
 const logger = debug('constructor:data:persistence:commons');
 
-export const SNAPSHOT_TYPE_PUBLISH = 'SNAPSHOT_PUBLISH';
-export const COMMONS_TAG = 'COMMONS_TAG';
-
-export const defaultMessage = 'Published Project';
-const snapshotBodyScaffold = { tags: {}, keywords: [] };
-const defaultSnapshotBody = Object.assign({ message: defaultMessage }, snapshotBodyScaffold);
-
-const snapshotIsPublished = snapshot => snapshot.tags[COMMONS_TAG];
+export const snapshotBodyScaffold = { tags: {}, keywords: [] };
+export const defaultSnapshotBody = Object.assign({ message: commonsDefaultMessage }, snapshotBodyScaffold);
 
 //NB - mutates the json directly
 //maybe makes sense to put this in the Rollup class itself? Esp. If client needs it.
@@ -181,7 +176,7 @@ export const commonsPublishVersion = (projectId, userId, version, body) => {
       return Promise.reject(err);
     }
 
-    snapshotBody.message = (body && body.message && body.message.length > 0) ? body.message : defaultMessage;
+    snapshotBody.message = (body && body.message && body.message.length > 0) ? body.message : commonsDefaultMessage;
 
     return snapshots.snapshotWrite(projectId, userId, version, snapshotBody, SNAPSHOT_TYPE_PUBLISH);
   });
@@ -213,7 +208,7 @@ export const commonsPublish = (projectId, userId, roll, body) => {
   .then((writtenRoll) => {
     //add publishing tag + default message if didn't give us one
     snapshotBody.tags[COMMONS_TAG] = true;
-    snapshotBody.message = body.message || defaultMessage;
+    snapshotBody.message = body.message || commonsDefaultMessage;
 
     return snapshots.snapshotWrite(projectId, userId, writtenRoll.version, snapshotBody, SNAPSHOT_TYPE_PUBLISH);
   });

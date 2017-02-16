@@ -16,7 +16,9 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
+import { snapshotIsPublished } from '../../server/data/util/commons';
 import {
   focusPrioritize,
   focusConstruct,
@@ -194,7 +196,7 @@ class ProjectHeader extends Component {
       },
       {
         text: 'Unpublish Project',
-        disabled: true, //need to get the snapshots and store in the store, they are not just used i nthe version history inspector
+        disabled: !this.props.isPublished,
         action: this.onUnpublishProject,
       },
       {
@@ -309,6 +311,8 @@ class ProjectHeader extends Component {
 
 function mapStateToProps(state, props) {
   return {
+    //todo - memoize
+    isPublished: _.some(state.snapshots, snapshotIsPublished),
     focus: state.focus,
     isFocused: state.focus.level === 'project' && !state.focus.forceProject,
     inventoryVisible: state.ui.inventory.isVisible,

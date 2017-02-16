@@ -14,19 +14,22 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
+
+import { snapshotCommonsList } from '../../actions/snapshots';
 import InventoryProjectTree from './InventoryProjectTree';
-import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
 
 import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 
-export default class InventoryGroupCommons extends Component {
+export class InventoryGroupCommons extends Component {
   static propTypes = {
-    currentProjectId: PropTypes.string,
+    currentProjectId: PropTypes.string.isRequired,
+    snapshots: PropTypes.object.isRequired,
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.inventoryTabs = [
       { key: 'author', name: 'By Author' },
@@ -56,7 +59,7 @@ export default class InventoryGroupCommons extends Component {
   };
 
   render() {
-    const { templates, currentProjectId } = this.props;
+    const { snapshots, currentProjectId } = this.props;
     const { filter, groupBy } = this.state;
 
     //todo - fetch all the published projects ---- where should they be stored?
@@ -77,3 +80,7 @@ export default class InventoryGroupCommons extends Component {
     );
   }
 }
+
+export default connect((state, props) => ({ snapshots: state.snapshots }), {
+
+})(InventoryGroupCommons);

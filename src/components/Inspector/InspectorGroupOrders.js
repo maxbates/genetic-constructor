@@ -41,11 +41,7 @@ class InspectorGroupOrders extends Component {
     loaded: false,
   };
 
-  /**
-   * get all projects and reduce to an array of promises for the orders
-   */
   componentDidMount() {
-    //in case already loaded
     this.setOrders(this.props.orders, this.props.projectId);
 
     //might have already fetched them, but lets double check fetch again
@@ -74,22 +70,24 @@ class InspectorGroupOrders extends Component {
   }
 
   render() {
-    if (!this.state.loaded && !this.state.orders.length) {
+    const { loaded, orders } = this.state;
+
+    if (!loaded && !orders.length) {
       return <Spinner />;
     }
 
-    const content = !this.state.orders.length
+    const content = !orders.length
       ?
       (<div className="InspectorContentPlaceholder">No orders found</div>)
       :
-      this.state.orders.map((order, index) => {
+      orders.map((order, index) => {
         const items = [
           {
             key: 'Project',
             value: this.props.project.metadata.name || 'Unnamed Project',
           }, {
             key: 'Order Created',
-            value: moment(order.metadata.created).format('llll'),
+            value: moment(order.metadata.created).format('D MMM YYYY H:mm:s'),
           },
           {
             key: 'Foundry',
@@ -101,7 +99,7 @@ class InspectorGroupOrders extends Component {
           },
           {
             key: 'Time Sent',
-            value: moment(order.status.timeSent).format('llll'),
+            value: moment(order.status.timeSent).format('D MMM YYYY H:mm:s'),
           }, {
             key: 'Order Details',
             value: (
@@ -121,8 +119,9 @@ class InspectorGroupOrders extends Component {
 
         return (
           <Expando
-            key={index}
+            key={order.id}
             text={order.metadata.name}
+            secondary={moment(order.status.timeSent).format('D MMM YYYY H:mm:s')}
           >
             {orderContent}
           </Expando>
