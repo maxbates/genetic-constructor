@@ -23,6 +23,7 @@ import { autosaveInstanceDefaultOptions } from '../store/autosaveOptions';
 import { undoReducerEnhancerCreator } from '../store/undo/reducerEnhancer';
 import blocks from './blocks';
 import clipboard from './clipboard';
+import commons from './commons';
 import focus from './focus';
 import inspector from './inspector';
 import inventory from './inventory';
@@ -61,17 +62,22 @@ export const createRootReducer = () => {
     router,
     autosave: autosaveReducer,
 
+    // autosave + undo
     blocks: autosaveReducerEnhancer(undoReducerEnhancer(blocks, 'blocks')),
     projects: autosaveReducerEnhancer(undoReducerEnhancer(projects, 'projects')),
 
+    //not autosaved or undoable
+    commons,
+    orders,
+    snapshots,
+    user,
+
+    // app state
     clipboard,
     focus,
     inventory,
     inspector,
-    orders,
-    snapshots,
     ui,
-    user,
   }));
 };
 

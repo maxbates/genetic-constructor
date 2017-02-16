@@ -27,6 +27,7 @@ import InspectorGroupSettings from './InspectorGroupSettings';
 export default class InspectorGroup extends Component {
   static propTypes = {
     tabInfo: PropTypes.object.isRequired,
+    projectIsPublished: PropTypes.bool.isRequired,
     project: PropTypes.object,
     construct: PropTypes.object,
   };
@@ -34,7 +35,10 @@ export default class InspectorGroup extends Component {
   inspectorGroupTypeToComponent = (type) => {
     switch (type) {
       case 'information' :
-        return (<InspectorGroupInformation project={this.props.project} construct={this.props.construct} />);
+        return (<InspectorGroupInformation
+          project={this.props.project}
+          construct={this.props.construct}
+        />);
       case 'help' :
         return (<InspectorGroupHelp />);
       case 'feedback' :
@@ -44,9 +48,16 @@ export default class InspectorGroup extends Component {
       case 'settings' :
         return (<InspectorGroupSettings />);
       case 'orders' :
-        return (<InspectorGroupOrders projectId={this.props.project.id} />);
+        return (<InspectorGroupOrders
+          projectIsPublished={this.props.projectIsPublished}
+          projectId={this.props.project.id}
+        />);
       case 'history' :
-        return (<InspectorGroupHistory projectId={this.props.project.id} projectVersion={this.props.project.version} />);
+        return (
+          <InspectorGroupHistory
+            projectIsPublished={this.props.projectIsPublished}
+            projectId={this.props.project.id}
+          />);
       default:
         //don't throw in production, let it just render empty
         if (process.env.NODE_ENV !== 'production') {

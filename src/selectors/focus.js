@@ -66,6 +66,10 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
     readOnly = forceBlocks.length > 0 || focused.some(instance => instance.isFrozen());
   }
 
+  //force read-only if project not owned by user
+  const projectIsPublished = project.owner !== state.user.userid;
+  readOnly = readOnly || projectIsPublished;
+
   return {
     type,
     readOnly,
@@ -146,7 +150,7 @@ export const focusGetBlockRange = () => (dispatch, getState) => {
     return [];
   }
 
-    //dispatch just in case other construct is in focus for some reason... also assumes that all focused blocks are within the same construct
+  //dispatch just in case other construct is in focus for some reason... also assumes that all focused blocks are within the same construct
   const focusedIds = focusedBlocks.map(block => block.id);
   return dispatch(BlockSelector.blockGetRange(...focusedIds));
 };

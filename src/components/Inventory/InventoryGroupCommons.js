@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { snapshotsCommonsQuery, snapshotsCommonsRetrieve } from '../../actions/snapshots';
+import { commonsQuery, commonsRetrieve } from '../../actions/commons';
 import InventoryProjectTree from './InventoryProjectTree';
 import InventoryTabs from './InventoryTabs';
 
@@ -26,9 +26,11 @@ import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 export class InventoryGroupCommons extends Component {
   static propTypes = {
     currentProjectId: PropTypes.string.isRequired,
-    snapshots: PropTypes.object.isRequired,
-    snapshotsCommonsQuery: PropTypes.func.isRequired,
-    snapshotsCommonsRetrieve: PropTypes.func.isRequired,
+    commons: PropTypes.shape({
+      projects: PropTypes.object.isRequired,
+    }).isRequired,
+    commonsQuery: PropTypes.func.isRequired,
+    commonsRetrieve: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -47,11 +49,14 @@ export class InventoryGroupCommons extends Component {
   };
 
   componentDidMount() {
-    this.props.snapshotsCommonsQuery();
+    //initial query, just get everything for now
+    this.props.commonsQuery();
   }
 
   componentWillReceiveProps(nextProps, nextState) {
-    if (this.props.snapshots !== nextProps.snapshots) {
+    if (this.props.commons !== nextProps.commons) {
+
+      //todo - update this
       this.setState({
         snapshots: _(nextProps.snapshots)
         .groupBy('projectId')
@@ -111,7 +116,7 @@ export class InventoryGroupCommons extends Component {
   }
 }
 
-export default connect((state, props) => ({ snapshots: state.snapshots }), {
-  snapshotsCommonsQuery,
-  snapshotsCommonsRetrieve,
+export default connect((state, props) => ({ commons: state.commons }), {
+  commonsQuery,
+  commonsRetrieve,
 })(InventoryGroupCommons);

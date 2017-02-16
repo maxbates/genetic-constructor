@@ -19,6 +19,8 @@ import { connect } from 'react-redux';
 import { inspectorSelectTab } from '../../actions/ui';
 import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '../../constants/links';
 
+//todo - all links should go in  ^ links file
+
 import '../../styles/InspectorGroupHelp.css';
 
 class InspectorGroupHelp extends Component {

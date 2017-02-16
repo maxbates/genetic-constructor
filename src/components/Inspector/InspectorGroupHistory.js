@@ -21,6 +21,7 @@ import _ from 'lodash';
 import { nameSnapshot, snapshotIsPublished } from '../../../server/data/util/commons';
 
 import { snapshotsList } from '../../actions/snapshots';
+import { commonsRetrieveProjectVersions } from '../../actions/commons';
 import Spinner from './../ui/Spinner';
 import Expando from './../ui/Expando';
 import InspectorDetailSection from './InspectorDetailSection';
@@ -28,9 +29,11 @@ import InspectorDetailSection from './InspectorDetailSection';
 export class InspectorHistory extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
-    projectVersion: PropTypes.number.isRequired,
+    projectIsPublished: PropTypes.bool.isRequired,
     snapshots: PropTypes.object.isRequired,
     snapshotsList: PropTypes.func.isRequired,
+    commonsVersions: PropTypes.object.isRequired,
+    commonsRetrieveProjectVersions: PropTypes.func.isRequired,
   };
 
   state = {
@@ -40,27 +43,29 @@ export class InspectorHistory extends Component {
   };
 
   componentDidMount() {
-    this.setSnapshots(this.props.snapshots, this.props.projectId);
+    this.setSnapshots(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
-    const newProject = this.props.projectId !== nextProps.projectId;
-
-    if (newProject) {
-      this.setState({
-        loading: true,
-      });
-    }
-
-    if (newProject || this.props.projectVersion !== nextProps.projectVersion || this.props.snapshots !== nextProps.snapshots) {
-      this.setSnapshots(nextProps.snapshots, nextProps.projectId);
+    //update snapshots shown if:
+    // 1) new project
+    // 2) published and commons versions change
+    // 3) not published and snapshots change
+    if (this.props.projectId !== nextProps.projectId) {
+      this.setSnapshots(nextProps);
+    } else if (nextProps.projectIsPublished && this.props.commonsVersions !== nextProps.commonsVersions) {
+      this.setSnapshots(nextProps);
+    } else if (!nextProps.projectIsPublished && this.props.snapshots !== nextProps.snapshots) {
+      this.setSnapshots(nextProps);
     }
   }
 
-  setSnapshots(snapshots, projectId) {
+  setSnapshots(props) {
+    const { projectId, projectIsPublished, snapshots, commonsVersions } = props;
+    const toUse = projectIsPublished ? commonsVersions : snapshots;
     this.setState({
       loading: false,
-      snapshots: _(snapshots)
+      snapshots: _(toUse)
       .filter({ projectId })
       .orderBy(['time'], ['desc'])
       .value(),
@@ -68,24 +73,22 @@ export class InspectorHistory extends Component {
   }
 
   /*
-  //todo - support all versions
-  //todo - merge snapshots + versions (and handle when only have snapshots (e.g. public)
-  setVersionsAndSnapshots(projectId) {}
-  */
+   //todo - support all versions
+   //todo - merge snapshots + versions (and handle when only have snapshots (e.g. public)
+   setVersionsAndSnapshots(projectId) {}
+   */
 
-  //snapshots are fetched by ProjectPage when it loads a new project
+  // snapshots are fetched by ProjectPage when it loads a new project
   // only need this when we want to show for another project
-  fetchSnapshots(projectId) {
-    //will setSnapshots when props change, if there was a change
-    this.props.snapshotsList(projectId)
-    .then(() => this.setState({
-      loading: false,
-    }))
-    .catch(err => {
-      //if they don't own the project, will error. handle accordingly
-      console.log(err);
-      throw err;
-    });
+  // calling action will trigger re-render on update
+  fetchSnapshots() {
+    const { projectId, projectIsPublished, snapshotsList, commonsRetrieveProjectVersions } = this.props;
+
+    if (projectIsPublished) {
+      commonsRetrieveProjectVersions(projectId);
+    } else {
+      snapshotsList(projectId);
+    }
   }
 
   render() {
@@ -127,6 +130,10 @@ export class InspectorHistory extends Component {
   }
 }
 
-export default connect((state, props) => ({ snapshots: state.snapshots }), {
+export default connect((state, props) => ({
+  snapshots: state.snapshots,
+  commonsVersions: state.commons.versions,
+}), {
   snapshotsList,
+  commonsRetrieveProjectVersions,
 })(InspectorHistory);

@@ -1,26 +1,25 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { focusConstruct } from '../actions/focus';
 import { orderList } from '../actions/orders';
-import { projectCreate, projectList, projectLoad, projectOpen } from '../actions/projects';
+import { projectLoad, projectOpen } from '../actions/projects';
 import { snapshotsList } from '../actions/snapshots';
-import { uiSetGrunt } from '../actions/ui';
 
 import ProjectDetail from '../components/ProjectDetail';
 import ProjectHeader from '../components/ProjectHeader';
@@ -48,15 +47,13 @@ export class ProjectPage extends Component {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object, //if have a project (not fetching)
     constructs: PropTypes.array, //if have a project (not fetching)
-    //orders: PropTypes.array, //if have a project (not fetching)
-    //projectCreate: PropTypes.func.isRequired,
-    //projectList: PropTypes.func.isRequired,
+    projectIsPublished: PropTypes.bool, //if have a project (not fetching)
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
-    //uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
     snapshotsList: PropTypes.func.isRequired,
+    commonsRetrieveProjectVersions: PropTypes.func.isRequired,
     autosave: PropTypes.shape({
       dirty: PropTypes.bool.isRequired,
     }),
@@ -80,14 +77,18 @@ export class ProjectPage extends Component {
         this.props.focusConstruct(nextProps.project.components[0]);
       }
 
-      //get all the projects orders + snapshots lazily, will re-render when have them
-      //run in project page so only request them when we actually load the project
-      this.props.orderList(nextProps.projectId);
-      this.props.snapshotsList(nextProps.projectId);
+      // if user owns the project...
+      // get all the projects orders + snapshots lazily, will re-render when have them
+      // run in project page so only request them when we actually load the project
+      if (!nextProps.projectIsPublished) {
+        this.props.orderList(nextProps.projectId);
+        this.props.snapshotsList(nextProps.projectId);
+      }
     }
 
+    //if the user has changed... we reload the page, but just in case...
     //reload extensions if user changed
-    //could be smarter about this... but probably not an issue since log the user out and refrresh the page
+    //really, this should go in the store
     if (this.props.userId !== nextProps.userId && nextProps.userId) {
       loadAllExtensions();
     }
@@ -109,11 +110,11 @@ export class ProjectPage extends Component {
     //handle project not loaded at all
     if (!project || !project.metadata) {
       this.props.projectLoad(projectId, false, true)
-        .then((project) => {
-          if (project.id !== projectId) {
-            this.props.projectOpen(project.id);
-          }
-        });
+      .then((project) => {
+        if (project.id !== projectId) {
+          this.props.projectOpen(project.id);
+        }
+      });
       return (<Spinner styles={{ fontSize: '40px', margin: '2em auto' }} />);
     }
 
@@ -168,15 +169,18 @@ function mapStateToProps(state, ownProps) {
     };
   }
 
+  const projectIsPublished = project.owner !== userId;
+
   const constructs = project.components.map(componentId => state.blocks[componentId]);
   const orders = Object.keys(state.orders)
-    .map(orderId => state.orders[orderId])
-    .filter(order => order.projectId === projectId && order.isSubmitted())
-    .sort((one, two) => one.status.timeSent - two.status.timeSent);
+  .map(orderId => state.orders[orderId])
+  .filter(order => order.projectId === projectId && order.isSubmitted())
+  .sort((one, two) => one.status.timeSent - two.status.timeSent);
 
   return {
     projectId,
     project,
+    projectIsPublished,
     constructs,
     orders,
     userId,
@@ -185,11 +189,8 @@ function mapStateToProps(state, ownProps) {
 }
 
 export default connect(mapStateToProps, {
-  projectList,
   projectLoad,
-  projectCreate,
   projectOpen,
-  uiSetGrunt,
   focusConstruct,
   orderList,
   snapshotsList,

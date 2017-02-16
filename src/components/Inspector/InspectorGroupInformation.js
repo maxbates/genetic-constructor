@@ -43,7 +43,6 @@ function InspectorGroupInformation(props) {
       inspect = (<InspectorBlock
         instances={focused}
         overrides={overrides}
-        orders={orders}
         readOnly={readOnly}
         project={project}
         construct={construct}

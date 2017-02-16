@@ -31,6 +31,7 @@ class InspectorGroupOrders extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object.isRequired,
+    projectIsPublished: PropTypes.bool.isRequired,
     orders: PropTypes.object.isRequired,
     orderList: PropTypes.func.isRequired,
     uiShowOrderForm: PropTypes.func.isRequired,
@@ -76,11 +77,13 @@ class InspectorGroupOrders extends Component {
       return <Spinner />;
     }
 
-    const content = !orders.length
-      ?
-      (<div className="InspectorContentPlaceholder">No orders found</div>)
-      :
-      orders.map((order, index) => {
+    //default, no orders
+    let content = (<div className="InspectorContentPlaceholder">No orders found</div>);
+
+    if (this.props.projectIsPublished) {
+      content = (<div className="InspectorContentPlaceholder">Cannot view orders of a published project</div>);
+    } else if (orders.length) {
+      content = orders.map((order, index) => {
         const items = [
           {
             key: 'Project',
@@ -127,6 +130,7 @@ class InspectorGroupOrders extends Component {
           </Expando>
         );
       });
+    }
 
     return (
       <div className="InspectorGroupOrders">
