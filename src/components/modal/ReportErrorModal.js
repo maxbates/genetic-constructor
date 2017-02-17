@@ -17,6 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import '../../../src/styles/ReportErrorModal.css';
+import { projectGetCurrentId, projectGetVersion } from '../../selectors/projects';
 import { uiReportError } from '../../actions/ui';
 import { userGetUser } from '../../selectors/user';
 import { reportError } from '../../middleware/reporting';
@@ -35,6 +36,8 @@ class SaveErrorModal extends Component {
     open: PropTypes.bool.isRequired,
     userGetUser: PropTypes.func.isRequired,
     uiReportError: PropTypes.func.isRequired,
+    projectGetCurrentId: PropTypes.func.isRequired,
+    projectGetVersion: PropTypes.func.isRequired,
   };
 
   state = Object.assign({}, initialState);
@@ -47,6 +50,8 @@ class SaveErrorModal extends Component {
   submitForm = () => {
     const url = window.location.href;
     const user = this.props.userGetUser();
+    const projectId = this.props.projectGetCurrentId();
+    const projectVersion = this.props.projectGetVersion(projectId);
     const userId = user ? user.userid : null;
     const { title, description } = this.state;
 
@@ -54,7 +59,7 @@ class SaveErrorModal extends Component {
       submitted: true,
     });
 
-    return reportError(title, description, url, userId)
+    return reportError(title, description, url, { userId, projectId, projectVersion })
       .then((json) => {
         this.setState({
           createdUrl: json.html_url,
@@ -145,4 +150,6 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps, {
   uiReportError,
   userGetUser,
+  projectGetCurrentId,
+  projectGetVersion,
 })(SaveErrorModal);

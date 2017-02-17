@@ -2,6 +2,7 @@ var homepageRegister = require('../fixtures/homepage-register');
 var signout = require('../fixtures/signout');
 var signin = require('../fixtures/signin');
 var size = require('../fixtures/size');
+var clickNthContextMenuItem = require('../fixtures/click-popmenu-nth-item');
 
 module.exports = {
   'Test account updating.' : function (browser) {
@@ -10,9 +11,10 @@ module.exports = {
     homepageRegister(browser, (browser, credentials) => {
       browser
       // click user widget to access account dialog
-      .click('div.signed-in')
-      .pause(1000)
-      .click('.menu-popup-blocker-visible .menu-item:nth-of-type(3)')
+      .click('.userwidget')
+      .pause(1000);
+     clickNthContextMenuItem(browser, 2);
+     browser
       .waitForElementPresent('#account-form', 5000, 'expected account form');
       // change password, email and names
       var newCredentials = {

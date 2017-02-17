@@ -15,7 +15,6 @@ limitations under the License.
 */
 import Schema from './SchemaClass';
 import fields from './fields/index';
-import * as validators from './fields/validators';
 
 /**
  * Metadata is a subfield of Instances
@@ -32,10 +31,6 @@ const fieldDefs = {
     fields.string({ max: 2048 }),
     'Description of instance',
   ],
-  authors: [
-    fields.arrayOf(validators.id(), { required: true }).required,
-    'IDs of authors',
-  ],
   created: [
     fields.number(),
     'POSIX time when object was created',
@@ -49,6 +44,15 @@ const fieldDefs = {
   tags: [
     fields.object().required,
     'Dictionary of tags defining object',
+  ],
+  keywords: [
+    fields.arrayOf((value => typeof value === 'string')).required,
+    'Keywords (lowercase)',
+  ],
+  palette: [
+    fields.string(),
+    'Color palette (for Project or Construct)',
+    { avoidScaffold: true },
   ],
 };
 

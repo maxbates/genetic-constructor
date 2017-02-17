@@ -20,6 +20,7 @@ import { projectFileRead, projectFileWrite } from '../middleware/projectFiles';
 import ProjectSchema from '../schemas/Project';
 import safeValidate from '../schemas/fields/safeValidate';
 import { id } from '../schemas/fields/validators';
+import { palettes } from '../utils/color/index';
 import Instance from './Instance';
 
 const idValidator = (input, required = false) => safeValidate(id(), required, input);
@@ -118,6 +119,29 @@ export default class Project extends Instance {
   }
 
   /**
+   * Clone a project, adding parent to the ancestry.
+   * Calls {@link Instance.clone} internally
+   * Cloning a project will disable the frozen rule, unless you pass in overwrite
+   * note that this does not handle cloning the blocks, and updating component IDs
+   * @method clone
+   * @memberOf Project
+   * @param {object|null} [parentInfo={}] Parent info for denoting ancestry. Required parent info is already available on the project, but can pass additional fields or overrides. If pass null to parentInfo, the Project is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
+   * @param {object} overwrites Overwrites to make to the cloned Project, e.g. { owner: userId }
+   * @returns {Project} Cloned Project
+   */
+  clone(parentInfo = {}, overwrites = {}) {
+    const mergeWith = merge({}, overwrites);
+
+    //unfreeze a clone by default if it is frozen, but allow overwriting if really want to
+    //don't want to add the field if unnecessary, otherwise could add to mergeWith scaffold
+    if (this.rules.frozen === true && (!mergeWith.rules || mergeWith.rules.frozen !== true)) {
+      merge(mergeWith, { rules: { frozen: false } });
+    }
+
+    return super.clone(parentInfo, mergeWith);
+  }
+
+  /**
    * Set name of the project
    * @method setName
    * @memberOf Project
@@ -138,6 +162,20 @@ export default class Project extends Instance {
    */
   getName() {
     return this.metadata.name || 'Untitled Project';
+  }
+
+  /**
+   * Set a Projects's color palette.
+   * @method setPalette
+   * @memberOf Project
+   * @param {string} [palette] Palette name
+   * @returns {Project}
+   * @example
+   * new Project().setPalette('bright');
+   */
+  setPalette(palette) {
+    invariant(palettes.indexOf(palette) >= 0, 'palette must exist');
+    return this.mutate('metadata.palette', palette);
   }
 
   //ideally, this would just return the same instance, would be much easier
@@ -166,6 +204,21 @@ export default class Project extends Instance {
     invariant(components.length && components.every(comp => idValidator(comp)), 'must pass component IDs');
     return this.mutate('components', components.concat(this.components));
   }
+
+  /**
+   * Add constructs to the Project at the given index
+   * @method addComponents
+   * @memberOf Project
+   * @param {number} index - index to insert components at
+   * @param {...UUID} components IDs of components
+   * @returns {Project}
+   */
+  addComponentsAt(index, ...components) {
+    invariant(components.length && components.every(comp => idValidator(comp)), 'must pass component IDs');
+    invariant(index <= this.components.length && index >= 0, 'index out of bounds');
+    return this.mutate('components', this.components.slice(0, index).concat(components).concat(this.components.slice(index)));
+  }
+
 
   /**
    * Remove constructs from the project

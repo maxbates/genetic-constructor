@@ -26,20 +26,26 @@ export default function BlockSource({ block, ...rest }) {
     return (<span>Unknown Source</span>);
   }
 
-  const knownUrl = source.url || null;
   const registrySource = registry[sourceKey];
 
-  //if the source is not registered with the running app... just show static text
-  if (!registrySource && !knownUrl) {
-    return (<span>{sourceKey}</span>);
-  }
-
   const name = registrySource ? registrySource.name : sourceKey;
+  const knownUrl = source.url || null;
+  const fileUrl = source.file || null;
   const computedUrl = (registrySource && typeof registrySource.sourceUrl === 'function') ?
     registrySource.sourceUrl(source)
     : null;
+  const url = knownUrl || computedUrl || fileUrl;
 
-  const url = knownUrl || computedUrl;
+  //show static text
+  if (!url) {
+    return (<span>{sourceKey}</span>);
+  }
+
+  const isFile = url === fileUrl;
+  const moreProps = {};
+  if (isFile) {
+    moreProps.download = true;
+  }
 
   //note - use key to force re=render when href is removed. React v15 uses removeAttribute and will handle this, can remove when upgrade.
   return (
@@ -50,6 +56,7 @@ export default function BlockSource({ block, ...rest }) {
       target="_blank"
       rel="noopener noreferrer"
       {...rest}
+      {...moreProps}
     >
       <span className="BlockSource-name">{name}</span>
       {url && (<span className="BlockSource-icon" />)}

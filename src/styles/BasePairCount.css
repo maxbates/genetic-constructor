@@ -1,3 +1,6 @@
 @import 'variables.css';
 
-.BasePairCount {}
+.BasePairCount {
+  flex-shrink: 0;
+  padding: 0 4px;
+}

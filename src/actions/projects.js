@@ -23,6 +23,7 @@ import { push } from 'react-router-redux';
 
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import * as blockActions from '../actions/blocks';
+import { uiSetGrunt } from '../actions/ui';
 import * as ActionTypes from '../constants/ActionTypes';
 import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
 import { snapshot } from '../middleware/snapshots';
@@ -73,29 +74,6 @@ export const projectList = () => (dispatch, getState) => listProjects()
         });
 
         return projects;
-      });
-
-/**
- * Delete a project. THIS CANNOT BE UNDONE.
- * @function
- * @param {UUID} projectId
- * @returns {UUID} project ID deleted
- */
-export const projectDelete = projectId => (dispatch, getState) => deleteProject(projectId)
-    //catch deleting a project that is not saved (will 404)
-      .catch((resp) => {
-        if (resp.status === 404) {
-          return null;
-        }
-        return Promise.reject(resp);
-      })
-      .then(() => {
-        //don't delete the blocks, as they may be shared between projects (or, could delete and then force loading for next / current project)
-        dispatch({
-          type: ActionTypes.PROJECT_DELETE,
-          projectId,
-        });
-        return projectId;
       });
 
 /**
@@ -158,12 +136,13 @@ export const projectSave = (inputProjectId, forceSave = false) => (dispatch, get
  * @param {number} version project version, or null to default to latest
  * @param {string} message Commit message
  * @param {object} tags Metadata tags to include in the snapshot
+ * @param {Array} keywords Metadata keywords to include in the snapshot
  * @param {boolean} [withRollup=true] Save the current version of the project
  * @returns {Promise}
  * @resolve {number} version for snapshot
  * @reject {string|Response} Error message
  */
-export const projectSnapshot = (projectId, version = null, message, tags = {}, withRollup = true) => (dispatch, getState) => {
+export const projectSnapshot = (projectId, version = null, message, tags = {}, keywords = [], withRollup = true) => (dispatch, getState) => {
   const roll = withRollup ?
       dispatch(projectSelectors.projectCreateRollup(projectId)) :
     {};
@@ -176,7 +155,13 @@ export const projectSnapshot = (projectId, version = null, message, tags = {}, w
     }
   }
 
-  return snapshot(projectId, version, message, tags, roll)
+  const snapshotBody = {
+    message,
+    tags,
+    keywords,
+  };
+
+  return snapshot(projectId, version, snapshotBody, roll)
       .then((commitInfo) => {
         if (!commitInfo) {
           return null;
@@ -193,7 +178,7 @@ export const projectSnapshot = (projectId, version = null, message, tags = {}, w
 };
 
 /**
- * Create a project
+ * Create a project manifest
  * @function
  * @param {Object} [initialModel={}] Data to merge onto scaffold
  * @returns {Project} New project
@@ -201,9 +186,7 @@ export const projectSnapshot = (projectId, version = null, message, tags = {}, w
 export const projectCreate = initialModel => (dispatch, getState) => {
   const userId = getState().user.userid;
   const defaultModel = {
-    metadata: {
-      authors: [userId],
-    },
+    owner: userId,
   };
 
   const project = new Project(merge(defaultModel, initialModel));
@@ -216,17 +199,43 @@ export const projectCreate = initialModel => (dispatch, getState) => {
 };
 
 /**
+ * Clone a project
+ * @function
+ * @param {UUID} projectId Project ID to clone (must be in store)
+ * @returns {Project} Cloned project
+ */
+export const projectClone = projectId =>
+  (dispatch, getState) => {
+    const oldProject = getState().projects[projectId];
+    invariant(oldProject, 'old project must exist');
+
+    const userId = getState().user.userid;
+
+    const project = oldProject.clone({}, {
+      owner: userId,
+    });
+
+    dispatch({
+      type: ActionTypes.PROJECT_CLONE,
+      project,
+    });
+
+    return project;
+  };
+
+/**
  * Internal method to load a project. Attempt to load another on failure. Used internally by projectLoad, can recursive in this verison.
  * @function
  * @private
  * @param projectId
+ * @param userId
  * @param {Array|boolean} [loadMoreOnFail=false] Pass array for list of IDs to ignore
  * @param dispatch Pass in the dispatch function for the store
  * @returns Promise
  * @resolve {Rollup} loaded Project + Block Map
  * @reject
  */
-const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => loadProject(projectId)
+const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) => loadProject(projectId)
     .then((rollup) => {
       const { project, blocks } = rollup;
       const projectModel = new Project(project);
@@ -264,9 +273,7 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => loadProjec
             return _projectLoad(nextId, ignores, dispatch);
           }
           //if no manifests, create a new rollup
-          //note - this shouldnt happen while users have sample projects
-          //todo - may want to hit the server to re-setup the user's account
-          return emptyProjectWithConstruct(true);
+          return emptyProjectWithConstruct(userId, true);
         });
     });
 
@@ -282,9 +289,10 @@ const _projectLoad = (projectId, loadMoreOnFail = false, dispatch) => loadProjec
  */
 export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = false) => (dispatch, getState) => {
   const isCached = !!projectId && instanceMap.projectLoaded(projectId);
+  const userId = getState().user.userid;
   const promise = (avoidCache !== true && isCached) ?
       Promise.resolve(instanceMap.getRollup(projectId)) :
-      _projectLoad(projectId, loadMoreOnFail, dispatch);
+      _projectLoad(projectId, userId, loadMoreOnFail, dispatch);
 
     //rollup by this point has been converted to class instances
   return promise.then((rollup) => {
@@ -377,6 +385,51 @@ export const projectOpen = (inputProjectId, skipSave = false) => (dispatch, getS
 };
 
 /**
+ * Delete a project. THIS CANNOT BE UNDONE.
+ *
+ * Returns false if project cannot be deleted
+ *
+ * Recommended usage --- load another project, open it, then call this action
+ * @function
+ * @param {UUID} projectId
+ * @returns {UUID} project ID deleted
+ */
+export const projectDelete = projectId =>
+  (dispatch, getState) => {
+    const project = getState().projects[projectId];
+
+    if (project.rules.frozen) {
+      dispatch(uiSetGrunt('This is a sample project and cannot be deleted.'));
+      return false;
+    }
+
+    //wrap deleting in a transaction
+    dispatch(undoActions.transact());
+
+    //optimistically delete the project
+    //don't delete the blocks, as they may be shared between projects (or, could delete and then force loading for next / current project)
+    dispatch({
+      type: ActionTypes.PROJECT_DELETE,
+      projectId,
+    });
+
+    return deleteProject(projectId)
+    //catch deleting a project that is not saved (will 404)
+    .catch((resp) => {
+      if (resp.status === 404) {
+        return null;
+      }
+      dispatch(undoActions.abort());
+      dispatch(uiSetGrunt('There was a problem deleting your project. Please try again.'));
+      return Promise.reject(resp);
+    })
+    .then(() => {
+      dispatch(undoActions.commit());
+      return projectId;
+    });
+  };
+
+/**
  * Rename a project
  * @function
  * @param {UUID} projectId
@@ -395,17 +448,59 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
 };
 
 /**
+ * Set the keywords for a project
+ * @function
+ * @param {UUID} projectId
+ * @param {Array<string>} keywords
+ * @returns {Project}
+ */
+export const projectSetKeywords = (projectId, keywords) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.mutate('metadata.keywords', keywords);
+  dispatch({
+    type: ActionTypes.PROJECT_SET_KEYWORDS,
+    undoable: true,
+    project,
+  });
+  return project;
+};
+
+/**
+ * set the palette for the project
+ * @param projectId
+ * @param paletteName
+ */
+export const projectSetPalette = (projectId, paletteName) => (dispatch, getState) => {
+  const oldProject = getState().projects[projectId];
+  const project = oldProject.mutate('metadata.palette', paletteName);
+  dispatch({
+    type: ActionTypes.PROJECT_SETPALETTE,
+    paletteName,
+    undoable: true,
+    project,
+  });
+  return project;
+};
+
+
+/**
  * Adds a construct to a project. Does not create the construct. Use a Block Action.
  * The added construct should have the project ID of the current project, or pass forceProjectId = true
  * @function
  * @param {UUID} projectId
  * @param {UUID} constructId
  * @param {boolean} [forceProjectId=true] set the projectId if not set
+ * @param {number} [index=-1] Where to add construct
  * @returns {Project}
  */
-export const projectAddConstruct = (projectId, constructId, forceProjectId = true) => (dispatch, getState) => {
+export const projectAddConstruct = (projectId, constructId, forceProjectId = true, index = -1) => (dispatch, getState) => {
   const oldProject = getState().projects[projectId];
-  const project = oldProject.addComponents(constructId);
+  let project;
+  if (index < 0) {
+    project = oldProject.addComponents(constructId);
+  } else {
+    project = oldProject.addComponentsAt(index, constructId);
+  }
 
   const component = getState().blocks[constructId];
   const componentProjectId = component.projectId;

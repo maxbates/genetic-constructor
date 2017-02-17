@@ -13,7 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { dbGet, dbHead, dbPruneResult } from '../middleware/db';
+import invariant from 'invariant';
+import { dbGet, dbHead, dbPost, dbPruneResult } from '../middleware/db';
 import { mergeMetadataOntoProject } from './projects';
 
 // note that versions are already generated on project writing, so use projectWrite() to create one
@@ -24,14 +25,40 @@ const transformDbVersion = result => ({
   owner: result.owner,
 });
 
-export const projectVersionExists = (projectId, version) => dbHead(`projects/${projectId}?version=${version}`)
-    .then(() => true);
+export const projectVersionExists = (projectId, version) =>
+  dbHead(`projects/${projectId}?version=${version}`)
+  .then(() => true);
+
+export const projectVersionGetRaw = (projectId, version) =>
+  dbGet(`projects/${projectId}?version=${version}`);
 
 //returns project at a particular point in time
-export const projectVersionGet = (projectId, version) => dbGet(`projects/${projectId}?version=${version}`)
-    .then(mergeMetadataOntoProject)
-    .then(dbPruneResult);
+export const projectVersionGet = (projectId, version) =>
+  projectVersionGetRaw(projectId, version)
+  .then(mergeMetadataOntoProject)
+  .then(dbPruneResult);
 
 //list all versions of a project
-export const projectVersionList = projectId => dbGet(`projects/versions/${projectId}`)
-    .then(results => results.map(transformDbVersion));
+export const projectVersionList = projectId =>
+  dbGet(`projects/versions/${projectId}`)
+  .then(results => results.map(transformDbVersion));
+
+//do not expose outside app!
+//will overwrite an existing project version
+export const projectVersionWrite = (projectId, version, owner, data) => {
+  invariant(projectId, 'projectId required');
+  invariant(Number.isInteger(version), 'version is required');
+  invariant(typeof owner === 'string', 'owner is required');
+
+  dbPost(`projects/${projectId}?version=${version}&overwrite=true`, owner, data)
+  .then(mergeMetadataOntoProject)
+  .then(dbPruneResult);
+};
+
+export const projectVersionByUUIDRaw = uuid =>
+  dbGet(`projects/uuid/${uuid}`);
+
+export const projectVersionByUUID = uuid =>
+  projectVersionByUUIDRaw(uuid)
+  .then(mergeMetadataOntoProject)
+  .then(dbPruneResult);

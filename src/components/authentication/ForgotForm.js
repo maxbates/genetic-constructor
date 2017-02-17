@@ -37,7 +37,7 @@ export class ForgotForm extends Component {
 
   onEmail = evt => this.setState({ email: evt.target.value });
 
-  onForgot(evt) {
+  onForgot = (evt) => {
     evt.preventDefault();
 
     if (!this.state.email) {
@@ -67,7 +67,7 @@ export class ForgotForm extends Component {
         });
       }
     });
-  }
+  };
 
   actions = [{
     text: 'Send Request',

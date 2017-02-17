@@ -16,19 +16,23 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { blockMerge, blockRename, blockSetColor, blockSetRole } from '../../actions/blocks';
-import { uiShowOrderForm } from '../../actions/ui';
+import { blockMerge, blockRename, blockSetColor, blockSetPalette, blockSetRole } from '../../actions/blocks';
+import { blockGetParents } from '../../selectors/blocks';
 import Block from '../../models/Block';
 import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
 import ColorPicker from './../ui/ColorPicker';
-import SymbolPicker from './../ui/SymbolPicker';
+import PalettePicker from './../ui/PalettePicker';
+import Expando from './../ui/Expando';
+import SBOLPicker from './../ui/SBOLPicker';
 import BlockNotes from './BlockNotes';
 import BlockSource from './BlockSource';
 import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
-import OrderList from './OrderList';
 import TemplateRules from './TemplateRules';
+import { getLocal } from '../../utils/localstorage';
+import { getPaletteName } from '../../utils/color/index';
+import '../../styles/InspectorBlock.css';
 
 export class InspectorBlock extends Component {
   static propTypes = {
@@ -39,26 +43,30 @@ export class InspectorBlock extends Component {
         return new Error(`Must pass valid instances of blocks to the inspector, got ${JSON.stringify(instance)}`);
       }
     }).isRequired,
-    construct: PropTypes.object.isRequired, //top-level
-    isAuthoring: PropTypes.bool.isRequired,
+    construct: PropTypes.object,
     overrides: PropTypes.shape({
       color: PropTypes.string,
       role: PropTypes.string,
     }).isRequired,
-    orders: PropTypes.array.isRequired,
     blockSetColor: PropTypes.func.isRequired,
+    blockSetPalette: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
+    blockGetParents: PropTypes.func.isRequired,
     blockMerge: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
+    project: PropTypes.object.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
-    uiShowOrderForm: PropTypes.func.isRequired,
     forceIsConstruct: PropTypes.bool,
   };
 
   static defaultProps = {
     forceIsConstruct: false,
+  };
+
+  state = {
+    colorSymbolText: 'Color & Symbol',
   };
 
   setBlockName = (name) => {
@@ -73,12 +81,20 @@ export class InspectorBlock extends Component {
     });
   };
 
-  selectColor = (color) => {
+  setColorSymbolText = (str) => {
+    this.setState({ colorSymbolText: str || 'Color & Symbol' });
+  };
+
+  selectColor = (colorIndex) => {
     this.startTransaction();
     this.props.instances.forEach((block) => {
-      this.props.blockSetColor(block.id, color);
+      this.props.blockSetColor(block.id, colorIndex);
     });
     this.endTransaction();
+  };
+
+  selectPalette = (paletteName) => {
+    this.props.blockSetPalette(this.props.construct.id, paletteName);
   };
 
   selectSymbol = (symbol) => {
@@ -101,9 +117,6 @@ export class InspectorBlock extends Component {
     this.props.commit();
   };
 
-  handleOpenOrder = (orderId) => {
-    this.props.uiShowOrderForm(true, orderId);
-  };
 
   /**
    * color of selected instance or null if multiple blocks selected
@@ -130,8 +143,7 @@ export class InspectorBlock extends Component {
     if (instances.length === 1) {
       return instances[0].getRole(false);
     }
-    //false is specially handled in symbol picker as blank, and is different than null (no symbol)
-    return false;
+    return null;
   }
 
   /**
@@ -196,14 +208,16 @@ export class InspectorBlock extends Component {
   }
 
   render() {
-    const { instances, construct, orders, readOnly, forceIsConstruct, isAuthoring } = this.props;
+    const { instances, construct, readOnly, forceIsConstruct } = this.props;
     const singleInstance = instances.length === 1;
     const isList = singleInstance && instances[0].isList();
-    const isTemplate = singleInstance && instances[0].isTemplate();
     const isConstruct = singleInstance && instances[0].isConstruct();
+    const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
+    const hasParents = this.props.blockGetParents(instances[0].id).length > 0;
+
     const inputKey = instances.map(inst => inst.id).join(',');
-    const anyIsConstructOrTemplateOrList = instances.some(instance => instance.isConstruct() || instance.isTemplate() || instance.isList());
-    const palette = construct ? construct.metadata.palette : null;
+
+    const palette = getPaletteName(construct ? construct.metadata.palette || this.props.project.metadata.palette : null);
 
     const defaultType = forceIsConstruct ? 'Construct' : 'Block';
     const type = singleInstance ? instances[0].getType(defaultType) : 'Blocks';
@@ -214,7 +228,14 @@ export class InspectorBlock extends Component {
     const hasSequence = this.allBlocksWithSequence();
     const hasNotes = singleInstance && Object.keys(instances[0].notes).length > 0;
 
-    const relevantOrders = orders.filter(order => singleInstance && order.constructIds.indexOf(instances[0].id) >= 0);
+    // determines the default state of the palette expando
+    const paletteStateKey = 'expando-color-palette';
+    // text before palette, depends on expanded state.
+    const paletteOpen = getLocal(paletteStateKey, false, true);
+    let colorPaletteText = 'Color Palette';
+    if (!paletteOpen) {
+      colorPaletteText += `: ${palette}`;
+    }
 
     return (
       <div className="InspectorContent InspectorContentBlock">
@@ -262,55 +283,58 @@ export class InspectorBlock extends Component {
           <p><strong>{this.currentSequenceLength()}</strong></p>
         </InspectorRow>
 
-        {/* todo - this should have its own component */}
-        <InspectorRow
-          heading={`${type} Metadata`}
-          hasToggle
-          condition={hasNotes}
-        >
-          <div className="InspectorContent-section">
-            <BlockNotes notes={instances[0].notes} />
-          </div>
-        </InspectorRow>
 
-        <InspectorRow
-          heading="Order History"
-          hasToggle
-          condition={relevantOrders.length > 0}
-        >
-          <div className="InspectorContent-section">
-            <OrderList
-              orders={relevantOrders}
-              onClick={orderId => this.handleOpenOrder(orderId)}
+        { hasNotes
+          ? <Expando
+            text={`${type} Metadata`}
+            stateKey="inspector-template-metadata"
+            content={<div className="InspectorContent-section">
+              <BlockNotes notes={instances[0].notes} />
+            </div>}
+          />
+          : null
+        }
+        {isConstruct && singleInstance && !hasParents
+          ?
+            <Expando
+              text={colorPaletteText}
+              capitalize
+              stateKey={paletteStateKey}
+              onClick={() => this.forceUpdate()}
+              content={
+                <PalettePicker
+                  paletteName={palette}
+                  onSelectPalette={this.selectPalette}
+                  readOnly={readOnly || isFixed}
+                />}
             />
-          </div>
-        </InspectorRow>
-
-        <InspectorRow heading="Color & Symbol">
-          <div className="InspectorContent-pickerWrap">
-            <ColorPicker
-              current={this.currentColor()}
-              readOnly={readOnly}
-              palette={palette}
-              onSelect={this.selectColor}
-            />
-
-            <SymbolPicker
-              current={this.currentRoleSymbol()}
-              readOnly={readOnly || (!isAuthoring && (isConstruct || isTemplate || isList || forceIsConstruct || anyIsConstructOrTemplateOrList))}
-              onSelect={this.selectSymbol}
-            />
-          </div>
-        </InspectorRow>
-
+          :
+            null
+        }
+        <div className="color-symbol-label">{this.state.colorSymbolText}</div>
+        <div className="color-symbol">
+          <ColorPicker
+            setText={this.setColorSymbolText}
+            current={this.currentColor()}
+            readOnly={readOnly || isFixed}
+            paletteName={palette}
+            onSelectColor={this.selectColor}
+          />
+          {singleInstance && hasParents ? <SBOLPicker
+            setText={this.setColorSymbolText}
+            current={this.currentRoleSymbol()}
+            readOnly={readOnly || isFixed}
+            onSelect={this.selectSymbol}
+          /> : null}
+        </div>
         <InspectorRow
           heading={`${type} Rules`}
-          condition={isAuthoring}
+          condition={!isConstruct && singleInstance && hasParents}
         >
           <TemplateRules
             block={instances[0]}
-            readOnly={!isAuthoring}
-            isConstruct={isTemplate}
+            readOnly={isFixed}
+            isConstruct={isConstruct}
           />
         </InspectorRow>
 
@@ -335,7 +359,7 @@ export class InspectorBlock extends Component {
           condition={isList}
         >
           <ListOptions
-            toggleOnly={!isAuthoring}
+            toggleOnly={isFixed}
             block={instances[0]}
           />
         </InspectorRow>
@@ -347,11 +371,12 @@ export class InspectorBlock extends Component {
 
 export default connect(() => ({}), {
   blockSetColor,
+  blockSetPalette,
   blockSetRole,
+  blockGetParents,
   blockRename,
   blockMerge,
   transact,
   commit,
   abort,
-  uiShowOrderForm,
 })(InspectorBlock);

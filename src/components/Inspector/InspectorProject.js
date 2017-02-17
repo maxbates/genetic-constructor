@@ -16,13 +16,19 @@ limitations under the License.
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { projectMerge, projectRename } from '../../actions/projects';
+import { projectMerge, projectRename, projectSetPalette } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
 import Project from '../../models/Project';
 import { abort, commit, transact } from '../../store/undo/actions';
+import { blockSetPalette } from '../../actions/blocks';
+import { getPaletteName } from '../../utils/color/index';
+
 import InputSimple from './../InputSimple';
 import InspectorRow from './InspectorRow';
 import OrderList from './OrderList';
+import Expando from './../ui/Expando';
+import PalettePicker from './../ui/PalettePicker';
+import { getLocal } from '../../utils/localstorage';
 
 export class InspectorProject extends Component {
   static propTypes = {
@@ -33,12 +39,26 @@ export class InspectorProject extends Component {
     },
     orders: PropTypes.array.isRequired,
     projectRename: PropTypes.func.isRequired,
+    projectSetPalette: PropTypes.func.isRequired,
+    blockSetPalette: PropTypes.func.isRequired,
     projectMerge: PropTypes.func.isRequired,
-    readOnly: PropTypes.bool.isRequired,
+    readOnly: PropTypes.bool,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
     uiShowOrderForm: PropTypes.func.isRequired,
+  };
+
+  /**
+   * user selected a new palette, apply to all constructs in the project.
+   */
+  onSelectPalette = (paletteName) => {
+    // apply to project and all of its construct
+    this.props.projectSetPalette(this.props.instance.id, paletteName);
+    const { instance } = this.props;
+    instance.components.forEach((constructId) => {
+      this.props.blockSetPalette(constructId, paletteName);
+    });
   };
 
   setProjectName = (name) => {
@@ -69,6 +89,15 @@ export class InspectorProject extends Component {
 
   render() {
     const { instance, orders, readOnly } = this.props;
+    const paletteName = getPaletteName(instance.metadata.palette);
+    // determines the default state of the palette expando
+    const paletteStateKey = 'expando-color-palette';
+    // text before palette, depends on expanded state.
+    const paletteOpen = getLocal(paletteStateKey, false, true);
+    let colorPaletteText = 'Color Palette';
+    if (!paletteOpen) {
+      colorPaletteText += `: ${paletteName}`;
+    }
 
     return (
       <div className="InspectorContent InspectorContentProject">
@@ -100,6 +129,20 @@ export class InspectorProject extends Component {
           />
         </InspectorRow>
 
+        <Expando
+          text={colorPaletteText}
+          capitalize
+          stateKey={paletteStateKey}
+          onClick={() => this.forceUpdate()}
+          content={
+            <PalettePicker
+              paletteName={paletteName}
+              onSelectPalette={this.onSelectPalette}
+              readOnly={readOnly}
+            />
+          }
+        />
+
         <InspectorRow
           heading="Order History"
           hasToggle
@@ -118,11 +161,14 @@ export class InspectorProject extends Component {
   }
 }
 
-export default connect(() => ({}), {
+
+export default connect(null, {
   projectRename,
+  projectSetPalette,
   projectMerge,
   transact,
   commit,
   abort,
   uiShowOrderForm,
+  blockSetPalette,
 })(InspectorProject);

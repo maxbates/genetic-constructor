@@ -28,15 +28,23 @@ if (process.env.NODE_ENV === 'test') {
 export default function projects(state = initialState, action) {
   switch (action.type) {
     case ActionTypes.PROJECT_CREATE :
+    case ActionTypes.PROJECT_CLONE :
     case ActionTypes.PROJECT_LOAD :
     case ActionTypes.PROJECT_MERGE :
     case ActionTypes.PROJECT_RENAME :
+    case ActionTypes.PROJECT_SET_KEYWORDS :
     case ActionTypes.PROJECT_REMOVE_CONSTRUCT:
     case ActionTypes.PROJECT_ADD_CONSTRUCT :
     case ActionTypes.PROJECT_FILE_WRITE :
       const { project } = action;
       instanceMap.saveProject(project);
       return Object.assign({}, state, { [project.id]: project });
+
+    case ActionTypes.PROJECT_SETPALETTE :
+      action.project.setPalette(action.paletteName);
+      instanceMap.saveProject(action.project);
+      return Object.assign({}, state, { [action.project.id]: action.project });
+
 
     case ActionTypes.PROJECT_SNAPSHOT :
     case ActionTypes.PROJECT_SAVE :

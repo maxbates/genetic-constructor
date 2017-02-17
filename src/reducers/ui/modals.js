@@ -36,7 +36,6 @@ export const initialState = {
   showReportError: false,
   showPartsCSVImport: false,
   listBlock: null,
-  showExtensionPicker: false,
 };
 
 export default function modals(state = initialState, action) {
@@ -79,6 +78,21 @@ export default function modals(state = initialState, action) {
       const { gruntMessage } = action;
       return Object.assign({}, state, { gruntMessage });
 
+    case ActionTypes.UI_SHOW_MENU :
+      const { menuItems, menuPosition, menuHat } = action;
+      return Object.assign({}, state, { menuItems, menuPosition, menuHat });
+
+    case ActionTypes.UI_OK_CANCEL:
+      const { title, message, onOk, onCancel, okText, cancelText } = action;
+      return Object.assign({}, state, {
+        title,
+        message,
+        onOk,
+        onCancel,
+        okText,
+        cancelText,
+      });
+
     case ActionTypes.UI_SPIN:
       const { spinMessage } = action;
       return Object.assign({}, state, { spinMessage });
@@ -105,10 +119,6 @@ export default function modals(state = initialState, action) {
     case ActionTypes.UI_SHOW_REPORT_ERROR:
       const { modalState } = action;
       return Object.assign({}, state, { showReportError: modalState });
-
-    case ActionTypes.UI_SHOW_EXTENSION_PICKER:
-      const { pickerState } = action;
-      return Object.assign({}, state, { showExtensionPicker: pickerState });
 
     case LOCATION_CHANGE :
       const toKeep = ['gruntMessage'].reduce((acc, field) => Object.assign(acc, { [field]: state[field] }), {});

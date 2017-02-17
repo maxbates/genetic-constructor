@@ -1,22 +1,25 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var openInventory = require('../fixtures/open-inventory');
-var newProject = require('../fixtures/newproject');
-var myProjects = require('../fixtures/myprojects');
 var size = require('../fixtures/size');
-var openTemplates = require('../fixtures/open-templates-sample');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var dragFromTo = require('../fixtures/dragfromto.js');
+var newProject = require('../fixtures/newproject');
 
 module.exports = {
   'Verify we can preview order assemblies' : function (browser) {
 
     size(browser);
     homepageRegister(browser);
-    myProjects(browser);
-    openTemplates(browser);
     newProject(browser);
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
+    openInventoryPanel(browser, 'Templates');
     browser
-      .click('.order-button')
+      .waitForElementPresent('[data-testid^="egf_project"] .label-base')
+      .click('[data-testid^="egf_project"] .label-base')
+      .waitForElementPresent('[data-testid^="block-"]');
+
+    dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.inter-construct-drop-target', 50, 4);
+
+    browser
+      .click('.construct-viewer .title-and-toolbar [data-id="Order DNA"]')
       .waitForElementPresent('.order-form .page1', 10000, 'expected order dialog to appear')
       .pause(3000)
       // goto review page

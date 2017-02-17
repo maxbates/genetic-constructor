@@ -1,12 +1,9 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
 var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
 var clickConstructTitle = require('../fixtures/click-construct-title');
-var openInventory = require('../fixtures/open-inventory');
-var openInspector = require('../fixtures/open-inspector');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
+var openInspectorPanel = require('../fixtures/open-inspector-panel');
 var size = require('../fixtures/size');
 
 module.exports = {
@@ -25,19 +22,16 @@ module.exports = {
 
     // start with a fresh project
     newProject(browser);
-    openInventory(browser);
-    openInspector(browser);
+    openInventoryPanel(browser, 'Sketch');
+    openInspectorPanel(browser, 'Information');
 
     browser
-      // open symbols
-      .click('.InventoryGroup:nth-of-type(3) .InventoryGroup-heading')
-      // expect at least one inventory item and one block to drop on
-      .waitForElementPresent('.InventoryItem', 5000, 'expected an inventory item')
+      // wait for symbols to appear
+      .waitForElementPresent('.InventoryGroupRole .sbol-tile', 5000, 'expected an inventory item')
       // expect one focused construct viewer
       .assert.countelements(".construct-viewer", 1);
       // drag one block to first construct
-      dragFromTo(browser, '.InventoryItemRole:nth-of-type(1)', 10, 10, '.construct-viewer:nth-of-type(2) .sceneGraph', 30, 30);
-
+      dragFromTo(browser, '.InventoryGroupRole .sbol-tile:nth-of-type(1) .RoleSvg', 10, 10, '.construct-viewer[data-index="0"] .sceneGraph', 600, 60);
     browser
       .pause(250)
       // we should have a single focused block, so changing its text should change the displayed block
@@ -52,15 +46,15 @@ module.exports = {
       .clearValue('.Inspector .InputSimple-input')
       .setValue('.Inspector .InputSimple-input', ['Hillary Clinton', browser.Keys.ENTER])
       .pause(500)
-      .assert.containsText('[data-nodetype="construct-title"] .nodetext', 'Hillary Clinton');
+      .assert.containsText('.construct-viewer .title-and-toolbar .title', 'Hillary Clinton');
     browser
       // focus the project and change its title
-      .click('.ProjectHeader')
+      .click('.ProjectHeader .title-and-toolbar .title')
       .pause(500)
       .clearValue('.Inspector .InputSimple-input')
       .setValue('.Inspector .InputSimple-input', ['Bernie Saunders', browser.Keys.ENTER])
       .pause(500)
-      .assert.containsText('.ProjectHeader-title', 'Bernie Saunders')
+      .assert.containsText('.ProjectHeader .title-and-toolbar .title .text', 'Bernie Saunders')
       .saveScreenshot('./test-e2e/current-screenshots/focus-block-construct-project.png')
       .end();
   }

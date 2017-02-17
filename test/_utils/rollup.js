@@ -24,7 +24,7 @@ export const numberBlocksInRollup = 7;
  */
 export const createExampleRollup = () => {
   const project = Project.classless({
-    metadata: { authors: [testUserId] },
+    owner: testUserId,
   });
   const blockC = Block.classless();
   const blockD = Block.classless();
@@ -64,7 +64,7 @@ export const createSequencedRollup = (numSeqs = (numberBlocksInRollup - 1)) => {
   }, {});
 
   const project = Project.classless({
-    metadata: { authors: [testUserId] },
+    owner: testUserId,
   });
 
   const blocks = range(numSeqs).map((index) => Block.classless({
@@ -108,7 +108,7 @@ export const createListRollup = (numListBlocks = 4, numOptions = 5) => {
   }, {});
 
   const project = Project.classless({
-    metadata: { authors: [testUserId] },
+    owner: testUserId,
   });
 
   const construct = Block.classless();

@@ -102,12 +102,12 @@ export default class Block extends Instance {
   /**
    * Clone a block, adding parent to the ancestry.
    * Calls {@link Instance.clone} internally, but structure of block history is different than that of the Instance class.
-   * Cloning a block will disable the frozen rule.
+   * Cloning a block will disable the frozen rule, unless you pass in overwrite
    * note that if you are cloning multiple blocks / blocks with components, you likely need to clone the components as well. You will need to re-map the IDs outside of this function. See {@link blockClone} action for an example.
    * @method clone
    * @memberOf Block
-   * @param {object|null} parentInfo Parent info for denoting ancestry. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
-   * @param overwrites
+   * @param {object|null} parentInfo Parent info for denoting ancestry. Parent info should include project information: owner and version. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
+   * @param {object} overwrites Overwrites to make to the cloned block, e.g. { owner: userId }
    * @returns {Block} Cloned block
    */
   clone(parentInfo = {}, overwrites = {}) {
@@ -259,16 +259,6 @@ export default class Block extends Instance {
     return this.rules.frozen === true;
   }
 
-  /**
-   * Check whether a template is being authored
-   * @method isAuthoring
-   * @memberOf Block
-   * @returns {boolean}
-   */
-  isAuthoring() {
-    return this.rules.authoring === true;
-  }
-
   /************
    rules
    ************/
@@ -358,18 +348,6 @@ export default class Block extends Instance {
   }
 
   /**
-   * Enable Authoring for a template.
-   * @method setProjectId
-   * @memberOf Block
-   * @param {boolean} [isAuthoring=true]
-   * @returns {Block}
-   */
-  setAuthoring(isAuthoring = true) {
-    invariant(this.isTemplate(), 'can only author a template');
-    return this.setRule('authoring', Boolean(isAuthoring));
-  }
-
-  /**
    * Mark a block as hidden
    * @method setHidden
    * @memberOf Block
@@ -402,12 +380,13 @@ export default class Block extends Instance {
     }
 
     //hack to accommodate adding frozen block to construct / list
+    //todo - why do we need this? Should only allow setting projectId on non-frozen blocks (clone first)
     //need to determine how to handle adding frozen blocks
     if (this.isFrozen()) {
-      return this.clone(undefined, {
+      return this.clone(null, {
         projectId,
         rules: { frozen: false },
-      });
+      }).mutate('id', this.id);
     }
     return this.mutate('projectId', projectId);
   }
@@ -477,13 +456,13 @@ export default class Block extends Instance {
    * Should only apply to top-level constructs
    * @method setPalette
    * @memberOf Block
-   * @param {string} [palette] Palette name
+   * @param {string} [palette] Palette name or null to default to project palette
    * @returns {Block}
    * @example
    * new Block().setPalette('bright');
    */
   setPalette(palette) {
-    invariant(palettes.indexOf(palette) >= 0, 'palette must exist');
+    invariant(palettes.indexOf(palette) >= 0, 'must be a valid palette');
     return this.mutate('metadata.palette', palette);
   }
 
@@ -553,7 +532,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   addComponent(componentId, index) {
-    invariant(!this.isFixed() || this.isAuthoring(), 'Block is fixed - cannot add/remove/move components');
+    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove/move components');
     invariant(!this.isList(), 'cannot add components to a list block');
     invariant(idValidator(componentId), 'must pass valid component ID');
     const spliceIndex = (Number.isInteger(index) && index >= 0) ? index : this.components.length;
@@ -574,7 +553,7 @@ export default class Block extends Instance {
    * @returns {Block} Returns same instance if componentId not found
    */
   removeComponent(componentId) {
-    invariant(!this.isFixed() || this.isAuthoring(), 'Block is fixed - cannot add/remove/move components');
+    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove/move components');
     const spliceIndex = this.components.findIndex(compId => compId === componentId);
 
     if (spliceIndex < 0) {
@@ -598,7 +577,7 @@ export default class Block extends Instance {
    */
   //
   moveComponent(componentId, newIndex) {
-    invariant(!this.isFixed() || this.isAuthoring(), 'Block is fixed - cannot add/remove/move components');
+    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove/move components');
     invariant(!this.isList(), 'cannot add components to a list block');
     const spliceFromIndex = this.components.findIndex(compId => compId === componentId);
 
@@ -650,7 +629,6 @@ export default class Block extends Instance {
 
   /**
    * Add list options as possibilities (they will be inactive).
-   * For template authoring.
    * @method addOptions
    * @memberOf Block
    *
@@ -661,6 +639,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   addOptions(...optionIds) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove options');
     invariant(this.isList(), 'must be a list block to add list options');
     invariant(optionIds.every(option => idValidator(option)), 'must pass component IDs');
     const toAdd = optionIds.reduce((acc, id) => Object.assign(acc, { [id]: true }), {});
@@ -675,7 +654,6 @@ export default class Block extends Instance {
 
   /**
    * Remove list options from possibilities.
-   * For template authoring.
    * @method removeOptions
    * @memberOf Block
    *
@@ -685,6 +663,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   removeOptions(...optionIds) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove options');
     const cloned = cloneDeep(this.options);
     optionIds.forEach((id) => {
       delete cloned[id];
@@ -774,6 +753,8 @@ export default class Block extends Instance {
    * @returns {Promise} Promise which resolves with the udpated block after the sequence is written to the server
    */
   setSequence(sequence, useStrict = false, persistSource = false) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot change sequence');
+
     const validator = useStrict ? dnaStrictRegexp() : dnaLooseRegexp();
 
     if (!validator.test(sequence)) {
@@ -782,7 +763,7 @@ export default class Block extends Instance {
 
     const updatedSource = persistSource === true ?
       this.source :
-    { source: 'user', id: null };
+      { source: 'user', id: null };
 
     return writeSequence(sequence)
       .then((md5) => {
@@ -811,6 +792,7 @@ export default class Block extends Instance {
    * @param {number} end
    */
   setSequenceTrim(start = 0, end = 0) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot change sequence');
     invariant(this.hasSequence(), 'must have a sequence to set trim');
     invariant(Number.isInteger(start) && start >= 0, 'must pass 0 or positive integer for start');
     invariant(Number.isInteger(end) && end >= 0, 'must pass 0 or positive integer for end');
@@ -833,6 +815,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   annotate(annotation) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot change annotations');
     invariant(AnnotationSchema.validate(annotation), `annotation is not valid: ${annotation}`);
     return this.mutate('sequence.annotations', this.sequence.annotations.concat(annotation));
   }
@@ -845,6 +828,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   removeAnnotation(annotation) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot change annotations');
     const annotationName = typeof annotation === 'object' ? annotation.name : annotation;
     invariant(typeof annotationName === 'string', `Must pass object with Name or annotation Name directly, got ${annotation}`);
 

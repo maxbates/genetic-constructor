@@ -15,8 +15,6 @@
  */
 import invariant from 'invariant';
 import { values as objectValues } from 'lodash';
-
-import { getLocal, setLocal } from '../../../utils/localstorage';
 import Box2D from '../geometry/box2d';
 import Line2D from '../geometry/line2d';
 import Vector2D from '../geometry/vector2d';
@@ -58,6 +56,7 @@ export default class Layout {
       insetY: 0,
       initialRowXLimit: -Infinity,
       rootLayout: true,
+      palette: null,
     }, options);
 
     // prep data structures for layout`
@@ -87,11 +86,7 @@ export default class Layout {
     if (this.rootLayout) {
       const aabb = this.getBlocksAABB();
       this.sceneGraph.width = Math.max(aabb.right, kT.minWidth);
-      if (this.collapsed) {
-        this.sceneGraph.height = kT.collapsedHeight;
-      } else {
-        this.sceneGraph.height = Math.max(aabb.bottom, kT.minHeight) + kT.bottomPad;
-      }
+      this.sceneGraph.height = Math.max(aabb.bottom, kT.minHeight) + kT.bottomPad;
       this.sceneGraph.updateSize();
     }
   }
@@ -220,6 +215,7 @@ export default class Layout {
         updateReference: this.updateReference,
         listParentBlock: block,
         listParentNode: parentNode,
+        hidden: block.isHidden(),
       });
     } else {
       // find the index of the focused list option, or default the first one
@@ -253,6 +249,7 @@ export default class Layout {
           listParentNode: this.nodeFromElement(block.id),
           listBlock,
           optionSelected: index === focusedIndex,
+          hidden: block.isHidden(),
         });
       });
     }
@@ -340,19 +337,12 @@ export default class Layout {
         hoverClass: props.roleName ? 'inline-editor-hover-block' : 'inline-editor-hover-block-noimage',
       });
     }
-    // hide/show child expand/collapse glyph
+    // hide/show child expand glyph
     node.set({
       hasChildren: this.someChildrenVisible(part),
     });
     // mark part as in use
     this.usePart(part);
-  }
-
-  /**
-   * return one of the meta data properties for a part.
-   */
-  partMeta(part, meta) {
-    return this.blocks[part].metadata[meta];
   }
 
   /**
@@ -383,9 +373,6 @@ export default class Layout {
    * @return {boolean}
    */
   blockIsHidden(blockId) {
-    if (this.isAuthoring()) {
-      return false;
-    }
     const block = this.blocks[blockId];
     return block.isHidden();
   }
@@ -487,48 +474,11 @@ export default class Layout {
       this.banner.set({
         fill: this.baseColor,
         stroke: this.baseColor,
-        bounds: new Box2D(this.insetX, this.insetY, this.sceneGraph.availableWidth - this.insetX, kT.bannerHeight),
+        bounds: new Box2D(this.insetX, this.insetY, kT.bannerHeight, kT.bannerHeight),
       });
     }
   }
 
-  /**
-   * create title as necessary
-   *
-   *
-   */
-  titleFactory() {
-    if (this.showHeader) {
-      if (!this.titleNode) {
-        // node that carries the text
-        this.titleNode = new Node2D(Object.assign({
-          dataAttribute: { name: 'nodetype', value: 'construct-title' },
-          sg: this.sceneGraph,
-          hoverClass: 'inline-editor-hover-title',
-          textIndent: 4,
-        }, kT.titleAppearance));
-        this.sceneGraph.root.appendChild(this.titleNode);
-      }
-
-      // update title to current position and text and width, also add gray text
-      // to indicate template if appropriate
-      let text = this.construct.getName('New Construct');
-      if (this.construct.isTemplate()) {
-        text += '<span style="color:gray">&nbsp;Template</span>';
-      }
-      if (this.isAuthoring()) {
-        text += '<span style="color:gray">&nbsp;(Authoring)</span>';
-      }
-      this.titleNodeTextWidth = this.titleNode.measureText(text).x + kT.textPad;
-
-      this.titleNode.set({
-        text,
-        color: this.baseColor,
-        bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, this.sceneGraph.availableWidth - this.insetX - kT.rightPad, kT.titleH),
-        dataAttribute: { name: 'construct-title', value: text },
-      });
-    }
-  }
 
   /**
    * create the vertical bar as necessary and update its color
@@ -603,27 +553,20 @@ export default class Layout {
   }
 
   /**
-   * nested constructs may be indicate not authoring when the top level construct does
-   * so always check the top level construct.
-   * @return {Boolean}
-   */
-  isAuthoring() {
-    // construct may not be present when used as a preview control in the order form
-    if (this.constructViewer.props.construct) {
-      return this.constructViewer.props.construct.isAuthoring();
-    }
-    return false;
-  }
-
-  /**
    * store layout information on our cloned copy of the data, constructing
-   * display elements as required
+   * display elements as required.
+   * NOTE: The project might have been delete while we are updating. So handle that edge case.
    *
    */
   update(options) {
+    const project = this.constructViewer.getProject();
+    if (!project) {
+      return;
+    }
     this.options = options;
+    this.showHidden = options.showHidden;
     this.construct = options.construct;
-    this.palette = this.construct.metadata.palette;
+    this.palette = this.rootLayout ? this.construct.metadata.palette || project.metadata.palette : this.palette;
     this.blocks = options.blocks;
     this.currentConstructId = options.currentConstructId;
     this.currentBlocks = options.currentBlocks;
@@ -632,9 +575,6 @@ export default class Layout {
     invariant(this.construct && this.blocks && this.currentBlocks && this.focusedOptions, 'missing required options');
 
     this.baseColor = this.construct.getColor();
-
-    // get collapsed state, if present from local storage
-    this.collapsed = getLocal(`${this.construct.id}-collapsed`, false);
 
     // perform layout and remember how much vertical was required
     const layoutResults = this.layoutWrap();
@@ -647,14 +587,6 @@ export default class Layout {
 
     // return our layout results for our parent, if any
     return layoutResults;
-  }
-
-  /**
-   * set collapsed state and persist to local storage
-   */
-  setCollapsed(state) {
-    this.collapsed = state;
-    setLocal(`${this.construct.id}-collapsed`, this.collapsed);
   }
 
   /**
@@ -673,7 +605,7 @@ export default class Layout {
    *
    */
   getInitialLayoutPoint() {
-    return new Vector2D(this.insetX + kT.rowBarW, this.insetY + (this.showHeader ? kT.bannerHeight + kT.titleH + kT.rowBarH : kT.rowBarH));
+    return new Vector2D(this.insetX + kT.rowBarW, this.insetY + (this.showHeader ? kT.bannerHeight + kT.bannerGap + kT.rowBarH : kT.rowBarH));
   }
 
   /**
@@ -697,10 +629,8 @@ export default class Layout {
     const ct = this.construct;
     // construct the banner if required
     this.bannerFactory();
-    // create and update title
-    this.titleFactory();
     // maximum x position
-    const mx = layoutOptions.xlimit - (this.collapsed ? kT.collapsedMessageWidth : 0);
+    const mx = layoutOptions.xlimit;
     // reset nested constructs
     this.resetNestedConstructs();
     // layout all the various components, constructing elements as required
@@ -717,7 +647,8 @@ export default class Layout {
     // additional vertical space consumed on every row for nested constructs
     let nestedVertical = 0;
 
-    // additional height required by the tallest list on the row
+    // additional height required by the tallest list on the row including an allowance
+    // for empty list blocks which have the text 'Emtpy List' below them.
     let maxListHeight = 0;
 
     // used to track the nested constructs on each row
@@ -727,11 +658,8 @@ export default class Layout {
     // which row we are on.
     let rowIndex = 0;
 
-    // if collapsed will track the number of clipped blocks
-    let clippedBlocks = 0;
-
     // display only non hidden blocks
-    const components = ct.components.filter(blockId => !this.blockIsHidden(blockId));
+    const components = this.showHidden ? ct.components : ct.components.filter(blockId => !this.blockIsHidden(blockId));
 
     // layout all non hidden blocks
     components.forEach((part) => {
@@ -752,20 +680,18 @@ export default class Layout {
       const node = this.nodeFromElement(part);
       const block = this.blocks[part];
       const name = this.partName(part);
-      const listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      let listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      // empty list blocks has a message below them so allow for that.
+      listN = block.isList() ? Math.max(listN, 1) : listN;
 
-      // set role part name if any
+      // set role part name if any, and set hidden property
       node.set({
         roleName: this.isSBOL(part) ? block.rules.role || block.metadata.role : null,
+        hidden: block.isHidden(),
       });
 
       // measure element text or used condensed spacing
       const td = Layout.measureText(node, name);
-
-      // if collapsed and this isn't the first row then this block will be clipped
-      if (rowIndex > 0 && this.collapsed) {
-        clippedBlocks += 1;
-      }
 
       // measure the max required width of all list blocks
       Object.keys(block.options).filter(opt => block.options[opt]).forEach((blockId) => {
@@ -812,8 +738,12 @@ export default class Layout {
       // update any list parts for this blocks
       this.updateListForBlock(block, td.x);
 
-      // render children unless user has collapsed the block or it is hidden OR all its children are hidden
-      if (node.showChildren && !this.blockIsHidden(part) && this.someChildrenVisible(part) && !this.collapsed) {
+      // render children unless it is hidden OR all its children are hidden
+      let hidden = this.blockIsHidden(part);
+      if (hidden && this.showHidden) {
+        hidden = false;
+      }
+      if (node.showChildren && !hidden && this.someChildrenVisible(part)) {
         // establish the position
         const nestedX = this.insetX + kT.nestedInsetX;
         const nestedY = yp + nestedVertical + kT.blockH + kT.nestedInsetY;
@@ -825,6 +755,7 @@ export default class Layout {
             insetX: nestedX,
             insetY: nestedY,
             rootLayout: false,
+            palette: this.palette,
           });
         }
 
@@ -834,6 +765,9 @@ export default class Layout {
 
         // update base color of nested construct skeleton
         nestedLayout.baseColor = block.getColor() || this.baseColor;
+
+        // update palette
+        nestedLayout.palette = this.palette;
 
         // update minimum x extent of first rowH
         nestedLayout.initialRowXLimit = this.getConnectionRowLimit(part);
@@ -848,6 +782,7 @@ export default class Layout {
           blocks: this.blocks,
           currentBlocks: this.currentBlocks,
           currentConstructId: this.currentConstructId,
+          showHidden: this.showHidden,
         }).height + kT.nestedInsetY;
 
         // remove from old collection so the layout won't get disposed
@@ -875,6 +810,7 @@ export default class Layout {
             blocks: this.blocks,
             currentBlocks: this.currentBlocks,
             currentConstructId: this.currentConstructId,
+            showHidden: this.showHidden,
           });
         });
       }
@@ -920,10 +856,9 @@ export default class Layout {
       this.sceneGraph.ui.setSelections(selectedNodes);
     }
 
-    // return height and number of clipped blocks
+    // return height
     return {
       height: heightUsed + nestedVertical + kT.rowBarH + maxListHeight,
-      clippedBlocks: this.collapsed && this.rootLayout ? clippedBlocks : 0,
     };
   }
 
@@ -931,39 +866,16 @@ export default class Layout {
    * update connections after the layout
    */
   postLayout(layoutResults) {
-    if (!this.collapsed) {
-      // update / make all the parts
-      this.construct.components.forEach((part) => {
-        // render children ( nested constructs )
-        if (this.hasChildren(part) && !this.blockIsHidden(part) && !this.allChildrenHidden(part) &&
-          this.nodeFromElement(part).showChildren) {
-          // update / create connection
-          this.updateConnection(part);
-        }
-      });
-      if (this.collapsedLabel) {
-        this.collapsedLabel.detach();
-        this.collapsedLabel = null;
+    // update / make all the parts
+    this.construct.components.forEach((part) => {
+      // render children ( nested constructs )
+      if (this.hasChildren(part) && !this.blockIsHidden(part) && !this.allChildrenHidden(part) &&
+        this.nodeFromElement(part).showChildren) {
+        // update / create connection
+        this.updateConnection(part);
       }
-    } else {
-      // if collapsed and there were clipped blocks, display the number
-      if (!this.collapsedLabel) {
-        this.collapsedLabel = new Node2D(Object.assign({}, {
-          sg: this.sceneGraph,
-          glyph: 'rectangle',
-          dataAttribute: { name: 'nodetype', value: 'moreLabel' },
-        }, kT.labelAppearance));
-        this.sceneGraph.root.appendChild(this.collapsedLabel);
-      }
-      const text = layoutResults.clippedBlocks ? `${layoutResults.clippedBlocks} more...` : 'More';
-      this.collapsedLabel.set({
-        text,
-        bounds: new Box2D(this.sceneGraph.availableWidth - kT.collapsedMessageWidth,
-          this.getInitialLayoutPoint().y,
-          kT.collapsedMessageWidth,
-          kT.blockH),
-      });
-    }
+    });
+
     // dispose dangling connections
     this.disposeConnections();
   }
@@ -1035,7 +947,6 @@ export default class Layout {
     invariant(!this.disposed, 'Layout already disposed');
     this.disposed = true;
     Layout.removeNode(this.banner);
-    Layout.removeNode(this.titleNode);
     Layout.removeNode(this.vertical);
     this.rows.forEach((node) => {
       Layout.removeNode(node);

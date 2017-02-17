@@ -40,8 +40,16 @@ const seqObjectBlocksValidator = validators.objectOf((value, key) => {
   return idValidator(key);
 });
 
+/*
+versions:
+1
+  starting point
+2
+  - add project.owner (not required)
+  - add metadata.keywords = [] (required) (Project + Blocks)
+ */
 //help track data model to aid migrations
-const currentDataModelVersion = 1;
+export const currentDataModelVersion = 2;
 
 const rollupFields = {
   //schema is validated on save, should always be at current version (should be upgraded on load)

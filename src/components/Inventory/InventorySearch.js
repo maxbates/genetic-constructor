@@ -22,8 +22,8 @@ export default class InventorySearch extends Component {
     searchTerm: PropTypes.string.isRequired,
     onSearchChange: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
-    isSearching: PropTypes.bool,
     disabled: PropTypes.bool,
+    isSearching: PropTypes.bool,
   };
 
   handleSearchChange = (event) => {
@@ -32,7 +32,7 @@ export default class InventorySearch extends Component {
 
   render() {
     return (
-      <div className={`InventorySearch${this.props.isSearching ? ' searching' : ''}`}>
+      <div className="InventorySearch">
         <input
           className="InventorySearch-input"
           type="text"
@@ -42,7 +42,7 @@ export default class InventorySearch extends Component {
           placeholder={this.props.placeholder || 'Keyword, biological function'}
           onChange={this.handleSearchChange}
         />
-        <div className="InventorySearch-progress" />
+        <div className={this.props.isSearching ? 'bar-animated' : 'bar'} />
       </div>
     );
   }

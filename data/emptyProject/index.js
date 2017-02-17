@@ -17,7 +17,7 @@ import Block from '../../src/models/Block';
 import Rollup from '../../src/models/Rollup';
 import Project from '../../src/models/Project';
 
-export default function emptyProjectWithConstruct(freeze = true) {
+export default function emptyProjectWithConstruct(userId, freeze = true) {
   const projectId = Project.classless().id;
 
   const construct = new Block({
@@ -26,6 +26,7 @@ export default function emptyProjectWithConstruct(freeze = true) {
 
   const project = new Project({
     id: projectId,
+    owner: userId,
     components: [construct.id],
   }, freeze);
 

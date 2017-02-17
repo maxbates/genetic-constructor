@@ -1,5 +1,4 @@
 import uuid from 'node-uuid';
-import sha1 from 'sha1';
 import merge from 'lodash.merge';
 
 /*
@@ -7,12 +6,14 @@ import merge from 'lodash.merge';
  * These models are intentionally to note when changes to the schema occurs - see rest of /test/schemas
  */
 
+/* NB - IF YOU ARE CHANGING THESE MODELS, THEN IT IS LIKELY THE DATABASE NEEDS TO BE UPDATED */
+
 export const Block = {
   id: uuid.v4(),
   parents: [],
   metadata: {
-    authors: [],
     tags: {},
+    keywords: [],
   },
   sequence: {
     annotations: [],
@@ -26,11 +27,12 @@ export const Block = {
 
 export const Project = {
   id: uuid.v4(),
+  owner: uuid.v1(),
   version: 12,
   parents: [],
   metadata: {
-    authors: [],
     tags: {},
+    keywords: [],
   },
   components: [],
   settings: {},
@@ -51,7 +53,8 @@ export const Annotation = {
 
 export const makeParent = () => ({
   id: uuid.v4(),
-  sha: sha1('' + Math.floor(Math.random() * 10000000)),
+  owner: uuid.v1(),
+  version: 0,
 });
 
 export const blockWithParents = merge(Block, {

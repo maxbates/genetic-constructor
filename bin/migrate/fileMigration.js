@@ -22,7 +22,7 @@ import fs from 'fs';
 import _ from 'lodash';
 import { defaultUser } from '../../server/auth/local';
 
-import { errorDoesNotExist } from '../../server/utils/errors';
+import { errorDoesNotExist } from '../../server/errors/errorConstants';
 import * as fileSystem from '../../server/data/middleware/fileSystem';
 import * as s3 from '../../server/data/middleware/s3';
 import * as projectFiles from '../../server/data/files/projectFiles';
@@ -166,7 +166,7 @@ batchPromises(_.map(files, (fileObject) => () => {
             });
           });
 
-          const userId = manifest.metadata.authors[0];
+          const userId = manifest.owner;
 
           return projectPersistence.projectWriteManifest(projectId, newManifest, userId)
             .catch(err => {

@@ -150,7 +150,6 @@ export const projectGetOptionWithSource = (projectId, sourceKey, sourceId) => (d
  * Create project rollup
  * @function
  * @param {UUID} projectId
- * @param {UUID} blockId
  * @returns {Object} { project: Project, blocks: Object.<blockId:Block> }
  */
 export const projectCreateRollup = projectId => (dispatch, getState) => {

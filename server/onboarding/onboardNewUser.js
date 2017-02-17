@@ -32,8 +32,8 @@ const logger = debug('constructor:auth:onboarding');
 // todo - use require() for dynamic (will need to reconcile with build eventually, but whatever)
 // these are parameterized generators of projects, which return promises
 const projectMap = {
-  egf_templates: (config, user) => makeEgfRollup(),
-  emptyProject: (config, user) => emptyProjectWithConstruct(false),
+  egf_templates: (config, user) => makeEgfRollup(user.uuid),
+  emptyProject: (config, user) => emptyProjectWithConstruct(user.uuid, false),
 };
 
 //create rollup generators, where first is the one to return as final project ID

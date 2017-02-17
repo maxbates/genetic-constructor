@@ -5,6 +5,8 @@ var async = require('async');
 var isEmpty = require('underscore').isEmpty;
 var map = require('underscore').map;
 var max = require('underscore').max;
+var uniq = require('underscore').uniq;
+var reduce = require('underscore').reduce;
 
 var uuidValidate = require("uuid-validate");
 
@@ -187,6 +189,19 @@ var saveSnapshot = function (req, res) {
     tags = body.tags;
   }
 
+  var keywords = [];
+  if (body.keywords != null) {
+    if (! Array.isArray(body.keywords)) {
+      return res.status(400).send({
+        message: '\'keywords\' should be an array',
+      }).end();
+    }
+
+    keywords = uniq(map(body.keywords, function (keyword) {
+      return keyword.toLowerCase();
+    }));
+  }
+
   // lookup the project UUID to save a strict reference to a project version
   // assume the snapshot hasn't been created, because that should be the normal use case
   // catch a unique constraint and then update
@@ -263,6 +278,7 @@ var saveSnapshot = function (req, res) {
         type: body.type,
         message: body.message,
         tags: tags,
+        keywords: keywords,
       }).then(function (newSnapshot) {
         return cb(null, newSnapshot.get());
       }).catch(Sequelize.UniqueConstraintError, function () {
@@ -270,9 +286,10 @@ var saveSnapshot = function (req, res) {
           type: body.type,
           message: body.message,
           tags: tags,
+          keywords: keywords,
         }, {
           returning: true,
-          fields: ['type', 'message', 'tags'],
+          fields: ['type', 'message', 'tags', 'keywords'],
           where: {
             owner: body.owner,
             projectId: body.projectId,
@@ -333,6 +350,7 @@ var fetchByTags = function (req, res) {
   // console.log('tags body', tagsBody);
   var where = {
     tags: tagsBody,
+    status: 1,
   };
 
   if ((req.query.project != null) && (req.query.project != "")) {
@@ -343,9 +361,51 @@ var fetchByTags = function (req, res) {
     where: where,
   }).then(function (results) {
     if(results.length < 1) {
-      return res.status(404).send({
-        message: 'no matching snapshots',
-      }).end();
+      return res.status(200).send([]).end();
+    }
+
+    return res.status(200).send(map(results, function (result) { return result.get(); })).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
+var fetchByKeywords = function (req, res) {
+  if (! req.body || ! req.body.keywords || ! Array.isArray(req.body.keywords)) {
+    return res.status(400).send({
+      message: 'post an array of STRING keywords with the key \'keywords\' in POST request body',
+    }).end();
+  }
+
+  var keywordsArray = req.body.keywords;
+  if (keywordsArray.length < 1) {
+    return res.status(400).send({
+      message: 'keywords array in POST request body may not be empty',
+    }).end();
+  }
+
+  // console.log('keywords', keywordsArray);
+  var where = {
+    keywords: { $contains: keywordsArray },
+    status: 1,
+  };
+
+  if ((req.query.project != null) && (req.query.project != "")) {
+    where.projectId = req.query.project;
+  }
+
+  if((req.body.tags != null) && (typeof req.body.tags === 'object') && (! isEmpty(req.body.tags))) {
+    where.tags = req.body.tags;
+  }
+
+  return Snapshot.findAll({
+    where: where,
+  }).then(function (results) {
+    if(results.length < 1) {
+      return res.status(200).send([]).end();
     }
 
     return res.status(200).send(map(results, function (result) { return result.get(); })).end();
@@ -422,12 +482,79 @@ var deleteByUUID = function (req, res) {
   });
 };
 
+var fetchKeywordMap = function (req, res) {
+  if (!req.body) {
+    return res.status(400).send({
+      message: 'no POST body',
+    }).end();
+  }
+
+  var where = {};
+
+  if (req.body.keywords) {
+    if (! Array.isArray(req.body.keywords)) {
+      return res.status(400).send({
+        message: '\'keywords\' must be an array',
+      }).end();
+    }
+
+    where.keywords = { $contains: req.body.keywords };
+  }
+
+  if (req.body.tags) {
+    if (typeof req.body.tags !== 'object') {
+      return res.status(400).send({
+        message: '\'tags\' must be an object',
+      }).end();
+    }
+
+    where.tags = req.body.tags;
+  }
+
+  if (req.body.projectId) {
+    if (typeof req.body.projectId !== 'string') {
+      return res.status(400).send({
+        message: '\'projectId\' must be a string',
+      }).end();
+    }
+
+    where.projectId = req.body.projectId;
+  }
+
+  return Snapshot.findAll({
+    where: where,
+  }).then(function (results) {
+    // return an empty map if nothing matched
+    if(results.length < 1) {
+      return res.status(200).send({}).end();
+    }
+
+    return res.status(200).send(reduce(results, function (memo, snapshot) {
+      return reduce(snapshot.get().keywords, function (memoRef, keyword) {
+        if (memoRef[keyword]) {
+          memoRef[keyword] = memoRef[keyword] + 1;
+        } else {
+          memoRef[keyword] = 1;
+        }
+        return memoRef;
+      }, memo);
+    }, {})).end();
+  }).catch(function (err) {
+    req.log.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
+
 var routes = [
   route('GET /:projectId', fetchSnapshots),
   route('HEAD /:projectId', checkSnapshots),
   route('GET /uuid/:uuid', fetchSnapshotByUUID),
   route('DELETE /uuid/:uuid', deleteByUUID),
   route('POST /tags', fetchByTags),
+  route('POST /keywords', fetchByKeywords),
+  route('POST /kwm', fetchKeywordMap),
   route('POST /', saveSnapshot),
 ];
 

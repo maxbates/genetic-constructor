@@ -1,6 +1,7 @@
 import { expect, assert } from 'chai';
-import Project from '../../src/models/Project';
 import { merge, isEqual } from 'lodash';
+import Project from '../../src/models/Project';
+import { testUserId } from '../constants';
 
 describe('Model', () => {
   describe('Project', () => {
@@ -21,7 +22,7 @@ describe('Model', () => {
     });
 
     it('validate can throw, or not', () => {
-      const good = Project.classless();
+      const good = Project.classless({ owner: testUserId });
       const bad = merge({}, good, { version: 'adsfasdfasdfasdf' });
 
       expect(Project.validate(good)).to.equal(true);
@@ -33,7 +34,7 @@ describe('Model', () => {
 
     it('compare() can throw, or not', () => {
       const orig = new Project();
-      const copy = orig.clone(null);
+      const copy = orig.clone(null).mutate('id', orig.id);
       const diff = orig.mutate('metadata.name', 'new name');
 
       expect(Project.compare(orig, orig)).to.equal(true);
@@ -47,7 +48,7 @@ describe('Model', () => {
 
     it('compare() compares model and POJO correctly', () => {
       const orig = new Project();
-      const clone = orig.clone(null);
+      const clone = orig.clone(null).mutate('id', orig.id);
       const copy = Object.assign({}, orig);
 
       //both project instances
@@ -88,6 +89,38 @@ describe('Model', () => {
       assert(one !== two);
       assert(!isEqual(one, two));
       assert(Project.compare(one, two), 'compare should ignore version');
+    });
+
+
+    it('Project.clone() null just clones with no parents, changes ID', () => {
+      const init = new Project();
+      const clone = init.clone(null);
+
+      expect(clone.id).to.not.equal(init.id);
+      expect(clone).to.eql(Object.assign({}, init, { id: clone.id }));
+    });
+
+    it('Project.clone() unlocks frozen project', () => {
+      const init = new Project({ rules: { frozen: true }});
+      const clone = init.clone(null);
+      expect(clone.rules.frozen).to.equal(false);
+    });
+
+    //todo - re-enable pending
+    it.skip('Project.clone() requires an owner if not a simple copy', () => {
+      expect(() => (new Project()).clone()).to.throw();
+    });
+
+    it('Project.clone() adds ancestor properly', () => {
+      const init = new Project({ owner: testUserId });
+      const clone = init.clone();
+
+      expect(clone.id).to.not.equal(init.id);
+      expect(clone.parents.length).to.equal(1);
+      expect(clone.parents[0].id).to.equal(init.id);
+      expect(clone.parents[0].version).to.equal(init.version);
+      expect(clone.parents[0].owner).to.equal(init.owner);
+      expect(clone).to.eql(merge({}, init, { parents: clone.parents, id: clone.id }));
     });
   });
 });

@@ -1,0 +1,14 @@
+<svg id="sbol-svg-ribonuclease" xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27">
+  <g fill="none" fill-rule="evenodd" stroke="#292D40">
+    <path d="M13.5 21L13.5 18M13.5 26L13.5 23"/>
+    <g transform="translate(10.75 10.25)" stroke-linecap="square">
+      <path d="M-.30562228e-13 5.5L5.5.22044605e-15M5.5 5.5L0 0"/>
+    </g>
+    <g transform="translate(6.5 18)" stroke-linecap="square">
+      <path d="M-.7000624e-13 2L2 0M14 2L12 0"/>
+    </g>
+    <g transform="translate(6.5 6)" stroke-linecap="square">
+      <path d="M12 2L14 .99360578e-15M2 2L0 0"/>
+    </g>
+  </g>
+</svg>

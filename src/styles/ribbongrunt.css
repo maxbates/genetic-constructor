@@ -4,40 +4,53 @@
 --background: #FFFA81;
 --color: #67654D;
 --ribbon-fontsize: 1rem;
+--ribbon-height: 32px;
 --close-size: 20px;
 }
 
 .ribbongrunt {
-  height: var(--grunt-height);
-  line-height: var(--grunt-height);
+  position: fixed;
+  top: var(--GlobalNav-height-chrome);
+  left: 50%;
+  z-index: var(--z-grunt);
   font-size: var(--ribbon-fontsize);
   background-color: var(--background);
   color: var(--color);
   text-align: center;
-  position: fixed;
-  top: var(--GlobalNav-height-chrome);
-  z-index: var(--z-grunt);
-  width: 70%;
-  left: 50%;
+  border-radius: 0 0 5px 5px;
   transform: translateX(-50%);
+  transition: top 250ms ease;
+  height: var(--ribbon-height);
 
-  button {
+  &-visible {
+    top: 0;
+  }
+
+  &-hidden {
+    top: calc(0 - 100px);
+  }
+
+  span {
+    font-family: var(--font-family-base);
+    height: var(--ribbon-height);
+    line-height: var(--ribbon-height);
+    padding: 0 5rem;
+    position: relative;
+  }
+
+  img {
+    cursor: pointer;
+    transform: scale(0.5);
+    height: 32px;
     float: right;
-    width: var(--close-size);
-    height: var(--grunt-height);
-    padding: 0;
-    margin: 0;
-    font-size: 1em;
-    font-size: var(--close-size);
-    line-height: var(--close-size);
-    background-color: transparent;
-    border: none;
-    outline: none;
-    margin-right: 15px;
+    position: absolute;
+    right: 0;
+    top: -7px;
   }
 
   /* will go away with new UI design */
   &.atTop {
-    top: 0;
+    bottom: 0;
+    height: 32px;
   }
 }

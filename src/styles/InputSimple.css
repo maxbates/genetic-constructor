@@ -1,40 +1,48 @@
 @import 'variables.css';
 
 .InputSimple {
-  width: 100%;
-
-  &-input {
-    cursor: pointer;
-    background: transparent;
-    padding: 5px;
-    margin: -2px 0;
-    outline: 0;
-    border: 0;
-    border-radius: 2px;
+  input,
+  input:focus {
     width: 100%;
-    color: var(--colors-white);
-    background-color: var(--colors-darkerGrey);
-    transition: background-color linear 0.05s, color linear 0.05s;
+    height: 28px;
+    line-height: 28px;
+    outline: 0;
+    padding: 0.25rem 0.25rem;
+    margin: 0;
+    border-radius: 2px;
+    font-size: 12px;
+    color: var(--colors-nearlyBlack);
+    border: solid 2px var(--colors-lightGrey);
+    transition: border-color var(--timing-fast) ease-out;
+    background: var(--colors-white);
 
     &:focus {
-      cursor: text;
-      background: white;
-      color: var(--colors-darkerGrey);
-      background-color: white;
+      border-color: var(--colors-slightlyDarkGrey);
+    }
+
+    &[disabled] {
+      cursor: not-allowed;
     }
   }
+  textarea {
+    width: 100%;
+    outline: 0;
+    padding: 0.25rem 0.25rem;
+    margin: 0;
+    border-radius: 2px;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--colors-nearlyBlack);
+    border: solid 2px var(--colors-lightGrey);
+    transition: border-color var(--timing-fast) ease-out;
+    background: var(--colors-white);
 
-  &.readOnly {
-    overflow: scroll;
+    &:focus {
+      border-color: var(--colors-slightlyDarkGrey);
+    }
 
-    .InputSimple-input {
-      cursor: default;
-
-      &:focus {
-        cursor: default;
-        background: inherit;
-        color: inherit;
-      }
+    &[disabled] {
+      cursor: not-allowed;
     }
   }
 }

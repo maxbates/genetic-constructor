@@ -17,12 +17,17 @@
 import debug from 'debug';
 import EmailValidator from 'email-validator';
 import fetch from 'isomorphic-fetch';
+import _ from 'lodash';
 
 import { headersPost } from '../../src/middleware/utils/headers';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
+import userConfigOverrides from '../onboarding/userConfigOverrides';
 import { verifyCaptchaProductionOnly } from '../utils/captcha';
 import { API_END_POINT, INTERNAL_HOST } from '../urlConstants';
 import { mergeConfigToUserData, pruneUserObject, updateUserAll, updateUserConfig, validateConfig } from './utils';
+
+// send 'true' as a string to enable email verification
+const SEND_VERIFY = 'true';
 
 const logger = debug('constructor:auth');
 
@@ -59,7 +64,9 @@ export function registrationHandler(req, res, next) {
     }
   }
 
+  //shallow assign, so explicitly declare projects + extensions, not merging with defaults
   const mergedConfig = Object.assign({}, userConfigDefaults, config);
+  _.merge(mergedConfig, userConfigOverrides);
 
   try {
     validateConfig(mergedConfig);
@@ -75,6 +82,7 @@ export function registrationHandler(req, res, next) {
     password,
     firstName,
     lastName,
+    sendVerify: SEND_VERIFY,
   }, mergedConfig);
 
   logger('[User Register] Checking Captcha...');

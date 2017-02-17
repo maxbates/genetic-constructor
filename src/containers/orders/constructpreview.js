@@ -86,6 +86,7 @@ class ConstructPreview extends Component {
         construct: new Block({
           metadata: {
             color: parentConstruct.metadata.color || 'lightgray',
+            palette: 'anime',
           },
           components: componentIds,
           rules: {
@@ -107,6 +108,18 @@ class ConstructPreview extends Component {
   onChangeConstruct = (index) => {
     this.setState({ index });
   };
+
+  /**
+   * this is because the layout object thinks we are construct viewer. At the very least we have to
+   * return an object with a .metadata property
+   */
+  getProject() { //eslint-disable-line class-methods-use-this
+    return {
+      metadata: {
+
+      },
+    };
+  }
 
   get dom() {
     return ReactDOM.findDOMNode(this);

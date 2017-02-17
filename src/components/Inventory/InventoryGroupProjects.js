@@ -14,14 +14,15 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-
-import InventoryProjectList from './InventoryProjectList';
+import InventoryProjectTree from './InventoryProjectTree';
 import InventoryRoleMap from './InventoryRoleMap';
 import InventoryTabs from './InventoryTabs';
+import InventorySearch from './InventorySearch';
 
 export default class InventoryGroupProjects extends Component {
   static propTypes = {
-    currentProject: PropTypes.string.isRequired,
+    currentProjectId: PropTypes.string,
+    templates: PropTypes.bool.isRequired,
   };
 
   constructor() {
@@ -29,35 +30,61 @@ export default class InventoryGroupProjects extends Component {
 
     this.inventoryTabs = [
       { key: 'project', name: 'By Project' },
-      { key: 'type', name: 'By Kind' },
+      { key: 'type', name: 'By Block' },
     ];
   }
 
   state = {
     groupBy: 'project',
+    filter: '',
   };
 
   onTabSelect = (key) => {
     this.setState({ groupBy: key });
   };
 
+  /**
+   * project filter changed
+   * @param filter
+   */
+  handleFilterChange = (filter) => {
+    this.setState({ filter });
+  };
+
   render() {
-    const { currentProject } = this.props;
-    const { groupBy } = this.state;
+    const { templates, currentProjectId } = this.props;
+    const { filter, groupBy } = this.state;
 
     const currentList = groupBy === 'type'
       ?
-        <InventoryRoleMap />
+        (<InventoryRoleMap
+          templates={templates}
+        />)
       :
-        <InventoryProjectList currentProject={currentProject} />;
+        (<InventoryProjectTree
+          filter={filter}
+          currentProjectId={currentProjectId}
+          templates={templates}
+        />);
 
     return (
-      <div className="InventoryGroup-content InventoryGroupProjects">
+      <div className="InventoryGroup-content InventoryGroupProjects" >
         <InventoryTabs
           tabs={this.inventoryTabs}
           activeTabKey={groupBy}
           onTabSelect={tab => this.onTabSelect(tab.key)}
         />
+        {groupBy !== 'type'
+          ?
+            <InventorySearch
+              searchTerm={filter}
+              disabled={false}
+              placeholder="Search"
+              onSearchChange={this.handleFilterChange}
+            />
+          :
+            null
+        }
         <div className="InventoryGroup-contentInner no-vertical-scroll">
           {currentList}
         </div>

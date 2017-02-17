@@ -7,7 +7,10 @@ var describeAppTest = require("../../../api-app");
 
 var each = require('underscore').each;
 var keys = require('underscore').keys;
+var map = require('underscore').map;
 var pick = require('underscore').pick;
+var omit = require('underscore').omit;
+var uniq = require('underscore').uniq;
 
 var Project = require('../../../../lib/project');
 var Snapshot = require('../../../../lib/snapshot');
@@ -148,6 +151,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body.projectUUID, null);
           assert.notEqual(res.body.createdAt, null);
           assert.notEqual(res.body.updatedAt, null);
+          assert.deepEqual(res.body.keywords, []);
           done();
         });
     });
@@ -183,6 +187,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body.projectUUID, null);
           assert.notEqual(res.body.createdAt, null);
           assert.notEqual(res.body.updatedAt, null);
+          assert.deepEqual(res.body.keywords, []);
           done();
         });
     });
@@ -204,6 +209,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body.tags, null);
           assert.equal(res.body.projectId, projectId);
           assert.notEqual(res.body.projectVersion, null);
+          assert.deepEqual(res.body.keywords, []);
           done();
         });
     });
@@ -237,6 +243,7 @@ describeAppTest("http", function (app) {
           assert.equal(res.body.type, "order");
           assert.equal(res.body.message, data.message);
           assert.deepEqual(res.body.tags, data.tags);
+          assert.deepEqual(res.body.keywords, []);
           done();
         });
     });
@@ -298,6 +305,7 @@ describeAppTest("http", function (app) {
               assert.notEqual(res.body.projectUUID, null);
               assert.notEqual(res.body.createdAt, null);
               assert.notEqual(res.body.updatedAt, null);
+              assert.deepEqual(res.body.keywords, []);
               cb(null, null);
             });
         },
@@ -340,6 +348,7 @@ describeAppTest("http", function (app) {
             assert.notEqual(snapshot.tags, null);
             assert.equal(snapshot.projectId, projectId);
             assert.notEqual(snapshot.projectVersion, null);
+            assert.deepEqual(snapshot.keywords, []);
           });
           done();
         });
@@ -365,6 +374,7 @@ describeAppTest("http", function (app) {
           assert.notEqual(snapshot.tags, null);
           assert.equal(snapshot.projectId, projectId);
           assert.equal(snapshot.projectVersion, 0);
+          assert.deepEqual(snapshot.keywords, []);
           done();
         });
     });
@@ -410,6 +420,7 @@ describeAppTest("http", function (app) {
               assert.notEqual(res.body.tags, null);
               assert.equal(res.body.projectId, projectId);
               assert.notEqual(res.body.projectVersion, null);
+              assert.deepEqual(res.body.keywords, []);
               cb(null, null);
             });
         },
@@ -447,6 +458,26 @@ describeAppTest("http", function (app) {
         });
     });
 
+    // leaving this in as skipped as a reminder of limitations of querying with JSON objects
+    // json keys must have values with homogeneous types
+    it.skip('should fetch snapshots with differently-typed tags', function fetchByTags(done) {
+      request(app.proxy)
+        .post('/api/snapshots/tags')
+        .send({
+          hello: 5,
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert(Array.isArray(res.body));
+          var snapshots = res.body;
+          assert.equal(snapshots.length, 0);
+          done();
+        });
+    });
+
     it('should fetch snapshots with tags and projectId', function fetchByTagsProjectId(done) {
       request(app.proxy)
         .post('/api/snapshots/tags' + '?project=' + projectId)
@@ -470,6 +501,7 @@ describeAppTest("http", function (app) {
             assert.notEqual(snapshot.tags, null);
             assert.equal(snapshot.projectId, projectId);
             assert.notEqual(snapshot.projectVersion, null);
+            assert.deepEqual(snapshot.keywords, []);
           });
           done();
         });
@@ -498,26 +530,356 @@ describeAppTest("http", function (app) {
             assert.notEqual(snapshot.tags, null);
             assert.equal(snapshot.projectId, projectId);
             assert.notEqual(snapshot.projectVersion, null);
+            assert.deepEqual(snapshot.keywords, []);
           });
           done();
         });
     });
 
-    it('should return 404 fetch snapshots with junk tags', function fetchByTagsFail(done) {
+    it('should return 200 for fetch snapshots with junk tags', function fetchByTagsFail(done) {
       request(app.proxy)
         .post('/api/snapshots/tags')
         .send({
           pink: "flamingo",
         })
-        .expect(404)
+        .expect(200)
         .end(function (err, res) {
           assert.ifError(err);
           assert.notEqual(res, null);
           assert.notEqual(res.body, null);
-          assert.notEqual(res.body.message, null);
+          //note from max - changed this to a 204, sorry if the tests got messed up
+          assert(Array.isArray(res.body));
           done();
         });
     });
+
+    it('should create a snapshot with keywords array', function createSnapshotWithKeywords(done) {
+      var data = {
+        owner: owner,
+        projectId: projectId,
+        projectVersion: 1,
+        message: "test snapshot",
+        type: "test",
+        tags: {
+          test: true,
+          hello: "kitty",
+          stuff: ["bing", "bang", "bong"],
+          worldSeries: "cubs",
+        },
+        keywords: ["fangle", "dangle", "tangle"],
+      };
+
+      request(app.proxy)
+        .post('/api/snapshots')
+        .send(data)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.notEqual(res.body.uuid, null);
+          snapshotUUID0 = res.body.uuid;
+          // console.log(res.body);
+          assert.deepEqual(pick(res.body, keys(data)), data);
+          assert.notEqual(res.body.projectUUID, null);
+          assert.notEqual(res.body.createdAt, null);
+          assert.notEqual(res.body.updatedAt, null);
+          done();
+        });
+    });
+
+    it('should fetch one snapshot using a keyword', function fetchWithKeyword(done) {
+      request(app.proxy)
+        .post('/api/snapshots/keywords')
+        .send({
+          keywords: ["dangle", "tangle"],
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert(Array.isArray(res.body));
+          var snapshots = res.body;
+          assert.equal(snapshots.length, 1);
+          each(snapshots, function (snapshot) {
+            assert.notEqual(snapshot.projectUUID, null);
+            assert.notEqual(snapshot.updatedAt, null);
+            assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.type, null);
+            assert.notEqual(snapshot.message, null);
+            assert.notEqual(snapshot.tags, null);
+            assert.equal(snapshot.projectId, projectId);
+            assert.notEqual(snapshot.projectVersion, null);
+            assert.notDeepEqual(snapshot.keywords, []);
+          });
+          done();
+        });
+    });
+
+    it('should fetch one snapshot using keywords', function fetchWithKeyword(done) {
+      request(app.proxy)
+        .post('/api/snapshots/keywords')
+        .send({
+          keywords: ["fangle"],
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert(Array.isArray(res.body));
+          var snapshots = res.body;
+          assert.equal(snapshots.length, 1);
+          each(snapshots, function (snapshot) {
+            assert.notEqual(snapshot.projectUUID, null);
+            assert.notEqual(snapshot.updatedAt, null);
+            assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.type, null);
+            assert.notEqual(snapshot.message, null);
+            assert.notEqual(snapshot.tags, null);
+            assert.equal(snapshot.projectId, projectId);
+            assert.notEqual(snapshot.projectVersion, null);
+            assert.notDeepEqual(snapshot.keywords, []);
+          });
+          done();
+        });
+    });
+
+    it('should create another snapshot with keywords array', function createSnapshotWithKeywords(done) {
+      var data = {
+        owner: owner,
+        projectId: projectId,
+        projectVersion: 0,
+        message: "test snapshot",
+        type: "test",
+        tags: {
+          test: true,
+          hello: "kitty",
+          stuff: ["bing", "bang", "bong"],
+          worldSeries: "cubs",
+        },
+        keywords: ["dangle", "tangle", "Mangle", "Tangle"],
+      };
+
+      request(app.proxy)
+        .post('/api/snapshots')
+        .send(data)
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.notEqual(res.body.uuid, null);
+          snapshotUUID0 = res.body.uuid;
+          // console.log(res.body);
+          assert.deepEqual(omit(pick(res.body, keys(data)), 'keywords'), omit(data, 'keywords'));
+          assert.deepEqual(res.body.keywords, uniq(map(data.keywords, function (kw) { return kw.toLowerCase(); })));
+          assert.notEqual(res.body.projectUUID, null);
+          assert.notEqual(res.body.createdAt, null);
+          assert.notEqual(res.body.updatedAt, null);
+          done();
+        });
+    });
+
+    it('should fetch two snapshot using keywords', function fetchWithKeyword(done) {
+      request(app.proxy)
+        .post('/api/snapshots/keywords')
+        .send({
+          keywords: ["dangle", "tangle"],
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert(Array.isArray(res.body));
+          var snapshots = res.body;
+          assert.equal(snapshots.length, 2);
+          each(snapshots, function (snapshot) {
+            assert.notEqual(snapshot.projectUUID, null);
+            assert.notEqual(snapshot.updatedAt, null);
+            assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.type, null);
+            assert.notEqual(snapshot.message, null);
+            assert.notEqual(snapshot.tags, null);
+            assert.equal(snapshot.projectId, projectId);
+            assert.notEqual(snapshot.projectVersion, null);
+            assert.notDeepEqual(snapshot.keywords, []);
+          });
+          done();
+        });
+    });
+
+    it('should fetch two snapshots using keywords and tags', function fetchWithKeywordsAndTags(done) {
+      request(app.proxy)
+        .post('/api/snapshots/keywords')
+        .send({
+          keywords: ["dangle", "tangle"],
+          tags: {
+            hello: "kitty",
+          },
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert(Array.isArray(res.body));
+          var snapshots = res.body;
+          assert.equal(snapshots.length, 2);
+          each(snapshots, function (snapshot) {
+            assert.notEqual(snapshot.projectUUID, null);
+            assert.notEqual(snapshot.updatedAt, null);
+            assert.notEqual(snapshot.createdAt, null);
+            assert.notEqual(snapshot.type, null);
+            assert.notEqual(snapshot.message, null);
+            assert.notEqual(snapshot.tags, null);
+            assert.equal(snapshot.projectId, projectId);
+            assert.notEqual(snapshot.projectVersion, null);
+            assert.notDeepEqual(snapshot.keywords, []);
+          });
+          done();
+        });
+    });
+
+    it('should fetch a keywords map for all snapshots', function fetchAllKeywordsMap(done) {
+      request(app.proxy)
+        .post('/api/snapshots/kwm')
+        .send({})
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.equal(typeof res.body, 'object');
+          var kwMap = res.body;
+          assert.deepEqual(keys(kwMap), ['fangle', 'dangle', 'tangle', 'mangle']);
+          assert.equal(kwMap.fangle, 1);
+          assert.equal(kwMap.dangle, 2);
+          assert.equal(kwMap.tangle, 2);
+          assert.equal(kwMap.mangle, 1);
+          done();
+        });
+    });
+
+    it('should fetch a keywords map for snapshots matching specified keywords',
+      function fetchKeywordsMapWithKeywords(done) {
+        request(app.proxy)
+          .post('/api/snapshots/kwm')
+          .send({
+            keywords: ['dangle'],
+          })
+          .expect(200)
+          .end(function (err, res) {
+            assert.ifError(err);
+            assert.notEqual(res, null);
+            assert.notEqual(res.body, null);
+            assert.equal(typeof res.body, 'object');
+            var kwMap = res.body;
+            assert.deepEqual(keys(kwMap), ['fangle', 'dangle', 'tangle', 'mangle']);
+            assert.equal(kwMap.fangle, 1);
+            assert.equal(kwMap.dangle, 2);
+            assert.equal(kwMap.tangle, 2);
+            assert.equal(kwMap.mangle, 1);
+            done();
+          });
+      });
+
+    it('should fetch a keywords map for snapshots matching specified tags', function fetchKeywordsMapWithTags(done) {
+      request(app.proxy)
+        .post('/api/snapshots/kwm')
+        .send({
+          tags: {
+            worldSeries: "cubs",
+          },
+        })
+        .expect(200)
+        .end(function (err, res) {
+          assert.ifError(err);
+          assert.notEqual(res, null);
+          assert.notEqual(res.body, null);
+          assert.equal(typeof res.body, 'object');
+          var kwMap = res.body;
+          assert.deepEqual(keys(kwMap), ['fangle', 'dangle', 'tangle', 'mangle']);
+          assert.equal(kwMap.fangle, 1);
+          assert.equal(kwMap.dangle, 2);
+          assert.equal(kwMap.tangle, 2);
+          assert.equal(kwMap.mangle, 1);
+          done();
+        });
+    });
+
+    it('should fetch a keywords map for snapshots matching specified tags',
+      function fetchKeywordsMapWithTagsAndKeywords(done) {
+        request(app.proxy)
+          .post('/api/snapshots/kwm')
+          .send({
+            keywords: ['mangle'],
+            tags: {
+              worldSeries: "cubs",
+            },
+          })
+          .expect(200)
+          .end(function (err, res) {
+            assert.ifError(err);
+            assert.notEqual(res, null);
+            assert.notEqual(res.body, null);
+            assert.equal(typeof res.body, 'object');
+            var kwMap = res.body;
+            assert.deepEqual(keys(kwMap), ['dangle', 'tangle', 'mangle']);
+            assert.equal(kwMap.dangle, 1);
+            assert.equal(kwMap.tangle, 1);
+            assert.equal(kwMap.mangle, 1);
+            done();
+          });
+      });
+
+    it('should fetch a keywords map for snapshots matching specified tags',
+      function fetchKeywordsMapWithProjectId(done) {
+        request(app.proxy)
+          .post('/api/snapshots/kwm')
+          .send({
+            projectId: 'fooNO',
+          })
+          .expect(200)
+          .end(function (err, res) {
+            assert.ifError(err);
+            assert.notEqual(res, null);
+            assert.notEqual(res.body, null);
+            assert.equal(typeof res.body, 'object');
+            var kwMap = res.body;
+            assert.deepEqual(kwMap, {});
+            done();
+          });
+      });
+
+    it('should fetch a keywords map for snapshots matching specified tags',
+      function fetchKeywordsMapWithTagsAndKeywordsAndProjectId(done) {
+        request(app.proxy)
+          .post('/api/snapshots/kwm')
+          .send({
+            projectId: projectId,
+            keywords: ['tangle'],
+            tags: {
+              worldSeries: "cubs",
+            },
+          })
+          .expect(200)
+          .end(function (err, res) {
+            assert.ifError(err);
+            assert.notEqual(res, null);
+            assert.notEqual(res.body, null);
+            assert.equal(typeof res.body, 'object');
+            var kwMap = res.body;
+            assert.deepEqual(keys(kwMap), ['fangle', 'dangle', 'tangle', 'mangle']);
+            assert.equal(kwMap.fangle, 1);
+            assert.equal(kwMap.dangle, 2);
+            assert.equal(kwMap.tangle, 2);
+            assert.equal(kwMap.mangle, 1);
+            done();
+          });
+      });
 
     it('should delete a snapshot by UUID', function deleteByUUID(done) {
       async.series([

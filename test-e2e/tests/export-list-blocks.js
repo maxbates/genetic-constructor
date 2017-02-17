@@ -1,17 +1,13 @@
 var homepageRegister = require('../fixtures/homepage-register');
-var signout = require('../fixtures/signout');
-var signin = require('../fixtures/signin');
 var dragFromTo = require('../fixtures/dragfromto');
 var newProject = require('../fixtures/newproject');
-var newConstruct = require('../fixtures/newconstruct');
-var clickMainMenu = require('../fixtures/click-main-menu');
+var clickMenuNthItem = require('../fixtures/click-popmenu-nth-item');
 var http = require("http");
 var path = require('path');
 var size = require('../fixtures/size');
 var searchFor = require('../fixtures/search-for');
-var openInventory = require('../fixtures/open-inventory');
-var openTemplates = require('../fixtures/open-templates-sample');
-
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
+var rightClickAt = require('../fixtures/rightClickAt');
 
 module.exports = {
   'Export a project with a regular construct and a template' : function (browser) {
@@ -28,29 +24,28 @@ module.exports = {
       .waitForElementPresent('.SidePanel.Inspector', 5000, 'Expected Inspector');
 
     newProject(browser);
-    openInventory(browser);
-    searchFor(browser, 'Runx1');
-    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.cvc-drop-target', 50, 40);
+    searchFor(browser, 'Ncbi', 'Runx1');
+    dragFromTo(browser, '.InventoryItem-item', 10, 10, '.inter-construct-drop-target', 50, 4);
 
     // click the my projects inventory tab and expect a project.
+    openInventoryPanel(browser, 'Templates');
     browser
-      .waitForElementPresent('.InventoryGroup:nth-of-type(2) .InventoryGroup-heading', 10000, 'expected project header')
-      .click('.InventoryGroup:nth-of-type(2) .InventoryGroup-heading')
-      // expect one project
-      .waitForElementPresent('.InventoryListGroup-heading', 5000, 'expect a list of projects to appear')
-      // click to expand
-      .waitForElementPresent('[data-inventory~="project"]', 30000, 'expected projects to appear')
-      // expect to see 3 projects
-      .assert.countelements('[data-inventory~="project"]', 3)
-    // expand the 3rd project
-      .click('[data-inventory~="project"]:nth-of-type(3) .Toggler')
-      .pause(500)
+      // expand 1st project
+      .pause(2000)
+      .click('.inventory-project-tree .tree div:nth-of-type(1) .expando')
+      .pause(2000)
+      // expect 14 template constructs in expanded project
+      .assert.countelements('.inventory-project-tree [data-testid^="block"]', 14);
+
 
     // drag the first construct into the canvas
-    dragFromTo(browser, '[data-inventory~="template"]', 10, 10, '.cvc-drop-target', 50, 40);
-    browser.pause(500);
-
-    clickMainMenu(browser, 1, 1);
+    dragFromTo(browser, '.inventory-project-tree [data-testid^="block"]', 50, 10, '.inter-construct-drop-target', 50, 4);
+    browser
+      .pause(3000);
+    // export the project via its context menu
+    openInventoryPanel(browser, 'Projects');
+    rightClickAt(browser, '.inventory-project-tree .expando', 4, 4 );
+    clickMenuNthItem(browser, 4);
 
     // we can't actually download the file but we can ensure the correct header is present at the expected url
     browser.url(function (response) {

@@ -16,7 +16,7 @@ describe('Server', () => {
       describe('Sequence', () => {
         let server;
         const userId = testUserId;
-        const projectData = new Project();
+        const projectData = new Project({ owner: testUserId });
         const projectId = projectData.id;
 
         const sequence = 'aaaaacccccccgggggggtttttt';
