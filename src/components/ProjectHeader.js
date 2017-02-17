@@ -256,6 +256,7 @@ class ProjectHeader extends Component {
         imageURL: '/images/ui/download.svg',
         enabled: true,
         clicked: () => {
+          this.props.uiSetGrunt('Preparing data. Download will begin automatically when complete.');
           downloadProject(this.props.project.id, this.props.focus.options);
         },
       }, {
