@@ -102,11 +102,11 @@ export class InventoryGroupCommons extends Component {
         text: 'Open Project',
         action: this.onOpenCommonsProject.bind(this, snapshot),
       },
-      {
-        text: 'Duplicate Project',
-        disabled: true, //todo - ability to clone the whole project
-        action: () => {},
-      },
+      //todo - ability to clone the whole project
+      //{
+      //  text: 'Duplicate Project',
+      //  action: () => {},
+      //},
     ], {
       x: evt.pageX,
       y: evt.pageY,
