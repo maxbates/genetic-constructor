@@ -18,6 +18,39 @@ import * as ActionTypes from '../constants/ActionTypes';
 import * as snapshots from '../middleware/snapshots';
 
 /**
+ * Create a snapshot
+ * Snapshots are saves of the project at an important point, creating an explicit commit with a user-specified message.
+ * @function
+ * @param {UUID} projectId
+ * @param {number} version project version, or null to default to latest
+ * @param {object} body { message, tags = {}, keywords = [] }
+ * @returns {Promise}
+ * @resolve {number} version for snapshot
+ * @reject {string|Response} Error message
+ */
+export const snapshotProject = (projectId, version = null, body = {}) =>
+  (dispatch, getState) => {
+    invariant(projectId, 'must pass projectId');
+    invariant(Number.isInteger(version), 'must pass version');
+
+    return snapshots.snapshot(projectId, version, body)
+    .then((snapshot) => {
+      if (!snapshot) {
+        return null;
+      }
+
+      const { version } = snapshot;
+      dispatch({
+        type: ActionTypes.SNAPSHOT_PROJECT,
+        projectId,
+        snapshot,
+        version,
+      });
+      return version;
+    });
+  };
+
+/**
  * Get snapshots for a given project
  * @function
  * @param projectId

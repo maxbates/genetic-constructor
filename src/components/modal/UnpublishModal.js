@@ -32,7 +32,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { commonsUnpublish } from '../../middleware/commons';
+import { commonsUnpublish } from '../../actions/commons';
 import { uiSetGrunt, uiShowUnpublishDialog } from '../../actions/ui';
 import Modal from './Modal';
 import ModalFooter from './ModalFooter';
@@ -44,6 +44,7 @@ class UnpublishModal extends Component {
     projectId: PropTypes.string.isRequired,
     projectVersion: PropTypes.number,
     open: PropTypes.bool.isRequired,
+    commonsUnpublish: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowUnpublishDialog: PropTypes.func.isRequired,
   };
@@ -63,7 +64,7 @@ class UnpublishModal extends Component {
 
   onSubmit = (evt) => {
     evt.preventDefault();
-    const { projectId, projectVersion } = this.props;
+    const { commonsUnpublish, projectId, projectVersion } = this.props;
     const { everything } = this.state;
 
     const version = everything ? undefined : projectVersion;
@@ -131,6 +132,7 @@ export default connect((state, props) => ({
   open: state.ui.modals.unpublishDialog,
   projectVersion: state.ui.modals.unpublishDialogVersion,
 }), {
+  commonsUnpublish,
   uiShowUnpublishDialog,
   uiSetGrunt,
 })(UnpublishModal);

@@ -141,69 +141,6 @@ export const projectSave = (inputProjectId, forceSave = false) => (dispatch, get
 };
 
 /**
- * Snapshots are saves of the project at an important point, creating an explicit commit with a user-specified message.
- * @function
- * @param {UUID} projectId
- * @param {number} version project version, or null to default to latest
- * @param {object} body { message, tags = {}, keywords = [] }
- * @returns {Promise}
- * @resolve {number} version for snapshot
- * @reject {string|Response} Error message
- */
-export const projectSnapshot = (projectId, version = null, body = {}) =>
-  (dispatch, getState) => {
-    invariant(projectId, 'must pass projectId');
-    invariant(Number.isInteger(version), 'must pass version');
-
-    return snapshot(projectId, version, body)
-    .then((snapshot) => {
-      if (!snapshot) {
-        return null;
-      }
-
-      const { version } = snapshot;
-      dispatch({
-        type: ActionTypes.PROJECT_SNAPSHOT,
-        projectId,
-        snapshot,
-        version,
-      });
-      return version;
-    });
-  };
-
-/**
- * Publish a project, creating a public snapshot.
- * @function
- * @param {UUID} projectId
- * @param {number} version project version, or null to default to latest
- * @param {object} body { message, tags = {}, keywords = [] }
- * @returns {Promise}
- * @resolve {number} version for snapshot
- * @reject {string|Response} Error message
- */
-export const projectPublish = (projectId, version, body = {}) => (dispatch, getState) => {
-  invariant(projectId, 'must pass projectId');
-  invariant(Number.isInteger(version), 'must pass version');
-
-  return commonsPublishVersion(projectId, version, body)
-  .then((snapshot) => {
-    if (!snapshot) {
-      return null;
-    }
-
-    const { version } = snapshot;
-    dispatch({
-      type: ActionTypes.PROJECT_PUBLISH,
-      projectId,
-      snapshot,
-      version,
-    });
-    return version;
-  });
-};
-
-/**
  * Create a project manifest
  * @function
  * @param {Object} [initialModel={}] Data to merge onto scaffold

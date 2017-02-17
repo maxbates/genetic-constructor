@@ -13,9 +13,41 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import invariant from 'invariant';
 
 import * as ActionTypes from '../constants/ActionTypes';
 import * as commons from '../middleware/commons';
+
+/**
+ * Publish a a particular version of a project, creating a public snapshot.
+ * @function
+ * @param {UUID} projectId
+ * @param {number} version project version, or null to default to latest
+ * @param {object} body { message, tags = {}, keywords = [] }
+ * @returns {Promise}
+ * @resolve {number} version for snapshot
+ * @reject {string|Response} Error message
+ */
+export const commonsPublish = (projectId, version, body = {}) => (dispatch, getState) => {
+  invariant(projectId, 'must pass projectId');
+  invariant(Number.isInteger(version), 'must pass version');
+
+  return commons.commonsPublishVersion(projectId, version, body)
+  .then((snapshot) => {
+    if (!snapshot) {
+      return null;
+    }
+
+    const { version } = snapshot;
+    dispatch({
+      type: ActionTypes.COMMONS_PUBLISH,
+      projectId,
+      snapshot,
+      version,
+    });
+    return version;
+  });
+};
 
 /**
  * Retrieve a published project, either latest or a specific version
@@ -46,14 +78,14 @@ export const commonsRetrieveProject = (projectId, version) =>
  */
 export const commonsRetrieveProjectVersions = projectId =>
   (dispatch, getState) =>
-  commons.commonsRetrieve(projectId, 'versions')
-  .then((snapshots) => {
-    dispatch({
-      type: ActionTypes.COMMONS_RETRIEVE_PROJECT_VERSIONS,
-      snapshots,
+    commons.commonsRetrieve(projectId, 'versions')
+    .then((snapshots) => {
+      dispatch({
+        type: ActionTypes.COMMONS_RETRIEVE_PROJECT_VERSIONS,
+        snapshots,
+      });
+      return snapshots;
     });
-    return snapshots;
-  });
 
 /**
  * Query the commons, fetching snapshots for latest version of each project matching query
@@ -72,3 +104,30 @@ export const commonsQuery = query =>
       });
       return snapshots;
     });
+
+/**
+ * Unpublish a snapshot or entire project
+ * @param projectId
+ * @param [version] If provided, unpublish that verison. Othewise, unpublish the entire project
+ * @return {Promise}
+ * @resolve {Snapshot} updated (unpublished) snapshot
+ * @throws if user does not own project
+ */
+export const commonsUnpublish = (projectId, version) =>
+  (dispatch, getState) => {
+    const project = getState().projects[projectId];
+    const userId = getState().user.userid;
+
+    invariant(project.owner === userId, 'must be owner to unpublish');
+
+    return commons.commonsUnpublish(projectId, version)
+    .then((snapshot) => {
+      dispatch({
+        type: ActionTypes.COMMONS_UNPUBLISH,
+        snapshot,
+        projectId,
+        version,
+      });
+      return snapshot;
+    });
+  };

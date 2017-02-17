@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { keyBy, map } from 'lodash';
+import { omitBy, keyBy, map, some } from 'lodash';
 import invariant from 'invariant';
 
 import * as ActionTypes from '../constants/ActionTypes';
@@ -27,11 +27,22 @@ export const initialState = {
 
 export default function commons(state = initialState, action) {
   switch (action.type) {
+    case ActionTypes.COMMONS_PUBLISH:
     case ActionTypes.COMMONS_RETRIEVE_PROJECT_VERSIONS:
     case ActionTypes.COMMONS_QUERY:
-      const { snapshots } = action;
+      const { snapshot, snapshots } = action;
+
+      const nextVersions = { ...state.projects };
+
+      if (snapshots) {
+        invariant(Array.isArray(snapshots), 'snapshots must be array');
+        Object.assign(nextVersions, ...keyBy(snapshots, 'snapshotUUID'));
+      } else {
+        Object.assign(nextVersions, { [snapshot.snapshotUUID]: snapshot });
+      }
+
       return {
-        versions: { ...state.versions, ...keyBy(snapshots, 'snapshotUUID') },
+        versions: nextVersions,
         projects: state.projects,
       };
 
@@ -50,6 +61,27 @@ export default function commons(state = initialState, action) {
       return {
         versions: state.versions,
         projects: nextProjects,
+      };
+
+    case ActionTypes.COMMONS_UNPUBLISH:
+      const { projectId, version } = action;
+
+      //just remove the specific version
+      if (Number.isInteger(version)) {
+        const nextVersions = omitBy(state.versions, snapshot => snapshot.projectId === projectId && snapshot.version === version);
+        const stillHaveProject = some(nextVersions, snapshot => snapshot.projectId === projectId);
+        const nextProjects = stillHaveProject ? state.projects : omitBy(state.projects, rollup => rollup.project.id === projectId);
+
+        return {
+          versions: nextVersions,
+          projects: nextProjects,
+        };
+      }
+
+      //remove all traces of the project
+      return {
+        versions: omitBy(state.versions, snapshot => snapshot.projectId === projectId),
+        projects: omitBy(state.projects, rollup => rollup.project.id === projectId),
       };
 
     case ActionTypes.USER_SET_USER :

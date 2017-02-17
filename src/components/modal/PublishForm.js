@@ -17,13 +17,13 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import { commonsPublish } from '../../actions/commons';
 import { uiSetGrunt, uiShowPublishDialog } from '../../actions/ui';
 import {
   projectRename,
   projectSetDescription,
   projectSetKeywords,
   projectSave,
-  projectPublish,
 } from '../../actions/projects';
 import ModalFooter from './ModalFooter';
 import FormGroup from '../formElements/FormGroup';
@@ -40,7 +40,7 @@ class PublishModal extends Component {
     project: PropTypes.object.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowPublishDialog: PropTypes.func.isRequired,
-    projectPublish: PropTypes.func.isRequired,
+    commonsPublish: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectRename: PropTypes.func.isRequired,
     projectSetDescription: PropTypes.func.isRequired,
@@ -59,7 +59,7 @@ class PublishModal extends Component {
   }
 
   onSubmit = (evt) => {
-    const { projectId, projectVersion, project, projectRename, projectSetDescription, projectSetKeywords, projectSave, projectPublish, uiSetGrunt, uiShowPublishDialog } = this.props;
+    const { projectId, projectVersion, project, projectRename, projectSetDescription, projectSetKeywords, projectSave, commonsPublish, uiSetGrunt, uiShowPublishDialog } = this.props;
     const { name, description, keywords, versionNote } = this.state;
 
     evt.preventDefault();
@@ -86,7 +86,7 @@ class PublishModal extends Component {
     }
 
     savePromise
-    .then(version => projectPublish(projectId, version, {
+    .then(version => commonsPublish(projectId, version, {
       message: versionNote,
       keywords,
     }))
@@ -198,7 +198,7 @@ export default connect((state, props) => ({
   projectSetDescription,
   projectSetKeywords,
   projectSave,
-  projectPublish,
+  commonsPublish,
   uiSetGrunt,
   uiShowPublishDialog,
 })(PublishModal);

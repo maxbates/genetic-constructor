@@ -49,8 +49,8 @@ export default function projects(state = initialState, action) {
 
 
     case ActionTypes.PROJECT_SAVE :
-    case ActionTypes.PROJECT_SNAPSHOT :
-    case ActionTypes.PROJECT_PUBLISH :
+    case ActionTypes.SNAPSHOT_PROJECT :
+    case ActionTypes.COMMONS_PUBLISH :
       const { projectId, version, time } = action;
       const gotProject = state[projectId];
       const updatedProject = gotProject.updateVersion(version, time);

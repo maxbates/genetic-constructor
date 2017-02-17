@@ -23,11 +23,12 @@ export const initialState = {};
 
 export default function snapshots(state = initialState, action) {
   switch (action.type) {
-    case ActionTypes.PROJECT_SNAPSHOT:
-    case ActionTypes.PROJECT_PUBLISH:
+    case ActionTypes.SNAPSHOT_PROJECT:
     case ActionTypes.SNAPSHOT_QUERY:
     case ActionTypes.SNAPSHOT_LIST:
+    case ActionTypes.COMMONS_PUBLISH:
     case ActionTypes.COMMONS_QUERY:
+    case ActionTypes.COMMONS_UNPUBLISH:
       const { snapshot, snapshots } = action;
       if (Array.isArray(snapshots)) {
         return { ...state, ...keyBy(snapshots, 'snapshotUUID') };
