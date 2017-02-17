@@ -20,6 +20,7 @@ import { merge } from 'lodash';
 import Order from '../../src/models/Order';
 import saveCombinations from '../../src/utils/generators/orderConstructs';
 import { pruneUserObject } from '../user/utils';
+import { dbPruneResult } from '../data/middleware/db';
 import { projectIdParamAssignment, userOwnsProjectMiddleware } from './../data/permissions';
 import * as orderPersistence from './../data/persistence/orders';
 import * as projectVersions from './../data/persistence/projectVersions';
@@ -81,7 +82,7 @@ const validateOrderMiddleware = (req, res, next) => {
       },
     });
 
-    logger('[Middleware] Generating combinations...');
+    logger('[Middleware] Order valid, generating combinations...');
 
     //note - this code is not very memory efficient and should be optimized more
 
@@ -123,6 +124,8 @@ const validateOrderMiddleware = (req, res, next) => {
 
 router.post('/validate', validateOrderMiddleware, (req, res, next) => {
   const { order, rollup, prunedUser, foundry, constructList } = req;
+
+  logger(`[Validate] order ${order.id} @ foundry ${foundry}`);
 
   //future - submit should be dynamic, based on the foundry, pulling from a registry
 
@@ -197,16 +200,18 @@ User ${user.uuid}
   .catch((err) => {
     //probably want more consistent error handling across foundries, once we add more + decide how they are integrated
 
-    logger(`[Submit] error submitting order ${order.id} to ${foundry}`);
+    logger(`[Submit] ${order.id} - ERROR: Submission failed to ${foundry}`);
     logger(err);
     return Promise.reject(errorInvalidModel);
   })
   .then(orderResponse =>
     //check if we have a snapshot, create if we dont / merge if do
     snapshots.snapshotGet(projectId, projectVersion)
-    .catch(err =>
-      //assume the snapshot doesnt exist, and we want to create a new one
-      null)
+    //on failure, assume the snapshot doesnt exist, and we want to create a new one
+    .catch(err => {
+      logger(`[Submit] ${order.id} - No existing snapshot found, creating new one...`);
+      return null;
+    })
     .then((snapshot) => {
       //use shallow, easy to merge keys...
       //possible that multiple orders happen at the same snapshot
@@ -231,6 +236,9 @@ User ${user.uuid}
         keywords,
       };
 
+      logger(`[Submit] ${order.id} Writing snapshot`);
+      logger(snapshotBody);
+
       //write or update the snapshot
       return snapshots.snapshotWrite(projectId, user.uuid, projectVersion, snapshotBody, snapshots.SNAPSHOT_TYPE_ORDER)
       .then((snapshot) => {
@@ -246,32 +254,25 @@ User ${user.uuid}
           },
         });
 
-        //final validation before writing - if hit an error here, our fault
-        if (!Order.validate(order)) {
-          logger('[Submit] submitted order did not validate');
-          logger(order);
+        logger(`[Submit] ${order.id} Saving...`);
 
-          return Promise.reject(errorInvalidModel);
-        }
-
+        //if we hit a validation error while writing at this point, our fault
         return orderPersistence.orderWrite(order.id, order, user.uuid)
-        .then(info => info.data);
+        .then(dbPruneResult);
       });
     }))
-  .then((order) => {
-    res.status(200).send(order);
-  })
+  .then(order => res.status(200).send(order))
   .catch((err) => {
     logger('[Submit] Order failed:');
     logger(err);
     logger(err.stack);
 
     if (err === errorInvalidModel) {
-      res.status(422).send(errorInvalidModel);
+      return res.status(422).send(errorInvalidModel);
     }
 
     if (err === errorDoesNotExist) {
-      res.status(404).send(errorDoesNotExist);
+      return res.status(404).send(errorDoesNotExist);
     }
 
     res.status(500).send(err);
