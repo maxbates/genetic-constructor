@@ -208,7 +208,7 @@ User ${user.uuid}
     //check if we have a snapshot, create if we dont / merge if do
     snapshots.snapshotGet(projectId, projectVersion)
     //on failure, assume the snapshot doesnt exist, and we want to create a new one
-    .catch(err => {
+    .catch((err) => {
       logger(`[Submit] ${order.id} - No existing snapshot found, creating new one...`);
       return null;
     })
