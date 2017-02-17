@@ -19,7 +19,7 @@ import { headersPost } from './utils/headers';
 import { reportApiPath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
-export const reportError = (title, description, url, user, additional = null) => {
+export const reportError = (title, description, url, additional = null) => {
   invariant(title, 'title is required');
   invariant(description, 'description is required');
   invariant(url, 'current url is required');

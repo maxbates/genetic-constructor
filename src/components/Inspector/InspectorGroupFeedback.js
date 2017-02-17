@@ -17,11 +17,11 @@ import debounce from 'lodash.debounce';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { reportError } from '../../middleware/reporting';
+import { projectGetCurrentId, projectGetVersion } from '../../selectors/projects';
 import { uiSetGrunt } from '../../actions/ui';
 import Selector from '../../containers/orders/selector';
 import { userGetUser } from '../../selectors/user';
 import '../../styles/InspectorGroupFeedback.css';
-
 
 /**
  * tracking via heap
@@ -40,6 +40,8 @@ class InspectorGroupFeedback extends Component {
   static propTypes = {
     uiSetGrunt: PropTypes.func.isRequired,
     userGetUser: PropTypes.func.isRequired,
+    projectGetCurrentId: PropTypes.func.isRequired,
+    projectGetVersion: PropTypes.func.isRequired,
   };
 
   constructor() {
@@ -83,6 +85,13 @@ class InspectorGroupFeedback extends Component {
     const team = this.state.feedbackTo;
     const anonymous = this.state.anon;
     const message = this.refs.feedbackText.value.trim();
+
+    const url = window.location.href;
+    const user = this.props.userGetUser();
+    const projectId = this.props.projectGetCurrentId();
+    const projectVersion = this.props.projectGetVersion(projectId);
+    const userId = (user && !anonymous) ? user.userid : null;
+
     if (message) {
       this.props.uiSetGrunt('Thanks for your feedback.');
       heapTrack('Feedback', {
@@ -90,8 +99,7 @@ class InspectorGroupFeedback extends Component {
         anonymous,
         message,
       });
-      const user = this.state.anon ? null : this.props.userGetUser();
-      reportError(team, message, window.location.toString(), user)
+      reportError(team, message, url, { team, userId, projectId, projectVersion })
         .then((json) => {
           this.props.uiSetGrunt('Thanks for your feedback.');
         })
@@ -237,11 +245,9 @@ class InspectorGroupFeedback extends Component {
   }
 }
 
-function mapStateToProps(state, props) {
-  return {};
-}
-
-export default connect(mapStateToProps, {
+export default connect(null, {
   uiSetGrunt,
   userGetUser,
+  projectGetCurrentId,
+  projectGetVersion,
 })(InspectorGroupFeedback);
