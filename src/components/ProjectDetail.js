@@ -16,7 +16,6 @@
 import { throttle } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-
 import { detailViewSelectExtension, uiToggleDetailView } from '../actions/ui';
 import { extensionsByRegion, getExtensionName, onRegister } from '../extensions/clientRegistry';
 import '../styles/ProjectDetail.css';
@@ -106,25 +105,29 @@ export class ProjectDetail extends Component {
 
   /** end resize things **/
 
-  handleClickToggle = (evt) => {
-    if (this.props.isVisible) {
-      return this.toggle(false);
-    }
-
-    this.toggle(true);
-    this.openExtension(this.extensions[0]);
-  };
-
   toggle = (forceVal) => {
     this.props.uiToggleDetailView(forceVal);
   };
+
+  /**
+   * So the sequence viewer appears first
+   */
+  forceSequenceViewerFirst() {
+    const list = [...this.extensions];
+    const index = list.indexOf('GC-Sequence-Viewer');
+    if (index > 0) {
+      list.splice(index, 1);
+      list.unshift('GC-Sequence-Viewer');
+    }
+    return list;
+  }
 
   render() {
     const { isVisible, currentExtension } = this.props;
     if (!this.extensions.length) {
       return null;
     }
-
+    const list = this.forceSequenceViewerFirst();
     if (isVisible) {
       return (
         <div className="ProjectDetail ProjectDetail-open" style={{ height: `${this.state.openHeight}px` }}>
@@ -136,7 +139,7 @@ export class ProjectDetail extends Component {
           <div className="ProjectDetail-open-header">
             {/* Left side of header, extension tabls */}
             <div className="ProjectDetail-open-header-left">
-              {this.extensions.map((key) => {
+              {list.map((key) => {
                 const name = getExtensionName(key);
                 const active = key === currentExtension ? ' ProjectDetail-open-header-left-active' : '';
                 const className = `ProjectDetail-open-header-left-extension${active}`;
@@ -170,7 +173,7 @@ export class ProjectDetail extends Component {
     // just a list of extensions if closed
     return (
       <div className="ProjectDetail-closed">
-        {this.extensions.map((key) => {
+        {list.map((key) => {
           const name = getExtensionName(key);
           return (
             <a

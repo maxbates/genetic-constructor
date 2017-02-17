@@ -3,6 +3,7 @@
 var async = require('async');
 
 var extend = require('underscore').extend;
+var map = require('underscore').map;
 var pairs = require('underscore').pairs;
 var reduce = require('underscore').reduce;
 
@@ -62,8 +63,28 @@ var deleteAllForOwner = function (req, res) {
   });
 };
 
+var getAllProjects = function (req, res) {
+  var where = {
+    status: 1,
+  };
+
+  if (req.query && req.query.deleted && (req.query.deleted.toLowerCase() === 'true')) {
+    where = {};
+  }
+
+  return Project.findAll({
+    where: where,
+    attributes: ['uuid', 'owner', 'id', 'version', 'status'],
+  }).then(function (results) {
+    return res.status(200).send(map(results, function (result) {
+      return result.get();
+    })).end();
+  });
+};
+
 var routes = [
   route('DELETE /owner/:ownerId', deleteAllForOwner),
+  route('GET /allprojects', getAllProjects),
 ];
 
 module.exports = combiner.apply(null, routes);

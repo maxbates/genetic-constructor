@@ -101,6 +101,7 @@ export function convertCsv(csvContents, fileName, fileUrl) {
           source: {
             source: 'csv',
             id: fileName,
+            file: fileUrl,
             url: fileUrl,
           },
         }))

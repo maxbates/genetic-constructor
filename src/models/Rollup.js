@@ -128,9 +128,12 @@ export default class Rollup {
 
   //updates the rollup itself
   static upgrade(roll) {
+    //get schema number, assume beginning of time if not provided
+    const schema = Number.isInteger(roll.schema) ? roll.schema : 1;
+
     //waterfall through all the upgrades needed
     /* eslint-disable no-fallthrough,default-case */
-    switch (roll.schema) {
+    switch (schema) {
       case 1: {
         //remove authors, project.owner will be added automatically
         _.unset(roll, 'project.metadata.authors');

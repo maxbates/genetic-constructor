@@ -21,17 +21,17 @@ import path from 'path';
 import fetch from 'isomorphic-fetch';
 import fs from 'fs';
 import _ from 'lodash';
-import { defaultUser } from '../../server/auth/local';
-import Project from '../../src/models/Project';
-import Rollup from '../../src/models/Rollup';
-import * as fileSystem from '../../server/data/middleware/fileSystem';
-import paletteAnime from '../../src/utils/color/paletteAnime';
-import makeEgfRollup from '../../data/egf_parts/index';
-import * as projectPersistence from '../../server/data/persistence/projects';
-import onboardNewUser from '../../server/onboarding/onboardNewUser';
+import { defaultUser } from '../../../server/auth/local';
+import Project from '../../../src/models/Project';
+import Rollup from '../../../src/models/Rollup';
+import * as fileSystem from '../../../server/data/middleware/fileSystem';
+import paletteAnime from '../../../src/utils/color/paletteAnime';
+import makeEgfRollup from '../../../data/egf_parts/index';
+import * as projectPersistence from '../../../server/data/persistence/projects';
+import onboardNewUser from '../../../server/onboarding/onboardNewUser';
 
-import batchPromises from './batchPromises';
-import { storagePath, projectPath, AUTH_API } from './config';
+import batchPromises from '../batchPromises';
+import { storagePath, projectPath, AUTH_API } from '../config';
 
 /* eslint-disable no-console */
 

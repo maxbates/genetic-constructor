@@ -51,11 +51,14 @@ class RibbonGrunt extends Component {
 
     return (
       <div className={classes}>
-        <span>{message}</span>
-        <img src="/images/ui/close_icon_dark.svg" onClick={this.close} />
+        <span>{message}
+          <img src="/images/ui/close_icon_dark.svg" onClick={this.close} />
+        </span>
+
       </div>
     );
   }
+  //
 }
 
 function mapStateToProps(state) {

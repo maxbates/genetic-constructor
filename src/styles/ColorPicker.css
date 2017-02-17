@@ -28,6 +28,7 @@
     z-index: 1;
     flex-shrink: 0;
     position: relative;
+    box-sizing: border-box;
   }
 
   .dropdown {
@@ -36,7 +37,7 @@
     left: -12px;
     top: 68px;
     width: 282px;
-    background-color: var(--colors-darkerGrey);
+    background-color: var(--colors-darkGrey);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -45,11 +46,15 @@
     .arrow {
       width: 20px;
       height: 20px;
-      background-color: var(--colors-darkerGrey);
+      background-color: var(--colors-darkGrey);
       position: absolute;
       transform: rotate(45deg);
       left: 27px;
       top: -10px;
+    }
+
+    .color {
+      border: 2px solid transparent;
     }
   }
 }

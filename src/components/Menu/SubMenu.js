@@ -27,7 +27,7 @@ export default function SubMenu(props) {
       onMouseLeave={props.onMouseLeave}
     >
       {props.menuItems.map((item, index) => {
-        const boundAction = () => {
+        const boundAction = (evt) => {
           if (!item.disabled && item.action) {
             item.action();
             props.close();

@@ -17,12 +17,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
+
   .left {
 
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
+    width: calc(100% - 2rem);
 
     .primary-enclosure {
       display: inline-flex;

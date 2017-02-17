@@ -1,6 +1,7 @@
 @import './variables.css';
 
 .InspectorContentBlock {
+
   .color-symbol-label {
     margin: 0.5rem 0 0 0;
     text-transform: capitalize;
@@ -10,5 +11,22 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
+  }
+
+  &-Annotations {
+    background-color: var(--colors-lightGrey);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding: 4px 4px 0 4px;
+  }
+
+  &-Annotation {
+    border-radius: 3px;
+    background-color: var(--colors-mediumLightGrey);
+    color: var(--colors-nearlyBlack);
+    padding: 4px;
+    margin: 0 4px 4px 0;
   }
 }

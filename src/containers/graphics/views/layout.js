@@ -215,6 +215,7 @@ export default class Layout {
         updateReference: this.updateReference,
         listParentBlock: block,
         listParentNode: parentNode,
+        hidden: block.isHidden(),
       });
     } else {
       // find the index of the focused list option, or default the first one
@@ -248,6 +249,7 @@ export default class Layout {
           listParentNode: this.nodeFromElement(block.id),
           listBlock,
           optionSelected: index === focusedIndex,
+          hidden: block.isHidden(),
         });
       });
     }
@@ -682,9 +684,10 @@ export default class Layout {
       // empty list blocks has a message below them so allow for that.
       listN = block.isList() ? Math.max(listN, 1) : listN;
 
-      // set role part name if any
+      // set role part name if any, and set hidden property
       node.set({
         roleName: this.isSBOL(part) ? block.rules.role || block.metadata.role : null,
+        hidden: block.isHidden(),
       });
 
       // measure element text or used condensed spacing

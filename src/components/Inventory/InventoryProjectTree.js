@@ -50,7 +50,7 @@ import { commit, transact } from '../../store/undo/actions';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
 import BasePairCount from '../ui/BasePairCount';
-import downloadProject from '../../middleware/utils/downloadProject';
+import { downloadProject } from '../../middleware/utils/downloadProject';
 
 import '../../styles/InventoryProjectTree.css';
 

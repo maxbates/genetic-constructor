@@ -9,11 +9,12 @@ module.exports = {
 
     size(browser);
     homepageRegister(browser);
+    newProject(browser);
     openInventoryPanel(browser, 'Templates');
     browser
-      .click('[data-testid="NewProjectButton"]')
+      .waitForElementPresent('[data-testid^="egf_project"] .label-base')
       .click('[data-testid^="egf_project"] .label-base')
-      .waitForElementPresent('[data-testid^="block-"]', 5000, 'expected constructs to appear');
+      .waitForElementPresent('[data-testid^="block-"]');
 
     dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.inter-construct-drop-target', 50, 4);
 

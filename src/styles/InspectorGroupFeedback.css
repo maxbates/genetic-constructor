@@ -89,15 +89,19 @@
   .dropdown-container {
     background-color: var(--colors-lighterGrey);
     padding: 0.5rem;
+    .dropdown {
+      width: 18rem;
+    }
   }
   textarea {
     border: none;
     border-radius: 3px;
     background-color: var(--colors-lighterGrey);
     width: 100%;
-    height: calc(100% - 38rem);
     outline: none;
     resize: none;
+    height: 25vh;
+    min-height: 3rem;
   }
   .checkbox-label {
     margin-left: 0.5rem;
