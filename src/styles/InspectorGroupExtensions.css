@@ -35,6 +35,7 @@
       .value {
         width: 60%;
         color: var(--colors-nearlyBlack);
+        word-wrap: break-word;
       }
     }
   }
