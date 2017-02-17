@@ -109,14 +109,16 @@ export class ProjectDetail extends Component {
     this.props.uiToggleDetailView(forceVal);
   };
 
-
   /**
-   * return our extensions list with the sequence viewer first
+   * So the sequence viewer appears first
    */
   forceSequenceViewerFirst() {
     const list = [...this.extensions];
-    const sequenceViewer = list.filter(key => key === 'GC-Sequence-Viewer');
-    list.splice(0, 0, ...sequenceViewer);
+    const index = list.indexOf('GC-Sequence-Viewer');
+    if (index > 0) {
+      list.splice(index, 1);
+      list.unshift('GC-Sequence-Viewer');
+    }
     return list;
   }
 
@@ -126,7 +128,6 @@ export class ProjectDetail extends Component {
       return null;
     }
     const list = this.forceSequenceViewerFirst();
-
     if (isVisible) {
       return (
         <div className="ProjectDetail ProjectDetail-open" style={{ height: `${this.state.openHeight}px` }}>
