@@ -24,7 +24,6 @@ import * as snapshots from '../../server/data/persistence/snapshots';
 
 describe('Model', () => {
   describe('Snapshot', () => {
-
     let model;
 
     it('requires an input', () => {

@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { assign, merge } from 'lodash';
+import _ from 'lodash';
 import moment from 'moment';
 import invariant from 'invariant';
 
@@ -86,5 +86,13 @@ export default class Snapshot extends Immutable {
 
   getTime(format = 'D MMM YYYY H:mm:s') {
     return moment(this.created).format('D MMM YYYY H:mm:s');
+  }
+
+  hasKeywords(...keywords) {
+    return _.every(keywords, word => this.keywords.indexOf(word) >= 0);
+  }
+
+  hasTags(tags = {}) {
+    return _.every(tags, (val, key) => this.tags[key] === val);
   }
 }
