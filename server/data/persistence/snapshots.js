@@ -37,7 +37,8 @@ const transformDbVersion = result => ({
   keywords: result.keywords,
   tags: result.tags,
   message: result.message,
-  time: (new Date(result.createdAt)).valueOf(),
+  created: (new Date(result.createdAt)).valueOf(),
+  updated: (new Date(result.updatedAt)).valueOf(),
   owner: result.owner,
 });
 

@@ -94,7 +94,7 @@ class UnpublishModal extends Component {
       <Modal
         isOpen
         onClose={() => uiShowUnpublishDialog(false)}
-        title="Remove from Public?"
+        title="Remove from the Commons?"
       >
         <div className="Modal-paddedContent">
           <div className="Modal-banner">

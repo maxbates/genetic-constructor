@@ -15,10 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 import _ from 'lodash';
-
-import { nameSnapshot, snapshotIsPublished } from '../../../server/data/util/commons';
 
 import { snapshotsList } from '../../actions/snapshots';
 import { commonsRetrieveProjectVersions } from '../../actions/commons';
@@ -112,11 +109,11 @@ export class InspectorHistory extends Component {
         )}
 
         {this.state.snapshots.map((snapshot) => {
-          const time = moment(snapshot.time).format('D MMM YYYY H:mm:s');
-          const name = nameSnapshot(snapshot);
+          const time = snapshot.getTime();
+          const name = snapshot.getNamedType();
           const items = [{ key: 'Version Note', value: snapshot.message }];
           const content = <InspectorDetailSection items={items} />;
-          const widgets = snapshotIsPublished(snapshot) ?
+          const widgets = snapshot.isPublished() ?
             [(<img src="/images/ui/commonsVersion.svg" role="presentation" key={snapshot.snapshotUUID} />)] :
             [];
 

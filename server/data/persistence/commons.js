@@ -18,10 +18,11 @@ import debug from 'debug';
 import invariant from 'invariant';
 import _ from 'lodash';
 
-import { SNAPSHOT_TYPE_PUBLISH, COMMONS_TAG, snapshotIsPublished, commonsDefaultMessage } from '../util/commons';
+import { SNAPSHOT_TYPE_PUBLISH, COMMONS_TAG, commonsDefaultMessage } from '../util/commons';
 import * as projectPersistence from './projects';
 import * as projectVersions from './projectVersions';
 import * as snapshots from './snapshots';
+import Snapshot from '../../../src/models/Snapshot';
 import { errorNotPublished, errorDoesNotExist } from '../../errors/errorConstants';
 
 const logger = debug('constructor:data:persistence:commons');
@@ -65,7 +66,7 @@ Version: ${version}`);
 
     return snapshots.snapshotGet(projectId, version)
     .then((snapshot) => {
-      const isPublished = snapshotIsPublished(snapshot);
+      const isPublished = Snapshot.isPublished(snapshot);
 
       logger(`[checkProjectPublic] Found snapshot:
 Project: ${projectId}
@@ -127,7 +128,7 @@ export const commonsQuery = (query = {}, collapse = true) => {
  */
 export const commonsRetrieveVersions = projectId =>
   snapshots.snapshotList(projectId)
-  .then(snapshots => _.filter(snapshots, snapshotIsPublished));
+  .then(snapshots => _.filter(snapshots, Snapshot.isPublished));
 
 /**
  * Retrieve a project from the commons

@@ -18,6 +18,7 @@ import invariant from 'invariant';
 import * as ActionTypes from '../constants/ActionTypes';
 import * as commons from '../middleware/commons';
 import Rollup from '../models/Rollup';
+import Snapshot from '../models/Snapshot';
 
 /**
  * Publish a a particular version of a project, creating a public snapshot.
@@ -39,12 +40,14 @@ export const commonsPublish = (projectId, version, body = {}) => (dispatch, getS
   invariant(project.owner === userId, 'must be owner to unpublish');
 
   return commons.commonsPublishVersion(projectId, version, body)
-  .then((snapshot) => {
-    if (!snapshot) {
+  .then((rawSnapshot) => {
+    if (!rawSnapshot) {
       return null;
     }
 
+    const snapshot = new Snapshot(rawSnapshot);
     const { version } = snapshot;
+
     dispatch({
       type: ActionTypes.COMMONS_PUBLISH,
       projectId,
@@ -86,7 +89,8 @@ export const commonsRetrieveProject = (projectId, version) =>
 export const commonsRetrieveProjectVersions = projectId =>
   (dispatch, getState) =>
     commons.commonsRetrieve(projectId, 'versions')
-    .then((snapshots) => {
+    .then((rawSnapshots) => {
+      const snapshots = rawSnapshots.map(rawSnapshot => new Snapshot(rawSnapshot));
       dispatch({
         type: ActionTypes.COMMONS_RETRIEVE_PROJECT_VERSIONS,
         snapshots,
@@ -104,7 +108,8 @@ export const commonsRetrieveProjectVersions = projectId =>
 export const commonsQuery = query =>
   (dispatch, getState) =>
     commons.commonsQuery(query)
-    .then((snapshots) => {
+    .then((rawSnapshots) => {
+      const snapshots = rawSnapshots.map(rawSnapshot => new Snapshot(rawSnapshot));
       dispatch({
         type: ActionTypes.COMMONS_QUERY,
         snapshots,
@@ -128,7 +133,8 @@ export const commonsUnpublish = (projectId, version) =>
     invariant(project.owner === userId, 'must be owner to unpublish');
 
     return commons.commonsUnpublish(projectId, version)
-    .then((snapshot) => {
+    .then((rawSnapshot) => {
+      const snapshot = new Snapshot(rawSnapshot);
       dispatch({
         type: ActionTypes.COMMONS_UNPUBLISH,
         snapshot,

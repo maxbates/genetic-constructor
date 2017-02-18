@@ -18,7 +18,7 @@ import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { snapshotIsPublished } from '../../server/data/util/commons';
+import Snapshot from '../models/Snapshot';
 import {
   focusPrioritize,
   focusConstruct,
@@ -336,7 +336,7 @@ class ProjectHeader extends Component {
 function mapStateToProps(state, props) {
   return {
     //todo - memoize
-    isPublished: _.some(state.snapshots, snapshotIsPublished),
+    isPublished: _.some(state.snapshots, Snapshot.isPublished),
     focus: state.focus,
     isFocused: state.focus.level === 'project' && !state.focus.forceProject,
     inventoryVisible: state.ui.inventory.isVisible,

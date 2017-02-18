@@ -18,7 +18,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { snapshotIsPublished } from '../../../server/data/util/commons';
+import Snapshot from '../../models/Snapshot';
 import { uiSetGrunt, uiShowProjectDeleteModal } from '../../actions/ui';
 import { projectDelete } from '../../actions/projects';
 import { snapshotsList } from '../../actions/snapshots';
@@ -47,7 +47,7 @@ class DeleteProjectModal extends Component {
     .then(snapshots => {
       this.setState({
         loading: false,
-        isPublished: _.some(snapshots, snapshotIsPublished),
+        isPublished: _.some(snapshots, Snapshot.isPublished),
       });
     })
     .catch(err => {

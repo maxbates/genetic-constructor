@@ -14,8 +14,11 @@
  limitations under the License.
  */
 
+import invariant from 'invariant';
+
 import * as ActionTypes from '../constants/ActionTypes';
 import * as snapshots from '../middleware/snapshots';
+import Snapshot from '../models/Snapshot';
 
 /**
  * Create a snapshot
@@ -34,12 +37,14 @@ export const snapshotProject = (projectId, version = null, body = {}) =>
     invariant(Number.isInteger(version), 'must pass version');
 
     return snapshots.snapshot(projectId, version, body)
-    .then((snapshot) => {
-      if (!snapshot) {
+    .then((rawSnapshot) => {
+      if (!rawSnapshot) {
         return null;
       }
 
+      const snapshot = new Snapshot(rawSnapshot);
       const { version } = snapshot;
+
       dispatch({
         type: ActionTypes.SNAPSHOT_PROJECT,
         projectId,
@@ -60,7 +65,8 @@ export const snapshotProject = (projectId, version = null, body = {}) =>
 export const snapshotsList = projectId =>
   (dispatch, getState) =>
     snapshots.snapshotList(projectId)
-    .then(snapshots => {
+    .then(rawSnapshots => {
+      const snapshots = rawSnapshots.map(rawSnapshot => new Snapshot(rawSnapshot));
       dispatch({
         type: ActionTypes.SNAPSHOT_LIST,
         snapshots,
@@ -79,7 +85,8 @@ export const snapshotsList = projectId =>
 export const snapshotsQuery = query =>
   (dispatch, getState) =>
     snapshots.snapshotQuery(query)
-    .then(snapshots => {
+    .then(rawSnapshots => {
+      const snapshots = rawSnapshots.map(rawSnapshot => new Snapshot(rawSnapshot));
       dispatch({
         type: ActionTypes.SNAPSHOT_QUERY,
         snapshots,

@@ -44,7 +44,7 @@ export default class FormKeywords extends Component {
     const { keywords, onChange } = this.props;
     const { keywordList, keywordListLoading } = this.state;
 
-    const cleanInput = input => input.toLowerCase().trim();
+    const cleanInput = input => input.toLowerCase().trim().replace(',', '');
     const setKeywords = (values) => {
       onChange(values.map(({ value }) => cleanInput(value)));
     };

@@ -182,7 +182,7 @@ export class InventoryGroupCommons extends Component {
     //todo - use grouped
 
     const treeItems = snapshots.map(snapshot => ({
-      text: snapshot.tags.project || 'Project Name', //todo
+      text: snapshot.tags.projectName || 'Project Name',
       bold: true,
       selected: currentProjectId === snapshot.projectId,
       onExpand: () => this.onExpandSnapshot(snapshot),

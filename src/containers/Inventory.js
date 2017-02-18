@@ -56,7 +56,7 @@ export class Inventory extends Component {
     },
     Commons: {
       type: 'commons',
-      title: 'Public Projects',
+      title: 'Commons',
     },
     Sketch: {
       type: 'role',
