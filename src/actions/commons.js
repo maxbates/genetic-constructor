@@ -17,6 +17,7 @@ import invariant from 'invariant';
 
 import * as ActionTypes from '../constants/ActionTypes';
 import * as commons from '../middleware/commons';
+import Rollup from '../models/Rollup';
 
 /**
  * Publish a a particular version of a project, creating a public snapshot.
@@ -31,6 +32,11 @@ import * as commons from '../middleware/commons';
 export const commonsPublish = (projectId, version, body = {}) => (dispatch, getState) => {
   invariant(projectId, 'must pass projectId');
   invariant(Number.isInteger(version), 'must pass version');
+
+  const project = getState().projects[projectId];
+  const userId = getState().user.userid;
+
+  invariant(project.owner === userId, 'must be owner to unpublish');
 
   return commons.commonsPublishVersion(projectId, version, body)
   .then((snapshot) => {
@@ -61,7 +67,8 @@ export const commonsPublish = (projectId, version, body = {}) => (dispatch, getS
 export const commonsRetrieveProject = (projectId, version) =>
   (dispatch, getState) =>
     commons.commonsRetrieve(projectId, version)
-    .then((project) => {
+    .then((roll) => {
+      const project = Rollup.classify(roll);
       dispatch({
         type: ActionTypes.COMMONS_RETRIEVE_PROJECT,
         project,

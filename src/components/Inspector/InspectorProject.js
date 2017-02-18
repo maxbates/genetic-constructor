@@ -16,7 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { projectSetDescription, projectRename, projectSetPalette } from '../../actions/projects';
+import { projectSetDescription, projectRename, projectSetPalette, projectSetKeywords } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
 import Project from '../../models/Project';
 import { abort, commit, transact } from '../../store/undo/actions';
@@ -24,6 +24,7 @@ import { blockSetPalette } from '../../actions/blocks';
 import { getPaletteName } from '../../utils/color/index';
 
 import InputSimple from './../InputSimple';
+import FormKeywords from '../formElements/FormKeywords';
 import InspectorRow from './InspectorRow';
 import OrderList from './OrderList';
 import Expando from './../ui/Expando';
@@ -40,6 +41,7 @@ export class InspectorProject extends Component {
     orders: PropTypes.array.isRequired,
     projectRename: PropTypes.func.isRequired,
     projectSetPalette: PropTypes.func.isRequired,
+    projectSetKeywords: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
     projectSetDescription: PropTypes.func.isRequired,
     readOnly: PropTypes.bool,
@@ -67,6 +69,10 @@ export class InspectorProject extends Component {
 
   setProjectDescription = (description) => {
     this.props.projectSetDescription(this.props.instance.id, description);
+  };
+
+  setKeywords = (keywords) => {
+    this.props.projectSetKeywords(this.props.instance.id, keywords);
   };
 
   handleOpenOrder = (orderId) => {
@@ -127,18 +133,24 @@ export class InspectorProject extends Component {
           />
         </InspectorRow>
 
-        <Expando
-          text={colorPaletteText}
+        <InspectorRow heading="Keywords">
+          <FormKeywords
+            keywords={instance.metadata.keywords}
+            onChange={this.setKeywords}
+          />
+        </InspectorRow>
+
+        <InspectorRow
+          heading={colorPaletteText}
+          hasToggle
           capitalize
-          stateKey={paletteStateKey}
-          onClick={() => this.forceUpdate()}
         >
           <PalettePicker
             paletteName={paletteName}
             onSelectPalette={this.onSelectPalette}
             readOnly={readOnly}
           />
-        </Expando>
+        </InspectorRow>
 
         <InspectorRow
           heading="Order History"
@@ -160,6 +172,7 @@ export default connect(null, {
   projectRename,
   projectSetPalette,
   projectSetDescription,
+  projectSetKeywords,
   transact,
   commit,
   abort,

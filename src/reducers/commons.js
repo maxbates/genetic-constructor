@@ -18,8 +18,6 @@ import invariant from 'invariant';
 
 import * as ActionTypes from '../constants/ActionTypes';
 
-import Rollup from '../models/Rollup';
-
 export const initialState = {
   projects: {}, //rollups, the latest version only
   versions: {}, //versions for a particular project id
@@ -32,11 +30,11 @@ export default function commons(state = initialState, action) {
     case ActionTypes.COMMONS_QUERY:
       const { snapshot, snapshots } = action;
 
-      const nextVersions = { ...state.projects };
+      const nextVersions = { ...state.versions };
 
       if (snapshots) {
         invariant(Array.isArray(snapshots), 'snapshots must be array');
-        Object.assign(nextVersions, ...keyBy(snapshots, 'snapshotUUID'));
+        Object.assign(nextVersions, keyBy(snapshots, 'snapshotUUID'));
       } else {
         Object.assign(nextVersions, { [snapshot.snapshotUUID]: snapshot });
       }
@@ -53,9 +51,9 @@ export default function commons(state = initialState, action) {
 
       if (projects) {
         invariant(Array.isArray(projects), 'projects must be array');
-        Object.assign(nextProjects, ...keyBy(map(projects, Rollup.classify), 'project.id'));
+        Object.assign(nextProjects, keyBy(projects, 'project.id'));
       } else {
-        Object.assign(nextProjects, { [project.project.id]: Rollup.classify(project) });
+        Object.assign(nextProjects, { [project.project.id]: project });
       }
 
       return {
