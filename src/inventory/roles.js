@@ -39,6 +39,7 @@ export const symbolMap = {
   restrictionSite: 'Restriction Site',
   structural: 'Structural',
   list: 'List Block',
+  backbone: 'Backbone',
 };
 
 /**
@@ -63,22 +64,23 @@ export const sortOrder = [
   'plasmin backbone',
   'combinatorial list',
   'list block',
+  'backbone',
   'no symbol',
 ];
 
-export const roleMassager = {
-  gene: 'cds',
-  'ribosome entry site': 'rbs',
-  'ribonuclease site': 'ribonuclease',
-  'rna stability element': 'rnaStability',
-  'protease site': 'protease',
-  'protein stability element': 'proteinStability',
-  'origin of replication': 'originReplication',
-  'restriction site': 'restrictionSite',
-  regulatory: 'promoter',
-  mat_peptide: 'cds',
-  rep_origin: 'originReplication',
-};
+// export const roleMassager = {
+//   gene: 'cds',
+//   'ribosome entry site': 'rbs',
+//   'ribonuclease site': 'ribonuclease',
+//   'rna stability element': 'rnaStability',
+//   'protease site': 'protease',
+//   'protein stability element': 'proteinStability',
+//   'origin of replication': 'originReplication',
+//   'restriction site': 'restrictionSite',
+//   regulatory: 'promoter',
+//   mat_peptide: 'cds',
+//   rep_origin: 'originReplication',
+// };
 
 /*
  proposed roles:
