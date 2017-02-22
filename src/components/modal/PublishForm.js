@@ -38,6 +38,7 @@ class PublishModal extends Component {
     projectId: PropTypes.string.isRequired,
     projectVersion: PropTypes.number,
     project: PropTypes.object.isRequired,
+    initialMessage: PropTypes.string.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowPublishDialog: PropTypes.func.isRequired,
     commonsPublish: PropTypes.func.isRequired,
@@ -51,7 +52,7 @@ class PublishModal extends Component {
     super(props);
 
     this.state = {
-      versionNote: '',
+      versionNote: props.initialMessage,
       name: props.project.metadata.name,
       description: props.project.metadata.description,
       keywords: props.project.metadata.keywords,
@@ -64,11 +65,14 @@ class PublishModal extends Component {
 
     evt.preventDefault();
 
+    //if we have a project version, dont allow changing the name etc. that actually update the project
+    const hasProjectVersion = Number.isInteger(projectVersion);
+
     //if we got a version, we are updating. Don't update the project, just the snapshot
     let savePromise = Promise.resolve(projectVersion);
 
     //if no version, update project based on form and then save, returning the version
-    if (!Number.isInteger(projectVersion)) {
+    if (!hasProjectVersion) {
       if (name !== project.metadata.name) {
         projectRename(projectId, name);
       }
@@ -92,7 +96,7 @@ class PublishModal extends Component {
     }))
     .then(() => {
       uiShowPublishDialog(false);
-      uiSetGrunt('Your project has been published');
+      uiSetGrunt(`Your project has been ${hasProjectVersion ? 'updated' :' published'}`);
     });
   };
 
@@ -190,10 +194,19 @@ class PublishModal extends Component {
   }
 }
 
-export default connect((state, props) => ({
-  project: state.projects[props.projectId],
-  projectVersion: state.ui.modals.publishDialogVersion,
-}), {
+export default connect((state, props) => {
+  const gotVersion = Number.isInteger(state.ui.modals.publishDialogVersion);
+  const foundSnapshot = gotVersion ?
+    _.find(state.snapshots, { projectId: props.projectId, version: state.ui.modals.publishDialogVersion }) :
+    null;
+  const initialMessage = foundSnapshot ? foundSnapshot.message : '';
+
+  return {
+    project: state.projects[props.projectId],
+    projectVersion: state.ui.modals.publishDialogVersion,
+    initialMessage,
+  };
+}, {
   projectRename,
   projectSetDescription,
   projectSetKeywords,

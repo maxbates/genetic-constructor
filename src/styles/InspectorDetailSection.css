@@ -1,6 +1,7 @@
 @import './variables.css';
 
 .InspectorDetailSection {
+  position: relative;
   background-color: var(--colors-lighterGrey);
   margin: 0.5rem 0 0 -var(--SidePanel-width-padding-content);
   width: calc(100% + var(--SidePanel-width-padding-content) + var(--SidePanel-width-padding-content));
@@ -43,5 +44,20 @@
   a {
     color: var(--colors-selected);
     cursor: pointer;
+  }
+
+  &-headerGlyphs {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+  }
+
+  &-headerGlyph {
+    width: 24px;
+    height: 24px;
+
+    &:hover {
+      cursor: pointer;
+    }
   }
 }

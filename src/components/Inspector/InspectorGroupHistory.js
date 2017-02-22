@@ -19,18 +19,24 @@ import _ from 'lodash';
 
 import { snapshotsList } from '../../actions/snapshots';
 import { commonsRetrieveProjectVersions } from '../../actions/commons';
+import { uiShowPublishDialog } from '../../actions/ui';
 import Spinner from './../ui/Spinner';
 import Expando from './../ui/Expando';
 import InspectorDetailSection from './InspectorDetailSection';
 
 export class InspectorHistory extends Component {
   static propTypes = {
-    projectId: PropTypes.string.isRequired,
+    project: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      owner: PropTypes.string.isRequired,
+    }).isRequired,
+    userId: PropTypes.string.isRequired,
     projectIsPublished: PropTypes.bool.isRequired,
     snapshots: PropTypes.object.isRequired,
     snapshotsList: PropTypes.func.isRequired,
     commonsVersions: PropTypes.object.isRequired,
     commonsRetrieveProjectVersions: PropTypes.func.isRequired,
+    uiShowPublishDialog: PropTypes.func.isRequired,
   };
 
   state = {
@@ -44,7 +50,7 @@ export class InspectorHistory extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const newProject = this.props.projectId !== nextProps.projectId;
+    const newProject = this.props.project.id !== nextProps.project.id;
 
     //update snapshots shown if:
     // 1) new project
@@ -64,8 +70,13 @@ export class InspectorHistory extends Component {
     }
   }
 
+  onEditSnapshot = (snapshot) => {
+    this.props.uiShowPublishDialog(true, snapshot.version);
+  };
+
   setSnapshots(props) {
-    const { projectId, projectIsPublished, snapshots, commonsVersions } = props;
+    const { project, projectIsPublished, snapshots, commonsVersions } = props;
+    const projectId = project.id;
     const toUse = projectIsPublished ? commonsVersions : snapshots;
     this.setState({
       loading: false,
@@ -86,7 +97,8 @@ export class InspectorHistory extends Component {
   // only need this when we want to show for another project
   // calling action will trigger re-render on update
   fetchSnapshots() {
-    const { projectId, projectIsPublished, snapshotsList, commonsRetrieveProjectVersions } = this.props;
+    const { project, projectIsPublished, snapshotsList, commonsRetrieveProjectVersions } = this.props;
+    const projectId = project.id;
 
     if (projectIsPublished) {
       return commonsRetrieveProjectVersions(projectId);
@@ -96,7 +108,6 @@ export class InspectorHistory extends Component {
 
   render() {
     //todo - enable context menu
-    //todo - should be able to inline edit the snapshot message
 
     if (this.state.loading && !this.state.snapshots.length) {
       return <Spinner />;
@@ -112,7 +123,17 @@ export class InspectorHistory extends Component {
           const time = snapshot.getTime();
           const name = snapshot.getNamedType();
           const items = [{ key: 'Version Note', value: snapshot.message }];
-          const content = <InspectorDetailSection items={items} />;
+          // NB - should only be active if the projectId is the one in the canvas
+          const headerGlyphs = (this.props.userId !== this.props.project.owner) ? [] : [
+            <img
+              key="open"
+              role="presentation"
+              src="/images/ui/edit-dark.svg"
+              onClick={evt => this.onEditSnapshot(snapshot)}
+              className="InspectorDetailSection-headerGlyph"
+            />,
+          ];
+          const content = <InspectorDetailSection items={items} headerGlyphs={headerGlyphs} />;
           const widgets = snapshot.isPublished() ?
             [(<img src="/images/ui/commonsVersion.svg" role="presentation" key={snapshot.snapshotUUID} />)] :
             [];
@@ -134,9 +155,11 @@ export class InspectorHistory extends Component {
 }
 
 export default connect((state, props) => ({
+  userId: state.user.userid,
   snapshots: state.snapshots,
   commonsVersions: state.commons.versions,
 }), {
   snapshotsList,
   commonsRetrieveProjectVersions,
+  uiShowPublishDialog,
 })(InspectorHistory);

@@ -56,7 +56,7 @@ export default class InspectorGroup extends Component {
         return (
           <InspectorGroupHistory
             projectIsPublished={this.props.projectIsPublished}
-            projectId={this.props.project.id}
+            project={this.props.project}
           />);
       default:
         //don't throw in production, let it just render empty

@@ -20,6 +20,11 @@ import '../../styles/InspectorDetailSection.css';
 export default function InspectorDetailSection(props) {
   return (
     <div className={`InspectorDetailSection${props.inline ? ' inline' : ''}`}>
+      {props.headerGlyphs.length && (
+        <div className="InspectorDetailSection-headerGlyphs">
+          {props.headerGlyphs}
+        </div>
+      )}
       {props.items.map(({ key, value }) => {
         if (!value) {
           return null;
@@ -38,12 +43,14 @@ InspectorDetailSection.propTypes = {
     key: PropTypes.string.isRequired,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   })).isRequired,
+  headerGlyphs: PropTypes.arrayOf(PropTypes.node),
   indented: PropTypes.bool,
   inline: PropTypes.bool,
 };
 
 InspectorDetailSection.defaultProps = {
   items: [],
+  headerGlyphs: [],
   indented: false,
   inline: false,
 };
