@@ -361,7 +361,10 @@ export class ConstructViewer extends Component {
    */
   blockCanHaveChildren(blockId) {
     const block = this.props.blocks[blockId];
-    invariant(block, 'expected to get a block');
+    // pseudo blocks e.g. circular end caps won't be present in the blocks list
+    if (!block) {
+      return false;
+    }
     // list blocks cannot have children
     return !block.isList() && !block.isHidden();
   }

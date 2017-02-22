@@ -273,6 +273,12 @@ export default class Layout {
    */
   elementFromNode(node) {
     let part = this.nodes2parts[node.uuid];
+    // one of many hacks to handle circular constructs, this returns the ID for the initial block
+    // which we assume is the circular block itself when given the id for the end cap.
+    if (part === Layout.backboneEndCapId) {
+      invariant(this.constructViewer.isCircularConstruct() && this.rootLayout, 'this should only occur in the root layout');
+      return this.construct.components[0];
+    }
     if (!part) {
       const nestedKeys = Object.keys(this.nestedLayouts);
       for (let i = 0; i < nestedKeys.length && !part; i += 1) {
@@ -394,6 +400,10 @@ export default class Layout {
    0   * @return {boolean}
    */
   someChildrenVisible(blockId) {
+    // end cap never shows children even though its referenced start block can
+    if (blockId === Layout.backboneEndCapId) {
+      return false;
+    }
     return this.blocks[blockId].components.some(childId => !this.blockIsHidden(childId));
   }
 
