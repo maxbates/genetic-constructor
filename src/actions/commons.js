@@ -14,11 +14,14 @@
  limitations under the License.
  */
 import invariant from 'invariant';
+import _ from 'lodash';
 
 import * as ActionTypes from '../constants/ActionTypes';
 import * as commons from '../middleware/commons';
 import Rollup from '../models/Rollup';
 import Snapshot from '../models/Snapshot';
+import * as blockActions from '../actions/blocks';
+import * as projectActions from '../actions/projects';
 
 /**
  * Publish a a particular version of a project, creating a public snapshot.
@@ -62,12 +65,13 @@ export const commonsPublish = (projectId, version, body = {}) => (dispatch, getS
  * Retrieve a published project, either latest or a specific version
  * @function
  * @param projectId
- * @param [version]
+ * @param [version] if falsy, default to latest
+ * @param [shouldStash=false] Automatically stash the project and blocks in the store
  * @returns {promise}
  * @resolve {Array<snapshots>|snapshot|null} Array of snapshots if no verison, or specific snapshot if version passed, or null if not published
  * @reject error fetching
  */
-export const commonsRetrieveProject = (projectId, version) =>
+export const commonsRetrieveProject = (projectId, version, shouldStash = false) =>
   (dispatch, getState) =>
     commons.commonsRetrieve(projectId, version)
     .then((roll) => {
@@ -76,6 +80,12 @@ export const commonsRetrieveProject = (projectId, version) =>
         type: ActionTypes.COMMONS_RETRIEVE_PROJECT,
         project,
       });
+
+      if (shouldStash === true) {
+        dispatch(projectActions.projectStash(project.project));
+        dispatch(blockActions.blockStash(..._.values(project.blocks)));
+      }
+
       return project;
     });
 

@@ -21,7 +21,7 @@ import { block as blockDragType } from '../../constants/DragTypes';
 import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 
 import { blockStash } from '../../actions/blocks';
-import { projectOpen, projectStash } from '../../actions/projects';
+import { projectOpen, projectStash, projectClone } from '../../actions/projects';
 import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
 import { uiShowMenu } from '../../actions/ui';
 import DnD from '../../containers/graphics/dnd/dnd';
@@ -39,13 +39,14 @@ export class InventoryGroupCommons extends Component {
     blockStash: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectStash: PropTypes.func.isRequired,
+    projectClone: PropTypes.func.isRequired,
     commonsQuery: PropTypes.func.isRequired,
     commonsRetrieveProject: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
   };
 
   static onCommonsProjectDrag(snapshot, globalPoint) {
-    //todo
+    //todo - should we do anything on dragging the project?
   }
 
   static onCommonsConstructDrag(block, globalPoint) {
@@ -102,11 +103,17 @@ export class InventoryGroupCommons extends Component {
         text: 'Open Project',
         action: this.onOpenCommonsProject.bind(this, snapshot),
       },
-      //todo - ability to clone the whole project
-      //{
-      //  text: 'Duplicate Project',
-      //  action: () => {},
-      //},
+      {
+        text: 'Duplicate Project',
+        action: () => {
+          const { projectId } = snapshot;
+          return this.retrieveAndStashProject(projectId)
+          .then(() => {
+            const cloned = this.props.projectClone(projectId, true);
+            this.props.projectOpen(cloned.id);
+          });
+        },
+      },
     ], {
       x: evt.pageX,
       y: evt.pageY,
@@ -115,16 +122,9 @@ export class InventoryGroupCommons extends Component {
 
   onOpenCommonsProject = (snapshot, evt) => {
     const projectId = snapshot.projectId;
-    const roll = this.props.commons.projects[projectId];
-    const promise = roll ?
-      Promise.resolve(roll) :
-      this.props.commonsRetrieveProject(snapshot.projectId);
 
-    promise
-    .then((roll) => {
-      this.stashProject(roll);
-      this.props.projectOpen(projectId);
-    });
+    return this.retrieveAndStashProject(projectId)
+    .then(() => this.props.projectOpen(projectId));
   };
 
   onFilterChange = (filter) => {
@@ -153,6 +153,19 @@ export class InventoryGroupCommons extends Component {
       };
     });
   };
+
+  retrieveAndStashProject(projectId) {
+    const roll = this.props.commons.projects[projectId];
+    const promise = roll ?
+      Promise.resolve(roll) :
+      this.props.commonsRetrieveProject(projectId);
+
+    return promise
+    .then((roll) => {
+      this.stashProject(roll);
+      return roll;
+    });
+  }
 
   //need to stash project + blocks, since the commons is stored separately from projects and blocks
   //todo - perf = only store the blocks we need. Rollup should have method for getting this
@@ -187,7 +200,6 @@ export class InventoryGroupCommons extends Component {
       selected: currentProjectId === snapshot.projectId,
       onExpand: () => this.onExpandSnapshot(snapshot),
       onContextMenu: evt => this.onSnapshotContextMenu(snapshot, evt),
-      // todo - what to do on project drag?
       // startDrag: globalPoint => InventoryGroupCommons.onCommonsProjectDrag(snapshot, globalPoint),
       items: this.getCommonsProjectBlocks(snapshot.projectId),
       labelWidgets: [
@@ -228,5 +240,6 @@ export default connect((state, props) => ({ commons: state.commons }), {
   projectOpen,
   commonsQuery,
   commonsRetrieveProject,
+  projectClone,
   uiShowMenu,
 })(InventoryGroupCommons);
