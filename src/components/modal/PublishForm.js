@@ -52,6 +52,7 @@ class PublishModal extends Component {
     super(props);
 
     this.state = {
+      dirty: false,
       versionNote: props.initialMessage,
       name: props.project.metadata.name,
       description: props.project.metadata.description,
@@ -65,14 +66,18 @@ class PublishModal extends Component {
 
     evt.preventDefault();
 
+    if (!this.formValid()) {
+      return;
+    }
+
     //if we have a project version, dont allow changing the name etc. that actually update the project
-    const hasProjectVersion = Number.isInteger(projectVersion);
+    const onlyUpdating = this.onlyUpdating();
 
     //if we got a version, we are updating. Don't update the project, just the snapshot
     let savePromise = Promise.resolve(projectVersion);
 
     //if no version, update project based on form and then save, returning the version
-    if (!hasProjectVersion) {
+    if (!onlyUpdating) {
       if (name !== project.metadata.name) {
         projectRename(projectId, name);
       }
@@ -96,28 +101,38 @@ class PublishModal extends Component {
     }))
     .then(() => {
       uiShowPublishDialog(false);
-      uiSetGrunt(`Your project has been ${hasProjectVersion ? 'updated' :' published'}`);
+      uiSetGrunt(`Your project has been ${onlyUpdating ? 'updated' : ' published'}`);
     });
   };
 
-  formValid() {
-    const { name, description, keywords } = this.state;
+  //if we have a project version, dont allow changing the name etc. that actually update the project
+  onlyUpdating() {
+    return Number.isInteger(this.props.projectVersion);
+  }
 
-    return !!name && !!description && keywords.length > 0;
+  formValid() {
+    const { name, description, keywords, dirty } = this.state;
+
+    const onlyUpdating = this.onlyUpdating();
+    const hasFields = !!name && !!description && keywords.length > 0;
+
+    return hasFields && (!onlyUpdating || dirty);
   }
 
   render() {
-    const { projectVersion } = this.props;
     const { name, description, keywords, versionNote } = this.state;
 
-    //if we have a project version, dont allow changing the name etc. that actually update the project
-    const hasProjectVersion = Number.isInteger(projectVersion);
+    const onlyUpdating = this.onlyUpdating();
 
     const actions = [{
-      text: hasProjectVersion ? 'Update' : 'Publish',
+      text: onlyUpdating ? 'Update' : 'Publish',
       onClick: this.onSubmit,
       disabled: () => !this.formValid(),
     }];
+
+    const bannerText = onlyUpdating ?
+      'Update information about your project in the Commons' :
+      'Share a version of your project in the Genetic Constructor Public Inventory.';
 
     return (
       <form
@@ -127,20 +142,22 @@ class PublishModal extends Component {
       >
         <div className="Modal-paddedContent">
           <div className="Modal-banner">
-            <span>Share a version of your project in the Genetic Constructor Public Inventory. <a
-              href={SHARING_IN_PUBLIC_INVENTORY}
-              target="_blank"
-              rel="noopener noreferrer"
-            >Learn more...</a></span>
+            <span>{bannerText}&nbsp;
+              <a
+                href={SHARING_IN_PUBLIC_INVENTORY}
+                target="_blank"
+                rel="noopener noreferrer"
+              >Learn more...</a>
+            </span>
           </div>
 
           <FormGroup label="Project Title*">
             <FormText
               value={name}
-              disabled={hasProjectVersion}
+              disabled={onlyUpdating}
               name="name"
               placeholder="Title of your project"
-              onChange={evt => this.setState({ name: evt.target.value })}
+              onChange={evt => this.setState({ dirty: true, name: evt.target.value })}
             />
           </FormGroup>
 
@@ -148,17 +165,17 @@ class PublishModal extends Component {
             <FormText
               useTextarea
               value={description}
-              disabled={hasProjectVersion}
+              disabled={onlyUpdating}
               name="description"
               placeholder="Decription of your project"
-              onChange={evt => this.setState({ description: evt.target.value })}
+              onChange={evt => this.setState({ dirty: true, description: evt.target.value })}
             />
           </FormGroup>
 
           <FormGroup label="Keywords*">
             <FormKeywords
               keywords={keywords}
-              onChange={keywords => this.setState({ keywords })}
+              onChange={keywords => this.setState({ dirty: true, keywords })}
             />
           </FormGroup>
 
@@ -168,7 +185,7 @@ class PublishModal extends Component {
               value={versionNote}
               name="keywords"
               placeholder="Provide information about this version (optional)"
-              onChange={evt => this.setState({ versionNote: evt.target.value })}
+              onChange={evt => this.setState({ dirty: true, versionNote: evt.target.value })}
             />
           </FormGroup>
 

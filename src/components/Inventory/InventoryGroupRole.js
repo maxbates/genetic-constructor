@@ -156,9 +156,9 @@ class InventoryGroupRole extends Component {
     return (
       <div className="InventoryGroup-content InventoryGroupRole">
         <div className="InventoryGroup-contentInner no-vertical-scroll">
-          <p>
+          <div className="InventoryGroup-banner">
             Drag a sketch block to the canvas to add it to your project.
-          </p>
+          </div>
           <div className="list-container">
             <div className="list">
               {sorted.map(item => (
