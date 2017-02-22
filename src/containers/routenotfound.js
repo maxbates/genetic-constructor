@@ -33,9 +33,7 @@ export default function RouteNotFound() {
         </div>
 
         <div className="row3">
-          <span className="color-gray size-small font-medium msg">
-            We can&apos;t find this specific URL for some reason. Please check that it wasn&apos;t entered incorrectly by mistake, (hey, it happens!).</span>
-          <span> If you are sure the URL is correct</span>
+          <span className="color-gray size-small font-medium msg">We can&apos;t find this specific URL for some reason. Please check that it wasn&apos;t entered incorrectly by mistake, (hey, it happens!). If you are sure the URL is correct, </span>
           <a
             className="color-blue size-small font-medium"
             href="https://forum.bionano.autodesk.com/t/resolving-page-not-found-errors"
