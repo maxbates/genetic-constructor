@@ -24,6 +24,7 @@ import LineGlyph2D from './glyphs/html/lineglyph2d';
 import ListItemGlyph2D from './glyphs/html/listitemglyph2d';
 import RectangleGlyph2D from './glyphs/html/rectangleglyph2d';
 import RoleGlyph2D from './glyphs/html/roleglyph2d';
+import BackboneGlyph2D from './glyphs/html/backbone-glyph';
 import NodeText2D from './nodetext2d';
 
 /**
@@ -80,6 +81,9 @@ export default class Node2D {
         break;
       case 'role':
         this.glyphObject = new RoleGlyph2D(this);
+        break;
+      case 'backbone':
+        this.glyphObject = new BackboneGlyph2D(this);
         break;
       case 'line':
         this.glyphObject = new LineGlyph2D(this);

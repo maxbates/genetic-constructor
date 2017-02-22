@@ -23,6 +23,7 @@ import LineNode2D from '../scenegraph2d/line2d';
 import ListItem2D from '../scenegraph2d/listitem2d';
 import Node2D from '../scenegraph2d/node2d';
 import Role2D from '../scenegraph2d/role2d';
+import Backbone2D from '../scenegraph2d/backbone2d';
 import kT from './layoutconstants';
 
 /**
@@ -311,9 +312,6 @@ export default class Layout {
   /**
    * create a node, if not already created for the given piece.
    * Add to our hash for tracking
-   *
-   *
-   *
    */
   partFactory(part, appearance) {
     let node = this.nodeFromElement(part);
@@ -322,8 +320,21 @@ export default class Layout {
         dataAttribute: { name: 'nodetype', value: 'block' },
         sg: this.sceneGraph,
       }, appearance);
-      props.roleName = this.isSBOL(part) ? this.blocks[part].rules.role || this.blocks[part].metadata.role : null;
-      node = new Role2D(props);
+      if (part === Layout.backboneEndCapId) {
+        props.roleName = 'backbone-endcap';
+      } else {
+        props.roleName = this.isSBOL(part) ? this.blocks[part].rules.role || this.blocks[part].metadata.role : null;
+      }
+      switch (props.roleName) {
+        case 'backbone':
+          node = new Backbone2D(props);
+          break;
+        case 'backbone-endcap':
+          node = new Backbone2D(props);
+          node.endCap = true;
+          break;
+        default: node = new Role2D(props);
+      }
       this.sceneGraph.root.appendChild(node);
       this.map(part, node);
     }
@@ -555,7 +566,15 @@ export default class Layout {
     this.showHidden = options.showHidden;
     this.construct = options.construct;
     this.palette = this.rootLayout ? this.construct.metadata.palette || project.metadata.palette : this.palette;
-    this.blocks = options.blocks;
+    // we might need to hack in a fake block if this is a circular construct
+    if (this.constructViewer.isCircularConstruct()) {
+      this.blocks = Object.entries(options.blocks).reduce((blocks, keyValuePair) => {
+        blocks[keyValuePair[0]] = keyValuePair[1];
+        return blocks;
+      }, {});
+    } else {
+      this.blocks = options.blocks;
+    }
     this.currentConstructId = options.currentConstructId;
     this.currentBlocks = options.currentBlocks;
     this.focusedOptions = options.focusedOptions || {};
@@ -606,6 +625,11 @@ export default class Layout {
   }
 
   /**
+   * fake ID for backbone end cap.
+   */
+  static backboneEndCapId = 'backbone-end-cap';
+
+  /**
    * layout, configured with various options:
    * xlimit: maximum x extent
    *
@@ -648,6 +672,13 @@ export default class Layout {
 
     // display only non hidden blocks
     const components = this.showHidden ? ct.components : ct.components.filter(blockId => !this.blockIsHidden(blockId));
+
+    if (this.constructViewer.isCircularConstruct() && this.rootLayout) {
+      // put a reference to the first component ( the backbone block ) into block hash
+      this.blocks[Layout.backboneEndCapId] = this.blocks[components[0]];
+      // add the fake ID to the components list
+      components.push(Layout.backboneEndCapId);
+    }
 
     // layout all non hidden blocks
     components.forEach((part) => {
@@ -936,11 +967,10 @@ export default class Layout {
     this.disposed = true;
     Layout.removeNode(this.banner);
     Layout.removeNode(this.vertical);
-    this.rows.forEach((node) => {
-      Layout.removeNode(node);
-    });
+    this.rows.forEach(node => Layout.removeNode(node));
     Object.values(this.parts2nodes).forEach(node => Layout.removeNode(node));
-    Object.values(this.connectors).forEach(node => Layout.removeNode(node));
+    Object.values(this.connectors).forEach(connector => Layout.removeNode(connector.line));
     this.disposeNestedLayouts();
   }
+
 }

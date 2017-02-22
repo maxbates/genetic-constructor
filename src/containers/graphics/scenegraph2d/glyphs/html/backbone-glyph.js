@@ -1,0 +1,86 @@
+/*
+ Copyright 2016 Autodesk,Inc.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+import invariant from 'invariant';
+import { setAttribute } from '../../../utils';
+import kT from '../../../views/layoutconstants';
+import Glyph2D from '../glyph2d';
+
+export default class RoleGlyph2D extends Glyph2D {
+
+  /**
+   * Represents a backbone glyph. Can be either the left side or the right side end cap.
+   */
+  constructor(node) {
+    super(node);
+    // basic div block
+    this.el = document.createElement('div');
+    this.el.className = 'glyph';
+    // possible role symbol, the div is a container for a SVG which we will clone
+    // and style from an in document template
+    this.svgContainer = document.createElement('div');
+    this.svgContainer.className = 'role-icon';
+    this.el.appendChild(this.svgContainer);
+    // possible child indicator
+    this.triangle = document.createElement('div');
+    this.triangle.className = 'nw-triangle';
+    this.el.appendChild(this.triangle);
+    // add our outer container to the node element
+    this.node.el.appendChild(this.el);
+  }
+
+  /**
+   * render latest changes
+   */
+  update() {
+    // basic rectangle
+    const sw = this.node.strokeWidth;
+    this.el.style.left = `${-(sw / 2)}px`;
+    this.el.style.top = `${-(sw / 2)}px`;
+    this.el.style.width = `${this.node.width + sw}px`;
+    this.el.style.height = `${this.node.height + sw}px`;
+    this.el.style.backgroundColor = this.node.fill;
+    if (this.node.hidden) {
+      this.el.style.filter = 'brightness(50%)';
+    } else {
+      this.el.style.filter = null;
+    }
+    this.el.style.border = sw ? `${sw}px solid ${this.node.stroke}` : 'none';
+    invariant(this.node.roleName === 'backbone', 'expected a backbone only');
+    if (this.roleName !== this.node.roleName) {
+      this.roleName = this.node.roleName;
+      invariant(!this.svgContainer.firstChild, 'svg symbol should never change for backbone');
+      // clone the appropriate template
+      const templateId = `sbol-svg-${this.roleName}`;
+      const template = document.getElementById(templateId);
+      invariant(template, 'expected a template SVG');
+      const svg = template.cloneNode(true);
+      // ensure svg is stroked in black
+      setAttribute(svg, 'stroke', '#1D222D', true);
+      // remove the ID attribute from the clone to avoid duplicates
+      svg.removeAttribute('id');
+      // add to the container
+      this.svgContainer.appendChild(svg);
+      // display the svg
+      this.svgContainer.style.display = 'block';
+    }
+    // update geometry of container
+    this.svgContainer.style.left = '2px';
+    this.svgContainer.style.top = `${this.node.height / 2 - kT.roleIcon / 2}px`;
+    this.svgContainer.style.width = `${kT.roleIcon}px`;
+
+    this.triangle.style.display = this.node.hasChildren ? 'block' : 'none';
+  }
+}

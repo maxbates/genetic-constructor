@@ -25,9 +25,6 @@ const rowBarW = 1;
 const textPad = 10;
 // min width of blocks
 const minBlockWidth = 80;
-// width of context menu 3 dots
-const contextDotsW = 10;
-const contextDotsH = 18;
 // width of condensed text blocks
 const condensedText = 40;
 // height of banner bar above construct name
@@ -72,8 +69,6 @@ export default {
   optionDotW,
   optionDotS,
   optionDotL,
-  contextDotsW,
-  contextDotsH,
   rowH,
   rowBarH,
   rowBarW,

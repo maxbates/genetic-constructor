@@ -785,7 +785,7 @@ export class ConstructViewer extends Component {
    * 1. first block must be a backbone block
    * 2. Block rule is
    */
-  isCircularConstruct () {
+  isCircularConstruct() {
     const { construct, blocks } = this.props;
     if (construct.components.length) {
       const firstChild = blocks[construct.components[0]];
