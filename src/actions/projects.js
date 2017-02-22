@@ -26,8 +26,6 @@ import * as blockActions from '../actions/blocks';
 import { uiSetGrunt } from '../actions/ui';
 import * as ActionTypes from '../constants/ActionTypes';
 import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
-import { snapshot } from '../middleware/snapshots';
-import { commonsPublishVersion } from '../middleware/commons';
 import Block from '../models/Block';
 import Project from '../models/Project';
 import Rollup from '../models/Rollup';
@@ -162,26 +160,49 @@ export const projectCreate = initialModel => (dispatch, getState) => {
 };
 
 /**
- * Clone a project
+ * Clone a project, and optionally, all of its blocks.
+ * Cloned project has the correct owner
+ * Cloned blocks are automatically assigned the id of the new project
  * @function
  * @param {UUID} projectId Project ID to clone (must be in store)
+ * @param {boolean} withBlocks Clone all of the blocks as well, and remap their IDs
  * @returns {Project} Cloned project
+ * @throws if project not in store, or blocks not in store if withBlocks = true
  */
-export const projectClone = projectId =>
+export const projectClone = (projectId, withBlocks = false) =>
   (dispatch, getState) => {
-    const oldProject = getState().projects[projectId];
+    const state = getState();
+    const oldProject = state.projects[projectId];
     invariant(oldProject, 'old project must exist');
 
     const userId = getState().user.userid;
-
-    const project = oldProject.clone({}, {
+    let project = oldProject.clone({}, {
       owner: userId,
     });
+
+    dispatch(pauseAction());
+    dispatch(undoActions.transact());
+
+    //if cloning blocks, clone all the constructs, and update the project
+    if (withBlocks) {
+      //ensure the constructs are present, and assume blocks are if the constructs are (or block clone will error)
+      invariant(oldProject.components.every(constructId => state.blocks[constructId]), 'all constructs must be in the store');
+
+      //call action block clone (may take a little while for many block)
+      const clones = oldProject.components.forEach(constructId => dispatch(blockActions.blockClone(constructId)));
+
+      //update the project with the new components
+      //need to do it after the project has been cloned, since clone sets a new ID
+      project = project.mutate('components', clones.map(clone => clone.id));
+    }
 
     dispatch({
       type: ActionTypes.PROJECT_CLONE,
       project,
     });
+
+    dispatch(undoActions.commit());
+    dispatch(resumeAction());
 
     return project;
   };

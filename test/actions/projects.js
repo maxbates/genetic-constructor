@@ -52,19 +52,19 @@ describe('Actions', () => {
       it('projectFileWrite() updates the project', () => {
         assert(project.files.length === 0, 'should have no files');
         return store.dispatch(actions.projectFileWrite(project.id, namespace, fileName, fileContents))
-          .then(proj => {
-            project = proj;
-            assert(project.files.length === 1, 'should have updated files');
-            assert(project.files[0].namespace === namespace, 'should have same namespace');
-            assert(project.files[0].name === fileName, 'should have name as file name');
-          });
+        .then(proj => {
+          project = proj;
+          assert(project.files.length === 1, 'should have updated files');
+          assert(project.files[0].namespace === namespace, 'should have same namespace');
+          assert(project.files[0].name === fileName, 'should have name as file name');
+        });
       });
 
       it('projectFileRead() gets the file', () => {
         return store.dispatch(selectors.projectFileRead(project.id, namespace, fileName))
-          .then(contents => {
-            expect(contents).to.equal(fileContents);
-          });
+        .then(contents => {
+          expect(contents).to.equal(fileContents);
+        });
       });
     });
 
@@ -72,9 +72,23 @@ describe('Actions', () => {
       it('projectClone() clones the project', () => {
         const clone = store.dispatch(actions.projectClone(project.id));
         expect(clone.id).to.not.equal(project.id);
+        expect(clone.components).to.eql(project.components);
         expect(clone.parents.length).to.equal(1);
         expect(clone.parents[0].id).to.equal(project.id);
         expect(clone).to.eql(_.merge({}, project, { parents: clone.parents, id: clone.id }));
+      });
+
+      it('projectClone() can clone all the blocks as well', () => {
+        const clone = store.dispatch(actions.projectClone(project.id, true));
+
+        expect(clone.components).to.not.eql(project.components);
+
+        const constructClone = store.getState().blocks[clone.components[0]];
+
+        expect(constructClone.projectId).to.equal(clone.id);
+        expect(constructClone.id).to.not.equal(block.id);
+        expect(constructClone.parents[0].id).to.equal(block.id);
+        expect(constructClone.parents[0].projectId).to.equal(project.id);
       });
     });
   });

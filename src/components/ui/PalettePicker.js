@@ -58,7 +58,7 @@ export default class PalettePicker extends Component {
               (<div
                 key={index}
                 className="color"
-                style={{ backgroundColor: color.hex }}
+                style={{ backgroundColor: color.hex, cursor: 'default' }}
               />),
             )}
           </div>

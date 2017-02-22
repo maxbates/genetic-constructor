@@ -100,7 +100,7 @@ export default class Instance extends Immutable {
       clone = Object.assign(merge(cloned, overwrites), { parents });
     }
 
-    //unset the ID
+    //unset the ID, so we make it fresh
     delete clone.id;
 
     return new this.constructor(clone);

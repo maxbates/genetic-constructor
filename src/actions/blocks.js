@@ -242,15 +242,16 @@ export const blockMerge = (blockId, toMerge) => (dispatch, getState) => {
  * @param blockInput {ID|Object} JSON of block directly, or ID. Accept both since inventory items may not be in the store, so we need to pass the block directly. Prefer to use ID.
  * @param [parentObjectInput=null] {Object|null} information about parent.
  * if block.projectId === null, defaults to null, and the block is simply cloned, with no ancestry added
- * if block.projectId is set, defaults to generated:
+ * if block.projectId is set, assigns to defaults:
  *  {id: from block input
  *   projectId - same as block being cloned, or block.projectId
   *  version - that of project ID if in the store, or first parent if available and same project id
   * }
+ * @param {Object} [overwriteInput] overwrites to apply to the clones. By default, { projectId: null }
  * @returns {Block} clone block (root node if has children)
  * @throws if block.projectId is defined, but project not in the store, or if components have different projectId
  */
-export const blockClone = (blockInput, parentObjectInput) => (dispatch, getState) => {
+export const blockClone = (blockInput, parentObjectInput, overwriteInput) => (dispatch, getState) => {
   let oldBlock;
   if (typeof blockInput === 'string') {
     oldBlock = getState().blocks[blockInput];
@@ -284,7 +285,7 @@ export const blockClone = (blockInput, parentObjectInput) => (dispatch, getState
   }
 
   //overwrite to set the correct projectId
-  const overwriteObject = { projectId: null };
+  const overwriteObject = Object.assign({ projectId: null }, overwriteInput);
 
   //get all components + list options and clone them
   const contents = values(dispatch(selectors.blockGetContentsRecursive(oldBlock.id)));
