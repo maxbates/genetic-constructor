@@ -16,7 +16,7 @@
   justify-content: space-between;
   overflow: hidden;
   text-overflow: ellipsis;
-
+  background-color: var(--label-background);
 
   .left {
 
@@ -88,8 +88,11 @@
   }
 }
 
+.label-selectedAlt {
+  background-color: var(--colors-mediumLightGrey);
+}
+
 .label-selected {
-  background-color: var(--label-background);
   color: var(--label-selected);
 }
 
@@ -100,7 +103,6 @@
 }
 
 .label-unselected {
-  background-color: var(--label-background);
   color: var(--label-color);
 }
 

@@ -24,6 +24,7 @@
 }
 
 .Select.is-disabled > .Select-control {
+  cursor: not-allowed;
   background-color: var(--colors-lighterGrey);
 }
 
@@ -32,7 +33,7 @@
 }
 
 .Select.is-disabled .Select-arrow-zone {
-  cursor: default;
+  cursor: not-allowed;
   pointer-events: none;
   opacity: 0.35;
 }
@@ -103,6 +104,7 @@
 .Select-placeholder {
   top: var(--padding-inner);
   color: var(--colors-grey);
+  padding-right: 2em;
 }
 
 .has-value.Select--single > .Select-control .Select-value .Select-value-label,
@@ -291,7 +293,7 @@
 
   &.is-disabled {
     color: #cccccc;
-    cursor: default;
+    cursor: not-allowed;
   }
 }
 

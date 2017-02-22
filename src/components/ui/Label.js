@@ -27,6 +27,7 @@ export default class Label extends Component {
     secondary: PropTypes.string,
     styles: PropTypes.object,
     selected: PropTypes.bool,
+    selectedAlt: PropTypes.bool,
     textWidgets: PropTypes.array,
     widgets: PropTypes.arrayOf(PropTypes.node),
     showLock: PropTypes.bool,
@@ -53,6 +54,9 @@ export default class Label extends Component {
         labelClasses += ' label-selected';
       } else {
         labelClasses += ' label-unselected';
+      }
+      if (this.props.selectedAlt) {
+        labelClasses += ' label-selectedAlt';
       }
     }
 

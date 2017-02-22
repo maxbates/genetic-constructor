@@ -28,6 +28,7 @@ export default class Tree extends Component {
       labelWidgets: PropTypes.arrayOf(PropTypes.node),
       bold: PropTypes.bool,
       selected: PropTypes.bool,
+      selectedAlt: PropTypes.bool,
       locked: PropTypes.bool,
       startDrag: PropTypes.func,
       onContextMenu: PropTypes.func,
@@ -89,6 +90,7 @@ export default class Tree extends Component {
               onContextMenu={item.onContextMenu}
               startDrag={item.startDrag}
               selected={item.selected}
+              selectedAlt={item.selectedAlt}
               showLock={item.locked}
             >
               {item.items && item.items.length

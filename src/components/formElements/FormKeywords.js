@@ -24,6 +24,7 @@ export default class FormKeywords extends Component {
   static propTypes = {
     keywords: PropTypes.arrayOf(PropTypes.string).isRequired,
     onChange: PropTypes.func.isRequired,
+    disabled: PropTypes.bool,
   }
 
   state = {
@@ -41,7 +42,7 @@ export default class FormKeywords extends Component {
   }
 
   render() {
-    const { keywords, onChange } = this.props;
+    const { keywords, onChange, disabled } = this.props;
     const { keywordList, keywordListLoading } = this.state;
 
     const cleanInput = input => input.toLowerCase().trim().replace(',', '');
@@ -62,6 +63,7 @@ export default class FormKeywords extends Component {
         name="keywords"
         multi
         value={keywords}
+        disabled={disabled}
         options={keywordList}
         isLoading={keywordListLoading}
         valueRenderer={({ value }) => cleanInput(value)}

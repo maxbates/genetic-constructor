@@ -375,7 +375,7 @@ export class InventoryProjectTree extends Component {
   }
 
   render() {
-    const { currentProjectId } = this.props;
+    const { currentProjectId, focus } = this.props;
     const { isLoading } = this.state;
 
     if (isLoading) {
@@ -389,6 +389,7 @@ export class InventoryProjectTree extends Component {
       stateKey: project.id,
       bold: true,
       selected: project.id === currentProjectId,
+      selectedAlt: focus.forceProject && project.id === focus.forceProject.id,
       onExpand: () => this.onExpandProject(project),
       onContextMenu: (evt) => {
         this.onProjectContextMenu(project, evt);

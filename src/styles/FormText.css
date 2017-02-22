@@ -23,6 +23,11 @@
   &:not(:first-child) {
     margin-left: 1rem;
   }
+
+  &[disabled] {
+    background-color: var(--colors-lighterGrey);
+    cursor: not-allowed;
+  }
 }
 
 ::-webkit-input-placeholder,

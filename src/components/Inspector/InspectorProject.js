@@ -137,6 +137,7 @@ export class InspectorProject extends Component {
           <FormKeywords
             keywords={instance.metadata.keywords}
             onChange={this.setKeywords}
+            disabled={readOnly}
           />
         </InspectorRow>
 

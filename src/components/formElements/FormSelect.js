@@ -43,6 +43,7 @@ FormSelect.propTypes = {
   value: PropTypes.any,
   options: PropTypes.array,
   onChange: PropTypes.func,
+  disabled: PropTypes.bool,
 };
 
 FormSelect.defaultProps = {
@@ -50,4 +51,5 @@ FormSelect.defaultProps = {
   value: undefined,
   onChange: (value) => {},
   options: [],
+  disabled: false,
 };

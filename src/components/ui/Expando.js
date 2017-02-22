@@ -28,7 +28,8 @@ export default class Expando extends Component {
     children: PropTypes.node, //can be null
     text: PropTypes.string.isRequired,
     secondary: PropTypes.string,
-    selected: PropTypes.bool,
+    selected: PropTypes.bool, //blue text
+    selectedAlt: PropTypes.bool, //grey background
     textWidgets: PropTypes.arrayOf(PropTypes.node),
     labelWidgets: PropTypes.arrayOf(PropTypes.node),
     headerWidgets: PropTypes.arrayOf(PropTypes.node),
@@ -128,6 +129,7 @@ export default class Expando extends Component {
             hover
             onClick={this.onClick}
             selected={this.props.selected}
+            selectedAlt={this.props.selectedAlt}
             widgets={this.props.labelWidgets}
             showLock={this.props.showLock}
             textWidgets={this.props.textWidgets}
