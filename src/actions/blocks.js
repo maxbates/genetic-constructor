@@ -560,15 +560,15 @@ export const blockMoveComponent = (blockId, componentId, newIndex) => (dispatch,
  ***************************************/
 
 //todo - doc
-export const blockMarkTemplate = (blockId, isTemplate = true) => (dispatch, getState) => {
+export const blockSetFixed = (blockId, isFixed = true) => (dispatch, getState) => {
   const oldBlock = getState().blocks[blockId];
   invariant(dispatch(selectors.blockIsTopLevelConstruct(blockId)), 'construct must be direct child of project');
 
-  const block = oldBlock.setTemplate(isTemplate);
+  const block = oldBlock.setFixed(isFixed);
   dispatch({
-    type: ActionTypes.BLOCK_SET_TEMPLATE,
+    type: ActionTypes.BLOCK_SET_FIXED,
     undoable: true,
-    isTemplate,
+    isFixed,
     block,
   });
   return block;

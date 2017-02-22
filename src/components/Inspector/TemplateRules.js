@@ -21,6 +21,7 @@ import {
   blockFreeze,
   blockMerge,
   blockSetHidden,
+  blockSetFixed,
   blockSetListBlock,
   blockSetRole,
 } from '../../actions/blocks';
@@ -32,8 +33,7 @@ export class TemplateRules extends Component {
     block: PropTypes.object.isRequired,
     readOnly: PropTypes.bool.isRequired,
     isConstruct: PropTypes.bool.isRequired,
-    //blockMerge: PropTypes.func.isRequired,
-    //blockFreeze: PropTypes.func.isRequired,
+    blockSetFixed: PropTypes.func.isRequired,
     blockSetListBlock: PropTypes.func.isRequired,
     blockSetHidden: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
@@ -52,12 +52,12 @@ export class TemplateRules extends Component {
           this.props.blockSetListBlock(this.props.block.id, value);
           this.props.blockSetRole(this.props.block.id, value ? 'list' : null);
         },
-        () => this.props.block.isConstruct() || this.props.block.hasSequence()],
-      /*
-      ['frozen',
-        'Frozen',
-        (value) => this.props.blockFreeze(this.props.block.id, false)],
-      */
+        () => this.props.isConstruct || this.props.block.isConstruct() || this.props.block.hasSequence()],
+      ['fixed',
+        'Positions fixed',
+        value => this.props.blockSetFixed(this.props.block.id, value),
+        () => !this.props.block.isConstruct(),
+      ],
     ];
   }
 
@@ -98,5 +98,6 @@ export default connect(mapStateToProps, {
   blockFreeze,
   blockSetListBlock,
   blockSetHidden,
+  blockSetFixed,
   blockSetRole,
 })(TemplateRules);

@@ -338,13 +338,13 @@ export default class Block extends Instance {
   }
 
   /**
-   * Set a construct as a template
-   * @method setTemplate
+   * Mark a construct fixed, so its components cannot be moved
+   * @method setFixed
    * @memberOf Block
-   * @param {boolean} [isTemplate=true]
+   * @param {boolean} [isFixed=true]
    */
-  setTemplate(isTemplate = true) {
-    return this.setRule('fixed', Boolean(isTemplate));
+  setFixed(isFixed = true) {
+    return this.setRule('fixed', Boolean(isFixed));
   }
 
   /**
@@ -422,7 +422,6 @@ export default class Block extends Instance {
    * @returns {string}
    */
   getType(defaultType = 'Block') {
-    if (this.isTemplate()) return 'Template';
     //if (this.isConstruct()) return 'Construct';
     if (this.isList()) return 'List Block';
     if (this.isFiller()) return 'Filler';

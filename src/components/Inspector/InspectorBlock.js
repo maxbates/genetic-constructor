@@ -23,7 +23,6 @@ import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
 import ColorPicker from './../ui/ColorPicker';
 import PalettePicker from './../ui/PalettePicker';
-import Expando from './../ui/Expando';
 import SBOLPicker from './../ui/SBOLPicker';
 import BlockNotes from './BlockNotes';
 import BlockSource from './BlockSource';
@@ -211,7 +210,8 @@ export class InspectorBlock extends Component {
     const singleInstance = instances.length === 1;
     const isList = singleInstance && instances[0].isList();
     const isConstruct = singleInstance && instances[0].isConstruct();
-    const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
+    const isFrozen = instances.some(inst => inst.isFrozen());
+    const isFixed = isFrozen || (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
     const hasParents = this.props.blockGetParents(instances[0].id).length > 0;
 
     const inputKey = instances.map(inst => inst.id).join(',');
@@ -320,12 +320,12 @@ export class InspectorBlock extends Component {
         </div>
         <InspectorRow
           heading={`${type} Rules`}
-          condition={!isConstruct && singleInstance && hasParents}
+          condition={singleInstance}
         >
           <TemplateRules
             block={instances[0]}
-            readOnly={isFixed}
-            isConstruct={isConstruct}
+            readOnly={isFrozen}
+            isConstruct={isConstruct || !hasParents}
           />
         </InspectorRow>
 

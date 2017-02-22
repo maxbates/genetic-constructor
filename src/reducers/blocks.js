@@ -42,7 +42,7 @@ export default function blocks(state = initialState, action) {
     case ActionTypes.BLOCK_REMOVE_ANNOTATION :
     case ActionTypes.BLOCK_SET_SEQUENCE :
     case ActionTypes.BLOCK_SET_TRIM :
-    case ActionTypes.BLOCK_SET_TEMPLATE :
+    case ActionTypes.BLOCK_SET_FIXED :
     case ActionTypes.BLOCK_SET_LIST :
     case ActionTypes.BLOCK_SET_HIDDEN :
     case ActionTypes.BLOCK_SET_PROJECT :
