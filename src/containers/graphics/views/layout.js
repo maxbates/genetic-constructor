@@ -332,10 +332,6 @@ export default class Layout {
       node = new Role2D(props);
       this.sceneGraph.root.appendChild(node);
       this.map(part, node);
-      // set correct hover class
-      node.set({
-        hoverClass: props.roleName ? 'inline-editor-hover-block' : 'inline-editor-hover-block-noimage',
-      });
     }
     // hide/show child expand glyph
     node.set({

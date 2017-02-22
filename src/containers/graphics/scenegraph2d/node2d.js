@@ -48,7 +48,6 @@ export default class Node2D {
     // extend default options with the given options
     this.set(Object.assign({
       visible: true,
-      hover: false,
       stroke: 'black',
       strokeWidth: 0,
       fill: 'dodgerblue',
@@ -401,30 +400,7 @@ export default class Node2D {
       this.textGlyph.update();
     }
 
-    // display hover state, which is used to indicate inline editing
-    this.updateHoverGlyph();
-
     return this.el;
-  }
-
-  /**
-   * show or hide hover glyph according to state
-   */
-  updateHoverGlyph() {
-    // remove hover glyph if no longer needed
-    if (this.hoverGlyph && !this.hover) {
-      this.el.removeChild(this.hoverGlyph);
-      this.hoverGlyph = null;
-    }
-    // add hover glyph as required
-    if (this.hover && !this.hoverGlyph) {
-      this.el.insertAdjacentHTML('beforeend',
-        `<div class="inline-editor-hover ${this.hoverClass}">
-        <span>${this.text}</span>
-        <img src="/images/ui/inline_edit.svg"/>
-       </div>`);
-      this.hoverGlyph = this.el.lastChild;
-    }
   }
 
   /**
