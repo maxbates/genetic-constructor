@@ -771,12 +771,6 @@ export class ConstructViewer extends Component {
       this.props.uiSetGrunt('There are no empty blocks in the current construct');
     }
   }
-  /**
-   * select all blocks
-   */
-  selectAllBlocks() {
-    this.props.focusBlocks(this.props.blockGetComponentsRecursive(this.props.construct.id).map(block => block.id));
-  }
 
   /**
    * accessor that fetches the actual scene graph element within our DOM
@@ -784,6 +778,20 @@ export class ConstructViewer extends Component {
    */
   get sceneGraphEl() {
     return this.dom.querySelector('.sceneGraph');
+  }
+
+  /**
+   * true if the construct is circular
+   * 1. first block must be a backbone block
+   * 2. Block rule is
+   */
+  isCircularConstruct () {
+    const { construct, blocks } = this.props;
+    if (construct.components.length) {
+      const firstChild = blocks[construct.components[0]];
+      return firstChild.rules.role === 'backbone';
+    }
+    return false;
   }
 
   /**
@@ -957,9 +965,13 @@ export class ConstructViewer extends Component {
    */
   render() {
     const { construct } = this.props;
+    const isCircular = this.isCircularConstruct();
     const isFocused = construct.id === this.props.focus.constructId;
     const viewerClasses = `construct-viewer${isFocused ? ' construct-viewer-focused' : ''}`;
-    const subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
+    let subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
+    if (isCircular) {
+      subTitle += ' Circular';
+    }
     return (
       <div
         className={viewerClasses}
@@ -973,7 +985,7 @@ export class ConstructViewer extends Component {
           <TitleAndToolbar
             toolbarItems={this.toolbarItems()}
             title={this.props.construct.getName('New Construct')}
-            subTitle={subTitle}
+            subTitle={subTitle.trim()}
             fontSize="16px"
             noHover={construct.isFixed() || !isFocused}
             color={construct.getColor()}
