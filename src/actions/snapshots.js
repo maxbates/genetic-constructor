@@ -25,10 +25,10 @@ import Snapshot from '../models/Snapshot';
  * Snapshots are saves of the project at an important point, creating an explicit commit with a user-specified message.
  * @function
  * @param {UUID} projectId
- * @param {number} version project version, or null to default to latest
+ * @param {number} version
  * @param {object} body { message, tags = {}, keywords = [] }
  * @returns {Promise}
- * @resolve {number} version for snapshot
+ * @resolve {Snapshot} Snapshot
  * @reject {string|Response} Error message
  */
 export const snapshotProject = (projectId, version = null, body = {}) =>
@@ -51,7 +51,8 @@ export const snapshotProject = (projectId, version = null, body = {}) =>
         snapshot,
         version,
       });
-      return version;
+
+      return snapshot;
     });
   };
 
@@ -73,7 +74,6 @@ export const snapshotsList = projectId =>
       });
       return snapshots;
     });
-
 
 /**
  * Query user's snapshots

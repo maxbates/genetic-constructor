@@ -18,8 +18,8 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import { snapshotsList } from '../../actions/snapshots';
-import { commonsRetrieveProjectVersions } from '../../actions/commons';
-import { uiShowPublishDialog } from '../../actions/ui';
+import { commonsPublish, commonsUnpublish, commonsRetrieveProjectVersions } from '../../actions/commons';
+import { uiShowPublishDialog, uiShowMenu } from '../../actions/ui';
 import Spinner from './../ui/Spinner';
 import Expando from './../ui/Expando';
 import InspectorDetailSection from './InspectorDetailSection';
@@ -36,7 +36,10 @@ export class InspectorHistory extends Component {
     snapshotsList: PropTypes.func.isRequired,
     commonsVersions: PropTypes.object.isRequired,
     commonsRetrieveProjectVersions: PropTypes.func.isRequired,
+    commonsPublish: PropTypes.func.isRequired,
+    commonsUnpublish: PropTypes.func.isRequired,
     uiShowPublishDialog: PropTypes.func.isRequired,
+    uiShowMenu: PropTypes.func.isRequired,
   };
 
   state = {
@@ -72,6 +75,30 @@ export class InspectorHistory extends Component {
 
   onEditSnapshot = (snapshot) => {
     this.props.uiShowPublishDialog(true, snapshot.version);
+  };
+
+  onContextMenu = (snapshot, evt) => {
+    this.props.uiShowMenu([
+      {
+        text: 'Duplicate as New Project',
+        action: () => {
+          alert('todo');
+        },
+      },
+      {
+        text: snapshot.isPublished() ? 'Unpublish...' : 'Publish Snapshot...',
+        action: () => {
+          if (snapshot.isPublished()) {
+            this.props.commonsUnpublish(snapshot.projectId, snapshot.version);
+          } else {
+            this.props.commonsPublish(snapshot.projectId, snapshot.version);
+          }
+        },
+      },
+    ], {
+      x: evt.pageX,
+      y: evt.pageY,
+    });
   };
 
   setSnapshots(props) {
@@ -144,6 +171,7 @@ export class InspectorHistory extends Component {
               text={name}
               secondary={time}
               headerWidgets={widgets}
+              onContextMenu={evt => this.onContextMenu(snapshot, evt)}
             >
               {content}
             </Expando>
@@ -161,5 +189,8 @@ export default connect((state, props) => ({
 }), {
   snapshotsList,
   commonsRetrieveProjectVersions,
+  commonsPublish,
+  commonsUnpublish,
   uiShowPublishDialog,
+  uiShowMenu,
 })(InspectorHistory);

@@ -93,6 +93,7 @@
 }
 
 .label-selected {
+  background-color: var(--label-background);
   color: var(--label-selected);
 }
 
