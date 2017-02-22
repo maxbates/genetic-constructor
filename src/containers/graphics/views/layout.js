@@ -145,8 +145,6 @@ export default class Layout {
           delete this.partUsage[part];
           node.parent.removeChild(node);
         }
-        // drop any associated list items with the part.
-        //this.dropPartListItems(part);
       }
     });
   }
@@ -255,13 +253,9 @@ export default class Layout {
     }
   }
 
-  /**
-   * drop any list nodes that are not up tp date with the updateReference
-   */
   dropListItems() {
     // outer loop will iterate over a hash of list node each block with list items
-    Object.keys(this.listNodes).forEach((blockId) => {
-      const nodeHash = this.listNodes[blockId];
+    Object.values(this.listNodes).forEach((nodeHash) => {
       Object.keys(nodeHash).forEach((key) => {
         const node = nodeHash[key];
         if (node.updateReference !== this.updateReference) {
@@ -542,9 +536,7 @@ export default class Layout {
    * dispose any nested constructs no longer referenced.
    */
   disposeNestedLayouts() {
-    Object.keys(this.nestedLayouts).forEach((key) => {
-      this.nestedLayouts[key].dispose();
-    });
+    Object.values(this.nestedLayouts).forEach(nestedLayout => nestedLayout.dispose());
     this.nestedLayouts = this.newNestedLayouts;
   }
 
@@ -947,12 +939,8 @@ export default class Layout {
     this.rows.forEach((node) => {
       Layout.removeNode(node);
     });
-    Object.keys(this.parts2nodes).forEach((part) => {
-      Layout.removeNode(this.parts2nodes[part]);
-    });
-    Object.keys(this.connectors).forEach((key) => {
-      Layout.removeNode(this.connectors[key].line);
-    });
+    Object.values(this.parts2nodes).forEach(node => Layout.removeNode(node));
+    Object.values(this.connectors).forEach(node => Layout.removeNode(node));
     this.disposeNestedLayouts();
   }
 }
