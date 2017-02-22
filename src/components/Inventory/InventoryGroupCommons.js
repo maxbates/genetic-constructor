@@ -21,6 +21,7 @@ import { block as blockDragType } from '../../constants/DragTypes';
 import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 
 import { blockStash } from '../../actions/blocks';
+import { focusForceProject } from '../../actions/focus';
 import { projectOpen, projectStash, projectClone } from '../../actions/projects';
 import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
 import { uiShowMenu } from '../../actions/ui';
@@ -36,7 +37,9 @@ export class InventoryGroupCommons extends Component {
       projects: PropTypes.object.isRequired,
       versions: PropTypes.object.isRequired,
     }).isRequired,
+    focus: PropTypes.object.isRequired,
     blockStash: PropTypes.func.isRequired,
+    focusForceProject: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectStash: PropTypes.func.isRequired,
     projectClone: PropTypes.func.isRequired,
@@ -93,8 +96,9 @@ export class InventoryGroupCommons extends Component {
     this.setState({ groupBy: key });
   };
 
-  onExpandSnapshot = (snapshot) => {
-    this.props.commonsRetrieveProject(snapshot.projectId);
+  onClickSnapshot = (snapshot, isOpen) => {
+    this.retrieveProject(snapshot.projectId)
+    .then(roll => this.props.focusForceProject(roll.project));
   };
 
   onSnapshotContextMenu = (snapshot, evt) => {
@@ -154,17 +158,16 @@ export class InventoryGroupCommons extends Component {
     });
   };
 
-  retrieveAndStashProject(projectId) {
+  retrieveProject(projectId) {
     const roll = this.props.commons.projects[projectId];
-    const promise = roll ?
+    return roll ?
       Promise.resolve(roll) :
       this.props.commonsRetrieveProject(projectId);
+  }
 
-    return promise
-    .then((roll) => {
-      this.stashProject(roll);
-      return roll;
-    });
+  retrieveAndStashProject(projectId) {
+    this.retrieveProject(projectId)
+    .then(roll => this.stashProject(roll));
   }
 
   //need to stash project + blocks, since the commons is stored separately from projects and blocks
@@ -176,7 +179,7 @@ export class InventoryGroupCommons extends Component {
   }
 
   render() {
-    const { currentProjectId } = this.props;
+    const { currentProjectId, focus } = this.props;
     const { snapshots, groupBy } = this.state;
 
     let grouped;
@@ -198,7 +201,8 @@ export class InventoryGroupCommons extends Component {
       text: snapshot.tags.projectName || 'Project Name',
       bold: true,
       selected: currentProjectId === snapshot.projectId,
-      onExpand: () => this.onExpandSnapshot(snapshot),
+      selectedAlt: focus.forceProject && snapshot.projectId === focus.forceProject.id,
+      onClick: isOpen => this.onClickSnapshot(snapshot, open),
       onContextMenu: evt => this.onSnapshotContextMenu(snapshot, evt),
       // startDrag: globalPoint => InventoryGroupCommons.onCommonsProjectDrag(snapshot, globalPoint),
       items: this.getCommonsProjectBlocks(snapshot.projectId),
@@ -234,8 +238,12 @@ export class InventoryGroupCommons extends Component {
   }
 }
 
-export default connect((state, props) => ({ commons: state.commons }), {
+export default connect((state, props) => ({
+  commons: state.commons,
+  focus: state.focus,
+}), {
   blockStash,
+  focusForceProject,
   projectStash,
   projectOpen,
   commonsQuery,

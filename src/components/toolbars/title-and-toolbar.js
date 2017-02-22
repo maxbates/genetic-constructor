@@ -20,9 +20,9 @@ import '../../../src/styles/title-and-toolbar.css';
 import InlineToolbar from './inline-toolbar';
 
 /*
-  Displays a title and sub title ( different color ) along with
-  a collapsing toolbar that shrinks in preference to the title.
-  The construct title and product title both use this component.
+ Displays a title and sub title ( different color ) along with
+ a collapsing toolbar that shrinks in preference to the title.
+ The construct title and product title both use this component.
  */
 
 /**
@@ -72,23 +72,34 @@ export default class TitleAndToolbar extends Component {
       disabled: !!this.props.noHover,
     };
     return (
-      <div className="title-and-toolbar" onClick={this.props.itemActivated}>
+      <div
+        className="title-and-toolbar"
+        onClick={this.props.itemActivated}
+      >
         <div
           className="title"
           {...disabledProp}
-          style={{ fontSize: this.props.fontSize, color: this.props.color }}
+          style={{
+            fontSize: this.props.fontSize,
+            color: this.props.color,
+            cursor: (this.props.noHover ? 'default' : 'pointer'),
+          }}
           onClick={this.props.onClick}
         >
           <div
             className="text"
             data-id={this.props.title}
-          >{this.props.title}
+          >
+            {this.props.title}
             <span>{this.props.subTitle}</span>
           </div>
           <img src="/images/ui/edit.svg" />
         </div>
         <div className="bar">
-          <InlineToolbar items={this.props.toolbarItems} itemActivated={this.props.itemActivated} />
+          <InlineToolbar
+            items={this.props.toolbarItems}
+            itemActivated={this.props.itemActivated}
+          />
         </div>
       </div>
     );

@@ -3,9 +3,9 @@
 :root {
   --label-color: var(--colors-mediumDarkGrey);
   --label-background: var(--colors-white);
-  --label-hover-background: var(--colors-grey);
-  --label-hover-color: var(--colors-white);
+  --label-hover-background: var(--colors-lightGrey);
   --label-selected: var(--colors-selected);
+  --label-selectedAlt: var(--colors-grey);
 }
 
 .label-base {
@@ -19,7 +19,6 @@
   background-color: var(--label-background);
 
   .left {
-
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
@@ -61,6 +60,7 @@
       margin-left: 0.25rem;
     }
   }
+
   .right {
     display: inline-flex;
     align-items: center;
@@ -71,46 +71,49 @@
       filter: brightness(100%);
     }
   }
-}
-.label-base:hover {
 
-  .left {
-    .BasePairCount {
-      color: white !important;
+  &:hover {
+    cursor: pointer;
+
+    .left {
+      .BasePairCount {
+        color: white !important;
+      }
+      .lock {
+        filter: brightness(1000%);
+      }
     }
-    .lock {
-      filter: brightness(1000%);
+
+    .right {
+      visibility: visible;
     }
   }
-
-  .right {
-    visibility: visible;
-  }
-}
-
-.label-selectedAlt {
-  background-color: var(--colors-mediumLightGrey);
-}
-
-.label-selected {
-  background-color: var(--label-background);
-  color: var(--label-selected);
-}
-
-.label-selected:hover {
-  background-color: var(--label-hover-background);
-  color: var(--label-hover-color);
-  cursor: pointer;
 }
 
 .label-unselected {
   color: var(--label-color);
+
+  &:hover {
+    background-color: var(--label-hover-background);
+  }
 }
 
-.label-unselected:hover {
-  background-color: var(--label-hover-background);
-  color: var(--label-hover-color);
-  cursor: pointer;
+.label-selectedAlt,
+.label-selectedAlt:hover {
+  background-color: var(--label-selectedAlt);
+  color: var(--colors-white);
+}
+
+.label-selected {
+  background-color: var(--colors-white);
+  color: var(--label-selected);
+
+  &:hover,
+  &.label-selectedAlt,
+  &.label-selectedAlt:hover {
+    color: var(--colors-white);
+    background-color: var(--label-selected);
+  }
 }
 
 .label-disabled {

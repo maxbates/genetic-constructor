@@ -35,7 +35,7 @@ export default class Expando extends Component {
     headerWidgets: PropTypes.arrayOf(PropTypes.node),
     bold: PropTypes.bool,
     onExpand: PropTypes.func,
-    onClick: PropTypes.func,
+    onClick: PropTypes.func, // (open) => {}
     onContextMenu: PropTypes.func,
     startDrag: PropTypes.func,
     showArrowWhenEmpty: PropTypes.bool,
@@ -94,7 +94,7 @@ export default class Expando extends Component {
     }
     // send click event
     if (this.props.onClick) {
-      this.props.onClick();
+      this.props.onClick(open);
     }
   };
 

@@ -974,7 +974,7 @@ export class ConstructViewer extends Component {
             title={this.props.construct.getName('New Construct')}
             subTitle={subTitle}
             fontSize="16px"
-            noHover={construct.isFixed() || !isFocused}
+            noHover={construct.isFrozen() || !isFocused}
             color={construct.getColor()}
             onClick={this.onTitleClicked}
             onContextMenu={position => this.showConstructContextMenu(position)}

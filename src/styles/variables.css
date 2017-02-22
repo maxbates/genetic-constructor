@@ -96,7 +96,7 @@
   /* List Items
   ===================== */
   --listItem-background: rgba(255,255,255,0.2);
-  --listItem-backgroundHover: var(--colors-grey);
+  --listItem-backgroundHover: var(--colors-lightGrey);
 
   /* Project Details */
   --projectDetailHeaderHeight: 3rem;
