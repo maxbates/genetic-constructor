@@ -22,6 +22,7 @@ import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import UserInterface from '../scenegraph2d/userinterface';
 import Fence from './fence';
+import { role } from '../../../constants/DragTypes';
 
 
 // # of pixels of mouse movement before a drag is triggered.
@@ -171,7 +172,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
       // the start block of a circular construct cannot have anything dropped to the left
       const isStartCircular = bestItem.node.glyph === 'backbone' && !bestItem.node.endCap;
       const isEndCircular = bestItem.node.glyph === 'backbone' && bestItem.node.endCap;
-      console.log(`start: ${isStartCircular} end: ${isEndCircular}`);
 
       // the edgeThreshold is usually a small region at left/right of block
       // but if the block cannot have children then we expand to cover the entire block
@@ -680,6 +680,18 @@ export default class ConstructViewerUserInterface extends UserInterface {
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
       return;
     }
+    const isBackbone = payload.type === role && payload.item.rules.role === 'backbone';
+    // cannot drop a backbone on an existing circular construct
+    if (this.constructViewer.isCircularConstruct() && isBackbone) {
+      return;
+    }
+    // backbone can only be dropped at the start of a construct, that isn't already a circular construct.
+    if (isBackbone) {
+      this.showDefaultInsertPoint();
+      return;
+    }
+
+
     // convert global point to local space via our mousetrap
     const localPosition = this.mouseTrap.globalToLocal(globalPosition, this.el);
     // user might be targeting the edge or center of block, or no block at all
@@ -706,6 +718,10 @@ export default class ConstructViewerUserInterface extends UserInterface {
     }
     // for now templates can only be dropped on the new construct target which is part of the canvas
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
+      return;
+    }
+    // cannot drop a backbone on an existing circular construct
+    if (this.constructViewer.isCircularConstruct() && payload.type === role && payload.item.rules.role === 'backbone') {
       return;
     }
 
