@@ -31,4 +31,42 @@ process.on('message', (message) => {
 
     process.send({ id: message.id, success: true, result: stdout });
   });
+
+  /*
+   // DEBUG USING SPAWN
+   // todo - solidify this, so can use all the time without overflowing buffer?
+   const [cmd, ...args] = command.split(' ');
+
+   const spawned = cp.spawn(cmd, args, { silent: false });
+
+   let result = '';
+
+   //stdio only defined when piped, not if inherited / ignored
+   if (spawned.stdout) {
+   spawned.stdout.on('data', (data) => {
+   console.log(`${data}`);
+   result += `${data}`;
+   });
+
+   spawned.stderr.on('data', (data) => {
+   console.log('stderr');
+   console.log(`${data}`);
+   result += `${data}`;
+   });
+   }
+
+   spawned.on('error', (err) => {
+   console.error('Error in process');
+   console.error(err);
+   return process.send({ id: message.id, success: false, error: err, result });
+   });
+
+   spawned.on('close', (code) => {
+   console.log(`child process exited with code ${code}`);
+   if (code === null || code > 0) {
+   return process.send({ id: message.id, success: false, error: code, result });
+   }
+   process.send({ id: message.id, success: true, result });
+   });
+   */
 });

@@ -154,6 +154,11 @@ def build_sequence(block, allblocks):
     else:
         # For handling list blocks!
         if "current_option" in block:
+            #debug
+            #if not block["current_option"]:
+            #    print(block)
+            #    print([b for b in allblocks if b["id"] == block["current_option"]])
+
             option = [b for b in allblocks if b["id"] == block["current_option"]][0]
             seq = seq + build_sequence(option, allblocks)
         if "sequence" in block and "sequence" in block["sequence"] and block["sequence"]["sequence"]:
@@ -261,6 +266,7 @@ def get_optional_children(block, allblocks):
                 result.append(block)
                 return result
     else:
+        # note - this assumes that lists are only one level deep
         for child_id in block["components"]:
             child = [b for b in allblocks if b["id"] == child_id][0]
             childs_options = get_optional_children(child, allblocks)
@@ -279,12 +285,19 @@ def next_viable_option(options, current_option=None):
 
 def build_first_optional_construct(optional_children):
     for block in optional_children:
-        block["current_option"] = next_viable_option(block["options"], current_option=block.get("current_option"))
+        # this line will fail on list blocks with one option, since it will try to set it to not match current option
+        # and nothing else will be vialbe
+        #block["current_option"] = next_viable_option(block["options"], current_option=block.get("current_option"))
+        block["current_option"] = next_viable_option(block["options"])
 
 def build_next_optional_construct(optional_children):
     for block in optional_children:
         next_option = next_viable_option(block["options"], current_option=block.get("current_option"))
+        #debug
+        #print(next_option, next_viable_option(block["options"]), block['id'], block.get("current_option"), block['options'])
         if next_option is not None:
+            #debug
+            #print('setting option', next_option, block['id'])
             block["current_option"] = next_option
             return True
         else:
@@ -302,7 +315,7 @@ def export_project(filename, project, allblocks):
 
     # There are no list blocks
     if len(all_options) == 0:
-        print "No options!"
+        print("No options!")
         project_to_genbank(filename, project, allblocks)
         return
 
