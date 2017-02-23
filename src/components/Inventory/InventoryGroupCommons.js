@@ -23,6 +23,7 @@ import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 import { blockStash } from '../../actions/blocks';
 import { focusForceProject } from '../../actions/focus';
 import { projectOpen, projectStash, projectClone } from '../../actions/projects';
+import { projectGet } from '../../selectors/projects';
 import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
 import { uiShowMenu } from '../../actions/ui';
 import DnD from '../../containers/graphics/dnd/dnd';
@@ -33,6 +34,7 @@ import InventoryTabs from './InventoryTabs';
 export class InventoryGroupCommons extends Component {
   static propTypes = {
     currentProjectId: PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
     commons: PropTypes.shape({
       projects: PropTypes.object.isRequired,
       versions: PropTypes.object.isRequired,
@@ -40,6 +42,7 @@ export class InventoryGroupCommons extends Component {
     focus: PropTypes.object.isRequired,
     blockStash: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
+    projectGet: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectStash: PropTypes.func.isRequired,
     projectClone: PropTypes.func.isRequired,
@@ -77,18 +80,16 @@ export class InventoryGroupCommons extends Component {
 
   componentDidMount() {
     //initial query, just get everything for now
-    this.props.commonsQuery();
+    if (!Object.keys(this.props.commons.versions).length) {
+      this.props.commonsQuery();
+    } else {
+      this.setSnapshots(this.props.commons.versions);
+    }
   }
 
   componentWillReceiveProps(nextProps, nextState) {
     if (this.props.commons !== nextProps.commons) {
-      this.setState({
-        snapshots: _(nextProps.commons.versions)
-        .groupBy('projectId')
-        .mapValues((projectSnapshots, projectId) => _.maxBy(projectSnapshots, 'version'))
-        .values()
-        .value(),
-      });
+      this.setSnapshots(nextProps.commons.versions);
     }
   }
 
@@ -158,6 +159,16 @@ export class InventoryGroupCommons extends Component {
     });
   };
 
+  setSnapshots(versions) {
+    this.setState({
+      snapshots: _(versions)
+      .groupBy('projectId')
+      .mapValues((projectSnapshots, projectId) => _.maxBy(projectSnapshots, 'version'))
+      .values()
+      .value(),
+    });
+  }
+
   retrieveProject(projectId) {
     const roll = this.props.commons.projects[projectId];
     return roll ?
@@ -172,7 +183,17 @@ export class InventoryGroupCommons extends Component {
 
   //need to stash project + blocks, since the commons is stored separately from projects and blocks
   //todo - perf = only store the blocks we need. Rollup should have method for getting this
-  stashProject(roll) {
+  stashProject(roll, force = false) {
+    // assume that once in the store, we're good
+    // if force, note that will overwrite the user's project to the locked one
+    if (force !== true) {
+      const projectId = roll.project.id;
+      const retrieved = this.props.projectGet(projectId);
+      if (retrieved) {
+        return;
+      }
+    }
+
     this.props.projectStash(roll.project);
     this.props.blockStash(..._.values(roll.blocks));
     return roll;
@@ -239,11 +260,13 @@ export class InventoryGroupCommons extends Component {
 }
 
 export default connect((state, props) => ({
+  userId: state.user.userid,
   commons: state.commons,
   focus: state.focus,
 }), {
   blockStash,
   focusForceProject,
+  projectGet,
   projectStash,
   projectOpen,
   commonsQuery,

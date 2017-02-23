@@ -87,7 +87,7 @@ class ProjectHeader extends Component {
 
   /**
    * get position for a context menu attached to one of the inline toolbar items
-   * @param anchorElenent
+   * @param anchorElement
    */
   static getToolbarAnchorPosition(anchorElement) {
     const box = new Box2D(anchorElement.getBoundingClientRect());
@@ -104,11 +104,16 @@ class ProjectHeader extends Component {
     this.props.focusConstruct(block.id);
   };
 
-  onClick = () => {
+  onItemActivated = () => {
     this.props.inspectorToggleVisibility(true);
     this.props.focusPrioritize('project');
+  };
+
+  onClick = () => {
+    this.onItemActivated();
     const name = this.props.project.metadata.name || 'Untitled Project';
-    if (!this.props.project.rules.frozen) {
+
+    if (!this.props.project.isFrozen()) {
       this.props.uiInlineEditor((value) => {
         this.props.projectRename(this.props.project.id, value);
       }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this).querySelector('.title'));
@@ -322,7 +327,8 @@ class ProjectHeader extends Component {
       <div className="ProjectHeader">
         <TitleAndToolbar
           onClick={this.onClick}
-          noHover={this.props.project.rules.frozen}
+          itemActivated={this.onItemActivated}
+          noHover={this.props.project.isFrozen()}
           title={project.metadata.name || 'Untitled Project'}
           toolbarItems={this.toolbar()}
           fontSize="1.5rem"

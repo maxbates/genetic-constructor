@@ -244,6 +244,11 @@ export class ConstructViewer extends Component {
    */
   onTitleClicked = (event) => {
     const { construct } = this.props;
+
+    if (construct.isFrozen()) {
+      return;
+    }
+
     const wasFocused = construct.id === this.props.focus.constructId;
     this.props.focusBlocks([]);
     this.props.focusConstruct(construct.id);
@@ -958,7 +963,7 @@ export class ConstructViewer extends Component {
     const { construct } = this.props;
     const isFocused = construct.id === this.props.focus.constructId;
     const viewerClasses = `construct-viewer${isFocused ? ' construct-viewer-focused' : ''}`;
-    const subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
+    //const subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
     return (
       <div
         className={viewerClasses}
@@ -972,7 +977,7 @@ export class ConstructViewer extends Component {
           <TitleAndToolbar
             toolbarItems={this.toolbarItems()}
             title={this.props.construct.getName('New Construct')}
-            subTitle={subTitle}
+            //subTitle={subTitle}
             fontSize="16px"
             noHover={construct.isFrozen() || !isFocused}
             color={construct.getColor()}

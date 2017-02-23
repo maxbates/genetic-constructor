@@ -166,6 +166,17 @@ export default class Rollup {
     });
   }
 
+  // input POJO
+  // mutates roll itself
+  static freeze(roll) {
+    //freeze project
+    roll.project.rules.frozen = true;
+
+    //freeze blocks
+    _.forEach(roll.blocks, (block) => { block.rules.frozen = true; });
+    return roll;
+  }
+
   getManifest() {
     return this.project;
   }

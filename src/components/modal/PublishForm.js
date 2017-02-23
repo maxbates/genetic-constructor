@@ -51,6 +51,8 @@ class PublishModal extends Component {
   constructor(props) {
     super(props);
 
+    console.log(props);
+
     this.state = {
       dirty: false,
       versionNote: props.initialMessage,

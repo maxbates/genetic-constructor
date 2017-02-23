@@ -24,22 +24,12 @@ import * as projectVersions from './projectVersions';
 import * as snapshots from './snapshots';
 import Snapshot from '../../../src/models/Snapshot';
 import { errorNotPublished, errorDoesNotExist } from '../../errors/errorConstants';
+import Rollup from '../../../src/models/Rollup';
 
 const logger = debug('constructor:data:persistence:commons');
 
 export const snapshotBodyScaffold = { tags: {}, keywords: [] };
 export const defaultSnapshotBody = Object.assign({ message: commonsDefaultMessage }, snapshotBodyScaffold);
-
-//NB - mutates the json directly
-//maybe makes sense to put this in the Rollup class itself? Esp. If client needs it.
-const lockProjectDeep = (roll) => {
-  //freeze project
-  roll.project.rules.frozen = true;
-
-  //freeze blocks
-  _.forEach(roll.blocks, (block) => { block.rules.frozen = true; });
-  return roll;
-};
 
 //given list of snapshots, e.g. on queries, only take the latest version of each project
 const reduceSnapshotsToLatestPerProject = snapshots =>
@@ -143,7 +133,7 @@ export const commonsRetrieveVersions = projectId =>
 export const commonsRetrieve = (projectId, version, lockProject = true) =>
   checkProjectPublic(projectId, version)
   .then(snapshot => projectVersions.projectVersionByUUID(snapshot.projectUUID))
-  .then(roll => lockProject === true ? lockProjectDeep(roll) : roll);
+  .then(roll => lockProject === true ? Rollup.freeze(roll) : roll);
 
 /**
  * Publish a project at particular version

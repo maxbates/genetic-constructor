@@ -178,6 +178,16 @@ export default class Project extends Instance {
     return this.mutate('metadata.palette', palette);
   }
 
+  /**
+   * Check if the project is frozen
+   * @method isFrozen
+   * @memberOf Project
+   * @returns {boolean} Whether project is frozen
+   */
+  isFrozen() {
+    return this.rules.frozen === true;
+  }
+
   //ideally, this would just return the same instance, would be much easier
   /**
    * Update the version of the project. Returns a new Instance, so use {@link Project.compare} to check if two projects are the same and ignore the version
@@ -219,7 +229,6 @@ export default class Project extends Instance {
     return this.mutate('components', this.components.slice(0, index).concat(components).concat(this.components.slice(index)));
   }
 
-
   /**
    * Remove constructs from the project
    * @method removeComponents
@@ -242,22 +251,22 @@ export default class Project extends Instance {
    */
   fileWrite(namespace, name, contents) {
     return projectFileWrite(this.id, namespace, name, contents)
-      .then((result) => {
-        const version = result.VersionId;
-        const fileIndex = this.files.findIndex(fileObj => fileObj.namespace === namespace && fileObj.name === name);
+    .then((result) => {
+      const version = result.VersionId;
+      const fileIndex = this.files.findIndex(fileObj => fileObj.namespace === namespace && fileObj.name === name);
 
-        const fileInfo = {
-          name,
-          namespace,
-          version,
-        };
+      const fileInfo = {
+        name,
+        namespace,
+        version,
+      };
 
-        //update version
-        if (fileIndex >= 0) {
-          return this.mutate(`files[${fileIndex}]`, fileInfo);
-        }
-        return this.mutate('files', [...this.files, fileInfo]);
-      });
+      //update version
+      if (fileIndex >= 0) {
+        return this.mutate(`files[${fileIndex}]`, fileInfo);
+      }
+      return this.mutate('files', [...this.files, fileInfo]);
+    });
   }
 
   /**
@@ -272,13 +281,13 @@ export default class Project extends Instance {
    */
   fileRead(namespace, name, format = 'text', version) {
     return projectFileRead(this.id, namespace, name)
-      .then((resp) => {
-        if (format === 'text') {
-          return resp.text();
-        } else if (format === 'json') {
-          return resp.json();
-        }
-        return resp;
-      });
+    .then((resp) => {
+      if (format === 'text') {
+        return resp.text();
+      } else if (format === 'json') {
+        return resp.json();
+      }
+      return resp;
+    });
   }
 }

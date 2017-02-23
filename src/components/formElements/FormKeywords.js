@@ -25,6 +25,10 @@ export default class FormKeywords extends Component {
     keywords: PropTypes.arrayOf(PropTypes.string).isRequired,
     onChange: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
+  };
+
+  static makeKeyword(keyword, count) {
+    return { value: keyword, label: keyword };
   }
 
   state = {
@@ -33,9 +37,11 @@ export default class FormKeywords extends Component {
   };
 
   componentDidMount() {
-    snapshotsListKeywords().then((keywordsMap) => {
+    //todo - this should be an action, so we don't call setState after unmounting
+    snapshotsListKeywords()
+    .then((keywordsMap) => {
       this.setState({
-        keywordList: _.map(keywordsMap, (number, keyword) => ({ value: keyword, label: keyword })),
+        keywordList: _.map(keywordsMap, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
         keywordListLoading: false,
       });
     });
@@ -44,6 +50,8 @@ export default class FormKeywords extends Component {
   render() {
     const { keywords, onChange, disabled } = this.props;
     const { keywordList, keywordListLoading } = this.state;
+
+    const fullList = keywordList.concat(keywords.map(FormKeywords.makeKeyword));
 
     const cleanInput = input => input.toLowerCase().trim().replace(',', '');
     const setKeywords = (values) => {
@@ -64,7 +72,7 @@ export default class FormKeywords extends Component {
         multi
         value={keywords}
         disabled={disabled}
-        options={keywordList}
+        options={fullList}
         isLoading={keywordListLoading}
         valueRenderer={({ value }) => cleanInput(value)}
         optionRenderer={({ value }) => cleanInput(value)}
