@@ -75,7 +75,7 @@ export default class ColorPicker extends Component {
   render() {
     const currentPalette = getPalette(this.props.paletteName);
     let color;
-    if (Number.isFinite(this.props.current)) {
+    if (Number.isFinite(this.props.current) && this.props.current >= 0) {
       color = currentPalette[this.props.current];
     } else {
       color = { hex: 'lightgray', name: 'No Color' };
