@@ -719,10 +719,14 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * show the insertion point at the top left of an empty construct.
    */
   showDefaultInsertPoint() {
-    // insertion point may alternate so ensure we remove the block cursor
-    this.hideBlockInsertionPoint();
-    const point = this.layout.getInitialLayoutPoint();
-    this.showInsertionPointForEdgeAt(point.x, point.y);
+    if (this.constructViewer.isCircularConstruct()) {
+      this.showInsertionPointForEdge(this.construct.components[0], 'right');
+    } else {
+      // insertion point may alternate so ensure we remove the block cursor
+      this.hideBlockInsertionPoint();
+      const point = this.layout.getInitialLayoutPoint();
+      this.showInsertionPointForEdgeAt(point.x, point.y);
+    }
   }
 
   /**
