@@ -43,6 +43,7 @@ const saveMessageKey = 'projectSaveMessage';
 const rollupDefined = roll => roll && roll.project && roll.blocks;
 
 const projectNotLoadedError = 'Project has not been loaded';
+const projectNotOwnedError = 'User does not own this project';
 
 //this is a backup for performing arbitrary mutations
 export const projectMerge = (projectId, toMerge) => (dispatch, getState) => {
@@ -106,7 +107,14 @@ export const projectSave = (inputProjectId, forceSave = false) => (dispatch, get
     return Promise.reject(projectNotLoadedError);
   }
 
-    //check if project is new, and save only if it is (or forcing the save)
+  // gracefully resolve on save when not owned
+  // probably should update our autosaving to be a little smarter
+  const userId = getState().user.userid;
+  if (userId !== roll.getOwner()) {
+    return Promise.resolve(null);
+  }
+
+  //check if project is new, and save only if it is (or forcing the save)
   if (!instanceMap.isRollupNew(roll) && forceSave !== true) {
     return Promise.resolve(null);
   }
@@ -314,7 +322,13 @@ export const projectOpen = (inputProjectId, skipSave = false) => (dispatch, getS
       :
       dispatch(projectSave(currentProjectId))
         .catch((err) => {
-          if (!!currentProjectId && currentProjectId !== 'null' && currentProjectId !== 'undefined' && err !== projectNotLoadedError) {
+          const ignore = !currentProjectId ||
+            currentProjectId === 'null' ||
+            currentProjectId === 'undefined' ||
+            err === projectNotLoadedError ||
+            err === projectNotOwnedError;
+
+          if (!ignore) {
             dispatch({
               type: ActionTypes.UI_SET_GRUNT,
               gruntMessage: `Project ${currentProjectId} couldn't be saved, but navigating anyway...`,

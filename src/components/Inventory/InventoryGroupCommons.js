@@ -166,7 +166,7 @@ export class InventoryGroupCommons extends Component {
   }
 
   retrieveAndStashProject(projectId) {
-    this.retrieveProject(projectId)
+    return this.retrieveProject(projectId)
     .then(roll => this.stashProject(roll));
   }
 

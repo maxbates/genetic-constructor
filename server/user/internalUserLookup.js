@@ -16,13 +16,11 @@
 
 import { AUTH_END_POINT } from '../urlConstants';
 import rejectingFetch from '../../src/middleware/utils/rejectingFetch';
+import { headersPost } from '../../src/middleware/utils/headers';
 
 //for use on the server to look up the user, outside of context of routers
 
 export default function internalUserLookup(uuid) {
-  return rejectingFetch(`${AUTH_END_POINT}/find`, {
-    method: 'POST',
-    body: JSON.stringify({ uuid }),
-  })
+  return rejectingFetch(`${AUTH_END_POINT}/find`, headersPost(JSON.stringify({ uuid })))
   .then(resp => resp.json());
 }

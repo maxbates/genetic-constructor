@@ -126,8 +126,14 @@
   border-radius: 3px;
 
   &:hover {
-    filter: brightness(1000%);
     background-color: rgba(255, 255, 255, 0.25);
+  }
+
+  /* special handling for hover, keep it white on light grey background */
+  &:hover,
+  .label-base:hover &,
+  .label-base:hover &:hover {
+    filter: brightness(1000%);
   }
 }
 

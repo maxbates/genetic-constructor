@@ -170,6 +170,10 @@ export default class Rollup {
     return this.project;
   }
 
+  getOwner() {
+    return this.project.owner;
+  }
+
   getBlock(blockId) {
     return this.blocks[blockId] || null;
   }
@@ -258,4 +262,7 @@ export default class Rollup {
       options,
     };
   }
+
+  //todo - clone()
+  //todo - cloneBlock()
 }
