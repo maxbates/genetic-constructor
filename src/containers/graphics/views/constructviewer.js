@@ -971,10 +971,7 @@ export class ConstructViewer extends Component {
     const isCircular = this.isCircularConstruct();
     const isFocused = construct.id === this.props.focus.constructId;
     const viewerClasses = `construct-viewer${isFocused ? ' construct-viewer-focused' : ''}`;
-    let subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
-    if (isCircular) {
-      subTitle += ' Circular';
-    }
+    const subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
     return (
       <div
         className={viewerClasses}
@@ -989,6 +986,7 @@ export class ConstructViewer extends Component {
             toolbarItems={this.toolbarItems()}
             title={this.props.construct.getName('New Construct')}
             subTitle={subTitle.trim()}
+            label={isCircular ? 'Circular' : ''}
             fontSize="16px"
             noHover={construct.isFixed() || !isFocused}
             color={construct.getColor()}

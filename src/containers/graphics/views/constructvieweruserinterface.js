@@ -668,6 +668,25 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
+   *
+   * @param payload
+   */
+  isPayloadBackbone(payload) {
+    // a single backbone block from the inventory
+    if (payload.type === role && payload.item.rules.role === 'backbone') {
+      return true;
+    }
+    // might be an array of ID's if drag started in the viewer.
+    if (Array.isArray(payload.item) && payload.item.length === 1) {
+      const block = this.constructViewer.props.blocks[payload.item[0]];
+      if (block.rules.role === 'backbone') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * drag over event
    */
   onDragOver(globalPosition, payload, proxySize) {
@@ -680,14 +699,18 @@ export default class ConstructViewerUserInterface extends UserInterface {
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
       return;
     }
-    const isBackbone = payload.type === role && payload.item.rules.role === 'backbone';
+    const isBackbone = this.isPayloadBackbone(payload);
     // cannot drop a backbone on an existing circular construct
     if (this.constructViewer.isCircularConstruct() && isBackbone) {
       return;
     }
     // backbone can only be dropped at the start of a construct, that isn't already a circular construct.
     if (isBackbone) {
-      this.showDefaultInsertPoint();
+      if (this.construct.components.length) {
+        this.showInsertionPointForEdge(this.construct.components[0], 'left');
+      } else {
+        this.showDefaultInsertPoint();
+      }
       return;
     }
 
@@ -720,8 +743,10 @@ export default class ConstructViewerUserInterface extends UserInterface {
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
       return;
     }
+    const isBackbone = this.isPayloadBackbone(payload);
+
     // cannot drop a backbone on an existing circular construct
-    if (this.constructViewer.isCircularConstruct() && payload.type === role && payload.item.rules.role === 'backbone') {
+    if (this.constructViewer.isCircularConstruct() && isBackbone) {
       return;
     }
 
