@@ -26,7 +26,6 @@ import * as blockActions from '../actions/blocks';
 import { uiSetGrunt } from '../actions/ui';
 import * as ActionTypes from '../constants/ActionTypes';
 import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
-import Block from '../models/Block';
 import Project from '../models/Project';
 import Rollup from '../models/Rollup';
 import * as blockSelectors from '../selectors/blocks';
@@ -35,116 +34,32 @@ import * as instanceMap from '../store/instanceMap';
 import { pauseAction, resumeAction } from '../store/pausableStore';
 import * as undoActions from '../store/undo/actions';
 import { getLocal, setLocal } from '../utils/localstorage';
+import wrapPausedTransaction from './_wrapPausedTransaction';
+
+/******** constants ********/
 
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
 
-//todo - should move to rollup class?
-const rollupDefined = roll => roll && roll.project && roll.blocks;
-
 const projectNotLoadedError = 'Project has not been loaded';
 const projectNotOwnedError = 'User does not own this project';
 
-//this is a backup for performing arbitrary mutations
-export const projectMerge = (projectId, toMerge) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
-  const project = oldProject.merge(toMerge);
-  dispatch({
-    type: ActionTypes.PROJECT_MERGE,
-    undoable: true,
-    project,
-  });
+/******** helpers ***********/
+
+const _getProject = (state, projectId) => {
+  const project = state.projects[projectId];
+  invariant(project, `project ${projectId} not found`);
   return project;
 };
 
-/**
- * List manifests of all of a user's projects
- * @function
- * @returns {Promise}
- * @resolve {Array.<Project>}
- * @reject {Response}
- */
-export const projectList = () => (dispatch, getState) => listProjects()
-      .then((projectManifests) => {
-        const projects = projectManifests.map(manifest => new Project(manifest));
+//todo - should move to rollup class?
+const rollupDefined = roll => roll && roll.project && roll.blocks;
 
-        dispatch({
-          type: ActionTypes.PROJECT_LIST,
-          projects,
-        });
+const classifyProjectIfNeeded = input => (input instanceof Project) ? input : new Project(input);
 
-        return projects;
-      });
-
-export const projectStash = projectInput =>
-  (dispatch, getState) => {
-    const project = projectInput instanceof Project ? projectInput : new Project(projectInput);
-    dispatch({
-      type: ActionTypes.PROJECT_STASH,
-      project,
-    });
-    return project;
-  };
-
-/**
- * Save the project, e.g. for autosave.
- * @function
- * @param {UUID} [inputProjectId] Omit to save the current project
- * @param {boolean} [forceSave=false] Force saving, even if the project has not changed since last save
- * @returns {Promise}
- * @resolve {number|null} version of save, or null if save was unnecessary
- * @reject {string|Response} Error message
- */
-export const projectSave = (inputProjectId, forceSave = false) => (dispatch, getState) => {
-  const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
-  const projectId = inputProjectId || currentProjectId;
-  if (!projectId) {
-    return Promise.resolve(null);
-  }
-
-  const roll = dispatch(projectSelectors.projectCreateRollup(projectId));
-  if (!rollupDefined(roll)) {
-    return Promise.reject(projectNotLoadedError);
-  }
-
-  // gracefully resolve on save when not owned
-  // probably should update our autosaving to be a little smarter
-  const userId = getState().user.userid;
-  if (userId !== roll.getOwner()) {
-    return Promise.resolve(null);
-  }
-
-  //check if project is new, and save only if it is (or forcing the save)
-  if (!instanceMap.isRollupNew(roll) && forceSave !== true) {
-    return Promise.resolve(null);
-  }
-
-  instanceMap.saveRollup(roll);
-
-  return saveProject(projectId, roll)
-      .then((versionInfo) => {
-        setLocal(recentProjectKey, projectId);
-
-        //if no version => first time saving, show a grunt
-        if (!getLocal(saveMessageKey)) {
-          dispatch({
-            type: ActionTypes.UI_SET_GRUNT,
-            gruntMessage: 'Project Saved. Changes will continue to be saved automatically as you work.',
-          });
-          setLocal(saveMessageKey, true);
-        }
-
-        const { version, time } = versionInfo;
-        dispatch({
-          type: ActionTypes.PROJECT_SAVE,
-          projectId,
-          version,
-          time,
-        });
-
-        return version;
-      });
-};
+/**************************************
+ * Actions
+ **************************************/
 
 /**
  * Create a project manifest
@@ -166,6 +81,117 @@ export const projectCreate = initialModel => (dispatch, getState) => {
 
   return project;
 };
+
+/**
+ * Add projects to the store
+ * @function
+ * @param projectInput
+ * @returns {Project}
+ */
+export const projectStash = projectInput =>
+  (dispatch, getState) => {
+    const project = classifyProjectIfNeeded(projectInput);
+    dispatch({
+      type: ActionTypes.PROJECT_STASH,
+      project,
+    });
+    return project;
+  };
+
+//this is a backup for performing arbitrary mutations
+export const projectMerge = (projectId, toMerge) =>
+  (dispatch, getState) => {
+    const oldProject = _getProject(getState(), projectId);
+    const project = oldProject.merge(toMerge);
+    dispatch({
+      type: ActionTypes.PROJECT_MERGE,
+      undoable: true,
+      project,
+    });
+    return project;
+  };
+
+/**
+ * List manifests of all of a user's projects
+ * @function
+ * @returns {Promise}
+ * @resolve {Array.<Project>}
+ * @reject {Response}
+ */
+export const projectList = () =>
+  (dispatch, getState) =>
+    listProjects()
+    .then((projectManifests) => {
+      const projects = projectManifests.map(classifyProjectIfNeeded);
+
+      dispatch({
+        type: ActionTypes.PROJECT_LIST,
+        projects,
+      });
+
+      return projects;
+    });
+
+/**
+ * Save the project, e.g. for autosave.
+ * @function
+ * @param {UUID} [inputProjectId] Omit to save the current project
+ * @param {boolean} [forceSave=false] Force saving, even if the project has not changed since last save
+ * @returns {Promise}
+ * @resolve {number|null} version of save, or null if save was unnecessary
+ * @reject {string|Response} Error message
+ */
+export const projectSave = (inputProjectId, forceSave = false) =>
+  (dispatch, getState) => {
+    const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
+    const projectId = inputProjectId || currentProjectId;
+    if (!projectId) {
+      return Promise.resolve(null);
+    }
+
+    const roll = dispatch(projectSelectors.projectCreateRollup(projectId));
+    if (!rollupDefined(roll)) {
+      return Promise.reject(projectNotLoadedError);
+    }
+
+    // gracefully resolve on save when not owned
+    // probably should update our autosaving to be a little smarter
+    const userId = getState().user.userid;
+    if (userId !== roll.getOwner()) {
+      return Promise.resolve(null);
+    }
+
+    //check if project is new, and save only if it is (or forcing the save)
+    if (!instanceMap.isRollupNew(roll) && forceSave !== true) {
+      return Promise.resolve(null);
+    }
+
+    instanceMap.saveRollup(roll);
+
+    return saveProject(projectId, roll)
+    .then((versionInfo) => {
+      setLocal(recentProjectKey, projectId);
+
+      //if no version => first time saving, show a grunt
+      if (!getLocal(saveMessageKey)) {
+        dispatch({
+          type: ActionTypes.UI_SET_GRUNT,
+          gruntMessage: 'Project Saved. Changes will continue to be saved automatically as you work.',
+        });
+        setLocal(saveMessageKey, true);
+      }
+
+      const { version, time } = versionInfo;
+      dispatch({
+        type: ActionTypes.PROJECT_SAVE,
+        projectId,
+        version,
+        time,
+      });
+
+      return version;
+    });
+  };
 
 /**
  * Clone a project, and optionally, all of its blocks.
@@ -197,7 +223,7 @@ export const projectClone = (projectId, withBlocks = false) =>
       invariant(oldProject.components.every(constructId => state.blocks[constructId]), 'all constructs must be in the store');
 
       //call action block clone (may take a little while for many block)
-      const clones = oldProject.components.forEach(constructId => dispatch(blockActions.blockClone(constructId)));
+      const clones = oldProject.components.map(constructId => dispatch(blockActions.blockClone(constructId, {}, { projectId: project.id })));
 
       //update the project with the new components
       //need to do it after the project has been cloned, since clone sets a new ID
@@ -227,35 +253,36 @@ export const projectClone = (projectId, withBlocks = false) =>
  * @resolve {Rollup} loaded Project + Block Map
  * @reject
  */
-const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) => loadProject(projectId)
-    .then(rollup => Rollup.classify(rollup))
-    .catch((resp) => {
-      if ((resp === null || resp.status === 404) && loadMoreOnFail !== true && !Array.isArray(loadMoreOnFail)) {
-        return Promise.reject(resp);
-      }
+const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) =>
+  loadProject(projectId)
+  .then(rollup => Rollup.classify(rollup))
+  .catch((resp) => {
+    if ((resp === null || resp.status === 404) && loadMoreOnFail !== true && !Array.isArray(loadMoreOnFail)) {
+      return Promise.reject(resp);
+    }
 
-      const ignores = Array.isArray(loadMoreOnFail) ? loadMoreOnFail : [];
-      if (typeof projectId === 'string') {
-        ignores.push(projectId);
-      }
+    const ignores = Array.isArray(loadMoreOnFail) ? loadMoreOnFail : [];
+    if (typeof projectId === 'string') {
+      ignores.push(projectId);
+    }
 
-      return dispatch(projectList())
-        .then(manifests => manifests
-          .filter(manifest => !(ignores.indexOf(manifest.id) >= 0))
-          //first sort descending by created date (i.e. if never saved) then descending by saved date (so it takes precedence)
-          .sort((one, two) => two.metadata.created - one.metadata.created)
-          .sort((one, two) => two.metadata.updated - one.metadata.updated),
-        )
-        .then((manifests) => {
-          if (manifests.length) {
-            const nextId = manifests[0].id;
-            //recurse, ignoring this projectId
-            return _projectLoad(nextId, ignores, dispatch);
-          }
-          //if no manifests, create a new rollup
-          return emptyProjectWithConstruct(userId, true);
-        });
+    return dispatch(projectList())
+    .then(manifests => manifests
+      .filter(manifest => !(ignores.indexOf(manifest.id) >= 0))
+      //first sort descending by created date (i.e. if never saved) then descending by saved date (so it takes precedence)
+      .sort((one, two) => two.metadata.created - one.metadata.created)
+      .sort((one, two) => two.metadata.updated - one.metadata.updated),
+    )
+    .then((manifests) => {
+      if (manifests.length) {
+        const nextId = manifests[0].id;
+        //recurse, ignoring this projectId
+        return _projectLoad(nextId, ignores, dispatch);
+      }
+      //if no manifests, create a new rollup
+      return emptyProjectWithConstruct(userId, true);
     });
+  });
 
 /**
  * Load a project and add it and its contents to the store
@@ -267,36 +294,37 @@ const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) => lo
  * @resolve {Project}
  * @reject null
  */
-export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = false) => (dispatch, getState) => {
-  const isCached = !!projectId && instanceMap.projectLoaded(projectId);
-  const userId = getState().user.userid;
-  const promise = (avoidCache !== true && isCached) ?
+export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = false) =>
+  (dispatch, getState) => {
+    const isCached = !!projectId && instanceMap.projectLoaded(projectId);
+    const userId = getState().user.userid;
+    const promise = (avoidCache !== true && isCached) ?
       Promise.resolve(instanceMap.getRollup(projectId)) :
       _projectLoad(projectId, userId, loadMoreOnFail, dispatch);
 
     //rollup by this point has been converted to class instances
-  return promise.then((rollup) => {
-    instanceMap.saveRollup(rollup);
+    return promise.then((rollup) => {
+      instanceMap.saveRollup(rollup);
 
-    dispatch(pauseAction());
-    dispatch(undoActions.transact());
+      dispatch(pauseAction());
+      dispatch(undoActions.transact());
 
-    dispatch({
-      type: ActionTypes.BLOCK_STASH,
-      blocks: values(rollup.blocks),
+      dispatch({
+        type: ActionTypes.BLOCK_STASH,
+        blocks: values(rollup.blocks),
+      });
+
+      dispatch({
+        type: ActionTypes.PROJECT_LOAD,
+        project: rollup.project,
+      });
+
+      dispatch(undoActions.commit());
+      dispatch(resumeAction());
+
+      return rollup.project;
     });
-
-    dispatch({
-      type: ActionTypes.PROJECT_LOAD,
-      project: rollup.project,
-    });
-
-    dispatch(undoActions.commit());
-    dispatch(resumeAction());
-
-    return rollup.project;
-  });
-};
+  };
 
 /**
  * Open a project, that has already been loaded using projectLoad()
@@ -307,68 +335,50 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
  * @resolve {Project} Project that is opened
  * @reject {null}
  */
-export const projectOpen = (inputProjectId, skipSave = false) => (dispatch, getState) => {
-  const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
-  const projectId = inputProjectId || getLocal(recentProjectKey);
+export const projectOpen = (inputProjectId, skipSave = false) =>
+  (dispatch, getState) => {
+    const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
+    const projectId = inputProjectId || getLocal(recentProjectKey);
 
     //ignore if on a project, and passed the same one
-  if (!!currentProjectId && currentProjectId === projectId) {
-    return Promise.resolve();
-  }
+    if (!!currentProjectId && currentProjectId === projectId) {
+      return Promise.resolve();
+    }
 
-  const promise = (skipSave === true)
+    const promise = (skipSave === true)
       ?
       Promise.resolve()
       :
       dispatch(projectSave(currentProjectId))
-        .catch((err) => {
-          const ignore = !currentProjectId ||
-            currentProjectId === 'null' ||
-            currentProjectId === 'undefined' ||
-            err === projectNotLoadedError ||
-            err === projectNotOwnedError;
+      .catch((err) => {
+        const ignore = !currentProjectId ||
+          currentProjectId === 'null' ||
+          currentProjectId === 'undefined' ||
+          err === projectNotLoadedError ||
+          err === projectNotOwnedError;
 
-          if (!ignore) {
-            dispatch({
-              type: ActionTypes.UI_SET_GRUNT,
-              gruntMessage: `Project ${currentProjectId} couldn't be saved, but navigating anyway...`,
-            });
-          }
-        });
+        if (!ignore) {
+          dispatch({
+            type: ActionTypes.UI_SET_GRUNT,
+            gruntMessage: `Project ${currentProjectId} couldn't be saved, but navigating anyway...`,
+          });
+        }
+      });
 
-  return promise.then(() => {
-      /*
-       future - clear the store of blocks from the old project.
-       need to consider blocks in the inventory - loaded projects, search results, shown in onion etc. Probably means committing to using the instanceMap for mapping state to props in inventory.
+    return promise.then(() => {
+      // future - clear the store of blocks from the old project.
+      // need to consider blocks in the inventory - loaded projects, search results, shown in onion etc. Probably means committing to using the instanceMap for mapping state to props in inventory.
 
-       const blockIds = dispatch(projectSelectors.projectListAllBlocks(currentProjectId)).map(block => block.id);
-
-       // pause action e.g. so dont get accidental redraws with blocks missing
-       dispatch(pauseAction());
-
-       //remove prior projects blocks from the store
-       dispatch({
-       type: ActionTypes.BLOCK_DETACH,
-       blockIds,
-       });
-
-       //projectPage will load the project + its blocks
-       //change the route
-       dispatch(push(`/project/${projectId}`));
-
-       //dispatch(resumeAction());
-       */
-
-      //projectPage will load the project + its blocks
+      //projectPage will load the project + its blocks (if the user has access)
       //change the route
-    dispatch(push(`/project/${projectId}`));
-    dispatch({
-      type: ActionTypes.PROJECT_OPEN,
-      projectId,
+      dispatch(push(`/project/${projectId}`));
+      dispatch({
+        type: ActionTypes.PROJECT_OPEN,
+        projectId,
+      });
+      return projectId;
     });
-    return projectId;
-  });
-};
+  };
 
 /**
  * Delete a project. THIS CANNOT BE UNDONE.
@@ -382,7 +392,7 @@ export const projectOpen = (inputProjectId, skipSave = false) => (dispatch, getS
  */
 export const projectDelete = projectId =>
   (dispatch, getState) => {
-    const project = getState().projects[projectId];
+    const project = _getProject(getState(), projectId);
 
     if (project.rules.frozen) {
       dispatch(uiSetGrunt('This is a sample project and cannot be deleted.'));
@@ -416,6 +426,10 @@ export const projectDelete = projectId =>
     });
   };
 
+/***************************************
+ * Metadata things
+ ***************************************/
+
 /**
  * Rename a project
  * @function
@@ -423,16 +437,17 @@ export const projectDelete = projectId =>
  * @param {string} newName
  * @returns {Project}
  */
-export const projectRename = (projectId, newName) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
-  const project = oldProject.mutate('metadata.name', newName);
-  dispatch({
-    type: ActionTypes.PROJECT_RENAME,
-    undoable: true,
-    project,
-  });
-  return project;
-};
+export const projectRename = (projectId, newName) =>
+  (dispatch, getState) => {
+    const oldProject = _getProject(getState(), projectId);
+    const project = oldProject.mutate('metadata.name', newName);
+    dispatch({
+      type: ActionTypes.PROJECT_RENAME,
+      undoable: true,
+      project,
+    });
+    return project;
+  };
 
 /**
  * Set description of a project
@@ -441,52 +456,58 @@ export const projectRename = (projectId, newName) => (dispatch, getState) => {
  * @param {string} newDescription
  * @returns {Project}
  */
-export const projectSetDescription = (projectId, newDescription) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
-  const project = oldProject.mutate('metadata.description', newDescription);
-  dispatch({
-    type: ActionTypes.PROJECT_SET_DESCRIPTION,
-    undoable: true,
-    project,
-  });
-  return project;
-};
+export const projectSetDescription = (projectId, newDescription) =>
+  (dispatch, getState) => {
+    const oldProject = _getProject(getState(), projectId);
+    const project = oldProject.mutate('metadata.description', newDescription);
+    dispatch({
+      type: ActionTypes.PROJECT_SET_DESCRIPTION,
+      undoable: true,
+      project,
+    });
+    return project;
+  };
 
-  /**
+/**
  * Set the keywords for a project
  * @function
  * @param {UUID} projectId
  * @param {Array<string>} keywords
  * @returns {Project}
  */
-export const projectSetKeywords = (projectId, keywords) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
-  const project = oldProject.mutate('metadata.keywords', keywords);
-  dispatch({
-    type: ActionTypes.PROJECT_SET_KEYWORDS,
-    undoable: true,
-    project,
-  });
-  return project;
-};
+export const projectSetKeywords = (projectId, keywords) =>
+  (dispatch, getState) => {
+    const oldProject = _getProject(getState(), projectId);
+    const project = oldProject.mutate('metadata.keywords', keywords);
+    dispatch({
+      type: ActionTypes.PROJECT_SET_KEYWORDS,
+      undoable: true,
+      project,
+    });
+    return project;
+  };
 
 /**
  * set the palette for the project
  * @param projectId
  * @param paletteName
  */
-export const projectSetPalette = (projectId, paletteName) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
-  const project = oldProject.mutate('metadata.palette', paletteName);
-  dispatch({
-    type: ActionTypes.PROJECT_SETPALETTE,
-    paletteName,
-    undoable: true,
-    project,
-  });
-  return project;
-};
+export const projectSetPalette = (projectId, paletteName) =>
+  (dispatch, getState) => {
+    const oldProject = _getProject(getState(), projectId);
+    const project = oldProject.mutate('metadata.palette', paletteName);
+    dispatch({
+      type: ActionTypes.PROJECT_SETPALETTE,
+      paletteName,
+      undoable: true,
+      project,
+    });
+    return project;
+  };
 
+/***************************************
+ * Constructs
+ ***************************************/
 
 /**
  * Adds a construct to a project. Does not create the construct. Use a Block Action.
@@ -498,43 +519,39 @@ export const projectSetPalette = (projectId, paletteName) => (dispatch, getState
  * @param {number} [index=-1] Where to add construct
  * @returns {Project}
  */
-export const projectAddConstruct = (projectId, constructId, forceProjectId = true, index = -1) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
-  let project;
-  if (index < 0) {
-    project = oldProject.addComponents(constructId);
-  } else {
-    project = oldProject.addComponentsAt(index, constructId);
-  }
+export const projectAddConstruct = (projectId, constructId, forceProjectId = true, index = -1) =>
+  (dispatch, getState) =>
+    wrapPausedTransaction(dispatch, () => {
+      const oldProject = _getProject(getState(), projectId);
+      let project;
+      if (index < 0) {
+        project = oldProject.addComponents(constructId);
+      } else {
+        project = oldProject.addComponentsAt(index, constructId);
+      }
 
-  const component = getState().blocks[constructId];
-  const componentProjectId = component.projectId;
+      const component = getState().blocks[constructId];
+      const componentProjectId = component.projectId;
 
-  dispatch(pauseAction());
-  dispatch(undoActions.transact());
+      const contents = dispatch(blockSelectors.blockGetContentsRecursive(constructId));
+      const contentProjectIds = uniq(values(contents).map(block => block.projectId));
 
-  const contents = dispatch(blockSelectors.blockGetContentsRecursive(constructId));
-  const contentProjectIds = uniq(values(contents).map(block => block.projectId));
+      if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId !== projectId)) {
+        //ensure that we are forcing the project ID
+        //ensure that Ids are null to ensure we are only adding clones
+        invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
-  if (componentProjectId !== projectId || contentProjectIds.some(compProjId => compProjId !== projectId)) {
-      //ensure that we are forcing the project ID
-      //ensure that Ids are null to ensure we are only adding clones
-    invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
+        dispatch(blockActions.blockSetProject(constructId, projectId, false));
+      }
 
-    dispatch(blockActions.blockSetProject(constructId, projectId, false));
-  }
+      dispatch({
+        type: ActionTypes.PROJECT_ADD_CONSTRUCT,
+        undoable: true,
+        project,
+      });
 
-  dispatch({
-    type: ActionTypes.PROJECT_ADD_CONSTRUCT,
-    undoable: true,
-    project,
-  });
-
-  dispatch(undoActions.commit());
-  dispatch(resumeAction());
-
-  return project;
-};
+      return project;
+    });
 
 /**
  * Removes a construct from a project, and unsets its project ID
@@ -543,41 +560,40 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = tru
  * @param {UUID} constructId
  * @returns {Project}
  */
-export const projectRemoveConstruct = (projectId, constructId) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
-  const project = oldProject.removeComponents(constructId);
+export const projectRemoveConstruct = (projectId, constructId) =>
+  (dispatch, getState) =>
+    wrapPausedTransaction(dispatch, () => {
+      const oldProject = _getProject(getState(), projectId);
+      const project = oldProject.removeComponents(constructId);
 
-  dispatch(pauseAction());
-  dispatch(undoActions.transact());
+      //unset projectId of construct only
+      dispatch(blockActions.blockSetProject(constructId, null, true));
 
-    //unset projectId of construct only
-  dispatch(blockActions.blockSetProject(constructId, null, true));
-
-  dispatch({
-    type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,
-    undoable: true,
-    project,
-  });
-
-  dispatch(undoActions.commit());
-  dispatch(resumeAction());
-
-  return project;
-};
-
-// PROJECT FILES
-
-export const projectFileWrite = (projectId, namespace, fileName, contents) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
-
-  return oldProject.fileWrite(namespace, fileName, contents)
-      .then((project) => {
-        dispatch({
-          type: ActionTypes.PROJECT_FILE_WRITE,
-          undoable: true,
-          project,
-        });
-
-        return project;
+      dispatch({
+        type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,
+        undoable: true,
+        project,
       });
-};
+
+      return project;
+    });
+
+/***************************************
+ * Files
+ ***************************************/
+
+export const projectFileWrite = (projectId, namespace, fileName, contents) =>
+  (dispatch, getState) => {
+    const oldProject = _getProject(getState(), projectId);
+
+    return oldProject.fileWrite(namespace, fileName, contents)
+    .then((project) => {
+      dispatch({
+        type: ActionTypes.PROJECT_FILE_WRITE,
+        undoable: true,
+        project,
+      });
+
+      return project;
+    });
+  };
