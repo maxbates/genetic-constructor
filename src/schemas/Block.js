@@ -19,6 +19,7 @@ import BlockSourceSchema from './BlockSource';
 import { InstanceSchemaClass } from './Instance';
 import RulesSchema from './Rules';
 import SequenceSchema from './Sequence';
+import BlockAttributionSchema from './BlockAttribution';
 import fields from './fields/index';
 import * as validators from './fields/validators';
 
@@ -75,6 +76,11 @@ const blockFields = {
   notes: [
     fields.object().required,
     'Notes about the whole Block',
+  ],
+
+  attribution: [
+    fields.arrayOf(BlockAttributionSchema.validate.bind(BlockAttributionSchema)).required,
+    'Provenance of claimed ownership of the block',
   ],
 };
 

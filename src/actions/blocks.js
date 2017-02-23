@@ -44,15 +44,15 @@ const _getBlock = (state, blockId) => {
   return block;
 };
 
+//can use instead of _getBlock to assert existence and ownership
+//include detached applies to blocks not in projects and projects without owners
 const _assertUserOwnsBlock = (state, blockId, includeDetached = false) => {
-  const userId = state.user.userid;
-  const block = state.blocks[blockId];
-  invariant(block, `[assertUserOwnsBlock] ${blockId} - not found`);
+  const block = _getBlock(state, blockId);
   const projectId = block.projectId;
 
-  //if detached and thats ok, bail
+  //if block detached and thats ok, bail
   if (!projectId || !includeDetached) {
-    return true;
+    return block;
   }
   invariant(projectId, `[assertUserOwnsBlock] ${blockId} - detached, cannot look up project owner`);
 
@@ -60,10 +60,13 @@ const _assertUserOwnsBlock = (state, blockId, includeDetached = false) => {
   invariant(project, `[assertUserOwnsBlock] ${blockId} - project ${projectId} not found`);
 
   const owner = project.owner;
-  //if detached and thats ok, bail
+  //if project detached and thats ok, bail
   if (!owner || !includeDetached) {
     return true;
   }
+
+  const userId = state.user.userid;
+  invariant(userId, '[assertUserOwnsBlock] user id must be available in store');
   invariant(owner === userId, `[assertUserOwnsBlock] ${blockId} - user does not own project ${projectId} (owner: ${owner})`);
   return true;
 };
@@ -338,7 +341,6 @@ export const blockSetDescription = (blockId, description) => (dispatch, getState
   return block;
 };
 
-
 /**
  * Set block's color
  * @function
@@ -389,10 +391,13 @@ export const blockSetRole = (blockId, role) => (dispatch, getState) => {
 
 export const blockSetPalette = (blockId, palette) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
-  invariant(oldBlock.projectId, 'block must have a projectId (must be in a project)');
 
-  const isToplevel = getState().projects[oldBlock.projectId].components.indexOf(blockId) >= 0;
-  invariant(isToplevel, 'set palette of a toplevel block');
+  //not construct if detached, or if not in project components
+  const project = getState().projects[oldBlock.projectId];
+  invariant(!oldBlock.projectId || project, 'if block has projectId, project must be loaded');
+
+  const isConstruct = !oldBlock.projectId || project.components.indexOf(blockId) >= 0;
+  invariant(isConstruct, 'can only set palette of a construct (toplevel block)');
 
   const oldPalette = oldBlock.metadata.palette;
 
@@ -408,6 +413,33 @@ export const blockSetPalette = (blockId, palette) => (dispatch, getState) => {
   });
   return block;
 };
+
+/**
+ * Add users attribution to a block
+ * If the last attribution was the users, update the last attribution
+ * If pass null for text, remove the attribution if it is the user's
+ *
+ * defaults: { owner: userId, text: userName, time: Date.now() }
+ * @param {UUID} blockId
+ * @param {String|null} text
+ */
+export const blockAttribute = (blockId, text) =>
+  (dispatch, getState) => {
+    const oldBlock = _getBlock(getState(), blockId);
+    const userId = getState().user.userid;
+
+    const attribution = text === null ?
+      null :
+      { owner: userId, text, time: Date.now() };
+
+    const block = oldBlock.attribute(attribution, userId);
+    dispatch({
+      type: ActionTypes.BLOCK_ATTRIBUTE,
+      undoable: true,
+      block,
+    });
+    return block;
+  };
 
 /***************************************
  * Rules

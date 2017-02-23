@@ -14,12 +14,14 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { assign, cloneDeep, merge } from 'lodash';
+import _, { assign, cloneDeep, merge } from 'lodash';
 
 import { symbolMap } from '../inventory/roles';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
 import BlockSchema from '../schemas/Block';
+import SequenceSchema from '../schemas/Sequence';
+import BlockAttributionSchema from '../schemas/BlockAttribution';
 import safeValidate from '../schemas/fields/safeValidate';
 import * as validators from '../schemas/fields/validators';
 import { colorFiller, getPalette, isHex, nextColor, palettes } from '../utils/color/index';
@@ -27,16 +29,6 @@ import { dnaLooseRegexp, dnaStrictRegexp } from '../utils/dna';
 import Instance from './Instance';
 
 const idValidator = id => safeValidate(validators.id(), true, id);
-
-//merge to clear fields only belonging to top-level constructs
-const fieldsClearToplevel = {
-  metadata: {
-    palette: null,
-  },
-};
-
-//merge to clear fields when not a leaf - these belong only to leaves
-//const fieldsClearLeaf = {};
 
 /**
  * Blocks are the foundational data type for representing DNA constructs in Genetic Constructor. Blocks can be thought of as parts, except they may not specify a sequence, and accommodate many more types of data than just base pairs and annotations.
@@ -359,6 +351,29 @@ export default class Block extends Instance {
     return this.setRule('hidden', Boolean(isHidden));
   }
 
+  /**
+   * Adds a new attribution
+   * @method attribute
+   * @memberOf Block
+   * @param {Object|null} attribution Attribution in form { owner, time, text }, or null to remove
+   * @param {String} userId Used to determine whether attribution should be updated or added
+   * @returns {Block}
+   */
+  attribute(attribution, userId) {
+    invariant(userId, 'userId is required to attribute');
+
+    const lastAttribution = _.last(this.attribution);
+    const lastAttributionIsUsers = lastAttribution && lastAttribution.owner === userId;
+
+    if (attribution === null) {
+      invariant(lastAttributionIsUsers, 'user must own last attribution to remove it');
+      return this.mutate('attribution', _.dropRight(this.attribution, 1));
+    }
+
+    BlockAttributionSchema.validate(attribution, true);
+    return this.mutate('attribution', [...this.attribution, attribution]);
+  }
+
   /************
    metadata
    ************/
@@ -528,8 +543,8 @@ export default class Block extends Instance {
     newComponents.splice(spliceIndex, 0, componentId);
 
     return this
-      .mutate('components', newComponents)
-      .clearBlockLevelFields();
+    .mutate('components', newComponents)
+    .clearBlockLevelFields();
   }
 
   /**
@@ -754,22 +769,22 @@ export default class Block extends Instance {
       { source: 'user', id: null };
 
     return writeSequence(sequence)
-      .then((md5) => {
-        const sequenceLength = sequence.length;
+    .then((md5) => {
+      const sequenceLength = sequence.length;
 
-        const updatedSequence = {
-          md5,
-          length: sequenceLength,
-          initialBases: `${sequence.substr(0, 6)}`,
-          download: null,
-          trim: null,
-        };
+      const updatedSequence = {
+        md5,
+        length: sequenceLength,
+        initialBases: `${sequence.substr(0, 6)}`,
+        download: null,
+        trim: null,
+      };
 
-        return this.merge({
-          sequence: updatedSequence,
-          source: updatedSource,
-        });
+      return this.merge({
+        sequence: updatedSequence,
+        source: updatedSource,
       });
+    });
   }
 
   /**
@@ -837,13 +852,15 @@ export default class Block extends Instance {
    *********/
 
   clearBlockLevelFields() {
-    // doesnt do anything at the moment
-    // return this.merge(fieldsClearLeaf);
-    return this;
+    return this.mutate('sequence', SequenceSchema.scaffold());
   }
 
   //when something becomes a not-top level construct, do some cleanup
   clearToplevelFields() {
-    return this.merge(fieldsClearToplevel);
+    return this.merge({
+      metadata: {
+        palette: null,
+      },
+    });
   }
 }

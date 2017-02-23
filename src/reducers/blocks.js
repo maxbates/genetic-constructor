@@ -47,6 +47,7 @@ export default function blocks(state = initialState, action) {
     case ActionTypes.BLOCK_SET_LIST :
     case ActionTypes.BLOCK_SET_HIDDEN :
     case ActionTypes.BLOCK_SET_PROJECT :
+    case ActionTypes.BLOCK_ATTRIBUTE :
     case ActionTypes.BLOCK_OPTION_ADD :
     case ActionTypes.BLOCK_OPTION_REMOVE :
     case ActionTypes.BLOCK_OPTION_TOGGLE :
