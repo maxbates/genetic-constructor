@@ -39,6 +39,30 @@ const spaceFiller = 10; //eslint-disable-line no-unused-vars
  * Metadata things
  ***************************************/
 
+const assertUserOwnsBlock = (state, blockId, includeDetached = false) => {
+  const userId = state.user.userid;
+  const block = state.blocks[blockId];
+  invariant(block, `[assertUserOwnsBlock] ${blockId} - not found`);
+  const projectId = block.projectId;
+
+  //if detached and thats ok, bail
+  if (!projectId || !includeDetached) {
+    return true;
+  }
+  invariant(projectId, `[assertUserOwnsBlock] ${blockId} - detached, cannot look up project owner`);
+
+  const project = state.projects[projectId];
+  invariant(project, `[assertUserOwnsBlock] ${blockId} - project ${projectId} not found`);
+
+  const owner = project.owner;
+  //if detached and thats ok, bail
+  if (!owner || !includeDetached) {
+    return true;
+  }
+  invariant(owner === userId, `[assertUserOwnsBlock] ${blockId} - user does not own project ${projectId} (owner: ${owner})`);
+  return true;
+};
+
 //todo - should not allow if in a project
 /**
  * Set the projectId of a block, and optionally all of its contents.

@@ -80,12 +80,12 @@ describe('Middleware', () => {
 
     const commitMessage = 'my fancy message';
 
-    it('snapshotWrite() creates a snapshot, returns version, time, message, defaults to latest', () => {
+    it('snapshotWrite() creates a snapshot, returns version, created, message, defaults to latest', () => {
       return api.snapshot(projectId, null, { message: commitMessage, tags: testTags, keywords: testKeywords })
       .then(info => {
         assert(info.version === 2, 'should be version 2 (latest)');
         assert(info.message === commitMessage, 'should have commit message');
-        assert(Number.isInteger(info.time), 'time should be number');
+        assert(Number.isInteger(info.created), 'created should be number');
       });
     });
 

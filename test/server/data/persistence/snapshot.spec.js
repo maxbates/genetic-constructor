@@ -75,7 +75,7 @@ describe('Server', () => {
           });
         });
 
-        it('snapshotWrite() works on version 0, returns type, message, tags, time, version', () => {
+        it('snapshotWrite() works on version 0, returns type, message, tags, created, version', () => {
           return snapshots.snapshotWrite(roll.project.id, testUserId, 0)
           .then(result => {
             expect(result.version).to.equal(0);
@@ -83,6 +83,7 @@ describe('Server', () => {
             expect(result.message).to.equal(snapshots.defaultMessage);
             expect(result.tags).to.eql({});
             expect(result.owner).to.equal(testUserId);
+            expect(Number.isInteger(result.created)).to.equal(true);
           });
         });
 
@@ -136,8 +137,8 @@ describe('Server', () => {
           .then(results => {
             assert(results.length === 3, 'should have 3 snapshots');
             assert(results.every(result => {
-              return Number.isInteger(result.version) && Number.isInteger(result.time) && !!result.message;
-            }));
+              return Number.isInteger(result.version) && Number.isInteger(result.created) && !!result.message;
+            }), 'invalid format for snapshots');
           });
         });
 

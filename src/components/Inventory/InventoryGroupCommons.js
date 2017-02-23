@@ -75,6 +75,7 @@ export class InventoryGroupCommons extends Component {
   }
 
   state = {
+    loading: true,
     snapshots: [],
     groupBy: 'author',
     filter: '',
@@ -82,8 +83,10 @@ export class InventoryGroupCommons extends Component {
 
   componentDidMount() {
     this.setSnapshots(this.props.commons.versions);
-    //initial query, just get everything for now
-    this.props.commonsQuery();
+
+    //initial query on load, just get everything for now
+    this.props.commonsQuery()
+    .then(() => this.setState({ loading: false }));
   }
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -244,7 +247,7 @@ export class InventoryGroupCommons extends Component {
   }
 
   render() {
-    const { groupBy } = this.state;
+    const { loading, groupBy } = this.state;
     const grouped = this.createGroupedSnapshots();
 
     const treeItems = _.map(grouped, (groupSnapshots, key) => {
@@ -276,8 +279,8 @@ export class InventoryGroupCommons extends Component {
           onTabSelect={tab => this.onTabSelect(tab.key)}
         />
         <div className="InventoryGroup-contentInner no-vertical-scroll">
+          {!loading && !treeItems.length && <Spinner />}
           {currentList}
-          {!treeItems.length && <Spinner />}
         </div>
       </div>
     );

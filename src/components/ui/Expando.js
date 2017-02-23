@@ -46,10 +46,6 @@ export default class Expando extends Component {
     stateKey: PropTypes.string,
   };
 
-  static defaultProps = {
-    showArrowWhenEmpty: true,
-  };
-
   constructor(props) {
     super(props);
     // initial state from local storage if we have a state key, otherwise default to openByDefault property.
