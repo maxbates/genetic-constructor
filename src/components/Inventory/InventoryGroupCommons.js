@@ -21,7 +21,7 @@ import { block as blockDragType } from '../../constants/DragTypes';
 import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 
 import { blockStash } from '../../actions/blocks';
-import { focusForceProject } from '../../actions/focus';
+import { focusForceProject, focusForceBlocks } from '../../actions/focus';
 import { projectOpen, projectStash, projectClone } from '../../actions/projects';
 import { projectGet } from '../../selectors/projects';
 import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
@@ -29,6 +29,7 @@ import { uiShowMenu } from '../../actions/ui';
 import DnD from '../../containers/graphics/dnd/dnd';
 import InventoryProjectTree from './InventoryProjectTree';
 import Tree from '../ui/Tree';
+import Spinner from '../ui/Spinner';
 import InventoryTabs from './InventoryTabs';
 
 export class InventoryGroupCommons extends Component {
@@ -42,6 +43,7 @@ export class InventoryGroupCommons extends Component {
     focus: PropTypes.object.isRequired,
     blockStash: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
+    focusForceBlocks: PropTypes.func.isRequired,
     projectGet: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectStash: PropTypes.func.isRequired,
@@ -79,12 +81,9 @@ export class InventoryGroupCommons extends Component {
   };
 
   componentDidMount() {
+    this.setSnapshots(this.props.commons.versions);
     //initial query, just get everything for now
-    if (!Object.keys(this.props.commons.versions).length) {
-      this.props.commonsQuery();
-    } else {
-      this.setSnapshots(this.props.commons.versions);
-    }
+    this.props.commonsQuery();
   }
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -150,6 +149,8 @@ export class InventoryGroupCommons extends Component {
         block,
         text: block.getName(),
         items: [], //only one level allowed
+        selectedAlt: this.props.focus.forceBlocks[0] === block,
+        onClick: () => this.props.focusForceBlocks([block]),
         startDrag: globalPoint => {
           this.stashProject(roll);
           return InventoryGroupCommons.onCommonsConstructDrag(block, globalPoint);
@@ -199,34 +200,37 @@ export class InventoryGroupCommons extends Component {
     return roll;
   }
 
-  render() {
-    const { currentProjectId, focus } = this.props;
+  createGroupedSnapshots() {
     const { snapshots, groupBy } = this.state;
 
-    let grouped;
     if (groupBy === 'author') {
-      grouped = _.groupBy(snapshots, 'tags.author');
-    } else {
-      //todo - perf - this will be really slow with lots of projects
-      const allKeywords = _.union(_.flatMap(snapshots, _.property('keywords')));
-      grouped = _.reduce(
-        allKeywords,
-        (acc, key) => Object.assign(acc, { [key]: _.filter(snapshots, snap => _.includes(snap.keywords, key)) }),
-        {},
-      );
+      //group by owner ID, since users may have the same name
+      return _.groupBy(snapshots, 'owner');
     }
 
-    //todo - use grouped
+    // reduce, for each keyword, get all matching projects
+    //todo - perf - this will be really slow with lots of projects - should use map and fetch lazily
+    const allKeywords = _.union(_.flatMap(snapshots, _.property('keywords')));
+    return _.reduce(
+      allKeywords,
+      (acc, key) => Object.assign(acc, { [key]: _.filter(snapshots, snap => _.includes(snap.keywords, key)) }),
+      {},
+    );
+  }
 
-    const treeItems = snapshots.map(snapshot => ({
-      text: snapshot.tags.projectName || 'Project Name',
-      bold: true,
+  createProjectSnapshotTrees(snapshots) {
+    const { currentProjectId, focus } = this.props;
+
+    return snapshots.map(snapshot => ({
+      text: snapshot.tags.projectName || 'Untitled Project',
+      bold: false,
       selected: currentProjectId === snapshot.projectId,
       selectedAlt: focus.forceProject && snapshot.projectId === focus.forceProject.id,
       onClick: isOpen => this.onClickSnapshot(snapshot, open),
       onContextMenu: evt => this.onSnapshotContextMenu(snapshot, evt),
       // startDrag: globalPoint => InventoryGroupCommons.onCommonsProjectDrag(snapshot, globalPoint),
       items: this.getCommonsProjectBlocks(snapshot.projectId),
+      showArrowWhenEmpty: true,
       labelWidgets: [
         <img
           key="open"
@@ -237,6 +241,26 @@ export class InventoryGroupCommons extends Component {
         />,
       ],
     }));
+  }
+
+  render() {
+    const { groupBy } = this.state;
+    const grouped = this.createGroupedSnapshots();
+
+    const treeItems = _.map(grouped, (groupSnapshots, key) => {
+      const innerItems = this.createProjectSnapshotTrees(groupSnapshots);
+
+      //get text here to handle scenario fo users with same name
+      const text = (groupBy === 'author') ?
+        groupSnapshots[0].tags.author :
+        key;
+
+      return {
+        text,
+        selected: groupBy === 'author' && key === this.props.userId,
+        items: innerItems,
+      };
+    });
 
     const currentList = <Tree items={treeItems} />;
 
@@ -253,6 +277,7 @@ export class InventoryGroupCommons extends Component {
         />
         <div className="InventoryGroup-contentInner no-vertical-scroll">
           {currentList}
+          {!treeItems.length && <Spinner />}
         </div>
       </div>
     );
@@ -266,6 +291,7 @@ export default connect((state, props) => ({
 }), {
   blockStash,
   focusForceProject,
+  focusForceBlocks,
   projectGet,
   projectStash,
   projectOpen,

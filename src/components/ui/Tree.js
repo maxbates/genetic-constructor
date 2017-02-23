@@ -32,6 +32,7 @@ export default class Tree extends Component {
       locked: PropTypes.bool,
       startDrag: PropTypes.func,
       onContextMenu: PropTypes.func,
+      showArrowWhenEmpty: PropTypes.bool,
     })),
     depth: PropTypes.number.isRequired,
   };
@@ -78,7 +79,7 @@ export default class Tree extends Component {
             }}
           >
             <Expando
-              showArrowWhenEmpty={this.props.depth === 0}
+              showArrowWhenEmpty={this.props.depth === 0 || item.showArrowWhenEmpty}
               onExpand={() => Tree.onExpandBranch(item)}
               onClick={() => Tree.onClickBlock(item)}
               key={index}
