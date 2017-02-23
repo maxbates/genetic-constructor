@@ -21,7 +21,6 @@ import * as actions from '../../src/actions/projects';
 import * as selectors from '../../src/selectors/projects';
 import configureStore from '../../src/store/configureStore';
 import Project from '../../src/models/Project';
-import { testUserId } from '../constants';
 
 describe('Actions', () => {
   describe('Projects', () => {
@@ -35,13 +34,18 @@ describe('Actions', () => {
     });
 
     it('projectCreate() makes a project', () => {
-      project = store.dispatch(actions.projectCreate({
-        owner: testUserId,
-        components: [block.id],
-      }));
+      project = store.dispatch(actions.projectCreate());
 
       assert(Project.validate(project), 'should be valid');
       expect(store.getState().projects[project.id]).to.equal(project);
+    });
+
+    it('projectAddConstruct adds component, sets projectId', () => {
+      project = store.dispatch(actions.projectAddConstruct(project.id, block.id));
+      expect(project.components).to.eql([block.id]);
+
+      block = store.getState().blocks[block.id];
+      expect(block.projectId).to.equal(project.id);
     });
 
     describe('Files', () => {
@@ -69,7 +73,10 @@ describe('Actions', () => {
     });
 
     describe('Cloning', () => {
+      expect(project).to.be.defined;
+
       it('projectClone() clones the project', () => {
+        expect(block.projectId).to.equal(project.id);
         const clone = store.dispatch(actions.projectClone(project.id));
         expect(clone.id).to.not.equal(project.id);
         expect(clone.components).to.eql(project.components);

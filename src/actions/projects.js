@@ -541,7 +541,8 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = tru
         //ensure that Ids are null to ensure we are only adding clones
         invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
-        dispatch(blockActions.blockSetProject(constructId, projectId, false));
+        console.log('setting project Id');
+        dispatch(blockActions.blockSetProject(constructId, projectId));
       }
 
       dispatch({
@@ -567,7 +568,7 @@ export const projectRemoveConstruct = (projectId, constructId) =>
       const project = oldProject.removeComponents(constructId);
 
       //unset projectId of construct only
-      dispatch(blockActions.blockSetProject(constructId, null, true));
+      dispatch(blockActions.blockSetProject(constructId, null, false));
 
       dispatch({
         type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,

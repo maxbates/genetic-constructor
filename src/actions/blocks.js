@@ -284,17 +284,19 @@ export const blockDetach = (...blockIds) =>
  * While the block is in the project, do not set the projectId to something other than the current project! Save errors etc. will happen.
  * @param {UUID} blockId
  * @param {UUID} projectId
- * @param [shallow=false]
+ * @param [deep=true]
  * @returns block with blockId
  */
-export const blockSetProject = (blockId, projectId, shallow = false) => (dispatch, getState) => {
+export const blockSetProject = (blockId, projectId, deep = true) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
   const contents = dispatch(selectors.blockGetContentsRecursive(blockId));
 
+  console.log('setting in block actions');
+
   invariant(!oldBlock.projectId || oldBlock.projectId === projectId, 'block cannot have a different project ID - unset it first');
 
-  const blocks = [oldBlock, ...values(contents)]
-  .map(block => block.setProjectId(projectId));
+  const toSet = deep ? [oldBlock, ...values(contents)] : oldBlock;
+  const blocks = toSet.map(block => block.setProjectId(projectId));
 
   dispatch({
     type: ActionTypes.BLOCK_SET_PROJECT,
