@@ -19,7 +19,7 @@ export default class Permutations extends Component {
   static propTypes = {
     disabled: PropTypes.bool,
     total: PropTypes.number.isRequired,
-    //value: PropTypes.number,
+    value: PropTypes.number, //eslint-disable-line react/no-unused-prop-types
     editable: PropTypes.bool.isRequired,
     onBlur: PropTypes.func.isRequired,
   };

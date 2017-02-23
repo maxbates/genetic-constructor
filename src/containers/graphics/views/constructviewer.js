@@ -933,6 +933,7 @@ export class ConstructViewer extends Component {
         imageURL: '/images/ui/download.svg',
         enabled: true,
         clicked: () => {
+          this.props.uiSetGrunt('Preparing data. Download will begin automatically when complete.');
           downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
         },
       },

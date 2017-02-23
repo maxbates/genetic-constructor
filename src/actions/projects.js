@@ -373,9 +373,19 @@ export const projectOpen = (inputProjectId, skipSave = false) => (dispatch, getS
        //dispatch(resumeAction());
        */
 
-      //projectPage will load the project + its blocks
-      //change the route
+    //provide a hook for things that want to listen
+    dispatch({
+      type: ActionTypes.PROJECT_BEFORE_OPEN,
+      projectId: currentProjectId,
+      nextProjectId: projectId,
+    });
+
+    //projectPage will load the project + its blocks
+    //change the route
+    //causes a cascade of events as project page renders
     dispatch(push(`/project/${projectId}`));
+
+    //dispatch event after the project has been opeend
     dispatch({
       type: ActionTypes.PROJECT_OPEN,
       projectId,
