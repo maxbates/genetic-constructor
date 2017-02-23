@@ -26,6 +26,7 @@ import PalettePicker from './../ui/PalettePicker';
 import SBOLPicker from './../ui/SBOLPicker';
 import BlockNotes from './BlockNotes';
 import BlockSource from './BlockSource';
+import BlockAttribution from './BlockAttribution';
 import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
@@ -283,6 +284,15 @@ export class InspectorBlock extends Component {
         </InspectorRow>
 
         <InspectorRow
+          heading="Attribution"
+          condition={singleInstance}
+        >
+          <BlockAttribution
+            block={instances[0]}
+          />
+        </InspectorRow>
+
+        <InspectorRow
           heading={`${type} Metadata`}
           hasToggle
           condition={hasNotes}
@@ -302,22 +312,30 @@ export class InspectorBlock extends Component {
           />
         </InspectorRow>
 
-        <div className="color-symbol-label">{this.state.colorSymbolText}</div>
-        <div className="color-symbol">
-          <ColorPicker
-            setText={this.setColorSymbolText}
-            current={this.currentColor()}
-            readOnly={readOnly || isFixed}
-            paletteName={palette}
-            onSelectColor={this.selectColor}
-          />
-          {singleInstance && hasParents ? <SBOLPicker
-            setText={this.setColorSymbolText}
-            current={this.currentRoleSymbol()}
-            readOnly={readOnly || isFixed}
-            onSelect={this.selectSymbol}
-          /> : null}
-        </div>
+        <InspectorRow
+          heading={this.state.colorSymbolText}
+        >
+          <div className="color-symbol">
+            <ColorPicker
+              setText={this.setColorSymbolText}
+              current={this.currentColor()}
+              readOnly={readOnly || isFixed}
+              paletteName={palette}
+              onSelectColor={this.selectColor}
+            />
+            {(singleInstance && hasParents) ?
+              (
+                <SBOLPicker
+                  setText={this.setColorSymbolText}
+                  current={this.currentRoleSymbol()}
+                  readOnly={readOnly || isFixed}
+                  onSelect={this.selectSymbol}
+                />
+              ) :
+              null}
+          </div>
+        </InspectorRow>
+
         <InspectorRow
           heading={`${type} Rules`}
           condition={singleInstance}

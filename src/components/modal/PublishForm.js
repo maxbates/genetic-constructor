@@ -33,7 +33,7 @@ import { SHARING_CREATIVE_COMMONS_CC0, SHARING_IN_PUBLIC_INVENTORY } from '../..
 
 import '../../styles/PublishModal.css';
 
-class PublishModal extends Component {
+class PublishForm extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
     projectVersion: PropTypes.number,
@@ -50,8 +50,6 @@ class PublishModal extends Component {
 
   constructor(props) {
     super(props);
-
-    console.log(props);
 
     this.state = {
       dirty: false,
@@ -233,4 +231,4 @@ export default connect((state, props) => {
   commonsPublish,
   uiSetGrunt,
   uiShowPublishDialog,
-})(PublishModal);
+})(PublishForm);

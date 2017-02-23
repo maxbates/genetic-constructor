@@ -17,29 +17,29 @@ import React, { Component, PropTypes } from 'react';
 
 import '../../styles/Switch.css';
 
-export default class Switch extends Component {
-  static propTypes = {
-    on: PropTypes.bool.isRequired,
-    disabled: PropTypes.bool,
-    switched: PropTypes.func.isRequired,
-  };
+export default function Switch(props) {
+  const { disabled, switched, on } = props;
 
-  onFlick = () => {
-    if (!this.props.disabled) {
-      this.props.switched(!this.props.on);
+  const onFlick = () => {
+    if (!disabled) {
+      switched(!on);
     }
   };
 
-  render() {
-    const switchClass = `slider-switch ${this.props.disabled ? 'slider-switch-disabled' : ''}`;
-    const nobClass = `slider-switch-nob ${this.props.on ? 'slider-switch-nob-on' : ''}`;
-    return (
-      <div
-        className={switchClass}
-        onClick={this.onFlick}
-      >
-        <div className={nobClass} />
-      </div>
-    );
-  }
+  const switchClass = `slider-switch ${disabled ? 'slider-switch-disabled' : ''}`;
+  const nobClass = `slider-switch-nob ${on ? 'slider-switch-nob-on' : ''}`;
+  return (
+    <div
+      className={switchClass}
+      onClick={onFlick}
+    >
+      <div className={nobClass} />
+    </div>
+  );
 }
+
+Switch.propTypes = {
+  on: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
+  switched: PropTypes.func.isRequired,
+};
