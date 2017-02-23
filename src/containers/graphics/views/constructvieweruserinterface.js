@@ -168,6 +168,11 @@ export default class ConstructViewerUserInterface extends UserInterface {
     }
 
     if (bestItem) {
+      // the start block of a circular construct cannot have anything dropped to the left
+      const isStartCircular = bestItem.node.glyph === 'backbone' && !bestItem.node.endCap;
+      const isEndCircular = bestItem.node.glyph === 'backbone' && bestItem.node.endCap;
+      console.log(`start: ${isStartCircular} end: ${isEndCircular}`);
+
       // the edgeThreshold is usually a small region at left/right of block
       // but if the block cannot have children then we expand to cover the entire block
       let threshold = edgeThreshold;
@@ -175,12 +180,17 @@ export default class ConstructViewerUserInterface extends UserInterface {
         threshold = Math.ceil(bestItem.AABB.w / 2);
       }
       let edge = null;
-      if (point.x <= bestItem.AABB.x + threshold) {
+      if (!isStartCircular && point.x <= bestItem.AABB.x + threshold) {
         edge = 'left';
       }
-      if (point.x >= bestItem.AABB.right - threshold) {
+      if (!isEndCircular && point.x >= bestItem.AABB.right - threshold) {
         edge = 'right';
       }
+      // don't allow user to drop ON the last block of a circular construct
+      if (isEndCircular && edge !== 'left') {
+        return null;
+      }
+
       return { block: bestItem.block, edge };
     }
     // the construct must be empty
@@ -777,14 +787,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
-   * return the current insertion point if any
-   *
-   */
-  getInsertionPoint() {
-    return this.insertion;
-  }
-
-  /**
    * hide / deletion insertion point element
    */
   hideBlockInsertionPoint() {
@@ -803,5 +805,19 @@ export default class ConstructViewerUserInterface extends UserInterface {
       this.insertionEdgeEl.style.display = 'none';
     }
     this.insertion = null;
+  }
+
+  updateSelections() {
+    // for circular constructs we always select the end node if
+    // the start node is selected
+    const startNode = this.layout.getCircularStartNode();
+    const endNode = this.layout.getCircularEndNode();
+    if (this.selections.indexOf(startNode) >= 0) {
+      this.selections.push(endNode);
+      super.updateSelections();
+      this.selections.pop();
+    } else {
+      super.updateSelections();
+    }
   }
 }

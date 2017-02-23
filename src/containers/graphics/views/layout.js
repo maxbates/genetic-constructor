@@ -289,6 +289,33 @@ export default class Layout {
   }
 
   /**
+   * if we are showing a circular construct return the node representing the start block
+   * NOTE: We don't have to worry about nested constructs here.
+   */
+  getCircularStartNode() {
+    if (this.constructViewer.isCircularConstruct()) {
+      const node = this.parts2nodes[this.construct.components[0]];
+      invariant(node, 'expect a start node for a circular construct');
+      return node;
+    }
+    return null;
+  }
+  /**
+   * if we are showing a circular construct return the node representing the end cap
+   * NOTE: We don't have to worry about nested constructs here.
+   */
+  getCircularEndNode() {
+    if (this.constructViewer.isCircularConstruct()) {
+      const node = this.parts2nodes[Layout.backboneEndCapId];
+      invariant(node, 'expect an end node for a circular construct');
+      return node;
+    }
+    return null;
+  }
+
+
+
+  /**
    * reverse mapping from anything with an 'uuid' property to a node
    * Looks into nested constructs as well.
    */
