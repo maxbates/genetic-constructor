@@ -294,9 +294,7 @@ export default class Layout {
    */
   getCircularStartNode() {
     if (this.constructViewer.isCircularConstruct()) {
-      const node = this.parts2nodes[this.construct.components[0]];
-      invariant(node, 'expect a start node for a circular construct');
-      return node;
+      return this.parts2nodes[this.construct.components[0]];
     }
     return null;
   }
@@ -306,9 +304,7 @@ export default class Layout {
    */
   getCircularEndNode() {
     if (this.constructViewer.isCircularConstruct()) {
-      const node = this.parts2nodes[Layout.backboneEndCapId];
-      invariant(node, 'expect an end node for a circular construct');
-      return node;
+      return this.parts2nodes[Layout.backboneEndCapId];
     }
     return null;
   }
