@@ -16,7 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { blockMerge, blockRename, blockSetColor, blockSetPalette, blockSetRole } from '../../actions/blocks';
+import { blockSetDescription, blockRename, blockSetColor, blockSetPalette, blockSetRole } from '../../actions/blocks';
 import { blockGetParents } from '../../selectors/blocks';
 import Block from '../../models/Block';
 import { abort, commit, transact } from '../../store/undo/actions';
@@ -51,7 +51,7 @@ export class InspectorBlock extends Component {
     blockSetPalette: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
     blockGetParents: PropTypes.func.isRequired,
-    blockMerge: PropTypes.func.isRequired,
+    blockSetDescription: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
     project: PropTypes.object.isRequired,
     transact: PropTypes.func.isRequired,
@@ -76,7 +76,7 @@ export class InspectorBlock extends Component {
 
   setBlockDescription = (description) => {
     this.props.instances.forEach((block) => {
-      this.props.blockMerge(block.id, { metadata: { description } });
+      this.props.blockSetDescription(block.id, description);
     });
   };
 
@@ -366,7 +366,7 @@ export default connect(() => ({}), {
   blockSetRole,
   blockGetParents,
   blockRename,
-  blockMerge,
+  blockSetDescription,
   transact,
   commit,
   abort,

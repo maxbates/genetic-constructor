@@ -104,18 +104,6 @@ export const blockStash = (...inputBlocks) => (dispatch, getState) => {
   return blocks;
 };
 
-//this is a backup for performing arbitrary mutations. You probably shouldn't use this.
-export const blockMerge = (blockId, toMerge) => (dispatch, getState) => {
-  const oldBlock = _getBlock(getState(), blockId);
-  const block = oldBlock.merge(toMerge);
-  dispatch({
-    type: ActionTypes.BLOCK_MERGE,
-    undoable: true,
-    block,
-  });
-  return block;
-};
-
 /**
  * Clone a block (and its contents - components + list options)
  * Attempts to add ancestor to block.parents (unless parentObjectInput === null), by inspecting block.projectId if present and getting the project from the store, otherwise just clones as copy
@@ -291,8 +279,6 @@ export const blockSetProject = (blockId, projectId, deep = true) => (dispatch, g
   const oldBlock = _getBlock(getState(), blockId);
   const contents = dispatch(selectors.blockGetContentsRecursive(blockId));
 
-  console.log('setting in block actions');
-
   invariant(!oldBlock.projectId || oldBlock.projectId === projectId, 'block cannot have a different project ID - unset it first');
 
   const toSet = deep ? [oldBlock, ...values(contents)] : oldBlock;
@@ -328,6 +314,30 @@ export const blockRename = (blockId, name) => (dispatch, getState) => {
   });
   return block;
 };
+
+/**
+ * Rename a block
+ * @function
+ * @param {UUID} blockId
+ * @param {string} description
+ * @returns {Block} Updated Block
+ */
+export const blockSetDescription = (blockId, description) => (dispatch, getState) => {
+  const oldBlock = _getBlock(getState(), blockId);
+
+  if (oldBlock.metadata.description === description) {
+    return oldBlock;
+  }
+
+  const block = oldBlock.mutate('metadata.description', description);
+  dispatch({
+    type: ActionTypes.BLOCK_SET_DESCRIPTION,
+    undoable: true,
+    block,
+  });
+  return block;
+};
+
 
 /**
  * Set block's color

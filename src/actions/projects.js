@@ -98,19 +98,6 @@ export const projectStash = projectInput =>
     return project;
   };
 
-//this is a backup for performing arbitrary mutations
-export const projectMerge = (projectId, toMerge) =>
-  (dispatch, getState) => {
-    const oldProject = _getProject(getState(), projectId);
-    const project = oldProject.merge(toMerge);
-    dispatch({
-      type: ActionTypes.PROJECT_MERGE,
-      undoable: true,
-      project,
-    });
-    return project;
-  };
-
 /**
  * List manifests of all of a user's projects
  * @function
@@ -541,7 +528,6 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = tru
         //ensure that Ids are null to ensure we are only adding clones
         invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
-        console.log('setting project Id');
         dispatch(blockActions.blockSetProject(constructId, projectId));
       }
 

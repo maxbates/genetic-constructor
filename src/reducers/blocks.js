@@ -30,6 +30,7 @@ export default function blocks(state = initialState, action) {
     case ActionTypes.BLOCK_CREATE :
     case ActionTypes.BLOCK_MERGE :
     case ActionTypes.BLOCK_RENAME :
+    case ActionTypes.BLOCK_SET_DESCRIPTION :
     case ActionTypes.BLOCK_SET_COLOR :
     case ActionTypes.BLOCK_SET_PALETTE :
     case ActionTypes.BLOCK_CLONE :

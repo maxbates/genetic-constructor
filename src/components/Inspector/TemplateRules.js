@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 
 import {
   blockFreeze,
-  blockMerge,
   blockSetHidden,
   blockSetFixed,
   blockSetListBlock,
@@ -94,7 +93,6 @@ export class TemplateRules extends Component {
 const mapStateToProps = (state, props) => ({});
 
 export default connect(mapStateToProps, {
-  blockMerge,
   blockFreeze,
   blockSetListBlock,
   blockSetHidden,
