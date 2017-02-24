@@ -191,42 +191,36 @@ export const projectSave = (inputProjectId, forceSave = false) =>
  * @throws if project not in store, or blocks not in store if withBlocks = true
  */
 export const projectClone = (projectId, withBlocks = false) =>
-  (dispatch, getState) => {
-    const state = getState();
-    const oldProject = state.projects[projectId];
-    invariant(oldProject, 'old project must exist');
+  (dispatch, getState) =>
+    wrapPausedTransaction(dispatch, () => {
+      const state = getState();
+      const oldProject = _getProject(state, projectId);
 
-    const userId = getState().user.userid;
-    let project = oldProject.clone({}, {
-      owner: userId,
+      const userId = getState().user.userid;
+      let project = oldProject.clone({}, {
+        owner: userId,
+      });
+
+      //if cloning blocks, clone all the constructs, and update the project
+      if (withBlocks) {
+        //ensure the constructs are present, and assume blocks are if the constructs are (or block clone will error)
+        invariant(oldProject.components.every(constructId => state.blocks[constructId]), 'all constructs must be in the store');
+
+        //call action block clone (may take a little while for many block)
+        const clones = oldProject.components.map(constructId => dispatch(blockActions.blockClone(constructId, {}, { projectId: project.id })));
+
+        //update the project with the new components
+        //need to do it after the project has been cloned, since clone sets a new ID
+        project = project.mutate('components', clones.map(clone => clone.id));
+      }
+
+      dispatch({
+        type: ActionTypes.PROJECT_CLONE,
+        project,
+      });
+
+      return project;
     });
-
-    dispatch(pauseAction());
-    dispatch(undoActions.transact());
-
-    //if cloning blocks, clone all the constructs, and update the project
-    if (withBlocks) {
-      //ensure the constructs are present, and assume blocks are if the constructs are (or block clone will error)
-      invariant(oldProject.components.every(constructId => state.blocks[constructId]), 'all constructs must be in the store');
-
-      //call action block clone (may take a little while for many block)
-      const clones = oldProject.components.map(constructId => dispatch(blockActions.blockClone(constructId, {}, { projectId: project.id })));
-
-      //update the project with the new components
-      //need to do it after the project has been cloned, since clone sets a new ID
-      project = project.mutate('components', clones.map(clone => clone.id));
-    }
-
-    dispatch({
-      type: ActionTypes.PROJECT_CLONE,
-      project,
-    });
-
-    dispatch(undoActions.commit());
-    dispatch(resumeAction());
-
-    return project;
-  };
 
 /**
  * Internal method to load a project. Attempt to load another on failure. Used internally by projectLoad, can recursive in this verison.
@@ -278,7 +272,7 @@ const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) =>
  * @param {boolean} [avoidCache=false]
  * @param {Array|boolean} [loadMoreOnFail=false] False to only attempt to load single project ID. Pass array of IDs to ignore in case of failure
  * @returns {Promise}
- * @resolve {Project}
+ * @resolve {Rollup} Returns whole rollup - { project, blocks }
  * @reject null
  */
 export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = false) =>
@@ -293,23 +287,19 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
     return promise.then((rollup) => {
       instanceMap.saveRollup(rollup);
 
-      dispatch(pauseAction());
-      dispatch(undoActions.transact());
+      return wrapPausedTransaction(dispatch, () => {
+        dispatch({
+          type: ActionTypes.BLOCK_STASH,
+          blocks: values(rollup.blocks),
+        });
 
-      dispatch({
-        type: ActionTypes.BLOCK_STASH,
-        blocks: values(rollup.blocks),
+        dispatch({
+          type: ActionTypes.PROJECT_LOAD,
+          project: rollup.project,
+        });
+
+        return rollup.project;
       });
-
-      dispatch({
-        type: ActionTypes.PROJECT_LOAD,
-        project: rollup.project,
-      });
-
-      dispatch(undoActions.commit());
-      dispatch(resumeAction());
-
-      return rollup.project;
     });
   };
 

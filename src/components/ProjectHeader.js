@@ -42,7 +42,6 @@ import {
   uiInlineEditor,
   uiShowMenu,
   uiSetGrunt,
-  uiShowOkCancel,
   uiShowPublishDialog,
   uiShowUnpublishDialog,
   uiShowProjectDeleteModal,
@@ -70,7 +69,6 @@ class ProjectHeader extends Component {
     uiInlineEditor: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
-    uiShowOkCancel: PropTypes.func.isRequired,
     uiShowPublishDialog: PropTypes.func.isRequired,
     uiShowUnpublishDialog: PropTypes.func.isRequired,
     uiShowProjectDeleteModal: PropTypes.func.isRequired,
@@ -242,7 +240,7 @@ class ProjectHeader extends Component {
       //load another project, avoiding this one
       this.props.projectLoad(null, false, [project.id])
         //open the new project, skip saving the previous one
-        .then(openProject => this.props.projectOpen(openProject.id, true))
+        .then(rollup => this.props.projectOpen(rollup.project.id, true))
         //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
         .then(() => this.props.projectDelete(project.id));
     }
@@ -359,7 +357,6 @@ export default connect(mapStateToProps, {
   uiInlineEditor,
   uiSetGrunt,
   uiShowMenu,
-  uiShowOkCancel,
   projectAddConstruct,
   projectOpen,
   projectDelete,

@@ -109,9 +109,9 @@ export class ProjectPage extends Component {
     //handle project not loaded at all
     if (!project || !project.metadata) {
       this.props.projectLoad(projectId, false, true)
-      .then((project) => {
-        if (project.id !== projectId) {
-          this.props.projectOpen(project.id);
+      .then((rollup) => {
+        if (rollup.project.id !== projectId) {
+          this.props.projectOpen(rollup.project.id);
         }
       });
       return (<Spinner styles={{ fontSize: '40px', margin: '2em auto' }} />);

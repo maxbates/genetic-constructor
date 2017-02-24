@@ -22,7 +22,7 @@ import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 
 import { blockStash } from '../../actions/blocks';
 import { focusForceProject, focusForceBlocks } from '../../actions/focus';
-import { projectOpen, projectStash, projectClone } from '../../actions/projects';
+import { projectLoad, projectOpen, projectStash, projectClone } from '../../actions/projects';
 import { projectGet } from '../../selectors/projects';
 import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
 import { uiShowMenu } from '../../actions/ui';
@@ -44,6 +44,7 @@ export class InventoryGroupCommons extends Component {
     blockStash: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
     focusForceBlocks: PropTypes.func.isRequired,
+    projectLoad: PropTypes.func.isRequired,
     projectGet: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectStash: PropTypes.func.isRequired,
@@ -114,7 +115,7 @@ export class InventoryGroupCommons extends Component {
         text: 'Duplicate Project',
         action: () => {
           const { projectId } = snapshot;
-          return this.retrieveAndStashProject(projectId)
+          return this.retrieveAndStashProject(snapshot)
           .then(() => {
             const cloned = this.props.projectClone(projectId, true);
             this.props.projectOpen(cloned.id);
@@ -128,9 +129,9 @@ export class InventoryGroupCommons extends Component {
   };
 
   onOpenCommonsProject = (snapshot, evt) => {
-    const projectId = snapshot.projectId;
+    const { projectId } = snapshot;
 
-    return this.retrieveAndStashProject(projectId)
+    return this.retrieveAndStashProject(snapshot)
     .then(() => this.props.projectOpen(projectId));
   };
 
@@ -173,15 +174,23 @@ export class InventoryGroupCommons extends Component {
     });
   }
 
-  retrieveProject(projectId) {
+  retrieveProject(snapshot) {
+    const { owner, projectId } = snapshot;
+
     const roll = this.props.commons.projects[projectId];
-    return roll ?
-      Promise.resolve(roll) :
+    if (roll) {
+      return Promise.resolve(roll);
+    }
+
+    const userOwnsProject = this.props.userId === owner;
+
+    return userOwnsProject ?
+      this.props.projectLoad(projectId) :
       this.props.commonsRetrieveProject(projectId);
   }
 
-  retrieveAndStashProject(projectId) {
-    return this.retrieveProject(projectId)
+  retrieveAndStashProject(snapshot) {
+    return this.retrieveProject(snapshot)
     .then(roll => this.stashProject(roll));
   }
 
@@ -298,6 +307,7 @@ export default connect((state, props) => ({
   projectGet,
   projectStash,
   projectOpen,
+  projectLoad,
   commonsQuery,
   commonsRetrieveProject,
   projectClone,
