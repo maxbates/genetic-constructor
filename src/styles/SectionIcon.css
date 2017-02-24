@@ -2,26 +2,78 @@
 
 .SectionIcon {
   cursor: pointer;
-  img {
+
+  &-icon {
     width: var(--width-SidePanel-closed);
     height: var(--width-SidePanel-closed);
+    background-size: 100%;
+    background-repeat: no-repeat;
     filter: brightness(1000%);
+    transition: opacity var(--timing-fast) ease-out;
   }
-}
-.SectionIcon.Highlighted {
-  background-color: var(--colors-white);
-  img {
-    filter: brightness(100%);
-  }
-}
 
-.SectionIcon.Closed {
-  img {
-    filter: brightness(1000%) !important;
-    opacity: 0.25;
-    &:hover {
-      opacity: 1;
+  &.Highlighted {
+    background-color: var(--colors-white);
+
+    .SectionIcon-icon {
+      filter: brightness(100%);
     }
+  }
+
+  &.Closed {
+    .SectionIcon-icon {
+      filter: brightness(1000%) !important;
+      opacity: 0.25;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  /* note - URLs are relative paths for webpack */
+
+  &-Templates {
+    background-image: url('../images/ui/inventory_templates.svg')
+  }
+  &-Sketch {
+    background-image: url('../images/ui/inventory_sketch.svg');
+  }
+  &-Commons {
+    background-image: url('../images/ui/inventory_commons.svg');
+  }
+  &-Projects {
+    background-image: url('../images/ui/inventory_projects.svg');
+  }
+  &-Ncbi {
+    background-image: url('../images/ui/inventory_search_ncbi.svg');
+  }
+  &-Igem {
+    background-image: url('../images/ui/inventory_search_igem.svg');
+  }
+  &-Egf {
+    background-image: url('../images/ui/inventory_search_egf.svg');
+  }
+  &-Information {
+    background-image: url('../images/ui/inspector_information.svg');
+  }
+  &-Settings {
+    background-image: url('../images/ui/inspector_settings.svg');
+  }
+  &-Extensions {
+    background-image: url('../images/ui/inspector_plugins.svg');
+  }
+  &-Help {
+    background-image: url('../images/ui/inspector_help.svg');
+  }
+  &-Orders {
+    background-image: url('../images/ui/inspector_orders.svg');
+  }
+  &-History {
+    background-image: url('../images/ui/inspector_history.svg');
+  }
+  &-Feedback {
+    background-image: url('../images/ui/inspector_feedback.svg');
   }
 }
 
