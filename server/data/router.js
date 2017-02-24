@@ -195,9 +195,9 @@ router.route('/projects/:projectId')
     }
     return Promise.reject(err);
   })
-  .then(() => projectPersistence.projectDelete(projectId, user.uuid, forceDelete)
+  .then(() => projectPersistence.projectDelete(projectId, user.uuid, forceDelete))
   .then(() => res.status(200).json({ projectId }))
-  .catch(next));
+  .catch(next);
 });
 
 //separate route because dont use project permission middleware

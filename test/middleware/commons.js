@@ -19,6 +19,7 @@ import _ from 'lodash';
 
 import * as api from '../../src/middleware/commons';
 import * as snapshotApi from '../../src/middleware/snapshots';
+import * as projectsApi from '../../src/middleware/projects';
 import * as commons from '../../server/data/persistence/commons';
 import * as commonsConstants from '../../server/data/util/commons';
 import { createExampleRollup } from '../_utils/rollup';
@@ -46,7 +47,6 @@ describe('middleware', () => {
         },
       },
     });
-
 
     //roll for another user, to check permissions
     const otherUserId = uuid.v1();
@@ -273,6 +273,20 @@ describe('middleware', () => {
 
       const ret = await snapshotApi.snapshotList(rollPublic1.project.id);
       assert(ret.length > 0, 'should still have snapshots');
+    });
+
+    it('projectDelete() fails when the project is published', async () => {
+      const roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
+
+      await api.commonsPublishVersion(roll.project.id, writeResult.version);
+
+      try {
+        await projectsApi.deleteProject(roll.project.id);
+        assert(false, 'deletion should fail');
+      } catch (resp) {
+        expect(resp.status).to.equal(405);
+      }
     });
   });
 });
