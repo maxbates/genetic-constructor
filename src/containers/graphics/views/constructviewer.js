@@ -771,8 +771,16 @@ export class ConstructViewer extends Component {
     const emptySet = allChildren.filter(block => !block.hasSequence()).map(block => block.id);
     this.props.focusBlocks(emptySet);
     if (!emptySet.length) {
-      this.props.uiSetGrunt('There are no empty blocks in the current construct');
+      this.grunt('There are no empty blocks in the current construct');
     }
+  }
+
+  /**
+   * show a grunt
+   * @param message
+   */
+  grunt(message) {
+    this.props.uiSetGrunt(message);
   }
 
   /**
@@ -940,7 +948,7 @@ export class ConstructViewer extends Component {
         imageURL: '/images/ui/download.svg',
         enabled: true,
         clicked: () => {
-          this.props.uiSetGrunt('Preparing data. Download will begin automatically when complete.');
+          this.grunt('Preparing data. Download will begin automatically when complete.');
           downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
         },
       },

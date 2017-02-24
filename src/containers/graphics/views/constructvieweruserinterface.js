@@ -536,7 +536,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
           draggables = [blockId];
           this.constructViewer.blockSelected(draggables);
         }
-        //this.constructViewer.blockAddToSelections([block]);
         // get global point as starting point for drag
         const globalPoint = this.mouseTrap.mouseToGlobal(evt);
         // proxy representing 1 ore more blocks
@@ -546,6 +545,15 @@ export default class ConstructViewerUserInterface extends UserInterface {
         // filter our selected elements so they are in natural order
         // and with children of selected parents excluded.
         const blockIds = sortBlocksByIndexAndDepthExclude(draggables).map(info => info.blockId);
+        // if a multi-select and any of the blocks are backbones disallow
+        if (blockIds.length > 1 && blockIds.some((blockId) => {
+          const block = this.constructViewer.props.blocks[blockId];
+          return block.rules.role === 'backbone';
+        })) {
+          this.constructViewer.grunt('Multiple blocks containing a Backbone cannot be dragged.');
+          return;
+        }
+
         if (!copying) {
           this.constructViewer.removePartsList(blockIds);
         }
@@ -726,7 +734,7 @@ export default class ConstructViewerUserInterface extends UserInterface {
         this.showInsertionPointForBlock(hit.block);
       }
     } else {
-      this.showDefaultInsertPoint();
+      this.showDefaultInsertPoint(); //
     }
   }
 
