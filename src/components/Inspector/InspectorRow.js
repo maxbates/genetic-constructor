@@ -25,6 +25,7 @@ export default class InspectorRow extends Component {
     heading: PropTypes.string.isRequired,
     hasToggle: PropTypes.bool, //can have toggle or switch
     hasSwitch: PropTypes.bool, //can have toggle or switch
+    switchDisabled: PropTypes.bool, //switch is disabled
     glyphUrl: PropTypes.string, //only !hasToggle
     forceActive: PropTypes.bool,
     onToggle: PropTypes.func,
@@ -37,6 +38,7 @@ export default class InspectorRow extends Component {
     condition: true,
     hasToggle: false,
     hasSwitch: false,
+    switchDisabled: false,
     onToggle: () => {},
   };
 
@@ -56,7 +58,7 @@ export default class InspectorRow extends Component {
   };
 
   render() {
-    const { heading, glyphUrl, hasToggle, hasSwitch, condition, capitalize, children } = this.props;
+    const { heading, glyphUrl, hasToggle, hasSwitch, switchDisabled, condition, capitalize, children } = this.props;
 
     if (!children && !hasSwitch) {
       return null;
@@ -88,7 +90,7 @@ export default class InspectorRow extends Component {
           <span className="InspectorRow-heading-text">{heading}</span>
           {hasSwitch && (
             <div className="InspectorRow-heading-switch">
-              <Switch on={isActive} switched={this.handleToggle} />
+              <Switch on={isActive} switched={this.handleToggle} disabled={switchDisabled} />
             </div>
           )}
         </div>

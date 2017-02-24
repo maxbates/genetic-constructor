@@ -2,7 +2,7 @@
 
 :root {
   --switch-size: 1.5rem;
-  --switch-speed: 150ms;
+  --switch-speed: var(--timing-fast);
 }
 
 .slider-switch {
@@ -14,25 +14,25 @@
   border-radius: calc(var(--switch-size) / 2);
   cursor: pointer;
 
-  .slider-switch-nob {
+  &-nob {
     position: absolute;
     background-color: var(--colors-grey);
     width: var(--switch-size);
     height: var(--switch-size);
     border-radius: 100%;
     transition: transform var(--switch-speed) ease, background-color var(--switch-speed) ease;
+
+    &-on {
+      transform: translateX(var(--switch-size));
+      background-color: var(--colors-selected);
+    }
   }
 
-  .slider-switch-nob-on {
-    transform: translateX(var(--switch-size));
-    background-color: var(--colors-selected);
+  &-disabled {
+    .slider-switch-nob {
+      background-color: var(--colors-grey) !important;
+    }
+    pointer-events: none;
+    cursor: default !important;
   }
-}
-
-.slider-switch-disabled {
-  .slider-switch-nob {
-    background-color: var(--colors-grey) !important;
-  }
-  pointer-events: none;
-  cursor: pointer !important;
 }

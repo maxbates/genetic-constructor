@@ -305,6 +305,7 @@ export class InspectorBlock extends Component {
         {singleInstance && (
           <BlockAttribution
             block={instances[0]}
+            readOnly={readOnly || isFrozen}
           />
         )}
 
@@ -395,7 +396,7 @@ export class InspectorBlock extends Component {
   }
 }
 
-export default connect(() => ({}), {
+export default connect(null, {
   blockSetColor,
   blockSetPalette,
   blockSetRole,

@@ -33,6 +33,7 @@ export class BlockAttribution extends Component {
         time: PropTypes.number.isRequired,
       })).isRequired,
     }).isRequired,
+    readOnly: PropTypes.bool,
     userId: PropTypes.string.isRequired,
     userName: PropTypes.string.isRequired,
     blockAttribute: PropTypes.func.isRequired,
@@ -50,6 +51,9 @@ export class BlockAttribution extends Component {
   }
 
   onSwitch = (switchOn) => {
+    if (this.props.readOnly) {
+      return;
+    }
     const value = !switchOn ? null : undefined;
     this.updateAttribution(value);
   };
@@ -65,7 +69,7 @@ export class BlockAttribution extends Component {
   }
 
   render() {
-    const { userName, userId, block } = this.props;
+    const { userName, userId, block, readOnly } = this.props;
 
     const [lastAttribution, ...otherAttributions] = block.attribution.slice().reverse();
     const userOwnsLastAttribution = !!lastAttribution && lastAttribution.owner === userId;
@@ -75,6 +79,7 @@ export class BlockAttribution extends Component {
         heading="Attribution License"
         glyphUrl="/images/ui/cc-off.svg"
         hasSwitch
+        switchDisabled={readOnly}
         onToggle={this.onSwitch}
         forceActive={userOwnsLastAttribution}
       >
