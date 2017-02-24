@@ -15,23 +15,28 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../../styles/InspectorRow.css';
+import Switch from '../ui/Switch';
 import Expando from '../ui/Expando';
+
+import '../../styles/InspectorRow.css';
 
 export default class InspectorRow extends Component {
   static propTypes = {
     heading: PropTypes.string.isRequired,
-    hasToggle: PropTypes.bool,
+    hasToggle: PropTypes.bool, //can have toggle or switch
+    hasSwitch: PropTypes.bool, //can have toggle or switch
+    glyphUrl: PropTypes.string, //only !hasToggle
     forceActive: PropTypes.bool,
     onToggle: PropTypes.func,
-    condition: PropTypes.bool,
-    capitalize: PropTypes.bool,
-    children: PropTypes.any,
+    condition: PropTypes.bool, //whether to show content
+    capitalize: PropTypes.bool, //capitalize heading
+    children: PropTypes.node,
   };
 
   static defaultProps = {
     condition: true,
     hasToggle: false,
+    hasSwitch: false,
     onToggle: () => {},
   };
 
@@ -45,14 +50,15 @@ export default class InspectorRow extends Component {
   };
 
   handleToggle = () => {
-    this.setState({ active: !this.state.active });
-    this.props.onToggle(this.state.active);
+    const nextState = !this.getActiveState();
+    this.setState({ active: nextState });
+    this.props.onToggle(nextState);
   };
 
   render() {
-    const { heading, hasToggle, condition, capitalize, children } = this.props;
+    const { heading, glyphUrl, hasToggle, hasSwitch, condition, capitalize, children } = this.props;
 
-    if (!children) {
+    if (!children && !hasSwitch) {
       return null;
     }
 
@@ -71,14 +77,27 @@ export default class InspectorRow extends Component {
         >
           {isActive && children}
         </Expando>
-      )
-      :
-      (<h4 className="InspectorRow-heading">{heading}</h4>);
+      ) : (
+        <div className="InspectorRow-heading">
+          {glyphUrl && (
+            <div
+              className="InspectorRow-heading-glyph"
+              style={{ backgroundImage: `url(${glyphUrl})` }}
+            />
+          )}
+          <span className="InspectorRow-heading-text">{heading}</span>
+          {hasSwitch && (
+            <div className="InspectorRow-heading-switch">
+              <Switch on={isActive} switched={this.handleToggle} />
+            </div>
+          )}
+        </div>
+      );
 
     return (
       <div className="InspectorRow">
         {content}
-        {(hasToggle !== true) && children}
+        {(hasToggle !== true || (hasSwitch && isActive)) && children}
       </div>
     );
   }

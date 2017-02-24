@@ -17,7 +17,7 @@ import Schema from './SchemaClass';
 import fields from './fields/index';
 
 /**
- * Block Attribution tracks provenance of users claiming ownership over a block
+ * Block Attribution tracks provenance of users claiming ownership over a block, from oldest to newest
  * @name BlockAttributionSchemaClass
  * @memberOf module:Schemas
  * @gc Schema

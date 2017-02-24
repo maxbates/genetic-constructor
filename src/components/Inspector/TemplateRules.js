@@ -20,7 +20,6 @@ import { connect } from 'react-redux';
 import {
   blockFreeze,
   blockSetHidden,
-  blockSetFixed,
   blockSetListBlock,
   blockSetRole,
 } from '../../actions/blocks';
@@ -32,7 +31,6 @@ export class TemplateRules extends Component {
     block: PropTypes.object.isRequired,
     readOnly: PropTypes.bool.isRequired,
     isConstruct: PropTypes.bool.isRequired,
-    blockSetFixed: PropTypes.func.isRequired,
     blockSetListBlock: PropTypes.func.isRequired,
     blockSetHidden: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
@@ -52,11 +50,6 @@ export class TemplateRules extends Component {
           this.props.blockSetRole(this.props.block.id, value ? 'list' : null);
         },
         () => this.props.isConstruct || this.props.block.isConstruct() || this.props.block.hasSequence()],
-      ['fixed',
-        'Positions fixed',
-        value => this.props.blockSetFixed(this.props.block.id, value),
-        () => !this.props.block.isConstruct(),
-      ],
     ];
   }
 
@@ -96,6 +89,5 @@ export default connect(mapStateToProps, {
   blockFreeze,
   blockSetListBlock,
   blockSetHidden,
-  blockSetFixed,
   blockSetRole,
 })(TemplateRules);

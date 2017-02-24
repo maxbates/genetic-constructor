@@ -24,7 +24,7 @@ import '../../styles/FormText.css';
 export default function FormText(props) {
   const { className, useTextarea, ...rest } = props;
 
-  const classes = `formElement FormText errorStyle ${className}`;
+  const classes = `formElement FormText errorStyle ${className || ''}`;
 
   if (useTextarea === true) {
     return (

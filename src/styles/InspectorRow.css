@@ -1,26 +1,45 @@
 @import './variables.css';
 
 .InspectorRow {
-
-  margin-top: 0.5em;
+  margin-bottom: 1rem;
 
   &:empty {
     margin: 0;
   }
 
   &-heading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     font-size: var(--font-size-text);
     font-family: var(--font-family-base);
     color: var(--colors-mediumDarkGrey);
     margin: 0 0 0.5em;
     user-select: none;
 
-    &.toggler {
-      cursor: pointer;
-    }
-
     &.active {
       font-weight: bold;
+    }
+
+    &-glyph {
+      display: inline-block;
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 0.5em;
+      outline: 0;
+      background-size: contain;
+      background-position: 50% 50%;
+      background-repeat: no-repeat;
+      border-image: none;
+    }
+
+    &-text {
+      flex: 1 0 auto;
+    }
+
+    &-switch {
+      cursor: pointer;
+      height: 1.5rem; /* hack - ensure not too high */
     }
   }
 

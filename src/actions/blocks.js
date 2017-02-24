@@ -282,9 +282,9 @@ export const blockSetProject = (blockId, projectId, deep = true) => (dispatch, g
   const oldBlock = _getBlock(getState(), blockId);
   const contents = dispatch(selectors.blockGetContentsRecursive(blockId));
 
-  invariant(!oldBlock.projectId || oldBlock.projectId === projectId, 'block cannot have a different project ID - unset it first');
+  invariant(!projectId || !oldBlock.projectId || oldBlock.projectId === projectId, 'block cannot have a different project ID - unset it first');
 
-  const toSet = deep ? [oldBlock, ...values(contents)] : oldBlock;
+  const toSet = deep ? [oldBlock, ...values(contents)] : [oldBlock];
   const blocks = toSet.map(block => block.setProjectId(projectId));
 
   dispatch({

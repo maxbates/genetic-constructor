@@ -16,7 +16,14 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { blockSetDescription, blockRename, blockSetColor, blockSetPalette, blockSetRole } from '../../actions/blocks';
+import {
+  blockSetDescription,
+  blockRename,
+  blockSetColor,
+  blockSetPalette,
+  blockSetRole,
+  blockSetFixed,
+} from '../../actions/blocks';
 import { blockGetParents } from '../../selectors/blocks';
 import Block from '../../models/Block';
 import { abort, commit, transact } from '../../store/undo/actions';
@@ -48,17 +55,18 @@ export class InspectorBlock extends Component {
       color: PropTypes.string,
       role: PropTypes.string,
     }).isRequired,
+    project: PropTypes.object.isRequired,
+    forceIsConstruct: PropTypes.bool,
     blockSetColor: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
     blockGetParents: PropTypes.func.isRequired,
-    blockSetDescription: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
-    project: PropTypes.object.isRequired,
+    blockSetDescription: PropTypes.func.isRequired,
+    blockSetFixed: PropTypes.func.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
-    forceIsConstruct: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -209,11 +217,12 @@ export class InspectorBlock extends Component {
   render() {
     const { instances, construct, readOnly, forceIsConstruct } = this.props;
     const singleInstance = instances.length === 1;
+
+    const isParentBlock = singleInstance && instances[0].isConstruct();
     const isList = singleInstance && instances[0].isList();
-    const isConstruct = singleInstance && instances[0].isConstruct();
     const isFrozen = instances.some(inst => inst.isFrozen());
-    const isFixed = isFrozen || (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
-    const hasParents = this.props.blockGetParents(instances[0].id).length > 0;
+    const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
+    const isTopLevel = singleInstance && !this.props.blockGetParents(instances[0].id).length <= 0;
 
     const inputKey = instances.map(inst => inst.id).join(',');
 
@@ -283,14 +292,21 @@ export class InspectorBlock extends Component {
           <p><strong>{this.currentSequenceLength()}</strong></p>
         </InspectorRow>
 
-        <InspectorRow
-          heading="Attribution"
-          condition={singleInstance}
-        >
+        {(singleInstance && isParentBlock) && (
+          <InspectorRow
+            heading="Protected"
+            glyphUrl="/images/ui/lock.svg"
+            hasSwitch
+            onToggle={state => this.props.blockSetFixed(instances[0].id, state)}
+            forceActive={isFixed}
+          />
+        )}
+
+        {singleInstance && (
           <BlockAttribution
             block={instances[0]}
           />
-        </InspectorRow>
+        )}
 
         <InspectorRow
           heading={`${type} Metadata`}
@@ -303,12 +319,12 @@ export class InspectorBlock extends Component {
         <InspectorRow
           heading={colorPaletteText}
           hasToggle
-          condition={isConstruct && singleInstance && !hasParents}
+          condition={isTopLevel}
         >
           <PalettePicker
             paletteName={palette}
             onSelectPalette={this.selectPalette}
-            readOnly={readOnly || isFixed}
+            readOnly={readOnly || isFrozen || isFixed}
           />
         </InspectorRow>
 
@@ -319,16 +335,16 @@ export class InspectorBlock extends Component {
             <ColorPicker
               setText={this.setColorSymbolText}
               current={this.currentColor()}
-              readOnly={readOnly || isFixed}
+              readOnly={readOnly || isFrozen || isFixed}
               paletteName={palette}
               onSelectColor={this.selectColor}
             />
-            {(singleInstance && hasParents) ?
+            {(singleInstance && !isTopLevel) ?
               (
                 <SBOLPicker
                   setText={this.setColorSymbolText}
                   current={this.currentRoleSymbol()}
-                  readOnly={readOnly || isFixed}
+                  readOnly={readOnly || isFrozen || isFixed}
                   onSelect={this.selectSymbol}
                 />
               ) :
@@ -338,12 +354,12 @@ export class InspectorBlock extends Component {
 
         <InspectorRow
           heading={`${type} Rules`}
-          condition={singleInstance}
+          condition={singleInstance && !isTopLevel}
         >
           <TemplateRules
             block={instances[0]}
             readOnly={isFrozen}
-            isConstruct={isConstruct || !hasParents}
+            isConstruct={isParentBlock}
           />
         </InspectorRow>
 
@@ -368,6 +384,7 @@ export class InspectorBlock extends Component {
           condition={isList}
         >
           <ListOptions
+            disabled={isFrozen}
             toggleOnly={isFixed}
             block={instances[0]}
           />
@@ -385,6 +402,7 @@ export default connect(() => ({}), {
   blockGetParents,
   blockRename,
   blockSetDescription,
+  blockSetFixed,
   transact,
   commit,
   abort,

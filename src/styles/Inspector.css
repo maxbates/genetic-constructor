@@ -58,19 +58,6 @@
     transform: translateX(250px);
   }
 
-  // force font in expandos and labels
-  .label-base * {
-    font-weight: normal !important;
-    font-family: var(--font-family-panels) !important;
-  }
-  .label-bold * {
-    font-weight: bold !important;
-    font-family: var(--font-family-panels) !important;
-  }
-  .expando * {
-    font-family: var(--font-family-panels) !important;
-  }
-
   .InspectorContent {
 
   }
@@ -78,5 +65,9 @@
   .InspectorContentPlaceholder {
     color: var(--colors-grey);
     text-align: center;
+  }
+
+  .formElement {
+    width: 100%;
   }
 }

@@ -20,6 +20,7 @@ import moment from 'moment';
 import { blockAttribute } from '../../actions/blocks';
 import Switch from '../ui/Switch';
 import FormText from '../formElements/FormText';
+import InspectorRow from './InspectorRow';
 
 import '../../styles/BlockAttribution.css';
 
@@ -48,8 +49,8 @@ export class BlockAttribution extends Component {
     };
   }
 
-  onSwitch = (state) => {
-    const value = !state ? null : undefined;
+  onSwitch = (switchOn) => {
+    const value = !switchOn ? null : undefined;
     this.updateAttribution(value);
   };
 
@@ -64,41 +65,45 @@ export class BlockAttribution extends Component {
   }
 
   render() {
-    const { userId, block } = this.props;
+    const { userName, userId, block } = this.props;
 
     const [lastAttribution, ...otherAttributions] = block.attribution.slice().reverse();
     const userOwnsLastAttribution = !!lastAttribution && lastAttribution.owner === userId;
 
     return (
-      <div className="BlockAttribution">
-        <div className="BlockAttribution-header">
-          <span>CC</span>
-          Attribution License
-          <Switch on={userOwnsLastAttribution} switched={this.onSwitch} />
+      <InspectorRow
+        heading="Attribution License"
+        glyphUrl="/images/ui/cc-off.svg"
+        hasSwitch
+        onToggle={this.onSwitch}
+        forceActive={userOwnsLastAttribution}
+      >
+        <div className="BlockAttribution-inner">
+          {userOwnsLastAttribution && (
+            <FormText
+              value={this.state.text}
+              required
+              onChange={evt => this.setState({ text: evt.target.value || userName })}
+            />)}
+
+          {otherAttributions.length > 0 && (
+            <div className="BlockAttribution-attributions">
+              {otherAttributions.map(attribution => (
+                <span className="BlockAttribution-attribution">
+                  {`${attribution.text} (${moment(attribution.time).format('MMM DD YYYY')})`}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-
-        {userOwnsLastAttribution && (
-          <FormText
-            value={this.state.text}
-            onChange={text => this.setState({ text })}
-          />
-        )}
-
-        {otherAttributions.length > 0 && (
-          <div className="BlockAttribution-attributions">
-            {otherAttributions.map(attribution => (
-              <span>{`${attribution.text} (${moment(attribution.time).format('MMM DD YYYY')})`}</span>
-            ))}
-          </div>
-        )}
-      </div>
+      </InspectorRow>
     );
   }
 }
 
 export default connect(state => ({
   userId: state.user.userid,
-  userName: `${state.user.firstName} ${state.user.lastName}`
+  userName: `${state.user.firstName} ${state.user.lastName}`,
 }), {
   blockAttribute,
 })(BlockAttribution);
