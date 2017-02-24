@@ -15,8 +15,9 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import '../../styles/PalettePicker.css';
 import { getPalette, palettes } from '../../utils/color/index';
+
+import '../../styles/PalettePicker.css';
 
 //todo - this has a lot of logic shared with Symbol Picker, but some differences in data structure etc. Should probably merge them though.
 
@@ -43,7 +44,13 @@ export default class PalettePicker extends Component {
       <div className="color-tabs">
         <div className="ribbon">
           {palettes.map((paletteName) => {
-            const classes = `tab${paletteName === this.props.paletteName ? ' active' : ''}`;
+            let classes = 'tab';
+            if (paletteName === this.props.paletteName) {
+              classes += ' active';
+            }
+            if (this.props.readOnly) {
+              classes += ' readOnly';
+            }
             return (<div
               className={classes}
               key={paletteName}
