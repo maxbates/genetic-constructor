@@ -69,10 +69,12 @@ class MenuOverlay extends Component {
   }
 
   /**
-   * close by clearing out the menu items
+   * if open, close by clearing out the menu items
    */
   close = () => {
-    this.props.uiShowMenu();
+    if (this.props.menuItems) {
+      this.props.uiShowMenu();
+    }
   };
 
   stopKillTimer() {
