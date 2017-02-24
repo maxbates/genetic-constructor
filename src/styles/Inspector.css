@@ -58,6 +58,19 @@
     transform: translateX(250px);
   }
 
+  // force font in expandos and labels
+  .label-base * {
+    font-weight: normal !important;
+    font-family: var(--font-family-base) !important;
+  }
+  .label-bold * {
+    font-weight: bold !important;
+    font-family: var(--font-family-base) !important;
+  }
+  .expando * {
+    font-family: var(--font-family-base) !important;
+  }
+
   .InspectorContent {
 
   }

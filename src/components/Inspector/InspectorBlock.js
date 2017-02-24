@@ -220,7 +220,7 @@ export class InspectorBlock extends Component {
 
     const isParentBlock = singleInstance && instances[0].isConstruct();
     const isList = singleInstance && instances[0].isList();
-    const isFrozen = instances.some(inst => inst.isFrozen());
+    const isFrozen = (construct && construct.isFrozen()) || instances.some(inst => inst.isFrozen());
     const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
     const isTopLevel = singleInstance && !this.props.blockGetParents(instances[0].id).length <= 0;
 
@@ -364,6 +364,17 @@ export class InspectorBlock extends Component {
         </InspectorRow>
 
         <InspectorRow
+          heading="List Options"
+          condition={isList}
+        >
+          <ListOptions
+            disabled={isFrozen}
+            toggleOnly={isFixed}
+            block={instances[0]}
+          />
+        </InspectorRow>
+
+        <InspectorRow
           heading="Annotations"
           condition={annotations.length > 0}
         >
@@ -377,17 +388,6 @@ export class InspectorBlock extends Component {
               </span>
             ))}
           </div>
-        </InspectorRow>
-
-        <InspectorRow
-          heading="List Options"
-          condition={isList}
-        >
-          <ListOptions
-            disabled={isFrozen}
-            toggleOnly={isFixed}
-            block={instances[0]}
-          />
         </InspectorRow>
 
       </div>

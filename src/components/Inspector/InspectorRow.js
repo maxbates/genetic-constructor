@@ -95,7 +95,7 @@ export default class InspectorRow extends Component {
       );
 
     return (
-      <div className="InspectorRow">
+      <div className={'InspectorRow' + (hasToggle ? ' compact' : '')}>
         {content}
         {(hasToggle !== true || (hasSwitch && isActive)) && children}
       </div>
