@@ -39,11 +39,15 @@ const _getProjectFromStore = (projectId, store) => {
   return project;
 };
 
+//get project if it is loaded, without throwing
+//export const projectLoaded = projectId => (dispatch, getState) => getState().projects[projectId];
+
 /**
  * Get a project by ID
  * @function
  * @param {UUID} projectId
  * @returns {Project}
+ * @throws if project not loaded
  */
 export const projectGet = projectId => (dispatch, getState) => _getProjectFromStore(projectId, getState());
 
@@ -59,6 +63,7 @@ export const projectGetCurrentId = () => (dispatch, getState) => _getCurrentProj
  * @function
  * @param {UUID} projectId
  * @returns {number} latest project version
+ * @throws if project not loaded
  */
 export const projectGetVersion = projectId => (dispatch, getState) => {
   const project = _getProjectFromStore(projectId, getState());
@@ -71,6 +76,7 @@ export const projectGetVersion = projectId => (dispatch, getState) => {
  * @function
  * @param {UUID} projectId
  * @returns {UUID} current project ID
+ * @throws if project not loaded
  */
 export const projectListAllComponents = projectId => (dispatch, getState) => {
   const project = _getProjectFromStore(projectId, getState());
@@ -89,6 +95,7 @@ export const projectListAllComponents = projectId => (dispatch, getState) => {
  * @function
  * @param {UUID} projectId
  * @returns {Array<Block>}
+ * @throws if project not loaded
  */
 export const projectListAllOptions = projectId => (dispatch, getState) => {
   const components = dispatch(projectListAllComponents(projectId));
@@ -103,6 +110,7 @@ export const projectListAllOptions = projectId => (dispatch, getState) => {
  * @function
  * @param {UUID} projectId
  * @returns {Array<Block>}
+ * @throws if project not loaded
  */
 export const projectListAllBlocks = projectId => (dispatch, getState) => {
   const components = dispatch(projectListAllComponents(projectId));
@@ -115,6 +123,7 @@ export const projectListAllBlocks = projectId => (dispatch, getState) => {
  * @function
  * @param {UUID} projectId
  * @returns {Object} { project: Project, blocks: Object.<blockId:Block> }
+ * @throws if project not loaded
  */
 export const projectCreateRollup = projectId => (dispatch, getState) => {
   const project = _getProjectFromStore(projectId, getState());
@@ -136,9 +145,12 @@ export const projectCreateRollup = projectId => (dispatch, getState) => {
  * @param {String} fileName Name of File
  * @param {String} [format='text']
  * @param {String} [version] Default is return latest, or specify a specific version
+ * @returns {Promise}
+ * @resolve the contents of the file
+ * @throws if project not loaded
  */
 export const projectFileRead = (projectId, namespace, fileName, format, version) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
+  const oldProject = _getProjectFromStore(projectId, getState());
 
   return oldProject.fileRead(namespace, fileName, format, version);
 };

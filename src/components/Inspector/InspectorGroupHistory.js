@@ -132,7 +132,7 @@ export class InspectorHistory extends Component {
       loading: false,
       snapshots: _(toUse)
       .filter({ projectId })
-      .orderBy(['time'], ['desc'])
+      .orderBy(['created'], ['desc'])
       .value(),
     });
   }

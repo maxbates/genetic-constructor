@@ -45,11 +45,13 @@ class InspectorGroupOrders extends Component {
   componentDidMount() {
     this.setOrders(this.props.orders, this.props.projectId);
 
-    //might have already fetched them, but lets double check fetch again
-    this.props.orderList(this.props.projectId)
-    .then(() => {
-      this.setOrders(this.props.orders, this.props.projectId);
-    });
+    if (!this.props.projectIsPublished) {
+      //might have already fetched them, but lets double check fetch again
+      this.props.orderList(this.props.projectId)
+      .then(() => {
+        this.setOrders(this.props.orders, this.props.projectId);
+      });
+    }
   }
 
   componentWillReceiveProps(nextProps) {

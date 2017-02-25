@@ -18,6 +18,7 @@
   .value {
     color: var(--colors-nearlyBlack);
     font-family: var(--font-family-bold);
+    white-space: pre-wrap;
 
     &.indented {
       text-indent: 2rem;

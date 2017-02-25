@@ -101,7 +101,7 @@ export class InventoryGroupCommons extends Component {
   };
 
   onClickSnapshot = (snapshot, isOpen) => {
-    this.retrieveProject(snapshot.projectId)
+    this.retrieveProject(snapshot)
     .then(roll => this.props.focusForceProject(roll.project));
   };
 
@@ -202,9 +202,11 @@ export class InventoryGroupCommons extends Component {
     // if force, note that will overwrite the user's project to the locked one
     if (force !== true) {
       const projectId = roll.project.id;
-      const retrieved = this.props.projectGet(projectId);
-      if (retrieved) {
+      try {
+        this.props.projectGet(projectId);
         return;
+      } catch (err) {
+        //not retrieved already, continue
       }
     }
 
@@ -239,7 +241,7 @@ export class InventoryGroupCommons extends Component {
       bold: false,
       selected: currentProjectId === snapshot.projectId,
       selectedAlt: focus.forceProject && snapshot.projectId === focus.forceProject.id,
-      onClick: isOpen => this.onClickSnapshot(snapshot, open),
+      onClick: isOpen => this.onClickSnapshot(snapshot, isOpen),
       onContextMenu: evt => this.onSnapshotContextMenu(snapshot, evt),
       // startDrag: globalPoint => InventoryGroupCommons.onCommonsProjectDrag(snapshot, globalPoint),
       items: this.getCommonsProjectBlocks(snapshot.projectId),
@@ -289,7 +291,10 @@ export class InventoryGroupCommons extends Component {
           onTabSelect={tab => this.onTabSelect(tab.key)}
         />
         <div className="InventoryGroup-contentInner no-vertical-scroll">
-          {!loading && !treeItems.length && <Spinner />}
+          {(loading && !treeItems.length) && <Spinner />}
+          {(!loading && !treeItems.length) && (
+            <p className="InventoryGroup-banner">No published projects</p>
+          )}
           {currentList}
         </div>
       </div>

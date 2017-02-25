@@ -32,13 +32,13 @@ import Expando from '../ui/Expando';
 import Switch from '../ui/Switch';
 import InspectorDetailSection from './InspectorDetailSection';
 
+//todo - use InspectorRow instead of custom stuff. Need to update to allow switch and expando together
+
 class InspectorGroupExtensions extends Component {
   static propTypes = {
     config: PropTypes.object.isRequired,
     userUpdateConfig: PropTypes.func.isRequired,
   };
-
-  state = {};
 
   /**
    * there is a delay loading extensions when the app starts. if we find none

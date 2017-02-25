@@ -52,19 +52,23 @@ router.route('/query')
   .catch(next);
 });
 
+router.route('/:projectId/versions')
+.get(
+  commons.checkProjectPublicMiddleware,
+  (req, res, next) => {
+    const { projectId } = req;
+
+    return commons.commonsRetrieveVersions(projectId)
+    .then(results => res.json(results))
+    .catch(next);
+  });
+
 router.route('/:projectId/:version?')
 // get the published project, @ version, or latest
 .get(
   commons.checkProjectPublicMiddleware,
   (req, res, next) => {
     const { projectId, version } = req;
-
-    //request all versions
-    if (version === 'versions') {
-      return commons.commonsRetrieveVersions(projectId)
-      .then(results => res.json(results))
-      .catch(next);
-    }
 
     return commons.commonsRetrieve(projectId, version)
     .then(project => res.status(200).json(project))

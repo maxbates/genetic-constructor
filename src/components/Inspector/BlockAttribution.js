@@ -18,7 +18,6 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 
 import { blockAttribute } from '../../actions/blocks';
-import Switch from '../ui/Switch';
 import FormText from '../formElements/FormText';
 import InspectorRow from './InspectorRow';
 
@@ -74,6 +73,11 @@ export class BlockAttribution extends Component {
     const [lastAttribution, ...otherAttributions] = block.attribution.slice().reverse();
     const userOwnsLastAttribution = !!lastAttribution && lastAttribution.owner === userId;
 
+    //push it back in if they dont own it
+    if (!userOwnsLastAttribution && lastAttribution) {
+      otherAttributions.unshift(lastAttribution);
+    }
+
     return (
       <InspectorRow
         heading="Attribution License"
@@ -93,8 +97,8 @@ export class BlockAttribution extends Component {
 
           {otherAttributions.length > 0 && (
             <div className="BlockAttribution-attributions">
-              {otherAttributions.map(attribution => (
-                <span className="BlockAttribution-attribution">
+              {otherAttributions.map((attribution, index) => (
+                <span className="BlockAttribution-attribution" key={index}>
                   {`${attribution.text} (${moment(attribution.time).format('MMM DD YYYY')})`}
                 </span>
               ))}

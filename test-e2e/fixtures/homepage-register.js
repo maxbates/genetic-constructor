@@ -12,7 +12,7 @@ var registerViaHomepage = function (browser, cb) {
   // wait for login form to be present
   .waitForElementPresent('#auth-signin', 10000, 'Expected signin form to become visible')
   // ensure it is the sign in dialog
-  .pause(1000)
+  .pause(1500)
   .getText('.Modal-header-title', function (result) {
     browser.assert.equal(result.value, "Sign In")
   })

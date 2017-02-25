@@ -104,7 +104,7 @@ export class ProjectPage extends Component {
   }
 
   render() {
-    const { project, projectId, constructs } = this.props;
+    const { project, projectId, constructs, projectIsPublished } = this.props;
 
     //handle project not loaded at all
     if (!project || !project.metadata) {
@@ -139,7 +139,10 @@ export class ProjectPage extends Component {
 
         <div className="ProjectPage-content">
 
-          <ProjectHeader project={project} />
+          <ProjectHeader
+            project={project}
+            readOnly={projectIsPublished}
+          />
 
           <ConstructViewerCanvas
             currentProjectId={projectId}

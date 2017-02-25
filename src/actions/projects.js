@@ -44,7 +44,7 @@ const saveMessageKey = 'projectSaveMessage';
 
 const projectIdNotDefined = 'projectId is required';
 const projectNotLoadedError = 'Project has not been loaded';
-const projectNotOwnedError = 'User does not own this project';
+const projectNotOwnedError = 'User does not own this project'; //todo - unify with server, handle 403 on load
 
 /******** helpers ***********/
 
@@ -56,9 +56,6 @@ const _getProject = (state, projectId) => {
   invariant(project, projectNotLoadedError);
   return project;
 };
-
-//todo - should move to rollup class?
-const rollupDefined = roll => roll && roll.project && roll.blocks;
 
 const classifyProjectIfNeeded = input => (input instanceof Project) ? input : new Project(input);
 
@@ -142,8 +139,10 @@ export const projectSave = (inputProjectId, forceSave = false) =>
       return Promise.resolve(null);
     }
 
-    const roll = dispatch(projectSelectors.projectCreateRollup(projectId));
-    if (!rollupDefined(roll)) {
+    let roll;
+    try {
+      roll = dispatch(projectSelectors.projectCreateRollup(projectId));
+    } catch (err) {
       return Promise.reject(projectNotLoadedError);
     }
 

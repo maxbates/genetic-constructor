@@ -74,6 +74,7 @@ export default class InspectorRow extends Component {
       (
         <Expando
           text={heading}
+          showArrowWhenEmpty
           capitalize={capitalize}
           onClick={() => this.handleToggle()}
         >

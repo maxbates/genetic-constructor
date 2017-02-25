@@ -16,9 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 
-import Snapshot from '../models/Snapshot';
 import {
   focusPrioritize,
   focusConstruct,
@@ -58,9 +56,10 @@ import '../styles/ProjectHeader.css';
 
 class ProjectHeader extends Component {
   static propTypes = {
+    project: PropTypes.object.isRequired,
+    readOnly: PropTypes.bool,
     blockCreate: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
-    project: PropTypes.object.isRequired,
     focus: PropTypes.object,
     focusConstruct: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
@@ -81,6 +80,10 @@ class ProjectHeader extends Component {
     projectRename: PropTypes.func.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
     uiShowGenBankImport: PropTypes.func.isRequired,
+  };
+
+  static defaultProps = {
+    readOnly: false,
   };
 
   /**
@@ -111,7 +114,7 @@ class ProjectHeader extends Component {
     this.onItemActivated();
     const name = this.props.project.metadata.name || 'Untitled Project';
 
-    if (!this.props.project.isFrozen()) {
+    if (!this.props.readOnly) {
       this.props.uiInlineEditor((value) => {
         this.props.projectRename(this.props.project.id, value);
       }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this).querySelector('.title'));
@@ -198,7 +201,7 @@ class ProjectHeader extends Component {
     this.props.uiShowMenu([
       {
         text: 'New Construct',
-        disabled: this.props.project.rules.frozen,
+        disabled: this.props.readOnly,
         action: this.onAddConstruct,
       },
       {
@@ -213,16 +216,17 @@ class ProjectHeader extends Component {
       },
       {
         text: 'Upload Genbank or CSV',
-        disabled: this.props.project.rules.frozen,
+        disabled: this.props.readOnly,
         action: this.upload,
       },
       {
         text: 'Unpublish Project',
-        disabled: !this.props.isPublished,
+        disabled: this.props.readOnly,
         action: this.onUnpublishProject,
       },
       {
         text: 'Delete Project',
+        disabled: this.props.readOnly,
         action: this.onDeleteProject,
       },
     ],
@@ -234,7 +238,7 @@ class ProjectHeader extends Component {
    * perform the actual deletion.
    */
   deleteProject(project) {
-    if (project.rules.frozen) {
+    if (this.props.readOnly || project.rules.frozen) {
       this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
     } else {
       //load another project, avoiding this one
@@ -255,7 +259,7 @@ class ProjectHeader extends Component {
       {
         text: 'Add Construct',
         imageURL: '/images/ui/add.svg',
-        enabled: !this.props.project.rules.frozen,
+        enabled: !this.props.readOnly,
         clicked: this.onAddConstruct,
       }, {
         text: 'View',
@@ -272,17 +276,17 @@ class ProjectHeader extends Component {
       }, {
         text: 'Upload Genbank or CSV',
         imageURL: '/images/ui/upload.svg',
-        enabled: !this.props.project.rules.frozen,
+        enabled: !this.props.readOnly,
         clicked: this.upload,
       }, {
         text: 'Share',
         imageURL: '/images/ui/share.svg',
-        enabled: true,
+        enabled: !this.props.readOnly,
         clicked: this.onShareProject,
       }, {
         text: 'Delete Project',
         imageURL: '/images/ui/delete.svg',
-        enabled: true,
+        enabled: !this.props.readOnly,
         clicked: this.onDeleteProject,
       }, {
         text: 'More...',
@@ -316,6 +320,7 @@ class ProjectHeader extends Component {
         action: this.onDeleteProject,
       },
     ].concat(GlobalNav.getSingleton().getEditMenuItems());
+
     this.props.uiShowMenu(items, position);
   };
 
@@ -326,7 +331,7 @@ class ProjectHeader extends Component {
         <TitleAndToolbar
           onClick={this.onClick}
           itemActivated={this.onItemActivated}
-          noHover={this.props.project.isFrozen()}
+          noHover={this.props.readOnly}
           title={project.metadata.name || 'Untitled Project'}
           toolbarItems={this.toolbar()}
           fontSize="1.5rem"
@@ -339,8 +344,6 @@ class ProjectHeader extends Component {
 
 function mapStateToProps(state, props) {
   return {
-    //todo - memoize
-    isPublished: _.some(state.snapshots, Snapshot.isPublished),
     focus: state.focus,
     isFocused: state.focus.level === 'project' && !state.focus.forceProject,
     inventoryVisible: state.ui.inventory.isVisible,

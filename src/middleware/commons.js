@@ -34,6 +34,13 @@ export const commonsRetrieve = (projectId, version) => {
   .then(resp => resp.json());
 };
 
+export const commonsListVersions = (projectId) => {
+  invariant(projectId, 'Project ID required to retrieve versions');
+
+  return rejectingFetch(commonsApiPath(projectId, 'versions'), headersGet())
+  .then(resp => resp.json());
+};
+
 // Publish an existing version
 export const commonsPublishVersion = (projectId, version, body = defaultSnapshotBody) => {
   invariant(projectId, 'Project ID required to publish');

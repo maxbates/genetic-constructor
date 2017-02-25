@@ -47,7 +47,7 @@ export default class Expando extends Component {
   };
 
   static defaultProps = {
-    showArrowWhenEmpty: true,
+    showArrowWhenEmpty: false,
   };
 
   constructor(props) {

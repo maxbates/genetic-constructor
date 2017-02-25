@@ -24,10 +24,10 @@ module.exports = {
 
     browser
       // wait for confirmation dialog and accept
-      .waitForElementPresent('.ok-cancel-form button[type="submit"]', 5000, 'expected confirmation dialog')
+      .waitForElementPresent('.DeleteProjectModal', 5000, 'expected confirmation dialog')
       .pause(3000)
-      .click('.ok-cancel-form button[type="submit"]')
-      .waitForElementNotPresent('.ok-cancel-form button[type="submit"]', 5000, 'expected confirmation dialog to go away')
+      .click('.Modal button[type="submit"]')
+      .waitForElementNotPresent('.DeleteProjectModal', 5000, 'expected confirmation dialog to go away')
       .pause(3000)
       .assert.countelements('[data-testid^="project"]', 1)
       .end();

@@ -81,7 +81,7 @@ class DeleteProjectModal extends Component {
         onClose={() => this.props.uiShowProjectDeleteModal(false)}
         title={'Delete Project'}
       >
-        <div className="Modal-paddedContent" style={{ textAlign: 'center' }}>
+        <div className="DeleteProjectModal Modal-paddedContent" style={{ textAlign: 'center' }}>
           <p><b>{this.props.project.getName() || 'Your project'}</b> and all related project data will be permanently deleted.</p>
           <br />
           <p>This action cannot be undone.</p>

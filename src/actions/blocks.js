@@ -147,7 +147,6 @@ export const blockClone = (blockInput, parentObjectInput, overwriteInput) => (di
   // NOTE - assumes that project.owner is defined... will error if its not
   if (parentProjectId && parentObjectInput !== null) {
     const oldProject = dispatch(projectSelectors.projectGet(parentProjectId));
-    invariant(oldProject, `project ${parentProjectId} was not found`);
 
     // partial object about project
     // block ID handled in block.clone() and changes if dealing with nested blocks

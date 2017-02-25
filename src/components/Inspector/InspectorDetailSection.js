@@ -20,7 +20,7 @@ import '../../styles/InspectorDetailSection.css';
 export default function InspectorDetailSection(props) {
   return (
     <div className={`InspectorDetailSection${props.inline ? ' inline' : ''}`}>
-      {props.headerGlyphs.length && (
+      {props.headerGlyphs.length >= 0 && (
         <div className="InspectorDetailSection-headerGlyphs">
           {props.headerGlyphs}
         </div>

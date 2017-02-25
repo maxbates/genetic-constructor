@@ -98,7 +98,7 @@ export const commonsRetrieveProject = (projectId, version, shouldStash = false) 
  */
 export const commonsRetrieveProjectVersions = projectId =>
   (dispatch, getState) =>
-    commons.commonsRetrieve(projectId, 'versions')
+    commons.commonsListVersions(projectId)
     .then((rawSnapshots) => {
       const snapshots = rawSnapshots.map(rawSnapshot => new Snapshot(rawSnapshot));
       dispatch({
