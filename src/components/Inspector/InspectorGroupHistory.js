@@ -82,11 +82,18 @@ export class InspectorHistory extends Component {
       {
         text: 'Duplicate as New Project',
         action: () => {
+          //fixme
           alert('todo');
         },
       },
       {
+        text: 'Edit...',
+        disabled: this.props.userId !== snapshot.owner,
+        action: () => this.onEditSnapshot(snapshot),
+      },
+      {
         text: snapshot.isPublished() ? 'Unpublish...' : 'Publish Snapshot...',
+        disabled: this.props.userId !== snapshot.owner,
         action: () => {
           if (snapshot.isPublished()) {
             this.props.commonsUnpublish(snapshot.projectId, snapshot.version);
@@ -134,8 +141,6 @@ export class InspectorHistory extends Component {
   }
 
   render() {
-    //todo - enable context menu
-
     if (this.state.loading && !this.state.snapshots.length) {
       return <Spinner />;
     }

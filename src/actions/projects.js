@@ -31,7 +31,6 @@ import Rollup from '../models/Rollup';
 import * as blockSelectors from '../selectors/blocks';
 import * as projectSelectors from '../selectors/projects';
 import * as instanceMap from '../store/instanceMap';
-import { pauseAction, resumeAction } from '../store/pausableStore';
 import * as undoActions from '../store/undo/actions';
 import { getLocal, setLocal } from '../utils/localstorage';
 import wrapPausedTransaction from './_wrapPausedTransaction';
@@ -190,7 +189,7 @@ export const projectSave = (inputProjectId, forceSave = false) =>
  * @returns {Project} Cloned project
  * @throws if project not in store, or blocks not in store if withBlocks = true
  */
-export const projectClone = (projectId, withBlocks = false) =>
+export const projectClone = (projectId) =>
   (dispatch, getState) =>
     wrapPausedTransaction(dispatch, () => {
       const state = getState();
@@ -201,18 +200,16 @@ export const projectClone = (projectId, withBlocks = false) =>
         owner: userId,
       });
 
-      //if cloning blocks, clone all the constructs, and update the project
-      if (withBlocks) {
-        //ensure the constructs are present, and assume blocks are if the constructs are (or block clone will error)
-        invariant(oldProject.components.every(constructId => state.blocks[constructId]), 'all constructs must be in the store');
+      //clone all the constructs, and update the project
+      //ensure the constructs are present, and assume blocks are if the constructs are (or block clone will error)
+      invariant(oldProject.components.every(constructId => state.blocks[constructId]), 'all constructs must be in the store');
 
-        //call action block clone (may take a little while for many block)
-        const clones = oldProject.components.map(constructId => dispatch(blockActions.blockClone(constructId, {}, { projectId: project.id })));
+      //call action block clone (may take a little while for many block)
+      const clones = oldProject.components.map(constructId => dispatch(blockActions.blockClone(constructId, {}, { projectId: project.id })));
 
-        //update the project with the new components
-        //need to do it after the project has been cloned, since clone sets a new ID
-        project = project.mutate('components', clones.map(clone => clone.id));
-      }
+      //update the project with the new components
+      //need to do it after the project has been cloned, since clone sets a new ID
+      project = project.mutate('components', clones.map(clone => clone.id));
 
       dispatch({
         type: ActionTypes.PROJECT_CLONE,

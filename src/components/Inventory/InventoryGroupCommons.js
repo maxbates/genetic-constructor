@@ -117,7 +117,7 @@ export class InventoryGroupCommons extends Component {
           const { projectId } = snapshot;
           return this.retrieveAndStashProject(snapshot)
           .then(() => {
-            const cloned = this.props.projectClone(projectId, true);
+            const cloned = this.props.projectClone(projectId);
             this.props.projectOpen(cloned.id);
           });
         },

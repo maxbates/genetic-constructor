@@ -46,7 +46,10 @@ const _getBlock = (state, blockId) => {
 
 //can use instead of _getBlock to assert existence and ownership
 //include detached applies to blocks not in projects and projects without owners
-const _assertUserOwnsBlock = (state, blockId, includeDetached = false) => {
+//todo - support multiple blocks
+const _assertUserOwnsBlock = (state, options, blockId,) => {
+  const { includeDetached } = Object.assign({ includeDetached: false }, options);
+
   const block = _getBlock(state, blockId);
   const projectId = block.projectId;
 
@@ -271,7 +274,7 @@ export const blockDetach = (...blockIds) =>
  ***************************************/
 
 /**
- * Set the projectId of a block, and optionally all of its contents.
+ * Set the projectId of a detached block (has no projectId), and optionally all of its contents.
  * While the block is in the project, do not set the projectId to something other than the current project! Save errors etc. will happen.
  * @param {UUID} blockId
  * @param {UUID} projectId
@@ -446,7 +449,7 @@ export const blockAttribute = (blockId, text) =>
  ***************************************/
 
 /**
- * Freeze a block, so that no further changes can be made to it without cloning it first. By default, recursive
+ * Freeze a block, so that no further changes can be made to it without cloning it first. By default, recursive.
  * @function
  * @param {UUID} blockId
  * @param {boolean} [recursive=true] Apply to contents (components + options)

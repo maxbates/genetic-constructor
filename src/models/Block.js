@@ -35,7 +35,7 @@ const idValidator = id => safeValidate(validators.id(), true, id);
  *
  * Notes
  *
- * - when blocks are frozen, they are just copied between projects. When a block becomes unfrozen, it needs to be cloned. This is in part because blocks that are frozen are shared between projects, and when two projects share a block with the same ID, it is assumed (and should be guaranteed) that they are completely identical.
+ * - when blocks are frozen, they are just copied between projects. To unfreeze a block, it must be cloned. This is in part for access control / ownership, and because blocks that are frozen may be shared between projects, and when two projects share a block with the same ID, it is assumed (and should be guaranteed) that they are completely identical.
  *
  * @name Block
  * @class
@@ -48,13 +48,13 @@ export default class Block extends Instance {
    * Create a block given some input object
    * @constructor
    * @param {Object} [input]
-   * @param {Boolean} [frozen=true] Whether the model is frozen (false => POJO)
+   * @param {Boolean} [immutable=true] Whether the model is immutable (false => POJO)
    * @returns {Block}
    */
-  constructor(input, frozen = true) {
+  constructor(input, immutable = true) {
     const scaff = BlockSchema.scaffold();
     scaff.metadata.color = nextColor();
-    super(input, scaff, frozen);
+    super(input, scaff, immutable);
   }
 
   /************
@@ -62,13 +62,13 @@ export default class Block extends Instance {
    ************/
 
   /**
-   * Create an unfrozen block, extending input with schema
-   * If you just want an unfrozen block with instance methods, call new Block(input, false)
+   * Create an unimmutable block, extending input with schema
+   * If you just want an unimmutable block with instance methods, call new Block(input, false)
    * @method classless
    * @memberOf Block
    * @static
    * @param {Object} [input]
-   * @returns {Object} an unfrozen JSON, no instance methods
+   * @returns {Object} an unimmutable JSON, no instance methods
    */
   static classless(input) {
     return assign({}, new Block(input, false));
