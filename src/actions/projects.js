@@ -21,15 +21,17 @@ import invariant from 'invariant';
 import { merge, uniq, values } from 'lodash';
 import { push } from 'react-router-redux';
 
-import emptyProjectWithConstruct from '../../data/emptyProject/index';
+import * as ActionTypes from '../constants/ActionTypes';
 import * as blockActions from '../actions/blocks';
 import { uiSetGrunt } from '../actions/ui';
-import * as ActionTypes from '../constants/ActionTypes';
-import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
-import Project from '../models/Project';
-import Rollup from '../models/Rollup';
 import * as blockSelectors from '../selectors/blocks';
 import * as projectSelectors from '../selectors/projects';
+import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
+import safeValidate from '../schemas/fields/safeValidate';
+import * as validators from '../schemas/fields/validators';
+import emptyProjectWithConstruct from '../../data/emptyProject/index';
+import Project from '../models/Project';
+import Rollup from '../models/Rollup';
 import * as instanceMap from '../store/instanceMap';
 import * as undoActions from '../store/undo/actions';
 import { getLocal, setLocal } from '../utils/localstorage';
@@ -40,14 +42,18 @@ import wrapPausedTransaction from './_wrapPausedTransaction';
 const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
 
+const projectIdNotDefined = 'projectId is required';
 const projectNotLoadedError = 'Project has not been loaded';
 const projectNotOwnedError = 'User does not own this project';
 
 /******** helpers ***********/
 
+const idValidator = id => safeValidate(validators.id(), true, id);
+
 const _getProject = (state, projectId) => {
+  invariant(projectId, projectIdNotDefined);
   const project = state.projects[projectId];
-  invariant(project, `project ${projectId} not found`);
+  invariant(project, projectNotLoadedError);
   return project;
 };
 
@@ -131,7 +137,8 @@ export const projectSave = (inputProjectId, forceSave = false) =>
   (dispatch, getState) => {
     const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
     const projectId = inputProjectId || currentProjectId;
-    if (!projectId) {
+
+    if (!projectId || !idValidator(projectId)) {
       return Promise.resolve(null);
     }
 
@@ -286,7 +293,7 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
           project: rollup.project,
         });
 
-        return rollup.project;
+        return rollup;
       });
     });
   };
@@ -303,22 +310,24 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
 export const projectOpen = (inputProjectId, skipSave = false) =>
   (dispatch, getState) => {
     const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
-    const projectId = inputProjectId || getLocal(recentProjectKey);
+    const projectId = inputProjectId || getLocal(recentProjectKey) || null;
+    const projectIdBogus = !currentProjectId ||
+      !idValidator(currentProjectId) ||
+      currentProjectId === 'null' ||
+      currentProjectId === 'undefined';
 
     //ignore if on a project, and passed the same one
     if (!!currentProjectId && currentProjectId === projectId) {
       return Promise.resolve();
     }
 
-    const promise = (skipSave === true)
+    const promise = (skipSave === true || projectIdBogus)
       ?
       Promise.resolve()
       :
       dispatch(projectSave(currentProjectId))
       .catch((err) => {
-        const ignore = !currentProjectId ||
-          currentProjectId === 'null' ||
-          currentProjectId === 'undefined' ||
+        const ignore = projectIdBogus ||
           err === projectNotLoadedError ||
           err === projectNotOwnedError;
 
@@ -336,6 +345,7 @@ export const projectOpen = (inputProjectId, skipSave = false) =>
 
       //projectPage will load the project + its blocks (if the user has access)
       //change the route
+      //note - if we pass undefined / null its ok, project page will handle. don't send to project/ as currently not a valid route
       dispatch(push(`/project/${projectId}`));
       dispatch({
         type: ActionTypes.PROJECT_OPEN,

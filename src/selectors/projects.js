@@ -24,15 +24,18 @@ import * as projectFilesApi from '../middleware/projectFiles';
 import Rollup from '../models/Rollup';
 import * as blockSelectors from './blocks';
 
+const projectIdNotDefined = 'projectId is required';
+const projectNotLoadedError = 'Project has not been loaded';
+
 const _getCurrentProjectId = () => {
   const match = /^\/project\/(.*?)\??$/gi.exec(window.location.pathname);
   return match ? match[1] : null;
 };
 
 const _getProjectFromStore = (projectId, store) => {
-  invariant(projectId, 'must pass projectId');
+  invariant(projectId, projectIdNotDefined);
   const project = store.projects[projectId];
-  invariant(project, 'Project not in store');
+  invariant(project, projectNotLoadedError);
   return project;
 };
 
