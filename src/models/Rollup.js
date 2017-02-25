@@ -275,7 +275,11 @@ export default class Rollup {
     };
   }
 
-  //todo - tests
+  //todo
+  //given a block Id, generate a flat list of blocks without hierarchy or list blocks
+  flattenConstruct(blockId, optionMap) {
+    invariant(false, 'todo');
+  }
 
   // classed only
   // future - allow passing in block / manifest parent object / overwrites as needed
@@ -296,7 +300,8 @@ export default class Rollup {
   }
 
   // classed only
-  //return an array of clones, with the first block the blockId passed in
+  // return an array of clones, with the first block the blockId passed in
+  // unsets projectId
   cloneBlock(blockId, parentObjectInput, overwriteInput) {
     invariant(blockId, 'block ID is required');
     invariant(this.getBlock(blockId), 'block not found in project');
