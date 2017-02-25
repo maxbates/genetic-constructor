@@ -18,6 +18,7 @@
  * @memberOf module:Selectors
  */
 import invariant from 'invariant';
+import _ from 'lodash';
 
 import * as projectFilesApi from '../middleware/projectFiles';
 import Rollup from '../models/Rollup';
@@ -29,10 +30,10 @@ const _getCurrentProjectId = () => {
 };
 
 const _getProjectFromStore = (projectId, store) => {
-  if (!projectId) {
-    return null;
-  }
-  return store.projects[projectId];
+  invariant(projectId, 'must pass projectId');
+  const project = store.projects[projectId];
+  invariant(project, 'Project not in store');
+  return project;
 };
 
 /**
@@ -94,6 +95,7 @@ export const projectListAllOptions = projectId => (dispatch, getState) => {
 
 /**
  * Get all contents of a project.
+ * Prunes to the blocks actually in the project, not just blocks with correct projectId
  * todo - move to object
  * @function
  * @param {UUID} projectId
@@ -106,46 +108,6 @@ export const projectListAllBlocks = projectId => (dispatch, getState) => {
 };
 
 /**
- * Check if a project contains a block
- * @function
- * @param {UUID} projectId
- * @param {UUID} blockId
- * @returns {boolean}
- */
-export const projectHasComponent = (projectId, blockId) => (dispatch, getState) => {
-  const components = dispatch(projectListAllComponents(projectId));
-  return components.map(comp => comp.id).indexOf(blockId) >= 0;
-};
-
-/**
- * Check if a project contains a list option
- * @function
- * @param {UUID} projectId
- * @param {UUID} blockId
- * @returns {boolean}
- */
-export const projectHasOption = (projectId, blockId) => (dispatch, getState) => {
-  const options = dispatch(projectListAllOptions(projectId));
-  return options.map(option => option.id).indexOf(blockId) >= 0;
-};
-
-/**
- * Find a list block option with a given source key and source ID.
- * check if a block with { source: { source: sourceKey, id: sourceId } } is present in the project (e.g. so dont clone it in more than once)
- * Only checks options, since if its a component we should clone it
- * @function
- * @param {UUID} projectId
- * @param {string} sourceKey
- * @param {string} sourceId
- * @returns {Block} Block if it exists, or null
- */
-export const projectGetOptionWithSource = (projectId, sourceKey, sourceId) => (dispatch, getState) => {
-  invariant(sourceKey && sourceId, 'source key and ID are required');
-  const options = dispatch(projectListAllOptions(projectId));
-  return options.find(option => option.source.source === sourceKey && option.source.id === sourceId) || null;
-};
-
-/**
  * Create project rollup
  * @function
  * @param {UUID} projectId
@@ -153,12 +115,7 @@ export const projectGetOptionWithSource = (projectId, sourceKey, sourceId) => (d
  */
 export const projectCreateRollup = projectId => (dispatch, getState) => {
   const project = _getProjectFromStore(projectId, getState());
-  if (!project) {
-    return null;
-  }
-
-  const blocks = dispatch(projectListAllBlocks(projectId))
-      .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+  const blocks = _.keyBy(dispatch(projectListAllBlocks(projectId)), 'id');
 
   return new Rollup({
     project,

@@ -18,7 +18,14 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import { snapshotsList } from '../../actions/snapshots';
-import { commonsPublish, commonsUnpublish, commonsRetrieveProjectVersions } from '../../actions/commons';
+import { blockStash } from '../../actions/blocks';
+import { projectOpen, projectStash } from '../../actions/projects';
+import {
+  commonsPublish,
+  commonsUnpublish,
+  commonsRetrieveProject,
+  commonsRetrieveProjectVersions
+} from '../../actions/commons';
 import { uiShowPublishDialog, uiShowMenu } from '../../actions/ui';
 import Spinner from './../ui/Spinner';
 import Expando from './../ui/Expando';
@@ -35,9 +42,13 @@ export class InspectorHistory extends Component {
     snapshots: PropTypes.object.isRequired,
     snapshotsList: PropTypes.func.isRequired,
     commonsVersions: PropTypes.object.isRequired,
+    commonsRetrieveProject: PropTypes.func.isRequired,
     commonsRetrieveProjectVersions: PropTypes.func.isRequired,
     commonsPublish: PropTypes.func.isRequired,
     commonsUnpublish: PropTypes.func.isRequired,
+    blockStash: PropTypes.func.isRequired,
+    projectOpen: PropTypes.func.isRequired,
+    projectStash: PropTypes.func.isRequired,
     uiShowPublishDialog: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
   };
@@ -82,8 +93,13 @@ export class InspectorHistory extends Component {
       {
         text: 'Duplicate as New Project',
         action: () => {
-          //fixme
-          alert('todo');
+          this.props.commonsRetrieveProject(snapshot.projectId, snapshot.version, false)
+          .then(roll => {
+            const clone = roll.clone(this.props.userId);
+            this.props.projectStash(clone.project);
+            this.props.blockStash(..._.values(clone.blocks));
+            this.props.projectOpen(clone.project.id);
+          });
         },
       },
       {
@@ -157,14 +173,14 @@ export class InspectorHistory extends Component {
           const items = [{ key: 'Version Note', value: snapshot.message }];
           // NB - should only be active if the projectId is the one in the canvas
           const headerGlyphs = (this.props.userId !== this.props.project.owner) ? [] : [
-            <img
-              key="open"
-              role="presentation"
-              src="/images/ui/edit-dark.svg"
-              onClick={evt => this.onEditSnapshot(snapshot)}
-              className="InspectorDetailSection-headerGlyph"
-            />,
-          ];
+              <img
+                key="open"
+                role="presentation"
+                src="/images/ui/edit-dark.svg"
+                onClick={evt => this.onEditSnapshot(snapshot)}
+                className="InspectorDetailSection-headerGlyph"
+              />,
+            ];
           const content = <InspectorDetailSection items={items} headerGlyphs={headerGlyphs} />;
           const widgets = snapshot.isPublished() ?
             [(<img src="/images/ui/commonsVersion.svg" role="presentation" key={snapshot.snapshotUUID} />)] :
@@ -193,9 +209,13 @@ export default connect((state, props) => ({
   commonsVersions: state.commons.versions,
 }), {
   snapshotsList,
+  commonsRetrieveProject,
   commonsRetrieveProjectVersions,
   commonsPublish,
   commonsUnpublish,
+  blockStash,
+  projectOpen,
+  projectStash,
   uiShowPublishDialog,
   uiShowMenu,
 })(InspectorHistory);

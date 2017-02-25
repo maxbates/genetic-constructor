@@ -115,10 +115,11 @@ export class InventoryGroupCommons extends Component {
         text: 'Duplicate Project',
         action: () => {
           const { projectId } = snapshot;
+          //could use Rollup.clone() instead, but this is fine, and sends the right action this way.. just adds an extra project to the store
           return this.retrieveAndStashProject(snapshot)
           .then(() => {
             const cloned = this.props.projectClone(projectId);
-            this.props.projectOpen(cloned.id);
+            this.props.projectOpen(cloned.project.id);
           });
         },
       },

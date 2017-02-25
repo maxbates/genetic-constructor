@@ -284,6 +284,8 @@ export default class Rollup {
   // classed only
   // future - allow passing in block / manifest parent object / overwrites as needed
   clone(owner) {
+    invariant(owner, 'next owner is required');
+
     const manifest = this.getManifest();
 
     const cloneGroups = manifest.components.map(constructId => this.cloneBlock(constructId, {}, { projectId: manifest.id }));

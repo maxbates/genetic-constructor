@@ -180,43 +180,34 @@ export const projectSave = (inputProjectId, forceSave = false) =>
   };
 
 /**
- * Clone a project, and optionally, all of its blocks.
+ * Clone a project, and all of its blocks.
  * Cloned project has the correct owner
  * Cloned blocks are automatically assigned the id of the new project
  * @function
  * @param {UUID} projectId Project ID to clone (must be in store)
- * @param {boolean} withBlocks Clone all of the blocks as well, and remap their IDs
  * @returns {Project} Cloned project
- * @throws if project not in store, or blocks not in store if withBlocks = true
+ * @throws if project not in store, or blocks not in store
  */
 export const projectClone = (projectId) =>
   (dispatch, getState) =>
     wrapPausedTransaction(dispatch, () => {
       const state = getState();
-      const oldProject = _getProject(state, projectId);
+      const userId = state.user.userid;
 
-      const userId = getState().user.userid;
-      let project = oldProject.clone({}, {
-        owner: userId,
+      const roll = dispatch(projectSelectors.projectCreateRollup(projectId));
+      const clone = roll.clone(userId);
+
+      dispatch({
+        type: ActionTypes.BLOCK_CLONE,
+        blocks: clone.blocks,
       });
-
-      //clone all the constructs, and update the project
-      //ensure the constructs are present, and assume blocks are if the constructs are (or block clone will error)
-      invariant(oldProject.components.every(constructId => state.blocks[constructId]), 'all constructs must be in the store');
-
-      //call action block clone (may take a little while for many block)
-      const clones = oldProject.components.map(constructId => dispatch(blockActions.blockClone(constructId, {}, { projectId: project.id })));
-
-      //update the project with the new components
-      //need to do it after the project has been cloned, since clone sets a new ID
-      project = project.mutate('components', clones.map(clone => clone.id));
 
       dispatch({
         type: ActionTypes.PROJECT_CLONE,
-        project,
+        project: clone.project,
       });
 
-      return project;
+      return clone;
     });
 
 /**

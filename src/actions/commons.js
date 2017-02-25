@@ -68,7 +68,7 @@ export const commonsPublish = (projectId, version, body = {}) => (dispatch, getS
  * @param [version] if falsy, default to latest
  * @param [shouldStash=false] Automatically stash the project and blocks in the store
  * @returns {promise}
- * @resolve {Array<snapshots>|snapshot|null} Array of snapshots if no verison, or specific snapshot if version passed, or null if not published
+ * @resolve {Rollup} Array of snapshots if no verison, or specific snapshot if version passed, or null if not published
  * @reject error fetching
  */
 export const commonsRetrieveProject = (projectId, version, shouldStash = false) =>
