@@ -289,11 +289,19 @@ class GlobalNav extends Component {
   copyFocusedBlocksToClipboard() {
     // we don't currently allow copying from frozen / fixed constructs since that would allow copy ( and then pasting )
     // of list blocks from temlates.
-    if (this.props.focus.blockIds.length && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
+    let blockIds = [...this.props.focus.blockIds];
+    if (blockIds.length && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
+      if (blockIds.length) {
+        blockIds = blockIds.filter((blockId) => {
+          const block = this.props.blocks[blockId];
+          return block.rules.role !== 'backbone';
+        });
+      }
+
       // sort selected blocks so they are pasted in the same order as they exist now.
       // NOTE: we don't copy the children of any selected parents since they will
       // be cloned along with their parent
-      const sorted = sortBlocksByIndexAndDepthExclude(this.props.focus.blockIds);
+      const sorted = sortBlocksByIndexAndDepthExclude(blockIds);
       // sorted is an array of array, flatten while retaining order
       const currentProjectVersion = this.props.projectGetVersion(this.props.currentProjectId);
       const clones = sorted.map(info => this.props.blockClone(info.blockId, {
@@ -346,8 +354,7 @@ class GlobalNav extends Component {
       // TODO, paste must be prevented on fixed or frozen blocks
       const blocks = this.props.clipboard.data[index];
       invariant(blocks && blocks.length && Array.isArray(blocks), 'expected array of blocks on clipboard for this format');
-      // we have to clone the blocks currently on the clipboard since they
-      // can't be pasted twice
+      // we have to clone the blocks currently on the clipboard since they can't be pasted twice
       const clones = blocks.map(block => this.props.blockClone(block.id));
       // insert at end of construct if no blocks selected
       let insertIndex = this.focusedConstruct().components.length;
