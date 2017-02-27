@@ -234,7 +234,7 @@ User ${user.uuid}
         keywords,
       };
 
-      //write or update the snapshot
+      //write or update the snapshot (handle the update above)
       return snapshots.snapshotWrite(projectId, user.uuid, projectVersion, snapshotBody, snapshots.SNAPSHOT_TYPE_ORDER)
       .then((snapshot) => {
         merge(order, {

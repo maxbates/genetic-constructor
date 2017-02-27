@@ -19,11 +19,10 @@ import * as ActionTypes from '../constants/ActionTypes';
 
 export const initialState = {};
 
-//todo - handle order submission if new snapshot created
-
 export default function snapshots(state = initialState, action) {
   switch (action.type) {
     case ActionTypes.SNAPSHOT_PROJECT:
+    case ActionTypes.SNAPSHOT_RETRIEVE :
     case ActionTypes.SNAPSHOT_QUERY:
     case ActionTypes.SNAPSHOT_LIST:
     case ActionTypes.COMMONS_PUBLISH:

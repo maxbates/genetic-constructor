@@ -124,9 +124,7 @@ export default class Rollup {
 
     return new Rollup({
       project,
-      blocks: _.reduce(blocks, (acc, block) => Object.assign(acc, {
-        [block.id]: Object.assign(block, { projectId: project.id }),
-      }), {}),
+      blocks: _.keyBy(_.map(blocks, block => _.assign(block, { projectId: project.id })), 'id'),
     });
   }
 

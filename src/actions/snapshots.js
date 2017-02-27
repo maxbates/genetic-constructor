@@ -76,6 +76,29 @@ export const snapshotsList = projectId =>
     });
 
 /**
+ * Retrieve a specific snapshot
+ * @param projectId
+ * @param version
+ * @return {Promise}
+ *
+ */
+export const snapshotRetrieve = (projectId, version) =>
+  (dispatch, getState) =>
+    snapshots.snapshotGet(projectId, version)
+    .then(rawSnapshot => {
+      const snapshot = new Snapshot(rawSnapshot);
+
+      dispatch({
+        type: ActionTypes.SNAPSHOT_RETRIEVE,
+        projectId,
+        version,
+        snapshot,
+      });
+
+      return snapshot;
+    });
+
+/**
  * Query user's snapshots
  * @function
  * @param {Object} query in form { tags: {}, keywords: [] }

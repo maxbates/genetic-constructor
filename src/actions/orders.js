@@ -20,10 +20,12 @@
 import invariant from 'invariant';
 import { cloneDeep, flatten, merge, range, shuffle } from 'lodash';
 
-import * as projectActions from '../actions/projects';
 import * as ActionTypes from '../constants/ActionTypes';
 import { getOrder, getOrders } from '../middleware/order';
 import Order from '../models/Order';
+
+import * as projectActions from '../actions/projects';
+import * as snapshotActions from '../actions/snapshots';
 import * as blockSelectors from '../selectors/blocks';
 import * as instanceMap from '../store/instanceMap';
 
@@ -262,13 +264,14 @@ export const orderSubmit = (orderId, foundry) =>
 
     return savePromise
     .then(order => order.submit(foundry, positionalCombinations))
-    .then((orderData) => {
-      const order = new Order(orderData);
-
+    .then((order) => {
       dispatch({
         type: ActionTypes.ORDER_SUBMIT,
         order,
       });
+
+      //fetch the snapshot, so our state is updated, but async and dont rely on it
+      dispatch(snapshotActions.snapshotRetrieve(projectId, order.projectVersion));
 
       return order;
     });
