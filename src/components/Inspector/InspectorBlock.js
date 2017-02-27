@@ -330,7 +330,7 @@ export class InspectorBlock extends Component {
         </div>
         <InspectorRow
           heading={`${type} Rules`}
-          condition={!isConstruct && singleInstance && hasParents}
+          condition={!isConstruct && singleInstance && hasParents && !isBackbone}
         >
           <TemplateRules
             block={instances[0]}
