@@ -40,10 +40,13 @@ export default class FormKeywords extends Component {
     //todo - this should be an action, so we don't call setState after unmounting
     snapshotsListKeywords()
     .then((keywordsMap) => {
-      this.setState({
-        keywordList: _.map(keywordsMap, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
-        keywordListLoading: false,
-      });
+      //hack - make sure still mounted
+      if (this.element) {
+        this.setState({
+          keywordList: _.map(keywordsMap, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
+          keywordListLoading: false,
+        });
+      }
     });
   }
 
@@ -68,6 +71,7 @@ export default class FormKeywords extends Component {
 
     return (
       <FormSelect
+        ref={el => this.element = el}
         name="keywords"
         multi
         value={keywords}

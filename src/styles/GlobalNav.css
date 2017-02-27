@@ -18,7 +18,7 @@
     cursor: pointer;
 
     img {
-      background-image: url("/images/ui/main_logo.svg");
+      background-image: url("../images/ui/main_logo.svg");
     }
   }
 

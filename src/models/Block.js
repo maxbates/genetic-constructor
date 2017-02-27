@@ -371,6 +371,11 @@ export default class Block extends Instance {
     }
 
     BlockAttributionSchema.validate(attribution, true);
+
+    if (lastAttributionIsUsers) {
+      const lastIndex = this.attribution.length - 1;
+      return this.mutate(`attribution[${lastIndex}]`, attribution);
+    }
     return this.mutate('attribution', [...this.attribution, attribution]);
   }
 

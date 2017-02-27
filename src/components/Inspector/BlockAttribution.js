@@ -38,15 +38,12 @@ export class BlockAttribution extends Component {
     blockAttribute: PropTypes.func.isRequired,
   };
 
-  constructor(props) {
-    super(props);
+  componentDidMount() {
+    this.setTextStateFromProps(this.props);
+  }
 
-    const lastAttribution = props.block.attribution[props.block.attribution.length - 1];
-    const userOwnsLastAttribution = lastAttribution && lastAttribution.owner === props.userId;
-
-    this.state = {
-      text: userOwnsLastAttribution ? lastAttribution.text : props.userName,
-    };
+  componentWillReceiveProps(nextProps) {
+    this.setTextStateFromProps(nextProps);
   }
 
   onSwitch = (switchOn) => {
@@ -57,7 +54,19 @@ export class BlockAttribution extends Component {
     this.updateAttribution(value);
   };
 
-  //todo - need update attribution on blur
+  onBlur = (evt) => {
+    this.updateAttribution();
+  };
+
+  setTextStateFromProps = props => {
+    const lastAttribution = props.block.attribution[props.block.attribution.length - 1];
+    const userOwnsLastAttribution = lastAttribution && lastAttribution.owner === props.userId;
+
+    this.setState({
+      text: userOwnsLastAttribution ? lastAttribution.text : props.userName,
+    });
+  };
+
   updateAttribution(forceValue) {
     const { block, blockAttribute } = this.props;
     const { text } = this.state;
@@ -81,7 +90,7 @@ export class BlockAttribution extends Component {
     return (
       <InspectorRow
         heading="Attribution License"
-        glyphUrl="/images/ui/cc-off.svg"
+        glyphUrl="/images/ui/CC-off.svg"
         hasSwitch
         switchDisabled={readOnly}
         onToggle={this.onSwitch}
@@ -93,14 +102,15 @@ export class BlockAttribution extends Component {
               value={this.state.text}
               required
               onChange={evt => this.setState({ text: evt.target.value || userName })}
+              onBlur={this.onBlur}
             />)}
 
           {otherAttributions.length > 0 && (
             <div className="BlockAttribution-attributions">
               {otherAttributions.map((attribution, index) => (
-                <span className="BlockAttribution-attribution" key={index}>
+                <div className="BlockAttribution-attribution" key={index}>
                   {`${attribution.text} (${moment(attribution.time).format('MMM DD YYYY')})`}
-                </span>
+                </div>
               ))}
             </div>
           )}
