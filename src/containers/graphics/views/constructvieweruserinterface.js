@@ -700,41 +700,29 @@ export default class ConstructViewerUserInterface extends UserInterface {
   onDragOver(globalPosition, payload, proxySize) {
     // select construct on drag over
     this.selectConstruct();
-    // no drop on frozen or fixed constructs
-    if (this.construct.isFrozen() || this.construct.isFixed()) {
-      return;
-    }
-    if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
-      return;
-    }
-    const isBackbone = this.isPayloadBackbone(payload);
-    // cannot drop a backbone on an existing circular construct
-    if (this.constructViewer.isCircularConstruct() && isBackbone) {
-      return;
-    }
-    // backbone can only be dropped at the start of a construct, that isn't already a circular construct.
-    if (isBackbone) {
-      if (this.construct.components.length) {
-        this.showInsertionPointForEdge(this.construct.components[0], 'left');
+    if (this.canAcceptPayload(payload)) {
+      // backbone can only be dropped at the start of a construct, that isn't already a circular construct.
+      if (this.isPayloadBackbone(payload)) {
+        if (this.construct.components.length) {
+          this.showInsertionPointForEdge(this.construct.components[0], 'left');
+        } else {
+          this.showDefaultInsertPoint();
+        }
+        return;
+      }
+      // convert global point to local space via our mousetrap
+      const localPosition = this.mouseTrap.globalToLocal(globalPosition, this.el);
+      // user might be targeting the edge or center of block, or no block at all
+      const hit = this.nearestBlockAndOptionalVerticalEdgeAt(localPosition, proxySize);
+      if (hit) {
+        if (hit.edge) {
+          this.showInsertionPointForEdge(hit.block, hit.edge);
+        } else {
+          this.showInsertionPointForBlock(hit.block);
+        }
       } else {
         this.showDefaultInsertPoint();
       }
-      return;
-    }
-
-
-    // convert global point to local space via our mousetrap
-    const localPosition = this.mouseTrap.globalToLocal(globalPosition, this.el);
-    // user might be targeting the edge or center of block, or no block at all
-    const hit = this.nearestBlockAndOptionalVerticalEdgeAt(localPosition, proxySize);
-    if (hit) {
-      if (hit.edge) {
-        this.showInsertionPointForEdge(hit.block, hit.edge);
-      } else {
-        this.showInsertionPointForBlock(hit.block);
-      }
-    } else {
-      this.showDefaultInsertPoint(); //
     }
   }
 
@@ -743,25 +731,34 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * to our actual constructViewer which has all the necessary props
    */
   onDrop(globalPosition, payload, event) {
+    if (this.canAcceptPayload(payload)) {
+      // flatten dropped object and treats as new construct if we are empty.
+      const blockids = this.constructViewer.addItemAtInsertionPoint(payload, this.insertion, event);
+      this.constructViewer.constructSelected(this.constructViewer.props.constructId);
+      this.constructViewer.blockSelected(blockids);
+    }
+  }
+
+  /**
+   * true if this drag/drop payload can be accepted.
+   * @param payload
+   * @returns {boolean}
+   */
+  canAcceptPayload = (payload) => {
     // no drop on frozen or fixed constructs
     if (this.construct.isFrozen() || this.construct.isFixed()) {
-      return;
+      return false;
     }
     // for now templates can only be dropped on the new construct target which is part of the canvas
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
-      return;
+      return false;
     }
     const isBackbone = this.isPayloadBackbone(payload);
-
     // cannot drop a backbone on an existing circular construct
     if (this.constructViewer.isCircularConstruct() && isBackbone) {
-      return;
+      return false;
     }
-
-    // flatten dropped object and treats as new construct if we are empty.
-    const blockids = this.constructViewer.addItemAtInsertionPoint(payload, this.insertion, event);
-    this.constructViewer.constructSelected(this.constructViewer.props.constructId);
-    this.constructViewer.blockSelected(blockids);
+    return true;
   }
 
   /**
