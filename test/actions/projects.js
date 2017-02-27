@@ -86,7 +86,11 @@ describe('Actions', () => {
         expect(clonedProject.components).to.not.eql(project.components);
         expect(clonedProject.parents.length).to.equal(1);
         expect(clonedProject.parents[0].id).to.equal(project.id);
-        expect(clonedProject).to.eql(_.merge({}, project, { parents: clonedProject.parents, id: clonedProject.id }));
+        expect(clonedProject).to.eql(_.merge({}, project, {
+          id: clonedProject.id,
+          parents: clonedProject.parents,
+          components: clonedProject.components,
+        }));
       });
 
       it('projectClone() can clone all the blocks as well', () => {

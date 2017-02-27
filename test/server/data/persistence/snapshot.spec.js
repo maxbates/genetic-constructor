@@ -32,7 +32,11 @@ describe('Server', () => {
   describe('Data', () => {
     describe('persistence', () => {
       describe('snapshot', () => {
+        const projectName = uuid.v4()
+
         const roll = createExampleRollup();
+        roll.project.metadata.name = projectName;
+
         const updated = _.merge({}, roll, { project: { another: 'field' } });
         const latest = _.merge({}, updated, { project: { different: 'value' } });
         const otherProject = createExampleRollup();
@@ -81,7 +85,8 @@ describe('Server', () => {
             expect(result.version).to.equal(0);
             expect(result.projectId).to.equal(roll.project.id);
             expect(result.message).to.equal(snapshots.defaultMessage);
-            expect(result.tags).to.eql({});
+            assert(result.tags.author, 'author should exist');
+            expect(result.tags.projectName).to.equal(projectName);
             expect(result.owner).to.equal(testUserId);
             expect(Number.isInteger(result.created)).to.equal(true);
           });
@@ -102,7 +107,8 @@ describe('Server', () => {
             expect(result.version).to.equal(0);
             expect(result.projectId).to.equal(roll.project.id);
             expect(result.message).to.equal(snapshots.defaultMessage);
-            expect(result.tags).to.eql({});
+            assert(result.tags.author, 'author should exist');
+            assert(result.tags.projectName, 'projectName should exist');
             expect(result.owner).to.equal(testUserId);
           });
         });
@@ -118,7 +124,7 @@ describe('Server', () => {
             expect(result.version).to.equal(version);
             expect(result.projectId).to.equal(roll.project.id);
             expect(result.message).to.equal(message);
-            expect(result.tags).to.eql(exampleTag);
+            assert(_.isMatch(result.tags, exampleTag), 'tags should be present');
             expect(result.keywords).to.eql(exampleKeywords);
             expect(result.owner).to.equal(testUserId);
             expect(result.type).to.equal(type);
@@ -178,7 +184,7 @@ describe('Server', () => {
           expect(updated.version).to.equal(initial.version);
           expect(updated.message).to.equal(newMessage);
           expect(updated.type).to.equal(initial.type);
-          expect(updated.tags).to.eql(initial.tags);
+          assert(_.isMatch(updated.tags, initial.tags), 'tags should be present');
           expect(updated.uuid).to.equal(initial.uuid);
 
           const retrieved = await snapshots.snapshotGet(otherSnapshot.projectId, otherSnapshot.version);
@@ -186,7 +192,7 @@ describe('Server', () => {
           expect(retrieved.version).to.equal(initial.version);
           expect(retrieved.message).to.equal(newMessage);
           expect(retrieved.type).to.equal(initial.type);
-          expect(retrieved.tags).to.eql(initial.tags);
+          assert(_.isMatch(retrieved.tags, initial.tags), 'tags should be present');
           expect(retrieved.uuid).to.equal(initial.uuid);
         });
 
