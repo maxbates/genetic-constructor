@@ -308,7 +308,7 @@ class GlobalNav extends Component {
         projectId: this.props.currentProjectId,
         version: currentProjectVersion,
       }));
-      // put clones on the clipboardparentObjectInput
+      // put clones on the clipboard
       this.props.clipboardSetData([clipboardFormats.blocks], [clones]);
     }
   }
@@ -333,8 +333,15 @@ class GlobalNav extends Component {
 
   // cut focused blocks to the clipboard, no clone required since we are removing them.
   cutFocusedBlocksToClipboard() {
-    if (this.props.focus.blockIds.length && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
-      const blockIds = this.props.blockDetach(...this.props.focus.blockIds);
+    let blockIds = [...this.props.focus.blockIds];
+    if (blockIds.length && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
+      if (blockIds.length) {
+        blockIds = blockIds.filter((blockId) => {
+          const block = this.props.blocks[blockId];
+          return block.rules.role !== 'backbone';
+        });
+      }
+      blockIds = this.props.blockDetach(...blockIds);
       this.props.clipboardSetData([clipboardFormats.blocks], [blockIds.map(blockId => this.props.blocks[blockId])]);
       this.props.focusBlocks([]);
     }
