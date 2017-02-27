@@ -50,4 +50,4 @@ export default function pausableTransaction(dispatch, transaction) {
   dispatch(resumeAction());
 
   return returned;
-};
+}

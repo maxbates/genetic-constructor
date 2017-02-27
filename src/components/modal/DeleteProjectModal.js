@@ -44,13 +44,13 @@ class DeleteProjectModal extends Component {
 
   componentDidMount() {
     this.props.snapshotsList(this.props.projectId)
-    .then(snapshots => {
+    .then((snapshots) => {
       this.setState({
         loading: false,
         isPublished: _.some(snapshots, Snapshot.isPublished),
       });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       //todo - handle
     });

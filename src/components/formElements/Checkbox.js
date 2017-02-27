@@ -29,7 +29,7 @@ export default class Checkbox extends Component {
     checked: false,
     showCheck: true,
     disabled: false,
-    onChange: val => {},
+    onChange: (val) => {},
   };
 
   onClick = (evt) => {

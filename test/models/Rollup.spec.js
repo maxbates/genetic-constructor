@@ -22,7 +22,7 @@ import RollupSchema, { currentDataModelVersion } from '../../src/schemas/Rollup'
 import Rollup from '../../src/models/Rollup';
 import Project from '../../src/models/Project';
 import Block from '../../src/models/Block';
-import * as projectPersistence from '../../server/data/persistence/projects'
+import * as projectPersistence from '../../server/data/persistence/projects';
 
 describe('Model', () => {
   describe('Rollup', () => {
@@ -155,12 +155,25 @@ describe('Model', () => {
       });
 
       it('v1 -> adds keywords', () => {
-        const roll = new Rollup();
+        const roll = new Rollup(createExampleRollup());
 
         //patch to v1, unset keywords
         roll.schema = 1;
         _.unset(roll, 'project.metadata.keywords');
         _.forEach(roll.blocks, block => _.unset(block, 'metadata.keywords'));
+
+        expect(Rollup.validate(roll, false)).to.equal(false);
+
+        Rollup.upgrade(roll);
+        expect(Rollup.validate(roll, false)).to.equal(true);
+      });
+
+      it('v2 -> adds block attribution', () => {
+        const roll = new Rollup(createExampleRollup());
+
+        //patch to v2, unset attribution
+        roll.schema = 2;
+        _.forEach(roll.blocks, block => _.unset(block, 'attribution'));
 
         expect(Rollup.validate(roll, false)).to.equal(false);
 
@@ -180,7 +193,9 @@ describe('Model', () => {
 
       it('skips / accomodates models of projects / blocks', () => {
         const project = new Project();
-        const block = new Block();
+        const block = new Block({
+          projectId: project.id,
+        });
 
         const roll = Rollup.classify({
           project,
@@ -207,8 +222,13 @@ describe('Model', () => {
 
         const clone = clones[0];
         expect(clone.projectId).to.equal(null);
+        expect(clone.parents.length).to.equal(1);
 
-        const comparison = { ...clone, id: leaf.id, projectId: leaf.projectId };
+        const comparison = { ...clone,
+          id: leaf.id,
+          projectId: leaf.projectId,
+          parents: [],
+        };
         expect(comparison).to.eql(leaf);
       });
 
@@ -219,7 +239,7 @@ describe('Model', () => {
 
         const clones = roll.cloneBlock(construct.id);
 
-        expect(clones.length).to.equal(components.length);
+        expect(clones.length).to.equal(Object.keys(components).length);
 
         const constructClone = clones[0];
 
@@ -229,7 +249,7 @@ describe('Model', () => {
 
         assert(_.every(clones, block => block instanceof Block), 'blocks should be models');
         assert(_.every(clones, block => block.projectId === null), 'blocks should have no project Id');
-        assert(_.every(clones, block => !_.find(clones, { id: block.id })), 'all ids should be different');
+        assert(_.every(clones, block => !_.find(roll.blocks, { id: block.id })), 'all ids should be different');
       });
 
       it('cloneBlock() clones options', () => {
@@ -238,7 +258,7 @@ describe('Model', () => {
         const components = roll.getComponents(construct.id);
         assert(Object.keys(components).length > 0, 'should have components');
 
-        const listBlock = components[0];
+        const listBlock = components[construct.components[0]];
         const options = roll.getOptions(listBlock.id);
         assert(Object.keys(options).length > 0, 'should have options');
 
@@ -252,12 +272,12 @@ describe('Model', () => {
 
         assert(_.every(clones, block => block instanceof Block), 'blocks should be models');
         assert(_.every(clones, block => block.projectId === null), 'blocks should have no project Id');
-        assert(_.every(clones, block => !_.find(clones, { id: block.id })), 'all ids should be different');
+        assert(_.every(clones, block => !_.find(roll.blocks, { id: block.id })), 'all ids should be different');
       });
 
       it('clones the whole project, and returns a rollup', () => {
         const roll = Rollup.classify(createExampleRollup());
-        const clone = roll.clone();
+        const clone = roll.clone(testUserId);
 
         assert(clone.project instanceof Project, 'should be project model');
         assert(_.every(clone.blocks, block => block instanceof Block), 'blocks should be models');

@@ -34,10 +34,10 @@ export default class Label extends Component {
   };
 
   static defaultProps = {
-    onClick: () => {}
+    onClick: () => {},
   };
 
-  onClick = (evt) => this.props.onClick(evt);
+  onClick = evt => this.props.onClick(evt);
 
   render() {
     let labelClasses = 'label-base';

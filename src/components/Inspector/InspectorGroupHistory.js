@@ -24,7 +24,7 @@ import {
   commonsPublish,
   commonsUnpublish,
   commonsRetrieveProject,
-  commonsRetrieveProjectVersions
+  commonsRetrieveProjectVersions,
 } from '../../actions/commons';
 import { uiShowPublishDialog, uiShowMenu } from '../../actions/ui';
 import Spinner from './../ui/Spinner';
@@ -94,7 +94,7 @@ export class InspectorHistory extends Component {
         text: 'Duplicate as New Project',
         action: () => {
           this.props.commonsRetrieveProject(snapshot.projectId, snapshot.version, false)
-          .then(roll => {
+          .then((roll) => {
             const clone = roll.clone(this.props.userId);
             this.props.projectStash(clone.project);
             this.props.blockStash(..._.values(clone.blocks));
@@ -173,14 +173,14 @@ export class InspectorHistory extends Component {
           const items = [{ key: 'Version Note', value: snapshot.message }];
           // NB - should only be active if the projectId is the one in the canvas
           const headerGlyphs = (this.props.userId !== this.props.project.owner) ? [] : [
-              <img
-                key="open"
-                role="presentation"
-                src="/images/ui/edit-dark.svg"
-                onClick={evt => this.onEditSnapshot(snapshot)}
-                className="InspectorDetailSection-headerGlyph"
-              />,
-            ];
+            <img
+              key="open"
+              role="presentation"
+              src="/images/ui/edit-dark.svg"
+              onClick={evt => this.onEditSnapshot(snapshot)}
+              className="InspectorDetailSection-headerGlyph"
+            />,
+          ];
           const content = <InspectorDetailSection items={items} headerGlyphs={headerGlyphs} />;
           const widgets = snapshot.isPublished() ?
             [(<img src="/images/ui/commonsVersion.svg" role="presentation" key={snapshot.snapshotUUID} />)] :

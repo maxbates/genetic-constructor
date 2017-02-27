@@ -194,7 +194,7 @@ export const projectSave = (inputProjectId, forceSave = false) =>
  * @returns {Project} Cloned project
  * @throws if project not in store, or blocks not in store
  */
-export const projectClone = (projectId) =>
+export const projectClone = projectId =>
   (dispatch, getState) =>
     wrapPausedTransaction(dispatch, () => {
       const state = getState();
@@ -205,7 +205,7 @@ export const projectClone = (projectId) =>
 
       dispatch({
         type: ActionTypes.BLOCK_CLONE,
-        blocks: clone.blocks,
+        blocks: values(clone.blocks),
       });
 
       dispatch({

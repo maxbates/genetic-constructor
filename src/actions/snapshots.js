@@ -66,7 +66,7 @@ export const snapshotProject = (projectId, version = null, body = {}) =>
 export const snapshotsList = projectId =>
   (dispatch, getState) =>
     snapshots.snapshotList(projectId)
-    .then(rawSnapshots => {
+    .then((rawSnapshots) => {
       const snapshots = rawSnapshots.map(rawSnapshot => new Snapshot(rawSnapshot));
       dispatch({
         type: ActionTypes.SNAPSHOT_LIST,
@@ -85,7 +85,7 @@ export const snapshotsList = projectId =>
 export const snapshotsQuery = query =>
   (dispatch, getState) =>
     snapshots.snapshotQuery(query)
-    .then(rawSnapshots => {
+    .then((rawSnapshots) => {
       const snapshots = rawSnapshots.map(rawSnapshot => new Snapshot(rawSnapshot));
       dispatch({
         type: ActionTypes.SNAPSHOT_QUERY,

@@ -67,7 +67,7 @@ const startRunAuth = () => {
       env: Object.assign({
         BIO_NANO_AUTH: 1,
         HOST_URL,
-        CONSTRUCTOR_SKIP_SETUP: 'true'
+        CONSTRUCTOR_SKIP_SETUP: 'true',
       }, process.env),
     },
     {

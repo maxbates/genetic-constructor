@@ -183,13 +183,13 @@ router.route('/projects/:projectId')
 
   //check if the project has been published, and prevent if it is
   commons.checkProjectPublic(projectId)
-  .then(isPublished => {
+  .then((isPublished) => {
     if (isPublished) {
       return Promise.reject(errorIsPublished);
     }
     return true;
   })
-  .catch(err => {
+  .catch((err) => {
     if (err === errorNotPublished) {
       return true;
     }

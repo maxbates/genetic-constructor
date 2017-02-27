@@ -147,6 +147,9 @@ export default class Rollup {
         _.defaultsDeep(roll.project, keywordsUpdate);
         _.forEach(roll.blocks, block => _.defaultsDeep(block, keywordsUpdate));
       }
+      case 2: {
+        _.forEach(roll.blocks, block => _.defaults(block, { attribution: [] }));
+      }
     }
     /* eslint-enable no-fallthrough,default-case */
 
@@ -284,16 +287,15 @@ export default class Rollup {
   // classed only
   // future - allow passing in block / manifest parent object / overwrites as needed
   clone(owner) {
-    invariant(owner, 'next owner is required');
+    invariant(owner || owner === null, 'next owner is required');
 
-    const manifest = this.getManifest();
-
-    const cloneGroups = manifest.components.map(constructId => this.cloneBlock(constructId, {}, { projectId: manifest.id }));
-
-    const newManifest = manifest.clone({}, {
+    let newManifest = this.getManifest().clone({}, {
       owner,
-      components: cloneGroups.map(group => group[0].id),
     });
+
+    const cloneGroups = newManifest.components.map(constructId => this.cloneBlock(constructId, {}, { projectId: newManifest.id }));
+
+    newManifest = newManifest.mutate('components', cloneGroups.map(group => group[0].id));
 
     return Rollup.classify({
       project: newManifest,
@@ -321,10 +323,13 @@ export default class Rollup {
 
     const overwriteObject = Object.assign({ projectId: null }, overwriteInput);
 
-    const { components, options } = this.getContents();
-    const contents = _.values({ ...components, ...options });
+    const { components, options } = this.getContents(blockId);
+    const unorderedContents = _.values({ ...components, ...options });
 
     //move the blockId passed to the first position, so its the first one returned
+    const firstIndex = _.findIndex(unorderedContents, { id: blockId });
+    const root = unorderedContents.splice(firstIndex, 1);
+    const contents = root.concat(unorderedContents);
 
     //create clones without updated IDs
     const unmappedClones = contents.map(block => block.clone(parentObject, overwriteObject));

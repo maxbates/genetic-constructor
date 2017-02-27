@@ -156,7 +156,7 @@ export class InventoryGroupCommons extends Component {
         items: [], //only one level allowed
         selectedAlt: this.props.focus.forceBlocks[0] === block,
         onClick: () => this.props.focusForceBlocks([block]),
-        startDrag: globalPoint => {
+        startDrag: (globalPoint) => {
           this.stashProject(roll);
           return InventoryGroupCommons.onCommonsConstructDrag(block, globalPoint);
         },

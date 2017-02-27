@@ -82,7 +82,8 @@ describe('Actions', () => {
 
         const clonedProject = clone.project;
         expect(clonedProject.id).to.not.equal(project.id);
-        expect(clonedProject.components).to.eql(project.components);
+        expect(clonedProject.components.length).to.eql(project.components.length);
+        expect(clonedProject.components).to.not.eql(project.components);
         expect(clonedProject.parents.length).to.equal(1);
         expect(clonedProject.parents[0].id).to.equal(project.id);
         expect(clonedProject).to.eql(_.merge({}, project, { parents: clonedProject.parents, id: clonedProject.id }));

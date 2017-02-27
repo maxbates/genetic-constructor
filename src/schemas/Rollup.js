@@ -49,7 +49,7 @@ versions:
   - add metadata.keywords = [] (required) (Project + Blocks)
  */
 //help track data model to aid migrations
-export const currentDataModelVersion = 2;
+export const currentDataModelVersion = 3;
 
 const rollupFields = {
   //schema is validated on save, should always be at current version (should be upgraded on load)
