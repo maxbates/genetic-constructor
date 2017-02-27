@@ -15,9 +15,11 @@
  */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
+
 import MouseTrap from '../../containers/graphics/mousetrap';
-import '../../../src/styles/title-and-toolbar.css';
 import InlineToolbar from './inline-toolbar';
+
+import '../../../src/styles/title-and-toolbar.css';
 
 /*
  Displays a title and sub title ( different color ) along with
@@ -39,19 +41,23 @@ export default class TitleAndToolbar extends Component {
     fontSize: PropTypes.string.isRequired,
     color: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
+    onClickBackground: PropTypes.func.isRequired,
     onContextMenu: PropTypes.func,
     noHover: PropTypes.bool,
     itemActivated: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onClickBackground: (evt) => {},
   };
 
   /**
    * run a mouse trap instance to get context menu events
    */
   componentDidMount() {
-    const self = ReactDOM.findDOMNode(this);
     // mouse trap is used for coordinate transformation
     this.mouseTrap = new MouseTrap({
-      element: self,
+      element: this.element,
       contextMenu: this.onContextMenu,
     });
   }
@@ -71,10 +77,12 @@ export default class TitleAndToolbar extends Component {
     const disabledProp = {
       disabled: !!this.props.noHover,
     };
+
     return (
       <div
         className="title-and-toolbar"
-        onClick={this.props.itemActivated}
+        onClick={this.props.onClickBackground}
+        ref={el => this.element = el}
       >
         <div
           className="title"
@@ -86,15 +94,13 @@ export default class TitleAndToolbar extends Component {
           }}
           onClick={this.props.onClick}
         >
-          <div
-            className="text"
-            data-id={this.props.title}
-          >
+          <div className="text" data-id={this.props.title}>
             {this.props.title}
             <span>{this.props.subTitle}</span>
           </div>
           <img src="/images/ui/edit.svg" />
         </div>
+
         <div className="bar">
           <InlineToolbar
             items={this.props.toolbarItems}

@@ -105,13 +105,18 @@ class ProjectHeader extends Component {
     this.props.focusConstruct(block.id);
   };
 
-  onItemActivated = () => {
+  onItemActivated = (event) => {
+    event.stopPropagation();
+  };
+
+  onFocusInspector = (evt) => {
     this.props.inspectorToggleVisibility(true);
     this.props.focusPrioritize('project');
   };
 
-  onClick = () => {
-    this.onItemActivated();
+  onClick = (evt) => {
+    this.onFocusInspector(evt);
+
     const name = this.props.project.metadata.name || 'Untitled Project';
 
     if (!this.props.readOnly) {
@@ -260,39 +265,36 @@ class ProjectHeader extends Component {
         text: 'Add Construct',
         imageURL: '/images/ui/add.svg',
         enabled: !this.props.readOnly,
-        clicked: this.onAddConstruct,
+        onClick: this.onAddConstruct,
       }, {
         text: 'View',
         imageURL: '/images/ui/view.svg',
-        enabled: true,
-        clicked: event => this.showViewMenu(event.target),
+        onClick: event => this.showViewMenu(event.target),
       }, {
         text: 'Download Project',
         imageURL: '/images/ui/download.svg',
-        enabled: true,
-        clicked: () => {
+        onClick: () => {
           downloadProject(this.props.project.id, this.props.focus.options);
         },
       }, {
         text: 'Upload Genbank or CSV',
         imageURL: '/images/ui/upload.svg',
         enabled: !this.props.readOnly,
-        clicked: this.upload,
+        onClick: this.upload,
       }, {
         text: 'Share',
         imageURL: '/images/ui/share.svg',
         enabled: !this.props.readOnly,
-        clicked: this.onShareProject,
+        onClick: this.onShareProject,
       }, {
         text: 'Delete Project',
         imageURL: '/images/ui/delete.svg',
         enabled: !this.props.readOnly,
-        clicked: this.onDeleteProject,
+        onClick: this.onDeleteProject,
       }, {
         text: 'More...',
         imageURL: '/images/ui/more.svg',
-        enabled: true,
-        clicked: (event) => {
+        onClick: (event) => {
           this.showMoreMenu(event.target);
         },
       },
@@ -330,6 +332,7 @@ class ProjectHeader extends Component {
       <div className="ProjectHeader">
         <TitleAndToolbar
           onClick={this.onClick}
+          onClickBackground={this.onFocusInspector}
           itemActivated={this.onItemActivated}
           noHover={this.props.readOnly}
           title={project.metadata.name || 'Untitled Project'}

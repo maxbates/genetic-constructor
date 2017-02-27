@@ -28,7 +28,7 @@ export default class InlineToolbar extends Component {
       text: PropTypes.string,
       imageURL: PropTypes.string,
       enabled: PropTypes.bool,
-      clicked: PropTypes.func,
+      onClick: PropTypes.func,
     })).isRequired,
     // called when any of the items are clicked, enabled or not.
     itemActivated: PropTypes.func,
@@ -36,13 +36,14 @@ export default class InlineToolbar extends Component {
 
   static defaultProps = {
     items: [],
-    itemActivated: () => {},
+    itemActivated: (evt, item) => {},
   };
 
   itemClicked = (event, item) => {
-    this.props.itemActivated();
-    if (item.enabled) {
-      item.clicked(event, item);
+    this.props.itemActivated(event, item);
+    //check if enabled is falsy, so not required
+    if (item.enabled !== false) {
+      item.onClick(event, item);
     }
   };
 
@@ -59,9 +60,9 @@ export default class InlineToolbar extends Component {
                 title={item.text}
                 src={item.imageURL}
                 onClick={event => this.itemClicked(event, item)}
-                className="item"
+                className={`item${item.enabled === false ? ' disabled' : ''}`}
                 style={{
-                  filter: `brightness(${item.enabled ? '100%' : '50%'})`,
+                  filter: `brightness(${item.enabled === false ? '50%' : '100%'})`,
                 }}
               />
             ))

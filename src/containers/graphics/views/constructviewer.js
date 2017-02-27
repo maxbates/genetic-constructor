@@ -910,8 +910,7 @@ export class ConstructViewer extends Component {
       {
         text: 'View',
         imageURL: '/images/ui/view.svg',
-        enabled: true,
-        clicked: (event) => {
+        onClick: (event) => {
           this.showViewMenu(event.target);
         },
       },
@@ -919,7 +918,7 @@ export class ConstructViewer extends Component {
         text: 'Palette',
         imageURL: '/images/ui/color.svg',
         enabled: !this.isSampleProject() && !this.props.construct.isFixed(),
-        clicked: (event) => {
+        onClick: (event) => {
           this.showPaletteMenu(event.target);
         },
       },
@@ -927,13 +926,12 @@ export class ConstructViewer extends Component {
         text: 'Order DNA',
         imageURL: '/images/ui/order.svg',
         enabled: this.allowOrder(),
-        clicked: this.onOrderDNA,
+        onClick: this.onOrderDNA,
       },
       {
         text: 'Download Construct',
         imageURL: '/images/ui/download.svg',
-        enabled: true,
-        clicked: () => {
+        onClick: () => {
           downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
         },
       },
@@ -941,15 +939,14 @@ export class ConstructViewer extends Component {
         text: 'Delete Construct',
         imageURL: '/images/ui/delete.svg',
         enabled: !this.isSampleProject(),
-        clicked: () => {
+        onClick: () => {
           this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
         },
       },
       {
         text: 'More...',
         imageURL: '/images/ui/more.svg',
-        enabled: true,
-        clicked: (event) => {
+        onClick: (event) => {
           this.showMoreMenu(event.target);
         },
       },
@@ -982,6 +979,7 @@ export class ConstructViewer extends Component {
             noHover={construct.isFrozen() || !isFocused}
             color={construct.getColor()}
             onClick={this.onTitleClicked}
+            onClickBackground={() => this.props.focusConstruct(this.props.constructId)}
             onContextMenu={position => this.showConstructContextMenu(position)}
             itemActivated={() => this.props.focusConstruct(this.props.constructId)}
           />

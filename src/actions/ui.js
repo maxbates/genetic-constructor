@@ -26,6 +26,13 @@ import extensionRegistry from '../extensions/clientRegistry';
 const spaceFiller = 10; //eslint-disable-line no-unused-vars
 const spaceFiller2 = 20; //eslint-disable-line no-unused-vars
 
+const dispatchResize = (after = 300) => {
+  window.setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 300);
+
+};
+
 /**
  * Toggle whether the inspector is visible
  * @function
@@ -40,10 +47,7 @@ export const inspectorToggleVisibility = forceState => (dispatch, getState) => {
     nextState,
   });
 
-  window.setTimeout(() => {
-    window.dispatchEvent(new Event('resize'));
-  }, 300);
-
+  dispatchResize();
   return nextState;
 };
 
@@ -61,9 +65,7 @@ export const inventoryToggleVisibility = forceState => (dispatch, getState) => {
     nextState,
   });
 
-  window.setTimeout(() => {
-    window.dispatchEvent(new Event('resize'));
-  }, 300);
+  dispatchResize();
 
   return nextState;
 };
@@ -114,9 +116,7 @@ export const uiToggleDetailView = forceState => (dispatch, getState) => {
     nextState,
   });
 
-  window.setTimeout(() => {
-    window.dispatchEvent(new Event('resize'));
-  }, 300);
+  dispatchResize();
 
   return nextState;
 };
