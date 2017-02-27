@@ -16,6 +16,10 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+
+    img {
+      background-image: url("/images/ui/main_logo.svg");
+    }
   }
 
   &-appname {

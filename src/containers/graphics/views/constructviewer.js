@@ -696,6 +696,10 @@ export class ConstructViewer extends Component {
         text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
         action: this.toggleHiddenBlocks,
       },
+      {
+        text: `${this.props.visibleExtension === sequenceViewerName ? 'Hide' : 'Show'} Sequence`,
+        action: this.toggleSequenceViewer,
+      },
     ],
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
       true);
@@ -932,6 +936,7 @@ export class ConstructViewer extends Component {
         text: 'Download Construct',
         imageURL: '/images/ui/download.svg',
         onClick: () => {
+          this.props.uiSetGrunt('Preparing data. Download will begin automatically when complete.');
           downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
         },
       },

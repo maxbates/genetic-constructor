@@ -130,13 +130,17 @@ export class InspectorBlock extends Component {
    */
   currentColor() {
     const { instances, overrides } = this.props;
+    let color;
     if (overrides.color) {
-      return overrides.color;
+      color = overrides.color;
     }
     if (instances.length === 1) {
-      return instances[0].metadata.color;
+      color = instances[0].metadata.color;
     }
-    return null;
+    if (isFinite(color)) {
+      return color;
+    }
+    return -1;
   }
 
   /**

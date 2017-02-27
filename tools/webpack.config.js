@@ -33,11 +33,11 @@ const GLOBALS = {
 
 //get list of node modules for webpack to avoid bundling on server
 const nodeModules = fs.readdirSync('node_modules')
-  .filter(x => ['.bin'].indexOf(x) === -1)
-  .reduce(
-    (acc, mod) => Object.assign(acc, { [mod]: true }),
-    {},
-  );
+.filter(x => ['.bin'].indexOf(x) === -1)
+.reduce(
+  (acc, mod) => Object.assign(acc, { [mod]: true }),
+  {},
+);
 
 //common configuration
 const config = {
@@ -77,6 +77,10 @@ const config = {
       {
         test: /\.jade$/,
         loader: 'jade-loader',
+      },
+      {
+        test: /\.svg/,
+        loader: 'svg-url-loader',
       },
     ],
   },

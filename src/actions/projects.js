@@ -342,10 +342,19 @@ export const projectOpen = (inputProjectId, skipSave = false) =>
       // future - clear the store of blocks from the old project.
       // need to consider blocks in the inventory - loaded projects, search results, shown in onion etc. Probably means committing to using the instanceMap for mapping state to props in inventory.
 
+      //provide a hook for things that want to listen
+      dispatch({
+        type: ActionTypes.PROJECT_BEFORE_OPEN,
+        projectId: currentProjectId,
+        nextProjectId: projectId,
+      });
+
       //projectPage will load the project + its blocks (if the user has access)
       //change the route
       //note - if we pass undefined / null its ok, project page will handle. don't send to project/ as currently not a valid route
       dispatch(push(`/project/${projectId}`));
+
+      //dispatch event after the project has been opened
       dispatch({
         type: ActionTypes.PROJECT_OPEN,
         projectId,
