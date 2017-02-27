@@ -47,12 +47,11 @@ export default class Backbone2D extends Node2D {
   getPreferredSize(str) {
     if (this.endCap) {
       return new Vector2D(kT.roleIcon + kT.textPad / 2, 0);
-    } else {
-      // measure actual text plus some padding
-      const roleWidth = this.roleName ? kT.roleIcon + kT.textPad : 0;
-      const size = this.measureText(str).add(new Vector2D(kT.textPad * 2 + roleWidth, 0));
-      size.x = Math.max(kT.minBlockWidth, size.x);
-      return size;
     }
+    // measure actual text plus some padding
+    const roleWidth = this.roleName ? kT.roleIcon + kT.textPad : 0;
+    const size = this.measureText(str).add(new Vector2D(kT.textPad * 2 + roleWidth, 0));
+    size.x = Math.max(kT.minBlockWidth, size.x);
+    return size;
   }
 }

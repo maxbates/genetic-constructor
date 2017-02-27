@@ -309,8 +309,6 @@ export default class Layout {
     return null;
   }
 
-
-
   /**
    * reverse mapping from anything with an 'uuid' property to a node
    * Looks into nested constructs as well.
