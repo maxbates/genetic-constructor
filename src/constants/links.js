@@ -25,5 +25,5 @@ export const BASE = readmeIO;
 export const TERMS_OF_SERVICE = '/tos.html';
 export const PRIVACY_POLICY = 'http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement';
 
-export const SHARING_CREATIVE_COMMONS_CC0 = readme('commons');
-export const SHARING_IN_PUBLIC_INVENTORY = readme('commons');
+export const SHARING_CREATIVE_COMMONS_CC0 = readme('publishing-to-the-commons');
+export const SHARING_IN_PUBLIC_INVENTORY = readme('publishing-to-the-commons');
