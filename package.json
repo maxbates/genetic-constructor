@@ -115,6 +115,7 @@
     "sha1": "^1.1.1",
     "source-map-support": "^0.4.0",
     "style-loader": "^0.13.0",
+    "svg-url-loader": "^2.0.2",
     "url-regex": "^3.0.0",
     "urlsafe-base64": "^1.0.0",
     "uuid": "^3.0.1",

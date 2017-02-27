@@ -47,8 +47,9 @@ import { projectGetVersion } from '../../selectors/projects';
 import * as instanceMap from '../../store/instanceMap';
 import { commit, redo, transact, undo } from '../../store/undo/actions';
 import { stringToShortcut } from '../../utils/ui/keyboard-translator';
-import '../../styles/GlobalNav.css';
 import { sortBlocksByIndexAndDepth, sortBlocksByIndexAndDepthExclude } from '../../utils/ui/uiapi';
+
+import '../../styles/GlobalNav.css';
 
 // sequence viewer extension name
 const sequenceViewerName = 'GC-Sequence-Viewer';
@@ -425,7 +426,6 @@ class GlobalNav extends Component {
         <RibbonGrunt />
         <div className="GlobalNav-logo">
           <img
-            src="/images/ui/main_logo.svg"
             role="presentation"
             onClick={this.togglePanels}
           />

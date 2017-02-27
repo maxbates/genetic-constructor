@@ -17,7 +17,6 @@ import React, { PropTypes } from 'react';
 import UserWidget from '../components/authentication/userwidget';
 import AutosaveTracking from '../components/GlobalNav/autosaveTracking';
 
-
 const InspectorRightNav = ({ currentProjectId, isVisible }) => {
   let autoSave;
   if (currentProjectId && isVisible) {

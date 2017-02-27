@@ -17,28 +17,8 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import DnD from '../containers/graphics/dnd/dnd';
 
+//note - Section Icons are defined in CSS, so they can be webpacked
 import '../styles/SectionIcon.css';
-
-
-// map section names to SVG URI
-const sectionNameToSVG = {
-  // inventory icons
-  Templates: '/images/ui/inventory_templates.svg',
-  Sketch: '/images/ui/inventory_sketch.svg',
-  Commons: '/images/ui/inventory_commons.svg',
-  Projects: '/images/ui/inventory_projects.svg',
-  Ncbi: '/images/ui/inventory_search_ncbi.svg',
-  Igem: '/images/ui/inventory_search_igem.svg',
-  Egf: '/images/ui/inventory_search_egf.svg',
-  // inspector icons
-  Information: '/images/ui/inspector_information.svg',
-  Settings: '/images/ui/inspector_settings.svg',
-  Extensions: '/images/ui/inspector_plugins.svg',
-  Help: '/images/ui/inspector_help.svg',
-  Orders: '/images/ui/inspector_orders.svg',
-  History: '/images/ui/inspector_history.svg',
-  Feedback: '/images/ui/inspector_feedback.svg',
-};
 
 export default class SectionIcon extends Component {
   static propTypes = {
@@ -75,6 +55,7 @@ export default class SectionIcon extends Component {
       });
     }
   }
+
   /**
    * unsink DND on unmount
    */
@@ -132,7 +113,6 @@ export default class SectionIcon extends Component {
     window.clearTimeout(this.timer);
   }
 
-
   render() {
     const highlight = this.props.selected;
     let containerClass = 'SectionIcon';
@@ -154,7 +134,10 @@ export default class SectionIcon extends Component {
         data-selected={this.props.selected}
         onClick={this.onClick}
       >
-        <img title={this.props.section} src={sectionNameToSVG[this.props.section]} />
+        <div
+          className={`SectionIcon-icon SectionIcon-${this.props.section}`}
+          title={this.props.section}
+        />
       </div>
     );
   }
