@@ -10,7 +10,7 @@
   color: var(--colors-nearlyBlack);
   background-color: var(--colors-white);
   border: solid 2px var(--colors-lightGrey);
-  transition: border-color var(--timing-fast) ease-out;
+  transition: border-color var(--timing-fast) ease-out, backgrond-color var(--timing-fast) ease-out;
 
   textarea& {
     padding: 0.5rem 0.75rem;

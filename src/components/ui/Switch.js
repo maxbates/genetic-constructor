@@ -26,8 +26,8 @@ export default function Switch(props) {
     }
   };
 
-  const switchClass = `slider-switch ${disabled ? 'slider-switch-disabled' : ''}`;
-  const nobClass = `slider-switch-nob ${on ? 'slider-switch-nob-on' : ''}`;
+  const switchClass = `Switch ${disabled ? 'Switch-disabled' : ''}`;
+  const nobClass = `Switch-nob ${on ? 'Switch-nob-on' : ''}`;
   return (
     <div
       className={switchClass}

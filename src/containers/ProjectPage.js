@@ -70,10 +70,12 @@ export class ProjectPage extends Component {
     // lazily fetch snapshots / commons snapshots
     if (this.props.projectId) {
       if (!this.props.projectFromCommons) {
-        this.props.snapshotsList(this.props.projectId);
+        this.props.snapshotsList(this.props.projectId)
+        .catch(err => {});
       }
 
-      this.props.commonsRetrieveProjectVersions(this.props.projectId);
+      this.props.commonsRetrieveProjectVersions(this.props.projectId)
+      .catch(err => {});
     }
 
     //load extensions (also see componentWillReceiveProps)

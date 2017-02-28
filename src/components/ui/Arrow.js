@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 
 import '../../styles/Arrow.css';
 
-export default class Switch extends Component {
+export default class Arrow extends Component {
   static propTypes = {
     // ['up', 'down', 'left', 'right']
     direction: PropTypes.string.isRequired,

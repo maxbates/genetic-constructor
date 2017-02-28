@@ -233,6 +233,8 @@ export class InspectorBlock extends Component {
     const isFrozen = (construct && construct.isFrozen()) || instances.some(inst => inst.isFrozen());
     const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
 
+    const cannotEdit = readOnly || isFrozen || isFixed;
+
     const inputKey = instances.map(inst => inst.id).join(',');
 
     const palette = getPaletteName(construct ? construct.metadata.palette || this.props.project.metadata.palette : null);
@@ -262,7 +264,7 @@ export class InspectorBlock extends Component {
           <InputSimple
             refKey={inputKey}
             placeholder={this.currentName(true) || 'Enter a name'}
-            readOnly={readOnly}
+            readOnly={cannotEdit}
             onChange={this.setBlockName}
             onFocus={this.startTransaction}
             onBlur={this.endTransaction}
@@ -277,7 +279,7 @@ export class InspectorBlock extends Component {
             refKey={`${inputKey}desc`}
             placeholder="Enter a description"
             useTextarea
-            readOnly={readOnly}
+            readOnly={cannotEdit}
             onChange={this.setBlockDescription}
             onFocus={this.startTransaction}
             onBlur={this.endTransaction}
@@ -314,7 +316,7 @@ export class InspectorBlock extends Component {
         {singleInstance && (
           <BlockAttribution
             block={instances[0]}
-            readOnly={readOnly || isFrozen}
+            readOnly={cannotEdit}
           />
         )}
 
@@ -334,7 +336,7 @@ export class InspectorBlock extends Component {
           <PalettePicker
             paletteName={palette}
             onSelectPalette={this.selectPalette}
-            readOnly={readOnly || isFrozen || isFixed}
+            readOnly={cannotEdit}
           />
         </InspectorRow>
 
@@ -345,7 +347,7 @@ export class InspectorBlock extends Component {
             <ColorPicker
               setText={this.setColorSymbolText}
               current={this.currentColor()}
-              readOnly={readOnly || isFrozen || isFixed}
+              readOnly={cannotEdit}
               paletteName={palette}
               onSelectColor={this.selectColor}
             />
@@ -354,7 +356,7 @@ export class InspectorBlock extends Component {
                 <SBOLPicker
                   setText={this.setColorSymbolText}
                   current={this.currentRoleSymbol()}
-                  readOnly={readOnly || isFrozen || isFixed}
+                  readOnly={cannotEdit}
                   onSelect={this.selectSymbol}
                 />
               ) :
@@ -368,7 +370,7 @@ export class InspectorBlock extends Component {
         >
           <TemplateRules
             block={instances[0]}
-            readOnly={isFrozen}
+            readOnly={cannotEdit}
             isConstruct={isParentBlock}
           />
         </InspectorRow>

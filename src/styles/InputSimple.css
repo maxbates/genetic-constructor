@@ -12,7 +12,7 @@
     font-size: 12px;
     color: var(--colors-nearlyBlack);
     border: solid 2px var(--colors-lightGrey);
-    transition: border-color var(--timing-fast) ease-out;
+    transition: border-color var(--timing-fast) ease-out, background-color var(--timing-fast) ease-out;
     background: var(--colors-white);
 
     &:focus {

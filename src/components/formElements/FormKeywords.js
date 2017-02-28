@@ -35,7 +35,7 @@ export default class FormKeywords extends Component {
 
   state = {
     keywordList: _.map(FormKeywords.keywordList, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
-    keywordListLoading: true,
+    keywordListLoading: Object.keys(FormKeywords.keywordList).length === 0,
   };
 
   componentDidMount() {
@@ -43,13 +43,8 @@ export default class FormKeywords extends Component {
     snapshotsListKeywords()
     .then((keywordsMap) => {
       Object.assign(FormKeywords.keywordList, keywordsMap);
-      console.log('resolved');
-      console.log(this.element);
-
       //hack - make sure still mounted
       if (this.element) {
-        console.log('setting state');
-
         this.setState({
           keywordList: _.map(FormKeywords.keywordList, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
           keywordListLoading: false,
