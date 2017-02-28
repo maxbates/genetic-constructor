@@ -430,12 +430,7 @@ class GlobalNav extends Component {
     return (
       <div className="GlobalNav">
         <RibbonGrunt />
-        <div className="GlobalNav-logo">
-          <img
-            role="presentation"
-            onClick={this.togglePanels}
-          />
-        </div>
+        <div className="GlobalNav-logo" onClick={this.togglePanels} />
         <div className="GlobalNav-appname">Genetic Constructor</div>
         <OkCancel />
       </div>

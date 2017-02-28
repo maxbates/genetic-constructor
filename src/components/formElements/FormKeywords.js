@@ -31,30 +31,27 @@ export default class FormKeywords extends Component {
     return { value: keyword, label: keyword };
   }
 
-  state = {
-    keywordListLoading: true,
-    keywordList: [],
-  };
+  static keywordList = [];
+  static keywordListLoading = true;
 
   componentDidMount() {
     //todo - this should be an action, so we don't call setState after unmounting
     snapshotsListKeywords()
     .then((keywordsMap) => {
+      FormKeywords.keywordList = _.unionBy(FormKeywords.keywordList, keywordsMap, (number, keyword) => FormKeywords.makeKeyword(keyword, number), 'value');
+      FormKeywords.keywordListLoading = false;
+
       //hack - make sure still mounted
       if (this.element) {
-        this.setState({
-          keywordList: _.map(keywordsMap, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
-          keywordListLoading: false,
-        });
+        this.forceUpdate();
       }
     });
   }
 
   render() {
     const { keywords, onChange, disabled } = this.props;
-    const { keywordList, keywordListLoading } = this.state;
 
-    const fullList = keywordList.concat(keywords.map(FormKeywords.makeKeyword));
+    const fullList = FormKeywords.keywordList.concat(keywords.map(FormKeywords.makeKeyword));
 
     const cleanInput = input => input.toLowerCase().trim().replace(',', '');
     const setKeywords = (values) => {
@@ -77,7 +74,7 @@ export default class FormKeywords extends Component {
         value={keywords}
         disabled={disabled}
         options={fullList}
-        isLoading={keywordListLoading}
+        isLoading={FormKeywords.keywordListLoading}
         valueRenderer={({ value }) => cleanInput(value)}
         optionRenderer={({ value }) => cleanInput(value)}
         newOptionCreator={newOptionCreator}

@@ -16,6 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import {
   focusPrioritize,
@@ -31,7 +32,6 @@ import {
 } from '../actions/projects';
 import {
   blockCreate,
-  blockRename,
 } from '../actions/blocks';
 import {
   inspectorToggleVisibility,
@@ -59,8 +59,9 @@ class ProjectHeader extends Component {
   static propTypes = {
     project: PropTypes.object.isRequired,
     readOnly: PropTypes.bool,
+    projectVersionIsPublished: PropTypes.bool.isRequired,
+    projectIsDirty: PropTypes.bool.isRequired,
     blockCreate: PropTypes.func.isRequired,
-    blockRename: PropTypes.func.isRequired,
     focus: PropTypes.object,
     focusConstruct: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
@@ -252,10 +253,10 @@ class ProjectHeader extends Component {
     } else {
       //load another project, avoiding this one
       this.props.projectLoad(null, false, [project.id])
-        //open the new project, skip saving the previous one
-        .then(rollup => this.props.projectOpen(rollup.project.id, true))
-        //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-        .then(() => this.props.projectDelete(project.id));
+      //open the new project, skip saving the previous one
+      .then(rollup => this.props.projectOpen(rollup.project.id, true))
+      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+      .then(() => this.props.projectDelete(project.id));
     }
   }
 
@@ -289,7 +290,7 @@ class ProjectHeader extends Component {
       }, {
         text: 'Share',
         imageURL: '/images/ui/share.svg',
-        enabled: !this.props.readOnly,
+        enabled: !this.props.readOnly && (!this.props.projectVersionIsPublished || this.props.projectIsDirty),
         onClick: this.onShareProject,
       }, {
         text: 'Delete Project',
@@ -354,13 +355,17 @@ function mapStateToProps(state, props) {
   return {
     focus: state.focus,
     isFocused: state.focus.level === 'project' && !state.focus.forceProject,
+    projectVersionIsPublished: _.some(state.commons.versions, {
+      projectId: props.project.id,
+      version: props.project.version,
+    }),
+    projectIsDirty: state.autosave.dirty,
     inventoryVisible: state.ui.inventory.isVisible,
   };
 }
 
 export default connect(mapStateToProps, {
   blockCreate,
-  blockRename,
   inspectorToggleVisibility,
   inventoryToggleVisibility,
   focusPrioritize,
