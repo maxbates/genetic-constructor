@@ -528,6 +528,29 @@ export default class Layout {
   }
 
   /**
+   * circular constructs have an end bar on
+   * the outer most construct
+   */
+  endBarFactory() {
+    if (this.constructViewer.isCircularConstruct() && this.rootLayout) {
+      if (!this.endBar) {
+        this.endBar = new Node2D(Object.assign({
+          sg: this.sceneGraph,
+        }, kT.verticalAppearance));
+        this.sceneGraph.root.appendChild(this.endBar);
+      }
+      this.endBar.set({
+        fill: this.baseColor,
+      });
+    } else {
+      if (this.endBar) {
+        this.endBar.parent.removeChild(this.endBar);
+        this.endBar = null;
+      }
+    }
+  }
+
+  /**
    * create or recycle a row on demand.
    */
   rowFactory(bounds) {
@@ -711,6 +734,9 @@ export default class Layout {
       components.push(Layout.backboneEndCapId);
     }
 
+    // end bar is used only to cap circular constructs
+    this.endBarFactory();
+
     // layout all non hidden blocks
     components.forEach((part) => {
       // create a row bar as necessary
@@ -719,9 +745,21 @@ export default class Layout {
       }
       // resize row bar to current row width
       const rowStart = this.insetX;
-      const rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      let rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      rowEnd += this.endBar ? 1 : 0;
       const rowWidth = rowEnd - rowStart;
       row.set({ translateX: rowStart + rowWidth / 2, width: rowWidth });
+
+      // update end bar as required
+      if (this.endBar) {
+        const height = kT.rowBarH + kT.blockH;
+        this.endBar.set({
+          translateX: rowEnd + kT.rowBarW / 2,
+          width: kT.rowBarW,
+          translateY: yp - kT.rowBarH + height / 2,
+          height,
+        });
+      }
 
       // create the node representing the part
       this.partFactory(part, kT.partAppearance);
@@ -777,7 +815,7 @@ export default class Layout {
       maxListHeight = Math.max(maxListHeight, listN * kT.optionH);
       invariant(isFinite(maxListHeight) && maxListHeight >= 0, 'expected a valid number');
 
-      // update part, including its text and color and with height to accomodate list items
+      // update part, including its text and color and with height to accommodate list items
       node.set({
         bounds: new Box2D(xp, yp, td.x, kT.blockH),
         text: name,
@@ -847,9 +885,21 @@ export default class Layout {
     // ensure final row has the final row width
     if (row) {
       const rowStart = this.insetX + 1;
-      const rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      let rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      rowEnd += this.endBar ? 1 : 0;
       const rowWidth = rowEnd - rowStart;
       row.set({ translateX: rowStart + rowWidth / 2, width: rowWidth });
+
+      // update end bar as required
+      if (this.endBar) {
+        const height = kT.rowBarH + kT.blockH;
+        this.endBar.set({
+          translateX: rowEnd + kT.rowBarW / 2,
+          width: kT.rowBarW,
+          translateY: yp - kT.rowBarH + height / 2,
+          height,
+        });
+      }
 
       // ensure all nested constructs on the row are updated for list block height
       if (nestedConstructs.length && maxListHeight > 0) {
@@ -886,7 +936,7 @@ export default class Layout {
 
     // position and size vertical bar
     const heightUsed = yp - startY + kT.blockH;
-    let barHeight = heightUsed - kT.blockH + kT.rowBarH;
+    let barHeight = Math.max(kT.rowBarH + kT.blockH, heightUsed - kT.blockH + kT.rowBarH);
     // if the height is small just make zero since its not needed
     if (barHeight <= kT.rowBarH) {
       barHeight = 0;
@@ -894,6 +944,7 @@ export default class Layout {
     this.vertical.set({
       bounds: new Box2D(this.insetX, startY - kT.rowBarH, kT.rowBarW, barHeight),
     });
+
     // filter the selections so that we eliminate those block we don't contain
     let selectedNodes = [];
     if (this.currentBlocks) {
