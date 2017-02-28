@@ -17,6 +17,7 @@ webapp:
     BNR_ENV_TAG: ${BNR_ENV_TAG}
     BNR_ENV_URL_SUFFIX: ${BNR_ENV_URL_SUFFIX}
     EMAIL: ${EMAIL}
+    VERBOSE_REQUEST_LOGS: ${VERBOSE_REQUEST_LOGS}
   command:
     npm run server-auth
   log_driver: json-file
