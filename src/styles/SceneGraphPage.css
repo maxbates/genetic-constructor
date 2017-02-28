@@ -93,7 +93,7 @@
 }
 
 .construct-viewer {
-  margin: 1rem 1rem 0 2rem;
+  margin: 0 1rem 0 2rem;
   width: calc(100% - 3rem);
   background: transparent;
   position: relative;
