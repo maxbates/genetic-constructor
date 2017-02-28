@@ -45,6 +45,7 @@ import {
   uiShowProjectDeleteModal,
   uiShowGenBankImport,
 } from '../actions/ui';
+import { transact, commit } from '../store/undo/actions';
 import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
 import TitleAndToolbar from '../components/toolbars/title-and-toolbar';
@@ -80,6 +81,8 @@ class ProjectHeader extends Component {
     projectRename: PropTypes.func.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
     uiShowGenBankImport: PropTypes.func.isRequired,
+    transact: PropTypes.func.isRequired,
+    commit: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -99,10 +102,11 @@ class ProjectHeader extends Component {
    * add new construct to project
    */
   onAddConstruct = () => {
-    const block = this.props.blockCreate({ projectId: this.props.project.id });
-    this.props.blockRename(block.id, 'New Construct');
+    this.props.transact();
+    const block = this.props.blockCreate({ metadata: { name: 'New Construct' }, projectId: this.props.project.id });
     this.props.projectAddConstruct(this.props.project.id, block.id, true);
     this.props.focusConstruct(block.id);
+    this.props.commit();
   };
 
   onItemActivated = (event) => {
@@ -375,4 +379,6 @@ export default connect(mapStateToProps, {
   uiShowPublishDialog,
   uiShowUnpublishDialog,
   uiShowProjectDeleteModal,
+  transact,
+  commit,
 })(ProjectHeader);

@@ -45,13 +45,14 @@ export const createRootReducer = () => {
   });
 
   //auto save (which annoyingly depends on undo manager transaction state for proper filtering)
-
-  const autosaveFilterFn = (action, alreadyDirty, nextState, lastState) => !!action.undoable && !undoReducerEnhancer.manager.inTransaction();
+  //filter on undoable actions (basically, the state changes we care about) and save UNLESS in a transaction
+  const autosaveFilterFn = (action, alreadyDirty, nextState, lastState) => !!action.undoable;
 
   const autosaveInstance = autosaveCreator({
     ...autosaveInstanceDefaultOptions,
-    //filter on undoable actions (basically, the state changes we care about) UNLESS in a transaction
     filter: autosaveFilterFn,
+    //do not want to allow when in the middle of a transaction
+    preventOn: () => undoReducerEnhancer.manager.inTransaction(),
   });
 
   const { autosaveReducer, autosaveReducerEnhancer } = autosaveInstance;
@@ -60,11 +61,14 @@ export const createRootReducer = () => {
 
   return freezeReducerEnhancer(combineReducers({
     router,
-    autosave: autosaveReducer,
 
     // autosave + undo
     blocks: autosaveReducerEnhancer(undoReducerEnhancer(blocks, 'blocks')),
     projects: autosaveReducerEnhancer(undoReducerEnhancer(projects, 'projects')),
+
+    //note - These are usually one step behind, since reducer enhancers need to run first
+    autosave: autosaveReducer,
+    undo: undoReducerEnhancer.manager.getUndoState.bind(undoReducerEnhancer.manager),
 
     //not autosaved or undoable
     commons,
@@ -78,9 +82,6 @@ export const createRootReducer = () => {
     inventory,
     inspector,
     ui,
-
-    //note - currently not always correct (one step behind if undo actions triggered adn not comptued yet... but ok by the time you hit context menu etc.
-    undo: undoReducerEnhancer.manager.getUndoState.bind(undoReducerEnhancer.manager),
   }));
 };
 
