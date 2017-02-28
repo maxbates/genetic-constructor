@@ -59,6 +59,7 @@ class ProjectHeader extends Component {
   static propTypes = {
     project: PropTypes.object.isRequired,
     readOnly: PropTypes.bool,
+    projectIsPublished: PropTypes.bool.isRequired,
     projectVersionIsPublished: PropTypes.bool.isRequired,
     projectIsDirty: PropTypes.bool.isRequired,
     blockCreate: PropTypes.func.isRequired,
@@ -225,18 +226,23 @@ class ProjectHeader extends Component {
         },
       },
       {
-        text: 'Upload Genbank or CSV',
+        text: 'Upload Genbank or CSV...',
         disabled: this.props.readOnly,
         action: this.upload,
       },
       {
+        text: 'Publish Project...',
+        disabled: this.props.readOnly || (this.props.projectVersionIsPublished && !this.props.projectIsDirty),
+        action: this.onShareProject,
+      },
+      {
         text: 'Unpublish Project',
-        disabled: this.props.readOnly,
+        disabled: this.props.readOnly || !this.props.projectIsPublished,
         action: this.onUnpublishProject,
       },
       {
-        text: 'Delete Project',
-        disabled: this.props.readOnly,
+        text: 'Delete Project...',
+        disabled: this.props.readOnly || this.props.projectIsPublished,
         action: this.onDeleteProject,
       },
     ],
@@ -295,7 +301,7 @@ class ProjectHeader extends Component {
       }, {
         text: 'Delete Project',
         imageURL: '/images/ui/delete.svg',
-        enabled: !this.props.readOnly,
+        enabled: !this.props.readOnly && !this.props.projectIsPublished,
         onClick: this.onDeleteProject,
       }, {
         text: 'More...',
@@ -325,6 +331,7 @@ class ProjectHeader extends Component {
       },
       {
         text: 'Delete Project',
+        disabled: this.props.projectIsPublished,
         action: this.onDeleteProject,
       },
     ].concat(GlobalNav.getSingleton().getEditMenuItems());
@@ -352,9 +359,13 @@ class ProjectHeader extends Component {
 }
 
 function mapStateToProps(state, props) {
+  //todo - speed up published checks
   return {
     focus: state.focus,
     isFocused: state.focus.level === 'project' && !state.focus.forceProject,
+    projectIsPublished: _.some(state.commons.versions, {
+      projectId: props.project.id,
+    }),
     projectVersionIsPublished: _.some(state.commons.versions, {
       projectId: props.project.id,
       version: props.project.version,

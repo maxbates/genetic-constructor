@@ -49,7 +49,6 @@ InspectorDetailSection.propTypes = {
 };
 
 InspectorDetailSection.defaultProps = {
-  items: [],
   headerGlyphs: [],
   indented: false,
   inline: false,

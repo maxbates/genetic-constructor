@@ -20,6 +20,7 @@ import { focusConstruct } from '../actions/focus';
 import { orderList } from '../actions/orders';
 import { projectLoad, projectOpen } from '../actions/projects';
 import { snapshotsList } from '../actions/snapshots';
+import { commonsRetrieveProjectVersions } from '../actions/commons';
 
 import ProjectDetail from '../components/ProjectDetail';
 import ProjectHeader from '../components/ProjectHeader';
@@ -47,11 +48,12 @@ export class ProjectPage extends Component {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object, //if have a project (not fetching)
     constructs: PropTypes.array, //if have a project (not fetching)
-    projectIsPublished: PropTypes.bool, //if have a project (not fetching) //eslint-disable-line
+    projectFromCommons: PropTypes.bool, //if have a project (not fetching) //eslint-disable-line
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     orderList: PropTypes.func.isRequired,
+    commonsRetrieveProjectVersions: PropTypes.func.isRequired,
     snapshotsList: PropTypes.func.isRequired,
     autosave: PropTypes.shape({
       dirty: PropTypes.bool.isRequired,
@@ -63,6 +65,17 @@ export class ProjectPage extends Component {
     // https://github.com/mjackson/history/blob/master/docs/ConfirmingNavigation.md
     window.onbeforeunload = window.onunload = this.onWindowUnload.bind(this);
 
+    // initial load handling
+
+    // lazily fetch snapshots / commons snapshots
+    if (this.props.projectId) {
+      if (!this.props.projectFromCommons) {
+        this.props.snapshotsList(this.props.projectId);
+      }
+
+      this.props.commonsRetrieveProjectVersions(this.props.projectId);
+    }
+
     //load extensions (also see componentWillReceiveProps)
     if (this.props.userId) {
       loadAllExtensions();
@@ -70,19 +83,23 @@ export class ProjectPage extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    //does not run on initial load
     if (!!nextProps.project && Array.isArray(nextProps.project.components) && (!this.props.projectId || nextProps.projectId !== this.props.projectId)) {
+
       //focus construct if there is one
       if (nextProps.project.components.length) {
         this.props.focusConstruct(nextProps.project.components[0]);
       }
 
       // if user owns the project...
-      // get all the projects orders + snapshots lazily, will re-render when have them
+      // get all the projects snapshots lazily, will re-render when have them
       // run in project page so only request them when we actually load the project
-      if (!nextProps.projectIsPublished) {
-        this.props.orderList(nextProps.projectId);
+      if (!nextProps.projectFromCommons) {
         this.props.snapshotsList(nextProps.projectId);
       }
+
+      //independent of whether owned or not, get all published versions so we can better handle publish / unpublish functionality enabled
+      this.props.commonsRetrieveProjectVersions(nextProps.projectId);
     }
 
     //if the user has changed... we reload the page, but just in case...
@@ -104,7 +121,7 @@ export class ProjectPage extends Component {
   }
 
   render() {
-    const { project, projectId, constructs, projectIsPublished } = this.props;
+    const { project, projectId, constructs, projectFromCommons } = this.props;
 
     //handle project not loaded at all
     if (!project || !project.metadata) {
@@ -141,7 +158,7 @@ export class ProjectPage extends Component {
 
           <ProjectHeader
             project={project}
-            readOnly={projectIsPublished}
+            readOnly={projectFromCommons}
           />
 
           <ConstructViewerCanvas
@@ -171,14 +188,14 @@ function mapStateToProps(state, ownProps) {
     };
   }
 
-  const projectIsPublished = project.owner !== userId;
+  const projectFromCommons = project.owner !== userId;
 
   const constructs = project.components.map(componentId => state.blocks[componentId]);
 
   return {
     projectId,
     project,
-    projectIsPublished,
+    projectFromCommons,
     constructs,
     userId,
     autosave,
@@ -190,5 +207,6 @@ export default connect(mapStateToProps, {
   projectOpen,
   focusConstruct,
   orderList,
+  commonsRetrieveProjectVersions,
   snapshotsList,
 })(ProjectPage);

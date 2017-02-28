@@ -29,9 +29,9 @@ import {
 import { uiShowPublishDialog, uiShowMenu } from '../../actions/ui';
 import Spinner from './../ui/Spinner';
 import Expando from './../ui/Expando';
-import InspectorDetailSection from './InspectorDetailSection';
+import InspectorDetailEditor from './InspectorDetailEditor';
 
-export class InspectorHistory extends Component {
+export class InspectorGroupHistory extends Component {
   static propTypes = {
     project: PropTypes.shape({
       id: PropTypes.string.isRequired,
@@ -49,7 +49,7 @@ export class InspectorHistory extends Component {
     blockStash: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectStash: PropTypes.func.isRequired,
-    uiShowPublishDialog: PropTypes.func.isRequired,
+    //uiShowPublishDialog: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
   };
 
@@ -84,8 +84,12 @@ export class InspectorHistory extends Component {
     }
   }
 
-  onEditSnapshot = (snapshot) => {
-    this.props.uiShowPublishDialog(true, snapshot.version);
+  //onEditSnapshot = (snapshot) => {
+  //  this.props.uiShowPublishDialog(true, snapshot.version);
+  //};
+
+  onSnapshotMessageEdit = (snapshot, newMessage) => {
+    this.props.commonsPublish(snapshot.projectId, snapshot.version, { message: newMessage });
   };
 
   onContextMenu = (snapshot, evt) => {
@@ -102,11 +106,11 @@ export class InspectorHistory extends Component {
           });
         },
       },
-      {
-        text: 'Edit...',
-        disabled: this.props.userId !== snapshot.owner,
-        action: () => this.onEditSnapshot(snapshot),
-      },
+      //{
+      //  text: 'Edit...',
+      //  disabled: this.props.userId !== snapshot.owner,
+      //  action: () => this.onEditSnapshot(snapshot),
+      //},
       {
         text: snapshot.isPublished() ? 'Unpublish...' : 'Publish Snapshot...',
         disabled: this.props.userId !== snapshot.owner,
@@ -170,18 +174,15 @@ export class InspectorHistory extends Component {
         {this.state.snapshots.map((snapshot) => {
           const time = snapshot.getTime();
           const name = snapshot.getNamedType();
-          const items = [{ key: 'Version Note', value: snapshot.message }];
-          // NB - should only be active if the projectId is the one in the canvas
-          const headerGlyphs = (this.props.userId !== this.props.project.owner) ? [] : [
-            <img
-              key="open"
-              role="presentation"
-              src="/images/ui/edit-dark.svg"
-              onClick={evt => this.onEditSnapshot(snapshot)}
-              className="InspectorDetailSection-headerGlyph"
-            />,
-          ];
-          const content = <InspectorDetailSection items={items} headerGlyphs={headerGlyphs} />;
+
+          const content = (
+            <InspectorDetailEditor
+              initialValue={snapshot.message}
+              onBlur={evt => this.onSnapshotMessageEdit(snapshot, evt.target.value)}
+              placeholder="Version Note"
+            />
+          );
+
           const widgets = snapshot.isPublished() ?
             [(<img src="/images/ui/commonsVersion.svg" role="presentation" key={snapshot.snapshotUUID} />)] :
             [];
@@ -218,4 +219,4 @@ export default connect((state, props) => ({
   projectStash,
   uiShowPublishDialog,
   uiShowMenu,
-})(InspectorHistory);
+})(InspectorGroupHistory);

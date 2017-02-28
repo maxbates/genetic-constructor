@@ -1,0 +1,11 @@
+@import "variables.css";
+
+.InspectorDetailEditor {
+  padding: 0;
+
+  .FormText {
+    background-color: transparent;
+    border: 0;
+    padding: var(--SidePanel-width-padding-content);
+  }
+}

@@ -398,6 +398,10 @@ export const projectDelete = projectId =>
       if (resp.status === 404) {
         return null;
       }
+      if (resp.status === 405) {
+        dispatch(uiSetGrunt('The project cannot be deleted because it is shared in the Public inventory.'));
+        return Promise.reject(resp);
+      }
       dispatch(undoActions.abort());
       dispatch(uiSetGrunt('There was a problem deleting your project. Please try again.'));
       return Promise.reject(resp);

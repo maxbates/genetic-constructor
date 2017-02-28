@@ -30,6 +30,7 @@ class DeleteProjectModal extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object.isRequired,
+    snapshots: PropTypes.object.isRequired,
     open: PropTypes.bool,
     snapshotsList: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
@@ -47,17 +48,26 @@ class DeleteProjectModal extends Component {
     .then((snapshots) => {
       this.setState({
         loading: false,
-        isPublished: _.some(snapshots, Snapshot.isPublished),
       });
     })
     .catch((err) => {
-      console.error(err);
-      //todo - handle
+      this.setState({
+        loading: false,
+      });
     });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.snapshots !== nextProps.snapshots) {
+      this.setState({
+        isPublished: _.some(nextProps.snapshots, Snapshot.isPublished),
+      });
+    }
   }
 
   actions = [{
     text: 'Delete',
+    disabled: this.state.loading,
     onClick: () => {
       if (this.state.isPublished) {
         this.props.uiShowProjectDeleteModal(false);
@@ -93,6 +103,7 @@ class DeleteProjectModal extends Component {
 }
 
 export default connect((state, props) => ({
+  snapshots: state.snapshots,
   open: state.ui.modals.projectDeleteDialog,
   project: state.projects[props.projectId],
 }), {

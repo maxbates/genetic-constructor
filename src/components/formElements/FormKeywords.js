@@ -31,19 +31,29 @@ export default class FormKeywords extends Component {
     return { value: keyword, label: keyword };
   }
 
-  static keywordList = [];
-  static keywordListLoading = true;
+  static keywordList = {};
+
+  state = {
+    keywordList: _.map(FormKeywords.keywordList, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
+    keywordListLoading: true,
+  };
 
   componentDidMount() {
     //todo - this should be an action, so we don't call setState after unmounting
     snapshotsListKeywords()
     .then((keywordsMap) => {
-      FormKeywords.keywordList = _.unionBy(FormKeywords.keywordList, keywordsMap, (number, keyword) => FormKeywords.makeKeyword(keyword, number), 'value');
-      FormKeywords.keywordListLoading = false;
+      Object.assign(FormKeywords.keywordList, keywordsMap);
+      console.log('resolved');
+      console.log(this.element);
 
       //hack - make sure still mounted
       if (this.element) {
-        this.forceUpdate();
+        console.log('setting state');
+
+        this.setState({
+          keywordList: _.map(FormKeywords.keywordList, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
+          keywordListLoading: false,
+        });
       }
     });
   }
@@ -51,7 +61,7 @@ export default class FormKeywords extends Component {
   render() {
     const { keywords, onChange, disabled } = this.props;
 
-    const fullList = FormKeywords.keywordList.concat(keywords.map(FormKeywords.makeKeyword));
+    const fullList = this.state.keywordList.concat(keywords.map(FormKeywords.makeKeyword));
 
     const cleanInput = input => input.toLowerCase().trim().replace(',', '');
     const setKeywords = (values) => {
@@ -68,13 +78,13 @@ export default class FormKeywords extends Component {
 
     return (
       <FormSelect
-        ref={el => this.element = el}
+        ref={(el) => { this.element = el; }}
         name="keywords"
         multi
         value={keywords}
         disabled={disabled}
         options={fullList}
-        isLoading={FormKeywords.keywordListLoading}
+        isLoading={this.state.keywordListLoading}
         valueRenderer={({ value }) => cleanInput(value)}
         optionRenderer={({ value }) => cleanInput(value)}
         newOptionCreator={newOptionCreator}
