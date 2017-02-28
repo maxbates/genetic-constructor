@@ -174,17 +174,12 @@ function mapStateToProps(state, ownProps) {
   const projectIsPublished = project.owner !== userId;
 
   const constructs = project.components.map(componentId => state.blocks[componentId]);
-  const orders = Object.keys(state.orders)
-  .map(orderId => state.orders[orderId])
-  .filter(order => order.projectId === projectId && order.isSubmitted())
-  .sort((one, two) => one.status.timeSent - two.status.timeSent);
 
   return {
     projectId,
     project,
     projectIsPublished,
     constructs,
-    orders,
     userId,
     autosave,
   };

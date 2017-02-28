@@ -78,6 +78,9 @@ export const createRootReducer = () => {
     inventory,
     inspector,
     ui,
+
+    //note - currently not always correct (one step behind if undo actions triggered adn not comptued yet... but ok by the time you hit context menu etc.
+    undo: undoReducerEnhancer.manager.getUndoState.bind(undoReducerEnhancer.manager),
   }));
 };
 
