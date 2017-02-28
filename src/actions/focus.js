@@ -64,7 +64,7 @@ export const focusConstruct = inputConstructId => (dispatch, getState) => {
  * @param {Array.<UUID>} blockIds
  * @returns {Array.<UUID>} focused block IDs
  */
-export const focusBlocks = blockIds => (dispatch, getState) => {
+export const focusBlocks = (blockIds, constructId) => (dispatch, getState) => {
   invariant(Array.isArray(blockIds), 'must pass array to focus blocks');
   invariant(blockIds.every(block => idValidator(block)), 'must pass array of block IDs');
   const focusedConstructId = getState().focus.constructId;
@@ -77,14 +77,17 @@ export const focusBlocks = blockIds => (dispatch, getState) => {
 
   if (blockIds.length) {
     const firstBlockId = blockIds[0];
-    const construct = dispatch(BlockSelector.blockGetParentRoot(firstBlockId));
+    let cid = constructId;
+    if (!cid) {
+      const construct = dispatch(BlockSelector.blockGetParentRoot(firstBlockId));
       // null => no parent => construct (or detached)... undefined could be soething else
       //const constructId = !!construct ? construct.id : (construct !== null ? firstBlockId : undefined);
-    const constructId = construct ? construct.id : null;
-    if (constructId !== focusedConstructId || constructId === firstBlockId) {
+      cid = construct ? construct.id : null;
+    }
+    if (cid !== focusedConstructId || cid === firstBlockId) {
       dispatch({
         type: ActionTypes.FOCUS_CONSTRUCT,
-        constructId,
+        cid,
       });
     }
   }
