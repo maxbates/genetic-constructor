@@ -85,7 +85,7 @@ export const snapshotsList = projectId =>
 export const snapshotRetrieve = (projectId, version) =>
   (dispatch, getState) =>
     snapshots.snapshotGet(projectId, version)
-    .then(rawSnapshot => {
+    .then((rawSnapshot) => {
       const snapshot = new Snapshot(rawSnapshot);
 
       dispatch({

@@ -41,7 +41,7 @@ import {
   inspectorToggleVisibility,
   uiSetGrunt,
   uiShowMenu,
-  uiShowOkCancel,
+  uiShowProjectDeleteModal,
 } from '../../actions/ui';
 import { block as blockDragType } from '../../constants/DragTypes';
 import DnD from '../../containers/graphics/dnd/dnd';
@@ -84,7 +84,7 @@ export class InventoryProjectTree extends Component {
     commit: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
-    uiShowOkCancel: PropTypes.func.isRequired,
+    uiShowProjectDeleteModal: PropTypes.func.isRequired,
   };
 
   /**
@@ -202,19 +202,7 @@ export class InventoryProjectTree extends Component {
    * @param project
    */
   onDeleteProject = (project) => {
-    this.props.uiShowOkCancel(
-      'Delete Project',
-      `${project.getName() || 'Your project'}\nand all related project data will be permanently deleted.\nThis action cannot be undone.`,
-      () => {
-        this.props.uiShowOkCancel();
-        this.deleteProject(project);
-      },
-      () => {
-        this.props.uiShowOkCancel();
-      },
-      'Delete Project',
-      'Cancel',
-    );
+    this.props.uiShowProjectDeleteModal(true, project.id);
   };
 
   /**
@@ -444,6 +432,6 @@ export default connect(mapStateToProps, {
   transact,
   commit,
   uiShowMenu,
-  uiShowOkCancel,
+  uiShowProjectDeleteModal,
   uiSetGrunt,
 })(InventoryProjectTree);

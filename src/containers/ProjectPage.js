@@ -17,7 +17,6 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { focusConstruct } from '../actions/focus';
-import { orderList } from '../actions/orders';
 import { projectLoad, projectOpen } from '../actions/projects';
 import { snapshotsList } from '../actions/snapshots';
 import { commonsRetrieveProjectVersions } from '../actions/commons';
@@ -52,7 +51,6 @@ export class ProjectPage extends Component {
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
-    orderList: PropTypes.func.isRequired,
     commonsRetrieveProjectVersions: PropTypes.func.isRequired,
     snapshotsList: PropTypes.func.isRequired,
     autosave: PropTypes.shape({
@@ -71,11 +69,11 @@ export class ProjectPage extends Component {
     if (this.props.projectId) {
       if (!this.props.projectFromCommons) {
         this.props.snapshotsList(this.props.projectId)
-        .catch(err => {});
+        .catch((err) => {});
       }
 
       this.props.commonsRetrieveProjectVersions(this.props.projectId)
-      .catch(err => {});
+      .catch((err) => {});
     }
 
     //load extensions (also see componentWillReceiveProps)
@@ -87,7 +85,6 @@ export class ProjectPage extends Component {
   componentWillReceiveProps(nextProps) {
     //does not run on initial load
     if (!!nextProps.project && Array.isArray(nextProps.project.components) && (!this.props.projectId || nextProps.projectId !== this.props.projectId)) {
-
       //focus construct if there is one
       if (nextProps.project.components.length) {
         this.props.focusConstruct(nextProps.project.components[0]);
@@ -98,12 +95,12 @@ export class ProjectPage extends Component {
       // run in project page so only request them when we actually load the project
       if (!nextProps.projectFromCommons) {
         this.props.snapshotsList(nextProps.projectId)
-        .catch(err => {});
+        .catch((err) => {});
       }
 
       //independent of whether owned or not, get all published versions so we can better handle publish / unpublish functionality enabled
       this.props.commonsRetrieveProjectVersions(nextProps.projectId)
-        .catch(err => {});
+        .catch((err) => {});
     }
 
     //if the user has changed... we reload the page, but just in case...
@@ -152,7 +149,7 @@ export class ProjectPage extends Component {
         <ImportPartsCSVModal />
         <SaveErrorModal />
         <OrderModal projectId={projectId} />
-        <DeleteProjectModal projectId={projectId} />
+        <DeleteProjectModal currentProjectId={projectId} />
         <PublishModal projectId={projectId} />
         <UnpublishModal projectId={projectId} />
 
@@ -210,7 +207,6 @@ export default connect(mapStateToProps, {
   projectLoad,
   projectOpen,
   focusConstruct,
-  orderList,
   commonsRetrieveProjectVersions,
   snapshotsList,
 })(ProjectPage);

@@ -30,7 +30,6 @@ const dispatchResize = (after = 300) => {
   window.setTimeout(() => {
     window.dispatchEvent(new Event('resize'));
   }, 300);
-
 };
 
 /**
@@ -217,6 +216,7 @@ export const uiShowMenu = (menuItems, menuPosition, menuHat) => (dispatch, getSt
   return { menuItems, menuPosition };
 };
 
+/*
 export const uiShowOkCancel = (title, message, onOk, onCancel = null, okText = 'Ok', cancelText = 'Cancel') => (dispatch, getState) => {
   dispatch({
     type: ActionTypes.UI_OK_CANCEL,
@@ -229,6 +229,7 @@ export const uiShowOkCancel = (title, message, onOk, onCancel = null, okText = '
   });
   return title;
 };
+*/
 
 export const uiSpin = (spinMessage = '') => (dispatch, getState) => {
   dispatch({
@@ -286,11 +287,12 @@ export const uiShowUnpublishDialog = (forceState, unpublishDialogVersion) => (di
   return nextState;
 };
 
-export const uiShowProjectDeleteModal = forceState => (dispatch, getState) => {
+export const uiShowProjectDeleteModal = (forceState, projectDeleteForceProjectId = null) => (dispatch, getState) => {
   const nextState = forceState === undefined ? !getState().ui.modals.projectDeleteDialog : forceState;
   dispatch({
     type: ActionTypes.UI_SHOW_PROJECT_DELETE_DIALOG,
     projectDeleteDialog: nextState,
+    projectDeleteForceProjectId,
   });
   return nextState;
 };

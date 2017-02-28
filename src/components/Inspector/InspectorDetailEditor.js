@@ -58,7 +58,7 @@ export default class InspectorDetailEditor extends Component {
   };
 
   render() {
-    const { value, title, initialValue, onChange, onBlur, ...rest } = this.props;
+    const { value, title, initialValue, onChange, onBlur, ...rest } = this.props; //eslint-disable-line no-unused-vars
 
     const inputValue = typeof value === 'string' ? value : this.state.value;
 

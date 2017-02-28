@@ -278,6 +278,7 @@ export default class Rollup {
 
   //todo
   //given a block Id, generate a flat list of blocks without hierarchy or list blocks
+  //eslint-disable-next-line class-methods-use-this
   flattenConstruct(blockId, optionMap) {
     invariant(false, 'todo');
   }

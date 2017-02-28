@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { omitBy, keyBy, map, some } from 'lodash';
+import { omitBy, keyBy, some } from 'lodash';
 import invariant from 'invariant';
 
 import * as ActionTypes from '../constants/ActionTypes';

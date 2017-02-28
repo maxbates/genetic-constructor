@@ -14,7 +14,6 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import ReactDOM from 'react-dom';
 
 import MouseTrap from '../../containers/graphics/mousetrap';
 import InlineToolbar from './inline-toolbar';
@@ -82,7 +81,7 @@ export default class TitleAndToolbar extends Component {
       <div
         className="title-and-toolbar"
         onClick={this.props.onClickBackground}
-        ref={el => this.element = el}
+        ref={(el) => { this.element = el; }}
       >
         <div
           className="title"

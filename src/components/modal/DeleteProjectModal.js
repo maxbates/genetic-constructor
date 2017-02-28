@@ -29,6 +29,7 @@ import ModalFooter from './ModalFooter';
 class DeleteProjectModal extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
+    currentProjectId: PropTypes.string.isRequired, //eslint-disable-line react/no-unused-prop-types
     project: PropTypes.object.isRequired,
     snapshots: PropTypes.object.isRequired,
     open: PropTypes.bool,
@@ -42,7 +43,7 @@ class DeleteProjectModal extends Component {
     super(props);
 
     this.state = {
-      isPublished: _.some(props.snapshots, Snapshot.isPublished)
+      isPublished: _.some(props.snapshots, Snapshot.isPublished),
     };
   }
 
@@ -95,11 +96,15 @@ class DeleteProjectModal extends Component {
   }
 }
 
-export default connect((state, props) => ({
-  snapshots: state.snapshots,
-  open: state.ui.modals.projectDeleteDialog,
-  project: state.projects[props.projectId],
-}), {
+export default connect((state, props) => {
+  const projectId = state.ui.modals.projectDeleteForceProjectId || props.currentProjectId;
+  return {
+    projectId,
+    snapshots: state.snapshots,
+    open: state.ui.modals.projectDeleteDialog,
+    project: state.projects[projectId],
+  };
+}, {
   projectDelete,
   snapshotsList,
   uiSetGrunt,

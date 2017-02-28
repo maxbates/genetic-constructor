@@ -58,7 +58,7 @@ export class BlockAttribution extends Component {
     this.updateAttribution();
   };
 
-  setTextStateFromProps = props => {
+  setTextStateFromProps = (props) => {
     const lastAttribution = props.block.attribution[props.block.attribution.length - 1];
     const userOwnsLastAttribution = lastAttribution && lastAttribution.owner === props.userId;
 

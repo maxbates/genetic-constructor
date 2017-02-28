@@ -22,9 +22,10 @@ import ModalFooter from '../modal/ModalFooter';
 
 /**
  * generic ok/cancel dialog, available via uiShowOkCancel action
+ * todo - need to update the action + expected functions + sane defaults to close if functions not present
  */
 export function OkCancel(props) {
-  const { title, message, okText, onOk, onCancel, cancelText } = props;
+  const { title, message, okText, onOk, onCancel } = props;
 
   if (!title) {
     return null;
@@ -72,9 +73,8 @@ OkCancel.propTypes = {
   title: PropTypes.string,
   message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   okText: PropTypes.string,
-  cancelText: PropTypes.string,
-  onOk: PropTypes.func,
-  onCancel: PropTypes.func,
+  onOk: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state, props) {

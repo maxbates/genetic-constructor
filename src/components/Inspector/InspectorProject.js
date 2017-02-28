@@ -27,7 +27,6 @@ import InputSimple from './../InputSimple';
 import FormKeywords from '../formElements/FormKeywords';
 import InspectorRow from './InspectorRow';
 import OrderList from './OrderList';
-import Expando from './../ui/Expando';
 import PalettePicker from './../ui/PalettePicker';
 import { getLocal } from '../../utils/localstorage';
 

@@ -130,7 +130,7 @@ router.get('/current-user', (req, res) => {
 });
 
 router.post('/find', (req, res) => {
-  const { uuid } = req.body;
+  //const { uuid } = req.body;
   return res.status(200).send(defaultUser);
 });
 

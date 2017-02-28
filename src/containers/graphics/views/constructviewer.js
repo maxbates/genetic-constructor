@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { some, debounce } from 'lodash';
+import { debounce } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
