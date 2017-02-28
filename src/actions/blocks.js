@@ -30,9 +30,6 @@ import { pauseAction, resumeAction } from '../store/pausableStore';
 import * as undoActions from '../store/undo/actions';
 import wrapPausedTransaction from './_wrapPausedTransaction';
 
-//todo - helper to wrap dispatch()'s in a paused transaction - make sure dispatch still runs when passed as arg
-//todo - helper _getBlock() which throws of block doesnt exist
-
 //hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
 const spaceFiller = 10; //eslint-disable-line no-unused-vars
 
@@ -47,7 +44,7 @@ const _getBlock = (state, blockId) => {
 //can use instead of _getBlock to assert existence and ownership
 //include detached applies to blocks not in projects and projects without owners
 //todo - support multiple blocks
-const _assertUserOwnsBlock = (state, options, blockId,) => {
+const _assertUserOwnsBlock = (state, blockId, options) => {
   const { includeDetached } = Object.assign({ includeDetached: false }, options);
 
   const block = _getBlock(state, blockId);
@@ -73,6 +70,8 @@ const _assertUserOwnsBlock = (state, options, blockId,) => {
   invariant(owner === userId, `[assertUserOwnsBlock] ${blockId} - user does not own project ${projectId} (owner: ${owner})`);
   return true;
 };
+
+const _assertBlockNotFixed = block => invariant(!block.isFixed(), 'cannot mutate fixed block');
 
 const classifyBlockIfNeeded = input => (input instanceof Block) ? input : new Block(input);
 
@@ -306,6 +305,7 @@ export const blockSetProject = (blockId, projectId, deep = true) => (dispatch, g
  */
 export const blockRename = (blockId, name) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
 
   if (oldBlock.metadata.name === name) {
     return oldBlock;
@@ -329,6 +329,7 @@ export const blockRename = (blockId, name) => (dispatch, getState) => {
  */
 export const blockSetDescription = (blockId, description) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
 
   if (oldBlock.metadata.description === description) {
     return oldBlock;
@@ -352,6 +353,7 @@ export const blockSetDescription = (blockId, description) => (dispatch, getState
  */
 export const blockSetColor = (blockId, color) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
 
   if (oldBlock.metadata.color === color) {
     return oldBlock;
@@ -375,6 +377,8 @@ export const blockSetColor = (blockId, color) => (dispatch, getState) => {
  */
 export const blockSetRole = (blockId, role) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
+
   const oldRole = oldBlock.rules.role;
 
   if (oldRole === role) {
@@ -393,6 +397,7 @@ export const blockSetRole = (blockId, role) => (dispatch, getState) => {
 
 export const blockSetPalette = (blockId, palette) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
 
   //not construct if detached, or if not in project components
   const project = getState().projects[oldBlock.projectId];
@@ -428,6 +433,8 @@ export const blockSetPalette = (blockId, palette) => (dispatch, getState) => {
 export const blockAttribute = (blockId, text) =>
   (dispatch, getState) => {
     const oldBlock = _getBlock(getState(), blockId);
+    _assertBlockNotFixed(oldBlock);
+
     const userId = getState().user.userid;
 
     const attribution = text === null ?
@@ -474,7 +481,8 @@ export const blockFreeze = (blockId, recursive = true) => (dispatch, getState) =
 //todo - doc
 export const blockSetFixed = (blockId, isFixed = true) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
-  invariant(dispatch(selectors.blockIsTopLevelConstruct(blockId)), 'construct must be direct child of project');
+  _assertUserOwnsBlock(getState(), blockId);
+  //invariant(dispatch(selectors.blockIsTopLevelConstruct(blockId)), 'construct must be direct child of project');
 
   const block = oldBlock.setFixed(isFixed);
   dispatch({
@@ -489,6 +497,7 @@ export const blockSetFixed = (blockId, isFixed = true) => (dispatch, getState) =
 //todo - doc
 export const blockSetHidden = (blockId, isHidden = true) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
 
   const block = oldBlock.setHidden(isHidden);
   dispatch({
@@ -503,6 +512,8 @@ export const blockSetHidden = (blockId, isHidden = true) => (dispatch, getState)
 //todo - doc
 export const blockSetListBlock = (blockId, isList = true) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
+
   const block = oldBlock.setListBlock(isList);
   dispatch({
     type: ActionTypes.BLOCK_SET_LIST,
@@ -560,8 +571,9 @@ export const blockLoad = (blockId, inputProjectId, withContents = true, skipIfCo
  */
 export const blockRemoveComponent = (constructId, ...componentIds) => (dispatch, getState) => {
   const oldBlock = getState().blocks[constructId];
-  const block = componentIds.reduce((acc, currentId) => acc.removeComponent(currentId), oldBlock);
+  _assertBlockNotFixed(oldBlock);
 
+  const block = componentIds.reduce((acc, currentId) => acc.removeComponent(currentId), oldBlock);
   dispatch({
     type: ActionTypes.BLOCK_COMPONENT_REMOVE,
     undoable: true,
@@ -584,6 +596,8 @@ export const blockRemoveComponent = (constructId, ...componentIds) => (dispatch,
 export const blockAddComponent = (blockId, componentId, index = -1, forceProjectId = true) => (dispatch, getState) => {
   const oldParent = dispatch(selectors.blockGetParents(componentId)).shift();
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
+
   const component = getState().blocks[componentId];
 
   invariant(!component.isTemplate(), 'cannot add a template as a component');
@@ -640,6 +654,9 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
  */
 export const blockAddComponents = (blockId, componentIds, index, forceProjectId = true) =>
   (dispatch, getState) => {
+    const oldBlock = _getBlock(getState(), blockId);
+    _assertBlockNotFixed(oldBlock);
+
     dispatch(pauseAction());
     dispatch(undoActions.transact());
 
@@ -668,6 +685,8 @@ export const blockAddComponents = (blockId, componentIds, index, forceProjectId 
  */
 export const blockMoveComponent = (blockId, componentId, newIndex) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
+
   const block = oldBlock.moveComponent(componentId, newIndex);
   dispatch({
     type: ActionTypes.BLOCK_COMPONENT_MOVE,
@@ -685,6 +704,8 @@ export const blockMoveComponent = (blockId, componentId, newIndex) => (dispatch,
 export const blockOptionsAdd = (blockId, ...optionIds) => (dispatch, getState) => {
   const state = getState();
   const oldBlock = state.blocks[blockId];
+  _assertBlockNotFixed(oldBlock);
+
   const block = oldBlock.addOptions(...optionIds);
   const options = optionIds.map(optionId => state.blocks[optionId]);
   const targetProjectId = block.projectId;
@@ -731,8 +752,9 @@ export const blockOptionsAdd = (blockId, ...optionIds) => (dispatch, getState) =
 //todo - doc
 export const blockOptionsRemove = (blockId, ...optionIds) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
-  const block = oldBlock.removeOptions(...optionIds);
+  _assertBlockNotFixed(oldBlock);
 
+  const block = oldBlock.removeOptions(...optionIds);
   dispatch({
     type: ActionTypes.BLOCK_OPTION_REMOVE,
     undoable: true,
@@ -750,8 +772,8 @@ export const blockOptionsRemove = (blockId, ...optionIds) => (dispatch, getState
  */
 export const blockOptionsToggle = (blockId, ...optionIds) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
-  const block = oldBlock.toggleOptions(...optionIds);
 
+  const block = oldBlock.toggleOptions(...optionIds);
   dispatch({
     type: ActionTypes.BLOCK_OPTION_TOGGLE,
     undoable: true,
@@ -773,6 +795,8 @@ export const blockOptionsToggle = (blockId, ...optionIds) => (dispatch, getState
  */
 export const blockAnnotate = (blockId, annotation) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
+
   const block = oldBlock.annotate(annotation);
   dispatch({
     type: ActionTypes.BLOCK_ANNOTATE,
@@ -791,6 +815,8 @@ export const blockAnnotate = (blockId, annotation) => (dispatch, getState) => {
  */
 export const blockRemoveAnnotation = (blockId, annotation) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
+
   const block = oldBlock.removeAnnotation(annotation);
   dispatch({
     type: ActionTypes.BLOCK_REMOVE_ANNOTATION,
@@ -826,6 +852,8 @@ export const blockGetSequence = blockId => (dispatch, getState) => {
 export const blockSetSequence = (blockId, sequence, useStrict) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
 
+  _assertBlockNotFixed(oldBlock);
+
   return oldBlock.setSequence(sequence, useStrict)
   .then((block) => {
     dispatch({
@@ -847,8 +875,9 @@ export const blockSetSequence = (blockId, sequence, useStrict) => (dispatch, get
  */
 export const blockTrimSequence = (blockId, start = 0, end = 0) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
-  const block = oldBlock.setSequenceTrim(start, end);
+  _assertBlockNotFixed(oldBlock);
 
+  const block = oldBlock.setSequenceTrim(start, end);
   dispatch({
     type: ActionTypes.BLOCK_SET_TRIM,
     undoable: true,

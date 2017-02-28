@@ -38,6 +38,7 @@ export default class InspectorGroup extends Component {
         return (<InspectorGroupInformation
           project={this.props.project}
           construct={this.props.construct}
+          projectIsPublished={this.props.projectIsPublished}
         />);
       case 'help' :
         return (<InspectorGroupHelp />);

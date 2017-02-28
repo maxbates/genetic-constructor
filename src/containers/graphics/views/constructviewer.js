@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import debounce from 'lodash.debounce';
+import { some, debounce } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
@@ -367,8 +367,12 @@ export class ConstructViewer extends Component {
   blockCanHaveChildren(blockId) {
     const block = this.props.blocks[blockId];
     invariant(block, 'expected to get a block');
-    // list blocks cannot have children
-    return !block.isList() && !block.isHidden();
+
+    if (block.isList() || block.isHidden() || block.isFixed()) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -618,9 +622,10 @@ export class ConstructViewer extends Component {
   }
 
   lockIcon() {
-    if (!this.props.construct.isFrozen()) {
+    if (!this.props.construct.isFrozen() && !this.props.construct.isFixed()) {
       return null;
     }
+
     const isFocused = this.props.construct.id === this.props.focus.constructId;
     const classes = `lockIcon${isFocused ? '' : ' sceneGraph-dark'}`;
     return (

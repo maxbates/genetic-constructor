@@ -24,7 +24,6 @@ import {
   blockSetRole,
   blockSetFixed,
 } from '../../actions/blocks';
-import { blockGetParents } from '../../selectors/blocks';
 import Block from '../../models/Block';
 import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
@@ -56,11 +55,11 @@ export class InspectorBlock extends Component {
       role: PropTypes.string,
     }).isRequired,
     project: PropTypes.object.isRequired,
+    projectIsPublished: PropTypes.bool.isRequired,
     forceIsConstruct: PropTypes.bool,
     blockSetColor: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
-    blockGetParents: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
     blockSetDescription: PropTypes.func.isRequired,
     blockSetFixed: PropTypes.func.isRequired,
@@ -224,7 +223,7 @@ export class InspectorBlock extends Component {
   }
 
   render() {
-    const { instances, construct, readOnly } = this.props;
+    const { instances, construct, readOnly, projectIsPublished } = this.props;
     const singleInstance = instances.length === 1;
     const isConstruct = this.isConstruct();
 
@@ -233,7 +232,7 @@ export class InspectorBlock extends Component {
     const isFrozen = (construct && construct.isFrozen()) || instances.some(inst => inst.isFrozen());
     const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
 
-    const cannotEdit = readOnly || isFrozen || isFixed;
+    const cannotEdit = readOnly || isFrozen || isFixed || projectIsPublished;
 
     const inputKey = instances.map(inst => inst.id).join(',');
 
@@ -303,15 +302,15 @@ export class InspectorBlock extends Component {
           <p><strong>{this.currentSequenceLength()}</strong></p>
         </InspectorRow>
 
-        {(singleInstance && isParentBlock) && (
-          <InspectorRow
-            heading="Protected"
-            glyphUrl="/images/ui/lock.svg"
-            hasSwitch
-            onToggle={state => this.props.blockSetFixed(instances[0].id, state)}
-            forceActive={isFixed}
-          />
-        )}
+        <InspectorRow
+          heading="Protected"
+          condition={isConstruct}
+          glyphUrl="/images/ui/lock.svg"
+          hasSwitch
+          switchDisabled={readOnly || isFrozen || projectIsPublished}
+          onToggle={state => this.props.blockSetFixed(instances[0].id, state)}
+          forceActive={isFixed}
+        />
 
         {singleInstance && (
           <BlockAttribution
@@ -411,7 +410,6 @@ export default connect(null, {
   blockSetColor,
   blockSetPalette,
   blockSetRole,
-  blockGetParents,
   blockRename,
   blockSetDescription,
   blockSetFixed,
