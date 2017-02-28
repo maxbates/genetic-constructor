@@ -95,11 +95,13 @@ export class ProjectPage extends Component {
       // get all the projects snapshots lazily, will re-render when have them
       // run in project page so only request them when we actually load the project
       if (!nextProps.projectFromCommons) {
-        this.props.snapshotsList(nextProps.projectId);
+        this.props.snapshotsList(nextProps.projectId)
+        .catch(err => {});
       }
 
       //independent of whether owned or not, get all published versions so we can better handle publish / unpublish functionality enabled
-      this.props.commonsRetrieveProjectVersions(nextProps.projectId);
+      this.props.commonsRetrieveProjectVersions(nextProps.projectId)
+        .catch(err => {});
     }
 
     //if the user has changed... we reload the page, but just in case...

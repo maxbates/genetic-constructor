@@ -30,7 +30,7 @@ export class TemplateRules extends Component {
   static propTypes = {
     block: PropTypes.object.isRequired,
     readOnly: PropTypes.bool.isRequired,
-    isConstruct: PropTypes.bool.isRequired,
+    isConstruct: PropTypes.bool.isRequired, //this refers to parent block, not top-level
     blockSetListBlock: PropTypes.func.isRequired,
     blockSetHidden: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,

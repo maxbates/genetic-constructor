@@ -22,6 +22,13 @@ import '../../styles/InspectorDetailEditor.css';
 
 //editor that can pure render, or handle state internally and trigger a onblur event
 export default class InspectorDetailEditor extends Component {
+  static propTypes = {
+    value: PropTypes.string,
+    initialValue: PropTypes.string,
+    onChange: PropTypes.func,
+    onBlur: PropTypes.func,
+    title: PropTypes.string,
+  };
 
   constructor(props) {
     super(props);
@@ -70,11 +77,3 @@ export default class InspectorDetailEditor extends Component {
     );
   }
 }
-
-InspectorDetailEditor.propTypes = {
-  value: PropTypes.string,
-  initialValue: PropTypes.string,
-  onChange: PropTypes.func,
-  onBlur: PropTypes.func,
-  title: PropTypes.string,
-};

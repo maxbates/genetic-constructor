@@ -125,6 +125,11 @@ export class InspectorBlock extends Component {
     this.props.commit();
   };
 
+  isConstruct() {
+    const { project, instances, forceIsConstruct } = this.props;
+    return forceIsConstruct === true || (instances.length === 1 && project && project.components.indexOf(instances[0].id) >= 0);
+  }
+
   /**
    * color of selected instance or null if multiple blocks selected
    */
@@ -162,7 +167,7 @@ export class InspectorBlock extends Component {
    */
   currentName(useGetName = true) {
     if (this.props.instances.length === 1) {
-      const defaultName = this.props.forceIsConstruct ? 'New Construct' : null;
+      const defaultName = this.isConstruct() ? 'New Construct' : null;
       return useGetName ? this.props.instances[0].getName(defaultName) : this.props.instances[0].metadata.name;
     }
     return '';
@@ -219,20 +224,20 @@ export class InspectorBlock extends Component {
   }
 
   render() {
-    const { instances, construct, readOnly, forceIsConstruct } = this.props;
+    const { instances, construct, readOnly } = this.props;
     const singleInstance = instances.length === 1;
+    const isConstruct = this.isConstruct();
 
     const isParentBlock = singleInstance && instances[0].isConstruct();
     const isList = singleInstance && instances[0].isList();
     const isFrozen = (construct && construct.isFrozen()) || instances.some(inst => inst.isFrozen());
     const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
-    const isTopLevel = singleInstance && !this.props.blockGetParents(instances[0].id).length <= 0;
 
     const inputKey = instances.map(inst => inst.id).join(',');
 
     const palette = getPaletteName(construct ? construct.metadata.palette || this.props.project.metadata.palette : null);
 
-    const defaultType = forceIsConstruct ? 'Construct' : 'Block';
+    const defaultType = isConstruct ? 'Construct' : 'Block';
     const type = singleInstance ? instances[0].getType(defaultType) : 'Blocks';
 
     const currentSourceElement = this.currentSource();
@@ -324,7 +329,7 @@ export class InspectorBlock extends Component {
         <InspectorRow
           heading={colorPaletteText}
           hasToggle
-          condition={isTopLevel}
+          condition={isConstruct}
         >
           <PalettePicker
             paletteName={palette}
@@ -344,7 +349,7 @@ export class InspectorBlock extends Component {
               paletteName={palette}
               onSelectColor={this.selectColor}
             />
-            {(singleInstance && !isTopLevel) ?
+            {(singleInstance && !isConstruct) ?
               (
                 <SBOLPicker
                   setText={this.setColorSymbolText}
@@ -359,7 +364,7 @@ export class InspectorBlock extends Component {
 
         <InspectorRow
           heading={`${type} Rules`}
-          condition={singleInstance && !isTopLevel}
+          condition={singleInstance && !isConstruct}
         >
           <TemplateRules
             block={instances[0]}

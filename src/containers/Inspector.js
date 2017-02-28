@@ -172,11 +172,6 @@ function mapStateToProps(state, props) {
   const forceIsConstruct = (level === 'construct') ||
     blockIds.some(blockId => currentProject.components.indexOf(blockId) >= 0);
 
-  const orders = Object.keys(state.orders)
-  .map(orderId => state.orders[orderId])
-  .filter(order => order.projectId === currentProject.id && order.isSubmitted())
-  .sort((one, two) => one.status.timeSent - two.status.timeSent);
-
   const projectIsPublished = currentProject.owner !== state.user.userid;
 
   return {
@@ -190,7 +185,6 @@ function mapStateToProps(state, props) {
     construct: currentConstruct,
     projectIsPublished,
     focused,
-    orders,
     overrides,
   };
 }
