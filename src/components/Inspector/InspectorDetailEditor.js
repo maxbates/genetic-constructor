@@ -50,15 +50,17 @@ export default class InspectorDetailEditor extends Component {
   };
 
   render() {
-    const { value, initialValue, onChange, onBlur, ...rest } = this.props;
+    const { value, title, initialValue, onChange, onBlur, ...rest } = this.props;
 
     const inputValue = typeof value === 'string' ? value : this.state.value;
 
     return (
       <div className="InspectorDetailSection InspectorDetailEditor">
+        {!!title && <div className="InspectorDetailEditor-title">{title}</div>}
         <FormText
           useTextarea
           rows="4"
+          transparent
           {...rest}
           value={inputValue}
           onChange={this.onChange}
@@ -74,4 +76,5 @@ InspectorDetailEditor.propTypes = {
   initialValue: PropTypes.string,
   onChange: PropTypes.func,
   onBlur: PropTypes.func,
+  title: PropTypes.string,
 };

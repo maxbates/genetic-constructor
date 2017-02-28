@@ -17,6 +17,11 @@
     vertical-align: top;
   }
 
+  &.transparent {
+    border-color: transparent !important;
+    background-color: transparent !important;
+  }
+
   &:focus {
     border-color: var(--colors-slightlyDarkGrey);
   }

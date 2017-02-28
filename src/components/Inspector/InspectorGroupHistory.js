@@ -179,7 +179,7 @@ export class InspectorGroupHistory extends Component {
             <InspectorDetailEditor
               initialValue={snapshot.message}
               onBlur={evt => this.onSnapshotMessageEdit(snapshot, evt.target.value)}
-              placeholder="Version Note"
+              title="Version Note"
             />
           );
 

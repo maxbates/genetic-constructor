@@ -3,6 +3,11 @@
 .InspectorDetailEditor {
   padding: 0;
 
+  &-title {
+    padding: 0.5rem var(--SidePanel-width-padding-content) 0;
+    color: var(--colors-grey);
+  }
+
   .FormText {
     background-color: transparent;
     border: 0;
