@@ -124,7 +124,7 @@ class ConstructPreview extends Component {
   /**
    * because we also pretent to be a construct viewer.
    */
-  isCircularConstruct() {
+  isCircularConstruct() { //eslint-disable-line class-methods-use-this
     return false;
   }
 
