@@ -12,5 +12,6 @@
     background-color: transparent;
     border: 0;
     padding: var(--SidePanel-width-padding-content);
+    margin: 0;
   }
 }

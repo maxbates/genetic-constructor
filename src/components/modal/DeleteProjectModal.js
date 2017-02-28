@@ -38,23 +38,16 @@ class DeleteProjectModal extends Component {
     uiShowProjectDeleteModal: PropTypes.func.isRequired,
   }
 
-  state = {
-    loading: true,
-    isPublished: true,
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isPublished: _.some(props.snapshots, Snapshot.isPublished)
+    };
+  }
 
   componentDidMount() {
-    this.props.snapshotsList(this.props.projectId)
-    .then((snapshots) => {
-      this.setState({
-        loading: false,
-      });
-    })
-    .catch((err) => {
-      this.setState({
-        loading: false,
-      });
-    });
+    this.props.snapshotsList(this.props.projectId);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -67,7 +60,6 @@ class DeleteProjectModal extends Component {
 
   actions = [{
     text: 'Delete',
-    disabled: this.state.loading,
     onClick: () => {
       if (this.state.isPublished) {
         this.props.uiShowProjectDeleteModal(false);
@@ -92,7 +84,8 @@ class DeleteProjectModal extends Component {
         title={'Delete Project'}
       >
         <div className="DeleteProjectModal Modal-paddedContent" style={{ textAlign: 'center' }}>
-          <p><b>{this.props.project.getName() || 'Your project'}</b> and all related project data will be permanently deleted.</p>
+          <p><b>{this.props.project.getName() || 'Your project'}</b> and all related project data will be permanently
+            deleted.</p>
           <br />
           <p>This action cannot be undone.</p>
         </div>

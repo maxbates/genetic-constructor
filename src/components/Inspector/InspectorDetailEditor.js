@@ -28,6 +28,7 @@ export default class InspectorDetailEditor extends Component {
     onChange: PropTypes.func,
     onBlur: PropTypes.func,
     title: PropTypes.string,
+    disabled: PropTypes.bool,
   };
 
   constructor(props) {
@@ -64,9 +65,21 @@ export default class InspectorDetailEditor extends Component {
     return (
       <div className="InspectorDetailSection InspectorDetailEditor">
         {!!title && <div className="InspectorDetailEditor-title">{title}</div>}
+
+        {this.props.disabled !== true && (
+          <div className="InspectorDetailSection-headerGlyphs">
+            <img
+              key="open"
+              role="presentation"
+              src="/images/ui/edit-dark.svg"
+              className="InspectorDetailSection-headerGlyph"
+            />
+          </div>
+        )}
+
         <FormText
           useTextarea
-          rows="4"
+          rows="2"
           transparent
           {...rest}
           value={inputValue}

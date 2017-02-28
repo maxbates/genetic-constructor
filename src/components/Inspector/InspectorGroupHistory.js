@@ -175,10 +175,13 @@ export class InspectorGroupHistory extends Component {
           const time = snapshot.getTime();
           const name = snapshot.getNamedType();
 
+          const disabled = this.props.userId !== this.props.project.owner;
+
           const content = (
             <InspectorDetailEditor
               initialValue={snapshot.message}
               onBlur={evt => this.onSnapshotMessageEdit(snapshot, evt.target.value)}
+              disabled={disabled}
               title="Version Note"
             />
           );

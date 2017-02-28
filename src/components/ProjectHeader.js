@@ -242,7 +242,7 @@ class ProjectHeader extends Component {
       },
       {
         text: 'Delete Project...',
-        disabled: this.props.readOnly || this.props.projectIsPublished,
+        disabled: this.props.readOnly,
         action: this.onDeleteProject,
       },
     ],

@@ -79,7 +79,7 @@ export default class FormKeywords extends Component {
         value={keywords}
         disabled={disabled}
         options={fullList}
-        isLoading={this.state.keywordListLoading}
+        isLoading={this.state.keywordListLoading && false}
         valueRenderer={({ value }) => cleanInput(value)}
         optionRenderer={({ value }) => cleanInput(value)}
         newOptionCreator={newOptionCreator}

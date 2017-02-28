@@ -143,8 +143,20 @@ export const commonsUnpublish = (projectId, version) =>
     invariant(project.owner === userId, 'must be owner to unpublish');
 
     return commons.commonsUnpublish(projectId, version)
-    .then((rawSnapshot) => {
-      const snapshot = new Snapshot(rawSnapshot);
+    .then((rawResult) => {
+      //if no version passed, get array of updated snapshots
+      if (Array.isArray(rawResult)) {
+        const snapshots = rawResult.map(rawSnapshot => new Snapshot(rawSnapshot));
+        dispatch({
+          type: ActionTypes.COMMONS_UNPUBLISH,
+          projectId,
+          snapshots,
+          version: null,
+        });
+        return snapshots;
+      }
+
+      const snapshot = new Snapshot(rawResult);
       dispatch({
         type: ActionTypes.COMMONS_UNPUBLISH,
         snapshot,
