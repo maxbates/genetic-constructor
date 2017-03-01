@@ -252,6 +252,7 @@ export class InventoryGroupCommons extends Component {
           key="open"
           role="presentation"
           src="/images/ui/open.svg"
+          data-testid={`commonsopen/${snapshot.projectId}`}
           onClick={evt => this.onOpenCommonsProject(snapshot, evt)}
           className="label-hover-bright"
         />,

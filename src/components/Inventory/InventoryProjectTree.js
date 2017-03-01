@@ -387,6 +387,7 @@ export class InventoryProjectTree extends Component {
         <img
           key="open"
           role="presentation"
+          data-testid={`projectOpen/${project.id}`}
           src="/images/ui/open.svg"
           onClick={evt => this.onOpenProject(project, evt)}
           className="label-hover-bright"

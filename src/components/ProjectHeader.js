@@ -345,7 +345,10 @@ class ProjectHeader extends Component {
   render() {
     const { project } = this.props;
     return (
-      <div className="ProjectHeader">
+      <div
+        className="ProjectHeader"
+        data-testid={`ProjectHeader/${project.id}`}
+      >
         <TitleAndToolbar
           onClick={this.onClick}
           onClickBackground={this.onFocusInspector}
@@ -357,7 +360,8 @@ class ProjectHeader extends Component {
           color="#DFE2EC"
           onContextMenu={position => this.showProjectContextMenu(position)}
         />
-      </div>);
+      </div>
+    );
   }
 }
 

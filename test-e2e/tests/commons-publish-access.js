@@ -16,6 +16,7 @@
 
 var uuid = require('uuid');
 var invariant = require('invariant');
+var _ = require('lodash');
 
 var homepageRegister = require('../fixtures/homepage-register');
 var size = require('../fixtures/size');
@@ -23,7 +24,10 @@ var testProject = require('../fixtures/testproject');
 var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var projectSetMetadata = require('../fixtures/project-set-metadata');
 var publishProject = require('../fixtures/publish-given-project');
+var getProjectRollup = require('../fixtures/get-project-rollup');
 var signout = require('../fixtures/signout');
+var rightClickAt = require('../fixtures/rightClickAt');
+var clickContextMenu = require('../fixtures/click-popmenu-nth-item.js');
 
 module.exports = {
   'Test publishing a project to the commons': function (browser) {
@@ -33,12 +37,13 @@ module.exports = {
       testProject(browser);
       projectSetMetadata(browser, {}, function (browser, publishedProject) {
         publishProject(browser, publishedProject, function (browser) {
+
           //now, sign in as new user and access it
           signout(browser);
           homepageRegister(browser, function (browser, accessorCredentials) {
             invariant(accessorCredentials.email !== publisherCredentials.email, 'should have new email');
 
-            openInventoryPanel('Commons');
+            openInventoryPanel(browser, 'Commons');
 
             var treeSelector = '.tree [data-testid="' + publishedProject.owner + '"]';
             var projectSelector = '.tree [data-testid="' + publishedProject.owner + '/' + publishedProject.id + '"]';
@@ -47,12 +52,24 @@ module.exports = {
             .waitForElementPresent('.InventoryGroupCommons', 5000, 'commons should appear')
             .waitForElementPresent(treeSelector, 5000, 'users list of commons projects should appear')
             .click(treeSelector)
-            .waitForElementPresent(projectSelector, 5000, 'published project should appear')
+            .waitForElementPresent(projectSelector, 5000, 'published project should appear');
 
-            // todo - look at it, make sure it is locked
+            rightClickAt(browser, projectSelector, 100, 15);
+            clickContextMenu(browser, 1)
 
-            // todo - drag one into project
+            browser
+            .waitForElementPresent('[data-testid="ProjectHeader/' + publishedProject.id + '"]', 5000, 'expected to open project')
+            .assert.countelements('.construct-viewer', publishedProject.components.length)
+            .assert.countelements('.construct-viewer .lockIcon', publishedProject.components.length);
 
+            getProjectRollup(browser, function (browser, rollup) {
+              invariant(rollup.project.rules.frozen, 'project should be frozen');
+              invariant(_.every(rollup.blocks, block => block.rules.frozen), 'all blocks should be frozen');
+
+              browser.end();
+
+              // todo (future) - drag one into project
+            });
           });
         });
       });
