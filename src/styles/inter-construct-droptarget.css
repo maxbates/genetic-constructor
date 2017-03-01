@@ -3,9 +3,9 @@
 .inter-construct-drop-target {
   box-sizing: border-box;
   height: 10px;
-  width: calc(100% - 3rem);
+  width: calc(100% - 2rem);
   border-top: 10px solid transparent;
-  margin: 1rem 1rem 0 2rem;
+  margin: 1rem 1rem 0 1rem;
 
   &:last-child {
     height: 400px;
