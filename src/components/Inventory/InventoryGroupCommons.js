@@ -40,6 +40,7 @@ export class InventoryGroupCommons extends Component {
       projects: PropTypes.object.isRequired,
       versions: PropTypes.object.isRequired,
     }).isRequired,
+    projects: PropTypes.object.isRequired,
     focus: PropTypes.object.isRequired,
     blockStash: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
@@ -142,7 +143,8 @@ export class InventoryGroupCommons extends Component {
 
   //only allow looking at constructs
   getCommonsProjectBlocks = (projectId) => {
-    const roll = this.props.commons.projects[projectId];
+    //need to check projects section as well, in case the user owns the project and its already loaded
+    const roll = this.props.commons.projects[projectId] || this.props.projects[projectId];
     if (!roll) {
       // don't fetch here, fetch on expand only
       return [];
@@ -178,7 +180,7 @@ export class InventoryGroupCommons extends Component {
   retrieveProject(snapshot) {
     const { owner, projectId } = snapshot;
 
-    const roll = this.props.commons.projects[projectId];
+    const roll = this.props.commons.projects[projectId] || this.props.projects[projectId];
     if (roll) {
       return Promise.resolve(roll);
     }
@@ -196,7 +198,7 @@ export class InventoryGroupCommons extends Component {
   }
 
   //need to stash project + blocks, since the commons is stored separately from projects and blocks
-  //todo - perf = only store the blocks we need. Rollup should have method for getting this
+  //todo - perf = only store the blocks we need. Rollup has a method for getting this
   stashProject(roll, force = false) {
     // assume that once in the store, we're good
     // if force, note that will overwrite the user's project to the locked one
@@ -243,6 +245,7 @@ export class InventoryGroupCommons extends Component {
       selected: currentProjectId === snapshot.projectId,
       selectedAlt: focus.forceProject && snapshot.projectId === focus.forceProject.id,
       onClick: isOpen => this.onClickSnapshot(snapshot, isOpen),
+      onExpand: () => this.retrieveProject(snapshot),
       onContextMenu: evt => this.onSnapshotContextMenu(snapshot, evt),
       // startDrag: globalPoint => InventoryGroupCommons.onCommonsProjectDrag(snapshot, globalPoint),
       items: this.getCommonsProjectBlocks(snapshot.projectId),
@@ -308,6 +311,7 @@ export class InventoryGroupCommons extends Component {
 export default connect((state, props) => ({
   userId: state.user.userid,
   commons: state.commons,
+  projects: state.commons,
   focus: state.focus,
 }), {
   blockStash,
