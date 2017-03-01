@@ -725,7 +725,7 @@ export default class Layout {
     let rowIndex = 0;
 
     // display only non hidden blocks
-    const components = this.showHidden ? ct.components : ct.components.filter(blockId => !this.blockIsHidden(blockId));
+    const components = this.showHidden ? [...ct.components] : ct.components.filter(blockId => !this.blockIsHidden(blockId));
 
     if (this.constructViewer.isCircularConstruct() && this.rootLayout) {
       // put a reference to the first component ( the backbone block ) into block hash
