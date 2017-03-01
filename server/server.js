@@ -19,7 +19,6 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import express from 'express';
-import morgan from 'morgan';
 
 import colors from 'colors/safe';
 
@@ -34,6 +33,7 @@ import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
 import { pruneUserObject } from './user/utils';
 import checkPortFree from './utils/checkPortFree';
+import logger from './utils/logConfig';
 import customErrorMiddleware from './errors/customErrorMiddleware';
 import lastDitchErrorMiddleware from './errors/lastDitchErrorMiddleware';
 
@@ -65,19 +65,7 @@ app.use(bodyParser.json({
 }));
 
 //HTTP logging middleware
-const logLevel = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
-app.use(morgan(logLevel, {
-  skip: (req, res) => {
-    if (req.path.indexOf('browser-sync') >= 0 || req.path.indexOf('__webpack') >= 0) {
-      return true;
-    }
-    //skip logging in test environment, unless DEBUG is set
-    if (process.env.NODE_ENV === 'test' && !process.env.DEBUG) {
-      return true;
-    }
-    return false;
-  },
-}));
+app.use(logger);
 
 // view engine setup
 app.set('views', pathContent);
