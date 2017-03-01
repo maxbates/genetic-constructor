@@ -21,11 +21,15 @@ import partList from './partList.json';
 const parts = _.groupBy(partList, 'metadata.egfPosition');
 
 _.forEach(partList, (part) => {
+  part.rules.fixed = true; // add rule fixed
+
   Object.assign(parts, { [part.metadata.name.toLowerCase()]: part });
   Object.assign(parts, { [part.metadata.shortName.toLowerCase()]: part });
 });
 
 const connectors = _.reduce(connectorList, (acc, conn) => {
+  conn.rules.fixed = true; // add rule fixed
+
   return Object.assign(acc, {
     [conn.metadata.egfPosition]: conn,
     [conn.metadata.name.toUpperCase()]: conn,

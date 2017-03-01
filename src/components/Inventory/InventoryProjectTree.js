@@ -19,6 +19,7 @@ import _ from 'lodash';
 
 import { blockCreate } from '../../actions/blocks';
 import {
+  focusPrioritize,
   focusConstruct,
   focusForceBlocks,
   focusForceProject,
@@ -30,7 +31,6 @@ import {
 import {
   projectAddConstruct,
   projectCreate,
-  projectDelete,
   projectList,
   projectLoad,
   projectOpen,
@@ -39,7 +39,6 @@ import {
 import {
   inspectorSelectTab,
   inspectorToggleVisibility,
-  uiSetGrunt,
   uiShowMenu,
   uiShowProjectDeleteModal,
 } from '../../actions/ui';
@@ -70,10 +69,10 @@ export class InventoryProjectTree extends Component {
     projectList: PropTypes.func.isRequired,
     projectCreate: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
-    projectDelete: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
+    focusPrioritize: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
@@ -83,7 +82,6 @@ export class InventoryProjectTree extends Component {
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
-    uiSetGrunt: PropTypes.func.isRequired,
     uiShowProjectDeleteModal: PropTypes.func.isRequired,
   };
 
@@ -128,10 +126,23 @@ export class InventoryProjectTree extends Component {
    * when a project is expanded, we need to load to get the blocks and also inspect it
    * @param projectId
    */
-  onExpandProject(project, item) {
-    this.props.projectLoad(project.id)
+  onClickProject(project, item) {
+    const loadedProject = this.props.projects[project.id];
+    const projectLoaded = project.id === this.props.currentProjectId ||
+      ( loadedProject && loadedProject.components && loadedProject.components.every(componentId => this.props.blocks[componentId]));
+
+    const promise = (projectLoaded) ?
+      Promise.resolve() :
+      this.props.projectLoad(project.id);
+
+    promise
     .then(() => {
-      this.props.focusForceProject(project);
+      if (project.id === this.props.currentProjectId) {
+        this.props.focusPrioritize('project');
+      } else {
+        this.props.focusForceProject(project);
+      }
+
       this.props.inspectorToggleVisibility(true);
       this.props.inspectorSelectTab('Information');
     });
@@ -159,7 +170,7 @@ export class InventoryProjectTree extends Component {
 
   /**
    * when a project is opened ( from the open widget in the tree expandos )
-   * @param projectId
+   * @param project
    */
   onOpenProject = (project, evt) => {
     if (evt) {
@@ -174,6 +185,7 @@ export class InventoryProjectTree extends Component {
 
   /**
    * create a new project and navigate to it.
+   * //todo - share with DeleteProjectModal better
    */
   onNewProject = () => {
     // create project and add a default construct
@@ -325,38 +337,6 @@ export class InventoryProjectTree extends Component {
     .value();
   };
 
-  /**
-   * perform the actual deletion.
-   */
-  deleteProject(project) {
-    if (project.rules.frozen) {
-      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
-      return;
-    }
-
-    //NB - assumes that loaded projects already available in the list
-    //just use the projects we have already listed, and if there are none or there is a problem, then explicitly load from server
-    const nextProject = _.find(this.getSortedProjectManifests(), manifest => manifest.id !== project.id);
-
-    //create an empty project if none available
-    if (!nextProject) {
-      const datNewNew = this.onNewProject();
-      //force save, so that they have an empty project next time they load
-      return this.props.projectSave(datNewNew.id, true)
-      //delete in the background and hope it works, showing banner if it doesnt
-      //wait until after save, so we can be sure they have a project
-      .then(() => this.props.projectDelete(project.id));
-    }
-
-    //to further optimize, could just skip the loading, so that projectPage handles it itself (need to update that component to handle)
-
-    //load another project and open before deleting, or project page will complain about project not being loaded
-    return this.props.projectLoad(nextProject.id, false, [project.id])
-    .then(() => this.props.projectOpen(nextProject.id, true))
-    //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-    .then(() => this.props.projectDelete(project.id));
-  }
-
   render() {
     const { currentProjectId, focus } = this.props;
     const { isLoading } = this.state;
@@ -373,7 +353,7 @@ export class InventoryProjectTree extends Component {
       bold: true,
       selected: project.id === currentProjectId,
       selectedAlt: focus.forceProject && project.id === focus.forceProject.id,
-      onExpand: () => this.onExpandProject(project),
+      onClick: () => this.onClickProject(project),
       onContextMenu: (evt) => {
         this.onProjectContextMenu(project, evt);
       },
@@ -416,9 +396,9 @@ export default connect(mapStateToProps, {
   projectAddConstruct,
   projectSave,
   projectOpen,
-  projectDelete,
   projectList,
   projectLoad,
+  focusPrioritize,
   focusConstruct,
   focusForceProject,
   focusForceBlocks,
@@ -429,5 +409,4 @@ export default connect(mapStateToProps, {
   commit,
   uiShowMenu,
   uiShowProjectDeleteModal,
-  uiSetGrunt,
 })(InventoryProjectTree);

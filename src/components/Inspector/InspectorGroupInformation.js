@@ -23,7 +23,7 @@ import InspectorProject from './InspectorProject';
 import InspectorRole from './InspectorRole';
 
 function InspectorGroupInformation(props) {
-  const { focused, orders, overrides, type, readOnly, forceIsConstruct, project, construct, projectIsPublished } = props;
+  const { focused, orders, overrides, type, readOnly, forceIsConstruct, project, construct, userOwnsProject } = props;
 
   // inspect instances, or construct if no instance or project if no construct or instances
   let inspect;
@@ -35,8 +35,8 @@ function InspectorGroupInformation(props) {
       inspect = (<InspectorProject
         instance={focused}
         orders={orders}
-        readOnly={readOnly || projectIsPublished}
-        projectIsPublished={projectIsPublished}
+        readOnly={readOnly}
+        userOwnsProject={userOwnsProject}
       />);
       break;
     case 'construct':
@@ -48,7 +48,7 @@ function InspectorGroupInformation(props) {
         project={project}
         construct={construct}
         forceIsConstruct={forceIsConstruct}
-        projectIsPublished={projectIsPublished}
+        userOwnsProject={userOwnsProject}
       />);
       break;
   }
@@ -59,7 +59,7 @@ function InspectorGroupInformation(props) {
 InspectorGroupInformation.propTypes = {
   readOnly: PropTypes.bool,
   forceIsConstruct: PropTypes.bool.isRequired,
-  projectIsPublished: PropTypes.bool.isRequired,
+  userOwnsProject: PropTypes.bool.isRequired,
   type: PropTypes.string.isRequired,
   focused: PropTypes.any.isRequired,
   orders: PropTypes.array.isRequired,

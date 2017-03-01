@@ -31,7 +31,7 @@ class InspectorGroupOrders extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object.isRequired,
-    projectIsPublished: PropTypes.bool.isRequired,
+    userOwnsProject: PropTypes.bool.isRequired,
     orders: PropTypes.object.isRequired,
     orderList: PropTypes.func.isRequired,
     uiShowOrderForm: PropTypes.func.isRequired,
@@ -45,7 +45,7 @@ class InspectorGroupOrders extends Component {
   componentDidMount() {
     this.setOrders(this.props.orders, this.props.projectId);
 
-    if (!this.props.projectIsPublished) {
+    if (this.props.userOwnsProject) {
       //might have already fetched them, but lets double check fetch again
       this.props.orderList(this.props.projectId)
       .then(() => {
@@ -82,7 +82,7 @@ class InspectorGroupOrders extends Component {
     //default, no orders
     let content = (<div className="InspectorContentPlaceholder">No orders found</div>);
 
-    if (this.props.projectIsPublished) {
+    if (!this.props.userOwnsProject) {
       content = (<div className="InspectorContentPlaceholder">Cannot view orders of a published project</div>);
     } else if (orders.length) {
       content = orders.map((order, index) => {

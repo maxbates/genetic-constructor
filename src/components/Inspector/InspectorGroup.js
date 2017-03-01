@@ -27,7 +27,7 @@ import InspectorGroupSettings from './InspectorGroupSettings';
 export default class InspectorGroup extends Component {
   static propTypes = {
     tabInfo: PropTypes.object.isRequired,
-    projectIsPublished: PropTypes.bool.isRequired,
+    userOwnsProject: PropTypes.bool.isRequired,
     project: PropTypes.object,
     construct: PropTypes.object,
   };
@@ -38,7 +38,7 @@ export default class InspectorGroup extends Component {
         return (<InspectorGroupInformation
           project={this.props.project}
           construct={this.props.construct}
-          projectIsPublished={this.props.projectIsPublished}
+          userOwnsProject={this.props.userOwnsProject}
         />);
       case 'help' :
         return (<InspectorGroupHelp />);
@@ -50,13 +50,13 @@ export default class InspectorGroup extends Component {
         return (<InspectorGroupSettings />);
       case 'orders' :
         return (<InspectorGroupOrders
-          projectIsPublished={this.props.projectIsPublished}
+          userOwnsProject={this.props.userOwnsProject}
           projectId={this.props.project.id}
         />);
       case 'history' :
         return (
           <InspectorGroupHistory
-            projectIsPublished={this.props.projectIsPublished}
+            userOwnsProject={this.props.userOwnsProject}
             project={this.props.project}
           />);
       default:

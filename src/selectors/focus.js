@@ -64,6 +64,7 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
     type = 'construct';
   } else if (level === 'option' && option) {
     focused = [option];
+    //todo - these should not be frozen, should be able to inspect. need to update EGF project.
     readOnly = true;
   } else {
     focused = blocks;

@@ -32,7 +32,7 @@ export class Inspector extends Component {
     inspectorSelectTab: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object,
-    projectIsPublished: PropTypes.bool.isRequired,
+    userOwnsProject: PropTypes.bool.isRequired,
     construct: PropTypes.object,
     type: PropTypes.string.isRequired,
   };
@@ -94,7 +94,7 @@ export class Inspector extends Component {
   };
 
   render() {
-    const { isVisible, projectId, project, construct, projectIsPublished } = this.props;
+    const { isVisible, projectId, project, construct, userOwnsProject } = this.props;
     // classes for content area
     const contentClasses = `no-vertical-scroll content${isVisible ? '' : ' content-closed'}`;
     // map sections to icons
@@ -119,7 +119,7 @@ export class Inspector extends Component {
           projectId={projectId}
           project={project}
           construct={construct}
-          projectIsPublished={projectIsPublished}
+          userOwnsProject={userOwnsProject}
         />
       );
     }
@@ -172,7 +172,7 @@ function mapStateToProps(state, props) {
   const forceIsConstruct = (level === 'construct') ||
     blockIds.some(blockId => currentProject.components.indexOf(blockId) >= 0);
 
-  const projectIsPublished = currentProject.owner !== state.user.userid;
+  const userOwnsProject = currentProject.owner === state.user.userid;
 
   return {
     isVisible,
@@ -183,7 +183,7 @@ function mapStateToProps(state, props) {
     projectId,
     project: currentProject,
     construct: currentConstruct,
-    projectIsPublished,
+    userOwnsProject,
     focused,
     overrides,
   };

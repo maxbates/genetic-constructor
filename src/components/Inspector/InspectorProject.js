@@ -44,6 +44,7 @@ export class InspectorProject extends Component {
     blockSetPalette: PropTypes.func.isRequired,
     projectSetDescription: PropTypes.func.isRequired,
     readOnly: PropTypes.bool,
+    userOwnsProject: PropTypes.bool.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
@@ -91,7 +92,7 @@ export class InspectorProject extends Component {
   };
 
   render() {
-    const { instance, orders, readOnly } = this.props;
+    const { instance, orders, readOnly, userOwnsProject } = this.props;
     const paletteName = getPaletteName(instance.metadata.palette);
     // determines the default state of the palette expando
     const paletteStateKey = 'expando-color-palette';
@@ -112,7 +113,7 @@ export class InspectorProject extends Component {
             onFocus={this.startTransaction}
             onBlur={this.endTransaction}
             onEscape={() => this.endTransaction(true)}
-            readOnly={readOnly}
+            readOnly={readOnly || !userOwnsProject}
             maxLength={256}
             value={instance.metadata.name}
           />
@@ -126,7 +127,7 @@ export class InspectorProject extends Component {
             onFocus={this.startTransaction}
             onBlur={this.endTransaction}
             onEscape={() => this.endTransaction(true)}
-            readOnly={readOnly}
+            readOnly={readOnly || !userOwnsProject}
             maxLength={2048}
             value={instance.metadata.description}
           />
@@ -136,7 +137,7 @@ export class InspectorProject extends Component {
           <FormKeywords
             keywords={instance.metadata.keywords}
             onChange={this.setKeywords}
-            disabled={readOnly}
+            disabled={readOnly || !userOwnsProject}
           />
         </InspectorRow>
 

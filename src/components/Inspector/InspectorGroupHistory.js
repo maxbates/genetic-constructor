@@ -38,7 +38,7 @@ export class InspectorGroupHistory extends Component {
       owner: PropTypes.string.isRequired,
     }).isRequired,
     userId: PropTypes.string.isRequired,
-    projectIsPublished: PropTypes.bool.isRequired,
+    userOwnsProject: PropTypes.bool.isRequired,
     snapshots: PropTypes.object.isRequired,
     snapshotsList: PropTypes.func.isRequired,
     commonsVersions: PropTypes.object.isRequired,
@@ -72,14 +72,14 @@ export class InspectorGroupHistory extends Component {
     // 3) not published and snapshots change
     if (newProject) {
       this.setSnapshots(nextProps);
-    } else if (nextProps.projectIsPublished && this.props.commonsVersions !== nextProps.commonsVersions) {
+    } else if (!nextProps.userOwnsProject && this.props.commonsVersions !== nextProps.commonsVersions) {
       this.setSnapshots(nextProps);
-    } else if (!nextProps.projectIsPublished && this.props.snapshots !== nextProps.snapshots) {
+    } else if (nextProps.userOwnsProject && this.props.snapshots !== nextProps.snapshots) {
       this.setSnapshots(nextProps);
     }
 
     //if published, project page does not fetch versions, so do it here
-    if (newProject && nextProps.projectIsPublished) {
+    if (newProject && !nextProps.userOwnsProject) {
       this.fetchSnapshots();
     }
   }
@@ -129,9 +129,9 @@ export class InspectorGroupHistory extends Component {
   };
 
   setSnapshots(props) {
-    const { project, projectIsPublished, snapshots, commonsVersions } = props;
+    const { project, userOwnsProject, snapshots, commonsVersions } = props;
     const projectId = project.id;
-    const toUse = projectIsPublished ? commonsVersions : snapshots;
+    const toUse = !userOwnsProject ? commonsVersions : snapshots;
     this.setState({
       loading: false,
       snapshots: _(toUse)
@@ -151,10 +151,10 @@ export class InspectorGroupHistory extends Component {
   // only need this when we want to show for another project
   // calling action will trigger re-render on update
   fetchSnapshots() {
-    const { project, projectIsPublished, snapshotsList, commonsRetrieveProjectVersions } = this.props;
+    const { project, userOwnsProject, snapshotsList, commonsRetrieveProjectVersions } = this.props;
     const projectId = project.id;
 
-    if (projectIsPublished) {
+    if (!userOwnsProject) {
       return commonsRetrieveProjectVersions(projectId);
     }
     return snapshotsList(projectId);

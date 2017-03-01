@@ -21,11 +21,11 @@ import { block as blockDragType } from '../../constants/DragTypes';
 import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 
 import { blockStash } from '../../actions/blocks';
-import { focusForceProject, focusForceBlocks } from '../../actions/focus';
+import { focusPrioritize, focusForceProject, focusForceBlocks } from '../../actions/focus';
 import { projectLoad, projectOpen, projectStash, projectClone } from '../../actions/projects';
 import { projectGet } from '../../selectors/projects';
 import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
-import { uiShowMenu } from '../../actions/ui';
+import { uiShowMenu, inspectorSelectTab, inspectorToggleVisibility } from '../../actions/ui';
 import DnD from '../../containers/graphics/dnd/dnd';
 import InventoryProjectTree from './InventoryProjectTree';
 import Tree from '../ui/Tree';
@@ -43,6 +43,7 @@ export class InventoryGroupCommons extends Component {
     projects: PropTypes.object.isRequired,
     focus: PropTypes.object.isRequired,
     blockStash: PropTypes.func.isRequired,
+    focusPrioritize: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
     focusForceBlocks: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
@@ -53,6 +54,8 @@ export class InventoryGroupCommons extends Component {
     commonsQuery: PropTypes.func.isRequired,
     commonsRetrieveProject: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
+    inspectorToggleVisibility: PropTypes.func.isRequired,
+    inspectorSelectTab: PropTypes.func.isRequired,
   };
 
   static onCommonsProjectDrag(snapshot, globalPoint) {
@@ -103,7 +106,16 @@ export class InventoryGroupCommons extends Component {
 
   onClickSnapshot = (snapshot, isOpen) => {
     this.retrieveProject(snapshot)
-    .then(roll => this.props.focusForceProject(roll.project));
+    .then(roll => {
+      if (snapshot.projectId === this.props.currentProjectId) {
+        this.props.focusPrioritize('project');
+      } else {
+        this.props.focusForceProject(roll.project);
+      }
+
+      this.props.inspectorToggleVisibility(true);
+      this.props.inspectorSelectTab('Information');
+    });
   };
 
   onSnapshotContextMenu = (snapshot, evt) => {
@@ -317,6 +329,7 @@ export default connect((state, props) => ({
   focus: state.focus,
 }), {
   blockStash,
+  focusPrioritize,
   focusForceProject,
   focusForceBlocks,
   projectGet,
@@ -327,4 +340,6 @@ export default connect((state, props) => ({
   commonsRetrieveProject,
   projectClone,
   uiShowMenu,
+  inspectorToggleVisibility,
+  inspectorSelectTab,
 })(InventoryGroupCommons);
