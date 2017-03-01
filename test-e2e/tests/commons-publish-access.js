@@ -1,0 +1,61 @@
+/*
+ Copyright 2016 Autodesk,Inc.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+var uuid = require('uuid');
+var invariant = require('invariant');
+
+var homepageRegister = require('../fixtures/homepage-register');
+var size = require('../fixtures/size');
+var testProject = require('../fixtures/testproject');
+var openInventoryPanel = require('../fixtures/open-inventory-panel');
+var projectSetMetadata = require('../fixtures/project-set-metadata');
+var publishProject = require('../fixtures/publish-given-project');
+var signout = require('../fixtures/signout');
+
+module.exports = {
+  'Test publishing a project to the commons': function (browser) {
+    size(browser);
+
+    homepageRegister(browser, function (browser, publisherCredentials) {
+      testProject(browser);
+      projectSetMetadata(browser, {}, function (browser, publishedProject) {
+        publishProject(browser, publishedProject, function (browser) {
+          //now, sign in as new user and access it
+          signout(browser);
+          homepageRegister(browser, function (browser, accessorCredentials) {
+            invariant(accessorCredentials.email !== publisherCredentials.email, 'should have new email');
+
+            openInventoryPanel('Commons');
+
+            var treeSelector = '.tree [data-testid="' + publishedProject.owner + '"]';
+            var projectSelector = '.tree [data-testid="' + publishedProject.owner + '/' + publishedProject.id + '"]';
+
+            browser
+            .waitForElementPresent('.InventoryGroupCommons', 5000, 'commons should appear')
+            .waitForElementPresent(treeSelector, 5000, 'users list of commons projects should appear')
+            .click(treeSelector)
+            .waitForElementPresent(projectSelector, 5000, 'published project should appear')
+
+            // todo - look at it, make sure it is locked
+
+            // todo - drag one into project
+
+          });
+        });
+      });
+    });
+  }
+};

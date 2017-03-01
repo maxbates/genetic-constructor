@@ -1,5 +1,4 @@
-//returns a promise - wait for it if you need to chain  / if you need the credentials
-
+//accepts a callback: (browser, credentials) => {}
 var registerViaHomepage = function (browser, cb) {
 
   var credentials = {};

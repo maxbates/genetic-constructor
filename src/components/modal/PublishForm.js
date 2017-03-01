@@ -137,7 +137,7 @@ class PublishForm extends Component {
     return (
       <form
         id="publish-modal"
-        className="Form"
+        className="Form PublishModal"
         onSubmit={this.onSubmit}
       >
         <div className="Modal-paddedContent">
