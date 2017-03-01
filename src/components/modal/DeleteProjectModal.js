@@ -20,7 +20,7 @@ import _ from 'lodash';
 
 import Snapshot from '../../models/Snapshot';
 import { uiSetGrunt, uiShowProjectDeleteModal } from '../../actions/ui';
-import { projectDelete } from '../../actions/projects';
+import { projectLoad, projectOpen, projectDelete } from '../../actions/projects';
 import { snapshotsList } from '../../actions/snapshots';
 
 import Modal from './Modal';
@@ -34,6 +34,8 @@ class DeleteProjectModal extends Component {
     snapshots: PropTypes.object.isRequired,
     open: PropTypes.bool,
     snapshotsList: PropTypes.func.isRequired,
+    projectLoad: PropTypes.func.isRequired,
+    projectOpen: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowProjectDeleteModal: PropTypes.func.isRequired,
@@ -69,7 +71,16 @@ class DeleteProjectModal extends Component {
       }
 
       this.props.uiShowProjectDeleteModal(false);
-      this.props.projectDelete(this.props.projectId);
+
+      const projectId = this.props.projectId;
+
+      //to gracefully delete...
+      //load another project, avoiding this one
+      this.props.projectLoad(null, false, [projectId])
+      //open the new project, skip saving the previous one
+      .then(roll => this.props.projectOpen(roll.project.id, true))
+      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+      .then(() => this.props.projectDelete(projectId));
     },
   }];
 
@@ -105,6 +116,8 @@ export default connect((state, props) => {
     project: state.projects[projectId],
   };
 }, {
+  projectLoad,
+  projectOpen,
   projectDelete,
   snapshotsList,
   uiSetGrunt,

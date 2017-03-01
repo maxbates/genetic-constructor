@@ -290,6 +290,8 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
         dispatch({
           type: ActionTypes.PROJECT_LOAD,
           project: rollup.project,
+          rollup,
+          userOwnsProject: userId === rollup.project.owner,
         });
 
         return rollup;
@@ -382,6 +384,7 @@ export const projectDelete = projectId =>
       return false;
     }
 
+    //todo - no need to wrap in transaction
     //wrap deleting in a transaction
     dispatch(undoActions.transact());
 

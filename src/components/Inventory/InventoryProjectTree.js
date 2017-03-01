@@ -321,12 +321,7 @@ export class InventoryProjectTree extends Component {
       }
       return name.indexOf(filterString) >= 0;
     })
-    .sortBy((one, two) => {
-      if (!one || !two) {
-        return 0;
-      }
-      return two.metadata.created - one.metadata.created;
-    })
+    .orderBy(['metadata.created'], ['desc'])
     .value();
   };
 

@@ -223,6 +223,7 @@ export class ConstructViewer extends Component {
   componentWillUnmount() {
     delete idToViewer[this.props.constructId];
     this.resizeDebounced.cancel();
+    this.update.cancel();
     window.removeEventListener('resize', this.resizeDebounced);
     this.sg.destroy();
   }

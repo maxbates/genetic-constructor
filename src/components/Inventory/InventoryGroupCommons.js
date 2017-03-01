@@ -23,7 +23,7 @@ import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
 import { blockStash } from '../../actions/blocks';
 import { focusForceProject, focusForceBlocks } from '../../actions/focus';
 import { projectLoad, projectOpen, projectStash, projectClone } from '../../actions/projects';
-import { projectGet, projectCreateRollup } from '../../selectors/projects';
+import { projectGet } from '../../selectors/projects';
 import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
 import { uiShowMenu } from '../../actions/ui';
 import DnD from '../../containers/graphics/dnd/dnd';
@@ -46,7 +46,6 @@ export class InventoryGroupCommons extends Component {
     focusForceProject: PropTypes.func.isRequired,
     focusForceBlocks: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
-    projectCreateRollup: PropTypes.func.isRequired,
     projectGet: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectStash: PropTypes.func.isRequired,
@@ -107,11 +106,6 @@ export class InventoryGroupCommons extends Component {
     .then(roll => this.props.focusForceProject(roll.project));
   };
 
-  onExpandSnapshot = (snapshot) => {
-    this.retrieveProject(snapshot)
-    .then(() => this.forceUpdate());
-  };
-
   onSnapshotContextMenu = (snapshot, evt) => {
     this.props.uiShowMenu([
       {
@@ -149,22 +143,10 @@ export class InventoryGroupCommons extends Component {
 
   //only allow looking at constructs
   getCommonsProjectBlocks = (snapshot) => {
-    const { owner, projectId } = snapshot;
+    const { projectId } = snapshot;
 
     //need to check projects section as well, in case the user owns the project and its already loaded
-    let roll = this.props.commons.projects[projectId];
-
-    //todo - check owner, try to get project rollup if we own it
-    if (!roll && this.props.userId === owner) {
-      try {
-        const retrieved = this.props.projectCreateRollup(projectId);
-        if (_.every(retrieved.project.components, componentId => retrieved.blocks[componentId])) {
-          roll = retrieved;
-        }
-      } catch (err) {
-        // project not loaded, dont do anything
-      }
-    }
+    const roll = this.props.commons.projects[projectId];
 
     if (!roll) {
       // don't fetch here, fetch on expand only
@@ -266,7 +248,6 @@ export class InventoryGroupCommons extends Component {
       selected: currentProjectId === snapshot.projectId,
       selectedAlt: focus.forceProject && snapshot.projectId === focus.forceProject.id,
       onClick: isOpen => this.onClickSnapshot(snapshot, isOpen),
-      onExpand: () => this.onExpandSnapshot(snapshot),
       onContextMenu: evt => this.onSnapshotContextMenu(snapshot, evt),
       // startDrag: globalPoint => InventoryGroupCommons.onCommonsProjectDrag(snapshot, globalPoint),
       items: this.getCommonsProjectBlocks(snapshot),
@@ -339,7 +320,6 @@ export default connect((state, props) => ({
   focusForceProject,
   focusForceBlocks,
   projectGet,
-  projectCreateRollup,
   projectStash,
   projectOpen,
   projectLoad,

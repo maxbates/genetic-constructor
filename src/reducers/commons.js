@@ -82,6 +82,20 @@ export default function commons(state = initialState, action) {
         projects: omitBy(state.projects, rollup => rollup.project.id === projectId),
       };
 
+    case ActionTypes.PROJECT_LOAD: {
+      const { rollup, userOwnsProject } = action;
+      //if owner + project is published, save it in commons as well
+      if (userOwnsProject) {
+        if (some(state.versions, snapshot => snapshot.projectId === rollup.project.id)) {
+          return {
+            versions: state.versions,
+            projects: { ...state.projects, [rollup.project.id]: rollup },
+          };
+        }
+      }
+      return state;
+    }
+
     case ActionTypes.USER_SET_USER :
     default:
       return state;

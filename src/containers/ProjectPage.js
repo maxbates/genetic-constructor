@@ -51,31 +51,33 @@ export class ProjectPage extends Component {
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
-    commonsRetrieveProjectVersions: PropTypes.func.isRequired,
-    snapshotsList: PropTypes.func.isRequired,
+    commonsRetrieveProjectVersions: PropTypes.func.isRequired, //eslint-disable-line react/no-unused-prop-types
+    snapshotsList: PropTypes.func.isRequired, //eslint-disable-line react/no-unused-prop-types
     autosave: PropTypes.shape({
       dirty: PropTypes.bool.isRequired,
     }),
   };
 
+  // lazily fetch snapshots / commons snapshots
+  static fetchSnapshotsAndCommons(props) {
+    // if user owns the project...
+    // get all the projects snapshots lazily, will re-render when have them
+    // run in project page so only request them when we actually load the project
+    //todo - validate id better
+    if (!props.projectFromCommons) {
+      props.snapshotsList(props.projectId)
+      .catch((err) => {});
+    }
+
+    //independent of whether owned or not, get all published versions so we can better handle publish / unpublish functionality enabled
+    props.commonsRetrieveProjectVersions(props.projectId)
+    .catch((err) => {});
+  }
+
   componentDidMount() {
     // future - use react router History to do this:
     // https://github.com/mjackson/history/blob/master/docs/ConfirmingNavigation.md
     window.onbeforeunload = window.onunload = this.onWindowUnload.bind(this);
-
-    // initial load handling
-
-    // lazily fetch snapshots / commons snapshots
-    //todo - validate id better
-    if (this.props.projectId && this.props.projectId !== 'null' && this.props.projectId !== 'undefined') {
-      if (!this.props.projectFromCommons) {
-        this.props.snapshotsList(this.props.projectId)
-        .catch((err) => {});
-      }
-
-      this.props.commonsRetrieveProjectVersions(this.props.projectId)
-      .catch((err) => {});
-    }
 
     //load extensions (also see componentWillReceiveProps)
     if (this.props.userId) {
@@ -91,17 +93,7 @@ export class ProjectPage extends Component {
         this.props.focusConstruct(nextProps.project.components[0]);
       }
 
-      // if user owns the project...
-      // get all the projects snapshots lazily, will re-render when have them
-      // run in project page so only request them when we actually load the project
-      if (!nextProps.projectFromCommons) {
-        this.props.snapshotsList(nextProps.projectId)
-        .catch((err) => {});
-      }
-
-      //independent of whether owned or not, get all published versions so we can better handle publish / unpublish functionality enabled
-      this.props.commonsRetrieveProjectVersions(nextProps.projectId)
-        .catch((err) => {});
+      ProjectPage.fetchSnapshotsAndCommons(nextProps);
     }
 
     //if the user has changed... we reload the page, but just in case...
