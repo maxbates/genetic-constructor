@@ -59,7 +59,6 @@ import {
   detailViewSelectExtension,
   inspectorSelectTab,
 } from '../../../actions/ui';
-import RoleSvg from '../../../components/RoleSvg';
 import { role as roleDragType } from '../../../constants/DragTypes';
 import { blockGetComponentsRecursive, blockGetParents } from '../../../selectors/blocks';
 import { projectGet } from '../../../selectors/projects';
