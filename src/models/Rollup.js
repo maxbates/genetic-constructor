@@ -169,7 +169,7 @@ export default class Rollup {
 
   // POJO only
   // mutates roll itself
-  static freeze(roll) {
+  static setFrozen(roll) {
     //freeze project
     roll.project.rules.frozen = true;
 

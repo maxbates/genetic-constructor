@@ -41,20 +41,24 @@ module.exports = {
           //now, sign in as new user and access it
           signout(browser);
           homepageRegister(browser, function (browser, accessorCredentials) {
+            console.log('accessing ' + publishedProject.id);
+
             invariant(accessorCredentials.email !== publisherCredentials.email, 'should have new email');
 
             openInventoryPanel(browser, 'Commons');
 
-            var treeSelector = '.tree [data-testid="' + publishedProject.owner + '"]';
-            var projectSelector = '.tree [data-testid="' + publishedProject.owner + '/' + publishedProject.id + '"]';
+            var treeSelector = '[data-testid="commons/' + publishedProject.owner + '"]';
+            var projectSelector = '[data-testid="commons/' + publishedProject.owner + '/' + publishedProject.id + '"]';
+            var projectOpenSelector = '[data-testid="commonsopen/' + publishedProject.id + '"]';
 
             browser
             .waitForElementPresent('.InventoryGroupCommons', 5000, 'commons should appear')
             .waitForElementPresent(treeSelector, 5000, 'users list of commons projects should appear')
             .click(treeSelector)
             .waitForElementPresent(projectSelector, 5000, 'published project should appear');
+            //.click(projectOpenSelector)
 
-            rightClickAt(browser, projectSelector, 100, 15);
+            rightClickAt(browser, projectSelector, 30, 15);
             clickContextMenu(browser, 1);
 
             browser

@@ -133,7 +133,7 @@ export const commonsRetrieveVersions = projectId =>
 export const commonsRetrieve = (projectId, version, lockProject = true) =>
   checkProjectPublic(projectId, version)
   .then(snapshot => projectVersions.projectVersionByUUID(snapshot.projectUUID))
-  .then(roll => lockProject === true ? Rollup.freeze(roll) : roll);
+  .then(roll => lockProject === true ? Rollup.setFrozen(roll) : roll);
 
 /**
  * Publish a project at particular version

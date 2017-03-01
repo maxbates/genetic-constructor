@@ -23,8 +23,8 @@ module.exports = function (browser, projectManifest, cb) {
   publishCurrentProject(browser);
   openInventoryPanel(browser, 'Commons');
 
-  var treeSelector = '.tree [data-testid="' + projectManifest.owner + '"]';
-  var projectSelector = '.tree [data-testid="' + projectManifest.owner + '/' + projectManifest.id + '"]';
+  var treeSelector = '.tree [data-testid="commons/' + projectManifest.owner + '"]';
+  var projectSelector = '.tree [data-testid="commons/' + projectManifest.owner + '/' + projectManifest.id + '"]';
 
   browser
   .waitForElementPresent('.InventoryGroupCommons', 5000, 'commons should appear')
