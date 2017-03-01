@@ -383,7 +383,8 @@ export class ConstructViewer extends Component {
   blockContextMenuItems = () => {
     const singleBlock = this.props.focus.blockIds.length === 1;
     const firstBlock = this.props.blocks[this.props.focus.blockIds[0]];
-    const canListify = singleBlock && !firstBlock.hasSequence();
+    const isBackbone = firstBlock ? firstBlock.rules.role === 'backbone' : false;
+    const canListify = singleBlock && !firstBlock.hasSequence() && !isBackbone;
     const listItems = singleBlock ? [
       {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,

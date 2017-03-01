@@ -937,8 +937,8 @@ export default class Layout {
     // position and size vertical bar
     const heightUsed = yp - startY + kT.blockH;
     let barHeight = Math.max(kT.rowBarH + kT.blockH, heightUsed - kT.blockH + kT.rowBarH);
-    // if the height is small just make zero since its not needed
-    if (barHeight <= kT.rowBarH) {
+    // do not display if no blocks
+    if (!components.length) {
       barHeight = 0;
     }
     this.vertical.set({
