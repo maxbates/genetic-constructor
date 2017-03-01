@@ -160,7 +160,7 @@ export class ProjectPage extends Component {
 
           <ProjectHeader
             project={project}
-            readOnly={projectFromCommons}
+            readOnly={projectFromCommons || project.isFrozen()}
           />
 
           <ConstructViewerCanvas
