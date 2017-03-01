@@ -55,10 +55,10 @@ module.exports = {
             .waitForElementPresent(projectSelector, 5000, 'published project should appear');
 
             rightClickAt(browser, projectSelector, 100, 15);
-            clickContextMenu(browser, 1)
+            clickContextMenu(browser, 1);
 
             browser
-            .waitForElementPresent('[data-testid="ProjectHeader/' + publishedProject.id + '"]', 5000, 'expected to open project')
+            .waitForElementPresent('[data-testid="ProjectHeader/' + publishedProject.id + '"]', 10000, 'expected to open project')
             .assert.countelements('.construct-viewer', publishedProject.components.length)
             .assert.countelements('.construct-viewer .lockIcon', publishedProject.components.length);
 

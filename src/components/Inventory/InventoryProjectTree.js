@@ -373,7 +373,7 @@ export class InventoryProjectTree extends Component {
     const treeItems = this.getSortedProjectManifests()
     .map(project => ({
       text: project.getName(),
-      testid: project.id,
+      testid: `inventoryProject/${project.id}`,
       stateKey: project.id,
       bold: true,
       selected: project.id === currentProjectId,
@@ -387,7 +387,7 @@ export class InventoryProjectTree extends Component {
         <img
           key="open"
           role="presentation"
-          data-testid={`projectOpen/${project.id}`}
+          data-testid={`openProject/${project.id}`}
           src="/images/ui/open.svg"
           onClick={evt => this.onOpenProject(project, evt)}
           className="label-hover-bright"

@@ -234,7 +234,7 @@ export class ConstructViewer extends Component {
     let order = this.props.orderCreate(this.props.currentProjectId, [this.props.construct.id]);
     this.props.orderList(this.props.currentProjectId)
       .then((orders) => {
-        order = this.props.orderSetName(order.id, `Order ${orders.length}`);
+        order = this.props.orderSetName(order.id, `Order ${orders.length + 1}`);
         this.props.uiShowOrderForm(true, order.id);
       });
   };
@@ -252,6 +252,8 @@ export class ConstructViewer extends Component {
     const wasFocused = construct.id === this.props.focus.constructId;
     this.props.focusBlocks([]);
     this.props.focusConstruct(construct.id);
+    this.props.inspectorSelectTab('Information');
+
     if (!construct.isFixed() && wasFocused) {
       // there might be an autoscroll when focusing the construct so wait for that to complete
       window.setTimeout(() => {

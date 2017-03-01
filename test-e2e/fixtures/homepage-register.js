@@ -10,9 +10,10 @@ var registerViaHomepage = function (browser, cb) {
 
   // wait for login form to be present
   .waitForElementPresent('#auth-signin', 10000, 'Expected signin form to become visible')
+  .waitForElementPresent('button.Modal-action', 5000, 'Modal actions should appear')
   // ensure it is the sign in dialog
-  .pause(1500)
-  .getText('.Modal-header-title', function (result) {
+  .pause(2000)
+  .getText('button.Modal-action', function (result) {
     browser.assert.equal(result.value, "Sign In")
   })
   // click the a tag that switches to registration
@@ -23,7 +24,7 @@ var registerViaHomepage = function (browser, cb) {
   .waitForElementPresent('#auth-register', 10000, 'Expected register form to become visible')
   .waitForElementPresent('#auth-register input[name="firstName"]', 1000, 'Expected input name=firstName')
   //wait a second for the form....
-  .pause(100)
+  .pause(250)
 
   //todo - should test and make an error pop up -- need to work around captcha
   /*
@@ -35,7 +36,7 @@ var registerViaHomepage = function (browser, cb) {
 
   //use the trick to bypass the captcha
   .setValue('#auth-register input[name="firstName"]', 'darwin magic')
-  .pause(100)
+  .pause(250)
   //make sure fields populated
   .assert.value('#auth-register input[name="lastName"]', 'Darwin')
   // get the field values and save for later
@@ -57,7 +58,7 @@ var registerViaHomepage = function (browser, cb) {
   //.submitForm('#auth-register')
 
   //.pause(1000)
-  .waitForElementNotPresent('#auth-register', 10000, 'expected form to be dismissed')
+  .waitForElementNotPresent('#auth-register', 15000, 'expected form to be dismissed')
   .waitForElementPresent('.userwidget', 10000, 'expected to land on page with the user widget visible')
   //.pause(1000)
   // wait for inventory and inspector to be present to ensure we are on a project page

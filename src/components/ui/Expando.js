@@ -106,7 +106,7 @@ export default class Expando extends Component {
         data-expando={this.props.text}
         className="expando"
         onContextMenu={(evt) => {
-          if (process.env.NODE_ENV === 'production') {
+          if (process.env.NODE_ENV !== 'dev') {
             evt.preventDefault();
           }
           evt.stopPropagation();

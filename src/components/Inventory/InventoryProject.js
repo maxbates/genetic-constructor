@@ -115,7 +115,7 @@ export class InventoryProject extends Component {
         onToggle={nextState => this.handleToggleProject(nextState, projectId)}
         onSelect={nextState => this.onToggleProject(nextState, projectId)}
         isActive={isActive}
-        dataAttribute={`project ${project.id}`}
+        dataAttribute={`inventoryProject/${project.id}`}
       >
         {project.components.length > 0
           ?

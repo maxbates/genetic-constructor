@@ -106,6 +106,8 @@ async function start() {
                 //todo - webpack server, let webpack handle watching
               ],
 
+              ghostMode: false,
+
               ...(DEBUG ? {} : { notify: false, ui: false }),
 
               proxy: {

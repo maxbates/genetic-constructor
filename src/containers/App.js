@@ -41,7 +41,7 @@ class App extends Component {
    * @param evt
    */
   static isEditable(evt) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'dev') {
       return true;
     }
 
