@@ -43,7 +43,7 @@ class DeleteProjectModal extends Component {
     super(props);
 
     this.state = {
-      isPublished: _.some(props.snapshots, Snapshot.isPublished),
+      isPublished: _.some(_.filter(props.snapshots, { projectId: props.projectId }), Snapshot.isPublished),
     };
   }
 
@@ -54,7 +54,7 @@ class DeleteProjectModal extends Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.snapshots !== nextProps.snapshots) {
       this.setState({
-        isPublished: _.some(nextProps.snapshots, Snapshot.isPublished),
+        isPublished: _.some(_.filter(nextProps.snapshots, { projectId: nextProps.projectId }), Snapshot.isPublished),
       });
     }
   }
