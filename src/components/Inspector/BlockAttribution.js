@@ -38,6 +38,10 @@ export class BlockAttribution extends Component {
     blockAttribute: PropTypes.func.isRequired,
   };
 
+  state = {
+    text: '',
+  };
+
   componentDidMount() {
     this.setTextStateFromProps(this.props);
   }
