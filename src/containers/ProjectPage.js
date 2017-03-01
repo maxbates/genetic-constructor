@@ -59,14 +59,15 @@ export class ProjectPage extends Component {
   };
 
   componentDidMount() {
-    // todo - use react router History to do this:
+    // future - use react router History to do this:
     // https://github.com/mjackson/history/blob/master/docs/ConfirmingNavigation.md
     window.onbeforeunload = window.onunload = this.onWindowUnload.bind(this);
 
     // initial load handling
 
     // lazily fetch snapshots / commons snapshots
-    if (this.props.projectId) {
+    //todo - validate id better
+    if (this.props.projectId && this.props.projectId !== 'null' && this.props.projectId !== 'undefined') {
       if (!this.props.projectFromCommons) {
         this.props.snapshotsList(this.props.projectId)
         .catch((err) => {});

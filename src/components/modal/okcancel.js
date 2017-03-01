@@ -33,7 +33,9 @@ export function OkCancel(props) {
 
   const onSubmit = (evt) => {
     evt.preventDefault();
-    onOk();
+    if (onOk) {
+      onOk();
+    }
   };
 
   const onClose = (evt) => {
@@ -73,8 +75,8 @@ OkCancel.propTypes = {
   title: PropTypes.string,
   message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   okText: PropTypes.string,
-  onOk: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
+  onOk: PropTypes.func,
+  onCancel: PropTypes.func,
 };
 
 function mapStateToProps(state, props) {

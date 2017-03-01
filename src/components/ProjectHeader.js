@@ -35,6 +35,7 @@ import {
 } from '../actions/blocks';
 import {
   inspectorToggleVisibility,
+  inspectorSelectTab,
   inventoryToggleVisibility,
   uiToggleDetailView,
   uiInlineEditor,
@@ -66,6 +67,7 @@ class ProjectHeader extends Component {
     focus: PropTypes.object,
     focusConstruct: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
+    inspectorSelectTab: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     uiToggleDetailView: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
@@ -117,6 +119,7 @@ class ProjectHeader extends Component {
 
   onFocusInspector = (evt) => {
     this.props.inspectorToggleVisibility(true);
+    this.props.inspectorSelectTab('Information');
     this.props.focusPrioritize('project');
   };
 
@@ -378,6 +381,7 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   blockCreate,
   inspectorToggleVisibility,
+  inspectorSelectTab,
   inventoryToggleVisibility,
   focusPrioritize,
   focusConstruct,

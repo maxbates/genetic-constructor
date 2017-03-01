@@ -35,20 +35,15 @@ export default class FormKeywords extends Component {
 
   state = {
     keywordList: _.map(FormKeywords.keywordList, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
-    keywordListLoading: Object.keys(FormKeywords.keywordList).length === 0,
   };
 
   componentDidMount() {
-    //todo - this should be an action, so we don't call setState after unmounting
+    //todo - this should be an action
     snapshotsListKeywords()
     .then((keywordsMap) => {
       Object.assign(FormKeywords.keywordList, keywordsMap);
-      //hack - make sure still mounted
       if (this.element) {
-        this.setState({
-          keywordList: _.map(FormKeywords.keywordList, (number, keyword) => FormKeywords.makeKeyword(keyword, number)),
-          keywordListLoading: false,
-        });
+        this.forceUpdate();
       }
     });
   }
@@ -56,7 +51,10 @@ export default class FormKeywords extends Component {
   render() {
     const { keywords, onChange, disabled } = this.props;
 
-    const fullList = this.state.keywordList.concat(keywords.map(FormKeywords.makeKeyword));
+    //todo - should lift to state or store, causing weird issues using as state...
+    const loadedList = _.map(FormKeywords.keywordList, (number, keyword) => FormKeywords.makeKeyword(keyword, number));
+
+    const fullList = loadedList.concat(keywords.map(FormKeywords.makeKeyword));
 
     const cleanInput = input => input.toLowerCase().trim().replace(',', '');
     const setKeywords = (values) => {
@@ -79,7 +77,7 @@ export default class FormKeywords extends Component {
         value={keywords}
         disabled={disabled}
         options={fullList}
-        isLoading={this.state.keywordListLoading && false}
+        isLoading={false}
         valueRenderer={({ value }) => cleanInput(value)}
         optionRenderer={({ value }) => cleanInput(value)}
         newOptionCreator={newOptionCreator}

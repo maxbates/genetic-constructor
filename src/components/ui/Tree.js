@@ -23,6 +23,7 @@ export default class Tree extends Component {
   static propTypes = {
     items: PropTypes.arrayOf(PropTypes.shape({
       text: PropTypes.string.isRequired,
+      testid: PropTypes.string,
       items: PropTypes.array,
       textWidgets: PropTypes.arrayOf(PropTypes.node),
       labelWidgets: PropTypes.arrayOf(PropTypes.node),

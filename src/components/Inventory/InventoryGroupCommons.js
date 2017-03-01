@@ -238,6 +238,7 @@ export class InventoryGroupCommons extends Component {
 
     return snapshots.map(snapshot => ({
       text: snapshot.tags.projectName || 'Untitled Project',
+      testid: `${snapshot.owner}/${snapshot.projectId}`,
       bold: false,
       selected: currentProjectId === snapshot.projectId,
       selectedAlt: focus.forceProject && snapshot.projectId === focus.forceProject.id,
@@ -274,6 +275,7 @@ export class InventoryGroupCommons extends Component {
         text,
         selected: groupBy === 'author' && key === this.props.userId,
         items: innerItems,
+        testid: key,
       };
     });
 
