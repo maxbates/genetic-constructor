@@ -363,7 +363,10 @@ export class ConstructViewer extends Component {
    */
   blockCanHaveChildren(blockId) {
     const block = this.props.blocks[blockId];
-    invariant(block, 'expected to get a block');
+    // pseudo blocks e.g. circular end caps won't be present in the blocks list
+    if (!block) {
+      return false;
+    }
     // list blocks cannot have children
     return !block.isList() && !block.isHidden();
   }
@@ -382,7 +385,8 @@ export class ConstructViewer extends Component {
   blockContextMenuItems = () => {
     const singleBlock = this.props.focus.blockIds.length === 1;
     const firstBlock = this.props.blocks[this.props.focus.blockIds[0]];
-    const canListify = singleBlock && !firstBlock.hasSequence();
+    const isBackbone = firstBlock ? firstBlock.rules.role === 'backbone' : false;
+    const canListify = singleBlock && !firstBlock.hasSequence() && !isBackbone;
     const listItems = singleBlock ? [
       {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
@@ -782,14 +786,16 @@ export class ConstructViewer extends Component {
     const emptySet = allChildren.filter(block => !block.hasSequence()).map(block => block.id);
     this.props.focusBlocks(emptySet);
     if (!emptySet.length) {
-      this.props.uiSetGrunt('There are no empty blocks in the current construct');
+      this.grunt('There are no empty blocks in the current construct');
     }
   }
+
   /**
-   * select all blocks
+   * show a grunt
+   * @param message
    */
-  selectAllBlocks() {
-    this.props.focusBlocks(this.props.blockGetComponentsRecursive(this.props.construct.id).map(block => block.id));
+  grunt(message) {
+    this.props.uiSetGrunt(message);
   }
 
   /**
@@ -798,6 +804,20 @@ export class ConstructViewer extends Component {
    */
   get sceneGraphEl() {
     return this.dom.querySelector('.sceneGraph');
+  }
+
+  /**
+   * true if the construct is circular
+   * 1. first block must be a backbone block
+   * 2. Block rule is
+   */
+  isCircularConstruct() {
+    const { construct, blocks } = this.props;
+    if (construct.components.length) {
+      const firstChild = blocks[construct.components[0]];
+      return firstChild.rules.role === 'backbone';
+    }
+    return false;
   }
 
   /**
@@ -943,7 +963,7 @@ export class ConstructViewer extends Component {
         imageURL: '/images/ui/download.svg',
         enabled: true,
         clicked: () => {
-          this.props.uiSetGrunt('Preparing data. Download will begin automatically when complete.');
+          this.grunt('Preparing data. Download will begin automatically when complete.');
           downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
         },
       },
@@ -971,6 +991,7 @@ export class ConstructViewer extends Component {
    */
   render() {
     const { construct } = this.props;
+    const isCircular = this.isCircularConstruct();
     const isFocused = construct.id === this.props.focus.constructId;
     const viewerClasses = `construct-viewer${isFocused ? ' construct-viewer-focused' : ''}`;
     const subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
@@ -987,7 +1008,8 @@ export class ConstructViewer extends Component {
           <TitleAndToolbar
             toolbarItems={this.toolbarItems()}
             title={this.props.construct.getName('New Construct')}
-            subTitle={subTitle}
+            subTitle={subTitle.trim()}
+            label={isCircular ? 'Circular' : ''}
             fontSize="16px"
             noHover={construct.isFixed() || !isFocused}
             color={construct.getColor()}

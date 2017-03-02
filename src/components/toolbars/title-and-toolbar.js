@@ -37,6 +37,7 @@ class TitleAndToolbar extends Component {
     toolbarItems: PropTypes.array.isRequired,
     title: PropTypes.string.isRequired,
     subTitle: PropTypes.string,
+    label: PropTypes.string,
     fontSize: PropTypes.string.isRequired,
     color: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
@@ -84,7 +85,8 @@ class TitleAndToolbar extends Component {
             className="text"
             data-id={this.props.title}
           >{this.props.title}
-            <span>{this.props.subTitle}</span>
+            {this.props.subTitle ? <div className="subtitle">{this.props.subTitle}</div> : null}
+            {this.props.label ? <div className="label">{this.props.label}</div> : null}
           </div>
           <img src="/images/ui/edit.svg" />
         </div>

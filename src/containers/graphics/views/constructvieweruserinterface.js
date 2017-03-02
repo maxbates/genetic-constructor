@@ -22,6 +22,7 @@ import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import UserInterface from '../scenegraph2d/userinterface';
 import Fence from './fence';
+import { role } from '../../../constants/DragTypes';
 
 
 // # of pixels of mouse movement before a drag is triggered.
@@ -168,6 +169,10 @@ export default class ConstructViewerUserInterface extends UserInterface {
     }
 
     if (bestItem) {
+      // the start block of a circular construct cannot have anything dropped to the left
+      const isStartCircular = bestItem.node.glyph === 'backbone' && !bestItem.node.endCap;
+      const isEndCircular = bestItem.node.glyph === 'backbone' && bestItem.node.endCap;
+
       // the edgeThreshold is usually a small region at left/right of block
       // but if the block cannot have children then we expand to cover the entire block
       let threshold = edgeThreshold;
@@ -175,12 +180,17 @@ export default class ConstructViewerUserInterface extends UserInterface {
         threshold = Math.ceil(bestItem.AABB.w / 2);
       }
       let edge = null;
-      if (point.x <= bestItem.AABB.x + threshold) {
+      if (!isStartCircular && point.x <= bestItem.AABB.x + threshold) {
         edge = 'left';
       }
-      if (point.x >= bestItem.AABB.right - threshold) {
+      if (!isEndCircular && point.x >= bestItem.AABB.right - threshold) {
         edge = 'right';
       }
+      // don't allow user to drop ON the last block of a circular construct
+      if (isEndCircular && edge !== 'left') {
+        return null;
+      }
+
       return { block: bestItem.block, edge };
     }
     // the construct must be empty
@@ -526,7 +536,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
           draggables = [blockId];
           this.constructViewer.blockSelected(draggables);
         }
-        //this.constructViewer.blockAddToSelections([block]);
         // get global point as starting point for drag
         const globalPoint = this.mouseTrap.mouseToGlobal(evt);
         // proxy representing 1 ore more blocks
@@ -536,6 +545,15 @@ export default class ConstructViewerUserInterface extends UserInterface {
         // filter our selected elements so they are in natural order
         // and with children of selected parents excluded.
         const blockIds = sortBlocksByIndexAndDepthExclude(draggables).map(info => info.blockId);
+        // if a multi-select and any of the blocks are backbones disallow
+        if (blockIds.length > 1 && blockIds.some((blockId) => {
+          const block = this.constructViewer.props.blocks[blockId];
+          return block.rules.role === 'backbone';
+        })) {
+          this.constructViewer.grunt('Multiple blocks containing a Backbone cannot be dragged.');
+          return;
+        }
+
         if (!copying) {
           this.constructViewer.removePartsList(blockIds);
         }
@@ -658,30 +676,53 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
+   *
+   * @param payload
+   */
+  isPayloadBackbone(payload) {
+    // a single backbone block from the inventory
+    if (payload.type === role && payload.item.rules.role === 'backbone') {
+      return true;
+    }
+    // might be an array of ID's if drag started in the viewer.
+    if (Array.isArray(payload.item) && payload.item.length === 1) {
+      const block = this.constructViewer.props.blocks[payload.item[0]];
+      if (block.rules.role === 'backbone') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * drag over event
    */
   onDragOver(globalPosition, payload, proxySize) {
     // select construct on drag over
     this.selectConstruct();
-    // no drop on frozen or fixed constructs
-    if (this.construct.isFrozen() || this.construct.isFixed()) {
-      return;
-    }
-    if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
-      return;
-    }
-    // convert global point to local space via our mousetrap
-    const localPosition = this.mouseTrap.globalToLocal(globalPosition, this.el);
-    // user might be targeting the edge or center of block, or no block at all
-    const hit = this.nearestBlockAndOptionalVerticalEdgeAt(localPosition, proxySize);
-    if (hit) {
-      if (hit.edge) {
-        this.showInsertionPointForEdge(hit.block, hit.edge);
-      } else {
-        this.showInsertionPointForBlock(hit.block);
+    if (this.canAcceptPayload(payload)) {
+      // backbone can only be dropped at the start of a construct, that isn't already a circular construct.
+      if (this.isPayloadBackbone(payload)) {
+        if (this.construct.components.length) {
+          this.showInsertionPointForEdge(this.construct.components[0], 'left');
+        } else {
+          this.showDefaultInsertPoint();
+        }
+        return;
       }
-    } else {
-      this.showDefaultInsertPoint();
+      // convert global point to local space via our mousetrap
+      const localPosition = this.mouseTrap.globalToLocal(globalPosition, this.el);
+      // user might be targeting the edge or center of block, or no block at all
+      const hit = this.nearestBlockAndOptionalVerticalEdgeAt(localPosition, proxySize);
+      if (hit) {
+        if (hit.edge) {
+          this.showInsertionPointForEdge(hit.block, hit.edge);
+        } else {
+          this.showInsertionPointForBlock(hit.block);
+        }
+      } else {
+        this.showDefaultInsertPoint();
+      }
     }
   }
 
@@ -690,29 +731,48 @@ export default class ConstructViewerUserInterface extends UserInterface {
    * to our actual constructViewer which has all the necessary props
    */
   onDrop(globalPosition, payload, event) {
+    if (this.canAcceptPayload(payload)) {
+      // flatten dropped object and treats as new construct if we are empty.
+      const blockids = this.constructViewer.addItemAtInsertionPoint(payload, this.insertion, event);
+      this.constructViewer.constructSelected(this.constructViewer.props.constructId);
+      this.constructViewer.blockSelected(blockids);
+    }
+  }
+
+  /**
+   * true if this drag/drop payload can be accepted.
+   * @param payload
+   * @returns {boolean}
+   */
+  canAcceptPayload = (payload) => {
     // no drop on frozen or fixed constructs
     if (this.construct.isFrozen() || this.construct.isFixed()) {
-      return;
+      return false;
     }
     // for now templates can only be dropped on the new construct target which is part of the canvas
     if (payload.item.isConstruct && payload.item.isConstruct() && payload.item.isTemplate()) {
-      return;
+      return false;
     }
-
-    // flatten dropped object and treats as new construct if we are empty.
-    const blockids = this.constructViewer.addItemAtInsertionPoint(payload, this.insertion, event);
-    this.constructViewer.constructSelected(this.constructViewer.props.constructId);
-    this.constructViewer.blockSelected(blockids);
+    const isBackbone = this.isPayloadBackbone(payload);
+    // cannot drop a backbone on an existing circular construct
+    if (this.constructViewer.isCircularConstruct() && isBackbone) {
+      return false;
+    }
+    return true;
   }
 
   /**
    * show the insertion point at the top left of an empty construct.
    */
   showDefaultInsertPoint() {
-    // insertion point may alternate so ensure we remove the block cursor
-    this.hideBlockInsertionPoint();
-    const point = this.layout.getInitialLayoutPoint();
-    this.showInsertionPointForEdgeAt(point.x, point.y);
+    if (this.constructViewer.isCircularConstruct()) {
+      this.showInsertionPointForEdge(this.construct.components[0], 'right');
+    } else {
+      // insertion point may alternate so ensure we remove the block cursor
+      this.hideBlockInsertionPoint();
+      const point = this.layout.getInitialLayoutPoint();
+      this.showInsertionPointForEdgeAt(point.x, point.y);
+    }
   }
 
   /**
@@ -777,14 +837,6 @@ export default class ConstructViewerUserInterface extends UserInterface {
   }
 
   /**
-   * return the current insertion point if any
-   *
-   */
-  getInsertionPoint() {
-    return this.insertion;
-  }
-
-  /**
    * hide / deletion insertion point element
    */
   hideBlockInsertionPoint() {
@@ -803,5 +855,19 @@ export default class ConstructViewerUserInterface extends UserInterface {
       this.insertionEdgeEl.style.display = 'none';
     }
     this.insertion = null;
+  }
+
+  updateSelections() {
+    // for circular constructs we always select the end node if
+    // the start node is selected
+    const startNode = this.layout.getCircularStartNode();
+    const endNode = this.layout.getCircularEndNode();
+    if (this.selections.indexOf(startNode) >= 0) {
+      this.selections.push(endNode);
+      super.updateSelections();
+      this.selections.pop();
+    } else {
+      super.updateSelections();
+    }
   }
 }

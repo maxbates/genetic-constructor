@@ -23,6 +23,7 @@ import LineNode2D from '../scenegraph2d/line2d';
 import ListItem2D from '../scenegraph2d/listitem2d';
 import Node2D from '../scenegraph2d/node2d';
 import Role2D from '../scenegraph2d/role2d';
+import Backbone2D from '../scenegraph2d/backbone2d';
 import kT from './layoutconstants';
 
 /**
@@ -145,8 +146,6 @@ export default class Layout {
           delete this.partUsage[part];
           node.parent.removeChild(node);
         }
-        // drop any associated list items with the part.
-        //this.dropPartListItems(part);
       }
     });
   }
@@ -255,13 +254,9 @@ export default class Layout {
     }
   }
 
-  /**
-   * drop any list nodes that are not up tp date with the updateReference
-   */
   dropListItems() {
     // outer loop will iterate over a hash of list node each block with list items
-    Object.keys(this.listNodes).forEach((blockId) => {
-      const nodeHash = this.listNodes[blockId];
+    Object.values(this.listNodes).forEach((nodeHash) => {
       Object.keys(nodeHash).forEach((key) => {
         const node = nodeHash[key];
         if (node.updateReference !== this.updateReference) {
@@ -278,6 +273,12 @@ export default class Layout {
    */
   elementFromNode(node) {
     let part = this.nodes2parts[node.uuid];
+    // one of many hacks to handle circular constructs, this returns the ID for the initial block
+    // which we assume is the circular block itself when given the id for the end cap.
+    if (part === Layout.backboneEndCapId) {
+      invariant(this.constructViewer.isCircularConstruct() && this.rootLayout, 'this should only occur in the root layout');
+      return this.construct.components[0];
+    }
     if (!part) {
       const nestedKeys = Object.keys(this.nestedLayouts);
       for (let i = 0; i < nestedKeys.length && !part; i += 1) {
@@ -285,6 +286,27 @@ export default class Layout {
       }
     }
     return part;
+  }
+
+  /**
+   * if we are showing a circular construct return the node representing the start block
+   * NOTE: We don't have to worry about nested constructs here.
+   */
+  getCircularStartNode() {
+    if (this.constructViewer.isCircularConstruct()) {
+      return this.parts2nodes[this.construct.components[0]];
+    }
+    return null;
+  }
+  /**
+   * if we are showing a circular construct return the node representing the end cap
+   * NOTE: We don't have to worry about nested constructs here.
+   */
+  getCircularEndNode() {
+    if (this.constructViewer.isCircularConstruct()) {
+      return this.parts2nodes[Layout.backboneEndCapId];
+    }
+    return null;
   }
 
   /**
@@ -317,9 +339,6 @@ export default class Layout {
   /**
    * create a node, if not already created for the given piece.
    * Add to our hash for tracking
-   *
-   *
-   *
    */
   partFactory(part, appearance) {
     let node = this.nodeFromElement(part);
@@ -328,14 +347,23 @@ export default class Layout {
         dataAttribute: { name: 'nodetype', value: 'block' },
         sg: this.sceneGraph,
       }, appearance);
-      props.roleName = this.isSBOL(part) ? this.blocks[part].rules.role || this.blocks[part].metadata.role : null;
-      node = new Role2D(props);
+      if (part === Layout.backboneEndCapId) {
+        props.roleName = 'backbone-endcap';
+      } else {
+        props.roleName = this.isSBOL(part) ? this.blocks[part].rules.role || this.blocks[part].metadata.role : null;
+      }
+      switch (props.roleName) {
+        case 'backbone':
+          node = new Backbone2D(props);
+          break;
+        case 'backbone-endcap':
+          node = new Backbone2D(props);
+          node.endCap = true;
+          break;
+        default: node = new Role2D(props);
+      }
       this.sceneGraph.root.appendChild(node);
       this.map(part, node);
-      // set correct hover class
-      node.set({
-        hoverClass: props.roleName ? 'inline-editor-hover-block' : 'inline-editor-hover-block-noimage',
-      });
     }
     // hide/show child expand glyph
     node.set({
@@ -393,6 +421,10 @@ export default class Layout {
    0   * @return {boolean}
    */
   someChildrenVisible(blockId) {
+    // end cap never shows children even though its referenced start block can
+    if (blockId === Layout.backboneEndCapId) {
+      return false;
+    }
     return this.blocks[blockId].components.some(childId => !this.blockIsHidden(childId));
   }
 
@@ -496,6 +528,29 @@ export default class Layout {
   }
 
   /**
+   * circular constructs have an end bar on
+   * the outer most construct
+   */
+  endBarFactory() {
+    if (this.constructViewer.isCircularConstruct() && this.rootLayout) {
+      if (!this.endBar) {
+        this.endBar = new Node2D(Object.assign({
+          sg: this.sceneGraph,
+        }, kT.verticalAppearance));
+        this.sceneGraph.root.appendChild(this.endBar);
+      }
+      this.endBar.set({
+        fill: this.baseColor,
+      });
+    } else {
+      if (this.endBar) {
+        this.endBar.parent.removeChild(this.endBar);
+        this.endBar = null;
+      }
+    }
+  }
+
+  /**
    * create or recycle a row on demand.
    */
   rowFactory(bounds) {
@@ -546,9 +601,7 @@ export default class Layout {
    * dispose any nested constructs no longer referenced.
    */
   disposeNestedLayouts() {
-    Object.keys(this.nestedLayouts).forEach((key) => {
-      this.nestedLayouts[key].dispose();
-    });
+    Object.values(this.nestedLayouts).forEach(nestedLayout => nestedLayout.dispose());
     this.nestedLayouts = this.newNestedLayouts;
   }
 
@@ -567,7 +620,15 @@ export default class Layout {
     this.showHidden = options.showHidden;
     this.construct = options.construct;
     this.palette = this.rootLayout ? this.construct.metadata.palette || project.metadata.palette : this.palette;
-    this.blocks = options.blocks;
+    // we might need to hack in a fake block if this is a circular construct
+    if (this.constructViewer.isCircularConstruct()) {
+      this.blocks = Object.entries(options.blocks).reduce((blocks, keyValuePair) => {
+        blocks[keyValuePair[0]] = keyValuePair[1];
+        return blocks;
+      }, {});
+    } else {
+      this.blocks = options.blocks;
+    }
     this.currentConstructId = options.currentConstructId;
     this.currentBlocks = options.currentBlocks;
     this.focusedOptions = options.focusedOptions || {};
@@ -618,6 +679,11 @@ export default class Layout {
   }
 
   /**
+   * fake ID for backbone end cap.
+   */
+  static backboneEndCapId = 'backbone-end-cap';
+
+  /**
    * layout, configured with various options:
    * xlimit: maximum x extent
    *
@@ -659,7 +725,17 @@ export default class Layout {
     let rowIndex = 0;
 
     // display only non hidden blocks
-    const components = this.showHidden ? ct.components : ct.components.filter(blockId => !this.blockIsHidden(blockId));
+    const components = this.showHidden ? [...ct.components] : ct.components.filter(blockId => !this.blockIsHidden(blockId));
+
+    if (this.constructViewer.isCircularConstruct() && this.rootLayout) {
+      // put a reference to the first component ( the backbone block ) into block hash
+      this.blocks[Layout.backboneEndCapId] = this.blocks[components[0]];
+      // add the fake ID to the components list
+      components.push(Layout.backboneEndCapId);
+    }
+
+    // end bar is used only to cap circular constructs
+    this.endBarFactory();
 
     // layout all non hidden blocks
     components.forEach((part) => {
@@ -669,9 +745,21 @@ export default class Layout {
       }
       // resize row bar to current row width
       const rowStart = this.insetX;
-      const rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      let rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      rowEnd += this.endBar ? 1 : 0;
       const rowWidth = rowEnd - rowStart;
       row.set({ translateX: rowStart + rowWidth / 2, width: rowWidth });
+
+      // update end bar as required
+      if (this.endBar) {
+        const height = kT.rowBarH + kT.blockH;
+        this.endBar.set({
+          translateX: rowEnd + kT.rowBarW / 2,
+          width: kT.rowBarW,
+          translateY: yp - kT.rowBarH + height / 2,
+          height,
+        });
+      }
 
       // create the node representing the part
       this.partFactory(part, kT.partAppearance);
@@ -727,7 +815,7 @@ export default class Layout {
       maxListHeight = Math.max(maxListHeight, listN * kT.optionH);
       invariant(isFinite(maxListHeight) && maxListHeight >= 0, 'expected a valid number');
 
-      // update part, including its text and color and with height to accomodate list items
+      // update part, including its text and color and with height to accommodate list items
       node.set({
         bounds: new Box2D(xp, yp, td.x, kT.blockH),
         text: name,
@@ -797,9 +885,21 @@ export default class Layout {
     // ensure final row has the final row width
     if (row) {
       const rowStart = this.insetX + 1;
-      const rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      let rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      rowEnd += this.endBar ? 1 : 0;
       const rowWidth = rowEnd - rowStart;
       row.set({ translateX: rowStart + rowWidth / 2, width: rowWidth });
+
+      // update end bar as required
+      if (this.endBar) {
+        const height = kT.rowBarH + kT.blockH;
+        this.endBar.set({
+          translateX: rowEnd + kT.rowBarW / 2,
+          width: kT.rowBarW,
+          translateY: yp - kT.rowBarH + height / 2,
+          height,
+        });
+      }
 
       // ensure all nested constructs on the row are updated for list block height
       if (nestedConstructs.length && maxListHeight > 0) {
@@ -836,14 +936,15 @@ export default class Layout {
 
     // position and size vertical bar
     const heightUsed = yp - startY + kT.blockH;
-    let barHeight = heightUsed - kT.blockH + kT.rowBarH;
-    // if the height is small just make zero since its not needed
-    if (barHeight <= kT.rowBarH) {
+    let barHeight = Math.max(kT.rowBarH + kT.blockH, heightUsed - kT.blockH + kT.rowBarH);
+    // do not display if no blocks
+    if (!components.length) {
       barHeight = 0;
     }
     this.vertical.set({
       bounds: new Box2D(this.insetX, startY - kT.rowBarH, kT.rowBarW, barHeight),
     });
+
     // filter the selections so that we eliminate those block we don't contain
     let selectedNodes = [];
     if (this.currentBlocks) {
@@ -948,15 +1049,10 @@ export default class Layout {
     this.disposed = true;
     Layout.removeNode(this.banner);
     Layout.removeNode(this.vertical);
-    this.rows.forEach((node) => {
-      Layout.removeNode(node);
-    });
-    Object.keys(this.parts2nodes).forEach((part) => {
-      Layout.removeNode(this.parts2nodes[part]);
-    });
-    Object.keys(this.connectors).forEach((key) => {
-      Layout.removeNode(this.connectors[key].line);
-    });
+    this.rows.forEach(node => Layout.removeNode(node));
+    Object.values(this.parts2nodes).forEach(node => Layout.removeNode(node));
+    Object.values(this.connectors).forEach(connector => Layout.removeNode(connector.line));
     this.disposeNestedLayouts();
   }
+
 }

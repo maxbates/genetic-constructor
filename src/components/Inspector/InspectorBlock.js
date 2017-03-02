@@ -214,6 +214,7 @@ export class InspectorBlock extends Component {
   render() {
     const { instances, construct, readOnly, forceIsConstruct } = this.props;
     const singleInstance = instances.length === 1;
+    const isBackbone = singleInstance && instances[0].rules.role === 'backbone';
     const isList = singleInstance && instances[0].isList();
     const isConstruct = singleInstance && instances[0].isConstruct();
     const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
@@ -324,7 +325,7 @@ export class InspectorBlock extends Component {
             paletteName={palette}
             onSelectColor={this.selectColor}
           />
-          {singleInstance && hasParents ? <SBOLPicker
+          {singleInstance && hasParents && !isBackbone ? <SBOLPicker
             setText={this.setColorSymbolText}
             current={this.currentRoleSymbol()}
             readOnly={readOnly || isFixed}
@@ -333,7 +334,7 @@ export class InspectorBlock extends Component {
         </div>
         <InspectorRow
           heading={`${type} Rules`}
-          condition={!isConstruct && singleInstance && hasParents}
+          condition={!isConstruct && singleInstance && hasParents && !isBackbone}
         >
           <TemplateRules
             block={instances[0]}

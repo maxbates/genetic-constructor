@@ -62,44 +62,6 @@ export default class UserInterface {
     this.updateSelections();
   }
   /**
-   * add to selections, ignores if already present
-   *
-   */
-  addToSelections(nodes) {
-    let added = 0;
-    (nodes || []).forEach((node) => {
-      if (!this.isSelected(node)) {
-        this.selections.push(node);
-        added += 1;
-      }
-    });
-    if (added) {
-      this.updateSelections();
-    }
-  }
-  /**
-   * remove from selections, ignores if not present
-   *
-   *
-   */
-  removeFromSelections(node) {
-    invariant(node.sg === this.sg, 'node is not in our scenegraph');
-    const index = this.selections.indexOf(node);
-    if (index >= 0) {
-      this.selections.splice(index, 1);
-      this.updateSelections();
-    }
-  }
-  /**
-   * returns true if the node is selected
-   *
-   * @return {Boolean}      [description]
-   */
-  isSelected(node) {
-    return this.selections.indexOf(node) >= 0;
-  }
-
-  /**
    * create / add / remove selection elements according to current selections
    *
    */

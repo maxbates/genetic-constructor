@@ -101,6 +101,7 @@ export default class RoleSvg extends Component {
       onClick={this.props.onClick}
       onMouseEnter={this.props.onMouseEnter}
       onMouseLeave={this.props.onMouseLeave}
+      data-symbol={this.props.symbolName}
       style={style}
       className={classes}
       dangerouslySetInnerHTML={{ __html: this.markup }}

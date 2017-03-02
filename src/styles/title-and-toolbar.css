@@ -21,9 +21,23 @@
       overflow: hidden;
       flex-shrink: 1;
       user-select: none;
-      span {
+      display: inline-flex;
+      align-items: center;
+      font-size: 16px;
+
+      .subtitle {
         margin-left: 1rem;
         color: gray;
+        text-indent: 0;
+      }
+      .label {
+        background-color: gray;
+        color: white;
+        padding: 1px 6px;
+        border-radius: 5px;
+        text-indent: 0;
+        margin-left: 1rem;
+        font-size: 14px;
       }
     }
     img {
@@ -41,8 +55,12 @@
       .text {
         color: var(--colors-lighterGrey);
       }
-      span {
+      .subtitle {
         color: var(--colors-darkGrey);
+      }
+      .label {
+        color: var(--colors-darkGrey);
+        background-color: transparent;
       }
     }
   }

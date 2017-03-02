@@ -290,18 +290,26 @@ class GlobalNav extends Component {
   copyFocusedBlocksToClipboard() {
     // we don't currently allow copying from frozen / fixed constructs since that would allow copy ( and then pasting )
     // of list blocks from temlates.
-    if (this.props.focus.blockIds.length && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
+    let blockIds = [...this.props.focus.blockIds];
+    if (blockIds.length && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
+      if (blockIds.length > 1) {
+        blockIds = blockIds.filter((blockId) => {
+          const block = this.props.blocks[blockId];
+          return block.rules.role !== 'backbone';
+        });
+      }
+
       // sort selected blocks so they are pasted in the same order as they exist now.
       // NOTE: we don't copy the children of any selected parents since they will
       // be cloned along with their parent
-      const sorted = sortBlocksByIndexAndDepthExclude(this.props.focus.blockIds);
+      const sorted = sortBlocksByIndexAndDepthExclude(blockIds);
       // sorted is an array of array, flatten while retaining order
       const currentProjectVersion = this.props.projectGetVersion(this.props.currentProjectId);
       const clones = sorted.map(info => this.props.blockClone(info.blockId, {
         projectId: this.props.currentProjectId,
         version: currentProjectVersion,
       }));
-      // put clones on the clipboardparentObjectInput
+      // put clones on the clipboard
       this.props.clipboardSetData([clipboardFormats.blocks], [clones]);
     }
   }
@@ -326,11 +334,31 @@ class GlobalNav extends Component {
 
   // cut focused blocks to the clipboard, no clone required since we are removing them.
   cutFocusedBlocksToClipboard() {
-    if (this.props.focus.blockIds.length && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
-      const blockIds = this.props.blockDetach(...this.props.focus.blockIds);
+    let blockIds = [...this.props.focus.blockIds];
+    if (blockIds.length && !this.focusedConstruct().isFixed() && !this.focusedConstruct().isFrozen()) {
+      if (blockIds.length > 1) {
+        blockIds = blockIds.filter((blockId) => {
+          const block = this.props.blocks[blockId];
+          return block.rules.role !== 'backbone';
+        });
+      }
+      blockIds = this.props.blockDetach(...blockIds);
       this.props.clipboardSetData([clipboardFormats.blocks], [blockIds.map(blockId => this.props.blocks[blockId])]);
       this.props.focusBlocks([]);
     }
+  }
+
+  /**
+   * true if the focused construct is circular
+   * @returns {boolean}
+   */
+  isFocusedConstructCircular() {
+    const construct = this.focusedConstruct();
+    if (construct.components.length) {
+      const firstChild = this.props.blocks[construct.components[0]];
+      return firstChild.rules.role === 'backbone';
+    }
+    return false;
   }
 
   // paste from clipboard to current construct
@@ -344,19 +372,27 @@ class GlobalNav extends Component {
     // paste blocks into construct if format available
     const index = this.props.clipboard.formats.indexOf(clipboardFormats.blocks);
     if (index >= 0) {
-      // TODO, paste must be prevented on fixed or frozen blocks
       const blocks = this.props.clipboard.data[index];
       invariant(blocks && blocks.length && Array.isArray(blocks), 'expected array of blocks on clipboard for this format');
-      // we have to clone the blocks currently on the clipboard since they
-      // can't be pasted twice
+      // we have to clone the blocks currently on the clipboard since they can't be pasted twice
       const clones = blocks.map(block => this.props.blockClone(block.id));
       // insert at end of construct if no blocks selected
       let insertIndex = this.focusedConstruct().components.length;
       let parentId = this.focusedConstruct().id;
       if (this.props.focus.blockIds.length) {
-        const insertInfo = this.findInsertBlock();
-        insertIndex = insertInfo.index;
-        parentId = insertInfo.parent;
+        // a single backbone can only be pasted into a non circular construct at the beginning
+        if (clones.length === 1 && clones[0].rules.role === 'backbone') {
+          // no pasting backbones into circular constructs
+          if (this.isFocusedConstructCircular()) {
+            return;
+          }
+          // must go into the first slot
+          insertIndex = 0;
+        } else {
+          const insertInfo = this.findInsertBlock();
+          insertIndex = insertInfo.index;
+          parentId = insertInfo.parent;
+        }
       }
       // add to construct
       this.props.blockAddComponents(parentId, clones.map(clone => clone.id), insertIndex);
