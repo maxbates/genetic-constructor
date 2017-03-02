@@ -34,6 +34,7 @@ import {
   blockRename,
   blockSetPalette,
   blockSetListBlock,
+  blockSetRole,
 } from '../../../actions/blocks';
 import {
   focusBlockOption,
@@ -95,6 +96,7 @@ export class ConstructViewer extends Component {
     blockCreate: PropTypes.func,
     blockClone: PropTypes.func,
     blockRename: PropTypes.func,
+    blockSetRole: PropTypes.func,
     blockSetPalette: PropTypes.func,
     blockSetListBlock: PropTypes.func,
     blockAddComponent: PropTypes.func,
@@ -386,7 +388,15 @@ export class ConstructViewer extends Component {
         text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
         disabled: this.props.construct.isFixed() || !canListify,
         action: () => {
-          this.props.blockSetListBlock(firstBlock.id, !firstBlock.isList());
+          const value = !firstBlock.isList();
+          this.props.blockSetListBlock(firstBlock.id, value);
+          // if no symbol and becoming a list block then set the list block symbol
+          if (value && !firstBlock.rules.role) {
+            this.props.blockSetRole(firstBlock.id, 'list');
+          }
+          if (!value && firstBlock.rules.role === 'list') {
+            this.props.blockSetRole(firstBlock.id, null);
+          }
         },
       },
     ] : [];
@@ -1015,6 +1025,7 @@ export default connect(mapStateToProps, {
   blockGetParents,
   blockGetComponentsRecursive,
   blockRename,
+  blockSetRole,
   focusBlocks,
   focusBlocksAdd,
   focusBlocksToggle,

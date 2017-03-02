@@ -90,6 +90,7 @@ export default class RoleGlyph2D extends Glyph2D {
       this.svgContainer.style.width = `${kT.roleIcon}px`;
     } else {
       this.svgContainer.style.display = 'none';
+      this.roleName = null;
     }
     this.triangle.style.display = this.node.hasChildren ? 'block' : 'none';
   }

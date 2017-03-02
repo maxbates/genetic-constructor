@@ -50,7 +50,13 @@ export class TemplateRules extends Component {
         'List Block',
         (value) => {
           this.props.blockSetListBlock(this.props.block.id, value);
-          this.props.blockSetRole(this.props.block.id, value ? 'list' : null);
+          // if no symbol and becoming a list block then set the list block symbol
+          if (value && !this.props.block.rules.role) {
+            this.props.blockSetRole(this.props.block.id, 'list');
+          }
+          if (!value && this.props.block.rules.role === 'list') {
+            this.props.blockSetRole(this.props.block.id, null);
+          }
         },
         () => this.props.block.isConstruct() || this.props.block.hasSequence()],
       /*
