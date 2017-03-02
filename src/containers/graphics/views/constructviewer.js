@@ -635,25 +635,6 @@ export class ConstructViewer extends Component {
     return this.props.construct.id === this.props.focus.constructId;
   }
 
-  lockIcon() {
-    if (!this.props.construct.isFrozen()) {
-      return null;
-    }
-    const isFocused = this.props.construct.id === this.props.focus.constructId;
-    const classes = `lockIcon${isFocused ? '' : ' sceneGraph-dark'}`;
-    return (
-      <div className={classes}>
-        <RoleSvg
-          symbolName="lock"
-          color={this.props.construct.getColor()}
-          width="14px"
-          height="14px"
-          fill={this.props.construct.getColor()}
-        />
-      </div>
-    );
-  }
-
   /**
    * toggle the side panels
    */
@@ -944,7 +925,7 @@ export class ConstructViewer extends Component {
    * @returns {Array}
    */
   toolbarItems() {
-    const locked = this.props.construct.isFrozen() && this.props.construct.isFixed();
+    const locked = this.props.construct.isFrozen() || this.props.construct.isFixed();
     return [
       {
         text: 'View',
@@ -963,7 +944,7 @@ export class ConstructViewer extends Component {
       },
       {
         text: locked ? 'Locked' : 'Unlocked',
-        imageURL: this.props.construct.isFrozen() ? '/images/ui/lock-locked.svg' : '/images/ui/lock-unlocked.svg',
+        imageURL: locked ? '/images/ui/lock-locked.svg' : '/images/ui/lock-unlocked.svg',
         enabled: false,
         clicked: () => {},
       },
