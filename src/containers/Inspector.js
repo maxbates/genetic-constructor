@@ -32,6 +32,7 @@ export class Inspector extends Component {
     inspectorSelectTab: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
     project: PropTypes.object,
+    userOwnsProject: PropTypes.bool.isRequired,
     construct: PropTypes.object,
     type: PropTypes.string.isRequired,
   };
@@ -44,9 +45,14 @@ export class Inspector extends Component {
     let title = tabInfo ? tabInfo.title : '';
     if (title === 'Information') {
       switch (this.props.type) {
-        case 'project': title = 'Project Information'; break;
-        case 'construct': title = 'Construct Information'; break;
-        default: title = 'Block Information';
+        case 'project':
+          title = 'Project Information';
+          break;
+        case 'construct':
+          title = 'Construct Information';
+          break;
+        default:
+          title = 'Block Information';
       }
     }
     return title;
@@ -77,10 +83,10 @@ export class Inspector extends Component {
       type: 'help',
       title: 'Help',
     },
-    // History: {
-    //   type: 'history',
-    //   title: 'History',
-    // },
+    History: {
+      type: 'history',
+      title: 'Version History',
+    },
     Feedback: {
       type: 'feedback',
       title: 'Feedback',
@@ -88,29 +94,42 @@ export class Inspector extends Component {
   };
 
   render() {
-    const { isVisible, projectId, project, construct } = this.props;
+    const { isVisible, projectId, project, construct, userOwnsProject } = this.props;
     // classes for content area
     const contentClasses = `no-vertical-scroll content${isVisible ? '' : ' content-closed'}`;
     // map sections to icons
-    const icons = Object.keys(this.sections).map(sectionName => (<SectionIcon
-      key={sectionName}
-      open={isVisible}
-      onSelect={this.setActive}
-      onToggle={() => this.toggle(!isVisible)}
-      selected={this.props.currentTab === sectionName && isVisible}
-      section={sectionName}
-    />));
+    const icons = Object.keys(this.sections).map(sectionName => (
+      <SectionIcon
+        key={sectionName}
+        open={isVisible}
+        onSelect={this.setActive}
+        onToggle={() => this.toggle(!isVisible)}
+        selected={this.props.currentTab === sectionName && isVisible}
+        section={sectionName}
+      />
+    ));
 
     // setup content area
     const tabInfo = this.sections[this.props.currentTab];
     let tab;
     if (tabInfo) {
-      tab = <InspectorGroup tabInfo={tabInfo} projectId={projectId} project={project} construct={construct} />;
+      tab = (
+        <InspectorGroup
+          tabInfo={tabInfo}
+          projectId={projectId}
+          project={project}
+          construct={construct}
+          userOwnsProject={userOwnsProject}
+        />
+      );
     }
 
     return (
       <div className={`SidePanel Inspector${isVisible ? ' visible' : ''}`}>
-        <InspectorRightNav isVisible={isVisible} currentProjectId={this.props.projectId} />
+        <InspectorRightNav
+          isVisible={isVisible}
+          currentProjectId={this.props.projectId}
+        />
         <span className="title">{this.getTitle(tabInfo)}</span>
         <div className="vertical-menu">
           {icons}
@@ -153,10 +172,7 @@ function mapStateToProps(state, props) {
   const forceIsConstruct = (level === 'construct') ||
     blockIds.some(blockId => currentProject.components.indexOf(blockId) >= 0);
 
-  const orders = Object.keys(state.orders)
-  .map(orderId => state.orders[orderId])
-  .filter(order => order.projectId === currentProject.id && order.isSubmitted())
-  .sort((one, two) => one.status.timeSent - two.status.timeSent);
+  const userOwnsProject = currentProject.owner === state.user.userid;
 
   return {
     isVisible,
@@ -167,8 +183,8 @@ function mapStateToProps(state, props) {
     projectId,
     project: currentProject,
     construct: currentConstruct,
+    userOwnsProject,
     focused,
-    orders,
     overrides,
   };
 }

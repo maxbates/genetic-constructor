@@ -54,7 +54,7 @@ const defaultErrorHandling = (resp) => {
   const clone = resp.clone();
 
   return clone.text().then((text) => {
-    logger(text);
+    console.log(text);
     return Promise.reject(resp);
   });
 };

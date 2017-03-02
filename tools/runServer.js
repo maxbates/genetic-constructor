@@ -69,6 +69,11 @@ function runServer(cb) {
       return;
     }
 
+    //if we didn't get a signal, try to restart
+    if (!signal) {
+      return;
+    }
+
     //we trigger 87 on build failure in server.js
     if (code === 87) {
       process.exit(1);
@@ -85,7 +90,7 @@ function runServer(cb) {
 process.on('exit', () => {
   if (server) {
     console.log('killing server');
-    server.kill('SIGTERM');
+    server.kill(terminationSignal);
   }
 });
 

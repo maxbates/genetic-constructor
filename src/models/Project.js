@@ -38,19 +38,19 @@ export default class Project extends Instance {
    * Create a project given some input object
    * @memberOf Project
    * @param {Object} [input]
-   * @param {Boolean} [frozen=true]
+   * @param {Boolean} [immutable=true]
    * @returns {Project}
    */
-  constructor(input, frozen = true) {
-    super(input, ProjectSchema.scaffold(), frozen);
+  constructor(input, immutable = true) {
+    super(input, ProjectSchema.scaffold(), immutable);
   }
 
   /**
-   * Create an unfrozen project, extending input with schema
+   * Create an unimmutable project, extending input with schema
    * @method classless
    * @memberOf Project
    * @param {Object} [input]
-   * @returns {Object} an unfrozen JSON, no instance methods
+   * @returns {Object} an unimmutable JSON, no instance methods
    */
   static classless(input) {
     return assign({}, new Project(input, false));
@@ -142,6 +142,45 @@ export default class Project extends Instance {
   }
 
   /**
+   * Mutate a property of a Project to a new value. calls {@link Instance.mutate}.
+   * @method mutate
+   * @memberOf Project
+   * @param {string} path Path of property to change
+   * @param {*} value New value
+   * @throws if the Project is frozen
+   * @returns {Project} The mutated Project
+   * @example
+   * const initial = new Project({myArray: [0,0]});
+   * const next = initial.mutate('myArray[1]', 10);
+   * initial.myArray[1]; //0
+   * next.myArray[1]; //10
+   */
+  mutate(path, value) {
+    invariant(!this.isFrozen(), 'cannot mutate a frozen Project');
+    return super.mutate(path, value);
+  }
+
+  /**
+   * Return a new Project with input object merged into it. Calls {@link Instance.merge}
+   * @method merge
+   * @memberOf Project
+   * @param {Object} obj Object to merge into instance
+   * @throws if the Project is frozen
+   * @returns {Project} A new Project, with `obj` merged in
+   * @example
+   * const initial = new Project({myArray: [0,0]});
+   * const next = initial.merge({some: 'value', myArray: false});
+   * initial.myArray; //[0,1]
+   * next.myArray; //false
+   * initial.some; //undefined
+   * next.some; //'value'
+   */
+  merge(obj) {
+    invariant(!this.isFrozen(), 'cannot mutate a frozen Project');
+    return super.merge(obj);
+  }
+
+  /**
    * Set name of the project
    * @method setName
    * @memberOf Project
@@ -176,6 +215,16 @@ export default class Project extends Instance {
   setPalette(palette) {
     invariant(palettes.indexOf(palette) >= 0, 'palette must exist');
     return this.mutate('metadata.palette', palette);
+  }
+
+  /**
+   * Check if the project is frozen
+   * @method isFrozen
+   * @memberOf Project
+   * @returns {boolean} Whether project is frozen
+   */
+  isFrozen() {
+    return this.rules.frozen === true;
   }
 
   //ideally, this would just return the same instance, would be much easier
@@ -219,7 +268,6 @@ export default class Project extends Instance {
     return this.mutate('components', this.components.slice(0, index).concat(components).concat(this.components.slice(index)));
   }
 
-
   /**
    * Remove constructs from the project
    * @method removeComponents
@@ -242,22 +290,22 @@ export default class Project extends Instance {
    */
   fileWrite(namespace, name, contents) {
     return projectFileWrite(this.id, namespace, name, contents)
-      .then((result) => {
-        const version = result.VersionId;
-        const fileIndex = this.files.findIndex(fileObj => fileObj.namespace === namespace && fileObj.name === name);
+    .then((result) => {
+      const version = result.VersionId;
+      const fileIndex = this.files.findIndex(fileObj => fileObj.namespace === namespace && fileObj.name === name);
 
-        const fileInfo = {
-          name,
-          namespace,
-          version,
-        };
+      const fileInfo = {
+        name,
+        namespace,
+        version,
+      };
 
-        //update version
-        if (fileIndex >= 0) {
-          return this.mutate(`files[${fileIndex}]`, fileInfo);
-        }
-        return this.mutate('files', [...this.files, fileInfo]);
-      });
+      //update version
+      if (fileIndex >= 0) {
+        return this.mutate(`files[${fileIndex}]`, fileInfo);
+      }
+      return this.mutate('files', [...this.files, fileInfo]);
+    });
   }
 
   /**
@@ -272,13 +320,13 @@ export default class Project extends Instance {
    */
   fileRead(namespace, name, format = 'text', version) {
     return projectFileRead(this.id, namespace, name)
-      .then((resp) => {
-        if (format === 'text') {
-          return resp.text();
-        } else if (format === 'json') {
-          return resp.json();
-        }
-        return resp;
-      });
+    .then((resp) => {
+      if (format === 'text') {
+        return resp.text();
+      } else if (format === 'json') {
+        return resp.json();
+      }
+      return resp;
+    });
   }
 }

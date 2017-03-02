@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
@@ -224,6 +224,7 @@ export class ConstructViewer extends Component {
   componentWillUnmount() {
     delete idToViewer[this.props.constructId];
     this.resizeDebounced.cancel();
+    this.update.cancel();
     window.removeEventListener('resize', this.resizeDebounced);
     this.sg.destroy();
   }
@@ -235,7 +236,7 @@ export class ConstructViewer extends Component {
     let order = this.props.orderCreate(this.props.currentProjectId, [this.props.construct.id]);
     this.props.orderList(this.props.currentProjectId)
       .then((orders) => {
-        order = this.props.orderSetName(order.id, `Order ${orders.length}`);
+        order = this.props.orderSetName(order.id, `Order ${orders.length + 1}`);
         this.props.uiShowOrderForm(true, order.id);
       });
   };
@@ -245,9 +246,16 @@ export class ConstructViewer extends Component {
    */
   onTitleClicked = (event) => {
     const { construct } = this.props;
+
+    if (construct.isFrozen()) {
+      return;
+    }
+
     const wasFocused = construct.id === this.props.focus.constructId;
     this.props.focusBlocks([]);
     this.props.focusConstruct(construct.id);
+    this.props.inspectorSelectTab('Information');
+
     if (!construct.isFixed() && wasFocused) {
       // there might be an autoscroll when focusing the construct so wait for that to complete
       window.setTimeout(() => {
@@ -366,8 +374,10 @@ export class ConstructViewer extends Component {
     if (!block) {
       return false;
     }
-    // list blocks cannot have children
-    return !block.isList() && !block.isHidden();
+    if (block.isList() || block.isHidden() || block.isFixed()) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -623,6 +633,25 @@ export class ConstructViewer extends Component {
    */
   isFocused() {
     return this.props.construct.id === this.props.focus.constructId;
+  }
+
+  lockIcon() {
+    if (!this.props.construct.isFrozen()) {
+      return null;
+    }
+    const isFocused = this.props.construct.id === this.props.focus.constructId;
+    const classes = `lockIcon${isFocused ? '' : ' sceneGraph-dark'}`;
+    return (
+      <div className={classes}>
+        <RoleSvg
+          symbolName="lock"
+          color={this.props.construct.getColor()}
+          width="14px"
+          height="14px"
+          fill={this.props.construct.getColor()}
+        />
+      </div>
+    );
   }
 
   /**
@@ -915,12 +944,12 @@ export class ConstructViewer extends Component {
    * @returns {Array}
    */
   toolbarItems() {
+    const locked = this.props.construct.isFrozen() && this.props.construct.isFixed();
     return [
       {
         text: 'View',
         imageURL: '/images/ui/view.svg',
-        enabled: true,
-        clicked: (event) => {
+        onClick: (event) => {
           this.showViewMenu(event.target);
         },
       },
@@ -928,12 +957,12 @@ export class ConstructViewer extends Component {
         text: 'Palette',
         imageURL: '/images/ui/color.svg',
         enabled: !this.isSampleProject() && !this.props.construct.isFixed(),
-        clicked: (event) => {
+        onClick: (event) => {
           this.showPaletteMenu(event.target);
         },
       },
       {
-        text: this.props.construct.isFrozen() ? 'Locked' : 'Unlocked',
+        text: locked ? 'Locked' : 'Unlocked',
         imageURL: this.props.construct.isFrozen() ? '/images/ui/lock-locked.svg' : '/images/ui/lock-unlocked.svg',
         enabled: false,
         clicked: () => {},
@@ -942,12 +971,12 @@ export class ConstructViewer extends Component {
         text: 'Order DNA',
         imageURL: '/images/ui/order.svg',
         enabled: this.allowOrder(),
-        clicked: this.onOrderDNA,
+        onClick: this.onOrderDNA,
       },
       {
         text: 'Download Construct',
         imageURL: '/images/ui/download.svg',
-        enabled: true,
+        enabled: false,
         clicked: () => {
           this.grunt('Preparing data. Download will begin automatically when complete.');
           downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
@@ -957,15 +986,14 @@ export class ConstructViewer extends Component {
         text: 'Delete Construct',
         imageURL: '/images/ui/delete.svg',
         enabled: !this.isSampleProject(),
-        clicked: () => {
+        onClick: () => {
           this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
         },
       },
       {
         text: 'More...',
         imageURL: '/images/ui/more.svg',
-        enabled: true,
-        clicked: (event) => {
+        onClick: (event) => {
           this.showMoreMenu(event.target);
         },
       },
@@ -980,7 +1008,6 @@ export class ConstructViewer extends Component {
     const isCircular = this.isCircularConstruct();
     const isFocused = construct.id === this.props.focus.constructId;
     const viewerClasses = `construct-viewer${isFocused ? ' construct-viewer-focused' : ''}`;
-    const subTitle = `${construct.isTemplate() ? 'Template' : ''}`;
     return (
       <div
         className={viewerClasses}
@@ -994,12 +1021,12 @@ export class ConstructViewer extends Component {
           <TitleAndToolbar
             toolbarItems={this.toolbarItems()}
             title={this.props.construct.getName('New Construct')}
-            subTitle={subTitle.trim()}
             label={isCircular ? 'Circular' : ''}
             fontSize="16px"
-            noHover={construct.isFixed() || !isFocused}
+            noHover={construct.isFrozen() || !isFocused}
             color={construct.getColor()}
             onClick={this.onTitleClicked}
+            onClickBackground={() => this.props.focusConstruct(this.props.constructId)}
             onContextMenu={position => this.showConstructContextMenu(position)}
             itemActivated={() => this.props.focusConstruct(this.props.constructId)}
           />

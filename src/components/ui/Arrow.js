@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 
 import '../../styles/Arrow.css';
 
-export default class Switch extends Component {
+export default class Arrow extends Component {
   static propTypes = {
     // ['up', 'down', 'left', 'right']
     direction: PropTypes.string.isRequired,
@@ -33,13 +33,13 @@ export default class Switch extends Component {
   };
 
   render() {
-    let arrowClasses = `arrow-base ${this.props.hidden ? 'arrow-hidden' : ''}`;
+    let arrowClasses = `Arrow ${this.props.hidden ? 'Arrow-hidden' : ''}`;
     if (this.props.disabled) {
-      arrowClasses += ' arrow-disabled';
+      arrowClasses += ' Arrow-disabled';
     }
-    arrowClasses += ` arrow-${this.props.direction}`;
+    arrowClasses += ` Arrow-${this.props.direction}`;
     if (this.props.onClick) {
-      arrowClasses += ' arrow-clickable';
+      arrowClasses += ' Arrow-clickable';
     }
 
     return (

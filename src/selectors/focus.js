@@ -27,10 +27,13 @@ const _getCurrentProjectId = () => {
 };
 
 //todo - this should not be exposed as part of 3rd party API... exported so inspector can share
+// todo - refactor. this is kinda a mess
+// type: project, construct, block, option, role
 export const _getFocused = (state, defaultToConstruct = true, defaultProjectId = null) => {
   const { level, forceProject, forceBlocks, constructId, blockIds, roleId, options } = state.focus;
   const projectId = _getCurrentProjectId();
 
+  //can be this be deprecate?
   if (level === 'role') {
     return {
       type: 'role',
@@ -58,13 +61,20 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
   } else if ((level === 'construct' && construct) || (defaultToConstruct === true && construct && !blocks.length)) {
     focused = [construct];
     readOnly = construct.isFrozen();
+    type = 'construct';
   } else if (level === 'option' && option) {
     focused = [option];
+    //todo - these should not be frozen, should be able to inspect. need to update EGF project.
     readOnly = true;
   } else {
     focused = blocks;
+    type = (focused.length === 1 && project && project.components && project.components.indexOf(focused[0].id) >= 0) ? 'construct' : 'block';
     readOnly = forceBlocks.length > 0 || focused.some(instance => instance.isFrozen());
   }
+
+  //force read-only if project not owned by user
+  const projectIsPublished = project.owner !== state.user.userid;
+  readOnly = readOnly || projectIsPublished;
 
   return {
     type,
@@ -146,7 +156,7 @@ export const focusGetBlockRange = () => (dispatch, getState) => {
     return [];
   }
 
-    //dispatch just in case other construct is in focus for some reason... also assumes that all focused blocks are within the same construct
+  //dispatch just in case other construct is in focus for some reason... also assumes that all focused blocks are within the same construct
   const focusedIds = focusedBlocks.map(block => block.id);
   return dispatch(BlockSelector.blockGetRange(...focusedIds));
 };

@@ -173,6 +173,7 @@ export const focusForceProject = project => (dispatch, getState) => {
 
 /**
  * Specify which level of focus has priority
+ * Cleras forceProject and forceBlocks
  * @function
  * @param level One of `project`, `construct`, `block`, `option`, or `role`
  * @returns {string} focused level

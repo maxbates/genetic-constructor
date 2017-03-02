@@ -15,28 +15,4 @@
       }
     }
   }
-
-  .content-dropdown {
-    background-color: var(--colors-lighterGrey);
-    margin-top: 0.5rem;
-    padding-bottom: 0.5rem;
-
-    .row {
-      display: flex;
-      align-items: flex-start;
-      padding: 0.5rem 0 0 0.5rem;
-
-      .key {
-        width: 30%;
-        text-align: right;
-        color: var(--colors-grey);
-        margin-right: 5%;
-      }
-      .value {
-        width: 60%;
-        color: var(--colors-nearlyBlack);
-        word-wrap: break-word;
-      }
-    }
-  }
 }

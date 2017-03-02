@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import { LOCATION_CHANGE } from 'react-router-redux';
 
 import * as ActionTypes from '../../constants/ActionTypes';
@@ -36,6 +36,11 @@ export const initialState = {
   showReportError: false,
   showPartsCSVImport: false,
   listBlock: null,
+  publishDialog: false,
+  publishDialogVersion: undefined,
+  unpublishDialog: false,
+  unpublishDialogVersion: undefined,
+  projectDeleteDialog: false,
 };
 
 export default function modals(state = initialState, action) {
@@ -44,81 +49,95 @@ export default function modals(state = initialState, action) {
       const { authenticationForm, authFormParams } = action;
       //preserve params if not turned off explicitly (either params or the modal) - (e.g. trigger signin -> register form)
       const params = (!authFormParams || authenticationForm === 'none') ? authFormParams : Object.assign({}, state.authFormParams, authFormParams);
-      return Object.assign({}, state, { authenticationForm, authFormParams: params });
+      return { ...state, authenticationForm, authFormParams: params };
 
     case ActionTypes.UI_SHOW_GENBANK_IMPORT:
       const { showGenBankImport } = action;
-      return Object.assign({}, state, { showGenBankImport });
+      return { ...state, showGenBankImport };
 
     case ActionTypes.UI_SHOW_PARTSCSV_IMPORT:
       const { showPartsCSVImport, listBlock } = action;
-      return Object.assign({}, state, { showPartsCSVImport, listBlock });
+      return { ...state, showPartsCSVImport, listBlock };
 
     case ActionTypes.UI_SHOW_DNAIMPORT:
       const { showDNAImport } = action;
-      return Object.assign({}, state, { showDNAImport });
+      return { ...state, showDNAImport };
 
     case ActionTypes.UI_SHOW_ORDER_FORM:
       const { showOrderForm, orderId } = action;
-      return Object.assign({}, state, { showOrderForm, orderId });
+      return { ...state, showOrderForm, orderId };
 
     case ActionTypes.UI_SHOW_ABOUT:
       const { showAbout } = action;
-      return Object.assign({}, state, { showAbout });
+      return { ...state, showAbout };
 
     case ActionTypes.DETAIL_VIEW_TOGGLE_VISIBILITY :
       const { nextState } = action;
-      return Object.assign({}, state, { detailViewVisible: nextState });
+      return { ...state, detailViewVisible: nextState };
 
     case ActionTypes.UI_SHOW_USER_WIDGET :
       const { userWidgetVisible } = action;
-      return Object.assign({}, state, { userWidgetVisible });
+      return { ...state, userWidgetVisible };
 
     case ActionTypes.UI_SET_GRUNT :
       const { gruntMessage } = action;
-      return Object.assign({}, state, { gruntMessage });
+      return { ...state, gruntMessage };
 
     case ActionTypes.UI_SHOW_MENU :
       const { menuItems, menuPosition, menuHat } = action;
-      return Object.assign({}, state, { menuItems, menuPosition, menuHat });
+      return { ...state, menuItems, menuPosition, menuHat };
 
     case ActionTypes.UI_OK_CANCEL:
       const { title, message, onOk, onCancel, okText, cancelText } = action;
-      return Object.assign({}, state, {
+      return {
+        ...state,
         title,
         message,
         onOk,
         onCancel,
         okText,
         cancelText,
-      });
+      };
 
     case ActionTypes.UI_SPIN:
       const { spinMessage } = action;
-      return Object.assign({}, state, { spinMessage });
+      return { ...state, spinMessage };
 
     case ActionTypes.UI_INLINE_EDITOR:
       const {
-      inlineEditorCommit,
-      inlineEditorValue,
-      inlineEditorPosition,
-      inlineEditorClassName,
-      inlineEditorTarget,
-    } = action;
-      return Object.assign({}, state, {
         inlineEditorCommit,
         inlineEditorValue,
         inlineEditorPosition,
         inlineEditorClassName,
         inlineEditorTarget,
-      });
+      } = action;
+      return {
+        ...state,
+        inlineEditorCommit,
+        inlineEditorValue,
+        inlineEditorPosition,
+        inlineEditorClassName,
+        inlineEditorTarget,
+      };
 
     case ActionTypes.UI_SAVE_ERROR:
-      return Object.assign({}, state, { showSaveError: true });
+      return { ...state, showSaveError: true };
 
     case ActionTypes.UI_SHOW_REPORT_ERROR:
       const { modalState } = action;
-      return Object.assign({}, state, { showReportError: modalState });
+      return { ...state, showReportError: modalState };
+
+    case ActionTypes.UI_SHOW_PUBLISH_DIALOG:
+      const { publishDialog, publishDialogVersion } = action;
+      return { ...state, publishDialog, publishDialogVersion };
+
+    case ActionTypes.UI_SHOW_UNPUBLISH_DIALOG:
+      const { unpublishDialog, unpublishDialogVersion } = action;
+      return { ...state, unpublishDialog, unpublishDialogVersion };
+
+    case ActionTypes.UI_SHOW_PROJECT_DELETE_DIALOG:
+      const { projectDeleteDialog } = action;
+      return { ...state, projectDeleteDialog };
 
     case LOCATION_CHANGE :
       const toKeep = ['gruntMessage'].reduce((acc, field) => Object.assign(acc, { [field]: state[field] }), {});

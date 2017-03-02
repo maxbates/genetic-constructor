@@ -93,11 +93,6 @@
   --modal-errorcolor: #FF6A5E;
   --modal-fontsize: 1.25rem;
 
-  /* List Items
-  ===================== */
-  --listItem-background: rgba(255,255,255,0.2);
-  --listItem-backgroundHover: var(--colors-grey);
-
   /* Project Details */
   --projectDetailHeaderHeight: 3rem;
   --projectDetailFooterHeight: 3rem;

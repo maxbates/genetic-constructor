@@ -34,6 +34,13 @@ export const commonsRetrieve = (projectId, version) => {
   .then(resp => resp.json());
 };
 
+export const commonsListVersions = (projectId) => {
+  invariant(projectId, 'Project ID required to retrieve versions');
+
+  return rejectingFetch(commonsApiPath(projectId, 'versions'), headersGet())
+  .then(resp => resp.json());
+};
+
 // Publish an existing version
 export const commonsPublishVersion = (projectId, version, body = defaultSnapshotBody) => {
   invariant(projectId, 'Project ID required to publish');
@@ -54,22 +61,11 @@ export const commonsUnpublish = (projectId, version) => {
   .then(resp => resp.json());
 };
 
-//default, no tags, just list all the public stuff
-export const commonsQuery = (tags = {}) => {
-  const stringified = JSON.stringify(tags);
+// query in the form { tags: {}, keywords: [] }
+// default, list everything public
+export const commonsQuery = (query = {}) => {
+  const stringified = JSON.stringify(query);
 
   return rejectingFetch(commonsApiPath('query'), headersPost(stringified))
   .then(resp => resp.json());
 };
-
-/*
- //deprecate
- //snapshot and publish rollup in one go
- export const commonsPublish = (rollup, body = defaultSnapshotBody) => {
-   Rollup.validate(rollup, true, true);
-   const stringified = JSON.stringify(body);
-
-   return rejectingFetch(commonsApiPath(rollup.project.id), headersPut(stringified))
-   .then(resp => resp.json());
- };
- */

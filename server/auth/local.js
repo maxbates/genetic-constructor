@@ -73,6 +73,7 @@ try {
   //no need to report error...
 }
 
+// THIS IS THE MOCKED USER
 //this object will get updated as /register and /update the user (one user in local auth)
 export const defaultUser = Object.assign(
   {
@@ -126,6 +127,13 @@ router.get('/current-user', (req, res) => {
   res.statusCode = 200;
   res.send(req.user);
   return res.end();
+});
+
+router.post('/find', (req, res) => {
+  const { uuid } = req.body;
+  log(`finding ${uuid}`);
+
+  return res.status(200).send(defaultUser);
 });
 
 router.get('/logout', (req, res) => {

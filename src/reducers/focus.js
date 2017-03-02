@@ -79,6 +79,8 @@ export default function inventory(state = initialState, action) {
       const { level } = action;
       return Object.assign({}, state, {
         level,
+        forceProject: null,
+        forceBlocks: [],
       });
 
     case ActionTypes.FOCUS_BLOCK_OPTION :

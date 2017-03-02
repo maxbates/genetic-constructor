@@ -22,5 +22,12 @@ export default function generalErrorHandler(err, req, res, next) {
 
   //only want a string, dont leak to client
   const message = typeof err === 'string' ? err : err.message;
+
+  if (process.env.NODE_ENV !== 'production') {
+    return res.status(500).send(`${message}
+${err.stack}
+`);
+  }
+
   return res.status(500).send(message);
 }

@@ -17,10 +17,10 @@ import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import '../../styles/InventoryGroup.css';
 import InventoryGroupBlocks from './InventoryGroupBlocks';
 import InventoryGroupProjects from './InventoryGroupProjects';
 import InventoryGroupRole from './InventoryGroupRole';
+import InventoryGroupCommons from './InventoryGroupCommons';
 import InventoryGroupSearch from './InventoryGroupSearch';
 import InventoryProjectHeader from './InventoryProjectHeader';
 import DnD from '../../containers/graphics/dnd/dnd';
@@ -29,6 +29,8 @@ import { projectAddConstruct, projectCreate, projectOpen } from '../../actions/p
 import { focusConstruct } from '../../actions/focus';
 import ConstructViewer from '../../containers/graphics/views/constructviewer';
 import { block as blockDragType } from '../../constants/DragTypes';
+
+import '../../styles/InventoryGroup.css';
 
 class InventoryGroup extends Component {
   static propTypes = {
@@ -138,8 +140,14 @@ class InventoryGroup extends Component {
         return (<InventoryGroupProjects {...props} templates={true} />);//eslint-disable-line react/jsx-boolean-value
       case 'block':
         return (<InventoryGroupBlocks {...props} />);
+      case 'commons':
+        return (<InventoryGroupCommons {...props} />);
       default:
-        throw new Error(`Type ${type} is not registered in InventoryGroup`);
+        //don't throw in production, let it just render empty
+        if (process.env.NODE_ENV !== 'production') {
+          throw new Error(`Type ${type} is not registered in InventoryGroup`);
+        }
+        return null;
     }
   };
 

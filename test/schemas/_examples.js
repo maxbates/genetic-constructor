@@ -23,6 +23,7 @@ export const Block = {
   components: [],
   rules: {},
   notes: {},
+  attribution: [],
 };
 
 export const Project = {

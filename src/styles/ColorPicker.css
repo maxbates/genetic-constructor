@@ -29,6 +29,10 @@
     flex-shrink: 0;
     position: relative;
     box-sizing: border-box;
+
+    &.readOnly {
+      cursor: default;
+    }
   }
 
   .dropdown {

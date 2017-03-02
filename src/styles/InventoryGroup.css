@@ -41,6 +41,18 @@
     }
   }
 
+  &-banner {
+    margin: 0 0 1em;
+    color: var(--colors-grey);
+    font-style: italic;
+
+    a {
+      color: var(--colors-selected);
+      cursor: pointer;
+      text-decoration: none;
+    }
+  }
+
   &-placeholderContent {
     color: var(--colors-mediumLightGrey);
     text-align: center;

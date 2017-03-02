@@ -13,8 +13,8 @@ module.exports = {
     newProject(browser);
     openInventoryPanel(browser, 'Templates');
     browser
-      .waitForElementPresent('[data-testid^="egf_project"] .label-base')
-      .click('[data-testid^="egf_project"] .label-base')
+      .waitForElementPresent('[data-testid^="inventoryProject/egf_project"] .label-base')
+      .click('[data-testid^="inventoryProject/egf_project"] .label-base')
       .waitForElementPresent('[data-testid^="block-"]');
 
     dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.inter-construct-drop-target', 50, 4);

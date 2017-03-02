@@ -2,6 +2,7 @@
 
 .Checkbox {
   display: inline-block;
+  box-sizing: border-box;
   width: 1em;
   height: 1em;
   border: 2px solid var(--colors-selected);
@@ -22,11 +23,15 @@
     background-image: url('/images/ui/checkbox-checkmark.svg');
     background-repeat: no-repeat;
     background-position: center center;
+    background-size: 1em 1em;
   }
 
   &.disabled {
-    opacity: 0.5;
-    background-color: var(--colors-mediumLightGrey);
     cursor: default;
+    border-color: var(--colors-mediumLightGrey);
+
+    &.checked {
+      background-color: var(--colors-mediumLightGrey);
+    }
   }
 }

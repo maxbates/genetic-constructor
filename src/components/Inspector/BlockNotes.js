@@ -14,22 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { PropTypes } from 'react';
-
-import '../../styles/BlockNotes.css';
+import InspectorDetailSection from './InspectorDetailSection';
 
 export default function BlockNotes({ notes }) {
   return (
     <div className="BlockNotes">
-      {Object.keys(notes).map((key) => {
-        const value = notes[key];
-        if (!value) {
-          return null;
-        }
-        return (<div key={key}>
-          <div className="key">{key}</div>
-          <div className="value">{value}</div>
-        </div>);
-      })}
+      <InspectorDetailSection items={Object.keys(notes).map(key => ({ key, value: notes[key] }))} />
     </div>
   );
 }

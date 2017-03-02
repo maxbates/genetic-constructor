@@ -19,19 +19,18 @@ import _ from 'lodash';
 
 import * as api from '../../src/middleware/commons';
 import * as snapshotApi from '../../src/middleware/snapshots';
+import * as projectsApi from '../../src/middleware/projects';
 import * as commons from '../../server/data/persistence/commons';
+import * as commonsConstants from '../../server/data/util/commons';
 import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 import * as snapshots from '../../server/data/persistence/snapshots';
 import { testUserId } from '../constants';
-import Block from '../../src/models/Block';
-import Project from '../../src/models/Project';
-import Rollup from '../../src/models/Rollup';
 
 describe('middleware', () => {
   describe('commons', () => {
     const keywords = [ uuid.v4(), uuid.v4() ];
-    const publicTag = { [commons.COMMONS_TAG]: true };
+    const publicTag = { [commonsConstants.COMMONS_TAG]: true };
 
     const baseTag = { someCustomTag: 'my value' };
     const makeTag = (isPublic) => {
@@ -48,7 +47,6 @@ describe('middleware', () => {
         },
       },
     });
-
 
     //roll for another user, to check permissions
     const otherUserId = uuid.v1();
@@ -77,7 +75,7 @@ describe('middleware', () => {
         otherUserId,
         rollOtherPublic.project.version,
         { message: 'Another users snapshot!', tags: makeTag(true), keywords },
-        commons.SNAPSHOT_TYPE_PUBLISH,
+        commonsConstants.SNAPSHOT_TYPE_PUBLISH,
       );
 
       snapshotPrivate = await snapshots.snapshotWrite(
@@ -98,7 +96,7 @@ describe('middleware', () => {
         testUserId,
         rollPublic2.project.version,
         { message: 'Some message', tags: makeTag(true), keywords },
-        commons.SNAPSHOT_TYPE_PUBLISH,
+        commonsConstants.SNAPSHOT_TYPE_PUBLISH,
       );
     });
 
@@ -142,7 +140,7 @@ describe('middleware', () => {
       assert(Array.isArray(query), 'expect array');
       assert(!_.some(query, result => result.projectId === rollPrivate.project.id), 'should not find private project');
 
-      assert(_.every(query, result => result.tags[commons.COMMONS_TAG]), 'should all be public');
+      assert(_.every(query, result => result.tags[commonsConstants.COMMONS_TAG]), 'should all be public');
 
       //make sure one is there
       const found = query.find(result => result.projectId === rollPublic1.project.id);
@@ -181,7 +179,7 @@ describe('middleware', () => {
       const snap = await api.commonsPublishVersion(roll.project.id, writeResult.version);
 
       expect(snap.version).to.equal(writeResult.version);
-      expect(snap.tags[commons.COMMONS_TAG]).to.equal(true);
+      expect(snap.tags[commonsConstants.COMMONS_TAG]).to.equal(true);
 
       const ret = await api.commonsRetrieve(rollPublic1.project.id, writeResult.version);
       assert(ret);
@@ -193,10 +191,10 @@ describe('middleware', () => {
       roll = writeResult.data;
 
       const snap = await snapshots.snapshotWrite(roll.project.id, testUserId, writeResult.version);
-      assert(!snap.tags[commons.COMMONS_TAG], 'shouldnt be published');
+      assert(!snap.tags[commonsConstants.COMMONS_TAG], 'shouldnt be published');
 
       const publishedSnap = await api.commonsPublishVersion(roll.project.id, writeResult.version);
-      expect(publishedSnap.tags[commons.COMMONS_TAG]).to.equal(true);
+      expect(publishedSnap.tags[commonsConstants.COMMONS_TAG]).to.equal(true);
     });
 
     it('commonsPublishVersion() allows custom tags', async () => {
@@ -208,7 +206,7 @@ describe('middleware', () => {
       const body = { message, tags: newTag };
 
       const snap = await api.commonsPublishVersion(roll.project.id, writeResult.version, body);
-      expect(snap.tags[commons.COMMONS_TAG]).to.equal(true);
+      expect(snap.tags[commonsConstants.COMMONS_TAG]).to.equal(true);
       expect(snap.tags).to.eql({ ...snap.tags, ...newTag });
       expect(snap.message).to.equal(message);
     });
@@ -250,17 +248,17 @@ describe('middleware', () => {
       const snap = await api.commonsPublishVersion(roll.project.id, writeResult.version);
 
       expect(snap.version).to.equal(writeResult.version);
-      expect(snap.tags[commons.COMMONS_TAG]).to.equal(true);
+      expect(snap.tags[commonsConstants.COMMONS_TAG]).to.equal(true);
 
       const unpub = await api.commonsUnpublish(roll.project.id, writeResult.version);
 
-      expect(unpub.tags[commons.COMMONS_TAG]).to.equal(false);
+      expect(unpub.tags[commonsConstants.COMMONS_TAG]).to.equal(false);
 
       const ret = await snapshotApi.snapshotGet(roll.project.id, writeResult.version);
 
       console.log(ret);
 
-      expect(ret.tags[commons.COMMONS_TAG]).to.equal(false);
+      expect(ret.tags[commonsConstants.COMMONS_TAG]).to.equal(false);
     });
 
     it('commonsUnpublish() can unpublish whole project', async () => {
@@ -275,6 +273,20 @@ describe('middleware', () => {
 
       const ret = await snapshotApi.snapshotList(rollPublic1.project.id);
       assert(ret.length > 0, 'should still have snapshots');
+    });
+
+    it('projectDelete() fails when the project is published', async () => {
+      const roll = createExampleRollup();
+      const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
+
+      await api.commonsPublishVersion(roll.project.id, writeResult.version);
+
+      try {
+        await projectsApi.deleteProject(roll.project.id);
+        assert(false, 'deletion should fail');
+      } catch (resp) {
+        expect(resp.status).to.equal(405);
+      }
     });
   });
 });

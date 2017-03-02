@@ -23,11 +23,13 @@ import { autosaveInstanceDefaultOptions } from '../store/autosaveOptions';
 import { undoReducerEnhancerCreator } from '../store/undo/reducerEnhancer';
 import blocks from './blocks';
 import clipboard from './clipboard';
+import commons from './commons';
 import focus from './focus';
 import inspector from './inspector';
 import inventory from './inventory';
 import orders from './orders';
 import projects from './projects';
+import snapshots from './snapshots';
 import ui from './ui';
 import user from './user';
 
@@ -43,13 +45,14 @@ export const createRootReducer = () => {
   });
 
   //auto save (which annoyingly depends on undo manager transaction state for proper filtering)
-
-  const autosaveFilterFn = (action, alreadyDirty, nextState, lastState) => !!action.undoable && !undoReducerEnhancer.manager.inTransaction();
+  //filter on undoable actions (basically, the state changes we care about) and save UNLESS in a transaction
+  const autosaveFilterFn = (action, alreadyDirty, nextState, lastState) => !!action.undoable;
 
   const autosaveInstance = autosaveCreator({
     ...autosaveInstanceDefaultOptions,
-    //filter on undoable actions (basically, the state changes we care about) UNLESS in a transaction
     filter: autosaveFilterFn,
+    //do not want to allow when in the middle of a transaction
+    preventOn: () => undoReducerEnhancer.manager.inTransaction(),
   });
 
   const { autosaveReducer, autosaveReducerEnhancer } = autosaveInstance;
@@ -57,17 +60,28 @@ export const createRootReducer = () => {
   //final reducer
 
   return freezeReducerEnhancer(combineReducers({
+    router,
+
+    // autosave + undo
     blocks: autosaveReducerEnhancer(undoReducerEnhancer(blocks, 'blocks')),
     projects: autosaveReducerEnhancer(undoReducerEnhancer(projects, 'projects')),
-    router,
+
+    //note - These are usually one step behind, since reducer enhancers need to run first
+    autosave: autosaveReducer,
+    undo: undoReducerEnhancer.manager.getUndoState.bind(undoReducerEnhancer.manager),
+
+    //not autosaved or undoable
+    commons,
+    orders,
+    snapshots,
+    user,
+
+    // app state
+    clipboard,
+    focus,
     inventory,
     inspector,
     ui,
-    clipboard,
-    focus,
-    user,
-    orders,
-    autosave: autosaveReducer,
   }));
 };
 

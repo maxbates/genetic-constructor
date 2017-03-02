@@ -21,11 +21,13 @@ import InspectorGroupFeedback from './InspectorGroupFeedback';
 import InspectorGroupHelp from './InspectorGroupHelp';
 import InspectorGroupInformation from './InspectorGroupInformation';
 import InspectorGroupOrders from './InspectorGroupOrders';
+import InspectorGroupHistory from './InspectorGroupHistory';
 import InspectorGroupSettings from './InspectorGroupSettings';
 
 export default class InspectorGroup extends Component {
   static propTypes = {
     tabInfo: PropTypes.object.isRequired,
+    userOwnsProject: PropTypes.bool.isRequired,
     project: PropTypes.object,
     construct: PropTypes.object,
   };
@@ -33,7 +35,11 @@ export default class InspectorGroup extends Component {
   inspectorGroupTypeToComponent = (type) => {
     switch (type) {
       case 'information' :
-        return (<InspectorGroupInformation project={this.props.project} construct={this.props.construct} />);
+        return (<InspectorGroupInformation
+          project={this.props.project}
+          construct={this.props.construct}
+          userOwnsProject={this.props.userOwnsProject}
+        />);
       case 'help' :
         return (<InspectorGroupHelp />);
       case 'feedback' :
@@ -43,9 +49,22 @@ export default class InspectorGroup extends Component {
       case 'settings' :
         return (<InspectorGroupSettings />);
       case 'orders' :
-        return (<InspectorGroupOrders />);
+        return (<InspectorGroupOrders
+          userOwnsProject={this.props.userOwnsProject}
+          projectId={this.props.project.id}
+        />);
+      case 'history' :
+        return (
+          <InspectorGroupHistory
+            userOwnsProject={this.props.userOwnsProject}
+            project={this.props.project}
+          />);
       default:
-      //throw new Error(`Type ${type} is not registered in InspectorGroup`);
+        //don't throw in production, let it just render empty
+        if (process.env.NODE_ENV !== 'production') {
+          throw new Error(`Type ${type} is not registered in InspectorGroup`);
+        }
+        return null;
     }
   };
 

@@ -25,6 +25,7 @@ import {
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as snapshots from '../../../../server/data/persistence/snapshots';
+import * as commonsConstants from '../../../../server/data/util/commons';
 import * as commons from '../../../../server/data/persistence/commons';
 
 //Note - more complicated flow is tested in test/middleware/commons.js, since get more coverage
@@ -34,7 +35,7 @@ describe('Server', () => {
     describe('persistence', () => {
       describe('commons', () => {
         const keywords = ['something'];
-        const publicTag = { [commons.COMMONS_TAG]: true };
+        const publicTag = { [commonsConstants.COMMONS_TAG]: true };
         const makeTag = (isPublic, index) => {
           const base = { indexTag: index, customTag: 'custom' };
           if (isPublic) {
@@ -72,7 +73,7 @@ describe('Server', () => {
               testUserId,
               index,
               { message: `Snapshot ${index}`, tags: makeTag(isPublic, index), keywords },
-              isPublic ? commons.SNAPSHOT_TYPE_PUBLISH : undefined,
+              isPublic ? commonsConstants.SNAPSHOT_TYPE_PUBLISH : undefined,
             )),
           );
         });
@@ -113,7 +114,7 @@ describe('Server', () => {
           const published = await commons.commonsRetrieveVersions(projectId);
 
           expect(published.length).to.equal(numberPublished);
-          expect(_.sortBy(published, 'version')).to.eql(_.sortBy(allSnapshots.filter(snap => snap.tags[commons.COMMONS_TAG]), 'version'));
+          expect(_.sortBy(published, 'version')).to.eql(_.sortBy(allSnapshots.filter(snap => snap.tags[commonsConstants.COMMONS_TAG]), 'version'));
 
           expect(published[0].snapshotUUID).to.be.defined;
           expect(published[0].projectUUID).to.be.defined;
@@ -162,7 +163,7 @@ describe('Server', () => {
 
           assert(snapshot && snapshot.snapshotUUID, 'should get snapshot');
           assert(snapshot.version === versionToPub, 'shoudl be version passed in');
-          assert(snapshot.type === commons.SNAPSHOT_TYPE_PUBLISH, 'should have explicit snapshot type for publishing');
+          assert(snapshot.type === commonsConstants.SNAPSHOT_TYPE_PUBLISH, 'should have explicit snapshot type for publishing');
 
           const retrieved = await commons.commonsRetrieve(projectId, versionToPub);
           assert(retrieved && retrieved.project && retrieved.blocks, 'should get project');
@@ -176,7 +177,7 @@ describe('Server', () => {
 
           assert(snapshot && snapshot.snapshotUUID, 'should get snapshot');
           assert(snapshot.version === versionToPub, 'shoudl be version passed in');
-          assert(snapshot.type !== commons.SNAPSHOT_TYPE_PUBLISH, 'should not have publishing type, since was already snapshotted');
+          assert(snapshot.type !== commonsConstants.SNAPSHOT_TYPE_PUBLISH, 'should not have publishing type, since was already snapshotted');
 
           const retrieved = await commons.commonsRetrieve(projectId, versionToPub);
           assert(retrieved && retrieved.project && retrieved.blocks, 'should get project');

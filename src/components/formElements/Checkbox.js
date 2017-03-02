@@ -25,10 +25,17 @@ export default class Checkbox extends Component {
     disabled: PropTypes.bool,
   };
 
+  static defaultProps = {
+    checked: false,
+    showCheck: true,
+    disabled: false,
+    onChange: (val) => {},
+  };
+
   onClick = (evt) => {
     evt.preventDefault();
     const { checked, disabled, onChange } = this.props;
-    if (disabled || !onChange) {
+    if (disabled) {
       return;
     }
     onChange(!checked);

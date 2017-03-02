@@ -83,6 +83,10 @@ class GlobalNav extends Component {
       formats: PropTypes.array.isRequired,
       data: PropTypes.any,
     }).isRequired,
+    undoStack: PropTypes.shape({
+      past: PropTypes.number.isRequired,
+      future: PropTypes.number.isRequired,
+    }).isRequired,
     blockGetComponentsRecursive: PropTypes.func.isRequired,
     blockAddComponents: PropTypes.func.isRequired,
     focus: PropTypes.object.isRequired,
@@ -240,12 +244,14 @@ class GlobalNav extends Component {
       {
         text: 'Undo',
         shortcut: stringToShortcut('meta z'),
+        disabled: this.props.undoStack.past <= 0,
         action: () => {
           this.props.undo();
         },
       }, {
         text: 'Redo',
         shortcut: stringToShortcut('shift meta z'),
+        disabled: this.props.undoStack.future <= 0,
         action: () => {
           this.props.redo();
         },
@@ -460,12 +466,7 @@ class GlobalNav extends Component {
     return (
       <div className="GlobalNav">
         <RibbonGrunt />
-        <div className="GlobalNav-logo">
-          <img
-            role="presentation"
-            onClick={this.togglePanels}
-          />
-        </div>
+        <div className="GlobalNav-logo" onClick={this.togglePanels} />
         <div className="GlobalNav-appname">Genetic Constructor</div>
         <OkCancel />
       </div>
@@ -475,6 +476,7 @@ class GlobalNav extends Component {
 
 function mapStateToProps(state, props) {
   return {
+    undoStack: state.undo,
     focus: state.focus,
     blocks: state.blocks,
     clipboard: state.clipboard,

@@ -18,9 +18,13 @@ import invariant from 'invariant';
 import _, { every, isEqual } from 'lodash';
 
 import Project from '../models/Project';
+import Block from '../models/Block';
 import RollupSchema, { currentDataModelVersion } from '../schemas/Rollup';
 
-//note - not immutable, this is just a helper, primarily on the server
+// note - inconsistent expectations of POJOs / immutable objects. Methods will say what input should be.
+
+const classifyProjectIfNeeded = input => (input instanceof Project) ? input : new Project(input);
+const classifyBlockIfNeeded = input => (input instanceof Block) ? input : new Block(input);
 
 /**
  * Rollups contain a 'complete' project, and are what are sent between client and server
@@ -112,6 +116,7 @@ export default class Rollup {
     return true;
   }
 
+  // POJO only
   // create rollup from project (as POJO) and N blocks (as POJO)
   // assigns projectId to all blocks
   static fromArray(project, ...blocks) {
@@ -119,12 +124,11 @@ export default class Rollup {
 
     return new Rollup({
       project,
-      blocks: _.reduce(blocks, (acc, block) => Object.assign(acc, {
-        [block.id]: Object.assign(block, { projectId: project.id }),
-      }), {}),
+      blocks: _.keyBy(_.map(blocks, block => _.assign(block, { projectId: project.id })), 'id'),
     });
   }
 
+  // POJO only
   //updates the rollup itself
   static upgrade(roll) {
     //get schema number, assume beginning of time if not provided
@@ -141,6 +145,9 @@ export default class Rollup {
         _.defaultsDeep(roll.project, keywordsUpdate);
         _.forEach(roll.blocks, block => _.defaultsDeep(block, keywordsUpdate));
       }
+      case 2: {
+        _.forEach(roll.blocks, block => _.defaults(block, { attribution: [] }));
+      }
     }
     /* eslint-enable no-fallthrough,default-case */
 
@@ -148,8 +155,35 @@ export default class Rollup {
     return roll;
   }
 
+  // returns model instances for blocks, project, and roll
+  // will error if invalid
+  static classify(roll) {
+    const project = classifyProjectIfNeeded(roll.project);
+    const blocks = _.mapValues(roll.blocks, classifyBlockIfNeeded);
+
+    return new Rollup({
+      project,
+      blocks,
+    });
+  }
+
+  // POJO only
+  // mutates roll itself
+  static setFrozen(roll) {
+    //freeze project
+    roll.project.rules.frozen = true;
+
+    //freeze blocks
+    _.forEach(roll.blocks, (block) => { block.rules.frozen = true; });
+    return roll;
+  }
+
   getManifest() {
     return this.project;
+  }
+
+  getOwner() {
+    return this.project.owner;
   }
 
   getBlock(blockId) {
@@ -185,11 +219,12 @@ export default class Rollup {
     }
 
     //if no id provided, get all blocks which are options
-    const optionDict = _.merge(_.map(this.blocks, block => block.options));
+    const optionDict = _.assign(_.map(this.blocks, block => block.options));
     return _.pickBy(this.blocks, (block, blockId) => optionDict[blockId]);
   }
 
   /**
+   * Get components of a block
    * If ID is provided, recursively get all components of a block. Includes block itself
    * If no ID provided, gets all components in the project
    * @param {UUID} [blockId] root to get components of
@@ -213,12 +248,12 @@ export default class Rollup {
     }
 
     //if no blockId, get all blocks which are not options
-    const optionDict = _.merge(_.map(this.blocks, block => block.options));
+    const optionDict = _.assign(_.map(this.blocks, block => block.options));
     return _.omitBy(this.blocks, (block, blockId) => optionDict[blockId]);
   }
 
   /**
-   * @description Recursively get contents (components + children) of a block (and returns block itself, in components)
+   * Recursively get contents (components + children) of a block (and returns block itself, in components)
    * @param {UUID} blockId root to get components of
    * @returns {object} { components: {}, options: {} }
    */
@@ -239,5 +274,81 @@ export default class Rollup {
       components,
       options,
     };
+  }
+
+  //todo
+  //given a block Id, generate a flat list of blocks without hierarchy or list blocks
+  //eslint-disable-next-line class-methods-use-this
+  flattenConstruct(blockId, optionMap) {
+    invariant(false, 'todo');
+  }
+
+  // classed only
+  // future - allow passing in block / manifest parent object / overwrites as needed
+  clone(owner) {
+    invariant(owner || owner === null, 'next owner is required');
+
+    let newManifest = this.getManifest().clone({}, {
+      owner,
+    });
+
+    const cloneGroups = newManifest.components.map(constructId => this.cloneBlock(constructId, {}, { projectId: newManifest.id }));
+
+    newManifest = newManifest.mutate('components', cloneGroups.map(group => group[0].id));
+
+    return Rollup.classify({
+      project: newManifest,
+      blocks: _.keyBy(_.flatten(cloneGroups), 'id'),
+    });
+  }
+
+  // classed only
+  // return an array of clones, with the first block the blockId passed in
+  // unsets projectId
+  cloneBlock(blockId, parentObjectInput, overwriteInput) {
+    invariant(blockId, 'block ID is required');
+    invariant(this.getBlock(blockId), 'block not found in project');
+
+    const manifest = this.getManifest();
+    const cloneNoProvenance = parentObjectInput === null;
+
+    const parentObject = cloneNoProvenance ?
+      null :
+      Object.assign({
+        projectId: manifest.id,
+        owner: manifest.owner,
+        version: manifest.version,
+      }, parentObjectInput);
+
+    const overwriteObject = Object.assign({ projectId: null }, overwriteInput);
+
+    const { components, options } = this.getContents(blockId);
+    const unorderedContents = _.values({ ...components, ...options });
+
+    //move the blockId passed to the first position, so its the first one returned
+    const firstIndex = _.findIndex(unorderedContents, { id: blockId });
+    const root = unorderedContents.splice(firstIndex, 1);
+    const contents = root.concat(unorderedContents);
+
+    //create clones without updated IDs
+    const unmappedClones = contents.map(block => block.clone(parentObject, overwriteObject));
+
+    const cloneIdMap = _.zipObject(
+      _.map(contents, 'id'),
+      _.map(unmappedClones, 'id'),
+    );
+
+    //update components / options with new IDs
+    return unmappedClones.map((clone) => {
+      if (clone.isConstruct()) {
+        const newComponents = clone.components.map(componentId => cloneIdMap[componentId]);
+        return clone.mutate('components', newComponents);
+      }
+      if (clone.isList()) {
+        const newOptions = _.mapKeys(clone.options, (value, key) => cloneIdMap[key]);
+        return clone.mutate('options', newOptions);
+      }
+      return clone;
+    });
   }
 }

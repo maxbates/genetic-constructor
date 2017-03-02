@@ -19,6 +19,9 @@ import debug from 'debug';
 
 import { errorDoesNotExist } from '../../errors/errorConstants';
 import { dbHead, dbGet, dbPost, dbDelete } from '../middleware/db';
+import { projectGet } from './projects';
+import { projectVersionGet } from './projectVersions';
+import internalUserLookup from '../../user/internalUserLookup';
 
 const logger = debug('constructor:data:persistence:snapshots');
 
@@ -34,7 +37,8 @@ const transformDbVersion = result => ({
   keywords: result.keywords,
   tags: result.tags,
   message: result.message,
-  time: (new Date(result.createdAt)).valueOf(),
+  created: (new Date(result.createdAt)).valueOf(),
+  updated: (new Date(result.updatedAt)).valueOf(),
   owner: result.owner,
 });
 
@@ -53,9 +57,10 @@ const defaultSnapshotBody = {
  * Query snapshots, returning a list of snapshots
  * @param {Object} query Required to have at least one tag or one keyword, in form: { tags: {}, keywords: [] }
  * @param [projectId] Can limit to a project
+ * @param [userId] Can limit to a user
  * @throws if tags is empty
  */
-export const snapshotQuery = (query = {}, projectId) => {
+export const snapshotQuery = (query = {}, projectId = null, userId = null) => {
   logger(`[snapshotQuery] ${JSON.stringify(query)}`);
   invariant(typeof query === 'object', 'must pass object');
 
@@ -66,12 +71,12 @@ export const snapshotQuery = (query = {}, projectId) => {
 
   //if have keywords, use keywords endpoint (tags endpoint does not support keywords)
   if (haveKeywords) {
-    return dbPost(`snapshots/keywords${projectId ? `?project=${projectId}` : ''}`, null, null, {}, query)
+    return dbPost(`snapshots/keywords${projectId ? `?project=${projectId}` : ''}`, userId, null, {}, query)
     .then(results => results.map(transformDbVersion));
   }
 
   //if just tags, use the tags endpoint, and only pass the tags
-  return dbPost(`snapshots/tags${projectId ? `?project=${projectId}` : ''}`, null, null, {}, query.tags)
+  return dbPost(`snapshots/tags${projectId ? `?project=${projectId}` : ''}`, userId, null, {}, query.tags)
   .then(results => results.map(transformDbVersion));
 };
 
@@ -144,27 +149,43 @@ export const snapshotWrite = (
   invariant(projectId && userId, 'must pass projectId, userId');
   invariant((!version && version !== 0) || Number.isInteger(version), 'version must be a number');
 
-  const snapshotBody = Object.assign({}, defaultSnapshotBody, body);
-  invariant(typeof snapshotBody.message === 'string', 'message must be a string');
-  invariant(typeof snapshotBody.tags === 'object' && !Array.isArray(snapshotBody.tags), 'tags must be object');
-  invariant(Array.isArray(snapshotBody.keywords) && snapshotBody.keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
-  invariant(typeof type === 'string', 'type must be a string');
+  //get the project an user objects, so can enforce tags.author and tags.project = project.metadata.name
+  //todo - perf - this sucks. its slow. is there faster way, while enforce these tags (author, projectName) will be present (always)
+  //tricky since may create snapshot somewhere and then expose later, and need to ensure these fields are available
+  return Promise.all([
+    (Number.isInteger(version) ? projectVersionGet(projectId, version) : projectGet(projectId)),
+    internalUserLookup(userId),
+  ])
+  .then(([project, user]) => {
+    const snapshotBody = _.defaultsDeep({}, body, defaultSnapshotBody);
 
-  logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${snapshotBody.message}`);
+    invariant(typeof snapshotBody.message === 'string', 'message must be a string');
+    invariant(typeof snapshotBody.tags === 'object' && !Array.isArray(snapshotBody.tags), 'tags must be object');
+    invariant(Array.isArray(snapshotBody.keywords) && snapshotBody.keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
+    invariant(typeof type === 'string', 'type must be a string');
 
-  const postBody = {
-    projectId,
-    type,
-    ...snapshotBody,
-  };
+    //assign author and projectName to the snapshot
+    Object.assign(snapshotBody.tags, {
+      author: (user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : 'Anonymous',
+      projectName: project.project.metadata.name || 'Untitled Project',
+    });
 
-  if (Number.isInteger(version)) {
-    postBody.projectVersion = version;
-  }
+    logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${snapshotBody.message}`);
 
-  //signature is weird - no data to pass, just several body parameters
-  return dbPost('snapshots/', userId, {}, {}, postBody)
-  .then(transformDbVersion);
+    const postBody = {
+      projectId,
+      type,
+      ...snapshotBody,
+    };
+
+    if (Number.isInteger(version)) {
+      postBody.projectVersion = version;
+    }
+
+    //signature is weird - no data to pass, just several body parameters
+    return dbPost('snapshots/', userId, {}, {}, postBody)
+    .then(transformDbVersion);
+  });
 };
 
 /**

@@ -11,7 +11,7 @@ module.exports = function (browser) {
   // generate mouse move events on body from source to destination
   browser.execute(function() {
 
-    var title = document.body.querySelector('[data-testid^="egf_project"]');
+    var title = document.body.querySelector('[data-testid^="inventoryProject/egf_project"]');
     var bounds = title.getBoundingClientRect();
     return {left: bounds.left , top: bounds.top, width: bounds.width, height: bounds.height};
 

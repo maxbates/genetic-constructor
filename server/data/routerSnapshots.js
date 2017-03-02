@@ -30,6 +30,19 @@ router.param('version', (req, res, next, id) => {
   next();
 });
 
+//expects object in form { tags: {}, keywords: [] }
+//can pass query param projectId
+router.route('/query')
+.post((req, res, next) => {
+  const { user } = req;
+  const query = req.body;
+  const projectId = req.query.projectId || null;
+
+  return snapshots.snapshotQuery(query, projectId, user.uuid)
+  .then(results => res.json(results))
+  .catch(next);
+});
+
 router.route('/keywords')
 .get((req, res, next) => {
   snapshots.snapshotGetKeywordMap()

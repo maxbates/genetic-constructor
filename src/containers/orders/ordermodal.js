@@ -129,7 +129,8 @@ class OrderModal extends Component {
     if (!this.props.open) {
       return null;
     }
-    const leftText = ['', 'Change Settings', 'Review Assemblies'][this.state.page - 1];
+
+    const leftText = ['', (this.props.order.isSubmitted() ? 'Review Settings' : 'Change Settings'), 'Review Assemblies'][this.state.page - 1];
     const rightText = ['Review Assemblies', 'Order Details', ''][this.state.page - 1];
     const titleText = ['Order DNA', 'Review Assemblies', 'Order Details'][this.state.page - 1];
 

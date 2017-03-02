@@ -13,66 +13,71 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import '../../styles/ok-cancel-form.css';
-import ModalWindow from '../modal/modalwindow';
+import Modal from '../modal/Modal';
+import ModalFooter from '../modal/ModalFooter';
 
 /**
  * generic ok/cancel dialog, available via uiShowOkCancel action
+ * todo - need to update the action + expected functions + sane defaults to close if functions not present
  */
-class OkCancel extends Component {
-  static propTypes = {
-    title: PropTypes.string,
-    message: PropTypes.string,
-    okText: PropTypes.string,
-    cancelText: PropTypes.string,
-    onOk: PropTypes.func,
-    onCancel: PropTypes.func,
+export function OkCancel(props) {
+  const { title, message, okText, onOk, onCancel } = props;
+
+  if (!title) {
+    return null;
+  }
+
+  const onSubmit = (evt) => {
+    evt.preventDefault();
+    if (onOk) {
+      onOk();
+    }
   };
 
-  render() {
-    if (!this.props.title) {
-      return null;
+  const onClose = (evt) => {
+    if (onCancel) {
+      onCancel();
     }
-    return (
-      <div>
-        <ModalWindow
-          open={!!this.props.title}
-          title={this.props.title}
-          payload={(
-            <form
-              className="gd-form ok-cancel-form"
-              onSubmit={(evt) => {
-                evt.preventDefault();
-                this.props.onOk();
-              }}
-            >
-              <div className="title">{this.props.title}</div>
-              <div className="message">{this.props.message}</div>
-              <br />
-              <button type="submit">{this.props.okText}</button>
-              <button
-                type="button"
-                onClick={(evt) => {
-                  evt.preventDefault();
-                  if (this.props.onCancel) {
-                    this.props.onCancel();
-                  }
-                }}
-              >{this.props.cancelText}
-              </button>
-            </form>
+  };
 
-          )}
-          closeOnClickOutside
-          closeModal={(buttonText) => {}}
-        />
+  const actions = [{
+    text: okText || 'Continue...',
+    onClick: onSubmit,
+  }];
+
+  return (
+    <Modal
+      isOpen
+      onClose={onClose}
+      title={title}
+    >
+      <div className="Modal-paddedContent">
+        <form
+          className="Form ok-cancel-form"
+          onSubmit={(evt) => {
+            evt.preventDefault();
+            this.props.onOk();
+          }}
+        >
+          <div className="message">{message}</div>
+        </form>
       </div>
-    );
-  }
+      <ModalFooter actions={actions} />
+    </Modal>
+  );
 }
+
+OkCancel.propTypes = {
+  title: PropTypes.string,
+  message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  okText: PropTypes.string,
+  onOk: PropTypes.func,
+  onCancel: PropTypes.func,
+};
 
 function mapStateToProps(state, props) {
   return {

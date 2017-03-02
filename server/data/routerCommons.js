@@ -22,7 +22,7 @@ import * as commons from './persistence/commons';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
-const convertTagsStrings = tags => _.forEach(tags, (val, key) => {
+const convertTagsStrings = (tags = {}) => _.forEach(tags, (val, key) => {
   if (typeof val !== 'string') {
     tags[key] = String(val);
   }
@@ -52,19 +52,23 @@ router.route('/query')
   .catch(next);
 });
 
+router.route('/:projectId/versions')
+.get(
+  commons.checkProjectPublicMiddleware,
+  (req, res, next) => {
+    const { projectId } = req;
+
+    return commons.commonsRetrieveVersions(projectId)
+    .then(results => res.json(results))
+    .catch(next);
+  });
+
 router.route('/:projectId/:version?')
 // get the published project, @ version, or latest
 .get(
   commons.checkProjectPublicMiddleware,
   (req, res, next) => {
     const { projectId, version } = req;
-
-    //request all versions
-    if (version === 'versions') {
-      return commons.commonsRetrieveVersions(projectId)
-      .then(results => res.json(results))
-      .catch(next);
-    }
 
     return commons.commonsRetrieve(projectId, version)
     .then(project => res.status(200).json(project))
@@ -80,10 +84,10 @@ router.route('/:projectId/:version?')
     }
 
     const { user, projectId, version } = req;
-    const { message, tags } = req.body;
+    const { message, keywords, tags } = req.body;
     convertTagsStrings(tags);
 
-    commons.commonsPublishVersion(projectId, user.uuid, version, { message, tags })
+    commons.commonsPublishVersion(projectId, user.uuid, version, { message, keywords, tags })
     .then(info => res.json(info))
     .catch(next);
   })

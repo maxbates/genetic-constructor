@@ -3,9 +3,9 @@
 :root {
   --label-color: var(--colors-mediumDarkGrey);
   --label-background: var(--colors-white);
-  --label-hover-background: var(--colors-grey);
-  --label-hover-color: var(--colors-white);
+  --label-hover-background: var(--colors-lightGrey);
   --label-selected: var(--colors-selected);
+  --label-selectedAlt: var(--colors-grey);
 }
 
 .label-base {
@@ -16,10 +16,9 @@
   justify-content: space-between;
   overflow: hidden;
   text-overflow: ellipsis;
-
+  background-color: var(--label-background);
 
   .left {
-
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
@@ -37,21 +36,31 @@
       background-image: url('/images/ui/lock.svg');
       background-repeat: no-repeat;
       background-size: contain;
-      margin-right: 2px;
+      margin-right: 4px;
       flex-shrink: 0;
     }
-    span.primary {
-      white-space: nowrap;
+
+    .Label-text {
+      flex-direction: column;
+    }
+
+    span.primary,
+    span.secondary {
+      display: block;
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 1.5rem;
       padding-top: 2px;
+      white-space: nowrap;
+      align-self: flex-start;
+      text-align: left;
     }
 
     .BasePairCount {
       margin-left: 0.25rem;
     }
   }
+
   .right {
     display: inline-flex;
     align-items: center;
@@ -62,43 +71,49 @@
       filter: brightness(100%);
     }
   }
-}
-.label-base:hover {
 
-  .left {
-    .BasePairCount {
-      color: white !important;
+  &:hover {
+    cursor: pointer;
+
+    .left {
+      .BasePairCount {
+        color: white !important;
+      }
+      .lock {
+        filter: brightness(1000%);
+      }
     }
-    .lock {
-      filter: brightness(1000%);
+
+    .right {
+      visibility: visible;
     }
   }
-
-  .right {
-    visibility: visible;
-  }
-}
-
-.label-selected {
-  background-color: var(--label-background);
-  color: var(--label-selected);
-}
-
-.label-selected:hover {
-  background-color: var(--label-hover-background);
-  color: var(--label-hover-color);
-  cursor: pointer;
 }
 
 .label-unselected {
-  background-color: var(--label-background);
   color: var(--label-color);
+
+  &:hover {
+    background-color: var(--label-hover-background);
+  }
 }
 
-.label-unselected:hover {
-  background-color: var(--label-hover-background);
-  color: var(--label-hover-color);
-  cursor: pointer;
+.label-selectedAlt,
+.label-selectedAlt:hover {
+  background-color: var(--label-selectedAlt);
+  color: var(--colors-white);
+}
+
+.label-selected {
+  background-color: var(--colors-white);
+  color: var(--label-selected);
+
+  &:hover,
+  &.label-selectedAlt,
+  &.label-selectedAlt:hover {
+    color: var(--colors-white);
+    background-color: var(--label-selected);
+  }
 }
 
 .label-disabled {
@@ -111,8 +126,14 @@
   border-radius: 3px;
 
   &:hover {
-    filter: brightness(1000%);
     background-color: rgba(255, 255, 255, 0.25);
+  }
+
+  /* special handling for hover, keep it white on light grey background */
+  &:hover,
+  .label-base:hover &,
+  .label-base:hover &:hover {
+    filter: brightness(1000%);
   }
 }
 

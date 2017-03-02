@@ -1,22 +1,22 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { projectMerge, projectRename, projectSetPalette } from '../../actions/projects';
+import { projectSetDescription, projectRename, projectSetPalette, projectSetKeywords } from '../../actions/projects';
 import { uiShowOrderForm } from '../../actions/ui';
 import Project from '../../models/Project';
 import { abort, commit, transact } from '../../store/undo/actions';
@@ -24,9 +24,9 @@ import { blockSetPalette } from '../../actions/blocks';
 import { getPaletteName } from '../../utils/color/index';
 
 import InputSimple from './../InputSimple';
+import FormKeywords from '../formElements/FormKeywords';
 import InspectorRow from './InspectorRow';
 import OrderList from './OrderList';
-import Expando from './../ui/Expando';
 import PalettePicker from './../ui/PalettePicker';
 import { getLocal } from '../../utils/localstorage';
 
@@ -40,9 +40,11 @@ export class InspectorProject extends Component {
     orders: PropTypes.array.isRequired,
     projectRename: PropTypes.func.isRequired,
     projectSetPalette: PropTypes.func.isRequired,
+    projectSetKeywords: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
-    projectMerge: PropTypes.func.isRequired,
+    projectSetDescription: PropTypes.func.isRequired,
     readOnly: PropTypes.bool,
+    userOwnsProject: PropTypes.bool.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
@@ -66,9 +68,11 @@ export class InspectorProject extends Component {
   };
 
   setProjectDescription = (description) => {
-    if (description !== this.props.instance.metadata.description) {
-      this.props.projectMerge(this.props.instance.id, { metadata: { description } });
-    }
+    this.props.projectSetDescription(this.props.instance.id, description);
+  };
+
+  setKeywords = (keywords) => {
+    this.props.projectSetKeywords(this.props.instance.id, keywords);
   };
 
   handleOpenOrder = (orderId) => {
@@ -88,7 +92,7 @@ export class InspectorProject extends Component {
   };
 
   render() {
-    const { instance, orders, readOnly } = this.props;
+    const { instance, orders, readOnly, userOwnsProject } = this.props;
     const paletteName = getPaletteName(instance.metadata.palette);
     // determines the default state of the palette expando
     const paletteStateKey = 'expando-color-palette';
@@ -109,7 +113,7 @@ export class InspectorProject extends Component {
             onFocus={this.startTransaction}
             onBlur={this.endTransaction}
             onEscape={() => this.endTransaction(true)}
-            readOnly={readOnly}
+            readOnly={readOnly || !userOwnsProject}
             maxLength={256}
             value={instance.metadata.name}
           />
@@ -123,37 +127,41 @@ export class InspectorProject extends Component {
             onFocus={this.startTransaction}
             onBlur={this.endTransaction}
             onEscape={() => this.endTransaction(true)}
-            readOnly={readOnly}
+            readOnly={readOnly || !userOwnsProject}
             maxLength={2048}
             value={instance.metadata.description}
           />
         </InspectorRow>
 
-        <Expando
-          text={colorPaletteText}
+        <InspectorRow heading="Keywords">
+          <FormKeywords
+            keywords={instance.metadata.keywords}
+            onChange={this.setKeywords}
+            disabled={readOnly || !userOwnsProject}
+          />
+        </InspectorRow>
+
+        <InspectorRow
+          heading={colorPaletteText}
+          hasToggle
           capitalize
-          stateKey={paletteStateKey}
-          onClick={() => this.forceUpdate()}
-          content={
-            <PalettePicker
-              paletteName={paletteName}
-              onSelectPalette={this.onSelectPalette}
-              readOnly={readOnly}
-            />
-          }
-        />
+        >
+          <PalettePicker
+            paletteName={paletteName}
+            onSelectPalette={this.onSelectPalette}
+            readOnly={readOnly}
+          />
+        </InspectorRow>
 
         <InspectorRow
           heading="Order History"
           hasToggle
           condition={orders.length > 0}
         >
-          <div className="InspectorContent-section">
-            <OrderList
-              orders={orders}
-              onClick={orderId => this.handleOpenOrder(orderId)}
-            />
-          </div>
+          <OrderList
+            orders={orders}
+            onClick={orderId => this.handleOpenOrder(orderId)}
+          />
         </InspectorRow>
 
       </div>
@@ -161,11 +169,11 @@ export class InspectorProject extends Component {
   }
 }
 
-
 export default connect(null, {
   projectRename,
   projectSetPalette,
-  projectMerge,
+  projectSetDescription,
+  projectSetKeywords,
   transact,
   commit,
   abort,

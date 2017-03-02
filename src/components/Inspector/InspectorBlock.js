@@ -16,17 +16,23 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { blockMerge, blockRename, blockSetColor, blockSetPalette, blockSetRole } from '../../actions/blocks';
-import { blockGetParents } from '../../selectors/blocks';
+import {
+  blockSetDescription,
+  blockRename,
+  blockSetColor,
+  blockSetPalette,
+  blockSetRole,
+  blockSetFixed,
+} from '../../actions/blocks';
 import Block from '../../models/Block';
 import { abort, commit, transact } from '../../store/undo/actions';
 import InputSimple from './../InputSimple';
 import ColorPicker from './../ui/ColorPicker';
 import PalettePicker from './../ui/PalettePicker';
-import Expando from './../ui/Expando';
 import SBOLPicker from './../ui/SBOLPicker';
 import BlockNotes from './BlockNotes';
 import BlockSource from './BlockSource';
+import BlockAttribution from './BlockAttribution';
 import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
@@ -48,17 +54,18 @@ export class InspectorBlock extends Component {
       color: PropTypes.string,
       role: PropTypes.string,
     }).isRequired,
+    project: PropTypes.object.isRequired,
+    userOwnsProject: PropTypes.bool.isRequired,
+    forceIsConstruct: PropTypes.bool,
     blockSetColor: PropTypes.func.isRequired,
     blockSetPalette: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
-    blockGetParents: PropTypes.func.isRequired,
-    blockMerge: PropTypes.func.isRequired,
     blockRename: PropTypes.func.isRequired,
-    project: PropTypes.object.isRequired,
+    blockSetDescription: PropTypes.func.isRequired,
+    blockSetFixed: PropTypes.func.isRequired,
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abort: PropTypes.func.isRequired,
-    forceIsConstruct: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -77,7 +84,7 @@ export class InspectorBlock extends Component {
 
   setBlockDescription = (description) => {
     this.props.instances.forEach((block) => {
-      this.props.blockMerge(block.id, { metadata: { description } });
+      this.props.blockSetDescription(block.id, description);
     });
   };
 
@@ -117,6 +124,10 @@ export class InspectorBlock extends Component {
     this.props.commit();
   };
 
+  isConstruct() {
+    const { project, instances, forceIsConstruct } = this.props;
+    return forceIsConstruct === true || (instances.length === 1 && project && project.components.indexOf(instances[0].id) >= 0);
+  }
 
   /**
    * color of selected instance or null if multiple blocks selected
@@ -155,7 +166,7 @@ export class InspectorBlock extends Component {
    */
   currentName(useGetName = true) {
     if (this.props.instances.length === 1) {
-      const defaultName = this.props.forceIsConstruct ? 'New Construct' : null;
+      const defaultName = this.isConstruct() ? 'New Construct' : null;
       return useGetName ? this.props.instances[0].getName(defaultName) : this.props.instances[0].metadata.name;
     }
     return '';
@@ -212,19 +223,22 @@ export class InspectorBlock extends Component {
   }
 
   render() {
-    const { instances, construct, readOnly, forceIsConstruct } = this.props;
+    const { instances, construct, readOnly, userOwnsProject } = this.props;
     const singleInstance = instances.length === 1;
+    const isConstruct = this.isConstruct();
+    const isParentBlock = singleInstance && instances[0].isConstruct();
     const isBackbone = singleInstance && instances[0].rules.role === 'backbone';
     const isList = singleInstance && instances[0].isList();
-    const isConstruct = singleInstance && instances[0].isConstruct();
+    const isFrozen = (construct && construct.isFrozen()) || instances.some(inst => inst.isFrozen());
     const isFixed = (construct && construct.isFixed()) || instances.some(inst => inst.isFixed());
-    const hasParents = this.props.blockGetParents(instances[0].id).length > 0;
+
+    const cannotEdit = readOnly || isFrozen || isFixed || !userOwnsProject;
 
     const inputKey = instances.map(inst => inst.id).join(',');
 
     const palette = getPaletteName(construct ? construct.metadata.palette || this.props.project.metadata.palette : null);
 
-    const defaultType = forceIsConstruct ? 'Construct' : 'Block';
+    const defaultType = isConstruct ? 'Construct' : 'Block';
     const type = singleInstance ? instances[0].getType(defaultType) : 'Blocks';
 
     const currentSourceElement = this.currentSource();
@@ -249,7 +263,7 @@ export class InspectorBlock extends Component {
           <InputSimple
             refKey={inputKey}
             placeholder={this.currentName(true) || 'Enter a name'}
-            readOnly={readOnly}
+            readOnly={cannotEdit}
             onChange={this.setBlockName}
             onFocus={this.startTransaction}
             onBlur={this.endTransaction}
@@ -264,7 +278,7 @@ export class InspectorBlock extends Component {
             refKey={`${inputKey}desc`}
             placeholder="Enter a description"
             useTextarea
-            readOnly={readOnly}
+            readOnly={cannotEdit}
             onChange={this.setBlockDescription}
             onFocus={this.startTransaction}
             onBlur={this.endTransaction}
@@ -288,58 +302,86 @@ export class InspectorBlock extends Component {
           <p><strong>{this.currentSequenceLength()}</strong></p>
         </InspectorRow>
 
+        <InspectorRow
+          heading="Protected"
+          condition={isConstruct}
+          glyphUrl="/images/ui/lock.svg"
+          hasSwitch
+          switchDisabled={readOnly || isFrozen || !userOwnsProject}
+          onToggle={state => this.props.blockSetFixed(instances[0].id, state)}
+          forceActive={isFixed}
+        />
 
-        { hasNotes
-          ? <Expando
-            text={`${type} Metadata`}
-            stateKey="inspector-template-metadata"
-            content={<div className="InspectorContent-section">
-              <BlockNotes notes={instances[0].notes} />
-            </div>}
+        {singleInstance && (
+          <BlockAttribution
+            block={instances[0]}
+            readOnly={cannotEdit}
           />
-          : null
-        }
-        {isConstruct && singleInstance && !hasParents
-          ?
-            <Expando
-              text={colorPaletteText}
-              capitalize
-              stateKey={paletteStateKey}
-              onClick={() => this.forceUpdate()}
-              content={
-                <PalettePicker
-                  paletteName={palette}
-                  onSelectPalette={this.selectPalette}
-                  readOnly={readOnly || isFixed}
-                />}
-            />
-          :
-            null
-        }
-        <div className="color-symbol-label">{this.state.colorSymbolText}</div>
-        <div className="color-symbol">
-          <ColorPicker
-            setText={this.setColorSymbolText}
-            current={this.currentColor()}
-            readOnly={readOnly || isFixed}
+        )}
+
+        <InspectorRow
+          heading={`${type} Metadata`}
+          hasToggle
+          condition={hasNotes}
+        >
+          <BlockNotes notes={instances[0].notes} />
+        </InspectorRow>
+
+        <InspectorRow
+          heading={colorPaletteText}
+          hasToggle
+          condition={isConstruct}
+        >
+          <PalettePicker
             paletteName={palette}
-            onSelectColor={this.selectColor}
+            onSelectPalette={this.selectPalette}
+            readOnly={cannotEdit}
           />
-          {singleInstance && hasParents && !isBackbone ? <SBOLPicker
-            setText={this.setColorSymbolText}
-            current={this.currentRoleSymbol()}
-            readOnly={readOnly || isFixed}
-            onSelect={this.selectSymbol}
-          /> : null}
-        </div>
+        </InspectorRow>
+
+        <InspectorRow
+          heading={this.state.colorSymbolText}
+        >
+          <div className="color-symbol">
+            <ColorPicker
+              setText={this.setColorSymbolText}
+              current={this.currentColor()}
+              readOnly={cannotEdit}
+              paletteName={palette}
+              onSelectColor={this.selectColor}
+            />
+            {(singleInstance && !isConstruct && !isBackbone) ?
+              (
+                <SBOLPicker
+                  setText={this.setColorSymbolText}
+                  current={this.currentRoleSymbol()}
+                  readOnly={cannotEdit}
+                  onSelect={this.selectSymbol}
+                />
+              ) :
+              null}
+          </div>
+        </InspectorRow>
+
         <InspectorRow
           heading={`${type} Rules`}
-          condition={!isConstruct && singleInstance && hasParents && !isBackbone}
+          condition={singleInstance && !isConstruct}
         >
           <TemplateRules
             block={instances[0]}
-            readOnly={isFixed}
-            isConstruct={isConstruct}
+            readOnly={cannotEdit}
+            isConstruct={isParentBlock}
+          />
+        </InspectorRow>
+
+        <InspectorRow
+          heading="List Options"
+          condition={isList}
+        >
+          <ListOptions
+            disabled={isFrozen}
+            toggleOnly={isFixed}
+            block={instances[0]}
           />
         </InspectorRow>
 
@@ -355,18 +397,8 @@ export class InspectorBlock extends Component {
               >
                 {annotation.name || annotation.description || '?'}
               </span>
-              ))}
+            ))}
           </div>
-        </InspectorRow>
-
-        <InspectorRow
-          heading="List Options"
-          condition={isList}
-        >
-          <ListOptions
-            toggleOnly={isFixed}
-            block={instances[0]}
-          />
         </InspectorRow>
 
       </div>
@@ -374,13 +406,13 @@ export class InspectorBlock extends Component {
   }
 }
 
-export default connect(() => ({}), {
+export default connect(null, {
   blockSetColor,
   blockSetPalette,
   blockSetRole,
-  blockGetParents,
   blockRename,
-  blockMerge,
+  blockSetDescription,
+  blockSetFixed,
   transact,
   commit,
   abort,

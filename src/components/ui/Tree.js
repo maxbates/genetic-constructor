@@ -21,7 +21,20 @@ import Expando from './Expando';
 
 export default class Tree extends Component {
   static propTypes = {
-    items: PropTypes.array,
+    items: PropTypes.arrayOf(PropTypes.shape({
+      text: PropTypes.string.isRequired,
+      testid: PropTypes.string,
+      items: PropTypes.array,
+      textWidgets: PropTypes.arrayOf(PropTypes.node),
+      labelWidgets: PropTypes.arrayOf(PropTypes.node),
+      bold: PropTypes.bool,
+      selected: PropTypes.bool,
+      selectedAlt: PropTypes.bool,
+      locked: PropTypes.bool,
+      startDrag: PropTypes.func,
+      onContextMenu: PropTypes.func,
+      showArrowWhenEmpty: PropTypes.bool,
+    })),
     depth: PropTypes.number.isRequired,
   };
 
@@ -44,11 +57,11 @@ export default class Tree extends Component {
    * when a branch is expanded
    * @param item
    */
-  onExpandBranch = (item) => {
+  static onExpandBranch(item) {
     if (item.onExpand) {
       item.onExpand(item);
     }
-  };
+  }
 
   render() {
     /* add to expando to make state persistent but project must be loaded for this to work
@@ -59,7 +72,7 @@ export default class Tree extends Component {
      */
     return (
       <div className="tree">
-        {(this.props.items || []).map((item, index) => (
+        {(this.props.items).map((item, index) => (
           <div
             key={index}
             style={{
@@ -67,8 +80,8 @@ export default class Tree extends Component {
             }}
           >
             <Expando
-              showArrowWhenEmpty={this.props.depth === 0}
-              onExpand={() => this.onExpandBranch(item)}
+              showArrowWhenEmpty={this.props.depth === 0 || item.showArrowWhenEmpty}
+              onExpand={() => Tree.onExpandBranch(item)}
               onClick={() => Tree.onClickBlock(item)}
               key={index}
               text={item.text}
@@ -79,14 +92,16 @@ export default class Tree extends Component {
               onContextMenu={item.onContextMenu}
               startDrag={item.startDrag}
               selected={item.selected}
+              selectedAlt={item.selectedAlt}
               showLock={item.locked}
-              content={item.items && item.items.length
+            >
+              {item.items && item.items.length
                 ? <Tree
                   items={item.items}
                   depth={this.props.depth + 1}
                 />
                 : null}
-            />
+            </Expando>
           </div>))}
       </div>
     );

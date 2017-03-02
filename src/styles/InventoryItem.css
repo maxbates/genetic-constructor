@@ -78,7 +78,7 @@
 
   &.loading,
   &.selected {
-    background-color: var(--colors-selected);
+
     color: var(--colors-white);
 
     .InventoryItem-text {
@@ -86,22 +86,26 @@
     }
   }
 
+  &:hover {
+    transition: 0s;
+    background-color: var(--colors-lightGrey);
+  }
+
   &.loading {
     animation: softpulse 1s infinite;
+    background-color: var(--colors-grey);
+  }
+
+  &.selected {
+    background-color: var(--colors-selected);
   }
 
   &.loadError {
+    text-decoration: line-through;
     cursor: not-allowed;
 
     .InventoryItem-text {
-      color: #ff0000;
+      color: var(--colors-mediumLightGrey);
     }
-  }
-
-  &:hover {
-    transition: 0s;
-    background-color: var(--listItem-backgroundHover);
-    color: var(--colors-white);
-    animation: none;
   }
 }

@@ -21,14 +21,14 @@ import * as ActionTypes from '../constants/ActionTypes';
 
 export const purgeEvents = [
   //ActionTypes.PROJECT_SAVE, //dont purge on this, since call it on save, will never throttle
-  ActionTypes.PROJECT_SNAPSHOT,
+  ActionTypes.SNAPSHOT_PROJECT,
   LOCATION_CHANGE, //we handle saving in projectOpen, which changes the route, so purge when the route changes
   ActionTypes.USER_SET_USER,
 ];
 
 export const simulateEvents = [
   ActionTypes.PROJECT_SAVE,
-  ActionTypes.PROJECT_SNAPSHOT,
+  ActionTypes.SNAPSHOT_PROJECT,
   LOCATION_CHANGE,
 ];
 
