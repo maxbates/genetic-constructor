@@ -247,6 +247,7 @@ export class ConstructViewer extends Component {
     const wasFocused = construct.id === this.props.focus.constructId;
     this.props.focusBlocks([]);
     this.props.focusConstruct(construct.id);
+    this.props.inspectorSelectTab('Information');
     if (!construct.isFixed() && wasFocused) {
       // there might be an autoscroll when focusing the construct so wait for that to complete
       window.setTimeout(() => {
@@ -719,6 +720,7 @@ export class ConstructViewer extends Component {
    */
   blockSelected(partIds) {
     this.props.focusBlocks(partIds, this.props.construct.id);
+    this.props.inspectorSelectTab('Information');
   }
 
   /**
@@ -726,6 +728,7 @@ export class ConstructViewer extends Component {
    */
   optionSelected(blockId, optionId) {
     this.props.focusBlockOption(blockId, optionId);
+    this.props.inspectorSelectTab('Information');
   }
 
   /**
@@ -761,6 +764,7 @@ export class ConstructViewer extends Component {
     });
     // now we can select the entire range
     this.props.focusBlocksAdd(levelBlocks.slice(min, max + 1));
+    this.props.inspectorSelectTab('Information');
   }
 
   /**
@@ -772,6 +776,8 @@ export class ConstructViewer extends Component {
     this.props.focusBlocks(emptySet, this.props.construct.id);
     if (!emptySet.length) {
       this.grunt('There are no empty blocks in the current construct');
+    } else {
+      this.props.inspectorSelectTab('Information');
     }
   }
 
