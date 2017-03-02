@@ -129,7 +129,7 @@ export class InventoryProjectTree extends Component {
   onClickProject(project, item) {
     const loadedProject = this.props.projects[project.id];
     const projectLoaded = project.id === this.props.currentProjectId ||
-      ( loadedProject && loadedProject.components && loadedProject.components.every(componentId => this.props.blocks[componentId]));
+      (loadedProject && loadedProject.components && loadedProject.components.every(componentId => this.props.blocks[componentId]));
 
     const promise = (projectLoaded) ?
       Promise.resolve() :

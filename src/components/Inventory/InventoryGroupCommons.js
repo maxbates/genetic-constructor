@@ -106,7 +106,7 @@ export class InventoryGroupCommons extends Component {
 
   onClickSnapshot = (snapshot, isOpen) => {
     this.retrieveProject(snapshot)
-    .then(roll => {
+    .then((roll) => {
       if (snapshot.projectId === this.props.currentProjectId) {
         this.props.focusPrioritize('project');
       } else {
