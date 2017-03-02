@@ -76,6 +76,9 @@ class InventoryGroup extends Component {
    * when blocks are dropped
    */
   onBlockDropped = (globalPosition, payload) => {
+    if (this.props.tabInfo.type !== 'projects') {
+      return;
+    }
     // create a new project and add blocks as a construct
     // create project and add a default construct
     const project = this.props.projectCreate();
@@ -105,11 +108,15 @@ class InventoryGroup extends Component {
    * drag enter, only valid for certain tabs
    */
   onDragEnter = () => {
-    this.setState({ dragInside: true });
+    if (this.props.tabInfo.type === 'projects') {
+      this.setState({ dragInside: true });
+    }
   };
 
   onDragLeave = () => {
-    this.setState({ dragInside: false });
+    if (this.props.tabInfo.type === 'projects') {
+      this.setState({ dragInside: false });
+    }
   };
 
   /**
