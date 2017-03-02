@@ -733,7 +733,7 @@ export class ConstructViewer extends Component {
    * select the given block
    */
   blockSelected(partIds) {
-    this.props.focusBlocks(partIds);
+    this.props.focusBlocks(partIds, this.props.construct.id);
   }
 
   /**
@@ -784,7 +784,7 @@ export class ConstructViewer extends Component {
   selectEmptyBlocks() {
     const allChildren = this.props.blockGetComponentsRecursive(this.props.focus.constructId);
     const emptySet = allChildren.filter(block => !block.hasSequence()).map(block => block.id);
-    this.props.focusBlocks(emptySet);
+    this.props.focusBlocks(emptySet, this.props.construct.id);
     if (!emptySet.length) {
       this.grunt('There are no empty blocks in the current construct');
     }
