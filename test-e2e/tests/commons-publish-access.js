@@ -64,7 +64,7 @@ module.exports = {
             browser
             .waitForElementPresent('[data-testid="ProjectHeader/' + publishedProject.id + '"]', 10000, 'expected to open project')
             .assert.countelements('.construct-viewer', publishedProject.components.length)
-            .assert.countelements('.construct-viewer .lockIcon', publishedProject.components.length);
+            .assert.countelements('.construct-viewer [data-id="Locked"]', publishedProject.components.length);
 
             getProjectRollup(browser, function (browser, rollup) {
               invariant(rollup.project.rules.frozen, 'project should be frozen');

@@ -24,10 +24,10 @@ module.exports = {
 
     browser
       // wait for confirmation dialog and accept
-      .waitForElementPresent('.DeleteProjectModal', 5000, 'expected confirmation dialog')
+      .waitForElementPresent('.Modal-portal.Modal--open', 5000, 'expected confirmation dialog')
       .pause(3000)
       .click('button.Modal-action')
-      .waitForElementNotPresent('.DeleteProjectModal', 5000, 'expected confirmation dialog to go away')
+      .waitForElementNotPresent('.Modal-portal.Modal--open', 5000, 'expected confirmation dialog to go away')
       .pause(3000)
       .assert.countelements('[data-testid^="inventoryProject"]', 1)
       .end();
