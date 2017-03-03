@@ -31,6 +31,7 @@ import {
 } from '../../actions/projects';
 import { focusConstruct } from '../../actions/focus';
 import { snapshotsList } from '../../actions/snapshots';
+import Rollup from '../../models/Rollup';
 import * as instanceMap from '../../store/instanceMap';
 
 import Modal from './Modal';
@@ -79,22 +80,21 @@ class DeleteProjectModal extends Component {
 
   actions = [{
     text: 'Delete',
-    onClick: this.handleDelete,
+    onClick: () => this.handleDelete(),
   }];
 
-  handleDelete = () => {
+  handleDelete() {
+    this.props.uiShowProjectDeleteModal(false);
+
     if (this.props.project.rules.frozen) {
       this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
       return;
     }
 
     if (this.state.isPublished) {
-      this.props.uiShowProjectDeleteModal(false);
       this.props.uiSetGrunt('The project cannot be deleted because it is shared in the Public inventory.');
       return;
     }
-
-    this.props.uiShowProjectDeleteModal(false);
 
     const projectId = this.props.projectId;
 
@@ -102,8 +102,7 @@ class DeleteProjectModal extends Component {
     const nextProject = _(this.props.projects)
     .filter(project => !project.rules.frozen)
     .orderBy(['metadata.created'], ['desc'])
-    .find(manifest => manifest.id !== projectId)
-    .value();
+    .find(manifest => manifest.id !== projectId);
 
     //if no other projects, create and save another one first
     if (!nextProject) {
@@ -119,7 +118,7 @@ class DeleteProjectModal extends Component {
     .then(roll => this.props.projectOpen(roll.project.id, true))
     //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
     .then(() => this.props.projectDelete(projectId));
-  };
+  }
 
   //todo - share with InventoryProjectTree better
   createNewProject() {
@@ -128,20 +127,21 @@ class DeleteProjectModal extends Component {
     // add a construct to the new project
     const block = this.props.blockCreate({ projectId: project.id });
     const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
-
-    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
-    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
-    instanceMap.saveRollup({
+    const rollup = new Rollup({
       project: projectWithConstruct,
       blocks: {
         [block.id]: block,
       },
     });
 
+    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
+    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
+    instanceMap.saveRollup(rollup);
+
     this.props.focusConstruct(block.id);
     this.props.projectOpen(project.id);
 
-    return project;
+    return rollup;
   }
 
   render() {

@@ -43,6 +43,7 @@ import {
   uiShowProjectDeleteModal,
 } from '../../actions/ui';
 import { block as blockDragType } from '../../constants/DragTypes';
+import Rollup from '../../models/Rollup';
 import DnD from '../../containers/graphics/dnd/dnd';
 import * as instanceMap from '../../store/instanceMap';
 import { commit, transact } from '../../store/undo/actions';
@@ -193,20 +194,21 @@ export class InventoryProjectTree extends Component {
     // add a construct to the new project
     const block = this.props.blockCreate({ projectId: project.id });
     const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
-
-    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
-    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
-    instanceMap.saveRollup({
+    const rollup = new Rollup({
       project: projectWithConstruct,
       blocks: {
         [block.id]: block,
       },
     });
 
+    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
+    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
+    instanceMap.saveRollup(rollup);
+
     this.props.focusConstruct(block.id);
     this.props.projectOpen(project.id);
 
-    return project;
+    return rollup;
   };
 
   /**
