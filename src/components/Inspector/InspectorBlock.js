@@ -247,15 +247,6 @@ export class InspectorBlock extends Component {
     const hasSequence = this.allBlocksWithSequence();
     const hasNotes = singleInstance && Object.keys(instances[0].notes).length > 0;
 
-    // determines the default state of the palette expando
-    const paletteStateKey = 'expando-color-palette';
-    // text before palette, depends on expanded state.
-    const paletteOpen = getLocal(paletteStateKey, false, true);
-    let colorPaletteText = 'Color Palette';
-    if (!paletteOpen) {
-      colorPaletteText += `: ${palette}`;
-    }
-
     return (
       <div className="InspectorContent InspectorContentBlock">
 
@@ -328,7 +319,7 @@ export class InspectorBlock extends Component {
         </InspectorRow>
 
         <InspectorRow
-          heading={colorPaletteText}
+          heading={`Color Palette: ${palette}`}
           hasToggle
           condition={isConstruct}
         >
