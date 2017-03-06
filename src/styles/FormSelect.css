@@ -3,8 +3,8 @@
 :root {
   --tag-spacing: 2px;
   --padding-inner: 5px;
-  --height-input: 25px;
-  --height-select: 29px;
+  --height-input: 26px;
+  --height-select: 30px;
 }
 
 .FormSelect {
@@ -321,7 +321,7 @@
   border: 1px solid var(--colors-mediumLightGrey);
   color: var(--colors-nearlyBlack);
   display: inline-block;
-  font-size: 0.9em;
+  font-size: 1em;
   line-height: 1.4;
   margin-left: var(--tag-spacing);
   margin-top: var(--tag-spacing);

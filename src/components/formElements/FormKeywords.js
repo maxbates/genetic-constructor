@@ -74,6 +74,7 @@ export default class FormKeywords extends Component {
         ref={(el) => { this.element = el; }}
         name="keywords"
         multi
+        clearable={false}
         value={keywords}
         disabled={disabled}
         options={fullList}
