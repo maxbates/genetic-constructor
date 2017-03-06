@@ -35,6 +35,7 @@ export class InterConstructDropTarget extends Component {
     focusConstruct: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string.isRequired,
     index: PropTypes.number.isRequired,
+    disabled: PropTypes.bool,
   };
 
   state = {
@@ -45,24 +46,26 @@ export class InterConstructDropTarget extends Component {
    * register as a drop target after mounting.
    */
   componentDidMount() {
-    const self = ReactDOM.findDOMNode(this);
-    DnD.registerTarget(self, {
-      drop: this.onDrop,
-      dragEnter: () => {
-        this.setState({ hovered: true });
-      },
-      dragLeave: () => {
-        this.setState({ hovered: false });
-      },
-      zorder: -1,
-    });
+    if (!this.props.disabled) {
+      DnD.registerTarget(ReactDOM.findDOMNode(this), {
+        drop: this.onDrop,
+        dragEnter: () => {
+          this.setState({ hovered: true });
+        },
+        dragLeave: () => {
+          this.setState({ hovered: false });
+        },
+        zorder: -1,
+      });
+    }
   }
   /**
    * unsink DND on unmount
    */
   componentWillUnmount() {
-    const self = ReactDOM.findDOMNode(this);
-    DnD.unregisterTarget(self);
+    if (!this.props.disabled) {
+      DnD.unregisterTarget(ReactDOM.findDOMNode(this));
+    }
   }
 
 
