@@ -705,7 +705,7 @@ export const blockAnnotate = (blockId, annotation) => (dispatch, getState) => {
  * Remove an annotation
  * @function
  * @param {UUID} blockId
- * @param {Annotation|string} annotation Annotation or its name
+ * @param {Annotation|index} annotation Annotation object (to find) or its index
  * @returns {Block} Updated Block
  */
 export const blockRemoveAnnotation = (blockId, annotation) => (dispatch, getState) => {

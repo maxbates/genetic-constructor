@@ -47,7 +47,7 @@ const rulesFields = {
   ],
   fixed: [
     fields.bool(),
-    'Block Ids of components are fixed - no movement, insertions, deletions, substitutions',
+    'All contents are fixed - components (no movement, insertions, deletions, substitutions), list options, metadata, rules.',
     { avoidScaffold: true },
   ],
 };

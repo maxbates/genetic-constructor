@@ -61,7 +61,7 @@ const fieldDefs = {
   ],
   isForward: [
     fields.bool(),
-    'true if forward (5\'-3\'), false if reverse',
+    'true if forward (5\'-3\'), false if reverse, or undefined/null for directionless',
   ],
   notes: [
     fields.object().required,

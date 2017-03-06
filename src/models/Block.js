@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { assign, cloneDeep, merge } from 'lodash';
+import _, { assign, cloneDeep, merge } from 'lodash';
 
 import { symbolMap } from '../inventory/roles';
 import { getSequence, writeSequence } from '../middleware/sequence';
@@ -540,8 +540,8 @@ export default class Block extends Instance {
     newComponents.splice(spliceIndex, 0, componentId);
 
     return this
-      .mutate('components', newComponents)
-      .clearBlockLevelFields();
+    .mutate('components', newComponents)
+    .clearBlockLevelFields();
   }
 
   /**
@@ -766,22 +766,22 @@ export default class Block extends Instance {
       { source: 'user', id: null };
 
     return writeSequence(sequence)
-      .then((md5) => {
-        const sequenceLength = sequence.length;
+    .then((md5) => {
+      const sequenceLength = sequence.length;
 
-        const updatedSequence = {
-          md5,
-          length: sequenceLength,
-          initialBases: `${sequence.substr(0, 6)}`,
-          download: null,
-          trim: null,
-        };
+      const updatedSequence = {
+        md5,
+        length: sequenceLength,
+        initialBases: `${sequence.substr(0, 6)}`,
+        download: null,
+        trim: null,
+      };
 
-        return this.merge({
-          sequence: updatedSequence,
-          source: updatedSource,
-        });
+      return this.merge({
+        sequence: updatedSequence,
+        source: updatedSource,
       });
+    });
   }
 
   /**
@@ -824,23 +824,23 @@ export default class Block extends Instance {
    * Remove an annotation
    * @method removeAnnotation
    * @memberOf Block
-   * @param {Annotation|string} annotation Annotation or annotation's name
+   * @param {Annotation|Integer} annotation Annotation or annotation's name
    * @returns {Block}
    */
   removeAnnotation(annotation) {
     invariant(!this.isFixed(), 'Block is fixed - cannot change annotations');
-    const annotationName = typeof annotation === 'object' ? annotation.name : annotation;
-    invariant(typeof annotationName === 'string', `Must pass object with Name or annotation Name directly, got ${annotation}`);
+    invariant(typeof annotation === 'object' || Number.isInteger(annotation), 'must pass object or integer');
 
-    const annotations = this.sequence.annotations.slice();
-    const toSplice = annotations.findIndex(ann => ann.name === annotationName);
+    const annotationIndex = typeof annotation === 'object' ? _.findIndex(this.annotations, annotation) : annotation;
 
-    if (toSplice < 0) {
+    if (annotationIndex < 0) {
       console.warn('annotation not found'); // eslint-disable-line
       return this;
     }
 
-    annotations.splice(toSplice, 1);
+    const annotations = this.sequence.annotations.slice();
+
+    annotations.splice(annotationIndex, 1);
     return this.mutate('sequence.annotations', annotations);
   }
 
