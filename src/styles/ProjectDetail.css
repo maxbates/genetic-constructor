@@ -49,8 +49,7 @@
           padding: 0.5rem 1rem;
         }
         &-active {
-          background-color: white;
-          color: black;
+          background-color: var(--colors-darkGrey);
           border-radius: 5px 5px 0 0;
         }
       }
@@ -88,8 +87,7 @@
       user-select: none;
 
       &:hover {
-        background-color: white;
-        color: black;
+        background-color: var(--colors-darkGrey);
       }
     }
   }
