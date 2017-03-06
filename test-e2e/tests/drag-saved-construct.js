@@ -31,14 +31,14 @@ module.exports = {
 
     browser
       // expect two projects ( default one and the new one we created above )
-      .waitForElementPresent('.inventory-project-tree [data-testid^="project"]', 5000, 'expect a list of projects to appear')
-      .assert.countelements('.inventory-project-tree [data-testid^="project"]', 2)
+      .waitForElementPresent('.inventory-project-tree [data-testid^="inventoryProject/project"]', 5000, 'expect a list of projects to appear')
+      .assert.countelements('.inventory-project-tree [data-testid^="inventoryProject/project"]', 2)
 
       // expand loaded project
       .click('.inventory-project-tree .expando .label-selected')
       .pause(1000)
       // expect 2 projects and 3 blocks to be visible
-      .assert.countelements('.inventory-project-tree [data-testid^="project"]', 2)
+      .assert.countelements('.inventory-project-tree [data-testid^="inventoryProject/project"]', 2)
       .assert.countelements('.inventory-project-tree [data-testid^="block"]', 3);
 
     // drag the first construct into the canvas

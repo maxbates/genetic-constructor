@@ -85,11 +85,12 @@ export default class RoleGlyph2D extends Glyph2D {
         }
       }
       // update geometry of container
-      this.svgContainer.style.left = `${this.node.width - kT.roleIcon - 2 - kT.contextDotsW}px`;
+      this.svgContainer.style.left = `${this.node.width - kT.roleIcon - 2}px`;
       this.svgContainer.style.top = `${this.node.height / 2 - kT.roleIcon / 2}px`;
       this.svgContainer.style.width = `${kT.roleIcon}px`;
     } else {
       this.svgContainer.style.display = 'none';
+      this.roleName = null;
     }
     this.triangle.style.display = this.node.hasChildren ? 'block' : 'none';
   }

@@ -212,7 +212,7 @@ export const projectSnapshot = (projectId, message, withRollup = true) => {
 
         const { sha } = commitInfo;
         dispatch({
-          type: ActionTypes.PROJECT_SNAPSHOT,
+          type: ActionTypes.SNAPSHOT_PROJECT,
           projectId,
           sha,
         });

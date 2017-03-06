@@ -32,3 +32,4 @@ export const errorInvalidPart = 'INVALID_PART';
 export const errorExtensionNotFound = 'EXTENSION_NOT_FOUND';
 
 export const errorNotPublished = 'NOT_PUBLISHED';
+export const errorIsPublished = 'PROJECT_IS_PUBLISHED';

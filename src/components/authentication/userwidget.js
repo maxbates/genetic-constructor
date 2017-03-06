@@ -38,7 +38,7 @@ class UserWidget extends Component {
    */
   onShowMenu = () => {
     const box = new Box2D(ReactDOM.findDOMNode(this).getBoundingClientRect());
-    const menuPosition = new Vector2D(box.cx, box.bottom);
+    const menuPosition = new Vector2D(box.cx, box.bottom).add(new Vector2D(-20, -4));
     const name = `${this.props.user.firstName} ${this.props.user.lastName}`;
 
     this.props.uiShowMenu([
@@ -57,7 +57,7 @@ class UserWidget extends Component {
         action: this.signOut,
       },
     ],
-    menuPosition, true);
+    menuPosition, false);
   };
 
   signOut = () => {

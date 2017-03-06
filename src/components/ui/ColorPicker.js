@@ -108,7 +108,7 @@ export default class ColorPicker extends Component {
     }
     return (
       <div className="single-color-picker" onClick={this.toggle}>
-        <div className="color" style={{ backgroundColor: color.hex }}>
+        <div className={`color${this.props.readOnly ? ' readOnly' : ''}`} style={{ backgroundColor: color.hex }}>
           {chips}
         </div>
       </div>

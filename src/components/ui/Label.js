@@ -24,18 +24,20 @@ export default class Label extends Component {
     bold: PropTypes.bool,
     onClick: PropTypes.func,
     text: PropTypes.string.isRequired,
+    secondary: PropTypes.string,
     styles: PropTypes.object,
     selected: PropTypes.bool,
+    selectedAlt: PropTypes.bool,
     textWidgets: PropTypes.array,
-    widgets: PropTypes.array,
+    widgets: PropTypes.arrayOf(PropTypes.node),
     showLock: PropTypes.bool,
   };
 
-  onClick = (evt) => {
-    if (this.props.onClick) {
-      this.props.onClick(evt);
-    }
+  static defaultProps = {
+    onClick: () => {},
   };
+
+  onClick = evt => this.props.onClick(evt);
 
   render() {
     let labelClasses = 'label-base';
@@ -53,6 +55,9 @@ export default class Label extends Component {
       } else {
         labelClasses += ' label-unselected';
       }
+      if (this.props.selectedAlt) {
+        labelClasses += ' label-selectedAlt';
+      }
     }
 
     return (
@@ -60,7 +65,12 @@ export default class Label extends Component {
         <div className="left">
           <div className="primary-enclosure">
             {this.props.showLock ? <div className="lock" /> : null}
-            <span className="primary" title={this.props.text}>{this.props.text}</span>
+            <div className="Label-text">
+              <span className="primary" title={this.props.text}>
+                {this.props.text}
+              </span>
+              {!!this.props.secondary && (<span className="secondary">{this.props.secondary}</span>)}
+            </div>
           </div>
           {this.props.textWidgets}
         </div>

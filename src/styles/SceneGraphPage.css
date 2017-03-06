@@ -93,8 +93,8 @@
 }
 
 .construct-viewer {
-  margin: 1rem 1rem 0 2rem;
-  width: calc(100% - 3rem);
+  margin: 0rem 1rem 0 1rem;
+  width: calc(100% - 2rem);
   background: transparent;
   position: relative;
 
@@ -120,43 +120,12 @@
     overflow: hidden;
     position: relative;
   }
-
-  .construct-viewer-menu {
-
-    display: flex;
-    justify-content: flex-end;
-    opacity: 0.2;
-    transition: opacity 250ms ease;
-    height: 29px;
-
-    .link {
-      margin: 0.5rem 1rem 0 1rem;
-      padding-bottom: 0.5rem;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      color: white;
-      font-size: 0.9rem;
-      font-weight: lighter;
-    }
-    .link:hover {
-      border-bottom: 3px solid dodgerblue;
-    }
-    .link.checked {
-      border-bottom: 3px solid dodgerblue;
-    }
-    .icon {
-      transform: scale(2) translateY(2px);
-    }
-  }
 }
 .construct-viewer-focused {
   background-color: var(--colors-darkGrey);
 }
 .construct-viewer:last-child {
   margin-bottom: 5rem;
-}
-.construct-viewer-menu:hover {
-  opacity: 1;
 }
 
 

@@ -16,6 +16,7 @@
 import colors from 'colors/safe';
 import findVersions from 'find-versions';
 import { promisedExec } from './lib/cp';
+import checkPortFree from '../server/utils/checkPortFree';
 
 const NO_DOCKER = !!process.env.NO_DOCKER;
 
@@ -61,6 +62,7 @@ async function checks() {
     if (!NO_DOCKER) {
       await checkDockerInstalled();
     }
+    await checkPortFree();
   } catch (err) {
     console.log('error running checks for Constructor: ', err);
     throw err;

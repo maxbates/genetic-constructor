@@ -173,6 +173,3 @@ export function domSummary() {
   //   console.log(`${classInfo.className} / Count: ${classInfo.count}`);
   // });
 }
-
-export const tos = '/tos.html';
-export const privacy = 'http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement';

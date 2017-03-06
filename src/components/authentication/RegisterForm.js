@@ -20,7 +20,7 @@ import { connect } from 'react-redux';
 import { projectOpen } from '../../actions/projects';
 import { uiShowAuthenticationForm, uiSpin } from '../../actions/ui';
 import { userRegister } from '../../actions/user';
-import { privacy, tos } from '../../utils/ui/uiapi';
+import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '../../constants/links';
 import * as authValidation from './_validation';
 
 import ModalFooter from '../modal/ModalFooter';
@@ -281,14 +281,14 @@ export class RegisterForm extends Component {
               <span style={{ marginLeft: '0.5em' }}>
                   I agree to the&nbsp;
                 <a
-                  href={tos}
+                  href={TERMS_OF_SERVICE}
                   className="link"
                   target="_blank"
                   rel="noopener noreferrer"
                 >Terms of Service</a>
                 &nbsp;and&nbsp;
                 <a
-                  href={privacy}
+                  href={PRIVACY_POLICY}
                   className="link"
                   target="_blank"
                   rel="noopener noreferrer"

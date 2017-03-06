@@ -14,7 +14,6 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
 import '../../../src/styles/inline-toolbar.css';
 
 /**
@@ -23,25 +22,28 @@ import '../../../src/styles/inline-toolbar.css';
  * If the modal was closed via a button the button text is supplied.
  *
  */
-class InlineToolbar extends Component {
+export default class InlineToolbar extends Component {
   static propTypes = {
-    /*
-        text: "Blah",
-        imageURL: "/images/blah.svg",
-        enabled: true,
-        clicked: () => {},
-     */
-    items: PropTypes.array.isRequired,
+    items: PropTypes.arrayOf(PropTypes.shape({
+      text: PropTypes.string,
+      imageURL: PropTypes.string,
+      enabled: PropTypes.bool,
+      onClick: PropTypes.func,
+    })).isRequired,
     // called when any of the items are clicked, enabled or not.
     itemActivated: PropTypes.func,
   };
 
+  static defaultProps = {
+    items: [],
+    itemActivated: (evt, item) => {},
+  };
+
   itemClicked = (event, item) => {
-    if (this.props.itemActivated) {
-      this.props.itemActivated();
-    }
-    if (item.enabled) {
-      item.clicked(event, item);
+    this.props.itemActivated(event, item);
+    //check if enabled is falsy, so not required
+    if (item.enabled !== false) {
+      item.onClick(event, item);
     }
   };
 
@@ -53,13 +55,14 @@ class InlineToolbar extends Component {
             (
               <img
                 data-id={item.text}
+                role="presentation"
                 key={index}
                 title={item.text}
                 src={item.imageURL}
                 onClick={event => this.itemClicked(event, item)}
-                className="item"
+                className={`item${item.enabled === false ? ' disabled' : ''}`}
                 style={{
-                  filter: `brightness(${item.enabled ? '100%' : '50%'})`,
+                  filter: `brightness(${item.enabled === false ? '50%' : '100%'})`,
                 }}
               />
             ))
@@ -67,14 +70,4 @@ class InlineToolbar extends Component {
       </div>
     );
   }
-
 }
-
-function mapStateToProps(state, props) {
-  return {
-  };
-}
-
-export default connect(mapStateToProps, {
-
-})(InlineToolbar);

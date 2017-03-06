@@ -50,13 +50,14 @@
   }
 
   &:hover {
-    background-color: var(--listItem-background);
+    background-color: var(--colors-lightGrey);
 
     .ListOption-delete {
       opacity: 1;
     }
   }
 
+  &.disabled,
   .isFrozen > & {
     cursor: default;
 

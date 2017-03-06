@@ -19,7 +19,6 @@ import { connect } from 'react-redux';
 
 import {
   blockFreeze,
-  blockMerge,
   blockSetHidden,
   blockSetListBlock,
   blockSetRole,
@@ -31,9 +30,7 @@ export class TemplateRules extends Component {
   static propTypes = {
     block: PropTypes.object.isRequired,
     readOnly: PropTypes.bool.isRequired,
-    isConstruct: PropTypes.bool.isRequired,
-    //blockMerge: PropTypes.func.isRequired,
-    //blockFreeze: PropTypes.func.isRequired,
+    isConstruct: PropTypes.bool.isRequired, //this refers to parent block, not top-level
     blockSetListBlock: PropTypes.func.isRequired,
     blockSetHidden: PropTypes.func.isRequired,
     blockSetRole: PropTypes.func.isRequired,
@@ -50,14 +47,15 @@ export class TemplateRules extends Component {
         'List Block',
         (value) => {
           this.props.blockSetListBlock(this.props.block.id, value);
-          this.props.blockSetRole(this.props.block.id, value ? 'list' : null);
+          // if no symbol and becoming a list block then set the list block symbol
+          if (value && !this.props.block.rules.role) {
+            this.props.blockSetRole(this.props.block.id, 'list');
+          }
+          if (!value && this.props.block.rules.role === 'list') {
+            this.props.blockSetRole(this.props.block.id, null);
+          }
         },
-        () => this.props.block.isConstruct() || this.props.block.hasSequence()],
-      /*
-      ['frozen',
-        'Frozen',
-        (value) => this.props.blockFreeze(this.props.block.id, false)],
-      */
+        () => this.props.isConstruct || this.props.block.isConstruct() || this.props.block.hasSequence()],
     ];
   }
 
@@ -94,7 +92,6 @@ export class TemplateRules extends Component {
 const mapStateToProps = (state, props) => ({});
 
 export default connect(mapStateToProps, {
-  blockMerge,
   blockFreeze,
   blockSetListBlock,
   blockSetHidden,

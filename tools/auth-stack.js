@@ -25,11 +25,11 @@ const pathProjectRoot = path.resolve(__dirname, '../');
 const pathBioNanoPlatform = process.env.PLATFORM_PATH || path.resolve(pathProjectRoot, '../bio-user-platform');
 const PGPASSWORD = process.env.PGPASSWORD || 'storageGCTOR'; // TODO export this default from `gctor-storage`
 
-console.log(`bio-user-platform PLATFORM_PATH=${pathBioNanoPlatform}`);
-
 /** scripts **/
 
 const setupBioNanoPlatform = (useGenomeDesignerBranch = false) => {
+  console.log(`PLATFORM_PATH=${pathBioNanoPlatform}`);
+
   const checkoutPromise = useGenomeDesignerBranch === true ?
     promisedExec('git checkout genome-designer',
       { cwd: pathBioNanoPlatform },
@@ -67,6 +67,7 @@ const startRunAuth = () => {
       env: Object.assign({
         BIO_NANO_AUTH: 1,
         HOST_URL,
+        CONSTRUCTOR_SKIP_SETUP: 'true',
       }, process.env),
     },
     {

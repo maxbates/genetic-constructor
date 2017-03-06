@@ -121,6 +121,13 @@ class ConstructPreview extends Component {
     };
   }
 
+  /**
+   * because we also pretent to be a construct viewer.
+   */
+  isCircularConstruct() { //eslint-disable-line class-methods-use-this
+    return false;
+  }
+
   get dom() {
     return ReactDOM.findDOMNode(this);
   }

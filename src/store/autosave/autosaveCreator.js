@@ -1,18 +1,18 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
 import { debounce, throttle } from 'lodash';
 
@@ -28,6 +28,7 @@ export default function autosavingCreator(config) {
     filter: (action, alreadyDirty, nextState, lastState) => nextState !== lastState, //filter for triggering autosave events
     purgeOn: (action, alreadyDirty, nextState, lastState) => false, //will cancel throttled calls if pass function
     simulateOn: (action, alreadyDirty, nextState, lastState) => false, //simulate that we've saved on these events
+    preventOn: (alreadyDirty, nextState) => false,
     forceOn: (action, alreadyDirty) => false, //force save on certain actions (so not debounced)
     forceSaveActionType: FORCE_SAVE,
   }, config);
@@ -49,15 +50,26 @@ export default function autosavingCreator(config) {
 
   const handleSave = (nextState) => {
     Promise.resolve(options.onSave(nextState))
-      .then(() => noteSave())
-      .catch(() => noteFailure());
+    .then(() => noteSave())
+    .catch(() => noteFailure());
   };
 
   //trigger at start, and end if more were batched
-  const throttledSave = throttle(handleSave, options.time, {
-    leading: true,
-    trailing: true,
-  });
+  const throttledSave = throttle(
+    (nextState) => {
+      if (options.preventOn(dirty, nextState) === true) {
+        //if preventing, queue up another to run soon
+        throttledSave(nextState);
+        return;
+      }
+      handleSave(nextState);
+    },
+    options.time,
+    {
+      leading: true,
+      trailing: true,
+    },
+  );
 
   //want to initiate saves debounced
   //not check saves debounced
@@ -121,8 +133,7 @@ export default function autosavingCreator(config) {
   };
 
   //a reducer that can be mounted into the store, to expose information about dirty, time unsaved, etc.
-  const initialState = { dirty: false, timeUnsaved: 0 };
-  const autosaveReducer = (state = initialState, action) => ({
+  const autosaveReducer = (state, action) => ({
     dirty: isDirty(),
     timeUnsaved: getTimeUnsaved(),
   });

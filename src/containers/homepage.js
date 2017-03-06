@@ -20,7 +20,7 @@ import { projectOpen } from '../actions/projects';
 import { uiSetGrunt, uiShowAuthenticationForm, uiShowUserWidget } from '../actions/ui';
 import '../styles/homepage.css';
 import { getLocal, setLocal } from '../utils/localstorage';
-import { privacy } from '../utils/ui/uiapi';
+import { PRIVACY_POLICY } from '../constants/links';
 
 export class HomePage extends Component {
   static propTypes = {
@@ -102,7 +102,7 @@ export class HomePage extends Component {
     const warning = this.state.showCookieWarning ? (
       <div className="homepage-cookie-warning">
         Genetic Constructor uses cookies to ensure you get the best experience.
-        <a href={privacy} target="_blank" rel="noopener noreferrer">More Information</a>
+        <a href={PRIVACY_POLICY} target="_blank" rel="noopener noreferrer">More Information</a>
         <div onClick={this.cookieWarningClosed} className="homepage-cookie-close">
           Close
         </div>

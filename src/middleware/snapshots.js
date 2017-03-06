@@ -130,3 +130,20 @@ export const snapshotsListKeywords = () => {
   return rejectingFetch(url, headersGet())
   .then(resp => resp.json());
 };
+
+/**
+ * Query for snapshots, by tags or by keywords. Keywords or tags are necessary
+ * @param {Object} query Object in the form { tags: {}, keywords: [] }
+ */
+export const snapshotQuery = (query = {}) => {
+  const haveTags = query.tags && Object.keys(query.tags).length;
+  const haveKeywords = Array.isArray(query.keywords) && query.keywords.length;
+
+  invariant(haveKeywords || haveTags, 'must pass either tags and/or keys');
+
+  const url = dataApiPath('snapshots/query');
+  const stringified = JSON.stringify(query);
+
+  return rejectingFetch(url, headersPost(stringified))
+  .then(resp => resp.json());
+};

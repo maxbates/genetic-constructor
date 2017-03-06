@@ -30,14 +30,15 @@ import registry from '../../extensions/clientRegistry';
 import '../../styles/InspectorGroupExtensions.css';
 import Expando from '../ui/Expando';
 import Switch from '../ui/Switch';
+import InspectorDetailSection from './InspectorDetailSection';
+
+//todo - use InspectorRow instead of custom stuff. Need to update to allow switch and expando together
 
 class InspectorGroupExtensions extends Component {
   static propTypes = {
     config: PropTypes.object.isRequired,
     userUpdateConfig: PropTypes.func.isRequired,
   };
-
-  state = {};
 
   /**
    * there is a delay loading extensions when the app starts. if we find none
@@ -88,33 +89,35 @@ class InspectorGroupExtensions extends Component {
           Region: extensionRegion(extension),
         };
         // hack to prevent sequence viewer being turned off
-        const headerWidgets = extension.name === 'GC-Sequence-Viewer' ? [] : [(<Switch
-          key={index}
-          on={this.checkExtensionActive(extension.name)}
-          switched={() => this.extensionToggled(extension.name)}
-        />)];
-        return (<Expando
-          openByDefault
-          key={index}
-          text={values.Name}
-          headerWidgets={headerWidgets}
-          content={
-            <div className="content-dropdown">
-              <div className="row">
-                <div className="key">Type</div>
-                <div className="value">{values.Type}</div>
-              </div>
-              <div className="row">
-                <div className="key">Description</div>
-                <div className="value">{values.Description}</div>
-              </div>
-              <div className="row">
-                <div className="key">Author</div>
-                <div className="value">{values.Author.name ? `${values.Author.name}\n${values.Author.email}` : values.Author}</div>
-              </div>
-            </div>
-          }
-        />);
+        const headerWidgets = extension.name === 'GC-Sequence-Viewer' ?
+          [] : [(
+            <Switch
+              key={index}
+              on={this.checkExtensionActive(extension.name)}
+              switched={() => this.extensionToggled(extension.name)}
+            />
+          )];
+
+        const items = [
+          { key: 'Type', value: values.Type },
+          { key: 'Description', value: values.Description },
+          {
+            key: 'Author',
+            value: values.Author.name ? `${values.Author.name}\n${values.Author.email}` : values.Author,
+          },
+        ];
+        const content = (<InspectorDetailSection items={items} />);
+
+        return (
+          <Expando
+            openByDefault
+            key={index}
+            text={values.Name}
+            headerWidgets={headerWidgets}
+          >
+            {content}
+          </Expando>
+        );
       })}
     </div>);
   }

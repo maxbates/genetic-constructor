@@ -3,16 +3,18 @@
 .inter-construct-drop-target {
   box-sizing: border-box;
   height: 10px;
-  width: calc(100% - 3rem);
+  width: calc(100% - 2rem);
   border-top: 10px solid transparent;
-  margin: 1rem 1rem 0 2rem;
+  margin: 0.75rem 1rem 1rem 1rem;
 
   &:last-child {
     height: 400px;
   }
 
   &:first-child {
-    margin-top: 0;
+    margin: 0 1rem 2px 1rem;
+    border-top-width: 7px;
+    height: 7px;
   }
 }
 

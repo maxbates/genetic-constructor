@@ -29,6 +29,7 @@ export class ListOptions extends Component {
       options: PropTypes.object.isRequired,
       isFrozen: PropTypes.func.isRequired,
     }).isRequired,
+    disabled: PropTypes.bool,
     optionBlocks: PropTypes.array.isRequired,
     toggleOnly: PropTypes.bool.isRequired,
     blockOptionsToggle: PropTypes.func.isRequired,
@@ -52,10 +53,10 @@ export class ListOptions extends Component {
 
   handleCSVDrop = (files) => {
     importCsvFile('convert', files[0])
-      .then(({ project, blocks }) => {
-        this.props.blockStash(...Object.keys(blocks).map(blockId => blocks[blockId]));
-        this.props.blockOptionsAdd(this.props.block.id, ...Object.keys(blocks));
-      });
+    .then(({ project, blocks }) => {
+      this.props.blockStash(...Object.keys(blocks).map(blockId => blocks[blockId]));
+      this.props.blockOptionsAdd(this.props.block.id, ...Object.keys(blocks));
+    });
   };
 
   handleCSVImport = () => {
@@ -81,13 +82,18 @@ export class ListOptions extends Component {
   };
 
   render() {
-    const { block, optionBlocks, toggleOnly } = this.props;
+    const { block, optionBlocks, toggleOnly, disabled } = this.props;
     const { options } = block;
     const isFrozen = block.isFrozen();
 
-    const csvUploadButton = !isFrozen && !toggleOnly ?
-      (<div style={{ marginBottom: '1em' }} className="CSVFileDrop" onClick={this.handleCSVImport}>Upload Parts
-        (CSV)</div>) : null;
+    const csvUploadButton = (!disabled && !isFrozen && !toggleOnly) ?
+      (
+        <div
+          style={{ marginBottom: '1em' }}
+          className="CSVFileDrop"
+          onClick={this.handleCSVImport}
+        >Upload Parts (CSV)</div>
+      ) : null;
 
     const optionIds = Object.keys(this.props.block.options);
     const activeIds = optionIds.filter(option => options[option]);
@@ -105,12 +111,12 @@ export class ListOptions extends Component {
         {(optionBlocks.length > 1) && (
           <div className="ListOptions-toggleAll">
             <span
-              className={`ListOptions-toggleAll-button${someInactive ? '' : ' disabled'}`}
-              onClick={() => someInactive && this.toggleAllActive()}
+              className={`ListOptions-toggleAll-button${(disabled || someInactive) ? '' : ' disabled'}`}
+              onClick={() => (!disabled && someInactive) && this.toggleAllActive()}
             >Active</span>
             <span
-              className={`ListOptions-toggleAll-button${someActive ? '' : ' disabled'}`}
-              onClick={() => someActive && this.toggleAllInactive()}
+              className={`ListOptions-toggleAll-button${(disabled || someActive) ? '' : ' disabled'}`}
+              onClick={() => (!disabled && someActive) && this.toggleAllInactive()}
             >Inactive</span>
           </div>
         )}
@@ -118,13 +124,14 @@ export class ListOptions extends Component {
         {optionBlocks.map(item => (
           <ListOption
             option={item}
+            disabled={disabled}
             toggleOnly={isFrozen || toggleOnly}
             key={item.id}
             selected={options[item.id]}
             onDelete={option => this.onDeleteOption(option)}
             onClick={option => this.onSelectOption(option)}
           />
-          ))}
+        ))}
       </div>
     );
   }

@@ -287,7 +287,7 @@ export const orderSubmit = (orderId, foundry) => {
         order.constructIds.forEach(constructId => dispatch(blockActions.blockFreeze(constructId, true)));
 
         dispatch({
-          type: ActionTypes.PROJECT_SNAPSHOT,
+          type: ActionTypes.SNAPSHOT_PROJECT,
           projectId: order.projectId,
           sha: order.projectVersion,
         });

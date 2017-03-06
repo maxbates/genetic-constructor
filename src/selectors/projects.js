@@ -18,10 +18,14 @@
  * @memberOf module:Selectors
  */
 import invariant from 'invariant';
+import _ from 'lodash';
 
 import * as projectFilesApi from '../middleware/projectFiles';
 import Rollup from '../models/Rollup';
 import * as blockSelectors from './blocks';
+
+const projectIdNotDefined = 'projectId is required';
+const projectNotLoadedError = 'Project has not been loaded';
 
 const _getCurrentProjectId = () => {
   const match = /^\/project\/(.*?)\??$/gi.exec(window.location.pathname);
@@ -29,24 +33,27 @@ const _getCurrentProjectId = () => {
 };
 
 const _getProjectFromStore = (projectId, store) => {
-  if (!projectId) {
-    return null;
-  }
-  return store.projects[projectId];
+  invariant(projectId, projectIdNotDefined);
+  const project = store.projects[projectId];
+  invariant(project, projectNotLoadedError);
+  return project;
 };
+
+//get project if it is loaded, without throwing
+//export const projectLoaded = projectId => (dispatch, getState) => getState().projects[projectId];
 
 /**
  * Get a project by ID
  * @function
  * @param {UUID} projectId
  * @returns {Project}
+ * @throws if project not loaded
  */
 export const projectGet = projectId => (dispatch, getState) => _getProjectFromStore(projectId, getState());
 
 /**
  * Get current project ID, from the URL
  * @function
- * @param {UUID} projectId
  * @returns {UUID} current project ID
  */
 export const projectGetCurrentId = () => (dispatch, getState) => _getCurrentProjectId();
@@ -56,6 +63,7 @@ export const projectGetCurrentId = () => (dispatch, getState) => _getCurrentProj
  * @function
  * @param {UUID} projectId
  * @returns {number} latest project version
+ * @throws if project not loaded
  */
 export const projectGetVersion = projectId => (dispatch, getState) => {
   const project = _getProjectFromStore(projectId, getState());
@@ -68,6 +76,7 @@ export const projectGetVersion = projectId => (dispatch, getState) => {
  * @function
  * @param {UUID} projectId
  * @returns {UUID} current project ID
+ * @throws if project not loaded
  */
 export const projectListAllComponents = projectId => (dispatch, getState) => {
   const project = _getProjectFromStore(projectId, getState());
@@ -86,6 +95,7 @@ export const projectListAllComponents = projectId => (dispatch, getState) => {
  * @function
  * @param {UUID} projectId
  * @returns {Array<Block>}
+ * @throws if project not loaded
  */
 export const projectListAllOptions = projectId => (dispatch, getState) => {
   const components = dispatch(projectListAllComponents(projectId));
@@ -95,10 +105,12 @@ export const projectListAllOptions = projectId => (dispatch, getState) => {
 
 /**
  * Get all contents of a project.
+ * Prunes to the blocks actually in the project, not just blocks with correct projectId
  * todo - move to object
  * @function
  * @param {UUID} projectId
  * @returns {Array<Block>}
+ * @throws if project not loaded
  */
 export const projectListAllBlocks = projectId => (dispatch, getState) => {
   const components = dispatch(projectListAllComponents(projectId));
@@ -107,59 +119,15 @@ export const projectListAllBlocks = projectId => (dispatch, getState) => {
 };
 
 /**
- * Check if a project contains a block
- * @function
- * @param {UUID} projectId
- * @param {UUID} blockId
- * @returns {boolean}
- */
-export const projectHasComponent = (projectId, blockId) => (dispatch, getState) => {
-  const components = dispatch(projectListAllComponents(projectId));
-  return components.map(comp => comp.id).indexOf(blockId) >= 0;
-};
-
-/**
- * Check if a project contains a list option
- * @function
- * @param {UUID} projectId
- * @param {UUID} blockId
- * @returns {boolean}
- */
-export const projectHasOption = (projectId, blockId) => (dispatch, getState) => {
-  const options = dispatch(projectListAllOptions(projectId));
-  return options.map(option => option.id).indexOf(blockId) >= 0;
-};
-
-/**
- * Find a list block option with a given source key and source ID.
- * check if a block with { source: { source: sourceKey, id: sourceId } } is present in the project (e.g. so dont clone it in more than once)
- * Only checks options, since if its a component we should clone it
- * @function
- * @param {UUID} projectId
- * @param {string} sourceKey
- * @param {string} sourceId
- * @returns {Block} Block if it exists, or null
- */
-export const projectGetOptionWithSource = (projectId, sourceKey, sourceId) => (dispatch, getState) => {
-  invariant(sourceKey && sourceId, 'source key and ID are required');
-  const options = dispatch(projectListAllOptions(projectId));
-  return options.find(option => option.source.source === sourceKey && option.source.id === sourceId) || null;
-};
-
-/**
  * Create project rollup
  * @function
  * @param {UUID} projectId
  * @returns {Object} { project: Project, blocks: Object.<blockId:Block> }
+ * @throws if project not loaded
  */
 export const projectCreateRollup = projectId => (dispatch, getState) => {
   const project = _getProjectFromStore(projectId, getState());
-  if (!project) {
-    return null;
-  }
-
-  const blocks = dispatch(projectListAllBlocks(projectId))
-      .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
+  const blocks = _.keyBy(dispatch(projectListAllBlocks(projectId)), 'id');
 
   return new Rollup({
     project,
@@ -177,9 +145,12 @@ export const projectCreateRollup = projectId => (dispatch, getState) => {
  * @param {String} fileName Name of File
  * @param {String} [format='text']
  * @param {String} [version] Default is return latest, or specify a specific version
+ * @returns {Promise}
+ * @resolve the contents of the file
+ * @throws if project not loaded
  */
 export const projectFileRead = (projectId, namespace, fileName, format, version) => (dispatch, getState) => {
-  const oldProject = getState().projects[projectId];
+  const oldProject = _getProjectFromStore(projectId, getState());
 
   return oldProject.fileRead(namespace, fileName, format, version);
 };
@@ -190,4 +161,7 @@ export const projectFileRead = (projectId, namespace, fileName, format, version)
  * @param {UUID} projectId
  * @param {String} namespace
  */
-export const projectFileList = (projectId, namespace) => (dispatch, getState) => projectFilesApi.projectFileList(projectId, namespace);
+export const projectFileList = (projectId, namespace) =>
+  (dispatch, getState) =>
+  projectFilesApi.projectFileList(projectId, namespace);
+

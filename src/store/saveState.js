@@ -35,6 +35,8 @@ export const noteFailure = (projectId, err) => {
   //this is the signature of error from fetch when it is offline, different than our rejectingFetch
   const offline = err && err.name === 'TypeError';
 
+  //const invalid = err && err.status === 422;
+
   saveState.set(projectId, Object.assign(lastState, {
     lastFailed: +Date.now(),
     lastErr: err,

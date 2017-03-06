@@ -14,12 +14,14 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { assign, cloneDeep, merge } from 'lodash';
+import _, { assign, cloneDeep, merge } from 'lodash';
 
 import { symbolMap } from '../inventory/roles';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
 import BlockSchema from '../schemas/Block';
+import SequenceSchema from '../schemas/Sequence';
+import BlockAttributionSchema from '../schemas/BlockAttribution';
 import safeValidate from '../schemas/fields/safeValidate';
 import * as validators from '../schemas/fields/validators';
 import { colorFiller, getPalette, isHex, nextColor, palettes } from '../utils/color/index';
@@ -28,22 +30,12 @@ import Instance from './Instance';
 
 const idValidator = id => safeValidate(validators.id(), true, id);
 
-//merge to clear fields only belonging to top-level constructs
-const fieldsClearToplevel = {
-  metadata: {
-    palette: null,
-  },
-};
-
-//merge to clear fields when not a leaf - these belong only to leaves
-//const fieldsClearLeaf = {};
-
 /**
  * Blocks are the foundational data type for representing DNA constructs in Genetic Constructor. Blocks can be thought of as parts, except they may not specify a sequence, and accommodate many more types of data than just base pairs and annotations.
  *
  * Notes
  *
- * - when blocks are frozen, they are just copied between projects. When a block becomes unfrozen, it needs to be cloned. This is in part because blocks that are frozen are shared between projects, and when two projects share a block with the same ID, it is assumed (and should be guaranteed) that they are completely identical.
+ * - when blocks are frozen, they are just copied between projects. To unfreeze a block, it must be cloned. This is in part for access control / ownership, and because blocks that are frozen may be shared between projects, and when two projects share a block with the same ID, it is assumed (and should be guaranteed) that they are completely identical.
  *
  * @name Block
  * @class
@@ -56,13 +48,13 @@ export default class Block extends Instance {
    * Create a block given some input object
    * @constructor
    * @param {Object} [input]
-   * @param {Boolean} [frozen=true] Whether the model is frozen (false => POJO)
+   * @param {Boolean} [immutable=true] Whether the model is immutable (false => POJO)
    * @returns {Block}
    */
-  constructor(input, frozen = true) {
+  constructor(input, immutable = true) {
     const scaff = BlockSchema.scaffold();
     scaff.metadata.color = nextColor();
-    super(input, scaff, frozen);
+    super(input, scaff, immutable);
   }
 
   /************
@@ -70,13 +62,13 @@ export default class Block extends Instance {
    ************/
 
   /**
-   * Create an unfrozen block, extending input with schema
-   * If you just want an unfrozen block with instance methods, call new Block(input, false)
+   * Create an unimmutable block, extending input with schema
+   * If you just want an unimmutable block with instance methods, call new Block(input, false)
    * @method classless
    * @memberOf Block
    * @static
    * @param {Object} [input]
-   * @returns {Object} an unfrozen JSON, no instance methods
+   * @returns {Object} an unimmutable JSON, no instance methods
    */
   static classless(input) {
     return assign({}, new Block(input, false));
@@ -338,13 +330,13 @@ export default class Block extends Instance {
   }
 
   /**
-   * Set a construct as a template
-   * @method setTemplate
+   * Mark a construct fixed, so its components cannot be moved
+   * @method setFixed
    * @memberOf Block
-   * @param {boolean} [isTemplate=true]
+   * @param {boolean} [isFixed=true]
    */
-  setTemplate(isTemplate = true) {
-    return this.setRule('fixed', Boolean(isTemplate));
+  setFixed(isFixed = true) {
+    return this.setRule('fixed', Boolean(isFixed));
   }
 
   /**
@@ -359,11 +351,38 @@ export default class Block extends Instance {
     return this.setRule('hidden', Boolean(isHidden));
   }
 
+  /**
+   * Adds a new attribution
+   * @method attribute
+   * @memberOf Block
+   * @param {Object|null} attribution Attribution in form { owner, time, text }, or null to remove
+   * @param {String} userId Used to determine whether attribution should be updated or added
+   * @returns {Block}
+   */
+  attribute(attribution, userId) {
+    invariant(userId, 'userId is required to attribute');
+
+    const lastAttribution = _.last(this.attribution);
+    const lastAttributionIsUsers = lastAttribution && lastAttribution.owner === userId;
+
+    if (attribution === null) {
+      invariant(lastAttributionIsUsers, 'user must own last attribution to remove it');
+      return this.mutate('attribution', _.dropRight(this.attribution, 1));
+    }
+
+    BlockAttributionSchema.validate(attribution, true);
+
+    if (lastAttributionIsUsers) {
+      const lastIndex = this.attribution.length - 1;
+      return this.mutate(`attribution[${lastIndex}]`, attribution);
+    }
+    return this.mutate('attribution', [...this.attribution, attribution]);
+  }
+
   /************
    metadata
    ************/
 
-  //todo - avoid setting project ID once already associated? force clone? or allow moving block from one project to another?
   /**
    * Set Project ID for block.
    * @method setProjectId
@@ -377,16 +396,6 @@ export default class Block extends Instance {
 
     if (this.projectId === projectId) {
       return this;
-    }
-
-    //hack to accommodate adding frozen block to construct / list
-    //todo - why do we need this? Should only allow setting projectId on non-frozen blocks (clone first)
-    //need to determine how to handle adding frozen blocks
-    if (this.isFrozen()) {
-      return this.clone(null, {
-        projectId,
-        rules: { frozen: false },
-      }).mutate('id', this.id);
     }
     return this.mutate('projectId', projectId);
   }
@@ -433,7 +442,6 @@ export default class Block extends Instance {
    * @returns {string}
    */
   getType(defaultType = 'Block') {
-    if (this.isTemplate()) return 'Template';
     //if (this.isConstruct()) return 'Construct';
     if (this.isList()) return 'List Block';
     if (this.isFiller()) return 'Filler';
@@ -540,8 +548,8 @@ export default class Block extends Instance {
     newComponents.splice(spliceIndex, 0, componentId);
 
     return this
-      .mutate('components', newComponents)
-      .clearBlockLevelFields();
+    .mutate('components', newComponents)
+    .clearBlockLevelFields();
   }
 
   /**
@@ -766,22 +774,22 @@ export default class Block extends Instance {
       { source: 'user', id: null };
 
     return writeSequence(sequence)
-      .then((md5) => {
-        const sequenceLength = sequence.length;
+    .then((md5) => {
+      const sequenceLength = sequence.length;
 
-        const updatedSequence = {
-          md5,
-          length: sequenceLength,
-          initialBases: `${sequence.substr(0, 6)}`,
-          download: null,
-          trim: null,
-        };
+      const updatedSequence = {
+        md5,
+        length: sequenceLength,
+        initialBases: `${sequence.substr(0, 6)}`,
+        download: null,
+        trim: null,
+      };
 
-        return this.merge({
-          sequence: updatedSequence,
-          source: updatedSource,
-        });
+      return this.merge({
+        sequence: updatedSequence,
+        source: updatedSource,
       });
+    });
   }
 
   /**
@@ -849,13 +857,15 @@ export default class Block extends Instance {
    *********/
 
   clearBlockLevelFields() {
-    // doesnt do anything at the moment
-    // return this.merge(fieldsClearLeaf);
-    return this;
+    return this.mutate('sequence', SequenceSchema.scaffold());
   }
 
   //when something becomes a not-top level construct, do some cleanup
   clearToplevelFields() {
-    return this.merge(fieldsClearToplevel);
+    return this.merge({
+      metadata: {
+        palette: null,
+      },
+    });
   }
 }

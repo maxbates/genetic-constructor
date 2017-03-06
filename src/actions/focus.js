@@ -64,7 +64,7 @@ export const focusConstruct = inputConstructId => (dispatch, getState) => {
  * @param {Array.<UUID>} blockIds
  * @returns {Array.<UUID>} focused block IDs
  */
-export const focusBlocks = blockIds => (dispatch, getState) => {
+export const focusBlocks = (blockIds, constructId) => (dispatch, getState) => {
   invariant(Array.isArray(blockIds), 'must pass array to focus blocks');
   invariant(blockIds.every(block => idValidator(block)), 'must pass array of block IDs');
   const focusedConstructId = getState().focus.constructId;
@@ -77,14 +77,17 @@ export const focusBlocks = blockIds => (dispatch, getState) => {
 
   if (blockIds.length) {
     const firstBlockId = blockIds[0];
-    const construct = dispatch(BlockSelector.blockGetParentRoot(firstBlockId));
+    let actualConstructId = constructId;
+    if (!actualConstructId) {
+      const construct = dispatch(BlockSelector.blockGetParentRoot(firstBlockId));
       // null => no parent => construct (or detached)... undefined could be soething else
       //const constructId = !!construct ? construct.id : (construct !== null ? firstBlockId : undefined);
-    const constructId = construct ? construct.id : null;
-    if (constructId !== focusedConstructId || constructId === firstBlockId) {
+      actualConstructId = construct ? construct.id : null;
+    }
+    if (actualConstructId !== focusedConstructId || actualConstructId === firstBlockId) {
       dispatch({
         type: ActionTypes.FOCUS_CONSTRUCT,
-        constructId,
+        constructId: actualConstructId,
       });
     }
   }
@@ -170,6 +173,7 @@ export const focusForceProject = project => (dispatch, getState) => {
 
 /**
  * Specify which level of focus has priority
+ * Cleras forceProject and forceBlocks
  * @function
  * @param level One of `project`, `construct`, `block`, `option`, or `role`
  * @returns {string} focused level

@@ -17,22 +17,25 @@ import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 
 import MouseTrap from '../../containers/graphics/mousetrap';
-import '../../styles/Expando.css';
 import Arrow from './Arrow';
 import Label from './Label';
 import { getLocal, setLocal } from '../../utils/localstorage';
 
+import '../../styles/Expando.css';
+
 export default class Expando extends Component {
   static propTypes = {
+    children: PropTypes.node, //can be null
     text: PropTypes.string.isRequired,
-    selected: PropTypes.bool,
-    content: PropTypes.object,
-    textWidgets: PropTypes.array,
-    labelWidgets: PropTypes.array,
-    headerWidgets: PropTypes.array,
+    secondary: PropTypes.string,
+    selected: PropTypes.bool, //blue text
+    selectedAlt: PropTypes.bool, //grey background
+    textWidgets: PropTypes.arrayOf(PropTypes.node),
+    labelWidgets: PropTypes.arrayOf(PropTypes.node),
+    headerWidgets: PropTypes.arrayOf(PropTypes.node),
     bold: PropTypes.bool,
     onExpand: PropTypes.func,
-    onClick: PropTypes.func,
+    onClick: PropTypes.func, // (open) => {}
     onContextMenu: PropTypes.func,
     startDrag: PropTypes.func,
     showArrowWhenEmpty: PropTypes.bool,
@@ -44,7 +47,7 @@ export default class Expando extends Component {
   };
 
   static defaultProps = {
-    showArrowWhenEmpty: true,
+    showArrowWhenEmpty: false,
   };
 
   constructor(props) {
@@ -91,18 +94,21 @@ export default class Expando extends Component {
     }
     // send click event
     if (this.props.onClick) {
-      this.props.onClick();
+      this.props.onClick(open);
     }
   };
 
   render() {
-    const showArrow = this.props.content || this.props.showArrowWhenEmpty;
+    const showArrow = this.props.children || this.props.showArrowWhenEmpty;
     return (
       <div
         data-testid={this.props.testid}
-        className="expando" data-expando={this.props.text}
+        data-expando={this.props.text}
+        className="expando"
         onContextMenu={(evt) => {
-          evt.preventDefault();
+          if (process.env.NODE_ENV !== 'dev') {
+            evt.preventDefault();
+          }
           evt.stopPropagation();
           if (this.props.onContextMenu) {
             this.props.onContextMenu(evt);
@@ -118,10 +124,12 @@ export default class Expando extends Component {
           <Label
             ref="label"
             text={this.props.text}
+            secondary={this.props.secondary}
             bold={this.props.bold}
             hover
             onClick={this.onClick}
             selected={this.props.selected}
+            selectedAlt={this.props.selectedAlt}
             widgets={this.props.labelWidgets}
             showLock={this.props.showLock}
             textWidgets={this.props.textWidgets}
@@ -138,7 +146,7 @@ export default class Expando extends Component {
           </div>
         </div>
         <div className={this.state.open ? 'content-visible' : 'content-hidden'}>
-          {this.state.open ? this.props.content : null}
+          {this.state.open ? this.props.children : null}
         </div>
       </div>
     );

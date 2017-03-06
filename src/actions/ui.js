@@ -26,6 +26,12 @@ import extensionRegistry from '../extensions/clientRegistry';
 const spaceFiller = 10; //eslint-disable-line no-unused-vars
 const spaceFiller2 = 20; //eslint-disable-line no-unused-vars
 
+const dispatchResize = (after = 300) => {
+  window.setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 300);
+};
+
 /**
  * Toggle whether the inspector is visible
  * @function
@@ -40,10 +46,7 @@ export const inspectorToggleVisibility = forceState => (dispatch, getState) => {
     nextState,
   });
 
-  window.setTimeout(() => {
-    window.dispatchEvent(new Event('resize'));
-  }, 300);
-
+  dispatchResize();
   return nextState;
 };
 
@@ -61,9 +64,7 @@ export const inventoryToggleVisibility = forceState => (dispatch, getState) => {
     nextState,
   });
 
-  window.setTimeout(() => {
-    window.dispatchEvent(new Event('resize'));
-  }, 300);
+  dispatchResize();
 
   return nextState;
 };
@@ -114,9 +115,7 @@ export const uiToggleDetailView = forceState => (dispatch, getState) => {
     nextState,
   });
 
-  window.setTimeout(() => {
-    window.dispatchEvent(new Event('resize'));
-  }, 300);
+  dispatchResize();
 
   return nextState;
 };
@@ -217,6 +216,7 @@ export const uiShowMenu = (menuItems, menuPosition, menuHat) => (dispatch, getSt
   return { menuItems, menuPosition };
 };
 
+/*
 export const uiShowOkCancel = (title, message, onOk, onCancel = null, okText = 'Ok', cancelText = 'Cancel') => (dispatch, getState) => {
   dispatch({
     type: ActionTypes.UI_OK_CANCEL,
@@ -229,6 +229,7 @@ export const uiShowOkCancel = (title, message, onOk, onCancel = null, okText = '
   });
   return title;
 };
+*/
 
 export const uiSpin = (spinMessage = '') => (dispatch, getState) => {
   dispatch({
@@ -266,3 +267,32 @@ export const uiReportError = nextState => (dispatch, getState) => {
   return null;
 };
 
+export const uiShowPublishDialog = (forceState, publishDialogVersion) => (dispatch, getState) => {
+  const nextState = forceState === undefined ? !getState().ui.modals.publishDialog : forceState;
+  dispatch({
+    type: ActionTypes.UI_SHOW_PUBLISH_DIALOG,
+    publishDialog: nextState,
+    publishDialogVersion,
+  });
+  return nextState;
+};
+
+export const uiShowUnpublishDialog = (forceState, unpublishDialogVersion) => (dispatch, getState) => {
+  const nextState = forceState === undefined ? !getState().ui.modals.unpublishDialog : forceState;
+  dispatch({
+    type: ActionTypes.UI_SHOW_UNPUBLISH_DIALOG,
+    unpublishDialog: nextState,
+    unpublishDialogVersion,
+  });
+  return nextState;
+};
+
+export const uiShowProjectDeleteModal = (forceState, projectDeleteForceProjectId = null) => (dispatch, getState) => {
+  const nextState = forceState === undefined ? !getState().ui.modals.projectDeleteDialog : forceState;
+  dispatch({
+    type: ActionTypes.UI_SHOW_PROJECT_DELETE_DIALOG,
+    projectDeleteDialog: nextState,
+    projectDeleteForceProjectId,
+  });
+  return nextState;
+};

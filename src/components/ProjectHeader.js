@@ -16,6 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import {
   focusPrioritize,
@@ -31,18 +32,21 @@ import {
 } from '../actions/projects';
 import {
   blockCreate,
-  blockRename,
 } from '../actions/blocks';
 import {
   inspectorToggleVisibility,
+  inspectorSelectTab,
   inventoryToggleVisibility,
   uiToggleDetailView,
   uiInlineEditor,
   uiShowMenu,
   uiSetGrunt,
-  uiShowOkCancel,
+  uiShowPublishDialog,
+  uiShowUnpublishDialog,
+  uiShowProjectDeleteModal,
   uiShowGenBankImport,
 } from '../actions/ui';
+import { transact, commit } from '../store/undo/actions';
 import Box2D from '../containers/graphics/geometry/box2d';
 import Vector2D from '../containers/graphics/geometry/vector2d';
 import TitleAndToolbar from '../components/toolbars/title-and-toolbar';
@@ -54,18 +58,24 @@ import '../styles/ProjectHeader.css';
 
 class ProjectHeader extends Component {
   static propTypes = {
-    blockCreate: PropTypes.func.isRequired,
-    blockRename: PropTypes.func.isRequired,
     project: PropTypes.object.isRequired,
+    readOnly: PropTypes.bool,
+    projectIsPublished: PropTypes.bool.isRequired,
+    projectVersionIsPublished: PropTypes.bool.isRequired,
+    projectIsDirty: PropTypes.bool.isRequired,
+    blockCreate: PropTypes.func.isRequired,
     focus: PropTypes.object,
     focusConstruct: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
+    inspectorSelectTab: PropTypes.func.isRequired,
     inventoryToggleVisibility: PropTypes.func.isRequired,
     uiToggleDetailView: PropTypes.func.isRequired,
     uiInlineEditor: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
-    uiShowOkCancel: PropTypes.func.isRequired,
+    uiShowPublishDialog: PropTypes.func.isRequired,
+    uiShowUnpublishDialog: PropTypes.func.isRequired,
+    uiShowProjectDeleteModal: PropTypes.func.isRequired,
     focusPrioritize: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
@@ -75,11 +85,17 @@ class ProjectHeader extends Component {
     projectRename: PropTypes.func.isRequired,
     inventoryVisible: PropTypes.bool.isRequired,
     uiShowGenBankImport: PropTypes.func.isRequired,
+    transact: PropTypes.func.isRequired,
+    commit: PropTypes.func.isRequired,
+  };
+
+  static defaultProps = {
+    readOnly: false,
   };
 
   /**
    * get position for a context menu attached to one of the inline toolbar items
-   * @param anchorElenent
+   * @param anchorElement
    */
   static getToolbarAnchorPosition(anchorElement) {
     const box = new Box2D(anchorElement.getBoundingClientRect());
@@ -90,17 +106,29 @@ class ProjectHeader extends Component {
    * add new construct to project
    */
   onAddConstruct = () => {
-    const block = this.props.blockCreate({ projectId: this.props.project.id });
-    this.props.blockRename(block.id, 'New Construct');
+    this.props.transact();
+    const block = this.props.blockCreate({ metadata: { name: 'New Construct' }, projectId: this.props.project.id });
     this.props.projectAddConstruct(this.props.project.id, block.id, true);
     this.props.focusConstruct(block.id);
+    this.props.commit();
   };
 
-  onClick = () => {
+  onItemActivated = (event) => {
+    event.stopPropagation();
+  };
+
+  onFocusInspector = (evt) => {
     this.props.inspectorToggleVisibility(true);
+    this.props.inspectorSelectTab('Information');
     this.props.focusPrioritize('project');
+  };
+
+  onClick = (evt) => {
+    this.onFocusInspector(evt);
+
     const name = this.props.project.metadata.name || 'Untitled Project';
-    if (!this.props.project.rules.frozen) {
+
+    if (!this.props.readOnly) {
       this.props.uiInlineEditor((value) => {
         this.props.projectRename(this.props.project.id, value);
       }, name, this.titleEditorBounds(), 'inline-editor-project', ReactDOM.findDOMNode(this).querySelector('.title'));
@@ -109,22 +137,17 @@ class ProjectHeader extends Component {
 
   /**
    * delete the given project
-   * @param project
    */
-  onDeleteProject = (project) => {
-    this.props.uiShowOkCancel(
-      'Delete Project',
-      `${this.props.project.getName() || 'Your project'}\nand all related project data will be permanently deleted.\nThis action cannot be undone.`,
-      () => {
-        this.props.uiShowOkCancel();
-        this.deleteProject(this.props.project);
-      },
-      () => {
-        this.props.uiShowOkCancel();
-      },
-      'Delete Project',
-      'Cancel',
-    );
+  onDeleteProject = () => {
+    this.props.uiShowProjectDeleteModal(true);
+  };
+
+  onShareProject = () => {
+    this.props.uiShowPublishDialog();
+  };
+
+  onUnpublishProject = () => {
+    this.props.uiShowUnpublishDialog();
   };
 
   /**
@@ -192,7 +215,7 @@ class ProjectHeader extends Component {
     this.props.uiShowMenu([
       {
         text: 'New Construct',
-        disabled: this.props.project.rules.frozen,
+        disabled: this.props.readOnly,
         action: this.onAddConstruct,
       },
       {
@@ -206,12 +229,23 @@ class ProjectHeader extends Component {
         },
       },
       {
-        text: 'Upload Genbank or CSV',
-        disabled: this.props.project.rules.frozen,
+        text: 'Upload Genbank or CSV...',
+        disabled: this.props.readOnly,
         action: this.upload,
       },
       {
-        text: 'Delete Project',
+        text: 'Publish Project...',
+        disabled: this.props.readOnly || (this.props.projectVersionIsPublished && !this.props.projectIsDirty),
+        action: this.onShareProject,
+      },
+      {
+        text: 'Unpublish Project',
+        disabled: this.props.readOnly || !this.props.projectIsPublished,
+        action: this.onUnpublishProject,
+      },
+      {
+        text: 'Delete Project...',
+        disabled: this.props.readOnly,
         action: this.onDeleteProject,
       },
     ],
@@ -223,15 +257,15 @@ class ProjectHeader extends Component {
    * perform the actual deletion.
    */
   deleteProject(project) {
-    if (project.rules.frozen) {
+    if (this.props.readOnly || project.rules.frozen) {
       this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
     } else {
       //load another project, avoiding this one
       this.props.projectLoad(null, false, [project.id])
-        //open the new project, skip saving the previous one
-        .then(openProject => this.props.projectOpen(openProject.id, true))
-        //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-        .then(() => this.props.projectDelete(project.id));
+      //open the new project, skip saving the previous one
+      .then(rollup => this.props.projectOpen(rollup.project.id, true))
+      //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
+      .then(() => this.props.projectDelete(project.id));
     }
   }
 
@@ -244,36 +278,38 @@ class ProjectHeader extends Component {
       {
         text: 'Add Construct',
         imageURL: '/images/ui/add.svg',
-        enabled: !this.props.project.rules.frozen,
-        clicked: this.onAddConstruct,
+        enabled: !this.props.readOnly,
+        onClick: this.onAddConstruct,
       }, {
         text: 'View',
         imageURL: '/images/ui/view.svg',
-        enabled: true,
-        clicked: event => this.showViewMenu(event.target),
+        onClick: event => this.showViewMenu(event.target),
       }, {
         text: 'Download Project',
         imageURL: '/images/ui/download.svg',
-        enabled: true,
-        clicked: () => {
+        onClick: () => {
           this.props.uiSetGrunt('Preparing data. Download will begin automatically when complete.');
           downloadProject(this.props.project.id, this.props.focus.options);
         },
       }, {
         text: 'Upload Genbank or CSV',
         imageURL: '/images/ui/upload.svg',
-        enabled: !this.props.project.rules.frozen,
-        clicked: this.upload,
+        enabled: !this.props.readOnly,
+        onClick: this.upload,
+      }, {
+        text: 'Share',
+        imageURL: '/images/ui/share.svg',
+        enabled: !this.props.readOnly && (!this.props.projectVersionIsPublished || this.props.projectIsDirty),
+        onClick: this.onShareProject,
       }, {
         text: 'Delete Project',
         imageURL: '/images/ui/delete.svg',
-        enabled: true,
-        clicked: this.onDeleteProject,
+        enabled: !this.props.readOnly && !this.props.projectIsPublished,
+        onClick: this.onDeleteProject,
       }, {
         text: 'More...',
         imageURL: '/images/ui/more.svg',
-        enabled: true,
-        clicked: (event) => {
+        onClick: (event) => {
           this.showMoreMenu(event.target);
         },
       },
@@ -298,48 +334,64 @@ class ProjectHeader extends Component {
       },
       {
         text: 'Delete Project',
+        disabled: this.props.projectIsPublished,
         action: this.onDeleteProject,
       },
     ].concat(GlobalNav.getSingleton().getEditMenuItems());
+
     this.props.uiShowMenu(items, position);
   };
 
   render() {
     const { project } = this.props;
     return (
-      <div className="ProjectHeader">
+      <div
+        className="ProjectHeader"
+        data-testid={`ProjectHeader/${project.id}`}
+      >
         <TitleAndToolbar
           onClick={this.onClick}
-          noHover={this.props.project.rules.frozen}
+          onClickBackground={this.onFocusInspector}
+          itemActivated={this.onItemActivated}
+          noHover={this.props.readOnly}
           title={project.metadata.name || 'Untitled Project'}
           toolbarItems={this.toolbar()}
           fontSize="1.5rem"
           color="#DFE2EC"
           onContextMenu={position => this.showProjectContextMenu(position)}
         />
-      </div>);
+      </div>
+    );
   }
 }
 
 function mapStateToProps(state, props) {
+  //todo - speed up published checks
   return {
     focus: state.focus,
     isFocused: state.focus.level === 'project' && !state.focus.forceProject,
+    projectIsPublished: _.some(state.commons.versions, {
+      projectId: props.project.id,
+    }),
+    projectVersionIsPublished: _.some(state.commons.versions, {
+      projectId: props.project.id,
+      version: props.project.version,
+    }),
+    projectIsDirty: state.autosave.dirty,
     inventoryVisible: state.ui.inventory.isVisible,
   };
 }
 
 export default connect(mapStateToProps, {
   blockCreate,
-  blockRename,
   inspectorToggleVisibility,
+  inspectorSelectTab,
   inventoryToggleVisibility,
   focusPrioritize,
   focusConstruct,
   uiInlineEditor,
   uiSetGrunt,
   uiShowMenu,
-  uiShowOkCancel,
   projectAddConstruct,
   projectOpen,
   projectDelete,
@@ -348,4 +400,9 @@ export default connect(mapStateToProps, {
   projectRename,
   uiToggleDetailView,
   uiShowGenBankImport,
+  uiShowPublishDialog,
+  uiShowUnpublishDialog,
+  uiShowProjectDeleteModal,
+  transact,
+  commit,
 })(ProjectHeader);

@@ -54,11 +54,14 @@ export class Inventory extends Component {
       type: 'templates',
       title: 'Templates',
     },
+    Commons: {
+      type: 'commons',
+      title: 'Commons',
+    },
     Sketch: {
       type: 'role',
       title: 'Sketch Blocks',
     },
-    // Commons: null,
     Ncbi: {
       type: 'search-ncbi',
       title: 'NCBI Search',

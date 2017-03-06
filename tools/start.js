@@ -14,7 +14,9 @@ const DEBUG = !process.argv.includes('--release');
 
 async function start() {
   try {
-    await run(setup);
+    if (!process.env.CONSTRUCTOR_SKIP_SETUP) {
+      await run(setup);
+    }
 
     console.log(colors.blue('Bundling application with Webpack (this may take a moment)...'));
 
@@ -103,6 +105,8 @@ async function start() {
                 'src/content/**/*.*',
                 //todo - webpack server, let webpack handle watching
               ],
+
+              ghostMode: false,
 
               ...(DEBUG ? {} : { notify: false, ui: false }),
 

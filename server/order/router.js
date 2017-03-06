@@ -15,7 +15,7 @@
  */
 import debug from 'debug';
 import express from 'express';
-import { merge } from 'lodash';
+import _, { merge } from 'lodash';
 
 import Order from '../../src/models/Order';
 import saveCombinations from '../../src/utils/generators/orderConstructs';
@@ -217,19 +217,22 @@ User ${user.uuid}
       //possible that multiple orders happen at the same snapshot
       const snapshotTags = order.constructIds.reduce((acc, id) => Object.assign(acc, { [id]: true }),
         {
+          foundry,
+          orderId: order.id,
           [order.id]: true,
           [foundry]: true,
           [orderResponse.jobId]: true,
         });
       let message = `Order ${order.id} @ ${foundry}: ${order.metadata.constructNames.join(' ')}`;
+      const keywords = order.metadata.keywords || [];
 
       //merge tags if snapshot existed
       if (snapshot) {
         merge(snapshotTags, snapshot.tags);
-        message = `${snapshot.message} |  ${message}`;
+        message = `${snapshot.message} | ${message}`;
+        keywords.push(..._.difference(snapshot.keywords, keywords));
       }
 
-      const keywords = order.metadata.keywords || [];
       const snapshotBody = {
         message,
         tags: snapshotTags,
@@ -239,7 +242,7 @@ User ${user.uuid}
       logger(`[Submit] ${order.id} Writing snapshot`);
       logger(snapshotBody);
 
-      //write or update the snapshot
+      //write or update the snapshot (handle the update above)
       return snapshots.snapshotWrite(projectId, user.uuid, projectVersion, snapshotBody, snapshots.SNAPSHOT_TYPE_ORDER)
       .then((snapshot) => {
         merge(order, {

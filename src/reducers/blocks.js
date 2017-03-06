@@ -30,6 +30,7 @@ export default function blocks(state = initialState, action) {
     case ActionTypes.BLOCK_CREATE :
     case ActionTypes.BLOCK_MERGE :
     case ActionTypes.BLOCK_RENAME :
+    case ActionTypes.BLOCK_SET_DESCRIPTION :
     case ActionTypes.BLOCK_SET_COLOR :
     case ActionTypes.BLOCK_SET_PALETTE :
     case ActionTypes.BLOCK_CLONE :
@@ -42,10 +43,11 @@ export default function blocks(state = initialState, action) {
     case ActionTypes.BLOCK_REMOVE_ANNOTATION :
     case ActionTypes.BLOCK_SET_SEQUENCE :
     case ActionTypes.BLOCK_SET_TRIM :
-    case ActionTypes.BLOCK_SET_TEMPLATE :
+    case ActionTypes.BLOCK_SET_FIXED :
     case ActionTypes.BLOCK_SET_LIST :
     case ActionTypes.BLOCK_SET_HIDDEN :
     case ActionTypes.BLOCK_SET_PROJECT :
+    case ActionTypes.BLOCK_ATTRIBUTE :
     case ActionTypes.BLOCK_OPTION_ADD :
     case ActionTypes.BLOCK_OPTION_REMOVE :
     case ActionTypes.BLOCK_OPTION_TOGGLE :

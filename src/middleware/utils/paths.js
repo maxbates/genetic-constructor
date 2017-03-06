@@ -34,4 +34,7 @@ export const projectFilePath = (projectId, namespace, fileName, version) => data
 
 export const jobPath = (projectId, namespace, fileName) => dataApiPath(`jobs/${projectId}/${namespace}${fileName ? (`/${fileName}`) : ''}`);
 
-export const commonsApiPath = (projectId, version) => dataApiPath(`commons/${projectId}${Number.isInteger(version) ? (`/${version}`) : ''}`);
+export const commonsApiPath = (projectId, version) => {
+  const useVersion = typeof version === 'string' || Number.isInteger(version);
+  return dataApiPath(`commons/${projectId}${useVersion ? (`/${version}`) : ''}`);
+};

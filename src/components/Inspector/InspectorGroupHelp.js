@@ -17,7 +17,9 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { inspectorSelectTab } from '../../actions/ui';
-import { privacy, tos } from '../../utils/ui/uiapi';
+import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '../../constants/links';
+
+//todo - all links should go in  ^ links file
 
 import '../../styles/InspectorGroupHelp.css';
 
@@ -56,8 +58,8 @@ class InspectorGroupHelp extends Component {
       <br />
       <div className="Section">Information</div>
       <a target="_blank" rel="noopener noreferrer" href="http://bionano.autodesk.com/GeneticDesign/index.html">About Genetic Constructor</a>
-      <a target="_blank" rel="noopener noreferrer" href={tos}>Terms of Use</a>
-      <a target="_blank" rel="noopener noreferrer" href={privacy}>Privacy Policy</a>
+      <a target="_blank" rel="noopener noreferrer" href={TERMS_OF_SERVICE}>Terms of Use</a>
+      <a target="_blank" rel="noopener noreferrer" href={PRIVACY_POLICY}>Privacy Policy</a>
       <a target="_blank" rel="noopener noreferrer" href="http://bionano.autodesk.com/">More from Autodesk® BioNano Research</a>
     </div>);
   }

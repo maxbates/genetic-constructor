@@ -20,6 +20,7 @@ import _ from 'lodash';
 import * as api from '../../src/middleware/snapshots';
 import * as snapshots from '../../server/data/persistence/snapshots';
 import * as projectPersistence from '../../server/data/persistence/projects';
+import Snapshot from '../../src/models/Snapshot';
 import { testUserId } from '../constants';
 import { createExampleRollup } from '../_utils/rollup';
 
@@ -66,6 +67,7 @@ describe('Middleware', () => {
       .then(snapshots => {
         const found = snapshots.find(snapshot => snapshot.version === version);
         assert(found, 'expected a snapshot with version specified');
+        Snapshot.validate(found, true);
       });
     });
 
@@ -75,17 +77,19 @@ describe('Middleware', () => {
       .then(() => api.snapshotGet(projectId, version))
       .then(snapshot => {
         expect(snapshot.message).to.equal(newMessage);
+        Snapshot.validate(snapshot, true);
       });
     });
 
     const commitMessage = 'my fancy message';
 
-    it('snapshotWrite() creates a snapshot, returns version, time, message, defaults to latest', () => {
+    it('snapshotWrite() creates a snapshot, returns version, created, message, defaults to latest', () => {
       return api.snapshot(projectId, null, { message: commitMessage, tags: testTags, keywords: testKeywords })
       .then(info => {
         assert(info.version === 2, 'should be version 2 (latest)');
         assert(info.message === commitMessage, 'should have commit message');
-        assert(Number.isInteger(info.time), 'time should be number');
+        assert(Number.isInteger(info.created), 'created should be number');
+        Snapshot.validate(info, true);
       });
     });
 
@@ -108,9 +112,10 @@ describe('Middleware', () => {
 
     it('snapshotList() gets the projects snapshots', () => {
       return api.snapshotList(projectId)
-      .then(snapshots => {
-        assert(Array.isArray(snapshots), 'should be array');
-        expect(snapshots.length).to.equal(3);
+      .then(snaps => {
+        assert(Array.isArray(snaps), 'should be array');
+        expect(snaps.length).to.equal(3);
+        snaps.forEach(snapshot => Snapshot.validate(snapshot, true));
       });
     });
 
@@ -131,6 +136,26 @@ describe('Middleware', () => {
       assert(_.every(testKeywords, word => map[word] >= 1), 'keywords should be present');
     });
 
+    it('snapshotQuery() can search by keywords', async () => {
+      const query = { keywords: testKeywords };
+      const snaps = await snapshots.snapshotQuery(query);
+
+      assert(snaps, 'should get results');
+      snaps.forEach(snapshot => Snapshot.validate(snapshot, true));
+
+      expect(snaps[0].projectId).to.equal(projectId);
+    });
+
+    it('snapshotQuery() can search by tags', async () => {
+      const query = { tags: testTags };
+      const snaps = await snapshots.snapshotQuery(query);
+
+      assert(snaps, 'should get results');
+      snaps.forEach(snapshot => Snapshot.validate(snapshot, true));
+
+      expect(snaps[0].projectId).to.equal(projectId);
+    });
+
     it('snapshotUpdateVersion() updates info about an existing version', async () => {
       let roll = createExampleRollup();
       const writeResult = await projectPersistence.projectWrite(roll.project.id, roll, testUserId);
@@ -142,7 +167,7 @@ describe('Middleware', () => {
 
       const snapUpdate1 = await api.snapshotUpdate(roll.project.id, writeResult.version, update1);
 
-      expect(snapUpdate1.tags).to.eql(update1.tags);
+      assert(_.isMatch(snapUpdate1.tags, update1.tags), 'tags should be present');
       expect(snapUpdate1.message).to.eql(update1.message);
       expect(snapUpdate1.keywords).to.eql([]);              //test for default
 
@@ -151,7 +176,7 @@ describe('Middleware', () => {
 
       expect(snapUpdate2.message).to.eql(update2.message);
       expect(snapUpdate2.keywords).to.eql(update2.keywords);
-      expect(snapUpdate2.tags).to.eql(update1.tags);            //tags should merge
+      assert(_.isMatch(snapUpdate2.tags, update1.tags), 'tags should be present'); //tags should merge
     });
 
     describe('permissions', () => {
@@ -188,6 +213,10 @@ describe('Middleware', () => {
         } catch (resp) {
           assert(resp.status === 403, 'should get a 403');
         }
+      });
+
+      it('snapshotQuery() limits to a user', async () => {
+
       });
     });
   });

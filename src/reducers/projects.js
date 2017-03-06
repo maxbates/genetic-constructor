@@ -29,9 +29,11 @@ export default function projects(state = initialState, action) {
   switch (action.type) {
     case ActionTypes.PROJECT_CREATE :
     case ActionTypes.PROJECT_CLONE :
+    case ActionTypes.PROJECT_STASH :
     case ActionTypes.PROJECT_LOAD :
     case ActionTypes.PROJECT_MERGE :
     case ActionTypes.PROJECT_RENAME :
+    case ActionTypes.PROJECT_SET_DESCRIPTION :
     case ActionTypes.PROJECT_SET_KEYWORDS :
     case ActionTypes.PROJECT_REMOVE_CONSTRUCT:
     case ActionTypes.PROJECT_ADD_CONSTRUCT :
@@ -46,8 +48,9 @@ export default function projects(state = initialState, action) {
       return Object.assign({}, state, { [action.project.id]: action.project });
 
 
-    case ActionTypes.PROJECT_SNAPSHOT :
     case ActionTypes.PROJECT_SAVE :
+    case ActionTypes.SNAPSHOT_PROJECT :
+    case ActionTypes.COMMONS_PUBLISH :
       const { projectId, version, time } = action;
       const gotProject = state[projectId];
       const updatedProject = gotProject.updateVersion(version, time);

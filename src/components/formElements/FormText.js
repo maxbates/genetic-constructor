@@ -22,22 +22,41 @@ import React, { PropTypes } from 'react';
 import '../../styles/FormText.css';
 
 export default function FormText(props) {
-  const { className, ...rest } = props;
+  const { className, useTextarea, transparent, ...rest } = props;
 
-  const classes = `formElement FormText errorStyle ${className}`;
+  const classes = ['formElement', 'FormText', 'errorStyle'];
+  if (className) {
+    classes.push(className);
+  }
+  if (transparent) {
+    classes.push('transparent');
+  }
+
+  const classNames = classes.join(' ');
+
+  if (useTextarea === true) {
+    return (
+      <textarea
+        rows="2"
+        className={classNames}
+        {...rest}
+      />
+    );
+  }
 
   return (
     <input
-      className={classes}
       type="text"
+      className={classNames}
       {...rest}
     />
   );
 }
 
-
 FormText.propTypes = {
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
   className: PropTypes.string,
+  transparent: PropTypes.bool,
+  useTextarea: PropTypes.bool,
 };

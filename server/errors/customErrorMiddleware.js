@@ -28,11 +28,13 @@ export default function customErrorMiddleware(err, req, res, next) {
     //hide forbidden, just say it doesn't exist
     return res.status(404).send(errors.errorDoesNotExist);
   } else if (err === errors.errorDoesNotExist) {
-    return res.status(404).send(errors.errorDoesNotExist);
+    return res.status(404).send(err);
   } else if (err === errors.errorNoPermission) {
-    return res.status(403).send(errors.errorNoPermission);
+    return res.status(403).send(err);
   } else if (err === errors.errorInvalidModel) {
-    return res.status(422).send(errors.errorInvalidModel);
+    return res.status(422).send(err);
+  } else if (err === errors.errorIsPublished) {
+    return res.status(405).send(err);
   }
 
   //these guys are probably our fault and should throw better, here for backwards compatibility...

@@ -18,32 +18,18 @@ import debug from 'debug';
 import invariant from 'invariant';
 import _ from 'lodash';
 
+import { SNAPSHOT_TYPE_PUBLISH, COMMONS_TAG, commonsDefaultMessage } from '../util/commons';
 import * as projectPersistence from './projects';
 import * as projectVersions from './projectVersions';
 import * as snapshots from './snapshots';
+import Snapshot from '../../../src/models/Snapshot';
 import { errorNotPublished, errorDoesNotExist } from '../../errors/errorConstants';
+import Rollup from '../../../src/models/Rollup';
 
 const logger = debug('constructor:data:persistence:commons');
 
-export const SNAPSHOT_TYPE_PUBLISH = 'SNAPSHOT_PUBLISH';
-export const COMMONS_TAG = 'COMMONS_TAG';
-
-export const defaultMessage = 'Published Project';
-const snapshotBodyScaffold = { tags: {}, keywords: [] };
-const defaultSnapshotBody = Object.assign({ message: defaultMessage }, snapshotBodyScaffold);
-
-const snapshotIsPublished = snapshot => snapshot.tags[COMMONS_TAG];
-
-//NB - mutates the json directly
-//maybe makes sense to put this in the Rollup class itself? Esp. If client needs it.
-const lockProjectDeep = (roll) => {
-  //freeze project
-  roll.project.rules.frozen = true;
-
-  //freeze blocks
-  _.forEach(roll.blocks, (block) => { block.rules.frozen = true; });
-  return roll;
-};
+export const snapshotBodyScaffold = { tags: {}, keywords: [] };
+export const defaultSnapshotBody = Object.assign({ message: commonsDefaultMessage }, snapshotBodyScaffold);
 
 //given list of snapshots, e.g. on queries, only take the latest version of each project
 const reduceSnapshotsToLatestPerProject = snapshots =>
@@ -70,7 +56,7 @@ Version: ${version}`);
 
     return snapshots.snapshotGet(projectId, version)
     .then((snapshot) => {
-      const isPublished = snapshotIsPublished(snapshot);
+      const isPublished = Snapshot.isPublished(snapshot);
 
       logger(`[checkProjectPublic] Found snapshot:
 Project: ${projectId}
@@ -132,7 +118,7 @@ export const commonsQuery = (query = {}, collapse = true) => {
  */
 export const commonsRetrieveVersions = projectId =>
   snapshots.snapshotList(projectId)
-  .then(snapshots => _.filter(snapshots, snapshotIsPublished));
+  .then(snapshots => _.filter(snapshots, Snapshot.isPublished));
 
 /**
  * Retrieve a project from the commons
@@ -147,7 +133,7 @@ export const commonsRetrieveVersions = projectId =>
 export const commonsRetrieve = (projectId, version, lockProject = true) =>
   checkProjectPublic(projectId, version)
   .then(snapshot => projectVersions.projectVersionByUUID(snapshot.projectUUID))
-  .then(roll => lockProject === true ? lockProjectDeep(roll) : roll);
+  .then(roll => lockProject === true ? Rollup.setFrozen(roll) : roll);
 
 /**
  * Publish a project at particular version
@@ -168,12 +154,12 @@ export const commonsPublishVersion = (projectId, userId, version, body) => {
   invariant(Number.isInteger(version), 'version required');
   invariant(!body || typeof body === 'object', 'body must be an object');
 
-  const snapshotBody = Object.assign({}, snapshotBodyScaffold, body);
+  const snapshotBody = _.defaultsDeep({}, body, snapshotBodyScaffold);
   //add publishing tag
   snapshotBody.tags[COMMONS_TAG] = true;
 
   //try to update the existing snapshot, without changing the type
-  return snapshots.snapshotMerge(projectId, userId, version, body)
+  return snapshots.snapshotMerge(projectId, userId, version, snapshotBody)
   //if snapshot doesn't exist, make a new + public one
   .catch((err) => {
     //if we got a different error, pass it through
@@ -181,9 +167,9 @@ export const commonsPublishVersion = (projectId, userId, version, body) => {
       return Promise.reject(err);
     }
 
-    snapshotBody.message = (body && body.message && body.message.length) ? body.message : defaultMessage;
+    snapshotBody.message = (body && body.message && body.message.length > 0) ? body.message : commonsDefaultMessage;
 
-    return snapshots.snapshotWrite(projectId, userId, version, body, SNAPSHOT_TYPE_PUBLISH);
+    return snapshots.snapshotWrite(projectId, userId, version, snapshotBody, SNAPSHOT_TYPE_PUBLISH);
   });
 };
 
@@ -213,7 +199,7 @@ export const commonsPublish = (projectId, userId, roll, body) => {
   .then((writtenRoll) => {
     //add publishing tag + default message if didn't give us one
     snapshotBody.tags[COMMONS_TAG] = true;
-    snapshotBody.message = body.message || defaultMessage;
+    snapshotBody.message = body.message || commonsDefaultMessage;
 
     return snapshots.snapshotWrite(projectId, userId, writtenRoll.version, snapshotBody, SNAPSHOT_TYPE_PUBLISH);
   });

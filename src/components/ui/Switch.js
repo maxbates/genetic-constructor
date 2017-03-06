@@ -13,33 +13,33 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 
 import '../../styles/Switch.css';
 
-export default class Switch extends Component {
-  static propTypes = {
-    on: PropTypes.bool.isRequired,
-    disabled: PropTypes.bool,
-    switched: PropTypes.func.isRequired,
-  };
+export default function Switch(props) {
+  const { disabled, switched, on } = props;
 
-  onFlick = () => {
-    if (!this.props.disabled) {
-      this.props.switched(!this.props.on);
+  const onFlick = () => {
+    if (!disabled) {
+      switched(!on);
     }
   };
 
-  render() {
-    const switchClass = `slider-switch ${this.props.disabled ? 'slider-switch-disabled' : ''}`;
-    const nobClass = `slider-switch-nob ${this.props.on ? 'slider-switch-nob-on' : ''}`;
-    return (
-      <div
-        className={switchClass}
-        onClick={this.onFlick}
-      >
-        <div className={nobClass} />
-      </div>
-    );
-  }
+  const switchClass = `Switch ${disabled ? 'Switch-disabled' : ''}`;
+  const nobClass = `Switch-nob ${on ? 'Switch-nob-on' : ''}`;
+  return (
+    <div
+      className={switchClass}
+      onClick={onFlick}
+    >
+      <div className={nobClass} />
+    </div>
+  );
 }
+
+Switch.propTypes = {
+  on: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
+  switched: PropTypes.func.isRequired,
+};

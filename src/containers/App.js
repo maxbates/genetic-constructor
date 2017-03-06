@@ -41,6 +41,10 @@ class App extends Component {
    * @param evt
    */
   static isEditable(evt) {
+    if (process.env.NODE_ENV === 'dev') {
+      return true;
+    }
+
     const rx = /INPUT|SELECT|TEXTAREA/i;
     if (evt.target.hasAttribute('contenteditable')) {
       return true;

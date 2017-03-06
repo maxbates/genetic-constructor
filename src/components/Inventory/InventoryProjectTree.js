@@ -19,6 +19,7 @@ import _ from 'lodash';
 
 import { blockCreate } from '../../actions/blocks';
 import {
+  focusPrioritize,
   focusConstruct,
   focusForceBlocks,
   focusForceProject,
@@ -30,7 +31,6 @@ import {
 import {
   projectAddConstruct,
   projectCreate,
-  projectDelete,
   projectList,
   projectLoad,
   projectOpen,
@@ -39,35 +39,41 @@ import {
 import {
   inspectorSelectTab,
   inspectorToggleVisibility,
-  uiSetGrunt,
   uiShowMenu,
-  uiShowOkCancel,
+  uiShowProjectDeleteModal,
 } from '../../actions/ui';
 import { block as blockDragType } from '../../constants/DragTypes';
+import Rollup from '../../models/Rollup';
 import DnD from '../../containers/graphics/dnd/dnd';
 import * as instanceMap from '../../store/instanceMap';
 import { commit, transact } from '../../store/undo/actions';
-import '../../styles/InventoryProjectTree.css';
 import Spinner from '../ui/Spinner';
 import Tree from '../ui/Tree';
 import BasePairCount from '../ui/BasePairCount';
 import { downloadProject } from '../../middleware/utils/downloadProject';
 
+import '../../styles/InventoryProjectTree.css';
+
 export class InventoryProjectTree extends Component {
   static propTypes = {
+    //props
     currentProjectId: PropTypes.string,
+    filter: PropTypes.string.isRequired,
+    templates: PropTypes.bool.isRequired,
+    //state
     projects: PropTypes.object.isRequired,
+    blocks: PropTypes.object.isRequired,
+    focus: PropTypes.object.isRequired,
+    //actions
     blockCreate: PropTypes.func.isRequired,
     blockGetParents: PropTypes.func.isRequired,
     projectList: PropTypes.func.isRequired,
-    templates: PropTypes.bool.isRequired,
     projectCreate: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
-    projectDelete: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectSave: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
-    focus: PropTypes.object.isRequired,
+    focusPrioritize: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
@@ -77,10 +83,7 @@ export class InventoryProjectTree extends Component {
     transact: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     uiShowMenu: PropTypes.func.isRequired,
-    uiSetGrunt: PropTypes.func.isRequired,
-    uiShowOkCancel: PropTypes.func.isRequired,
-    blocks: PropTypes.object.isRequired,
-    filter: PropTypes.string.isRequired,
+    uiShowProjectDeleteModal: PropTypes.func.isRequired,
   };
 
   /**
@@ -106,9 +109,13 @@ export class InventoryProjectTree extends Component {
     });
   }
 
-  state = {
-    isLoading: true,
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isLoading: _.filter(props.projects, project => !!props.templates === !!project.rules.frozen).length === 0,
+    };
+  }
 
   //will retrigger on each load
   componentDidMount() {
@@ -120,10 +127,23 @@ export class InventoryProjectTree extends Component {
    * when a project is expanded, we need to load to get the blocks and also inspect it
    * @param projectId
    */
-  onExpandProject(project, item) {
-    this.props.projectLoad(project.id)
+  onClickProject(project, item) {
+    const loadedProject = this.props.projects[project.id];
+    const projectLoaded = project.id === this.props.currentProjectId ||
+      (loadedProject && loadedProject.components && loadedProject.components.every(componentId => this.props.blocks[componentId]));
+
+    const promise = (projectLoaded) ?
+      Promise.resolve() :
+      this.props.projectLoad(project.id);
+
+    promise
     .then(() => {
-      this.props.focusForceProject(project);
+      if (project.id === this.props.currentProjectId) {
+        this.props.focusPrioritize('project');
+      } else {
+        this.props.focusForceProject(project);
+      }
+
       this.props.inspectorToggleVisibility(true);
       this.props.inspectorSelectTab('Information');
     });
@@ -151,7 +171,7 @@ export class InventoryProjectTree extends Component {
 
   /**
    * when a project is opened ( from the open widget in the tree expandos )
-   * @param projectId
+   * @param project
    */
   onOpenProject = (project, evt) => {
     if (evt) {
@@ -166,6 +186,7 @@ export class InventoryProjectTree extends Component {
 
   /**
    * create a new project and navigate to it.
+   * //todo - share with DeleteProjectModal better
    */
   onNewProject = () => {
     // create project and add a default construct
@@ -173,20 +194,21 @@ export class InventoryProjectTree extends Component {
     // add a construct to the new project
     const block = this.props.blockCreate({ projectId: project.id });
     const projectWithConstruct = this.props.projectAddConstruct(project.id, block.id, true);
-
-    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
-    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
-    instanceMap.saveRollup({
+    const rollup = new Rollup({
       project: projectWithConstruct,
       blocks: {
         [block.id]: block,
       },
     });
 
+    //save this to the instanceMap as cached version, so that when projectSave(), will skip until the user has actually made changes
+    //do this outside the actions because we do some mutations after the project + construct are created (i.e., add the construct)
+    instanceMap.saveRollup(rollup);
+
     this.props.focusConstruct(block.id);
     this.props.projectOpen(project.id);
 
-    return project;
+    return rollup;
   };
 
   /**
@@ -194,19 +216,7 @@ export class InventoryProjectTree extends Component {
    * @param project
    */
   onDeleteProject = (project) => {
-    this.props.uiShowOkCancel(
-      'Delete Project',
-      `${project.getName() || 'Your project'}\nand all related project data will be permanently deleted.\nThis action cannot be undone.`,
-      () => {
-        this.props.uiShowOkCancel();
-        this.deleteProject(project);
-      },
-      () => {
-        this.props.uiShowOkCancel();
-      },
-      'Delete Project',
-      'Cancel',
-    );
+    this.props.uiShowProjectDeleteModal(true, project.id);
   };
 
   /**
@@ -275,6 +285,8 @@ export class InventoryProjectTree extends Component {
   /**
    * build a nested set of tree items from the given components array
    * @param components
+   * @param depth
+   * @param maxDepth
    */
   getProjectBlocksRecursive(components, depth, maxDepth = Number.MAX_VALUE) {
     const items = [];
@@ -289,14 +301,14 @@ export class InventoryProjectTree extends Component {
             stateKey: block.id,
             text: block.getName(),
             textWidgets: [
-              hasSequence ? <BasePairCount key="bpc" count={block.sequence.length} style={{ color: 'gray' }} /> : null,
+              hasSequence ? <BasePairCount count={block.sequence.length} style={{ color: 'gray' }} /> : null,
             ],
             onClick: this.onClickBlock.bind(this, block),
             items: this.getProjectBlocksRecursive(block.components, depth + 1, maxDepth),
             startDrag: (globalPosition) => {
               InventoryProjectTree.onBlockDrag(block, globalPosition);
             },
-            locked: block.isFrozen(),
+            // locked: block.isFrozen(), //hide locks in the inventory
           });
         }
       });
@@ -323,49 +335,12 @@ export class InventoryProjectTree extends Component {
       }
       return name.indexOf(filterString) >= 0;
     })
-    .sortBy((one, two) => {
-      if (!one || !two) {
-        return 0;
-      }
-      return two.metadata.created - one.metadata.created;
-    })
+    .orderBy(['metadata.created'], ['desc'])
     .value();
   };
 
-  /**
-   * perform the actual deletion.
-   */
-  deleteProject(project) {
-    if (project.rules.frozen) {
-      this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
-      return;
-    }
-
-    //NB - assumes that loaded projects already available in the list
-    //just use the projects we have already listed, and if there are none or there is a problem, then explicitly load from server
-    const nextProject = _.find(this.getSortedProjectManifests(), manifest => manifest.id !== project.id);
-
-    //create an empty project if none available
-    if (!nextProject) {
-      const datNewNew = this.onNewProject();
-      //force save, so that they have an empty project next time they load
-      return this.props.projectSave(datNewNew.id, true)
-      //delete in the background and hope it works, showing banner if it doesnt
-      //wait until after save, so we can be sure they have a project
-      .then(() => this.props.projectDelete(project.id));
-    }
-
-    //to further optimize, could just skip the loading, so that projectPage handles it itself (need to update that component to handle)
-
-    //load another project and open before deleting, or project page will complain about project not being loaded
-    return this.props.projectLoad(nextProject.id, false, [project.id])
-    .then(() => this.props.projectOpen(nextProject.id, true))
-    //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-    .then(() => this.props.projectDelete(project.id));
-  }
-
   render() {
-    const { currentProjectId } = this.props;
+    const { currentProjectId, focus } = this.props;
     const { isLoading } = this.state;
 
     if (isLoading) {
@@ -375,11 +350,12 @@ export class InventoryProjectTree extends Component {
     const treeItems = this.getSortedProjectManifests()
     .map(project => ({
       text: project.getName(),
-      testid: project.id,
+      testid: `inventoryProject/${project.id}`,
       stateKey: project.id,
       bold: true,
       selected: project.id === currentProjectId,
-      onExpand: () => this.onExpandProject(project),
+      selectedAlt: focus.forceProject && project.id === focus.forceProject.id,
+      onClick: () => this.onClickProject(project),
       onContextMenu: (evt) => {
         this.onProjectContextMenu(project, evt);
       },
@@ -388,6 +364,7 @@ export class InventoryProjectTree extends Component {
         <img
           key="open"
           role="presentation"
+          data-testid={`openProject/${project.id}`}
           src="/images/ui/open.svg"
           onClick={evt => this.onOpenProject(project, evt)}
           className="label-hover-bright"
@@ -421,9 +398,9 @@ export default connect(mapStateToProps, {
   projectAddConstruct,
   projectSave,
   projectOpen,
-  projectDelete,
   projectList,
   projectLoad,
+  focusPrioritize,
   focusConstruct,
   focusForceProject,
   focusForceBlocks,
@@ -433,6 +410,5 @@ export default connect(mapStateToProps, {
   transact,
   commit,
   uiShowMenu,
-  uiShowOkCancel,
-  uiSetGrunt,
+  uiShowProjectDeleteModal,
 })(InventoryProjectTree);

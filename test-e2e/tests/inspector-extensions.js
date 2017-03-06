@@ -21,11 +21,11 @@ module.exports = {
     .waitForElementPresent('.ExtensionView-content .GSLEditorLayout', 20000, 'expected GSL Editor to be present')
     // turn extension off
     .pause(2000)
-    .click('[data-expando="GSL Editor"] .slider-switch')
+    .click('[data-expando="GSL Editor"] .Switch')
     .waitForElementNotPresent('.ExtensionView-content .GSLEditorLayout', 5000, 'expected GSL Editor to go away')
     // back on again
     .pause(2000)
-    .click('[data-expando="GSL Editor"] .slider-switch')
+    .click('[data-expando="GSL Editor"] .Switch')
     .pause(2000)
     clickText(browser, "GSL EDITOR", '.ProjectDetail-closed-extension');
 
