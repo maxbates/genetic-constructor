@@ -74,6 +74,7 @@ export default class FormKeywords extends Component {
         ref={(el) => { this.element = el; }}
         name="keywords"
         multi
+        clearable={false}
         value={keywords}
         disabled={disabled}
         options={fullList}
@@ -86,7 +87,7 @@ export default class FormKeywords extends Component {
         isOptionUnique={({ option, options, valueKey }) => !_.some(options, opt => cleanInput(opt.value) === cleanInput(option.value))}
         ignoreAccents
         ignoreCase
-        placeholder="Enter keywords to help people find your project"
+        placeholder="Enter keywords"
         noResultsText="No results found (duplicates not allowed)"
         promptTextCreator={label => `Create keyword ${cleanInput(label)}`}
       />

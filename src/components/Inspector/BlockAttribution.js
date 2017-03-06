@@ -72,11 +72,12 @@ export class BlockAttribution extends Component {
   };
 
   updateAttribution(forceValue) {
-    const { block, blockAttribute } = this.props;
+    const { block, blockAttribute, userName } = this.props;
     const { text } = this.state;
 
+    const textValue = text !== '' ? text : userName;
     //might be null
-    const attributionValue = forceValue !== undefined ? forceValue : text;
+    const attributionValue = forceValue !== undefined ? forceValue : textValue;
     blockAttribute(block.id, attributionValue);
   }
 
@@ -104,8 +105,9 @@ export class BlockAttribution extends Component {
           {userOwnsLastAttribution && (
             <FormText
               value={this.state.text}
+              placeholder={userName}
               required
-              onChange={evt => this.setState({ text: evt.target.value || userName })}
+              onChange={evt => this.setState({ text: evt.target.value })}
               onBlur={this.onBlur}
             />)}
 

@@ -46,13 +46,20 @@ export default class InspectorRow extends Component {
     active: false,
   };
 
+  componentWillReceiveProps(nextProps) {
+    //force state change to simulate unmounting, but ignore if statekey is provided
+    if (nextProps.condition === false) {
+      this.setState({ active: false });
+    }
+  }
+
   getActiveState = () => {
     const { forceActive } = this.props;
     return (forceActive === true || forceActive === false) ? forceActive : this.state.active;
   };
 
-  handleToggle = () => {
-    const nextState = !this.getActiveState();
+  handleToggle = (forceState) => {
+    const nextState = forceState !== undefined ? forceState : !this.getActiveState();
     this.setState({ active: nextState });
     this.props.onToggle(nextState);
   };
@@ -76,7 +83,7 @@ export default class InspectorRow extends Component {
           text={heading}
           showArrowWhenEmpty
           capitalize={capitalize}
-          onClick={() => this.handleToggle()}
+          onClick={isOpen => this.handleToggle(isOpen)}
         >
           {isActive && children}
         </Expando>

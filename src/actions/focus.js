@@ -77,17 +77,17 @@ export const focusBlocks = (blockIds, constructId) => (dispatch, getState) => {
 
   if (blockIds.length) {
     const firstBlockId = blockIds[0];
-    let cid = constructId;
-    if (!cid) {
+    let actualConstructId = constructId;
+    if (!actualConstructId) {
       const construct = dispatch(BlockSelector.blockGetParentRoot(firstBlockId));
       // null => no parent => construct (or detached)... undefined could be soething else
       //const constructId = !!construct ? construct.id : (construct !== null ? firstBlockId : undefined);
-      cid = construct ? construct.id : null;
+      actualConstructId = construct ? construct.id : null;
     }
-    if (cid !== focusedConstructId || cid === firstBlockId) {
+    if (actualConstructId !== focusedConstructId || actualConstructId === firstBlockId) {
       dispatch({
         type: ActionTypes.FOCUS_CONSTRUCT,
-        cid,
+        constructId: actualConstructId,
       });
     }
   }
