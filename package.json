@@ -1,6 +1,6 @@
 {
   "name": "genetic-constructor",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "description": "Genetic Constructor",
   "main": "index.js",
   "scripts": {
