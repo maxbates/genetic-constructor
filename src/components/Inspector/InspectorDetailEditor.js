@@ -66,7 +66,8 @@ export default class InspectorDetailEditor extends Component {
       <div className="InspectorDetailSection InspectorDetailEditor">
         {!!title && <div className="InspectorDetailEditor-title">{title}</div>}
 
-        {this.props.disabled !== true && (
+        {/* hiding this for now */}
+        {(false && this.props.disabled !== true) && (
           <div className="InspectorDetailSection-headerGlyphs">
             <img
               key="open"
