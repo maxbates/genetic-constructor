@@ -90,7 +90,7 @@ export class ConstructViewerCanvas extends Component {
   /**
    * true if current project is a sample project
    */
-  isSampleProject() {
+  isFrozenProject() {
     return this.props.projectGet(this.props.currentProjectId).rules.frozen;
   }
 
@@ -166,13 +166,14 @@ export class ConstructViewerCanvas extends Component {
       if (!construct) {
         return;
       }
-      if (!this.isSampleProject()) {
-        elements.push(<DropTarget
-          currentProjectId={this.props.currentProjectId}
-          index={index}
-          key={index}
-        />);
-      }
+
+      elements.push(<DropTarget
+        currentProjectId={this.props.currentProjectId}
+        index={index}
+        key={index}
+        disabled={this.isFrozenProject()}
+      />);
+
       elements.push(<ConstructViewer
         mouseScroll={this.mouseScroll}
         endMouseScroll={this.endMouseScroll}
@@ -184,13 +185,12 @@ export class ConstructViewerCanvas extends Component {
       />);
     });
     // put a drop target at the end, force a unique key so it won't clash with the other drop targets
-    if (!this.isSampleProject()) {
-      elements.push(<DropTarget
-        currentProjectId={this.props.currentProjectId}
-        index={this.props.constructs.length}
-        key={this.props.constructs.length}
-      />);
-    }
+    elements.push(<DropTarget
+      currentProjectId={this.props.currentProjectId}
+      index={this.props.constructs.length}
+      key={this.props.constructs.length}
+      disabled={this.isFrozenProject()}
+    />);
 
     // map construct viewers so we can propagate projectId and any recently dropped blocks
     return (
