@@ -36,7 +36,6 @@ import BlockAttribution from './BlockAttribution';
 import InspectorRow from './InspectorRow';
 import ListOptions from './ListOptions';
 import TemplateRules from './TemplateRules';
-import { getLocal } from '../../utils/localstorage';
 import { getPaletteName } from '../../utils/color/index';
 import '../../styles/InspectorBlock.css';
 
