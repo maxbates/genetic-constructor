@@ -57,6 +57,12 @@ const _getProject = (state, projectId) => {
   return project;
 };
 
+const _getBlock = (state, blockId) => {
+  const block = state.blocks[blockId];
+  invariant(block, `block ${blockId} not found`);
+  return block;
+};
+
 const classifyProjectIfNeeded = input => (input instanceof Project) ? input : new Project(input);
 
 /**************************************
@@ -520,7 +526,7 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = tru
         project = oldProject.addComponentsAt(index, constructId);
       }
 
-      const component = getState().blocks[constructId];
+      const component = _getBlock(getState(), constructId);
       const componentProjectId = component.projectId;
 
       const contents = dispatch(blockSelectors.blockGetContentsRecursive(constructId));
@@ -554,10 +560,13 @@ export const projectRemoveConstruct = (projectId, constructId) =>
   (dispatch, getState) =>
     wrapPausedTransaction(dispatch, () => {
       const oldProject = _getProject(getState(), projectId);
+      const component = _getBlock(getState(), constructId);
       const project = oldProject.removeComponents(constructId);
 
-      //unset projectId of construct only
-      dispatch(blockActions.blockSetProject(constructId, null, false));
+      //unset projectId of construct only, if it is not frozen, otherwise skip it
+      if (!component.isFrozen()) {
+        dispatch(blockActions.blockSetProject(constructId, null, false));
+      }
 
       dispatch({
         type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,
