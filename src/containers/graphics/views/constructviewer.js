@@ -14,7 +14,7 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import { debounce } from 'lodash';
+import { flatten, debounce } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
@@ -22,6 +22,7 @@ import Box2D from '../geometry/box2d';
 import Vector2D from '../geometry/vector2d';
 import { palettes } from '../../../utils/color/index';
 import GlobalNav from '../../../components/GlobalNav/GlobalNav';
+import { extensionsByRegion } from '../../../extensions/clientRegistry';
 
 import {
   blockAddComponent,
@@ -70,7 +71,6 @@ import UserInterface from './constructvieweruserinterface';
 import Layout from './layout';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
 import { downloadConstruct } from '../../../middleware/utils/downloadProject';
-
 
 // static hash for matching viewers to constructs
 const idToViewer = {};
@@ -235,10 +235,10 @@ export class ConstructViewer extends Component {
   onOrderDNA = () => {
     let order = this.props.orderCreate(this.props.currentProjectId, [this.props.construct.id]);
     this.props.orderList(this.props.currentProjectId)
-      .then((orders) => {
-        order = this.props.orderSetName(order.id, `Order ${orders.length + 1}`);
-        this.props.uiShowOrderForm(true, order.id);
-      });
+    .then((orders) => {
+      order = this.props.orderSetName(order.id, `Order ${orders.length + 1}`);
+      this.props.uiShowOrderForm(true, order.id);
+    });
   };
 
   /**
@@ -278,6 +278,7 @@ export class ConstructViewer extends Component {
     invariant(parents && parents.length, 'blocks are expected to have parents');
     return parents[0];
   }
+
   /**
    * get project our construct is from
    */
@@ -396,22 +397,30 @@ export class ConstructViewer extends Component {
     const firstBlock = this.props.blocks[this.props.focus.blockIds[0]];
     const isBackbone = firstBlock ? firstBlock.rules.role === 'backbone' : false;
     const canListify = singleBlock && !firstBlock.hasSequence() && !isBackbone;
-    const listItems = singleBlock ? [
-      {
-        text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
-        disabled: this.props.construct.isFixed() || !canListify,
-        action: () => {
-          const value = !firstBlock.isList();
-          this.props.blockSetListBlock(firstBlock.id, value);
-          // if no symbol and becoming a list block then set the list block symbol
-          if (value && !firstBlock.rules.role) {
-            this.props.blockSetRole(firstBlock.id, 'list');
-          }
-          if (!value && firstBlock.rules.role === 'list') {
-            this.props.blockSetRole(firstBlock.id, null);
-          }
-        },
+
+    const listItems = singleBlock ? [{
+      text: `Convert to ${firstBlock.isList() ? ' Normal Block' : ' List Block'}`,
+      disabled: this.props.construct.isFixed() || !canListify,
+      action: () => {
+        const value = !firstBlock.isList();
+        this.props.blockSetListBlock(firstBlock.id, value);
+        // if no symbol and becoming a list block then set the list block symbol
+        if (value && !firstBlock.rules.role) {
+          this.props.blockSetRole(firstBlock.id, 'list');
+        }
+        if (!value && firstBlock.rules.role === 'list') {
+          this.props.blockSetRole(firstBlock.id, null);
+        }
       },
+    }] : [];
+
+
+    const extensionsWithBlockMenus = extensionsByRegion('menu:block').map(manifest => manifest.render['menu:block'](singleBlock, firstBlock));
+
+    const extensionMenuItems = extensionsWithBlockMenus.length > 0 ? [
+      {},
+      { text: 'Extensions', disabled: true },
+      ...flatten(extensionsWithBlockMenus),
     ] : [];
 
     return [
@@ -444,6 +453,7 @@ export class ConstructViewer extends Component {
         },
       },
       ...GlobalNav.getSingleton().getEditMenuItems(),
+      ...extensionMenuItems,
     ];
   };
 
@@ -665,6 +675,7 @@ export class ConstructViewer extends Component {
     this.props.detailViewSelectExtension(sequenceViewerName);
     this.props.uiToggleDetailView(true);
   }
+
   /**
    * toggle the sequence viewer visibility
    */
@@ -683,23 +694,23 @@ export class ConstructViewer extends Component {
   showViewMenu(anchorElement) {
     const showPanels = !this.props.inventoryVisible;
     this.props.uiShowMenu([
-      {
-        text: `${showPanels ? 'Show' : 'Hide'} all panels`,
-        action: this.togglePanels,
-      },
-      {
-        text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
-        action: () => { this.toggleMinimized(); },
-      },
-      {
-        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
-        action: this.toggleHiddenBlocks,
-      },
-      {
-        text: `${this.props.visibleExtension === sequenceViewerName ? 'Hide' : 'Show'} Sequence`,
-        action: this.toggleSequenceViewer,
-      },
-    ],
+        {
+          text: `${showPanels ? 'Show' : 'Hide'} all panels`,
+          action: this.togglePanels,
+        },
+        {
+          text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
+          action: () => { this.toggleMinimized(); },
+        },
+        {
+          text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+          action: this.toggleHiddenBlocks,
+        },
+        {
+          text: `${this.props.visibleExtension === sequenceViewerName ? 'Hide' : 'Show'} Sequence`,
+          action: this.toggleSequenceViewer,
+        },
+      ],
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
       true);
   }
@@ -887,40 +898,40 @@ export class ConstructViewer extends Component {
    */
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
-      {
-        text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
-        //action: () => { this.sg.ui.toggleCollapsedState(); },
-        action: () => { this.toggleMinimized(); },
-      },
-      {
-        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
-        action: this.toggleHiddenBlocks,
-      },
-      {
-        text: 'Color',
-        disabled: this.isSampleProject() || this.props.construct.isFixed(),
-        menuItems: this.getPaletteMenuItems(),
-      },
-      {
-        text: 'Order DNA',
-        disabled: !this.allowOrder(),
-        action: this.onOrderDNA,
-      },
-      {
-        text: 'Download Construct',
-        disabled: false,
-        action: () => {
-          downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
+        {
+          text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
+          //action: () => { this.sg.ui.toggleCollapsedState(); },
+          action: () => { this.toggleMinimized(); },
         },
-      },
-      {
-        text: 'Delete Construct',
-        disabled: this.isSampleProject(),
-        action: () => {
-          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
+        {
+          text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+          action: this.toggleHiddenBlocks,
         },
-      },
-    ],
+        {
+          text: 'Color',
+          disabled: this.isSampleProject() || this.props.construct.isFixed(),
+          menuItems: this.getPaletteMenuItems(),
+        },
+        {
+          text: 'Order DNA',
+          disabled: !this.allowOrder(),
+          action: this.onOrderDNA,
+        },
+        {
+          text: 'Download Construct',
+          disabled: false,
+          action: () => {
+            downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
+          },
+        },
+        {
+          text: 'Delete Construct',
+          disabled: this.isSampleProject(),
+          action: () => {
+            this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
+          },
+        },
+      ],
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
       true);
   }

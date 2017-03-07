@@ -1,0 +1,17 @@
+{
+  "name": "blast",
+  "version": "1.0.0",
+  "description": "Run blast searches to find similar sequences and grow combinatorial spaces.",
+  "geneticConstructor": {
+    "readable": "BLAST",
+    "type": "BLAST",
+    "client": [
+      {
+        "file": "blockMenuItem.js",
+        "region": "menu:block"
+      }
+    ]
+  },
+  "license": "Apache-2.0",
+  "dependencies": {}
+}

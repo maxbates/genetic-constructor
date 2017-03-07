@@ -16,7 +16,8 @@
 import { isEqual } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 
-import extensionRegistry, { downloadAndRender, validRegion } from '../extensions/clientRegistry';
+import extensionRegistry, { downloadAndRender } from '../extensions/clientRegistry';
+import { validRegion } from '../extensions/regions';
 import '../styles/ExtensionView.css';
 
 export default class ExtensionView extends Component {
@@ -107,20 +108,20 @@ export default class ExtensionView extends Component {
         const boundingBox = this.element.getBoundingClientRect();
 
         downloadAndRender(extension, region, this.element, { boundingBox })
-          .then((unregister) => {
-            //todo - better handle scenario of extension loaded but not rendered (i.e. callback not yet set) - want to unregister immediately
-            this.callback = unregister;
-            this.setState({
-              downloaded: true,
-              hasError: null,
-            });
-          })
-          .catch((err) => {
-            this.setState({
-              downloaded: true,
-              hasError: err,
-            });
+        .then((unregister) => {
+          //todo - better handle scenario of extension loaded but not rendered (i.e. callback not yet set) - want to unregister immediately
+          this.callback = unregister;
+          this.setState({
+            downloaded: true,
+            hasError: null,
           });
+        })
+        .catch((err) => {
+          this.setState({
+            downloaded: true,
+            hasError: err,
+          });
+        });
       } catch (err) {
         console.error(`error loading / rendering extension ${extension}`); //eslint-disable-line no-console
         throw err;
