@@ -54,7 +54,7 @@ export const checkDockerInstalled = () => promisedExec('docker -v', {}, { commen
       let versionOk = false;
       if (parseInt(major, 10) >= 17 && parseInt(minor, 10) >= 3) { // new, free version
         versionOk = true;
-      } else if (parseInt(major, 10) == 1 && parseInt(minor, 10) >= 12) { // old version
+      } else if (parseInt(major, 10) === 1 && parseInt(minor, 10) >= 12) { // old version
         versionOk = true;
       }
 
