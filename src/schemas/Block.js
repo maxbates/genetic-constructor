@@ -47,6 +47,12 @@ const blockFields = {
     { scaffold: () => null },
   ],
 
+  //later, this will become part of threads? may want to keep track of the job IDs over time
+  jobId: [
+    fields.string(),
+    'If the construct is tied to a job, the ID of the job while it is running, or null',
+  ],
+
   sequence: [
     SequenceSchema,
     'Associated Sequence (link, not the sequence itself), and Annotations etc. associated',

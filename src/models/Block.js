@@ -853,6 +853,14 @@ export default class Block extends Instance {
   }
 
   /*********
+   Job related things
+   *********/
+
+  hasJob() {
+    return this.jobId || null;
+  }
+
+  /*********
    Construct Things
    *********/
 

@@ -953,7 +953,7 @@ export class ConstructViewer extends Component {
       {
         text: 'Palette',
         imageURL: '/images/ui/color.svg',
-        enabled: !this.isSampleProject() && !this.props.construct.isFixed(),
+        enabled: !this.isSampleProject() && !this.props.construct.isFixed() && !this.props.construct.isFrozen(),
         onClick: (event) => {
           this.showPaletteMenu(event.target);
         },
