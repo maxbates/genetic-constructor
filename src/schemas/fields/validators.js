@@ -107,6 +107,13 @@ export const undef = params => (input) => {
   }
 };
 
+export const nil = params => (input) => {
+  if (input !== null) {
+    return new Error(`${input} is not null`);
+  }
+};
+
+
 /*******
  string subtypes
  *******/

@@ -41,11 +41,10 @@ const blockFields = {
     'Block UUID',
   ],
 
-  //todo - scaffold this to null to mark unassociated? and require the field?
   projectId: [
-    fields.id({ prefix: 'project' }),
+    fields.oneOfType([validators.nil(), validators.id({ prefix: 'project' })]).required,
     'Project UUID',
-    { avoidScaffold: true },
+    { scaffold: () => null },
   ],
 
   sequence: [
