@@ -6,7 +6,29 @@
 }
 
 .construct-viewer {
+  margin: 0rem 1rem 0 1rem;
+  width: calc(100% - 2rem);
+  background: transparent;
   position: relative;
+
+  .title-and-toolbar {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity var(--timing-fast) ease-out;
+
+    &-container {
+      position: absolute;
+      width: calc(100% - 35px);
+      right: 0;
+      top: 0;
+      height: 32px;
+    }
+  }
+
+  .sceneGraphContainer {
+    overflow: hidden;
+    position: relative;
+  }
 
   .corner {
     position: absolute;
@@ -20,10 +42,16 @@
     border-bottom-color: transparent !important;
   }
 
-  .title {
-    font-size: 16px;
-    cursor: pointer;
-    color: var(--colors-selected);
+  &-focused {
+    transition: background var(--timing-fast) ease-out;
+    background: var(--colors-darkGrey);
+
+    .title-and-toolbar {
+      opacity: 1;
+    }
+  }
+
+  &:last-child {
+    margin-bottom: 5rem;
   }
 }
-

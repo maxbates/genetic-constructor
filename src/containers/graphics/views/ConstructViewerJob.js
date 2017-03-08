@@ -44,7 +44,7 @@ export class ConstructViewerJob extends Component {
   render() {
     return (
       <div
-        className={`ConstructViewerJob construct-viewer ${this.props.isFocused ? 'ConstructViewerJob-active' : ''}`}
+        className={`ConstructViewerJob construct-viewer ${this.props.isFocused ? 'construct-viewer-focused' : ''}`}
         onClick={() => this.props.focusConstruct(this.props.construct.id)}
       >
         <div className="sceneGraphContainer">
