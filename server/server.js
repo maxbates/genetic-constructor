@@ -24,6 +24,7 @@ import colors from 'colors/safe';
 
 import pkg from '../package.json';
 import dataRouter from './data/router';
+import jobRouter from './jobs/router';
 import extensionsRouter from './extensions/router';
 import checkUserSetup from './onboarding/userSetup';
 import orderRouter from './order/router';
@@ -141,6 +142,7 @@ app.use('/user', userRouter);
 // PRIMARY ROUTES
 
 app.use('/data', dataRouter);
+app.use('/jobs', jobRouter);
 app.use('/order', orderRouter);
 app.use('/extensions', extensionsRouter);
 app.use('/report', reportRouter);

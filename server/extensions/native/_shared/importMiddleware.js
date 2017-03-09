@@ -18,7 +18,7 @@ import formidable from 'formidable';
 import _ from 'lodash';
 import md5 from 'md5';
 
-import * as jobFiles from '../../../../server/data/files/jobs';
+import * as jobFiles from '../../../files/jobs';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import Project from '../../../../src/models/Project';

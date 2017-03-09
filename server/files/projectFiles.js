@@ -14,21 +14,17 @@
  limitations under the License.
  */
 import invariant from 'invariant';
-import md5 from 'md5';
 import debug from 'debug';
-import * as s3 from '../middleware/s3';
-import * as filePaths from '../middleware/filePaths';
+import * as s3 from '../data/middleware/s3';
+import * as filePaths from '../data/middleware/filePaths';
 import * as agnosticFs from './agnosticFs';
-import { HOST_URL } from '../../urlConstants';
+import { HOST_URL } from '../urlConstants';
 
 const logger = debug('constructor:data:files:projectFiles');
 
-//note - this module is incredibly similar to project files...
-//notable, filename not required to write - will be generated and returned
-
 /* S3 Credentials, when in production */
 
-export const bucketName = 'bionano-gctor-jobs';
+export const bucketName = 'bionano-gctor-files';
 
 // when using S3, write to the bucket
 // when using local, prefix with appropriate path
@@ -38,7 +34,7 @@ if (s3.useRemote) {
   s3bucket = s3.getBucket(bucketName);
   logger(`Bucket: ${bucketName}`);
 } else {
-  s3bucket = filePaths.createJobFilePath();
+  s3bucket = filePaths.createProjectFilePath();
   logger(`File Path: ${s3bucket}`);
 }
 
@@ -51,61 +47,56 @@ const getFilePath = (...paths) => {
 
 // API
 
-//ensure that this matches the router
-export const makeJobFileLink = (...paths) => {
+//keep this in sync with project file router
+export const makeProjectFileLink = (...paths) => {
   invariant(paths.length > 0, 'must pass some namespace');
-  return `${HOST_URL}/data/jobs/${paths.join('/')}`;
+  return `${HOST_URL}/data/file/${paths.join('/')}`;
 };
 
-export const jobFileName = contents => md5(contents);
-
-export const jobFileRead = (projectId, namespace, path) => {
+export const projectFileRead = (projectId, namespace, fileName) => {
   invariant(projectId, 'projectId is required');
-  invariant(namespace, 'need to pass a namespace');
-  invariant(path, 'need to pass a namespace + path');
+  invariant(namespace, 'namespace key is required');
+  invariant(fileName, 'file name is required');
 
-  const filePath = getFilePath(projectId, namespace, path);
-  logger(`[jobFileRead] ${filePath}`);
+  const filePath = getFilePath(projectId, namespace, fileName);
+  logger(`[projectFileRead] ${filePath}`);
 
   return agnosticFs.fileRead(s3bucket, filePath);
 };
 
-//note signature - filename is optional, will generate md5 if not provided
-export const jobFileWrite = (projectId, namespace, contents, fileName) => {
+export const projectFileWrite = (projectId, namespace, fileName, contents) => {
   invariant(projectId, 'projectId is required');
-  invariant(typeof contents === 'string' || Buffer.isBuffer(contents), 'must pass contents as string or buffer');
-  invariant(namespace, 'need to pass a namespace');
+  invariant(namespace, 'namespace key is required');
 
-  const name = fileName || jobFileName(contents);
-  const filePath = getFilePath(projectId, namespace, name);
-  logger(`[jobFileWrite] ${filePath}`);
+  const filePath = getFilePath(projectId, namespace, fileName);
+  logger(`[projectFileWrite] ${filePath}`);
 
   return agnosticFs.fileWrite(s3bucket, filePath, contents)
     .then(result => Object.assign(result, {
-      url: makeJobFileLink(result.Key),
+      url: makeProjectFileLink(result.Key),
     }));
 };
 
-export const jobFileDelete = (projectId, namespace, path) => {
+export const projectFileDelete = (projectId, namespace, fileName) => {
   invariant(projectId, 'projectId is required');
-  invariant(namespace, 'need to pass a namespace');
-  invariant(path, 'need to pass a namespace + path');
+  invariant(namespace, 'namespace key is required');
+  invariant(fileName, 'file name is required');
 
-  const filePath = getFilePath(projectId, namespace, path);
-  logger(`[jobFileDelete] ${filePath}`);
+  const filePath = getFilePath(projectId, namespace, fileName);
+  logger(`[projectFileDelete] ${filePath}`);
 
   return agnosticFs.fileDelete(s3bucket, filePath);
 };
 
-export const jobFileList = (projectId, namespace) => {
+export const projectFilesList = (projectId, namespace) => {
   invariant(projectId, 'projectId is required');
 
   //todo - suport skipping namespace. need to change format or results (will have slashes)
   //will have to update project file router to account for no namespace
   invariant(namespace, 'must pass a namespace');
 
-  const dirPath = getFilePath(projectId, namespace);
-  logger(`[jobFileList] ${dirPath}`);
+  const folderPath = getFilePath(projectId, namespace);
+  logger(`[projectFileList] ${folderPath}`);
 
-  return agnosticFs.fileList(s3bucket, dirPath);
+  return agnosticFs.fileList(s3bucket, folderPath);
 };

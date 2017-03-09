@@ -17,7 +17,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 
 import { errorDoesNotExist, errorFileNotFound, errorInvalidRoute } from '../errors/errorConstants';
-import * as jobFiles from './files/jobs';
+import * as jobFiles from '../files/jobs';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text();

@@ -15,8 +15,8 @@
  */
 import path from 'path';
 import invariant from 'invariant';
-import * as s3 from '../middleware/s3';
-import * as fileSystem from '../middleware/fileSystem';
+import * as s3 from '../data/middleware/s3';
+import * as fileSystem from '../data/middleware/fileSystem';
 
 console.log(s3.useRemote ? '[Files] Using S3 for file persistence, not file system' : '[Files] Using file system for file persistence, not S3');
 

@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 
 import { headersGet, headersPost } from './utils/headers';
-import { jobPath } from './utils/paths';
+import { jobFilePath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
 const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
@@ -26,7 +26,7 @@ export const jobFileRead = (projectId, namespace, fileName) => {
   invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
   invariant(!!fileName && typeof fileName === 'string', 'file name is required');
 
-  return rejectingFetch(jobPath(projectId, namespace, fileName), headersGet(contentTypeTextHeader));
+  return rejectingFetch(jobFilePath(projectId, namespace, fileName), headersGet(contentTypeTextHeader));
 };
 
 //todo - allow specifying name?
@@ -35,7 +35,7 @@ export const jobFileWrite = (projectId, namespace, contents) => {
   invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
   invariant(typeof contents === 'string', 'must pass contents as string');
 
-  const filePath = jobPath(projectId, namespace);
+  const filePath = jobFilePath(projectId, namespace);
 
   return rejectingFetch(filePath, headersPost(contents, contentTypeTextHeader))
     .then(resp => resp.json());
@@ -47,6 +47,6 @@ export const jobFileList = (projectId, namespace) => {
   //todo - don't require namespace. will need to update router
   invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
 
-  return rejectingFetch(jobPath(projectId, namespace, ''), headersGet())
+  return rejectingFetch(jobFilePath(projectId, namespace, ''), headersGet())
     .then(resp => resp.json());
 };
