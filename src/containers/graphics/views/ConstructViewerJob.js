@@ -16,9 +16,8 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import {
-  focusConstruct,
-} from '../../../actions/focus';
+import { focusConstruct } from '../../../actions/focus';
+import { projectRemoveConstruct } from '../../../actions/projects';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
 
 import '../../../styles/ConstructViewerJob.css';
@@ -31,14 +30,34 @@ export class ConstructViewerJob extends Component {
     //connect
     isFocused: PropTypes.bool.isRequired,
     focusConstruct: PropTypes.func.isRequired,
+    projectRemoveConstruct: PropTypes.func.isRequired,
   };
+
+  componentDidMount() {
+    this.pollForJob();
+  }
+
+  componentDidUpdate(oldProps) {
+    if (this.props.construct.jobId !== oldProps.construct.jobId) {
+      this.pollForJob();
+    }
+  }
 
   onDelete = () => {
     if (this.props.onDelete) {
       this.props.onDelete(this.props.construct.jobId, this.props.projectId, this.props.construct.id);
+      return;
     }
 
-    //todo - remove from project, end the job
+    this.props.projectRemoveConstruct(this.props.projectId, this.props.construct.id);
+    //todo - end the job
+  };
+
+  pollForJob = () => {
+    //todo
+    const jobId = this.props.construct.jobId;
+
+    console.log(`TODO poll for: ${jobId}`);
   };
 
   render() {
@@ -58,6 +77,10 @@ export class ConstructViewerJob extends Component {
             color={this.props.construct.getColor()}
             noHover
             toolbarItems={[{
+              text: 'Locked',
+              imageURL: '/images/ui/lock-locked.svg',
+              enabled: false,
+            }, {
               text: 'Delete Job',
               imageURL: '/images/ui/delete.svg',
               onClick: this.onDelete,
@@ -73,4 +96,5 @@ export default connect((state, props) => ({
   isFocused: state.focus.constructId === props.construct.id,
 }), {
   focusConstruct,
+  projectRemoveConstruct,
 })(ConstructViewerJob);

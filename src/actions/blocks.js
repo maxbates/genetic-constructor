@@ -291,6 +291,7 @@ export const blockSetProject = (blockId, projectId, deep = true) => (dispatch, g
 
   dispatch({
     type: ActionTypes.BLOCK_SET_PROJECT,
+    undoable: true, //undoable so that when you remove / undo a block, resets projectId
     blocks,
   });
 

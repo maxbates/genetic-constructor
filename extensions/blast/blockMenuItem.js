@@ -18,7 +18,14 @@ constructor.extensions.register('blast', 'menu:block', (singleBlockSelected, blo
   text: 'BLAST for similar sequences',
   disabled: !singleBlockSelected || !block.hasSequence(),
   action: () => {
-    //todo
-    console.log('run teh blastz');
+    const component = constructor.api.blocks.blockClone(block);
+    const construct = constructor.api.blocks.blockCreate({
+      metadata: { name: 'BLAST results' },
+      jobId: 'blastidy-blast',
+      components: [component.id],
+    });
+    constructor.api.projects.projectAddConstruct(block.projectId, construct.id);
+
+    console.log('run the blastz');
   },
 }]);

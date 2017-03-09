@@ -962,7 +962,6 @@ export class ConstructViewer extends Component {
         text: locked ? 'Locked' : 'Unlocked',
         imageURL: locked ? '/images/ui/lock-locked.svg' : '/images/ui/lock-unlocked.svg',
         enabled: false,
-        clicked: () => {},
       },
       {
         text: 'Order DNA',
@@ -974,7 +973,7 @@ export class ConstructViewer extends Component {
         text: 'Download Construct',
         imageURL: '/images/ui/download.svg',
         enabled: false,
-        clicked: () => {
+        onClick: () => {
           this.grunt('Preparing data. Download will begin automatically when complete.');
           downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
         },

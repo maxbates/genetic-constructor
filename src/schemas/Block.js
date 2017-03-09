@@ -42,7 +42,7 @@ const blockFields = {
   ],
 
   projectId: [
-    fields.oneOfType([validators.nil(), validators.id({ prefix: 'project' })]).required,
+    fields.oneOfType([validators.id({ prefix: 'project' }), validators.nil()]).required,
     'Project UUID',
     { scaffold: () => null },
   ],
@@ -51,6 +51,7 @@ const blockFields = {
   jobId: [
     fields.string(),
     'If the construct is tied to a job, the ID of the job while it is running, or null',
+    { avoidScaffold: true },
   ],
 
   sequence: [
