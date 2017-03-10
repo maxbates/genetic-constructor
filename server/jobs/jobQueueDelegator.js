@@ -21,14 +21,15 @@ const jobManager = new JobManager('jobs');
 const logger = debug('constructor:jobs:processor');
 
 jobManager.setProcessor((job) => {
-  console.log('got a job!', job.jobId, job.data.type);
+  console.log('got a job!', job.data.type, job.jobId, job.projectId);
+  const { type, data } = job.data;
 
   // DELEGATE
   // future - better delegation between all the things we actually would want to do
-  switch (job.data.type) {
+  switch (type) {
     case 'test': {
       job.progress(100);
-      return Promise.resolve('yay');
+      return Promise.resolve('result');
     }
     case 'blast': {
       //todo - delegate to extension? or just hard-code?

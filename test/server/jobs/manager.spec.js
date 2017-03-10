@@ -41,7 +41,7 @@ describe('Server', () => {
       it('can create + process a job', (done) => {
         const manager = new JobManager(uuid.v4());
 
-        const jobData = { type: 'test', otherField: 'woo' };
+        const jobData = { type: 'test', data: 'woo' };
 
         manager.setProcessor((job) => {
           expect(job.data).to.eql(jobData);
@@ -123,6 +123,7 @@ describe('Server', () => {
             expect(result.complete).to.equal(true);
             assert(!result.failure, 'should not have failed');
             expect(result.result).to.equal(processResult);
+            expect(result.type).to.equal('test');
 
             done();
           });

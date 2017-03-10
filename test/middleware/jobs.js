@@ -63,7 +63,7 @@ Thing!`;
       before(() => projectPersistence.projectWrite(projectId, roll, testUserId));
 
       it('can create a job, returns ID', () => {
-        return api.jobCreate(projectId, jobData)
+        return api.jobCreate(projectId, 'test', jobData)
         .then(result => {
           expect(typeof result).to.equal('object');
           expect(typeof result.jobId).to.equal('string');

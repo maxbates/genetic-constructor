@@ -42,14 +42,25 @@ export default class JobManager {
     invariant(idRegex().test(jobId), 'invalid Job Id');
   }
 
+  static createJobOptions(options) {
+    return {
+      jobId: `job-${uuid.v4()}`,
+      attempts: 1,
+      delay: 0,
+      ...options,
+    };
+  }
+
+  //set a function which processes the jobs
   setProcessor(func) {
     logger(`[process] [${this.queueName}] Setting processor`);
 
     return this.queue.process(func);
   }
 
+  //create new job, minting job if not provided
   createJob(data, options = {}) {
-    const opts = { jobId: `job-${uuid.v4()}`, ...options };
+    const opts = JobManager.createJobOptions(options);
     const jobId = opts.jobId;
 
     logger(`[create] [${this.queueName}] creating... ${jobId}`);
@@ -72,6 +83,7 @@ export default class JobManager {
     });
   }
 
+  //get the bull job
   //rejects with null if job doesnt exist
   getJob(jobId) {
     logger(`[get] [${this.queueName}] getting... ${jobId}`);
@@ -90,7 +102,7 @@ export default class JobManager {
     });
   }
 
-  //single check - resolve with { complete <bool>, failed <bool>, job <job> }
+  //single check - resolve with { complete <bool>, failed <bool>, job <job>, result <*> }
   jobCompleted(jobId) {
     logger(`[jobCompleted] [${this.queueName}] checking... ${jobId}`);
 
@@ -105,6 +117,7 @@ export default class JobManager {
         return {
           complete,
           failure: job.failedReason || null,
+          type: job.opts.type,
           result: job.returnvalue,
           job,
           jobId,

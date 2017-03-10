@@ -34,7 +34,7 @@ import { REDIS_PORT } from '../server/urlConstants';
  make install
  */
 
-console.log('\nTODO - BETTER INSTALL REDIS \n');
+console.log('\nTODO - INSTALL REDIS \n');
 
 async function startRedis() {
   try {
@@ -56,7 +56,7 @@ async function startRedis() {
     console.log('Redis running on port:', REDIS_PORT);
     return dbProcess;
   } catch (err) {
-    console.log(colors.red('Error starting Redis...'));
+    console.log(colors.red('Error starting Redis (is redis installed?)...'));
     throw err;
   }
 }

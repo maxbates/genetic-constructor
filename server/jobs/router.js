@@ -61,6 +61,27 @@ router.use('/file/:projectId', jobFileRouter);
 //only use json parser for non-file routes
 router.use(jsonParser);
 
+router.route('/:projectId/:jobType')
+.post((req, res, next) => {
+  const { projectId } = req;
+  const data = req.body;
+  const type = req.params.jobType;
+
+  const jobOptions = { projectId };
+  const jobBody = {
+    type,
+    data,
+  };
+
+  jobManager.createJob(jobBody, jobOptions)
+  .then(job => res.status(200).send({
+    projectId,
+    type,
+    jobId: job.jobId,
+  }))
+  .catch(next);
+});
+
 router.route('/:projectId/:jobId')
 .get((req, res, next) =>
   jobManager.jobCompleted(req.jobId)
@@ -77,15 +98,6 @@ router.route('/:projectId/:jobId')
     jobId: req.jobId,
   }))
   .catch(next));
-
-router.route('/:projectId')
-.post((req, res, next) => {
-  jobManager.createJob(req.body)
-  .then(job => res.status(200).send({
-    jobId: job.jobId,
-  }))
-  .catch(next);
-});
 
 //default catch
 router.use('*', (req, res) => {

@@ -24,8 +24,8 @@ const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
 // JOBS
 
 // { jobId }
-export const jobCreate = (projectId, data) =>
-  rejectingFetch(jobPath(projectId), headersPost(JSON.stringify(data)))
+export const jobCreate = (projectId, type, data) =>
+  rejectingFetch(jobPath(projectId, type), headersPost(JSON.stringify(data)))
   .then(resp => resp.json());
 
 // { complete, failure, job, result, jobId }
