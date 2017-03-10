@@ -13,40 +13,69 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import chai from 'chai';
-import Project from '../../src/models/Project';
+import { expect, assert } from 'chai';
 import * as api from '../../src/middleware/jobs';
 
-const { assert, expect } = chai;
+import { testUserId } from '../constants';
+import { createExampleRollup } from '../_utils/rollup';
+import * as projectPersistence from '../../server/data/persistence/projects';
 
 describe('Middleware', () => {
-  describe('Jobs', () => {
-    const projectId = Project.classless().id;
-    const namespace = 'someNamespace';
-    const contents = `here's
+  describe.only('Jobs', () => {
+    describe('Files', () => {
+      const roll = createExampleRollup();
+      const projectId = roll.project.id;
+
+      before(() => projectPersistence.projectWrite(projectId, roll, testUserId));
+
+      const namespace = 'someNamespace';
+      const contents = `here's
     Some
 Thing!`;
 
-    let fileName;
-    let fileUrl;
+      let fileName;
 
-    it('jobFileWrite() writes a file and returns name', () => {
-      return api.jobFileWrite(projectId, namespace, contents)
+      it('jobFileWrite() writes a file and returns name', () => {
+        return api.jobFileWrite(projectId, namespace, contents)
         .then(resp => {
           expect(resp.url).to.be.defined;
           expect(resp.Key).to.be.defined;
           expect(resp.name).to.be.defined;
-          fileUrl = resp.url;
           fileName = resp.name;
         });
-    });
+      });
 
-    it('jobFileRead() gets a written file', () => {
-      return api.jobFileRead(projectId, namespace, fileName)
+      it('jobFileRead() gets a written file', () => {
+        return api.jobFileRead(projectId, namespace, fileName)
         .then(resp => resp.text())
         .then(text => {
           expect(text).to.equal(contents);
         });
+      });
+    });
+
+    describe('Jobs', () => {
+      let jobId;
+      const jobData = { some: 'data' };
+
+      it('can create a job, returns ID', () => {
+        return api.jobCreate(jobData)
+        .then(result => {
+          expect(typeof result).to.equal('object');
+          expect(typeof result.jobId).to.equal('string');
+
+          jobId = result.jobId;
+        });
+      });
+
+      it('can get a job', async () => {
+        const result = await api.jobGet(jobId);
+
+        expect(typeof result).to.equal('object');
+        assert(result.complete === true || result.complete === false);
+        assert(result.job, 'should get job');
+        assert(result.jobId === jobId, 'should get jobId');
+      });
     });
   });
 });

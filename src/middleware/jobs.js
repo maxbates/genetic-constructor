@@ -16,10 +16,28 @@
 import invariant from 'invariant';
 
 import { headersGet, headersPost } from './utils/headers';
-import { jobFilePath } from './utils/paths';
+import { jobsApiPath, jobFilePath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
 const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
+
+// JOBS
+
+// { jobId }
+export const jobCreate = data =>
+  rejectingFetch(jobsApiPath(), headersPost(JSON.stringify(data)))
+  .then(resp => resp.json());
+
+// { complete, failure, job }
+export const jobGet = jobId =>
+  rejectingFetch(jobsApiPath(jobId), headersGet())
+  .then(resp => resp.json());
+
+export const jobPoll = (jobId) => {
+  //todo
+};
+
+// FILES
 
 export const jobFileRead = (projectId, namespace, fileName) => {
   invariant(!!projectId && typeof projectId === 'string', 'projectId is required');
@@ -38,7 +56,7 @@ export const jobFileWrite = (projectId, namespace, contents) => {
   const filePath = jobFilePath(projectId, namespace);
 
   return rejectingFetch(filePath, headersPost(contents, contentTypeTextHeader))
-    .then(resp => resp.json());
+  .then(resp => resp.json());
 };
 
 export const jobFileList = (projectId, namespace) => {
@@ -48,5 +66,6 @@ export const jobFileList = (projectId, namespace) => {
   invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
 
   return rejectingFetch(jobFilePath(projectId, namespace, ''), headersGet())
-    .then(resp => resp.json());
+  .then(resp => resp.json());
 };
+

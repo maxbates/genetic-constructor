@@ -24,5 +24,6 @@ jobManager.setProcessor((job) => {
   console.log('got a job');
   console.log(job);
 
+  job.progress(100);
   return Promise.resolve('yay');
 });

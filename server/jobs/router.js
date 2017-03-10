@@ -16,6 +16,7 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 
+import { errorInvalidRoute } from '../errors/errorConstants';
 import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from '../data/permissions';
 import jobFileRouter from './routerJobFiles';
 import JobManager from './manager';
@@ -30,8 +31,6 @@ const jsonParser = bodyParser.json({
 
 /******** MIDDLEWARE ***********/
 
-router.use(jsonParser);
-
 //ensure req.user is set
 router.use(ensureReqUserMiddleware);
 
@@ -40,8 +39,13 @@ router.use(ensureReqUserMiddleware);
 router.param('projectId', projectIdParamAssignment);
 
 router.param('jobId', (req, res, next, id) => {
-  Object.assign(req, { jobId: id });
-  next();
+  try {
+    JobManager.validateJobId(id);
+    Object.assign(req, { jobId: id });
+    next();
+  } catch (err) {
+    res.status(422).send(err);
+  }
 });
 
 /********** ROUTES ***********/
@@ -49,11 +53,20 @@ router.param('jobId', (req, res, next, id) => {
 /* job files */
 router.use('/file/:projectId', userOwnsProjectMiddleware, jobFileRouter);
 
+router.use(jsonParser);
+
+//todo - namespace by user
+
 router.route('/:jobId')
 .get((req, res, next) =>
   jobManager.jobCompleted(req.jobId)
   .then(jobAndStatus => res.status(200).send(jobAndStatus))
-  .catch(next))
+  .catch(err => {
+    if (err === null) {
+      return res.status(404).send();
+    }
+    next(err);
+  }))
 .delete((req, res, next) =>
   jobManager.deleteJob(req.jobId)
   .then(() => res.status(200).send(req.jobId))
@@ -61,11 +74,16 @@ router.route('/:jobId')
 
 router.route('/')
 .post((req, res, next) => {
-  JobManager.validateJob(req.body);
-
   jobManager.createJob(req.body)
-  .then((job) => res.status(200).send(job.jobId))
+  .then(job => res.status(200).send({
+    jobId: job.jobId,
+  }))
   .catch(next);
+});
+
+//default catch
+router.use('*', (req, res) => {
+  res.status(404).send(errorInvalidRoute);
 });
 
 export default router;

@@ -13,7 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
+import invariant from 'invariant';
+import uuid from 'uuid';
 import Queue from 'bull';
 import debug from 'debug';
 
@@ -31,7 +32,12 @@ export default class JobManager {
   }
 
   static validateJob(job) {
-    //todo
+    //todo - determine format for what is sent
+  }
+
+  static validateJobId(jobId) {
+    //todo - check valid uuid
+    invariant(jobId && jobId !== 'null' && jobId !== 'undefined', 'invalid Job Id');
   }
 
   setProcessor(func) {
@@ -40,10 +46,22 @@ export default class JobManager {
     return this.queue.process(func);
   }
 
-  createJob(data, options) {
-    logger(`[create] [${this.queueName}] creating...`);
+  createJob(data, options = {}) {
+    const jobId = uuid.v4();
+    const opts = { ...options, jobId };
 
-    return this.queue.add(data, options)
+    logger(`[create] [${this.queueName}] creating... ${jobId}`);
+
+    try {
+      JobManager.validateJob(data);
+    } catch (err) {
+      logger(`[create] [${this.queueName}] INVALID DATA ${jobId}`);
+      logger(err);
+
+      return Promise.reject(err);
+    }
+
+    return this.queue.add(data, opts)
     .then((job) => {
       logger(`[create] [${this.queueName}] created ${job.jobId}`);
       //logger(job);
@@ -72,16 +90,20 @@ export default class JobManager {
     .then((job) => {
       logger(`[jobCompleted] [${this.queueName}] retrieved... ${jobId}`);
 
+      //todo - determine how to handle
+      if (!job) {
+        return Promise.reject(null);
+      }
+
       return job.isCompleted()
       .then((complete) => {
         logger(`[jobCompleted] [${this.queueName}] complete? ${complete} ${jobId}`);
 
-        const failed = job && job.failedReason !== undefined;
-
         return {
           complete,
-          failed,
+          failure: job.failedReason || null,
           job,
+          jobId,
         };
       });
     });
