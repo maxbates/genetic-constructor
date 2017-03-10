@@ -58,7 +58,7 @@ Thing!`;
       const roll = createExampleRollup();
       const projectId = roll.project.id;
       let jobId;
-      const jobData = { type: 'test', some: 'data' };
+      const jobData = { some: 'data' };
 
       before(() => projectPersistence.projectWrite(projectId, roll, testUserId));
 

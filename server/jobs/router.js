@@ -51,26 +51,27 @@ router.param('jobId', (req, res, next, id) => {
 //ensure req.user is set
 router.use(ensureReqUserMiddleware);
 
-//all routes checked for projectId, and user owns it
-router.use(userOwnsProjectMiddleware);
-
 /********** ROUTES ***********/
 
-router.use('/file/:projectId', jobFileRouter);
+router.use('/file/:projectId', userOwnsProjectMiddleware, jobFileRouter);
 
 //only use json parser for non-file routes
 router.use(jsonParser);
 
 router.route('/:projectId/:jobType')
+.all(userOwnsProjectMiddleware)
 .post((req, res, next) => {
   const { projectId } = req;
   const data = req.body;
   const type = req.params.jobType;
 
-  const jobOptions = { projectId };
   const jobBody = {
     type,
     data,
+  };
+
+  const jobOptions = {
+    projectId,
   };
 
   jobManager.createJob(jobBody, jobOptions)
@@ -83,6 +84,7 @@ router.route('/:projectId/:jobType')
 });
 
 router.route('/:projectId/:jobId')
+.all(userOwnsProjectMiddleware)
 .get((req, res, next) =>
   jobManager.jobCompleted(req.jobId)
   .then(jobAndStatus => res.status(200).send(jobAndStatus))

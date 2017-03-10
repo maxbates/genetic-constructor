@@ -51,7 +51,7 @@ export class ConstructViewerJob extends Component {
       onDelete(construct.jobId, projectId, construct.id);
     }
 
-    //todo - should we cancel? delete? pause? what if they undo?
+    //should we cancel? delete? pause? *** what if they undo? ***
     //no need to wait for it
     //jobCancel(this.props.construct.jobId);
 

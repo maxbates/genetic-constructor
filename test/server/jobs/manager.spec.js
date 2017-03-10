@@ -134,6 +134,8 @@ describe('Server', () => {
 
       it('jobs return reason for failure, marks as complete?', () => { throw new Error('todo'); });
 
+      it('should fail on timeout', () => { throw new Error('todo'); });
+
       describe('coordination', () => {
         it('processor and creator can be created separately', (done) => {
           const queueName = uuid.v4();

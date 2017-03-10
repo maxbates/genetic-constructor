@@ -16,36 +16,122 @@
 
 import debug from 'debug';
 import JobManager from './JobManager';
+import * as jobFiles from '../files/jobs';
+
+//TESTING - blast not as an extension
+//import '../../extensions/blast/jobProcessor';
 
 const jobManager = new JobManager('jobs');
 const logger = debug('constructor:jobs:processor');
 
-jobManager.setProcessor((job) => {
-  console.log('got a job!', job.data.type, job.jobId, job.projectId);
-  const { type, data } = job.data;
+// fixme - handling across queues is is lame
+// requires extensions to know about job queue (or import bull directly)
+// how to ensure a processor is set up?
+// storing state on server
+// need to listen across all queues, since storing state on server
+// if server dies, job will be lost since never resolves
+// a promise is required for every job running, between initiate + resolution
 
-  // DELEGATE
-  // future - better delegation between all the things we actually would want to do
-  switch (type) {
-    case 'test': {
-      job.progress(100);
-      return Promise.resolve('result');
-    }
-    case 'blast': {
-      //todo - delegate to extension? or just hard-code?
-      //job needs to be able to complete itself (can return promise)
-      //job should write files to S3
-      console.log('run teh blastz');
-      break;
-    }
-    default: {
-      throw new Error('task not recognized');
-    }
+//map jobId to resolve function, resolve when the job completes
+const jobResolutionMap = {};
+
+//when job at remote queue finishes, resolve / reject at jobResolutionMap
+const completeJob = (jobId, result) => {
+  if (typeof jobResolutionMap[jobId] === 'function') {
+    jobResolutionMap[jobId](result);
   }
+};
+
+// map of job type to queue
+// one queue per type of extension, expects that the extension has its own queue to process the jobs
+// future - dynamic, based on extensions
+const jobTypeToQueue = ['blast'].reduce((map, jobType) => {
+  const manager = new JobManager(jobType);
+
+  //todo - delegate to extension? or just hard-code?
+  //want to be able to run remotely
+  //job needs to be able to complete itself (can return promise)
+  //job should write files to S3
+
+  //fixme - importing a separate processor does not work...
+  manager.setProcessor((job, done) => {
+    done(null, 'yay blast');
+  });
+
+  manager.onAddJob((job) => {
+    console.log(`[${jobType}] ${job.jobId} - started`);
+  }, true);
+
+  //when the job completes at the appropriate queue, resolve here
+  manager.onComplete((job, result) => {
+    console.log(`[${jobType}] ${job.jobId} - complete`);
+    console.log(result);
+    completeJob(job.jobId, result);
+  }, true);
+
+  manager.queue.on('stalled', function (job) {
+    // Job that was considered stalled. Useful for debugging job workers that crash or pause the event loop.
+    console.log(`[${jobType}] ${job.jobId} - stalled`);
+    completeJob(job.jobId, new Error('job stalled'));
+  }, true);
+
+  //when the job fails, reject with error
+  manager.onFail((job, err) => {
+    console.log(`[${jobType}] ${job.jobId} - failed`);
+    completeJob(job.jobId, new Error(err));
+  }, true);
+
+  map[jobType] = manager;
+  return map;
+}, {});
+
+//'jobs' queue used to delegate to other queues
+jobManager.setProcessor((job) => {
+  const jobId = job.jobId;
+  const { type, data } = job.data;
+  const { projectId } = job.opts;
+
+  console.log('got a job!', type, jobId, projectId);
+
+  //special handling for queue 'test'
+  if (type === 'test') {
+    job.progress(100);
+    return Promise.resolve(data);
+  }
+
+  const queueManager = jobTypeToQueue[type];
+
+  if (!queueManager) {
+    throw new Error(`task ${type} not recognized`);
+  }
+
+  //save the data in s3, but not blocking
+  jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(data, null, 2), 'data');
+
+  return new Promise((resolve) => {
+    const taskJobId = JobManager.createJobId();
+
+    //add a resolution function, for when the job is done
+    jobResolutionMap[taskJobId] = resolve;
+
+    //delegate the job
+    queueManager.createJob(data, { jobId: taskJobId });
+  })
+  .catch(err => {
+    console.log(err);
+    completeJob(jobId, err);
+  });
 });
 
-jobManager.onComplete((job) => {
-  // todo
-  // todo - persist the results somewhere -- s3?
-  // todo - s3 would work, but might be kind of slow... might want database later
+//when jobs in 'jobs' queue complete, save the result
+jobManager.onComplete((job, result) => {
+  const jobId = job.jobId;
+  const { type } = job.data;
+  const { projectId } = job.opts;
+
+  console.log('job finished', type, jobId, projectId);
+  console.log(result);
+
+  //save the result in s3
+  jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(result, null, 2), 'result');
 });

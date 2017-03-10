@@ -25,6 +25,7 @@ const logger = debug('constructor:jobs:manager');
 
 //REFERENCE - https://github.com/OptimalBits/bull
 
+//job queue manager
 export default class JobManager {
   //args to create Queue from bull
   constructor(queue, port = REDIS_PORT, host = REDIS_HOST, redisOpts) {
@@ -34,7 +35,6 @@ export default class JobManager {
 
   static validateJobData(data) {
     invariant(typeof data === 'object', 'data must be object');
-    invariant(data.type && typeof data.type === 'string', 'must pass data.type');
   }
 
   static validateJobId(jobId) {
@@ -42,11 +42,16 @@ export default class JobManager {
     invariant(idRegex().test(jobId), 'invalid Job Id');
   }
 
+  static createJobId() {
+    return `job-${uuid.v4()}`;
+  }
+
   static createJobOptions(options) {
     return {
-      jobId: `job-${uuid.v4()}`,
+      jobId: JobManager.createJobId(),
       attempts: 1,
       delay: 0,
+      timeout: (15 * 60 * 1000), //timeout after 15 minutes
       ...options,
     };
   }
@@ -59,6 +64,7 @@ export default class JobManager {
   }
 
   //create new job, minting job if not provided
+  //returns promise, resolves when job has been added
   createJob(data, options = {}) {
     const opts = JobManager.createJobOptions(options);
     const jobId = opts.jobId;
@@ -150,16 +156,24 @@ export default class JobManager {
     });
   }
 
+  //signature: job, jobPromise (can call cancel())
+  onAddJob(func, globally = false) {
+    logger(`[onAddJob] [${this.queueName}] registering ${func.name}`);
+
+    this.queue.on('active', func, globally);
+    return () => this.queue.removeListener('active', func);
+  }
+
   //signature: job, result
   onComplete(func, globally = false) {
-    logger(`[onComplete] [${this.queueName}] registering onComplete`);
+    logger(`[onComplete] [${this.queueName}] registering ${func.name}`);
 
     this.queue.on('completed', func, globally);
     return () => this.queue.removeListener('completed', func);
   }
 
   onFail(func, globally = false) {
-    logger(`[onFail] [${this.queueName}] registering onFail`);
+    logger(`[onFail] [${this.queueName}] registering ${func.name}`);
 
     this.queue.on('failed', func, globally);
     return () => this.queue.removeListener('failed', func);
