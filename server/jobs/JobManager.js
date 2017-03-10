@@ -49,7 +49,7 @@ export default class JobManager {
   }
 
   createJob(data, options = {}) {
-    const opts = { jobId: uuid.v4(), ...options };
+    const opts = { jobId: `job-${uuid.v4()}`, ...options };
     const jobId = opts.jobId;
 
     logger(`[create] [${this.queueName}] creating... ${jobId}`);

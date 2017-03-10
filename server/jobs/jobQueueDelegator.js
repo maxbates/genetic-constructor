@@ -45,6 +45,6 @@ jobManager.setProcessor((job) => {
 
 jobManager.onComplete((job) => {
   // todo
-  // todo - persist the results somewhere
-  // todo
+  // todo - persist the results somewhere -- s3?
+  // todo - s3 would work, but might be kind of slow... might want database later
 });

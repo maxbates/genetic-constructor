@@ -16,7 +16,7 @@
 import invariant from 'invariant';
 
 import { headersGet, headersPost, headersDelete } from './utils/headers';
-import { jobsApiPath, jobFilePath } from './utils/paths';
+import { jobPath, jobFilePath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
 const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
@@ -24,19 +24,19 @@ const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
 // JOBS
 
 // { jobId }
-export const jobCreate = data =>
-  rejectingFetch(jobsApiPath(), headersPost(JSON.stringify(data)))
+export const jobCreate = (projectId, data) =>
+  rejectingFetch(jobPath(projectId), headersPost(JSON.stringify(data)))
   .then(resp => resp.json());
 
 // { complete, failure, job, result, jobId }
-export const jobGet = jobId =>
-  rejectingFetch(jobsApiPath(jobId), headersGet())
+export const jobGet = (projectId, jobId) =>
+  rejectingFetch(jobPath(projectId, jobId), headersGet())
   .then(resp => resp.json());
 
-export const jobPoll = (jobId, waitTime = 20000) =>
+export const jobPoll = (projectId, jobId, waitTime = 20000) =>
   new Promise((resolve, reject) => {
     const interval = setInterval(() => {
-      jobGet(jobId)
+      jobGet(projectId, jobId)
       .then((result) => {
         if (!result || result.complete !== true) {
           return;
@@ -54,8 +54,8 @@ export const jobPoll = (jobId, waitTime = 20000) =>
     }, waitTime);
   });
 
-export const jobCancel = (jobId) =>
-  rejectingFetch(jobsApiPath(jobId), headersDelete())
+export const jobCancel = (projectId, jobId) =>
+  rejectingFetch(jobPath(projectId, jobId), headersDelete())
   .then(resp => resp.json());
 
 // FILES

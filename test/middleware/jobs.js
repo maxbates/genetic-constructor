@@ -55,11 +55,15 @@ Thing!`;
     });
 
     describe('Jobs', () => {
+      const roll = createExampleRollup();
+      const projectId = roll.project.id;
       let jobId;
       const jobData = { type: 'test', some: 'data' };
 
+      before(() => projectPersistence.projectWrite(projectId, roll, testUserId));
+
       it('can create a job, returns ID', () => {
-        return api.jobCreate(jobData)
+        return api.jobCreate(projectId, jobData)
         .then(result => {
           expect(typeof result).to.equal('object');
           expect(typeof result.jobId).to.equal('string');
@@ -69,7 +73,7 @@ Thing!`;
       });
 
       it('can get a job', async () => {
-        const result = await api.jobGet(jobId);
+        const result = await api.jobGet(projectId, jobId);
 
         expect(typeof result).to.equal('object');
         assert(result.complete === true || result.complete === false);

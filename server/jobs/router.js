@@ -32,11 +32,6 @@ const jsonParser = bodyParser.json({
   limit: 20 * 1024 * 1024,
 });
 
-/******** MIDDLEWARE ***********/
-
-//ensure req.user is set
-router.use(ensureReqUserMiddleware);
-
 /******** PARAMS ***********/
 
 router.param('projectId', projectIdParamAssignment);
@@ -51,17 +46,22 @@ router.param('jobId', (req, res, next, id) => {
   }
 });
 
+/******** MIDDLEWARE ***********/
+
+//ensure req.user is set
+router.use(ensureReqUserMiddleware);
+
+//all routes checked for projectId, and user owns it
+router.use(userOwnsProjectMiddleware);
+
 /********** ROUTES ***********/
 
-/* job files */
-router.use('/file/:projectId', userOwnsProjectMiddleware, jobFileRouter);
+router.use('/file/:projectId', jobFileRouter);
 
+//only use json parser for non-file routes
 router.use(jsonParser);
 
-// todo - namespace by project / user (permissions)
-// project might make more sense, since needed for writing job files anyway
-
-router.route('/:jobId')
+router.route('/:projectId/:jobId')
 .get((req, res, next) =>
   jobManager.jobCompleted(req.jobId)
   .then(jobAndStatus => res.status(200).send(jobAndStatus))
@@ -73,10 +73,12 @@ router.route('/:jobId')
   }))
 .delete((req, res, next) =>
   jobManager.deleteJob(req.jobId)
-  .then(() => res.status(200).send({ jobId: req.jobId }))
+  .then(() => res.status(200).send({
+    jobId: req.jobId,
+  }))
   .catch(next));
 
-router.route('/')
+router.route('/:projectId')
 .post((req, res, next) => {
   jobManager.createJob(req.body)
   .then(job => res.status(200).send({

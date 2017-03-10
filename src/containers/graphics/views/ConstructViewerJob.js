@@ -69,15 +69,16 @@ export class ConstructViewerJob extends Component {
 
   //first, try to just get the job, then poll if not complete
   pollForJob = () => {
-    const jobId = this.props.construct.jobId;
+    const { projectId, construct } = this.props;
+    const jobId = construct.jobId;
 
-    return jobGet(jobId)
+    return jobGet(projectId, jobId)
     .then(retrieved => {
       if (retrieved.failure || retrieved.complete) {
         return this.onJobComplete(retrieved);
       }
 
-      return jobPoll(jobId).then(this.onJobComplete);
+      return jobPoll(projectId, jobId).then(this.onJobComplete);
     });
   };
 
