@@ -21,9 +21,21 @@ const jobManager = new JobManager('jobs');
 const logger = debug('constructor:jobs:processor');
 
 jobManager.setProcessor((job) => {
-  console.log('got a job');
-  console.log(job);
+  console.log('got a job!', job.jobId);
 
-  job.progress(100);
-  return Promise.resolve('yay');
+  // DELEGATE
+  // future - better delegation between all the things we actually would want to do
+  switch (job.data.type) {
+    case 'blast': {
+      console.log('run teh blastz');
+      break;
+    }
+    case 'test': {
+      job.progress(100);
+      return Promise.resolve('yay');
+    }
+    default: {
+      throw new Error('task not recognized');
+    }
+  }
 });

@@ -31,8 +31,9 @@ export default class JobManager {
     this.queue = Queue(queue, port, host, redisOpts); //eslint-disable-line new-cap
   }
 
-  static validateJob(job) {
-    //todo - determine format for what is sent
+  static validateJobData(data) {
+    invariant(typeof data === 'object', 'data must be object');
+    invariant(data.type && typeof data.type === 'string', 'must pass data.type');
   }
 
   static validateJobId(jobId) {
@@ -53,7 +54,7 @@ export default class JobManager {
     logger(`[create] [${this.queueName}] creating... ${jobId}`);
 
     try {
-      JobManager.validateJob(data);
+      JobManager.validateJobData(data);
     } catch (err) {
       logger(`[create] [${this.queueName}] INVALID DATA ${jobId}`);
       logger(err);

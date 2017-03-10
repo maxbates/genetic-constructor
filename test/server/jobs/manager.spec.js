@@ -31,7 +31,7 @@ describe('Server', () => {
       it('can create + process a job', (done) => {
         const manager = new JobManager(uuid.v4());
 
-        const jobData = 'myData';
+        const jobData = { type: 'test', otherField: 'woo' };
 
         manager.setProcessor((job) => {
           expect(job.data).to.equal(jobData);
@@ -52,7 +52,7 @@ describe('Server', () => {
           });
         });
 
-        manager.createJob('data', { jobId });
+        manager.createJob({ type: 'test', data: 'data' }, { jobId });
 
         const initial = await manager.jobCompleted(jobId);
         expect(initial.complete).to.equal(false);
@@ -69,6 +69,7 @@ describe('Server', () => {
       it('can wait until job completed', (done) => {
         const manager = new JobManager(uuid.v4());
         const jobId = uuid.v4();
+        const jobData = { type: 'test', data: 'woo' };
 
         manager.setProcessor((job) => {
           return new Promise((resolve) => {
@@ -77,7 +78,7 @@ describe('Server', () => {
           });
         });
 
-        manager.createJob('data', { jobId });
+        manager.createJob(jobData, { jobId });
 
         manager.waitForJobCompletion(jobId)
         .then(job => {
@@ -99,7 +100,7 @@ describe('Server', () => {
           const managerA = new JobManager(queueName);
           const managerB = new JobManager(queueName);
 
-          const jobData = { some: 'data' };
+          const jobData = { type: 'test', some: 'data' };
           const jobId = uuid.v4();
           const processResult = 'some result you were expecting!';
 

@@ -50,7 +50,7 @@ function runServer(cb) {
 
   //--color so colors module will use colors even when piping to spawn
   //DEBUG_COLORS so debug module will use colors and not ugly timestamps
-  server = cp.spawn('node', ['--max_old_space_size=4096', serverPath, '--color'], {
+  server = cp.spawn('node', ['--max_old_space_size=4096', serverPath, '--color', '--inspect'], {
     env: Object.assign({
       NODE_ENV: 'dev',
       DEBUG_COLORS: 'true',

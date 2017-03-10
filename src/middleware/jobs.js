@@ -33,9 +33,26 @@ export const jobGet = jobId =>
   rejectingFetch(jobsApiPath(jobId), headersGet())
   .then(resp => resp.json());
 
-export const jobPoll = (jobId) => {
-  //todo
-};
+export const jobPoll = (jobId, waitTime = 10000) =>
+  new Promise((resolve, reject) => {
+    const interval = setInterval(() => {
+      jobGet(jobId)
+      .then((result) => {
+        if (result === null || result.complete !== true) {
+          return;
+        }
+
+        clearInterval(interval);
+
+        if (result.failure) {
+          return reject(result);
+        }
+
+        return resolve(result);
+      })
+      .catch(reject);
+    }, waitTime);
+  });
 
 // FILES
 

@@ -21,7 +21,7 @@ import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 
 describe('Middleware', () => {
-  describe.only('Jobs', () => {
+  describe('Jobs', () => {
     describe('Files', () => {
       const roll = createExampleRollup();
       const projectId = roll.project.id;
@@ -56,7 +56,7 @@ Thing!`;
 
     describe('Jobs', () => {
       let jobId;
-      const jobData = { some: 'data' };
+      const jobData = { type: 'test', some: 'data' };
 
       it('can create a job, returns ID', () => {
         return api.jobCreate(jobData)

@@ -21,6 +21,9 @@ import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddl
 import jobFileRouter from './routerJobFiles';
 import JobManager from './manager';
 
+//import the job processor so its in the app
+import './processor';
+
 const jobManager = new JobManager('jobs');
 
 const router = express.Router(); //eslint-disable-line new-cap
