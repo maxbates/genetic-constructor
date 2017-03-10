@@ -15,7 +15,7 @@
  */
 import { assert, expect } from 'chai';
 import uuid from 'uuid';
-import JobManager from '../../../server/jobs/manager';
+import JobManager from '../../../server/jobs/JobManager';
 
 describe('Server', () => {
   describe('Jobs', () => {
@@ -28,13 +28,23 @@ describe('Server', () => {
         expect(typeof manager.deleteJob).to.equal('function');
       });
 
+      it('getJob rejects if job doesnt exist', (done) => {
+        const manager = new JobManager(uuid.v4());
+
+        manager.getJob(uuid.v4())
+        .then(() => done(new Error('shouldnt resolve')))
+        .catch(result => {
+          done();
+        });
+      });
+
       it('can create + process a job', (done) => {
         const manager = new JobManager(uuid.v4());
 
         const jobData = { type: 'test', otherField: 'woo' };
 
         manager.setProcessor((job) => {
-          expect(job.data).to.equal(jobData);
+          expect(job.data).to.eql(jobData);
           done();
         });
 
@@ -48,17 +58,17 @@ describe('Server', () => {
         manager.setProcessor((job) => {
           return new Promise((resolve) => {
             job.progress(100);
-            setTimeout(resolve, 1000);
+            setTimeout(resolve, 100);
           });
         });
 
-        manager.createJob({ type: 'test', data: 'data' }, { jobId });
+        await manager.createJob({ type: 'test', data: 'data' }, { jobId });
 
         const initial = await manager.jobCompleted(jobId);
         expect(initial.complete).to.equal(false);
         expect(initial.job.jobId).to.equal(jobId);
 
-        await new Promise(resolve => setTimeout(resolve, 1100));
+        await new Promise(resolve => setTimeout(resolve, 200));
 
         const final = await manager.jobCompleted(jobId);
         expect(final.complete).to.equal(true);
@@ -66,7 +76,7 @@ describe('Server', () => {
 
       });
 
-      it('can wait until job completed', (done) => {
+      it('can wait until job completed', async() => {
         const manager = new JobManager(uuid.v4());
         const jobId = uuid.v4();
         const jobData = { type: 'test', data: 'woo' };
@@ -74,24 +84,54 @@ describe('Server', () => {
         manager.setProcessor((job) => {
           return new Promise((resolve) => {
             job.progress(100);
-            setTimeout(resolve, 1000);
+            setTimeout(resolve, 100);
+          });
+        });
+
+        await manager.createJob(jobData, { jobId });
+
+        //only poll after job is successfully created
+        const job = await manager.waitForJobCompletion(jobId);
+        assert(job, 'should get resultant job');
+        expect(job.jobId).to.equal(jobId);
+
+        const complete = await job.isCompleted();
+        assert(complete, 'should be marked finished');
+      });
+
+      it('jobs return their result, jobCompleted returns bunch of information about job including result', (done) => {
+        const manager = new JobManager(uuid.v4());
+        const jobId = uuid.v4();
+        const jobData = { type: 'test', data: 'woo' };
+        const processResult = 'some result you were expecting!';
+
+        manager.setProcessor((job) => {
+          return new Promise((resolve) => {
+            job.progress(100);
+            setTimeout(() => resolve(processResult), 100);
+          });
+        });
+
+        manager.onComplete((job, result) => {
+          //check result from onComplete message
+          expect(result).to.equal(processResult);
+
+          //now check custom getter
+          manager.jobCompleted(jobId)
+          .then(result => {
+            assert(result.job, 'should get job');
+            expect(result.complete).to.equal(true);
+            assert(!result.failure, 'should not have failed');
+            expect(result.result).to.equal(processResult);
+
+            done();
           });
         });
 
         manager.createJob(jobData, { jobId });
-
-        manager.waitForJobCompletion(jobId)
-        .then(job => {
-          assert(job, 'should get resultant job');
-          expect(job.jobId).to.equal(jobId);
-
-          job.isCompleted().then(complete => {
-            assert(complete, 'should be marked finished');
-            done();
-          })
-          .catch(done);
-        });
       });
+
+      it('jobs return reason for failure, marks as complete?', () => { throw new Error('todo'); });
 
       describe('coordination', () => {
         it('processor and creator can be created separately', (done) => {
@@ -112,7 +152,7 @@ describe('Server', () => {
 
             return new Promise((resolve) => {
               job.progress(100);
-              setTimeout(() => resolve(processResult), 1000);
+              setTimeout(() => resolve(processResult), 100);
             });
           });
 

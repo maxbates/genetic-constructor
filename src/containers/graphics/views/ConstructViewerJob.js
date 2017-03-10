@@ -18,6 +18,7 @@ import { connect } from 'react-redux';
 
 import { focusConstruct } from '../../../actions/focus';
 import { projectRemoveConstruct } from '../../../actions/projects';
+import { jobPoll, jobGet, jobCancel } from '../../../middleware/jobs';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
 
 import '../../../styles/ConstructViewerJob.css';
@@ -44,37 +45,59 @@ export class ConstructViewerJob extends Component {
   }
 
   onDelete = () => {
-    if (this.props.onDelete) {
-      this.props.onDelete(this.props.construct.jobId, this.props.projectId, this.props.construct.id);
-      return;
+    const { onDelete, construct, projectId, projectRemoveConstruct } = this.props;
+
+    if (onDelete) {
+      onDelete(construct.jobId, projectId, construct.id);
     }
 
-    this.props.projectRemoveConstruct(this.props.projectId, this.props.construct.id);
-    //todo - end the job
+    //todo - should we cancel? delete? pause? what if they undo?
+    //no need to wait for it
+    //jobCancel(this.props.construct.jobId);
+
+    projectRemoveConstruct(projectId, construct.id);
   };
 
+  onJobComplete = ({ complete, failure, job, result }) => {
+    if (failure) {
+      //todo
+    }
+
+    console.log(result);
+    //todo - ???? update on client, or fetch the project or this construct from server (assume extension updated on server)
+  };
+
+  //first, try to just get the job, then poll if not complete
   pollForJob = () => {
-    //todo
     const jobId = this.props.construct.jobId;
 
-    console.log(`TODO poll for: ${jobId}`);
+    return jobGet(jobId)
+    .then(retrieved => {
+      if (retrieved.failure || retrieved.complete) {
+        return this.onJobComplete(retrieved);
+      }
+
+      return jobPoll(jobId).then(this.onJobComplete);
+    });
   };
 
   render() {
+    const { isFocused, focusConstruct, construct } = this.props;
+
     return (
       <div
-        className={`ConstructViewerJob construct-viewer ${this.props.isFocused ? 'construct-viewer-focused' : ''}`}
-        onClick={() => this.props.focusConstruct(this.props.construct.id)}
+        className={`ConstructViewerJob construct-viewer ${isFocused ? 'construct-viewer-focused' : ''}`}
+        onClick={() => focusConstruct(this.props.construct.id)}
       >
         <div className="sceneGraphContainer">
           <div className="ConstructViewerJob-text">Working on your optimization request...</div>
         </div>
 
-        <div className="corner" style={{ borderColor: this.props.construct.getColor() }} />
+        <div className="corner" style={{ borderColor: construct.getColor() }} />
         <div className="title-and-toolbar-container">
           <TitleAndToolbar
-            title={this.props.construct.getName('New Construct')}
-            color={this.props.construct.getColor()}
+            title={construct.getName('New Construct')}
+            color={construct.getColor()}
             noHover
             toolbarItems={[{
               text: 'Locked',

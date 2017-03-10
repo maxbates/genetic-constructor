@@ -19,10 +19,10 @@ import express from 'express';
 import { errorInvalidRoute } from '../errors/errorConstants';
 import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from '../data/permissions';
 import jobFileRouter from './routerJobFiles';
-import JobManager from './manager';
+import JobManager from './JobManager';
 
 //import the job processor so its in the app
-import './processor';
+import './jobQueueDelegator';
 
 const jobManager = new JobManager('jobs');
 
@@ -58,7 +58,8 @@ router.use('/file/:projectId', userOwnsProjectMiddleware, jobFileRouter);
 
 router.use(jsonParser);
 
-//todo - namespace by user
+// todo - namespace by project / user (permissions)
+// project might make more sense, since needed for writing job files anyway
 
 router.route('/:jobId')
 .get((req, res, next) =>
@@ -72,7 +73,7 @@ router.route('/:jobId')
   }))
 .delete((req, res, next) =>
   jobManager.deleteJob(req.jobId)
-  .then(() => res.status(200).send(req.jobId))
+  .then(() => res.status(200).send({ jobId: req.jobId }))
   .catch(next));
 
 router.route('/')

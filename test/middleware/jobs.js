@@ -75,6 +75,7 @@ Thing!`;
         assert(result.complete === true || result.complete === false);
         assert(result.job, 'should get job');
         assert(result.jobId === jobId, 'should get jobId');
+        assert(result.result, 'should get a result');
       });
     });
   });

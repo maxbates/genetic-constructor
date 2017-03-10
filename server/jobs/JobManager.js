@@ -18,6 +18,7 @@ import uuid from 'uuid';
 import Queue from 'bull';
 import debug from 'debug';
 
+import { id as idRegex } from '../../src/utils/regex';
 import { REDIS_PORT, REDIS_HOST } from '../urlConstants';
 
 const logger = debug('constructor:jobs:manager');
@@ -37,8 +38,8 @@ export default class JobManager {
   }
 
   static validateJobId(jobId) {
-    //todo - check valid uuid
     invariant(jobId && jobId !== 'null' && jobId !== 'undefined', 'invalid Job Id');
+    invariant(idRegex().test(jobId), 'invalid Job Id');
   }
 
   setProcessor(func) {
@@ -48,8 +49,8 @@ export default class JobManager {
   }
 
   createJob(data, options = {}) {
-    const jobId = uuid.v4();
-    const opts = { ...options, jobId };
+    const opts = { jobId: uuid.v4(), ...options };
+    const jobId = opts.jobId;
 
     logger(`[create] [${this.queueName}] creating... ${jobId}`);
 
@@ -71,11 +72,17 @@ export default class JobManager {
     });
   }
 
+  //rejects with null if job doesnt exist
   getJob(jobId) {
     logger(`[get] [${this.queueName}] getting... ${jobId}`);
 
     return this.queue.getJob(jobId)
     .then((job) => {
+      if (!job) {
+        logger(`[get] [${this.queueName}] failed ${jobId}`);
+        return Promise.reject(new Error(`Job ${jobId} does not exist`));
+      }
+
       logger(`[get] [${this.queueName}] got ${jobId}`);
       //logger(job);
 
@@ -91,11 +98,6 @@ export default class JobManager {
     .then((job) => {
       logger(`[jobCompleted] [${this.queueName}] retrieved... ${jobId}`);
 
-      //todo - determine how to handle
-      if (!job) {
-        return Promise.reject(null);
-      }
-
       return job.isCompleted()
       .then((complete) => {
         logger(`[jobCompleted] [${this.queueName}] complete? ${complete} ${jobId}`);
@@ -103,6 +105,7 @@ export default class JobManager {
         return {
           complete,
           failure: job.failedReason || null,
+          result: job.returnvalue,
           job,
           jobId,
         };

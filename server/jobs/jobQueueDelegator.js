@@ -15,27 +15,36 @@
  */
 
 import debug from 'debug';
-import JobManager from './manager';
+import JobManager from './JobManager';
 
 const jobManager = new JobManager('jobs');
 const logger = debug('constructor:jobs:processor');
 
 jobManager.setProcessor((job) => {
-  console.log('got a job!', job.jobId);
+  console.log('got a job!', job.jobId, job.data.type);
 
   // DELEGATE
   // future - better delegation between all the things we actually would want to do
   switch (job.data.type) {
-    case 'blast': {
-      console.log('run teh blastz');
-      break;
-    }
     case 'test': {
       job.progress(100);
       return Promise.resolve('yay');
+    }
+    case 'blast': {
+      //todo - delegate to extension? or just hard-code?
+      //job needs to be able to complete itself (can return promise)
+      //job should write files to S3
+      console.log('run teh blastz');
+      break;
     }
     default: {
       throw new Error('task not recognized');
     }
   }
+});
+
+jobManager.onComplete((job) => {
+  // todo
+  // todo - persist the results somewhere
+  // todo
 });

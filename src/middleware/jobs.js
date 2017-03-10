@@ -15,7 +15,7 @@
  */
 import invariant from 'invariant';
 
-import { headersGet, headersPost } from './utils/headers';
+import { headersGet, headersPost, headersDelete } from './utils/headers';
 import { jobsApiPath, jobFilePath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
@@ -28,17 +28,17 @@ export const jobCreate = data =>
   rejectingFetch(jobsApiPath(), headersPost(JSON.stringify(data)))
   .then(resp => resp.json());
 
-// { complete, failure, job }
+// { complete, failure, job, result, jobId }
 export const jobGet = jobId =>
   rejectingFetch(jobsApiPath(jobId), headersGet())
   .then(resp => resp.json());
 
-export const jobPoll = (jobId, waitTime = 10000) =>
+export const jobPoll = (jobId, waitTime = 20000) =>
   new Promise((resolve, reject) => {
     const interval = setInterval(() => {
       jobGet(jobId)
       .then((result) => {
-        if (result === null || result.complete !== true) {
+        if (!result || result.complete !== true) {
           return;
         }
 
@@ -53,6 +53,10 @@ export const jobPoll = (jobId, waitTime = 10000) =>
       .catch(reject);
     }, waitTime);
   });
+
+export const jobCancel = (jobId) =>
+  rejectingFetch(jobsApiPath(jobId), headersDelete())
+  .then(resp => resp.json());
 
 // FILES
 
