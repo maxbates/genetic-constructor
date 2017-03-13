@@ -19,18 +19,33 @@ import JobManager from './JobManager';
 import * as jobFiles from '../files/jobs';
 
 //TESTING - blast not as an extension
-//import '../../extensions/blast/jobProcessor';
+//todo - spin up on separate thread
+import '../../extensions/blast/jobProcessor';
+
+if (process.env.NODE_ENV === 'test') {
+  require('./testJobProcessor.js');
+}
+
+/*
+ NOTES
+
+ have a delegator job queue so:
+ - unified way to handle jobs in-out
+ - all job data + results are qritten to S3 automatically
+ - jobs can run remotely, write to s3 etc on their own
+ - jobs complete themselves (return a promise)
+
+ CAVEAT handling across queues is kinda lame
+
+ - *kinda* storing state on server (onJobComplete callback)
+ - (extensions) requires extensions to know about job queue (or import bull directly)
+ - (test) how to ensure a processor is set up?
+ - (comms) need to listen across all queues, since storing state on server
+ - (memory) a promise is required for every job running, between initiate + resolution
+ */
 
 const jobManager = new JobManager('jobs');
 const logger = debug('constructor:jobs:processor');
-
-// fixme - handling across queues is is lame
-// requires extensions to know about job queue (or import bull directly)
-// how to ensure a processor is set up?
-// storing state on server
-// need to listen across all queues, since storing state on server
-// if server dies, job will be lost since never resolves
-// a promise is required for every job running, between initiate + resolution
 
 //map jobId to resolve function, resolve when the job completes
 const jobResolutionMap = {};
@@ -48,16 +63,6 @@ const completeJob = (jobId, result) => {
 const jobTypeToQueue = ['blast'].reduce((map, jobType) => {
   const manager = new JobManager(jobType);
 
-  //todo - delegate to extension? or just hard-code?
-  //want to be able to run remotely
-  //job needs to be able to complete itself (can return promise)
-  //job should write files to S3
-
-  //fixme - importing a separate processor does not work...
-  manager.setProcessor((job, done) => {
-    done(null, 'yay blast');
-  });
-
   manager.onAddJob((job) => {
     console.log(`[${jobType}] ${job.jobId} - started`);
   }, true);
@@ -69,16 +74,16 @@ const jobTypeToQueue = ['blast'].reduce((map, jobType) => {
     completeJob(job.jobId, result);
   }, true);
 
-  manager.queue.on('stalled', function (job) {
+  manager.queue.on('stalled', (job) => {
     // Job that was considered stalled. Useful for debugging job workers that crash or pause the event loop.
     console.log(`[${jobType}] ${job.jobId} - stalled`);
-    completeJob(job.jobId, new Error('job stalled'));
+    completeJob(job.jobId, Promise.reject(new Error('job stalled')));
   }, true);
 
   //when the job fails, reject with error
   manager.onFail((job, err) => {
     console.log(`[${jobType}] ${job.jobId} - failed`);
-    completeJob(job.jobId, new Error(err));
+    completeJob(job.jobId, Promise.reject(new Error(err)));
   }, true);
 
   map[jobType] = manager;
@@ -92,12 +97,6 @@ jobManager.setProcessor((job) => {
   const { projectId } = job.opts;
 
   console.log('got a job!', type, jobId, projectId);
-
-  //special handling for queue 'test'
-  if (type === 'test') {
-    job.progress(100);
-    return Promise.resolve(data);
-  }
 
   const queueManager = jobTypeToQueue[type];
 
@@ -117,9 +116,9 @@ jobManager.setProcessor((job) => {
     //delegate the job
     queueManager.createJob(data, { jobId: taskJobId });
   })
-  .catch(err => {
+  .catch((err) => {
     console.log(err);
-    completeJob(jobId, err);
+    completeJob(jobId, Promise.reject(err));
   });
 });
 

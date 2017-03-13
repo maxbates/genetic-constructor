@@ -19,7 +19,7 @@ import JobManager from '../../../server/jobs/JobManager';
 
 describe('Server', () => {
   describe('Jobs', () => {
-    describe('manager', () => {
+    describe.only('manager', () => {
       it('is class, accepts queue', () => {
         const manager = new JobManager('myQueue');
         expect(typeof manager.setProcessor).to.equal('function');
@@ -132,9 +132,88 @@ describe('Server', () => {
         manager.createJob(jobData, { jobId });
       });
 
-      it('jobs return reason for failure, marks as complete?', () => { throw new Error('todo'); });
+      it('nesting jobs should work', (done) => {
+        const queueNameDelegator = 'delegator';
+        const queueNameSlave = 'slave';
 
-      it('should fail on timeout', () => { throw new Error('todo'); });
+        const managerDelegator = new JobManager(queueNameDelegator);
+        const managerSlave = new JobManager(queueNameSlave);
+
+        const jobData = { special: 'data' };
+        const jobBodyDelegator = { type: 'slave', data: jobData };
+        const jobResult = { some: 'cool result' };
+
+        managerSlave.setProcessor((job) => {
+          //console.log('slave');
+          //console.log(job);
+          expect(job.data).to.eql(jobData);
+          return Promise.resolve(jobResult);
+        });
+
+        managerDelegator.setProcessor((job, jobDone) => {
+          //console.log('delegator');
+          //console.log(job.data);
+          expect(job.data).to.eql(jobBodyDelegator);
+          expect(job.data.data).to.eql(jobData);
+
+          managerSlave.onComplete((job, result) => {
+            jobDone(null, result);
+          });
+
+          managerSlave.createJob(job.data.data);
+        });
+
+        managerDelegator.onComplete((job, result) => {
+          //console.log('complete');
+          //console.log(job);
+          //console.log(result);
+          expect(result).to.eql(jobResult);
+          done();
+        });
+
+        managerDelegator.onFail((job, err) => done(err));
+
+        managerDelegator.createJob(jobBodyDelegator);
+      });
+
+      it('jobs return reason for failure', (done) => {
+        const manager = new JobManager(uuid.v4());
+        const jobId = uuid.v4();
+
+        const errorMsg = 'on nos';
+
+        manager.setProcessor((job) => {
+          throw new Error(errorMsg);
+        });
+
+        manager.onFail((job, err) => {
+          console.log(err);
+          expect(err.message).to.equal(errorMsg);
+
+          //todo - interrogate job.failedReason
+          assert(job.stacktrace.length > 0, 'should get stacktrace');
+          done();
+        });
+
+        manager.createJob({ type: 'test', data: 'data' }, { jobId });
+      });
+
+      it('should fail on timeout', (done) => {
+        const manager = new JobManager(uuid.v4());
+        const jobId = uuid.v4();
+        const timeout = 100;
+
+        manager.setProcessor((job) => {
+          return new Promise((resolve) => {});
+        });
+
+        manager.onFail((job, err) => {
+          assert(err.message.indexOf('timed out') >= 0, 'should time out');
+          done();
+        });
+
+        manager.createJob({ type: 'test', data: 'data' }, { jobId, timeout });
+      });
 
       describe('coordination', () => {
         it('processor and creator can be created separately', (done) => {

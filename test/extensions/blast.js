@@ -23,7 +23,7 @@ import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 
 describe('Extensions', () => {
-  describe.only('BLAST', () => {
+  describe('BLAST', () => {
     const roll = createExampleRollup();
     const projectId = roll.project.id;
 
@@ -35,25 +35,23 @@ describe('Extensions', () => {
         const posted = await jobApi.jobCreate(projectId, 'blast', jobData);
         const jobId = posted.jobId;
 
-        console.log(posted);
-
         assert(jobId, 'should get a job ID');
 
         const result = await jobApi.jobPoll(projectId, jobId, 1000);
 
-        console.log(result);
-
         assert(result, 'should get result object');
         assert(result.result, 'should get result');
-      }
-      catch (err) {
+      } catch (err) {
         console.log(err);
         throw err;
       }
     });
 
-    it('interacts with JobManager', () => {
-      throw new Error('test the manager');
+    it('interacts with JobManager', (done) => {
+      const testManager = new JobManager('blast');
+      testManager.onComplete(() => done(), true);
+
+      jobApi.jobCreate(projectId, 'blast', { sequence: 'CGATCAGCTAGCTACGTACGTACGTC' });
     });
   });
 });

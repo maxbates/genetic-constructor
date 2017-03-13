@@ -13,22 +13,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import JobManager from './JobManager';
 
-import JobManager from '../../server/jobs/JobManager';
+// job handler for test environment, just returns the data passed in
 
-const jobManager = new JobManager('blast');
+const jobManager = new JobManager('test');
 
-//todo - actually blast!
-
-//'jobs' queue used to delegate to other queues
-jobManager.setProcessor((job, done) => {
+jobManager.setProcessor((job) => {
   try {
-    const { jobId, data } = job;
-    console.log('BLAST processor got job', jobId);
-    console.log(data);
-
     job.progress(100);
-    done(null, { result: 'value' });
+    return Promise.resolve(job.data);
   } catch (err) {
     console.log(err);
     console.log(err.stack);

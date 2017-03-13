@@ -120,10 +120,14 @@ export default class JobManager {
       .then((complete) => {
         logger(`[jobCompleted] [${this.queueName}] complete? ${complete} ${jobId}`);
 
+        const failure = !!job.failedReason || job.stacktrace.length > 0;
+        const error = failure ? job.stacktrace : null;
+
         return {
           complete,
-          failure: job.failedReason || null,
-          type: job.opts.type,
+          failure,
+          error,
+          type: job.data.type,
           result: job.returnvalue,
           job,
           jobId,
@@ -160,23 +164,26 @@ export default class JobManager {
   onAddJob(func, globally = false) {
     logger(`[onAddJob] [${this.queueName}] registering ${func.name}`);
 
-    this.queue.on('active', func, globally);
-    return () => this.queue.removeListener('active', func);
+    const eventName = globalizeListener('active', globally);
+    this.queue.on(eventName, func);
+    return () => this.queue.removeListener(eventName, func);
   }
 
   //signature: job, result
   onComplete(func, globally = false) {
     logger(`[onComplete] [${this.queueName}] registering ${func.name}`);
 
-    this.queue.on('completed', func, globally);
-    return () => this.queue.removeListener('completed', func);
+    const eventName = globalizeListener('completed', globally);
+    this.queue.on(eventName, func);
+    return () => this.queue.removeListener(eventName, func);
   }
 
   onFail(func, globally = false) {
     logger(`[onFail] [${this.queueName}] registering ${func.name}`);
 
-    this.queue.on('failed', func, globally);
-    return () => this.queue.removeListener('failed', func);
+    const eventName = globalizeListener('failed', globally);
+    this.queue.on(eventName, func);
+    return () => this.queue.removeListener(eventName, func);
   }
 
   pause(localOnly = false) {
@@ -186,4 +193,8 @@ export default class JobManager {
   resume(localOnly = false) {
     return this.queue.resume(localOnly);
   }
+}
+
+function globalizeListener(event, global) {
+  return `${global ? 'global:' : ''}${event}`;
 }

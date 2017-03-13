@@ -64,7 +64,7 @@ export class ConstructViewerJob extends Component {
     }
 
     console.log(result);
-    //todo - ???? update on client, or fetch the project or this construct from server (assume extension updated on server)
+    //todo - fetch the result and update, then delete this so stop polling
   };
 
   //first, try to just get the job, then poll if not complete
