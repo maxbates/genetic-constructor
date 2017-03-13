@@ -155,9 +155,10 @@ export const ensureBucketProvisioned = Bucket => new Promise((resolve, reject) =
 export const getBucket = Bucket => new AWS.S3({ params: { Bucket } });
 
 //synchronous
+//by default, expires in 15 minutes
 export const getSignedUrl = (bucket, key, operation = 'getObject', opts = {}) => {
   const Key = setupKey(key);
-  const params = Object.assign({ Expires: 60 }, opts, { Key });
+  const params = Object.assign({}, opts, { Key });
 
   return bucket.getSignedUrl(operation, params);
 };

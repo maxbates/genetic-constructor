@@ -16,6 +16,7 @@
 
 import debug from 'debug';
 import JobManager from './JobManager';
+import * as s3 from '../data/middleware/s3';
 import * as jobFiles from '../files/jobs';
 
 //TESTING - blast not as an extension
@@ -27,7 +28,7 @@ import '../../extensions/blast/jobProcessor';
 
  have a delegator job queue so:
  - unified way to handle jobs in-out
- - all job data + results are qritten to S3 automatically
+ - all job data + results are qritten to S3 automatically, and provision s3 bucket for them
  - jobs can run remotely, write to s3 etc on their own
  - jobs complete themselves (return a promise)
  - more unified handling of failure / stalling etc.
@@ -43,6 +44,7 @@ import '../../extensions/blast/jobProcessor';
 
 const jobManager = new JobManager('jobs');
 const logger = debug('constructor:jobs:processor');
+const s3JobsBucket = s3.getBucket('bionano-gctor-jobs');
 
 //map jobId to resolve function, resolve when the job completes
 const jobResolutionMap = {};
@@ -110,17 +112,31 @@ jobManager.setProcessor((job) => {
       throw new Error(`task ${type} not recognized`);
     }
 
-    // save the data in s3, but not blocking
-    // should block if the extension depends on the file
-    jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(data, null, 2), 'data');
+    // save the data in s3, give url to extension (currently, its the same as the data object passed in)
+    return jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(data, null, 2), 'input')
+    .then((writeResult) => {
+      const urlInput = writeResult.url;
 
-    const taskJobId = JobManager.createJobId();
+      // todo - provision section in the bucket for the extension to write whatever it wants
+      // e.g. https://aws.amazon.com/blogs/security/writing-iam-policies-grant-access-to-user-specific-folders-in-an-amazon-s3-bucket/
+      const urlData = s3.getSignedUrl(s3JobsBucket, `${projectId}/${jobId}/data`, 'putObject');
 
-    //add a resolution function, for when the job is done
-    jobResolutionMap[taskJobId] = resolve;
+      //create specific jobId for the slave job
+      const taskJobId = JobManager.createJobId();
 
-    //delegate the job
-    queueManager.createJob(data, { jobId: taskJobId });
+      //add a resolution function, for when the job is done
+      jobResolutionMap[taskJobId] = resolve;
+
+      const jobOptions = {
+        jobId: taskJobId,
+        projectId,
+        urlInput,
+        urlData,
+      };
+
+      //delegate the job
+      queueManager.createJob(data, jobOptions);
+    });
   })
   .catch((err) => {
     console.log('job error!', type, jobId, projectId);
@@ -140,4 +156,6 @@ jobManager.onComplete((job, result) => {
 
   //save the result in s3
   jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(result, null, 2), 'result');
+
+  //todo - what should we expect the job to do? update the project? Should we modify the project?
 });

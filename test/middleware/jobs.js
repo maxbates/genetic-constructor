@@ -21,7 +21,7 @@ import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 
 describe('Middleware', () => {
-  describe.only('Jobs', () => {
+  describe('Jobs', () => {
     describe('Files', () => {
       const roll = createExampleRollup();
       const projectId = roll.project.id;
@@ -83,7 +83,7 @@ Thing!`;
       });
 
       it('can get job input as file', async () => {
-        const result = await api.jobFileRead(projectId, jobId, 'data')
+        const result = await api.jobFileRead(projectId, jobId, 'input')
         .then(resp => resp.text());
 
         expect(() => JSON.parse(result)).to.not.throw();

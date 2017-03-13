@@ -46,7 +46,7 @@ export default class JobManager {
     return `job-${uuid.v4()}`;
   }
 
-  static createJobOptions(options) {
+  static createJobOptions(options = {}) {
     return {
       jobId: JobManager.createJobId(),
       attempts: 1,
@@ -56,16 +56,26 @@ export default class JobManager {
     };
   }
 
-  //set a function which processes the jobs
-  setProcessor(func) {
-    logger(`[process] [${this.queueName}] Setting processor`);
+  /**
+   * set a function which processes the jobs
+   * @param {Number} [concurrency]
+   * @param {Function} processor in form (job, done) or (job) and return promise
+   */
+  setProcessor(...args) {
+    if (args.length > 1) {
+      invariant(Number.isInteger(args[0]), 'must pass number for concurrency');
+      invariant(typeof args[1] === 'function', 'processor must be function');
+    } else {
+      invariant(typeof args[0] === 'function', 'processor must be function');
+    }
 
-    return this.queue.process(func);
+    logger(`[process] [${this.queueName}] Setting processor`);
+    return this.queue.process(...args);
   }
 
   //create new job, minting job if not provided
   //returns promise, resolves when job has been added
-  createJob(data, options = {}) {
+  createJob(data, options) {
     const opts = JobManager.createJobOptions(options);
     const jobId = opts.jobId;
 

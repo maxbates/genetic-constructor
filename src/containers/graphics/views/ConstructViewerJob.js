@@ -17,6 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { focusConstruct } from '../../../actions/focus';
+import { uiSetGrunt } from '../../../actions/ui';
 import { projectRemoveConstruct } from '../../../actions/projects';
 import { jobPoll, jobGet, jobCancel } from '../../../middleware/jobs';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
@@ -30,6 +31,7 @@ export class ConstructViewerJob extends Component {
     onDelete: PropTypes.func,
     //connect
     isFocused: PropTypes.bool.isRequired,
+    uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     projectRemoveConstruct: PropTypes.func.isRequired,
   };
@@ -58,13 +60,16 @@ export class ConstructViewerJob extends Component {
     projectRemoveConstruct(projectId, construct.id);
   };
 
-  onJobComplete = ({ complete, failure, job, result }) => {
-    if (failure) {
-      //todo
+  onJobComplete = ({ complete, failure, error, job, result }) => {
+    if (failure === true) {
+      this.props.uiSetGrunt('Your job failed... Sorry!');
+      console.log(job); //eslint-disable-line no-console
+      console.log(error); //eslint-disable-line no-console
     }
 
     console.log(result);
     //todo - fetch the result and update, then delete this so stop polling
+    //what is the expected result format?
   };
 
   //first, try to just get the job, then poll if not complete
@@ -119,6 +124,7 @@ export class ConstructViewerJob extends Component {
 export default connect((state, props) => ({
   isFocused: state.focus.constructId === props.construct.id,
 }), {
+  uiSetGrunt,
   focusConstruct,
   projectRemoveConstruct,
 })(ConstructViewerJob);
