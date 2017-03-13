@@ -21,7 +21,7 @@ import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 
 describe('Middleware', () => {
-  describe('Jobs', () => {
+  describe.only('Jobs', () => {
     describe('Files', () => {
       const roll = createExampleRollup();
       const projectId = roll.project.id;
@@ -73,13 +73,30 @@ Thing!`;
       });
 
       it('can get a job', async () => {
-        const result = await api.jobGet(projectId, jobId);
+        const result = await api.jobPoll(projectId, jobId, 500);
 
         expect(typeof result).to.equal('object');
         assert(result.complete === true || result.complete === false);
         assert(result.job, 'should get job');
         assert(result.jobId === jobId, 'should get jobId');
         assert(result.result, 'should get a result');
+      });
+
+      it('can get job input as file', async () => {
+        const result = await api.jobFileRead(projectId, jobId, 'data')
+        .then(resp => resp.text());
+
+        expect(() => JSON.parse(result)).to.not.throw();
+        expect(JSON.parse(result)).to.eql(jobData);
+      });
+
+      //test processor just returns data as the result
+      it('can get job results as file', async () => {
+        const result = await api.jobFileRead(projectId, jobId, 'result')
+        .then(resp => resp.text());
+
+        expect(() => JSON.parse(result)).to.not.throw();
+        expect(JSON.parse(result)).to.eql(jobData);
       });
     });
   });

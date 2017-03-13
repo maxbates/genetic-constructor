@@ -19,7 +19,7 @@ import JobManager from '../../../server/jobs/JobManager';
 
 describe('Server', () => {
   describe('Jobs', () => {
-    describe.only('manager', () => {
+    describe('manager', () => {
       it('is class, accepts queue', () => {
         const manager = new JobManager('myQueue');
         expect(typeof manager.setProcessor).to.equal('function');

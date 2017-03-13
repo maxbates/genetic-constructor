@@ -22,10 +22,6 @@ import * as jobFiles from '../files/jobs';
 //todo - spin up on separate thread
 import '../../extensions/blast/jobProcessor';
 
-if (process.env.NODE_ENV === 'test') {
-  require('./testJobProcessor.js');
-}
-
 /*
  NOTES
 
@@ -34,11 +30,12 @@ if (process.env.NODE_ENV === 'test') {
  - all job data + results are qritten to S3 automatically
  - jobs can run remotely, write to s3 etc on their own
  - jobs complete themselves (return a promise)
+ - more unified handling of failure / stalling etc.
 
  CAVEAT handling across queues is kinda lame
 
- - *kinda* storing state on server (onJobComplete callback)
  - (extensions) requires extensions to know about job queue (or import bull directly)
+ - *kinda* storing state on server (onJobComplete callback)
  - (test) how to ensure a processor is set up?
  - (comms) need to listen across all queues, since storing state on server
  - (memory) a promise is required for every job running, between initiate + resolution
@@ -57,32 +54,39 @@ const completeJob = (jobId, result) => {
   }
 };
 
+const jobTypes = ['blast'];
+
+if (process.env.NODE_ENV === 'test') {
+  require('./testJobProcessor.js');
+  jobTypes.push('test');
+}
+
 // map of job type to queue
 // one queue per type of extension, expects that the extension has its own queue to process the jobs
 // future - dynamic, based on extensions
-const jobTypeToQueue = ['blast'].reduce((map, jobType) => {
+const jobTypeToQueue = jobTypes.reduce((map, jobType) => {
   const manager = new JobManager(jobType);
 
   manager.onAddJob((job) => {
-    console.log(`[${jobType}] ${job.jobId} - started`);
+    logger(`[${jobType}] ${job.jobId} - started`);
   }, true);
 
   //when the job completes at the appropriate queue, resolve here
   manager.onComplete((job, result) => {
-    console.log(`[${jobType}] ${job.jobId} - complete`);
-    console.log(result);
+    logger(`[${jobType}] ${job.jobId} - complete`);
+    logger(result);
     completeJob(job.jobId, result);
   }, true);
 
   manager.queue.on('stalled', (job) => {
     // Job that was considered stalled. Useful for debugging job workers that crash or pause the event loop.
-    console.log(`[${jobType}] ${job.jobId} - stalled`);
+    logger(`[${jobType}] ${job.jobId} - stalled`);
     completeJob(job.jobId, Promise.reject(new Error('job stalled')));
   }, true);
 
   //when the job fails, reject with error
   manager.onFail((job, err) => {
-    console.log(`[${jobType}] ${job.jobId} - failed`);
+    logger(`[${jobType}] ${job.jobId} - failed`);
     completeJob(job.jobId, Promise.reject(new Error(err)));
   }, true);
 
@@ -96,18 +100,20 @@ jobManager.setProcessor((job) => {
   const { type, data } = job.data;
   const { projectId } = job.opts;
 
-  console.log('got a job!', type, jobId, projectId);
+  logger('got a job!', type, jobId, projectId);
 
   const queueManager = jobTypeToQueue[type];
 
-  if (!queueManager) {
-    throw new Error(`task ${type} not recognized`);
-  }
-
-  //save the data in s3, but not blocking
-  jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(data, null, 2), 'data');
-
   return new Promise((resolve) => {
+    if (!queueManager) {
+      console.log(`task ${type} not recognized, failing`);
+      throw new Error(`task ${type} not recognized`);
+    }
+
+    // save the data in s3, but not blocking
+    // should block if the extension depends on the file
+    jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(data, null, 2), 'data');
+
     const taskJobId = JobManager.createJobId();
 
     //add a resolution function, for when the job is done
@@ -117,6 +123,7 @@ jobManager.setProcessor((job) => {
     queueManager.createJob(data, { jobId: taskJobId });
   })
   .catch((err) => {
+    console.log('job error!', type, jobId, projectId);
     console.log(err);
     completeJob(jobId, Promise.reject(err));
   });
@@ -128,8 +135,8 @@ jobManager.onComplete((job, result) => {
   const { type } = job.data;
   const { projectId } = job.opts;
 
-  console.log('job finished', type, jobId, projectId);
-  console.log(result);
+  logger('job finished', type, jobId, projectId);
+  logger(result);
 
   //save the result in s3
   jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(result, null, 2), 'result');
