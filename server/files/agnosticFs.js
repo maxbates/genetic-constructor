@@ -17,6 +17,8 @@ import path from 'path';
 import invariant from 'invariant';
 import * as s3 from '../data/middleware/s3';
 import * as fileSystem from '../data/middleware/fileSystem';
+import { s3MockPath } from '../data/middleware/filePaths';
+import { HOST_URL } from '../urlConstants';
 
 console.log(s3.useRemote ? '[Files] Using S3 for file persistence, not file system' : '[Files] Using file system for file persistence, not S3');
 
@@ -87,4 +89,14 @@ export const fileList = (s3bucket, namespace, params) => {
 
   const fullPath = path.resolve(s3bucket, namespace);
   return fileSystem.directoryContents(fullPath);
+};
+
+export const signedUrl = (s3bucket, key, operation, opts) => {
+  if (s3.useRemote) {
+    return s3.getSignedUrl(s3bucket, key, operation, opts);
+  }
+
+  // note - this requires the mock file router to be mounted (only in dev / test)
+  // expects s3bucket to be a file path, so omit the slash
+  return `${HOST_URL}/${s3MockPath}/${s3bucket}/${key}`;
 };

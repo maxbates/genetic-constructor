@@ -21,7 +21,7 @@ import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 
 describe('Middleware', () => {
-  describe('Jobs', () => {
+  describe.only('Jobs', () => {
     describe('Files', () => {
       const roll = createExampleRollup();
       const projectId = roll.project.id;
@@ -88,6 +88,14 @@ Thing!`;
 
         expect(() => JSON.parse(result)).to.not.throw();
         expect(JSON.parse(result)).to.eql(jobData);
+      });
+
+      //test processor writes a file
+      it('can get job output as file', async () => {
+        const result = await api.jobFileRead(projectId, jobId, 'output')
+        .then(resp => resp.text());
+
+        expect(result).to.eql('results');
       });
 
       //test processor just returns data as the result

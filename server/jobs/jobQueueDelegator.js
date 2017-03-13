@@ -16,12 +16,17 @@
 
 import debug from 'debug';
 import JobManager from './JobManager';
-import * as s3 from '../data/middleware/s3';
+import * as agnosticFs from '../files/agnosticFs';
 import * as jobFiles from '../files/jobs';
 
 //TESTING - blast not as an extension
 //todo - spin up on separate thread
 import '../../extensions/blast/jobProcessor';
+
+const FILE_NAME_INPUT = 'input'; //data passed to job
+const FILE_NAME_DATA = 'data'; //a file the job can write (if it wants) //todo - let extensions write whatever files they want (not just one)
+const FILE_NAME_OUTPUT = 'output'; //output file to be written by job
+const FILE_NAME_RESULT = 'result'; //return result from job
 
 /*
  NOTES
@@ -42,9 +47,10 @@ import '../../extensions/blast/jobProcessor';
  - (memory) a promise is required for every job running, between initiate + resolution
  */
 
+// JOB MANAGERS
+
 const jobManager = new JobManager('jobs');
 const logger = debug('constructor:jobs:processor');
-const s3JobsBucket = s3.getBucket('bionano-gctor-jobs');
 
 //map jobId to resolve function, resolve when the job completes
 const jobResolutionMap = {};
@@ -96,6 +102,8 @@ const jobTypeToQueue = jobTypes.reduce((map, jobType) => {
   return map;
 }, {});
 
+// JOB HANDLING
+
 //'jobs' queue used to delegate to other queues
 jobManager.setProcessor((job) => {
   const jobId = job.jobId;
@@ -113,13 +121,12 @@ jobManager.setProcessor((job) => {
     }
 
     // save the data in s3, give url to extension (currently, its the same as the data object passed in)
-    return jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(data, null, 2), 'input')
-    .then((writeResult) => {
-      const urlInput = writeResult.url;
-
-      // todo - provision section in the bucket for the extension to write whatever it wants
-      // e.g. https://aws.amazon.com/blogs/security/writing-iam-policies-grant-access-to-user-specific-folders-in-an-amazon-s3-bucket/
-      const urlData = s3.getSignedUrl(s3JobsBucket, `${projectId}/${jobId}/data`, 'putObject');
+    return jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(data, null, 2), FILE_NAME_INPUT)
+    .then(() => {
+      //NB - these URLs only work with s3 credentials supplied
+      const urlInput = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_INPUT}`, 'getObject');
+      const urlData = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_DATA}`, 'putObject');
+      const urlOutput = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_OUTPUT}`, 'putObject');
 
       //create specific jobId for the slave job
       const taskJobId = JobManager.createJobId();
@@ -132,6 +139,7 @@ jobManager.setProcessor((job) => {
         projectId,
         urlInput,
         urlData,
+        urlOutput,
       };
 
       //delegate the job
@@ -155,7 +163,7 @@ jobManager.onComplete((job, result) => {
   logger(result);
 
   //save the result in s3
-  jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(result, null, 2), 'result');
+  jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(result, null, 2), FILE_NAME_RESULT);
 
   //todo - what should we expect the job to do? update the project? Should we modify the project?
 });

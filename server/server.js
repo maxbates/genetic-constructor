@@ -29,6 +29,8 @@ import extensionsRouter from './extensions/router';
 import checkUserSetup from './onboarding/userSetup';
 import orderRouter from './order/router';
 import reportRouter from './report/index';
+import s3MockRouter from './files/s3mockRouter';
+import { s3MockPath } from './data/middleware/filePaths';
 import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
@@ -146,6 +148,11 @@ app.use('/jobs', jobRouter);
 app.use('/order', orderRouter);
 app.use('/extensions', extensionsRouter);
 app.use('/report', reportRouter);
+
+if (process.env.NODE_ENV !== 'production') {
+  //mock s3 routes for jobs/extensions etc. so read/write don't fail
+  app.use(`/${s3MockPath}`, s3MockRouter);
+}
 
 // STATIC ROUTES
 

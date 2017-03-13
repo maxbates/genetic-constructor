@@ -33,12 +33,13 @@ export const bucketName = 'bionano-gctor-jobs';
 // when using S3, write to the bucket
 // when using local, prefix with appropriate path
 
-let s3bucket;
+export const s3bucket = s3.useRemote ?
+  s3.getBucket(bucketName) :
+  filePaths.createJobFilePath();
+
 if (s3.useRemote) {
-  s3bucket = s3.getBucket(bucketName);
   logger(`Bucket: ${bucketName}`);
 } else {
-  s3bucket = filePaths.createJobFilePath();
   logger(`File Path: ${s3bucket}`);
 }
 

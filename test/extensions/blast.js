@@ -37,7 +37,7 @@ describe('Extensions', () => {
 
         assert(jobId, 'should get a job ID');
 
-        const result = await jobApi.jobPoll(projectId, jobId, 1000);
+        const result = await jobApi.jobPoll(projectId, jobId, 100);
 
         assert(result, 'should get result object');
         assert(result.result, 'should get result');
