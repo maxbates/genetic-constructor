@@ -163,7 +163,7 @@ jobManager.onComplete((job, result) => {
   logger(result);
 
   //save the result in s3
-  jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(result, null, 2), FILE_NAME_RESULT);
+  jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(result || '', null, 2), FILE_NAME_RESULT);
 
   //todo - what should we expect the job to do? update the project? Should we modify the project?
 });

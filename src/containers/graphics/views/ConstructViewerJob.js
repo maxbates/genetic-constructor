@@ -84,6 +84,10 @@ export class ConstructViewerJob extends Component {
       }
 
       return jobPoll(projectId, jobId).then(this.onJobComplete);
+    })
+    .catch(err => {
+      //swallow
+      //todo - what to do?
     });
   };
 

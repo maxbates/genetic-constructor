@@ -23,6 +23,7 @@ import express from 'express';
 import colors from 'colors/safe';
 
 import pkg from '../package.json';
+import logger from './utils/logConfig';
 import dataRouter from './data/router';
 import jobRouter from './jobs/router';
 import extensionsRouter from './extensions/router';
@@ -36,7 +37,6 @@ import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
 import { pruneUserObject } from './user/utils';
 import checkPortFree from './utils/checkPortFree';
-import logger from './utils/logConfig';
 import customErrorMiddleware from './errors/customErrorMiddleware';
 import lastDitchErrorMiddleware from './errors/lastDitchErrorMiddleware';
 
@@ -84,7 +84,7 @@ app.set('view engine', 'pug');
 // in deployed environment this API will be available on a different host, and not at this route endpoint
 //note - should come before local auth setup, so that mockUser setup can call storage without middleware in place
 if (!process.env.STORAGE_API) {
-  console.log('[DB Storage] DB Storage API mounted locally at /api/');
+  console.log('[DB] Storage API mounted locally at /api/');
   app.use(require('gctor-storage').mockReqLog); // the storage routes expect req.log to be defined
   app.use('/api', require('gctor-storage').routes);
 }

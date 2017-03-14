@@ -18,14 +18,25 @@ constructor.extensions.register('blast', 'menu:block', (singleBlockSelected, blo
   text: 'BLAST for similar sequences',
   disabled: !singleBlockSelected || !block.hasSequence(),
   action: () => {
-    const component = constructor.api.blocks.blockClone(block);
-    const construct = constructor.api.blocks.blockCreate({
-      metadata: { name: 'BLAST results' },
-      jobId: 'blastidy-blast',
-      components: [component.id],
+    runBlast(block)
+    .then((jobId) => {
+      const component = constructor.api.blocks.blockClone(block);
+      const construct = constructor.api.blocks.blockCreate({
+        metadata: { name: 'BLAST results' },
+        jobId,
+        components: [component.id],
+      });
+      constructor.api.projects.projectAddConstruct(block.projectId, construct.id);
     });
-    constructor.api.projects.projectAddConstruct(block.projectId, construct.id);
-
-    console.log('run the blastz');
   },
 }]);
+
+//start a job
+function runBlast(block) {
+  return block.getSequence()
+  .then(sequence => constructor.jobs.jobCreate(block.projectId, 'blast', { id: block.id, sequence }))
+  .then(result => result.jobId)
+  .catch(err => {
+    constructor.api.ui.uiSetGrunt('There was an error starting your BLAST search...');
+  });
+}

@@ -33,7 +33,7 @@ export const jobGet = (projectId, jobId) =>
   rejectingFetch(jobPath(projectId, jobId), headersGet())
   .then(resp => resp.json());
 
-export const jobPoll = (projectId, jobId, waitTime = 20000) =>
+export const jobPoll = (projectId, jobId, waitTime = 30000) =>
   new Promise((resolve, reject) => {
     const interval = setInterval(() => {
       jobGet(projectId, jobId)

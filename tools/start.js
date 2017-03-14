@@ -18,7 +18,7 @@ async function start() {
       await run(setup);
     }
 
-    console.log(colors.blue('Bundling application with Webpack (this may take a moment)...'));
+    console.log(colors.blue(`Bundling application with Webpack [${DEBUG ? 'dev' : 'release'}] (this may take a moment)...`));
 
     //await run(bundleServer);
 
@@ -119,7 +119,6 @@ async function start() {
               },
             }, resolve);
 
-            //todo - we want ton only recompile once per batch of changes - currently every single file change will trigger a build. Maybe just debounce?
             const ignoreDotFilesAndNestedNodeModules = /([/\\]\.)|(node_modules\/.*?\/node_modules)/gi;
             const checkSymlinkedNodeModule = /(.*?\/)?extensions\/.*?\/node_modules/;
             const checkIsInServerExtensions = /^server\//;
@@ -162,6 +161,7 @@ async function start() {
 
             //while we are not bundling the server, we can set up a watch to recompile on changes
             const watcher = bs.watch('server/**/*', {
+              followSymLinks: true,
               ignored: ignoreFilePathCheck,
             });
 
