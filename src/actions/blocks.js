@@ -887,3 +887,20 @@ export const blockTrimSequence = (blockId, start = 0, end = 0) => (dispatch, get
   });
   return block;
 };
+
+/***************************************
+ * Jobs
+ ***************************************/
+
+export const blockSetJobId = (blockId, jobId) => (dispatch, getState) => {
+  const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
+
+  const block = oldBlock.setJobId(jobId);
+  dispatch({
+    type: ActionTypes.BLOCK_SET_JOB_ID,
+    undoable: true,
+    block,
+  });
+  return block;
+};

@@ -91,7 +91,7 @@ function pollJob(rid, time = 30000) {
         reject(result);
       })
       .catch((err) => {
-        console.log(`error polling for RID =${rid}`);
+        console.log(`error polling for RID ${rid}`);
         console.log(err);
         reject(err);
       });
@@ -103,6 +103,11 @@ function pollJob(rid, time = 30000) {
 function blastId(id, options = {}) {
   const params = Object.assign({}, blastDefaults, options, { QUERY: id });
   const query = queryString.stringify(params);
+
+  //TEST - we know this result is processed, just return based on known RID
+  //this may need to change, as results expire after some period of time
+  //const rid = 'CGXEVWV8016';
+  //return pollJob(rid, 10000);
 
   return fetch(`${blastUrl}?${query}`, Object.assign({}, fetchOpts, {
     method: 'POST',

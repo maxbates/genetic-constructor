@@ -16,10 +16,11 @@
 const ncbi = require('./ncbi');
 
 const Block = require('../../src/models/Block');
-//const Rollup = require('../../src/models/Rollup');
+const Project = require('../../src/models/Project');
+const Rollup = require('../../src/models/Rollup');
 
 //actually parse the json file we get back
-module.exports = function parseJson(json) {
+module.exports = function parseJson(json, projectId) {
   //todo - probably want more control than this...
   //keep the first 10 hits
   const hits = json.iterations[0].hits.slice(0, 10);
@@ -37,6 +38,7 @@ module.exports = function parseJson(json) {
       const sequence = fasta.split('\n').slice(1).filter(line => !!line).join('');
 
       const block = new Block({
+        projectId,
         metadata: {
           name: hit.accession,
           description: hit.def,
@@ -50,10 +52,15 @@ module.exports = function parseJson(json) {
 
     //make blocks list options
     const construct = new Block({
+      metadata: { name: 'BLAST results' },
+      projectId,
+      rules: {
+        list: true,
+      },
       options: blocks.reduce((acc, block) => Object.assign(acc, { [block.id]: true }), {}),
     }, false);
 
-    const blockMap = [construct, ...blocks].reduce((acc, block) => Object.assign(acc, { [block.id]: block }));
+    const blockMap = [...blocks, construct].reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 
     //set up sequence map, so sequences are written after job is completed
     const sequences = blocks.reduce((acc, block) => {
@@ -66,11 +73,17 @@ module.exports = function parseJson(json) {
       return acc;
     }, []);
 
+    //make a dummy project, so its easy to find the construct
+    const project = new Project({
+      id: projectId,
+      components: [construct.id],
+    }, false);
+
     //return a rollup
-    //note - projectId is incorrect (not set)
-    return {
+    return new Rollup({
+      project,
       blocks: blockMap,
       sequences,
-    };
+    });
   });
 };

@@ -20,7 +20,7 @@ const blast = require('./blast');
 const parseJson = require('./parseJson');
 
 const router = express.Router(); //eslint-disable-line new-cap
-const textParser = bodyParser.text();
+const textParser = bodyParser.text({ limit: '10mb' });
 
 router.post('/parseXml', textParser, (req, res) => {
   blast.blastParseXml(req.body)

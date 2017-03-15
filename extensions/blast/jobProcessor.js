@@ -32,7 +32,7 @@ const jobManager = new JobManager('blast');
 jobManager.setProcessor((job) => {
   try {
     const { jobId, data } = job;
-    const { parentJobId, urlData, urlOutput } = job.opts;
+    const { projectId, parentJobId, urlData, urlOutput } = job.opts;
 
     logger(`BLAST processor got job ${jobId} (parent: ${parentJobId})`);
     logger(data);
@@ -57,7 +57,7 @@ jobManager.setProcessor((job) => {
       logger(`${jobId} parse xml finished`);
       job.progress(60);
 
-      return parseJson(result);
+      return parseJson(result, projectId);
     })
     .then((result) => {
       logger(`${jobId} parse json finished`);

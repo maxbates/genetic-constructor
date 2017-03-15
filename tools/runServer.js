@@ -64,37 +64,40 @@ function runServer(cb) {
     DEBUG_COLORS: 'true',
   };
 
-  server = cp.spawn('node', [...nodeArgs, serverPath, ...processArgs], {
-    env: Object.assign(defaultEnv, process.env),
-    silent: false,
-  });
+  //on next tick, start so dev tools etc. have time to detach and die
+  setTimeout(() => {
+    server = cp.spawn('node', [...nodeArgs, serverPath, ...processArgs], {
+      env: Object.assign(defaultEnv, process.env),
+      silent: false,
+    });
 
-  server.stdout.on('data', onStdOut);
-  server.stderr.on('data', defaultWriteOut);
+    server.stdout.on('data', onStdOut);
+    server.stderr.on('data', defaultWriteOut);
 
-  //if the server exits unhappily kill this process too
-  //on certain errors not explicitly triggered we could start it up again
-  server.on('exit', (code, signal) => {
-    //if we explicitly terminated the server (e.g. rebuild)
-    if (signal === terminationSignal) {
-      return;
-    }
+    //if the server exits unhappily kill this process too
+    //on certain errors not explicitly triggered we could start it up again
+    server.on('exit', (code, signal) => {
+      //if we explicitly terminated the server (e.g. rebuild)
+      if (signal === terminationSignal) {
+        return;
+      }
 
-    //if we didn't get a signal, try to restart
-    if (!signal) {
-      return;
-    }
+      //if we didn't get a signal, try to restart
+      if (!signal) {
+        return;
+      }
 
-    //we trigger 87 on build failure in server.js
-    if (code === 87) {
+      //we trigger 87 on build failure in server.js
+      if (code === 87) {
+        process.exit(1);
+        return; //in case not sync...
+      }
+
+      //otherwise something bad happened and we should we restart
+      //restarting can be tricky, so kill to be save. you could probably recursively call runServer() if you wanted..
+      console.log(colors.red(`Server exited with code ${code} and signal ${signal}`));
       process.exit(1);
-      return; //in case not sync...
-    }
-
-    //otherwise something bad happened and we should we restart
-    //restarting can be tricky, so kill to be save. you could probably recursively call runServer() if you wanted..
-    console.log(colors.red(`Server exited with code ${code} and signal ${signal}`));
-    process.exit(1);
+    });
   });
 }
 

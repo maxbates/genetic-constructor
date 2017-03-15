@@ -238,12 +238,18 @@ export const sequenceWriteManyChunksAndUpdateRollup = (rollup) => {
         });
       });
     })
-    .then(() => rollup);
+    .then(() => {
+      delete rollup.sequences;
+      return rollup;
+    });
   }
 
   //otherwise, we got the object format, no updating needed since we are getting md5s, the blocks already know what their sequences are, and no need to update
   return sequenceWriteMany(sequences)
-  .then(() => rollup);
+  .then(() => {
+    delete rollup.sequences;
+    return rollup;
+  });
 };
 
 /**

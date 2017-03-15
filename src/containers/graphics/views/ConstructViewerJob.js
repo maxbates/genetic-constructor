@@ -15,7 +15,9 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
+import { blockStash, blockAddComponent, blockSetJobId } from '../../../actions/blocks';
 import { focusConstruct } from '../../../actions/focus';
 import { uiSetGrunt } from '../../../actions/ui';
 import { projectRemoveConstruct } from '../../../actions/projects';
@@ -31,6 +33,9 @@ export class ConstructViewerJob extends Component {
     onDelete: PropTypes.func,
     //connect
     isFocused: PropTypes.bool.isRequired,
+    blockStash: PropTypes.func.isRequired,
+    blockAddComponent: PropTypes.func.isRequired,
+    blockSetJobId: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     projectRemoveConstruct: PropTypes.func.isRequired,
@@ -57,17 +62,18 @@ export class ConstructViewerJob extends Component {
     //no need to wait for it
     //jobCancel(this.props.construct.jobId);
 
-    //stop polling for the job
-    if (this.poller && this.poller.cancelPoll) {
-      this.poller.cancelPoll();
-    }
+    this.cancelPolling();
 
     projectRemoveConstruct(projectId, construct.id);
   };
 
   onJobComplete = (jobObj) => {
     const { complete, failure, error, job, result } = jobObj;
+
     console.log(jobObj);
+    console.log(result);
+
+    this.cancelPolling();
 
     if (failure === true) {
       this.props.uiSetGrunt('Your job failed... Sorry!');
@@ -77,17 +83,27 @@ export class ConstructViewerJob extends Component {
       return;
     }
 
-    console.log(result);
-
     //todo - fetch the result and update, then delete this so stop polling
-    //todo - check if it is a rollup or something
-    //what is the expected result format?
+    //todo - should expect to be in S3
+    //todo - check if it is a rollup or something (have different types)
+
+    //todo - make more generic. this is bozo
+
+    const { project, blocks } = result;
+    const list = project.components[0];
+
+    this.props.blockStash(..._.values(blocks));
+    this.props.blockAddComponent(this.props.construct.id, list);
+    this.props.blockSetJobId(this.props.construct.id, null);
   };
 
   //first, try to just get the job, then poll if not complete
   pollForJob = () => {
     const { projectId, construct } = this.props;
     const jobId = construct.jobId;
+
+    //stop any old polling
+    this.cancelPolling();
 
     return jobGet(projectId, jobId)
     .then(retrieved => {
@@ -102,6 +118,13 @@ export class ConstructViewerJob extends Component {
       //todo - what to do?
     });
   };
+
+  cancelPolling() {
+    //stop polling for the job
+    if (this.poller && this.poller.cancelPoll) {
+      this.poller.cancelPoll();
+    }
+  }
 
   render() {
     const { isFocused, focusConstruct, construct } = this.props;
@@ -140,6 +163,9 @@ export class ConstructViewerJob extends Component {
 export default connect((state, props) => ({
   isFocused: state.focus.constructId === props.construct.id,
 }), {
+  blockStash,
+  blockAddComponent,
+  blockSetJobId,
   uiSetGrunt,
   focusConstruct,
   projectRemoveConstruct,

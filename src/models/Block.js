@@ -856,6 +856,11 @@ export default class Block extends Instance {
    Job related things
    *********/
 
+  setJobId(jobId) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot attach job');
+    return this.mutate('jobId', jobId);
+  }
+
   hasJob() {
     return this.jobId || null;
   }
