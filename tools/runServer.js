@@ -64,7 +64,8 @@ function runServer(cb) {
     DEBUG_COLORS: 'true',
   };
 
-  //on next tick, start so dev tools etc. have time to detach and die
+  //short timeout, start so dev tools etc. have time to detach and die
+  const time = process.env.DEBUG ? 50 : 0;
   setTimeout(() => {
     server = cp.spawn('node', [...nodeArgs, serverPath, ...processArgs], {
       env: Object.assign(defaultEnv, process.env),
@@ -98,7 +99,7 @@ function runServer(cb) {
       console.log(colors.red(`Server exited with code ${code} and signal ${signal}`));
       process.exit(1);
     });
-  });
+  }, time);
 }
 
 const terminationHandler = () => {

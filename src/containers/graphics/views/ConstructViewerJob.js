@@ -21,7 +21,7 @@ import { blockStash, blockAddComponent, blockSetJobId } from '../../../actions/b
 import { focusConstruct } from '../../../actions/focus';
 import { uiSetGrunt } from '../../../actions/ui';
 import { projectRemoveConstruct } from '../../../actions/projects';
-import { jobPoll, jobGet, jobCancel } from '../../../middleware/jobs';
+import { jobPoll, jobGet } from '../../../middleware/jobs';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
 
 import '../../../styles/ConstructViewerJob.css';
@@ -68,7 +68,7 @@ export class ConstructViewerJob extends Component {
   };
 
   onJobComplete = (jobObj) => {
-    const { complete, failure, error, job, result } = jobObj;
+    const { failure, error, job, result } = jobObj;
 
     console.log(jobObj);
     console.log(result);
@@ -106,14 +106,14 @@ export class ConstructViewerJob extends Component {
     this.cancelPolling();
 
     return jobGet(projectId, jobId)
-    .then(retrieved => {
+    .then((retrieved) => {
       if (retrieved.failure || retrieved.complete) {
         return this.onJobComplete(retrieved);
       }
 
       this.poller = jobPoll(projectId, jobId).then(this.onJobComplete);
     })
-    .catch(err => {
+    .catch((err) => {
       //swallow
       //todo - what to do?
     });

@@ -34,7 +34,7 @@ export default class JobManager {
 
     //on start, log the initial job counts in background
     this.queue.getJobCounts()
-    .then(counts => {
+    .then((counts) => {
       logger(`[${this.queueName}] job counts`, counts);
     });
   }

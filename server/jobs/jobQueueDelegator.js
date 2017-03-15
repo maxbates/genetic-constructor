@@ -89,7 +89,7 @@ const createSlaveJobCompleteHandler = (job, promiseResolver) => (result) => {
     return result;
   })
   .then(promiseResolver)
-  .catch(err => {
+  .catch((err) => {
     console.log('jobCompleteHandler error');
     console.log(err);
     promiseResolver(Promise.reject(err));

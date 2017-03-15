@@ -14,22 +14,21 @@
  limitations under the License.
  */
 const fetch = require('isomorphic-fetch');
-
-const JobManager = require('../../server/jobs/JobManager');
+const Queue = require('bull');
 
 const logger = require('./logger');
 const ncbi = require('./ncbi');
 const blast = require('./blast');
 const parseJson = require('./parseJson');
 
-const jobManager = new JobManager('blast');
-
 ///////////////////////////////////
 // JOB QUEUE
 ///////////////////////////////////
 
+const queue = Queue('blast', process.env.REDIS_PORT, process.env.REDIS_HOST);  //eslint-disable-line new-cap
+
 //'jobs' queue used to delegate to other queues
-jobManager.setProcessor((job) => {
+queue.process((job) => {
   try {
     const { jobId, data } = job;
     const { projectId, parentJobId, urlData, urlOutput } = job.opts;
@@ -39,13 +38,9 @@ jobManager.setProcessor((job) => {
 
     const { id, sequence } = data;
 
-    job.progress(10);
-
     return blast.blastSequence(id, sequence)
     .then((result) => {
       logger(`${jobId} blast finished`);
-
-      job.progress(50);
 
       //write the data file
       return fetch(urlData, { method: 'POST', body: result })
@@ -55,19 +50,16 @@ jobManager.setProcessor((job) => {
       });
     }).then((result) => {
       logger(`${jobId} parse xml finished`);
-      job.progress(60);
 
       return parseJson(result, projectId);
     })
     .then((result) => {
       logger(`${jobId} parse json finished`);
-      job.progress(90);
 
       //write the output file
       return fetch(urlOutput, { method: 'POST', body: result })
       .then(() => {
         logger(`${jobId} output file written`);
-        job.progress(100);
 
         return result;
       });
@@ -80,7 +72,7 @@ jobManager.setProcessor((job) => {
       throw err;
     });
   } catch (err) {
-    logger(`${jobId} BLAST caught error`);
+    logger(`${job.jobId} BLAST caught error`);
     logger(err);
     logger(err.stack);
 

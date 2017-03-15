@@ -88,7 +88,7 @@ router.route('/:projectId/:jobId')
 .get((req, res, next) =>
   jobManager.jobCompleted(req.jobId)
   .then(jobAndStatus => res.status(200).send(jobAndStatus))
-  .catch(err => {
+  .catch((err) => {
     if (err === null) {
       return res.status(404).send();
     }

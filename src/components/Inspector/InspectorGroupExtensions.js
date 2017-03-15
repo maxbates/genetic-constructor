@@ -20,7 +20,6 @@ import {
   extensionAuthor,
   extensionDescription,
   extensionName,
-  extensionRegion,
   extensionType,
   manifestIsClient,
   manifestIsServer,
@@ -90,16 +89,15 @@ class InspectorGroupExtensions extends Component {
           Author: extensionAuthor(extension),
           Client: manifestIsClient(extension),
           isServer: manifestIsServer(extension),
-          Region: extensionRegion(extension),
         };
 
         const headerWidgets = [(
-            <Switch
-              key={index}
-              disabled={extension.name === 'GC-Sequence-Viewer'}
-              on={this.checkExtensionActive(extension.name)}
-              switched={() => this.extensionToggled(extension.name)}
-            />
+          <Switch
+            key={index}
+            disabled={extension.name === 'GC-Sequence-Viewer'}
+            on={this.checkExtensionActive(extension.name)}
+            switched={() => this.extensionToggled(extension.name)}
+          />
           )];
 
         const items = [

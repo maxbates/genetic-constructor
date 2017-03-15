@@ -14,30 +14,32 @@
  limitations under the License.
  */
 
-constructor.extensions.register('blast', 'menu:block', (singleBlockSelected, block) => [{
-  text: 'BLAST for similar sequences',
-  disabled: !singleBlockSelected || !block.hasSequence(),
-  action: () => {
-    runBlast(block)
-    .then((jobId) => {
-      const component = constructor.api.blocks.blockClone(block.mutate('metadata.name', 'BLAST Query'));
+constructor.extensions.register('blast', 'menu:block',
+  (singleBlockSelected, block) => [{
+    text: 'BLAST for similar sequences',
+    disabled: !singleBlockSelected || !block.hasSequence(),
+    action: () => {
+      runBlast(block)
+      .then((jobId) => {
+        const component = constructor.api.blocks.blockClone(block.mutate('metadata.name', 'BLAST: Query'));
 
-      const construct = constructor.api.blocks.blockCreate({
-        metadata: { name: `BLAST: ${block.metadata.name || 'Unnamed Block'}` },
-        jobId,
-        components: [component.id],
+        const construct = constructor.api.blocks.blockCreate({
+          metadata: { name: `BLAST: ${block.metadata.name || 'Unnamed Block'}` },
+          jobId,
+          components: [component.id],
+        });
+        constructor.api.projects.projectAddConstruct(block.projectId, construct.id);
       });
-      constructor.api.projects.projectAddConstruct(block.projectId, construct.id);
-    });
-  },
-}]);
+    },
+  }]
+);
 
 //start a job
 function runBlast(block) {
   return block.getSequence()
   .then(sequence => constructor.jobs.jobCreate(block.projectId, 'blast', { id: block.id, sequence }))
   .then(result => result.jobId)
-  .catch(err => {
+  .catch((err) => {
     constructor.api.ui.uiSetGrunt('There was an error starting your BLAST search...');
     console.error(err); //eslint-disable-line no-console
   });

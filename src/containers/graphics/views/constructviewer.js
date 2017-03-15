@@ -694,23 +694,23 @@ export class ConstructViewer extends Component {
   showViewMenu(anchorElement) {
     const showPanels = !this.props.inventoryVisible;
     this.props.uiShowMenu([
-        {
-          text: `${showPanels ? 'Show' : 'Hide'} all panels`,
-          action: this.togglePanels,
-        },
-        {
-          text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
-          action: () => { this.toggleMinimized(); },
-        },
-        {
-          text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
-          action: this.toggleHiddenBlocks,
-        },
-        {
-          text: `${this.props.visibleExtension === sequenceViewerName ? 'Hide' : 'Show'} Sequence`,
-          action: this.toggleSequenceViewer,
-        },
-      ],
+      {
+        text: `${showPanels ? 'Show' : 'Hide'} all panels`,
+        action: this.togglePanels,
+      },
+      {
+        text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
+        action: () => { this.toggleMinimized(); },
+      },
+      {
+        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+        action: this.toggleHiddenBlocks,
+      },
+      {
+        text: `${this.props.visibleExtension === sequenceViewerName ? 'Hide' : 'Show'} Sequence`,
+        action: this.toggleSequenceViewer,
+      },
+    ],
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
       true);
   }
@@ -898,40 +898,40 @@ export class ConstructViewer extends Component {
    */
   showMoreMenu(anchorElement) {
     this.props.uiShowMenu([
-        {
-          text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
+      {
+        text: `${this.state.minimized ? 'Show' : 'Hide'} Nested Blocks`,
           //action: () => { this.sg.ui.toggleCollapsedState(); },
-          action: () => { this.toggleMinimized(); },
+        action: () => { this.toggleMinimized(); },
+      },
+      {
+        text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
+        action: this.toggleHiddenBlocks,
+      },
+      {
+        text: 'Color',
+        disabled: this.isSampleProject() || this.props.construct.isFixed(),
+        menuItems: this.getPaletteMenuItems(),
+      },
+      {
+        text: 'Order DNA',
+        disabled: !this.allowOrder(),
+        action: this.onOrderDNA,
+      },
+      {
+        text: 'Download Construct',
+        disabled: false,
+        action: () => {
+          downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
         },
-        {
-          text: `${this.state.showHidden ? 'Hide' : 'Show'} Hidden Blocks`,
-          action: this.toggleHiddenBlocks,
+      },
+      {
+        text: 'Delete Construct',
+        disabled: this.isSampleProject(),
+        action: () => {
+          this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
         },
-        {
-          text: 'Color',
-          disabled: this.isSampleProject() || this.props.construct.isFixed(),
-          menuItems: this.getPaletteMenuItems(),
-        },
-        {
-          text: 'Order DNA',
-          disabled: !this.allowOrder(),
-          action: this.onOrderDNA,
-        },
-        {
-          text: 'Download Construct',
-          disabled: false,
-          action: () => {
-            downloadConstruct(this.props.currentProjectId, this.props.constructId, this.props.focus.options);
-          },
-        },
-        {
-          text: 'Delete Construct',
-          disabled: this.isSampleProject(),
-          action: () => {
-            this.props.projectRemoveConstruct(this.props.projectId, this.props.constructId);
-          },
-        },
-      ],
+      },
+    ],
       ConstructViewer.getToolbarAnchorPosition(anchorElement),
       true);
   }
