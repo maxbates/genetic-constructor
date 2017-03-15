@@ -17,18 +17,22 @@ import Block from '../src/models/Block';
 import Project from '../src/models/Project';
 import Rollup from '../src/models/Rollup';
 import Order from '../src/models/Order';
+import Snapshot from '../src/models/Snapshot';
 
 import fields from '../src/schemas/fields/index';
+
 import BlockSchema from '../src/schemas/Block';
 import ProjectSchema from '../src/schemas/Project';
 import RollupSchema from '../src/schemas/Rollup';
 import OrderSchema from '../src/schemas/Order';
+import SnapshotSchema from '../src/schemas/Snapshot';
 
 export const models = {
   Block,
   Project,
   Rollup,
   Order,
+  Snapshot,
 };
 
 export { fields };
@@ -38,4 +42,5 @@ export const schemas = {
   Project: ProjectSchema,
   Rollup: RollupSchema,
   Order: OrderSchema,
+  Snapshot: SnapshotSchema,
 };

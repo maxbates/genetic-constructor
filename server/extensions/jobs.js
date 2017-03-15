@@ -16,6 +16,7 @@
 import cp from 'child_process';
 import path from 'path';
 import debug from 'debug';
+import colors from 'colors/safe';
 import { getServerExtensions } from './registry';
 import { REDIS_PORT, REDIS_HOST } from '../urlConstants';
 
@@ -64,7 +65,7 @@ Object.keys(jobExtensions).forEach((key) => {
 
     Object.assign(processes, { [key]: child });
   } catch (err) {
-    console.error(`[extension job] there was an error registering extension ${key}`);
+    console.error(colors.bgRed(`[extension job] there was an error registering extension ${key}`));
     console.log(err);
     console.log(err.stack);
   }

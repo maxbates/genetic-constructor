@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import fetch from 'isomorphic-fetch';
+import fetch from 'fetch-everywhere';
 
 /**
  * Fetch wrapper. Reject on 4xx and 5xx responses, otherwise should have no effect

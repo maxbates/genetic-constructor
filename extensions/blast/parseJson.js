@@ -13,11 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+const constructorClasses = require('constructor-classes');
+
 const ncbi = require('./ncbi');
 
-const Block = require('../../src/models/Block');
-const Project = require('../../src/models/Project');
-const Rollup = require('../../src/models/Rollup');
+const Block = constructorClasses.models.Block;
+const Project = constructorClasses.models.Project;
+const Rollup = constructorClasses.models.Rollup;
 
 //actually parse the json file we get back
 module.exports = function parseJson(json, projectId) {

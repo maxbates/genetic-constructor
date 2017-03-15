@@ -23,7 +23,7 @@ import { sequenceWriteManyChunksAndUpdateRollup } from '../data/persistence/sequ
 //TESTING - blast not as an extension
 //todo - spin up on separate thread
 //todo - extensions need to be able to register their job processor
-import '../../extensions/blast/jobProcessor';
+//import '../../extensions/blast/jobProcessor';
 
 const FILE_NAME_INPUT = 'input'; //data passed to job
 const FILE_NAME_DATA = 'data'; //a file the job can write (if it wants) //todo - let extensions write whatever files they want (not just one)
