@@ -73,7 +73,7 @@ async function start() {
         /* eslint-enable no-param-reassign */
       });
 
-      //todo - reloading for server
+      //todo - build server
       //const clientCompiler = webpack([clientConfig, serverConfig]);
 
       const clientCompiler = webpack(clientConfig);
@@ -160,6 +160,7 @@ async function start() {
             };
 
             //while we are not bundling the server, we can set up a watch to recompile on changes
+            //note this does not pick up changes to files in the bundle, just files in these directories
             const watcher = bs.watch('server/**/*', {
               followSymLinks: true,
               ignored: ignoreFilePathCheck,

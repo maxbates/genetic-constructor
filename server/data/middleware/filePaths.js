@@ -38,7 +38,7 @@ export const createJobFilePath = (...paths) => createStorageUrl(jobPath, ...path
 
 //SEQUENCE
 
-export const createSequencePath = md5 => createStorageUrl(sequencePath, md5);
+export const createSequencePath = md5 => createStorageUrl(sequencePath, md5 || '');
 
 // PROJECT FILES
 

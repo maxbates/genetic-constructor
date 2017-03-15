@@ -21,8 +21,8 @@ const createTempFilePath = () => `/tmp/${uuid.v4()}`;
 
 //future - will need to consider bundling
 //one process for each
-const importFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
-const exportFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname });
+const importFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname, execArgv: [] });
+const exportFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname, execArgv: [] });
 
 logger(`Creating Genbank forks: ${importFork.pid} ${exportFork.pid}`);
 

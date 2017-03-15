@@ -20,7 +20,7 @@ import * as fileSystem from '../data/middleware/fileSystem';
 import { s3MockPath } from '../data/middleware/filePaths';
 import { HOST_URL } from '../urlConstants';
 
-console.log(s3.useRemote ? '[Files] Using S3 for file persistence, not file system' : '[Files] Using file system for file persistence, not S3');
+console.log(s3.useRemote ? '[Files] Using S3 for file persistence' : '[Files] Using file system for file persistence, (S3 credentials required for S3)');
 
 // when using S3, s3bucket is actually the S3 bucket
 // when using local, s3bucket is prefix

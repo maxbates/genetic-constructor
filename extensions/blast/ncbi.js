@@ -16,6 +16,8 @@
 const fetch = require('isomorphic-fetch');
 const queryString = require('query-string');
 
+const logger = require('./logger');
+
 const ncbiEutilsUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
 
 const fetchOpts = {
@@ -33,6 +35,8 @@ function getSummary() {
   const idList = ids.join(',');
 
   const url = `${ncbiEutilsUrl}esummary.fcgi?db=nuccore&id=${idList}&retmode=json`;
+
+  logger('[getSummary]', url);
 
   return fetch(url, fetchOpts)
   .then(resp => resp.json())
@@ -58,6 +62,8 @@ function getInstance(accessionVersion, parameters = {}) {
   const { db, format } = parametersMapped;
 
   const url = `${ncbiEutilsUrl}efetch.fcgi?db=${db}&id=${accessionVersion}&rettype=${format}&retmode=text`;
+
+  logger('[getInstance]', format, url);
 
   return fetch(url, fetchOpts)
   .then(resp => resp.text())
@@ -98,7 +104,7 @@ function search(query, options = {}) {
     db: parameters.db,
     retstart: parameters.start,
     retmax: parameters.entries,
-    term: `${query}${parameters.sizeLimit > 0 ? '1:' + parameters.sizeLimit + '[SLEN]' : ''}`,
+    term: `${query}${parameters.sizeLimit > 0 ? `1:${parameters.sizeLimit}[SLEN]` : ''}`,
     retmode: 'json',
     sort: 'relevance',
   };
@@ -106,6 +112,8 @@ function search(query, options = {}) {
   const parameterString = queryString.stringify(mappedParameters);
 
   const url = `${ncbiEutilsUrl}esearch.fcgi?${parameterString}`;
+
+  logger('[search]', url);
 
   let count;
 

@@ -13,20 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-const express = require('express');
-const bodyParser = require('body-parser');
+const debug = require('debug');
 
-const blast = require('./blast');
-const parseJson = require('./parseJson');
+const logger = debug('constructor:blast');
 
-const router = express.Router(); //eslint-disable-line new-cap
-const textParser = bodyParser.text();
-
-router.post('/parseXml', textParser, (req, res) => {
-  blast.blastParseXml(req.body)
-  .then(parseJson)
-  .then(res.send)
-  .catch(err => res.status(500).send(err));
-});
-
-module.exports = router;
+module.exports = console.log.bind(console);

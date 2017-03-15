@@ -57,18 +57,30 @@ export class ConstructViewerJob extends Component {
     //no need to wait for it
     //jobCancel(this.props.construct.jobId);
 
+    //stop polling for the job
+    if (this.poller && this.poller.cancelPoll) {
+      this.poller.cancelPoll();
+    }
+
     projectRemoveConstruct(projectId, construct.id);
   };
 
-  onJobComplete = ({ complete, failure, error, job, result }) => {
+  onJobComplete = (jobObj) => {
+    const { complete, failure, error, job, result } = jobObj;
+    console.log(jobObj);
+
     if (failure === true) {
       this.props.uiSetGrunt('Your job failed... Sorry!');
       console.log(job); //eslint-disable-line no-console
       console.log(error); //eslint-disable-line no-console
+      //todo - change background, mark failure somehow, stop polling
+      return;
     }
 
     console.log(result);
+
     //todo - fetch the result and update, then delete this so stop polling
+    //todo - check if it is a rollup or something
     //what is the expected result format?
   };
 
@@ -83,7 +95,7 @@ export class ConstructViewerJob extends Component {
         return this.onJobComplete(retrieved);
       }
 
-      return jobPoll(projectId, jobId).then(this.onJobComplete);
+      this.poller = jobPoll(projectId, jobId).then(this.onJobComplete);
     })
     .catch(err => {
       //swallow

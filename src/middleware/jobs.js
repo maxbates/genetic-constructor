@@ -33,9 +33,10 @@ export const jobGet = (projectId, jobId) =>
   rejectingFetch(jobPath(projectId, jobId), headersGet())
   .then(resp => resp.json());
 
-export const jobPoll = (projectId, jobId, waitTime = 30000) =>
-  new Promise((resolve, reject) => {
-    const interval = setInterval(() => {
+export const jobPoll = (projectId, jobId, waitTime = 30000) => {
+  let interval;
+  const promise = new Promise((resolve, reject) => {
+    interval = setInterval(() => {
       jobGet(projectId, jobId)
       .then((result) => {
         if (!result || result.complete !== true) {
@@ -53,6 +54,11 @@ export const jobPoll = (projectId, jobId, waitTime = 30000) =>
       .catch(reject);
     }, waitTime);
   });
+
+  promise.cancelPoll = () => clearInterval(interval);
+
+  return promise;
+};
 
 export const jobCancel = (projectId, jobId) =>
   rejectingFetch(jobPath(projectId, jobId), headersDelete())

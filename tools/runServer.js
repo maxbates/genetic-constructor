@@ -48,13 +48,24 @@ function runServer(cb) {
     server.kill(terminationSignal);
   }
 
+  //arguments to node
+  const nodeArgs = ['--max_old_space_size=4096'];
+  if (process.env.DEBUG) {
+    nodeArgs.push('--inspect');
+  }
+
+  //arguments to script
   //--color so colors module will use colors even when piping to spawn
+  const processArgs = ['--color'];
+
   //DEBUG_COLORS so debug module will use colors and not ugly timestamps
-  server = cp.spawn('node', ['--max_old_space_size=4096', serverPath, '--color', '--inspect'], {
-    env: Object.assign({
-      NODE_ENV: 'dev',
-      DEBUG_COLORS: 'true',
-    }, process.env),
+  const defaultEnv = {
+    NODE_ENV: 'dev',
+    DEBUG_COLORS: 'true',
+  };
+
+  server = cp.spawn('node', [...nodeArgs, serverPath, ...processArgs], {
+    env: Object.assign(defaultEnv, process.env),
     silent: false,
   });
 
@@ -87,11 +98,15 @@ function runServer(cb) {
   });
 }
 
-process.on('exit', () => {
+const terminationHandler = () => {
   if (server) {
     console.log('killing server');
     server.kill(terminationSignal);
   }
-});
+};
+
+process.on('exit', terminationHandler);
+process.on('SIGINT', terminationHandler);
+process.on('SIGTERM', terminationHandler);
 
 export default runServer;

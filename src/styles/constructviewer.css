@@ -40,12 +40,14 @@
     border: var(--corner-side-length) solid;
     border-right-color: transparent !important;
     border-bottom-color: transparent !important;
+    opacity: 0.5;
   }
 
   &-focused {
     transition: background var(--timing-fast) ease-out;
     background: var(--colors-darkGrey);
 
+    .corner,
     .title-and-toolbar {
       opacity: 1;
     }

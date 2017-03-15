@@ -17,6 +17,8 @@ const fetch = require('isomorphic-fetch');
 const queryString = require('query-string');
 const biojsBlast = require('biojs-io-blast');
 
+const logger = require('./logger');
+
 const publicUrl = 'https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi';
 const blastUrl = process.env.BLAST_URL || 'https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi';
 const usingPublic = blastUrl === publicUrl;
@@ -39,11 +41,11 @@ const blastDefaults = {
 // false -> yes, no results
 // null -> poll again
 // reject -> there was an error
-const parseBlastCheckResult = (text) => {
+const parseBlastCheckResult = (text, rid) => {
   const statusResult = /Status=(.*)/gi.exec(text);
   const status = statusResult[1];
 
-  console.log(status);
+  logger(status, rid);
 
   if (status === 'READY') {
     //true if there are hits, false if there are no hits
@@ -59,7 +61,7 @@ const parseBlastCheckResult = (text) => {
 const checkBlastResult = requestId =>
   fetch(`${blastUrl}?CMD=Get&FORMAT_OBJECT=SearchInfo&RID=${requestId}`, fetchOpts)
   .then(resp => resp.text())
-  .then(parseBlastCheckResult);
+  .then(text => parseBlastCheckResult(text, requestId));
 
 const fetchCompletedBlastResult = rid =>
   fetch(`${blastUrl}?CMD=Get&FORMAT_TYPE=XML&RID=${rid}`, fetchOpts)
@@ -122,7 +124,8 @@ function blastId(id, options = {}) {
       const resultTime = /RTOE = (.*)/.exec(text);
       const rtoe = resultTime[1] * 1000;
 
-      console.log(`got RID ${rid} / expected to take (sec): ${rtoe / 1000}`);
+      logger(`got RID ${rid}`);
+      logger(`expected to take (sec): ${rtoe / 1000}`);
 
       return pollJob(rid, rtoe);
     } catch (err) {

@@ -31,6 +31,12 @@ export default class JobManager {
   constructor(queue, port = REDIS_PORT, host = REDIS_HOST, redisOpts) {
     this.queueName = queue;
     this.queue = Queue(queue, port, host, redisOpts); //eslint-disable-line new-cap
+
+    //on start, log the initial job counts in background
+    this.queue.getJobCounts()
+    .then(counts => {
+      logger(`[${this.queueName}] job counts`, counts);
+    });
   }
 
   static validateJobData(data) {
@@ -108,7 +114,7 @@ export default class JobManager {
     .then((job) => {
       if (!job) {
         logger(`[get] [${this.queueName}] failed ${jobId}`);
-        return Promise.reject(new Error(`Job ${jobId} does not exist`));
+        return Promise.reject(`Job ${jobId} does not exist`);
       }
 
       logger(`[get] [${this.queueName}] got ${jobId}`);
@@ -132,6 +138,9 @@ export default class JobManager {
 
         const failure = !!job.failedReason || job.stacktrace.length > 0;
         const error = failure ? job.stacktrace : null;
+
+        //todo - better failure checking
+        //todo - should use URLs of data in s3
 
         return {
           complete,

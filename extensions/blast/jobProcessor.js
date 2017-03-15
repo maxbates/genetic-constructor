@@ -13,66 +13,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-const JobManager = require('../../server/jobs/JobManager');
-const Block = require('../../src/models/Block');
+const fetch = require('isomorphic-fetch');
 
+const JobManager = require('../../server/jobs/JobManager');
+
+const logger = require('./logger');
 const ncbi = require('./ncbi');
 const blast = require('./blast');
+const parseJson = require('./parseJson');
 
 const jobManager = new JobManager('blast');
-
-//generate blocks / a project at the end --- todo - determine appropriate output
-//actually parse the json file we get back
-function parseJson(json) {
-  //keep the first 10 hits
-  const hits = json.iterations[0].hits.slice(0, 10);
-
-  //get fasta
-  //todo - get genbank and actually parse it
-  return Promise.all(hits.map(hit => ncbi.getFasta(hit.accession)))
-  .then(fastas => {
-    console.log(fastas);
-
-    return hits.map((hit, index) => {
-      const fasta = fastas[index];
-      const sequence = fasta.split('\n').slice(1).filter(line => !!line).join('');
-
-      //todo - save the sequence, should be simple like import middleware
-      //create a block
-      return new Block({
-        metadata: {
-          name: hit.accession,
-          description: hit.def,
-        },
-        sequence: {
-          sequence,
-          length: sequence.length,
-        },
-      }, false);
-    })
-    .then((blocks) => {
-      const construct = new Block({
-        options: blocks.reduce((acc, block) => Object.assign(acc, { [block.id]: true }), {}),
-      }, false);
-
-      //todo - determine appropriate output
-      //add Rollup.saveSequences which can also update blocks, share with importMiddleware
-      return {
-        blocks: [construct, ...blocks].reduce((acc, block) => Object.assign(acc, { [block.id]: block })),
-        sequences: blocks.reduce((acc, block) => {
-          acc.push({
-            sequence: block.sequence,
-            blocks: {
-              [block.id]: true,
-            },
-          });
-          delete block.sequence;
-          return acc;
-        }, []),
-      };
-    });
-  });
-}
 
 ///////////////////////////////////
 // JOB QUEUE
@@ -82,37 +32,58 @@ function parseJson(json) {
 jobManager.setProcessor((job) => {
   try {
     const { jobId, data } = job;
+    const { parentJobId, urlData, urlOutput } = job.opts;
 
-    console.log('BLAST processor got job', jobId);
-    console.log(data);
+    logger(`BLAST processor got job ${jobId} (parent: ${parentJobId})`);
+    logger(data);
 
     const { id, sequence } = data;
 
     job.progress(10);
 
     return blast.blastSequence(id, sequence)
-    .then(result => {
+    .then((result) => {
+      logger(`${jobId} blast finished`);
+
       job.progress(50);
-      console.log('blast finished');
-      return blast.blastParseXml(result);
+
+      //write the data file
+      return fetch(urlData, { method: 'POST', body: result })
+      .then(() => {
+        logger(`${jobId} data file written`);
+        return blast.blastParseXml(result);
+      });
     }).then((result) => {
-      console.log('parse xml finished');
+      logger(`${jobId} parse xml finished`);
       job.progress(60);
+
       return parseJson(result);
     })
     .then((result) => {
-      console.log('parse json finished');
-      job.progress(100);
-      return result;
+      logger(`${jobId} parse json finished`);
+      job.progress(90);
+
+      //write the output file
+      return fetch(urlOutput, { method: 'POST', body: result })
+      .then(() => {
+        logger(`${jobId} output file written`);
+        job.progress(100);
+
+        return result;
+      });
     })
-    .catch(err => {
-      console.log(err);
-      console.log(err.stack);
+    .catch((err) => {
+      logger(`${jobId} BLAST catch() error`);
+      logger(err);
+      logger(err.stack);
+
       throw err;
-    })
+    });
   } catch (err) {
-    console.log(err);
-    console.log(err.stack);
+    logger(`${jobId} BLAST caught error`);
+    logger(err);
+    logger(err.stack);
+
     throw err;
   }
 });

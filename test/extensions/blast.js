@@ -29,9 +29,11 @@ describe('Extensions', () => {
 
     before(() => projectPersistence.projectWrite(projectId, roll, testUserId));
 
-    it('can run a job', async() => {
+    it('can run a job', async function runJobTest() {
+      this.timeout = 5 * 60 * 1000;
+
       try {
-        const jobData = { some: 'field' };
+        const jobData = { sequence: 'TAGCACTGACTGACTAGCATCGATCGACTGACTGACTGACTGACTGACTATCGATCGTACGTAGCTAGCTAGCTAGCTAGCAC' };
         const posted = await jobApi.jobCreate(projectId, 'blast', jobData);
         const jobId = posted.jobId;
 

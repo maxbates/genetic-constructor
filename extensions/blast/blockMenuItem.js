@@ -22,7 +22,7 @@ constructor.extensions.register('blast', 'menu:block', (singleBlockSelected, blo
     .then((jobId) => {
       const component = constructor.api.blocks.blockClone(block);
       const construct = constructor.api.blocks.blockCreate({
-        metadata: { name: 'BLAST results' },
+        metadata: { name: `BLAST: ${block.metadata.name}` },
         jobId,
         components: [component.id],
       });
@@ -38,5 +38,6 @@ function runBlast(block) {
   .then(result => result.jobId)
   .catch(err => {
     constructor.api.ui.uiSetGrunt('There was an error starting your BLAST search...');
+    console.error(err); //eslint-disable-line no-console
   });
 }
