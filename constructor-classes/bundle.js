@@ -27,6 +27,11 @@ import RollupSchema from '../src/schemas/Rollup';
 import OrderSchema from '../src/schemas/Order';
 import SnapshotSchema from '../src/schemas/Snapshot';
 
+//there is an issue with isomorphic-fetch in web/node env, so force-polyfill fetch in this package
+//so, we need something that explicitly modifies the global
+//alternatively, if we know this package is going to be webpacked, then can add package.json "browser" field
+//todo - include polyfill
+
 export const models = {
   Block,
   Project,

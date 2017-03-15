@@ -226,7 +226,8 @@ export const serverConfig = merge({}, config, {
   devtool: 'cheap-module-source-map',
 });
 
-export const classesConfig = merge({}, serverConfig, {
+//todo - not sure if this will work on the client
+export const classesConfig = merge({}, config, {
   context: classesModulePath,
 
   entry: './bundle.js',
@@ -234,7 +235,16 @@ export const classesConfig = merge({}, serverConfig, {
   output: {
     filename: 'index.js',
     path: classesModulePath,
+    libraryTarget: 'commonjs2',
   },
+
+  target: 'node',
+
+  plugins: clientSidePlugins,
+
+  node: serverConfig.node,
+
+  externals: {},
 
   devtool: 'cheap-module-source-map',
 });

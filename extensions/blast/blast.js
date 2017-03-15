@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-const fetch = require('fetch-everywhere');
+const fetch = require('isomorphic-fetch');
 const queryString = require('query-string');
 const biojsBlast = require('biojs-io-blast');
 
@@ -109,11 +109,12 @@ function blastId(id, options = {}) {
   //const rid = 'CGXEVWV8016';
   //return pollJob(rid, 10000);
 
-  return fetch(`${blastUrl}?${query}`, Object.assign({}, fetchOpts, {
+  return fetch(`${blastUrl}`, Object.assign({}, fetchOpts, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
+    body: query,
   }))
   .then(resp => resp.text())
   .then((text) => {

@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-const fetch = require('fetch-everywhere');
+const fetch = require('isomorphic-fetch');
 const Queue = require('bull');
 
 const logger = require('./logger');
