@@ -43,6 +43,10 @@ module.exports = function parseJson(json, projectId) {
           name: hit.accession,
           description: hit.def,
         },
+        source: {
+          source: 'ncbi',
+          id: hit.accession,
+        },
       }, false);
 
       blockToSequence[block.id] = sequence;

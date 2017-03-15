@@ -23,7 +23,7 @@ constructor.extensions.register('blast', 'menu:block', (singleBlockSelected, blo
       const component = constructor.api.blocks.blockClone(block.mutate('metadata.name', 'BLAST Query'));
 
       const construct = constructor.api.blocks.blockCreate({
-        metadata: { name: `BLAST${block.metadata.name ? `: ${block.metadata.name}` : ''}` },
+        metadata: { name: `BLAST: ${block.metadata.name || 'Unnamed Block'}` },
         jobId,
         components: [component.id],
       });
