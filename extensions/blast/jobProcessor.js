@@ -25,7 +25,13 @@ const parseJson = require('./parseJson');
 // JOB QUEUE
 ///////////////////////////////////
 
-const queue = Queue('blast', process.env.REDIS_PORT, process.env.REDIS_HOST);  //eslint-disable-line new-cap
+let queue;
+try {
+  queue = Queue('blast', process.env.REDIS_PORT, process.env.REDIS_HOST);  //eslint-disable-line new-cap
+} catch (err) {
+  console.log('[blast] could not start queue - is redis running?');
+  throw err;
+}
 
 //'jobs' queue used to delegate to other queues
 queue.process((job) => {
