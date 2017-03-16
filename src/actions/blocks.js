@@ -621,9 +621,8 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
     if (componentProjectId !== nextParentProjectId || contentProjectIds.some(compProjId => compProjId !== nextParentProjectId)) {
       invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
-      //there may be scenarios where we are adding to a detached block, so lets avoid the error when next parent has no project
       if (nextParentProjectId) {
-        dispatch(blockSetProject(componentId, nextParentProjectId, false));
+        dispatch(blockSetProject(componentId, nextParentProjectId, true));
       }
     }
 

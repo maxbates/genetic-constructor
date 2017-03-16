@@ -67,6 +67,12 @@ function runServer(cb) {
   //short timeout, start so dev tools etc. have time to detach and die
   const time = process.env.DEBUG ? 50 : 0;
   setTimeout(() => {
+    //check if a server was spun up in the mean time
+    if (server) {
+      console.log(colors.blue('Restarting server...'));
+      server.kill(terminationSignal);
+    }
+
     server = cp.spawn('node', [...nodeArgs, serverPath, ...processArgs], {
       env: Object.assign(defaultEnv, process.env),
       silent: false,

@@ -39,7 +39,10 @@ queue.process((job) => {
     const { jobId, data } = job;
     const { projectId, parentJobId, urlData, urlOutput } = job.opts;
 
-    logger(`BLAST processor got job ${jobId} (parent: ${parentJobId})`);
+    logger(`BLAST processor received job:
+job ${jobId}
+parent: ${parentJobId}
+projectId: ${projectId}`);
     logger(data);
 
     const { id, sequence } = data;
@@ -47,15 +50,17 @@ queue.process((job) => {
     return blast.blastSequence(id, sequence)
     .then((result) => {
       logger(`${jobId} blast finished`);
+      logger(result);
 
       //write the data file
       return fetch(urlData, { method: 'POST', body: result })
       .then(() => {
-        logger(`${jobId} data file written`);
+        logger(`${jobId} data file written @ ${urlData}`);
         return blast.blastParseXml(result);
       });
     }).then((result) => {
       logger(`${jobId} parse xml finished`);
+      logger(result);
 
       return parseJson(result, projectId);
     })
@@ -63,9 +68,9 @@ queue.process((job) => {
       logger(`${jobId} parse json finished`);
 
       //write the output file
-      return fetch(urlOutput, { method: 'POST', body: result })
+      return fetch(urlOutput, { method: 'POST', body: JSON.stringify(result, null, 2) })
       .then(() => {
-        logger(`${jobId} output file written`);
+        logger(`${jobId} output file written @ ${urlOutput}`);
 
         return result;
       });

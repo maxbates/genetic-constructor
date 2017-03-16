@@ -20,10 +20,10 @@ const biojsBlast = require('biojs-io-blast');
 const logger = require('./logger');
 
 const publicUrl = 'https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi';
-const blastUrl = process.env.BLAST_URL || 'https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi';
-const usingPublic = blastUrl === publicUrl;
+const constructorBlastUrl = 'https://gctor-blast.dev.bionano.autodesk.com/cgi-bin/blast.cgi';
 
-//todo - run against our instance
+const blastUrl = process.env.BLAST_URL || constructorBlastUrl;
+const usingPublic = blastUrl === publicUrl;
 
 console.log(`[BLAST] Url${usingPublic ? ' (public)' : ''}: ${blastUrl}`);
 
@@ -37,8 +37,7 @@ const blastDefaults = {
   DATABASE: 'nt',
 };
 
-// true -> yes, and results
-// false -> yes, no results
+// true -> yes
 // null -> poll again
 // reject -> there was an error
 const parseBlastCheckResult = (text, rid) => {
@@ -48,8 +47,10 @@ const parseBlastCheckResult = (text, rid) => {
   logger(status, rid);
 
   if (status === 'READY') {
+    return true;
     //true if there are hits, false if there are no hits
-    return /ThereAreHits=yes/.test(text);
+    //NB - local instance does not have the field ThereAreHits
+    //return /ThereAreHits=yes/.test(text);
   } else if (status === 'WAITING') {
     return null;
   } else {
@@ -69,9 +70,8 @@ const fetchCompletedBlastResult = rid =>
 
 //poll for blast job, and resolve with:
 // text -> XML
-// null -> no hits
 // or reject with error
-function pollJob(rid, time = 30000) {
+function pollJob(rid, time = 20000) {
   return new Promise((resolve, reject) => {
     const interval = setInterval(() => {
       checkBlastResult(rid)
@@ -82,10 +82,8 @@ function pollJob(rid, time = 30000) {
 
         clearInterval(interval);
 
-        if (result === true) {
+        if (result) {
           return resolve(fetchCompletedBlastResult(rid));
-        } else if (result === false) {
-          return resolve(null);
         }
 
         reject(result);
@@ -133,10 +131,11 @@ function blastId(id, options = {}) {
       logger(`got RID ${rid}`);
       logger(`expected to take (sec): ${rtoe / 1000}`);
 
-      return pollJob(rid, rtoe);
+      return pollJob(rid);
     } catch (err) {
+      console.log(`error running blast`);
       console.log(text);
-      return Promise.reject(null);
+      throw err;
     }
   });
 }

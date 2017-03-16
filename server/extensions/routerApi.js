@@ -52,11 +52,11 @@ router.all('/:extension/*',
 const serverExtensions = getServerExtensions(manifest => manifest.geneticConstructor.router);
 Object.keys(serverExtensions).forEach((key) => {
   const manifest = serverExtensions[key];
-  const routePath = manifest.geneticConstructor.router;
+  const routerPath = manifest.geneticConstructor.router;
 
   try {
     //future - build dependent path lookup
-    const extensionRouter = require(path.resolve(__dirname, 'node_modules', key, routePath)); //eslint-disable-line import/no-dynamic-require
+    const extensionRouter = require(path.resolve(__dirname, 'node_modules', key, routerPath)); //eslint-disable-line import/no-dynamic-require
 
     //todo - Put in own process and proxy?
     router.use(`/${key}/`, extensionRouter);

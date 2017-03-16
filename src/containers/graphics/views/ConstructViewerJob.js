@@ -75,11 +75,13 @@ export class ConstructViewerJob extends Component {
 
     this.cancelPolling();
 
-    if (failure === true) {
+    if (failure === true || !result) {
       this.props.uiSetGrunt('Your job failed... Sorry!');
       console.log(job); //eslint-disable-line no-console
       console.log(error); //eslint-disable-line no-console
-      //todo - change background, mark failure somehow, stop polling
+
+      //todo - change background, mark failure somehow
+      this.onDelete();
       return;
     }
 

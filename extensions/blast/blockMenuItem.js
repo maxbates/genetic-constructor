@@ -29,18 +29,17 @@ constructor.extensions.register('blast', 'menu:block',
           components: [component.id],
         });
         constructor.api.projects.projectAddConstruct(block.projectId, construct.id);
+      })
+      .catch(err => {
+        constructor.api.ui.uiSetGrunt('There was an error starting your BLAST search...');
+        console.error(err); //eslint-disable-line no-console
       });
     },
-  }]
-);
+  }]);
 
 //start a job
 function runBlast(block) {
   return block.getSequence()
   .then(sequence => constructor.jobs.jobCreate(block.projectId, 'blast', { id: block.id, sequence }))
-  .then(result => result.jobId)
-  .catch((err) => {
-    constructor.api.ui.uiSetGrunt('There was an error starting your BLAST search...');
-    console.error(err); //eslint-disable-line no-console
-  });
+  .then(result => result.jobId);
 }

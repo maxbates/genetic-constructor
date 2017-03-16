@@ -39,7 +39,7 @@ const processes = {};
 
 const jobExtensions = getServerExtensions(manifest => manifest.geneticConstructor.job);
 
-logger('Job Extensions', Object.keys(jobExtensions));
+logger('[Extensions] Jobs', Object.keys(jobExtensions));
 
 Object.keys(jobExtensions).forEach((key) => {
   const manifest = jobExtensions[key];
@@ -52,7 +52,7 @@ Object.keys(jobExtensions).forEach((key) => {
 
     logger(`[${key}] Creating extension job process`);
 
-    const child = cp.fork(`${extensionJobPath}`, {
+    const child = cp.fork(extensionJobPath, {
       cwd: extensionDirectoryPath,
       execArgv: [],
       env: {

@@ -25,7 +25,13 @@ const Rollup = constructorClasses.models.Rollup;
 module.exports = function parseJson(json, projectId) {
   //todo - probably want more control than this...
   //keep the first 10 hits
-  const hits = json.iterations[0].hits.slice(0, 10);
+  const allHits = json.iterations[0].hits;
+
+  if (!allHits || allHits.length === 0) {
+    return Promise.resolve(null);
+  }
+
+  const hits = allHits.slice(0, 10);
 
   //get fasta
   //todo - get genbank and actually parse it
