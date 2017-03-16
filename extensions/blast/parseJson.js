@@ -22,7 +22,10 @@ const Project = constructorClasses.models.Project;
 const Rollup = constructorClasses.models.Rollup;
 
 //actually parse the json file we get back
-module.exports = function parseJson(json, projectId) {
+module.exports = function parseJson(json, job) {
+  const jobId = job;
+  const { projectId, urlData } = job.opts;
+
   //todo - probably want more control than this...
   //keep the first 10 hits
   const allHits = json.iterations[0].hits;
@@ -70,6 +73,14 @@ module.exports = function parseJson(json, projectId) {
         list: true,
       },
       options: blocks.reduce((acc, block) => Object.assign(acc, { [block.id]: true }), {}),
+      notes: {
+        'BLAST Hits': allHits.length,
+        blast: {
+          jobId,
+          accessions: allHits.map(hit => hit.accession),
+          xml: urlData,
+        },
+      },
     }, false);
 
     const blockMap = [...blocks, construct].reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});

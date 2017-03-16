@@ -25,7 +25,7 @@ const constructorBlastUrl = 'https://gctor-blast.dev.bionano.autodesk.com/cgi-bi
 const blastUrl = process.env.BLAST_URL || constructorBlastUrl;
 const usingPublic = blastUrl === publicUrl;
 
-console.log(`[BLAST] Url${usingPublic ? ' (public)' : ''}: ${blastUrl}`);
+logger(`[BLAST] Url${usingPublic ? ' (public)' : ''}: ${blastUrl}`);
 
 const fetchOpts = {
   mode: 'cors',

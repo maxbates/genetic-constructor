@@ -279,20 +279,6 @@ export class InspectorBlock extends Component {
         </InspectorRow>
 
         <InspectorRow
-          heading="Source"
-          condition={!!currentSourceElement}
-        >
-          {currentSourceElement}
-        </InspectorRow>
-
-        <InspectorRow
-          heading="Sequence Length"
-          condition={hasSequence}
-        >
-          <p><strong>{this.currentSequenceLength()}</strong></p>
-        </InspectorRow>
-
-        <InspectorRow
           heading="Protected"
           condition={isConstruct}
           glyphUrl="/images/ui/lock.svg"
@@ -308,6 +294,20 @@ export class InspectorBlock extends Component {
             readOnly={cannotEdit}
           />
         )}
+
+        <InspectorRow
+          heading="Source"
+          condition={!!currentSourceElement}
+        >
+          {currentSourceElement}
+        </InspectorRow>
+
+        <InspectorRow
+          heading="Sequence Length"
+          condition={hasSequence}
+        >
+          <p><strong>{this.currentSequenceLength()}</strong></p>
+        </InspectorRow>
 
         <InspectorRow
           heading={`${type} Metadata`}

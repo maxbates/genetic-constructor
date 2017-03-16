@@ -50,7 +50,7 @@ projectId: ${projectId}`);
     return blast.blastSequence(id, sequence)
     .then((result) => {
       logger(`${jobId} blast finished`);
-      logger(result);
+      //logger(result);
 
       //write the data file
       return fetch(urlData, { method: 'POST', body: result })
@@ -60,9 +60,9 @@ projectId: ${projectId}`);
       });
     }).then((result) => {
       logger(`${jobId} parse xml finished`);
-      logger(result);
+      //logger(result);
 
-      return parseJson(result, projectId);
+      return parseJson(result, job);
     })
     .then((result) => {
       logger(`${jobId} parse json finished`);

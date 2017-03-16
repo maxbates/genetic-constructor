@@ -21,13 +21,13 @@ constructor.extensions.register('blast', 'menu:block',
     action: () => {
       runBlast(block)
       .then((jobId) => {
-        const component = constructor.api.blocks.blockClone(block.mutate('metadata.name', 'BLAST: Query'));
-
-        const construct = constructor.api.blocks.blockCreate({
+        const component = constructor.api.blocks.blockClone();
+        const construct = constructor.api.blocks.blockClone({
           metadata: { name: `BLAST: ${block.metadata.name || 'Unnamed Block'}` },
           jobId,
           components: [component.id],
         });
+
         constructor.api.projects.projectAddConstruct(block.projectId, construct.id);
       })
       .catch(err => {
