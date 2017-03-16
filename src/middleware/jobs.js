@@ -74,7 +74,7 @@ export const jobFileRead = (projectId, namespace, fileName) => {
   return rejectingFetch(jobFilePath(projectId, namespace, fileName), headersGet(contentTypeTextHeader));
 };
 
-//todo - allow specifying name?
+//returns the name of the file + url etc.
 export const jobFileWrite = (projectId, namespace, contents) => {
   invariant(!!projectId && typeof projectId === 'string', 'projectId is required');
   invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
@@ -96,3 +96,7 @@ export const jobFileList = (projectId, namespace) => {
   .then(resp => resp.json());
 };
 
+//once a job is complete, fetch the result, expected to be a rollup
+export const jobGetResult = (projectId, namespace) =>
+  jobFileRead(projectId, namespace, 'result')
+  .then(resp => resp.json());

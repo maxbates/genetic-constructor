@@ -26,7 +26,7 @@ const exportFork = fork(`${__dirname}/convertChild.js`, { cwd: __dirname, execAr
 
 logger(`Creating Genbank forks: ${importFork.pid} ${exportFork.pid}`);
 
-process.on('exit', () => {
+process.on('SIGTERM', () => {
   logger('Killing Genbank forks');
   importFork.kill('SIGHUP');
   exportFork.kill('SIGHUP');

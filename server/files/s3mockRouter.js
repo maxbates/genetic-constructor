@@ -25,7 +25,9 @@ import express from 'express';
 import * as fileSystem from '../data/middleware/fileSystem';
 
 const router = express.Router(); //eslint-disable-line new-cap
-const textParser = bodyParser.text();
+const textParser = bodyParser.text({
+  limit: '500mb',
+});
 
 router.route(/.*/)
 .all((req, res, next) => {
@@ -40,6 +42,10 @@ router.route(/.*/)
   .catch(err => res.status(500).send(err));
 })
 .post(textParser, (req, res, next) => {
+  if (typeof req.body !== 'string') {
+    return res.status(422).send('send a string');
+  }
+
   const folderPath = req.filePath.substring(0, req.filePath.lastIndexOf('/'));
 
   fileSystem.directoryMake(folderPath)

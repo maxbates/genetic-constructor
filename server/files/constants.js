@@ -13,25 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { PropTypes } from 'react';
-import _ from 'lodash';
-import InspectorDetailSection from './InspectorDetailSection';
 
-export default function BlockNotes({ notes }) {
-  return (
-    <div className="BlockNotes">
-      <InspectorDetailSection
-        items={
-          _(notes)
-          .pickBy((value, key) => typeof value !== 'object')
-          .map((value, key) => ({ key, value }))
-          .value()
-        }
-      />
-    </div>
-  );
-}
+// standard file names
 
-BlockNotes.propTypes = {
-  notes: PropTypes.object.isRequired,
-};
+export const FILE_NAME_INPUT = 'input'; //data passed to job
+export const FILE_NAME_DATA = 'data'; //a file the job can write (if it wants) //todo - let extensions write whatever files they want (not just one)
+export const FILE_NAME_OUTPUT = 'output'; //output file to be written by job
+export const FILE_NAME_RAW_RESULT = 'rawresult'; //return result from job
+export const FILE_NAME_RESULT = 'result'; //return result from job, after processing by constructor
+

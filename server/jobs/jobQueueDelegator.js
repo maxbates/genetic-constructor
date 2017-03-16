@@ -19,17 +19,13 @@ import JobManager from './JobManager';
 import * as agnosticFs from '../files/agnosticFs';
 import * as jobFiles from '../files/jobs';
 import { sequenceWriteManyChunksAndUpdateRollup } from '../data/persistence/sequence';
-
-//TESTING - blast not as an extension
-//todo - spin up on separate thread
-//todo - extensions need to be able to register their job processor
-//import '../../extensions/blast/jobProcessor';
-
-const FILE_NAME_INPUT = 'input'; //data passed to job
-const FILE_NAME_DATA = 'data'; //a file the job can write (if it wants) //todo - let extensions write whatever files they want (not just one)
-const FILE_NAME_OUTPUT = 'output'; //output file to be written by job
-const FILE_NAME_RAW_RESULT = 'rawresult'; //return result from job
-const FILE_NAME_RESULT = 'result'; //return result from job, after processing by constructor
+import { getServerExtensions } from '../extensions/registry';
+import { FILE_NAME_INPUT,
+  FILE_NAME_DATA,
+  FILE_NAME_OUTPUT,
+  FILE_NAME_RAW_RESULT,
+  FILE_NAME_RESULT,
+} from '../files/constants';
 
 /*
  NOTES
@@ -45,7 +41,7 @@ const FILE_NAME_RESULT = 'result'; //return result from job, after processing by
 
  CAVEAT handling across queues is kinda lame
  - storing state on server (onJobComplete callback)
-   - if server restarts, state is lost. job will restart.
+ - if server restarts, state is lost. job will restart.
  - (extensions) requires extensions to know about job queue (or import bull directly)
  - (test) how to ensure a processor is set up?
  - (comms) need to listen across all queues, since storing state on server
@@ -75,13 +71,31 @@ const createSlaveJobCompleteHandler = (job, promiseResolver) => (result) => {
   const jobId = job.jobId;
   const { projectId } = job.opts;
 
+  // jobs are expected to write their output to the output file
+  // we expect this to be a rollup
+  const getRawResultPromise = jobFiles.jobFileRead(projectId, jobId, FILE_NAME_OUTPUT)
+  .catch(() => {
+    logger(`${job.jobId} - no output file found`);
+    return null;
+  })
+  .then(output => {
+    if (!output) {
+      return null;
+    }
+
+    logger(`${job.jobId} - got output`);
+    //logger(output);
+    return JSON.parse(output);
+  });
+
   //write the raw result (final result is in the final job completion handler)
   //note - may be an error / cause an error stringifying, so try-catch
   const writeResultPromise = jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(result || '', null, 2), FILE_NAME_RAW_RESULT);
 
   //wait for file write and then return the processed result to the promise resolution
   return writeResultPromise
-  .then(() => {
+  .then(() => getRawResultPromise)
+  .then((result) => {
     const gotRollup = (result && typeof result.blocks === 'object');
     if (gotRollup && result.sequences) {
       return sequenceWriteManyChunksAndUpdateRollup(result);
@@ -98,7 +112,7 @@ const createSlaveJobCompleteHandler = (job, promiseResolver) => (result) => {
 
 // JOB TYPES + QUEUES
 
-const jobTypes = ['blast'];
+const jobTypes = Object.keys(getServerExtensions(manifest => manifest.geneticConstructor.job));
 
 if (process.env.NODE_ENV === 'test') {
   require('./testJobProcessor.js');
@@ -159,7 +173,7 @@ jobManager.setProcessor((job) => {
     // save the data in s3, give url to extension (currently, its the same as the data object passed in)
     return jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(data, null, 2), FILE_NAME_INPUT)
     .then(() => {
-      //NB - these URLs only work with s3 credentials supplied
+      //urls for files the extension is expected to read / write
       const urlInput = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_INPUT}`, 'getObject');
       const urlData = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_DATA}`, 'putObject');
       const urlOutput = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_OUTPUT}`, 'putObject');

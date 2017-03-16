@@ -21,7 +21,7 @@ import { pruneUserObjectMiddleware } from '../user/utils';
 import {
   checkExtensionExistsMiddleware,
   checkExtensionIsServerMiddleware,
-  checkUserExtensionAccessMiddleware
+  checkUserExtensionAccessMiddleware,
 } from './routerMiddleware';
 import { getServerExtensions } from './registry';
 

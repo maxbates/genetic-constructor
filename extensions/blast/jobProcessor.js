@@ -33,6 +33,9 @@ try {
   throw err;
 }
 
+const writeFile = (url, fileContent) =>
+  fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: fileContent });
+
 //'jobs' queue used to delegate to other queues
 queue.process((job) => {
   try {
@@ -53,14 +56,14 @@ projectId: ${projectId}`);
       //logger(result);
 
       //write the data file
-      return fetch(urlData, { method: 'POST', body: result })
+      return writeFile(urlData, result)
       .then(() => {
         logger(`${jobId} data file written @ ${urlData}`);
         return blast.blastParseXml(result);
       });
     }).then((result) => {
       logger(`${jobId} parse xml finished`);
-      //logger(result);
+      logger(result);
 
       return parseJson(result, job);
     })
@@ -68,11 +71,12 @@ projectId: ${projectId}`);
       logger(`${jobId} parse json finished`);
 
       //write the output file
-      return fetch(urlOutput, { method: 'POST', body: JSON.stringify(result, null, 2) })
+      return writeFile(urlOutput, JSON.stringify(result, null, 2))
       .then(() => {
         logger(`${jobId} output file written @ ${urlOutput}`);
 
-        return result;
+        //return a dummy result
+        return true;
       });
     })
     .catch((err) => {

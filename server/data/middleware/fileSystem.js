@@ -84,7 +84,7 @@ export const fileRead = (path, jsonParse = true, opts = {}) => {
 };
 
 export const fileWrite = (path, contents, stringify = true) => new Promise((resolve, reject) => {
-  const fileContent = (!!stringify && typeof contents === 'object') ?
+  const fileContent = (stringify === true && typeof contents === 'object') ?
       stringifier(contents) :
       contents;
 

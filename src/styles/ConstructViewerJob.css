@@ -10,5 +10,10 @@
     margin-top: 50px;
     user-select: none;
     cursor: default;
+
+    &.failure {
+      animation: none;
+      color: var(--colors-red);
+    }
   }
 }

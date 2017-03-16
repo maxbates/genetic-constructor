@@ -21,7 +21,7 @@ import { blockStash, blockAddComponent, blockSetJobId } from '../../../actions/b
 import { focusConstruct } from '../../../actions/focus';
 import { uiSetGrunt } from '../../../actions/ui';
 import { projectRemoveConstruct } from '../../../actions/projects';
-import { jobPoll, jobGet } from '../../../middleware/jobs';
+import { jobPoll, jobGet, jobGetResult } from '../../../middleware/jobs';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
 
 import '../../../styles/ConstructViewerJob.css';
@@ -39,6 +39,10 @@ export class ConstructViewerJob extends Component {
     uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
     projectRemoveConstruct: PropTypes.func.isRequired,
+  };
+
+  state = {
+    failure: false,
   };
 
   componentDidMount() {
@@ -68,6 +72,8 @@ export class ConstructViewerJob extends Component {
   };
 
   onJobComplete = (jobObj) => {
+    const { construct } = this.props;
+    const { projectId, jobId } = construct;
     const { failure, error, job, result } = jobObj;
 
     console.log(jobObj);
@@ -80,29 +86,33 @@ export class ConstructViewerJob extends Component {
       console.log(job); //eslint-disable-line no-console
       console.log(error); //eslint-disable-line no-console
 
-      //todo - change background, mark failure somehow
-      this.onDelete();
+      //todo - better mark failure? like on the block? delete it?
+      this.setState({
+        failure: true,
+      });
       return;
     }
 
-    //todo - fetch the result and update, then delete this so stop polling
-    //todo - should expect to be in S3
-    //todo - check if it is a rollup or something (have different types)
+    //job is done, get the result in s3
+    jobGetResult(projectId, jobId)
+    .then(result => {
+      //todo - check if it is a rollup or something (have different types)
+      //todo - make more generic. this is bozo
+      //todo - need rollup utilities which process job results and handle appropriately
 
-    //todo - make more generic. this is bozo
+      const { project, blocks } = result;
+      const list = project.components[0];
 
-    const { project, blocks } = result;
-    const list = project.components[0];
-
-    this.props.blockStash(..._.values(blocks));
-    this.props.blockAddComponent(this.props.construct.id, list);
-    this.props.blockSetJobId(this.props.construct.id, null);
+      this.props.blockStash(..._.values(blocks));
+      this.props.blockAddComponent(this.props.construct.id, list);
+      this.props.blockSetJobId(this.props.construct.id, null);
+    });
   };
 
   //first, try to just get the job, then poll if not complete
   pollForJob = () => {
-    const { projectId, construct } = this.props;
-    const jobId = construct.jobId;
+    const { construct } = this.props;
+    const { projectId, jobId } = construct;
 
     //stop any old polling
     this.cancelPolling();
@@ -129,15 +139,20 @@ export class ConstructViewerJob extends Component {
   }
 
   render() {
+    const { failure } = this.state;
     const { isFocused, focusConstruct, construct } = this.props;
 
     return (
       <div
-        className={`ConstructViewerJob construct-viewer ${isFocused ? 'construct-viewer-focused' : ''}`}
+        className={`ConstructViewerJob construct-viewer${isFocused ? ' construct-viewer-focused' : ''}`}
         onClick={() => focusConstruct(this.props.construct.id)}
       >
         <div className="sceneGraphContainer">
-          <div className="ConstructViewerJob-text">Working on your optimization request...</div>
+          <div className={`ConstructViewerJob-text${failure ? ' failure' : ''}`}>
+            {failure ?
+              'Job failed!' :
+              'Working on your optimization request...'}
+          </div>
         </div>
 
         <div className="corner" style={{ borderColor: construct.getColor() }} />

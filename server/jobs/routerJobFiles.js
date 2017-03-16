@@ -21,22 +21,25 @@ import * as jobFiles from '../files/jobs';
 
 const router = express.Router(); //eslint-disable-line new-cap
 
-router.route('/:namespace/:file?')
+//todo - enforce :jobId is valid
+// ensure genbank processing etc. URLs are valid
+
+router.route('/:jobId/:file?')
 .all((req, res, next) => {
   // const { projectId } = req; //already on the request
-  const { namespace, file } = req.params;
+  const { jobId, file } = req.params;
 
   Object.assign(req, {
-    namespace,
+    jobId,
     file,
   });
 
   next();
 })
 .get((req, res, next) => {
-  const { projectId, namespace, file } = req;
+  const { projectId, jobId, file } = req;
 
-  jobFiles.jobFileRead(projectId, namespace, file)
+  jobFiles.jobFileRead(projectId, jobId, file)
   .then(data => res.send(data))
   .catch((err) => {
     if (err === errorDoesNotExist) {
@@ -48,10 +51,10 @@ router.route('/:namespace/:file?')
 })
 //note - cannot pass custom file name, you are returned one
 .post(bodyParser.text(), (req, res, next) => {
-  const { projectId, namespace } = req;
+  const { projectId, jobId } = req;
   const content = req.body;
 
-  jobFiles.jobFileWrite(projectId, namespace, content)
+  jobFiles.jobFileWrite(projectId, jobId, content)
   .then(result => res.send(result))
   .catch((err) => {
     console.log('project file post err', err, err.stack);
@@ -59,9 +62,9 @@ router.route('/:namespace/:file?')
   });
 })
 .delete((req, res, next) => {
-  const { projectId, namespace, file } = req;
+  const { projectId, jobId, file } = req;
 
-  jobFiles.jobFileDelete(projectId, namespace, file)
+  jobFiles.jobFileDelete(projectId, jobId, file)
   .then(() => res.status(200).send())
   .catch((err) => {
     console.log('project file delete err', err, err.stack);
@@ -69,29 +72,29 @@ router.route('/:namespace/:file?')
   });
 });
 
-router.route('/:namespace')
+router.route('/:jobId')
 .all((req, res, next) => {
   // const { projectId } = req; //already on request
-  const { namespace } = req.params;
+  const { jobId } = req.params;
 
   Object.assign(req, {
-    namespace,
+    jobId,
   });
 
   next();
 })
 .get((req, res, next) => {
-  const { projectId, namespace } = req;
+  const { projectId, jobId } = req;
 
-  //future - support query where namespace is optional (need to update s3 support as well)
+  //future - support query where jobId is optional (need to update s3 support as well)
 
-  jobFiles.jobFileList(projectId, namespace)
+  jobFiles.jobFileList(projectId, jobId)
   .then((contents) => {
     //todo - move this to jobFileList itself
     const mapped = contents.map(filename => ({
       name: filename,
-      Key: [projectId, namespace, filename].join('/'),
-      url: jobFiles.makeJobFileLink(projectId, namespace, filename),
+      Key: [projectId, jobId, filename].join('/'),
+      url: jobFiles.makeJobFileLink(projectId, jobId, filename),
     }));
     res.json(mapped);
   })

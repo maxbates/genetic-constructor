@@ -20,8 +20,7 @@ import colors from 'colors/safe';
 import { getServerExtensions } from './registry';
 import { REDIS_PORT, REDIS_HOST } from '../urlConstants';
 
-const logger = console.log.bind(console);
-//const logger = debug('constructor:jobs:extensions');
+const logger = debug('constructor:jobs:extensions');
 
 /*
  temp - spin up each job processor in a fork
@@ -31,7 +30,6 @@ const logger = console.log.bind(console);
 
  todo - should wrap processor, so just needs to provide callback
  todo - should each get their own *auto-scaled* instance
- todo - better handling of passing REDIS PORT and URL
  */
 
 //map extension { key : process }
@@ -71,9 +69,13 @@ Object.keys(jobExtensions).forEach((key) => {
   }
 });
 
-process.on('exit', () => {
+process.on('SIGTERM', () => {
   logger('Killing Job processes');
-  logger(processes.map(proc => proc.pid));
 
-  processes.forEach(process => process.kill('SIGHUP'));
+  Object.keys(processes)
+  .map(key => processes[key])
+  .forEach(process => {
+    logger(`killing ${process.pid}`);
+    process.kill('SIGHUP');
+  });
 });

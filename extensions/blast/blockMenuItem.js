@@ -21,8 +21,8 @@ constructor.extensions.register('blast', 'menu:block',
     action: () => {
       runBlast(block)
       .then((jobId) => {
-        const component = constructor.api.blocks.blockClone();
-        const construct = constructor.api.blocks.blockClone({
+        const component = constructor.api.blocks.blockClone(block.id);
+        const construct = constructor.api.blocks.blockClone(block.id, {}, {
           metadata: { name: `BLAST: ${block.metadata.name || 'Unnamed Block'}` },
           jobId,
           components: [component.id],
