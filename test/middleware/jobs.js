@@ -19,6 +19,7 @@ import * as api from '../../src/middleware/jobs';
 import { testUserId } from '../constants';
 import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
+import Rollup from '../../src/models/Rollup';
 
 describe('Middleware', () => {
   describe('Jobs', () => {
@@ -89,32 +90,41 @@ Thing!`;
         expect(JSON.parse(result)).to.eql(jobData);
       });
 
-      //test processor writes a file with data
+      //test processor writes a file with a empty rollup
       it('can get job output as file', async() => {
         const result = await api.jobFileRead(projectId, jobId, 'output')
         .then(resp => resp.text());
 
         expect(() => JSON.parse(result)).to.not.throw();
-        expect(JSON.parse(result)).to.eql(jobData);
+        const parsed = JSON.parse(result);
+        Rollup.validate(parsed, true);
       });
 
-      //test processor writes 'result' as raw result
+      //test processor writes job.data as raw result
       //we basically ignore this file
       it('can get job results as file', async() => {
         const result = await api.jobFileRead(projectId, jobId, 'rawresult')
         .then(resp => resp.text());
 
         expect(() => JSON.parse(result)).to.not.throw();
-        expect(JSON.parse(result)).to.eql('result');
+        expect(JSON.parse(result)).to.eql(jobData);
       });
 
       //final result from output after processing is returned
-      it('can get job output as file', async() => {
+      it('can get job processed output as file "result"', async() => {
         const result = await api.jobFileRead(projectId, jobId, 'result')
         .then(resp => resp.text());
 
         expect(() => JSON.parse(result)).to.not.throw();
-        expect(JSON.parse(result)).to.eql(jobData);
+        const parsed = JSON.parse(result);
+        Rollup.validate(parsed, true);
+      });
+
+      it('getJobResult returns the processed result', () => {
+        return api.jobGetResult(projectId, jobId)
+        .then(result => {
+          Rollup.validate(result, true);
+        });
       });
     });
   });

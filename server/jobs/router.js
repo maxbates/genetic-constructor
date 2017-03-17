@@ -19,12 +19,12 @@ import express from 'express';
 import { errorInvalidRoute } from '../errors/errorConstants';
 import { projectIdParamAssignment, ensureReqUserMiddleware, userOwnsProjectMiddleware } from '../data/permissions';
 import jobFileRouter from './routerJobFiles';
-import JobManager from './JobManager';
+import JobQueueManager from './JobQueueManager';
 
 //import the job processor so its in the app
 import './jobQueueDelegator';
 
-const jobManager = new JobManager('jobs');
+const queueManager = new JobQueueManager('jobs');
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json({
@@ -38,7 +38,7 @@ router.param('projectId', projectIdParamAssignment);
 
 router.param('jobId', (req, res, next, id) => {
   try {
-    JobManager.validateJobId(id);
+    JobQueueManager.validateJobId(id);
     Object.assign(req, { jobId: id });
     next();
   } catch (err) {
@@ -74,7 +74,7 @@ router.route('/:projectId/:jobType')
     projectId,
   };
 
-  jobManager.createJob(jobBody, jobOptions)
+  queueManager.createJob(jobBody, jobOptions)
   .then(job => res.status(200).send({
     projectId,
     type,
@@ -86,7 +86,7 @@ router.route('/:projectId/:jobType')
 router.route('/:projectId/:jobId')
 .all(userOwnsProjectMiddleware)
 .get((req, res, next) =>
-  jobManager.jobCompleted(req.jobId)
+  queueManager.jobCompleted(req.jobId)
   .then(jobAndStatus => res.status(200).send(jobAndStatus))
   .catch((err) => {
     if (err === null) {
@@ -95,7 +95,7 @@ router.route('/:projectId/:jobId')
     next(err);
   }))
 .delete((req, res, next) =>
-  jobManager.deleteJob(req.jobId)
+  queueManager.deleteJob(req.jobId)
   .then(() => res.status(200).send({
     jobId: req.jobId,
   }))

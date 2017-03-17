@@ -54,6 +54,8 @@ Object.keys(jobExtensions).forEach((key) => {
       env: {
         REDIS_PORT,
         REDIS_HOST,
+        NODE_ENV: process.env.NODE_ENV,
+        DEBUG: process.env.DEBUG,
       },
     });
 
@@ -67,7 +69,7 @@ Object.keys(jobExtensions).forEach((key) => {
   }
 });
 
-process.on('SIGTERM', () => {
+const handleTermination = () => {
   logger('Killing Job processes');
 
   Object.keys(processes)
@@ -76,4 +78,7 @@ process.on('SIGTERM', () => {
     logger(`killing ${process.pid}`);
     process.kill('SIGHUP');
   });
-});
+};
+
+process.on('exit', handleTermination);
+process.on('SIGTERM', handleTermination);

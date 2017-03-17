@@ -15,13 +15,13 @@
  */
 import { assert, expect } from 'chai';
 import uuid from 'uuid';
-import JobManager from '../../../server/jobs/JobManager';
+import JobQueueManager from '../../../server/jobs/JobQueueManager';
 
 describe('Server', () => {
   describe('Jobs', () => {
     describe('manager', () => {
       it('is class, accepts queue', () => {
-        const manager = new JobManager('myQueue');
+        const manager = new JobQueueManager('myQueue');
         expect(typeof manager.setProcessor).to.equal('function');
         expect(typeof manager.createJob).to.equal('function');
         expect(typeof manager.getJob).to.equal('function');
@@ -29,7 +29,7 @@ describe('Server', () => {
       });
 
       it('getJob rejects if job doesnt exist', (done) => {
-        const manager = new JobManager(uuid.v4());
+        const manager = new JobQueueManager(uuid.v4());
 
         manager.getJob(uuid.v4())
         .then(() => done(new Error('shouldnt resolve')))
@@ -39,7 +39,7 @@ describe('Server', () => {
       });
 
       it('can create + process a job', (done) => {
-        const manager = new JobManager(uuid.v4());
+        const manager = new JobQueueManager(uuid.v4());
 
         const jobData = { type: 'test', data: 'woo' };
 
@@ -52,7 +52,7 @@ describe('Server', () => {
       });
 
       it('can get job and see if compelte', async() => {
-        const manager = new JobManager(uuid.v4());
+        const manager = new JobQueueManager(uuid.v4());
         const jobId = uuid.v4();
 
         manager.setProcessor((job) => {
@@ -77,7 +77,7 @@ describe('Server', () => {
       });
 
       it('can wait until job completed', async() => {
-        const manager = new JobManager(uuid.v4());
+        const manager = new JobQueueManager(uuid.v4());
         const jobId = uuid.v4();
         const jobData = { type: 'test', data: 'woo' };
 
@@ -100,7 +100,7 @@ describe('Server', () => {
       });
 
       it('jobs return their result, jobCompleted returns bunch of information about job including result', (done) => {
-        const manager = new JobManager(uuid.v4());
+        const manager = new JobQueueManager(uuid.v4());
         const jobId = uuid.v4();
         const jobData = { type: 'test', data: 'woo' };
         const processResult = 'some result you were expecting!';
@@ -136,8 +136,8 @@ describe('Server', () => {
         const queueNameDelegator = 'delegator';
         const queueNameSlave = 'slave';
 
-        const managerDelegator = new JobManager(queueNameDelegator);
-        const managerSlave = new JobManager(queueNameSlave);
+        const managerDelegator = new JobQueueManager(queueNameDelegator);
+        const managerSlave = new JobQueueManager(queueNameSlave);
 
         const jobData = { special: 'data' };
         const jobBodyDelegator = { type: 'slave', data: jobData };
@@ -177,7 +177,7 @@ describe('Server', () => {
       });
 
       it('jobs return reason for failure', (done) => {
-        const manager = new JobManager(uuid.v4());
+        const manager = new JobQueueManager(uuid.v4());
         const jobId = uuid.v4();
 
         const errorMsg = 'on nos';
@@ -199,7 +199,7 @@ describe('Server', () => {
       });
 
       it('should fail on timeout', (done) => {
-        const manager = new JobManager(uuid.v4());
+        const manager = new JobQueueManager(uuid.v4());
         const jobId = uuid.v4();
         const timeout = 100;
 
@@ -219,8 +219,8 @@ describe('Server', () => {
         it('processor and creator can be created separately', (done) => {
           const queueName = uuid.v4();
 
-          const managerA = new JobManager(queueName);
-          const managerB = new JobManager(queueName);
+          const managerA = new JobQueueManager(queueName);
+          const managerB = new JobQueueManager(queueName);
 
           const jobData = { type: 'test', some: 'data' };
           const jobId = uuid.v4();

@@ -105,7 +105,7 @@ async function test() {
 
     processes.forEach((proc) => {
       if (proc) {
-        proc.kill();
+        proc.kill('SIGTERM');
       }
     });
 

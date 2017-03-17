@@ -102,10 +102,21 @@ function blastId(id, options = {}) {
   const params = Object.assign({}, blastDefaults, options, { QUERY: id });
   const query = queryString.stringify(params);
 
-  //TEST - we know this result is processed, just return based on known RID
-  //this may need to change, as results expire after some period of time
-  //const rid = 'CGXEVWV8016';
-  //return pollJob(rid, 10000);
+  //if we're testing, just return a canned XML file
+  if (process && process.env && process.env.NODE_ENV === 'test') {
+    console.log('[blast] Sending test XML...');
+
+    const fs = require('fs'); //eslint-disable-line global-require
+    const path = require('path'); //eslint-disable-line global-require
+    return new Promise((resolve, reject) => {
+      fs.readFile(path.resolve(__dirname, 'example.xml'), (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  }
 
   return fetch(`${blastUrl}`, Object.assign({}, fetchOpts, {
     method: 'POST',
@@ -128,12 +139,12 @@ function blastId(id, options = {}) {
       const resultTime = /RTOE = (.*)/.exec(text);
       const rtoe = resultTime[1] * 1000;
 
-      logger(`got RID ${rid}`);
+      console.log(`[blast] got RID ${rid}`);
       logger(`expected to take (sec): ${rtoe / 1000}`);
 
       return pollJob(rid);
     } catch (err) {
-      console.log(`error running blast`);
+      console.log('error running blast');
       console.log(text);
       throw err;
     }

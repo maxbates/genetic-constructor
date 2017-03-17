@@ -51,7 +51,7 @@ projectId: ${projectId}`);
 
     const { id, sequence } = data;
 
-    return blast.blastSequence(id, sequence)
+    return blast.blastSequence(id || 'Unnamed', sequence)
     .then((result) => {
       logger(`${jobId} blast finished`);
       //logger(result);

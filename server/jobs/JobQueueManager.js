@@ -26,7 +26,7 @@ const logger = debug('constructor:jobs:manager');
 //REFERENCE - https://github.com/OptimalBits/bull
 
 //job queue manager
-export default class JobManager {
+export default class JobQueueManager {
   //args to create Queue from bull
   constructor(queue, port = REDIS_PORT, host = REDIS_HOST, redisOpts) {
     this.queueName = queue;
@@ -54,7 +54,7 @@ export default class JobManager {
 
   static createJobOptions(options = {}) {
     return {
-      jobId: JobManager.createJobId(),
+      jobId: JobQueueManager.createJobId(),
       attempts: 1,
       delay: 0,
       timeout: (15 * 60 * 1000), //timeout after 15 minutes
@@ -82,13 +82,13 @@ export default class JobManager {
   //create new job, minting job if not provided
   //returns promise, resolves when job has been added
   createJob(data, options) {
-    const opts = JobManager.createJobOptions(options);
+    const opts = JobQueueManager.createJobOptions(options);
     const jobId = opts.jobId;
 
     logger(`[create] [${this.queueName}] creating... ${jobId}`);
 
     try {
-      JobManager.validateJobData(data);
+      JobQueueManager.validateJobData(data);
     } catch (err) {
       logger(`[create] [${this.queueName}] INVALID DATA ${jobId}`);
       logger(err);
@@ -130,7 +130,7 @@ export default class JobManager {
 
     return this.getJob(jobId)
     .then((job) => {
-      logger(`[jobCompleted] [${this.queueName}] retrieved... ${jobId}`);
+      //logger(`[jobCompleted] [${this.queueName}] retrieved... ${jobId}`);
 
       return job.isCompleted()
       .then((complete) => {

@@ -15,7 +15,7 @@
  */
 
 import debug from 'debug';
-import JobManager from './JobManager';
+import JobQueueManager from './JobQueueManager';
 import * as agnosticFs from '../files/agnosticFs';
 import * as jobFiles from '../files/jobs';
 import { sequenceWriteManyChunksAndUpdateRollup } from '../data/persistence/sequence';
@@ -53,7 +53,7 @@ import {
  - (memory) a promise is required for every job running, between initiate + resolution
  */
 
-const jobManager = new JobManager('jobs');
+const delegatorManager = new JobQueueManager('jobs');
 const logger = debug('constructor:jobs:processor');
 
 // JOB TRACKING + RESOLUTION
@@ -80,7 +80,7 @@ const createSlaveJobCompleteHandler = (job, promiseResolver) => (result) => {
   // we expect this to be a rollup
   const getRawResultPromise = jobFiles.jobFileRead(projectId, jobId, FILE_NAME_OUTPUT)
   .catch(() => {
-    logger(`${job.jobId} - no output file found`);
+    logger(`slave: ${job.jobId} - no output file found`);
     return null;
   })
   .then(output => {
@@ -88,12 +88,12 @@ const createSlaveJobCompleteHandler = (job, promiseResolver) => (result) => {
       return null;
     }
 
-    logger(`${job.jobId} - got output`);
+    logger(`slave: ${job.jobId} - got output`);
 
     try {
       return JSON.parse(output);
     } catch (err) {
-      logger(`${job.jobId} - error parsing output`);
+      logger(`slave: ${job.jobId} - error parsing output`);
       logger(output);
       return null;
     }
@@ -115,7 +115,7 @@ const createSlaveJobCompleteHandler = (job, promiseResolver) => (result) => {
   })
   .then(promiseResolver)
   .catch((err) => {
-    console.log('jobCompleteHandler error');
+    console.log('slave: jobCompleteHandler error');
     console.log(err);
     promiseResolver(Promise.reject(err));
   });
@@ -134,28 +134,29 @@ if (process.env.NODE_ENV === 'test') {
 // one queue per type of extension, expects that the extension has its own queue to process the jobs
 // future - dynamic, based on extensions
 const jobTypeToQueue = jobTypes.reduce((map, jobType) => {
-  const manager = new JobManager(jobType);
+  const manager = new JobQueueManager(jobType);
 
   manager.onAddJob((job) => {
-    logger(`[${jobType}] ${job.jobId} - started`);
+    logger(`slave: [${jobType}] ${job.jobId} - started`);
   }, true);
 
   //when the job completes at the appropriate queue, resolve here
   manager.onComplete((job, result) => {
-    logger(`[${jobType}] ${job.jobId} - complete`);
+    logger(`slave: [${jobType}] ${job.jobId} - complete`);
     logger(result);
     attemptResolveJob(job.jobId, result);
   }, true);
 
   manager.queue.on('stalled', (job) => {
     // Job that was considered stalled. Useful for debugging job workers that crash or pause the event loop.
-    logger(`[${jobType}] ${job.jobId} - stalled`);
+    logger(`slave: [${jobType}] ${job.jobId} - stalled`);
     attemptResolveJob(job.jobId, Promise.reject(new Error('job stalled')));
   }, true);
 
   //when the job fails, reject with error
   manager.onFail((job, err) => {
-    logger(`[${jobType}] ${job.jobId} - failed`);
+    logger(`slave: [${jobType}] ${job.jobId} - failed`);
+    logger(err);
     attemptResolveJob(job.jobId, Promise.reject(new Error(err)));
   }, true);
 
@@ -166,18 +167,18 @@ const jobTypeToQueue = jobTypes.reduce((map, jobType) => {
 // JOB HANDLING
 
 //'jobs' queue used to delegate to other queues
-jobManager.setProcessor((job) => {
+delegatorManager.setProcessor((job) => {
   const jobId = job.jobId;
   const { type, data } = job.data;
   const { projectId } = job.opts;
 
-  logger('got a job!', type, jobId, projectId);
+  logger(`delegator: [${type}] ${jobId} (${projectId}) - processing`);
 
   const queueManager = jobTypeToQueue[type];
 
   return new Promise((resolve) => {
     if (!queueManager) {
-      console.log(`task ${type} not recognized, failing`);
+      console.log(`delegator: task ${type} not recognized, failing`);
       throw new Error(`task ${type} not recognized`);
     }
 
@@ -190,7 +191,7 @@ jobManager.setProcessor((job) => {
       const urlOutput = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_OUTPUT}`, 'putObject');
 
       //create specific jobId for the slave job
-      const taskJobId = JobManager.createJobId();
+      const taskJobId = JobQueueManager.createJobId();
 
       //add a resolution function, for when the job at slave is done
       jobResolutionMap[taskJobId] = createSlaveJobCompleteHandler(job, resolve);
@@ -209,19 +210,19 @@ jobManager.setProcessor((job) => {
     });
   })
   .catch((err) => {
-    console.log('job error!', type, jobId, projectId);
+    console.log('delegator: job error!', type, jobId, projectId);
     console.log(err);
     attemptResolveJob(jobId, Promise.reject(err));
   });
 });
 
 //when jobs in 'jobs' queue complete, save the result
-jobManager.onComplete((job, result) => {
+delegatorManager.onComplete((job, result) => {
   const jobId = job.jobId;
   const { type } = job.data;
   const { projectId } = job.opts;
 
-  logger(`[${type}] ${jobId} (${projectId}) - onComplete`);
+  logger(`delegator: [${type}] ${jobId} (${projectId}) - onComplete`);
   logger(result);
 
   //save the result in s3, even if it was null / empty
@@ -229,11 +230,11 @@ jobManager.onComplete((job, result) => {
 });
 
 //handler for failed jobs
-jobManager.onFail((job, err) => {
+delegatorManager.onFail((job, err) => {
   const jobId = job.jobId;
   const { type } = job.data;
   const { projectId } = job.opts;
 
-  console.log(`[${type}] ${jobId} (${projectId}) - onFail`);
+  console.log(`delegator: [${type}] ${jobId} (${projectId}) - onFail`);
   console.log(err);
 });

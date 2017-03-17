@@ -13,23 +13,25 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import JobManager from './JobManager';
+import JobQueueManager from './JobQueueManager';
 import rejectingFetch from '../../src/middleware/utils/rejectingFetch';
 import { headersPut } from '../../src/middleware/utils/headers';
+
+import Rollup from '../../src/models/Rollup';
 
 // job handler for test environment, just returns the data passed in
 // also basic test for the s3mock (write)
 
-const jobManager = new JobManager('test');
+const queueManager = new JobQueueManager('test');
 
-jobManager.setProcessor((job) => {
+queueManager.setProcessor((job) => {
   //console.log(job.opts);
 
   //test writing to the s3 mock before returning result
-  return rejectingFetch(job.opts.urlOutput, headersPut(JSON.stringify(job.data, null, 2), {
+  return rejectingFetch(job.opts.urlOutput, headersPut(JSON.stringify(new Rollup(), null, 2), {
     headers: { 'Content-Type': 'text/plain' },
   }))
-  .then(() => Promise.resolve('result'))
+  .then(() => Promise.resolve(job.data))
   .catch(err => {
     console.log(err);
     console.log(err.stack);

@@ -21,8 +21,16 @@ const Block = constructorClasses.models.Block;
 const Project = constructorClasses.models.Project;
 const Rollup = constructorClasses.models.Rollup;
 
+const dummyJob = () => ({
+  jobId: null,
+  opts: {
+    projectId: (new Project()).id,
+    urlData: null,
+  },
+});
+
 //actually parse the json file we get back
-module.exports = function parseJson(json, job) {
+module.exports = function parseJson(json, job = dummyJob()) {
   const jobId = job;
   const { projectId, urlData } = job.opts;
 

@@ -22,11 +22,15 @@ const parseJson = require('./parseJson');
 const router = express.Router(); //eslint-disable-line new-cap
 const textParser = bodyParser.text({ limit: '10mb' });
 
-router.post('/parseXml', textParser, (req, res) => {
-  blast.blastParseXml(req.body)
-  .then(parseJson)
-  .then(res.send)
-  .catch(err => res.status(500).send(err));
+router.post('/parseXml', textParser, (req, res, next) => {
+  const json = blast.blastParseXml(req.body);
+
+  parseJson(json)
+  .then(roll => res.send(roll))
+  .catch((err) => {
+    console.log(err);
+    res.status(500).send(err);
+  });
 });
 
 module.exports = router;
