@@ -31,6 +31,6 @@ export const AUTH_END_POINT = process.env.BIO_NANO_AUTH ? `${API_END_POINT}/auth
 //storage API - mounted locally for local dev, otherwise external
 export const STORAGE_URL = process.env.STORAGE_API || (`${INTERNAL_HOST}/api`);
 
+//redis
 export const REDIS_PORT = process.env.REDIS_PORT || '6379';
 export const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
-export const REDIS_URL = process.env.REDIS_URL || `redis://${REDIS_HOST}:${REDIS_PORT}`;

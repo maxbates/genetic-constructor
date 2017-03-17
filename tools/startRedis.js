@@ -21,11 +21,11 @@ import { REDIS_PORT } from '../server/urlConstants';
 
 //note - DB holds on the to process, so this will resolve but process will never exit. So, can be used in promise chaining, but not in __ && __ bash syntax
 
-//todo - install redis as part of installation? or just use amazon elasticCache
-//todo - redis conf
+const withJenkins = !!process.env.JENKINS;
+const noDocker = !!process.env.NO_DOCKER;
 
 /*
- local: but probably want something better:
+ local install to avoid docker (not ok for production)
 
  wget http://download.redis.io/redis-stable.tar.gz
  tar xvzf redis-stable.tar.gz
@@ -34,15 +34,30 @@ import { REDIS_PORT } from '../server/urlConstants';
  make install
  */
 
-console.log('\nTODO - INSTALL REDIS \n');
+const runDb = `docker run -l "redis" -p ${REDIS_PORT}:${REDIS_PORT} --rm redis`;
 
 async function startRedis() {
   try {
+    if (withJenkins || noDocker) {
+      console.log(colors.yellow('Assuming Redis managed externally...'));
+      return Promise.resolve(null);
+    }
+
     const dbProcess = await checkPortFree(REDIS_PORT)
     .catch(err => false)
     .then((free) => {
       if (free) {
+        /*
+        // local version (without docker - assumes installed locally)
         return spawnAsync('redis-server', ['--port', REDIS_PORT], {}, {
+          waitUntil: 'The server is now ready to accept connections',
+          comment: 'Starting redis server...',
+        });
+        */
+
+        const [cmd, ...args] = runDb.split(' ');
+
+        return spawnAsync(cmd, args, {}, {
           waitUntil: 'The server is now ready to accept connections',
           comment: 'Starting redis server...',
         });
