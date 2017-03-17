@@ -216,8 +216,8 @@ function handleError(err) {
   console.log(colors.bgRed('Error starting server. Terminating...'));
   console.log(colors.red(err));
   console.log(err.stack);
-  //87 is totally arbitrary, but listen for it in runServer.js
-  process.exit(87);
+  //42 is totally arbitrary, but listen for it in runServer.js
+  process.exit(42);
 }
 
 function startServer() {
@@ -260,5 +260,10 @@ if (process.env.SERVER_MANUAL !== 'true') {
 } else {
   console.log('Server ready, will start listening manually...');
 }
+
+//explicit listener for termination event for webpack etc, to kill process and not hog the port
+process.on('SIGTERM', () => {
+  process.exit(0);
+});
 
 export default app;

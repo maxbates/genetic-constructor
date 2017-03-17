@@ -16,6 +16,13 @@ const serverPath = './server/devServerBabel.js';
 //const { output } = serverConfig;
 //const serverPath = path.join(output.path, output.filename);
 
+const terminationHandler = () => {
+  if (server && !server.killed) {
+    console.log(colors.blue(`Killing server... (pid ${server.pid})`));
+    server.kill(terminationSignal);
+  }
+};
+
 // Launch or restart the Node.js server
 function runServer(cb) {
   let lastTime = new Date();
@@ -43,14 +50,14 @@ function runServer(cb) {
     }
   }
 
-  if (server) {
-    console.log(colors.blue('Restarting server...'));
-    server.kill(terminationSignal);
-  }
+  terminationHandler();
 
   //arguments to node
   const nodeArgs = ['--max_old_space_size=4096'];
-  if (process.env.DEBUG && process.env.DEBUG.indexOf('node' >= 0)) {
+
+  //node --inspect causes issues with process detaching... not recommended with webpack, or need to get this working
+  //https://github.com/nodejs/node/issues/7742
+  if (process.env.DEBUG && process.env.DEBUG.indexOf('inspect') >= 0) {
     nodeArgs.push('--inspect');
   }
 
@@ -64,13 +71,22 @@ function runServer(cb) {
     DEBUG_COLORS: 'true',
   };
 
-  //short timeout, start so dev tools etc. have time to detach and die
-  const time = process.env.DEBUG ? 100 : 0;
-  setTimeout(() => {
+  //poll for server to have died before spinning up another one...
+  const interval = setInterval(() => {
+    if (server && !server.killed) {
+      console.log(colors.blue('Waiting for server to die...'));
+      console.log(server.pid);
+      terminationHandler();
+      return;
+    }
+
+    clearInterval(interval);
+
     server = cp.spawn('node', [...nodeArgs, serverPath, ...processArgs], {
       env: Object.assign(defaultEnv, process.env),
       silent: false,
     });
+    console.log(colors.blue(`Spawned new server... (pid ${server.pid})`));
 
     server.stdout.on('data', onStdOut);
     server.stderr.on('data', defaultWriteOut);
@@ -89,7 +105,7 @@ function runServer(cb) {
       }
 
       //we trigger 87 on build failure in server.js
-      if (code === 87) {
+      if (code === 42) {
         process.exit(1);
         return; //in case not sync...
       }
@@ -99,16 +115,10 @@ function runServer(cb) {
       console.log(colors.red(`Server exited with code ${code} and signal ${signal}`));
       process.exit(1);
     });
-  }, time);
+  }, 100);
 }
 
-const terminationHandler = () => {
-  if (server) {
-    console.log('killing server');
-    server.kill(terminationSignal);
-  }
-};
-
+//on various death events, explicitly kill server
 process.on('exit', terminationHandler);
 process.on('SIGINT', terminationHandler);
 process.on('SIGTERM', terminationHandler);

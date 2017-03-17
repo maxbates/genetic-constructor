@@ -17,4 +17,4 @@ const debug = require('debug');
 
 const logger = debug('constructor:blast');
 
-module.exports = console.log.bind(console);
+module.exports = logger;

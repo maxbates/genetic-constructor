@@ -48,8 +48,6 @@ Object.keys(jobExtensions).forEach((key) => {
     const extensionDirectoryPath = path.resolve(__dirname, 'node_modules', key);
     const extensionJobPath = path.resolve(extensionDirectoryPath, jobPath);
 
-    logger(`[${key}] Creating extension job process`);
-
     const child = cp.fork(extensionJobPath, {
       cwd: extensionDirectoryPath,
       execArgv: [],
@@ -59,7 +57,7 @@ Object.keys(jobExtensions).forEach((key) => {
       },
     });
 
-    logger(`[${key}] Process ${child.pid}`);
+    logger(`[${key}] Created process ${child.pid}`);
 
     Object.assign(processes, { [key]: child });
   } catch (err) {

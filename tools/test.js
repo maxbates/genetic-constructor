@@ -104,7 +104,7 @@ async function test() {
     }
 
     processes.forEach((proc) => {
-      if (proc && !Number.isInteger(proc.exitCode)) {
+      if (proc) {
         proc.kill();
       }
     });

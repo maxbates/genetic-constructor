@@ -92,8 +92,6 @@ async function start() {
         console.log('webpack initial build complete');
         console.log('Starting Browser-Sync proxy & injecting Webpack middleware...');
 
-        console.log(colors.blue('Starting server...'));
-
         runServer((err, host) => {
           if (!err) {
             const bs = BrowserSync.create();

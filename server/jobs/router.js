@@ -65,6 +65,8 @@ router.route('/:projectId/:jobType')
   const data = req.body;
   const type = req.params.jobType;
 
+  debugger;
+
   const jobBody = {
     type,
     data,
