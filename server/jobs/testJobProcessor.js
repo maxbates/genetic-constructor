@@ -23,17 +23,16 @@ import { headersPut } from '../../src/middleware/utils/headers';
 const jobManager = new JobManager('test');
 
 jobManager.setProcessor((job) => {
-  try {
-    job.progress(100);
+  //console.log(job.opts);
 
-    console.log(job.opts);
-
-    //test writing to the s3 mock before returning result
-    return rejectingFetch(job.opts.urlOutput, headersPut(JSON.stringify('results')))
-    .then(() => Promise.resolve(job.data));
-  } catch (err) {
+  //test writing to the s3 mock before returning result
+  return rejectingFetch(job.opts.urlOutput, headersPut(JSON.stringify(job.data, null, 2), {
+    headers: { 'Content-Type': 'text/plain' },
+  }))
+  .then(() => Promise.resolve('result'))
+  .catch(err => {
     console.log(err);
     console.log(err.stack);
     throw err;
-  }
+  });
 });

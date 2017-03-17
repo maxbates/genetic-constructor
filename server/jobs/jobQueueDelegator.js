@@ -20,7 +20,8 @@ import * as agnosticFs from '../files/agnosticFs';
 import * as jobFiles from '../files/jobs';
 import { sequenceWriteManyChunksAndUpdateRollup } from '../data/persistence/sequence';
 import { getServerExtensions } from '../extensions/registry';
-import { FILE_NAME_INPUT,
+import {
+  FILE_NAME_INPUT,
   FILE_NAME_DATA,
   FILE_NAME_OUTPUT,
   FILE_NAME_RAW_RESULT,
@@ -31,6 +32,10 @@ import { FILE_NAME_INPUT,
  NOTES
  jobs are nested:
  client -> REST -> JobQueueDelegator -> jobQueue[type]
+
+ jobQueue is expected to write to the output, which is then downloaded and saved as the result for the parent (delegator) job
+
+ -
 
  have a delegator job queue so:
  - unified way to handle jobs in-out
@@ -84,8 +89,14 @@ const createSlaveJobCompleteHandler = (job, promiseResolver) => (result) => {
     }
 
     logger(`${job.jobId} - got output`);
-    //logger(output);
-    return JSON.parse(output);
+
+    try {
+      return JSON.parse(output);
+    } catch (err) {
+      logger(`${job.jobId} - error parsing output`);
+      logger(output);
+      return null;
+    }
   });
 
   //write the raw result (final result is in the final job completion handler)

@@ -21,7 +21,7 @@ import { createExampleRollup } from '../_utils/rollup';
 import * as projectPersistence from '../../server/data/persistence/projects';
 
 describe('Middleware', () => {
-  describe.only('Jobs', () => {
+  describe('Jobs', () => {
     describe('Files', () => {
       const roll = createExampleRollup();
       const projectId = roll.project.id;
@@ -72,17 +72,16 @@ Thing!`;
         });
       });
 
-      it('can get a job', async () => {
+      it('can get a job', async() => {
         const result = await api.jobPoll(projectId, jobId, 500);
 
         expect(typeof result).to.equal('object');
         assert(result.complete === true || result.complete === false);
         assert(result.job, 'should get job');
         assert(result.jobId === jobId, 'should get jobId');
-        assert(result.result, 'should get a result');
       });
 
-      it('can get job input as file', async () => {
+      it('can get job input as file', async() => {
         const result = await api.jobFileRead(projectId, jobId, 'input')
         .then(resp => resp.text());
 
@@ -90,16 +89,27 @@ Thing!`;
         expect(JSON.parse(result)).to.eql(jobData);
       });
 
-      //test processor writes a file
-      it('can get job output as file', async () => {
+      //test processor writes a file with data
+      it('can get job output as file', async() => {
         const result = await api.jobFileRead(projectId, jobId, 'output')
         .then(resp => resp.text());
 
-        expect(result).to.eql('results');
+        expect(() => JSON.parse(result)).to.not.throw();
+        expect(JSON.parse(result)).to.eql(jobData);
       });
 
-      //test processor just returns data as the result
-      it('can get job results as file', async () => {
+      //test processor writes 'result' as raw result
+      //we basically ignore this file
+      it('can get job results as file', async() => {
+        const result = await api.jobFileRead(projectId, jobId, 'rawresult')
+        .then(resp => resp.text());
+
+        expect(() => JSON.parse(result)).to.not.throw();
+        expect(JSON.parse(result)).to.eql('result');
+      });
+
+      //final result from output after processing is returned
+      it('can get job output as file', async() => {
         const result = await api.jobFileRead(projectId, jobId, 'result')
         .then(resp => resp.text());
 

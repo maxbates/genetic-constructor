@@ -29,6 +29,8 @@ const textParser = bodyParser.text({
   limit: '500mb',
 });
 
+//todo - check if s3 differentiates between POST / PUT on signed URLs (i.e. putObject)
+
 router.route(/.*/)
 .all((req, res, next) => {
   Object.assign(req, {
@@ -54,6 +56,10 @@ router.route(/.*/)
   .catch(err => res.status(500).send(err));
 })
 .put(textParser, (req, res, next) => {
+  if (typeof req.body !== 'string') {
+    return res.status(422).send('send a string');
+  }
+
   const folderPath = req.filePath.substring(0, req.filePath.lastIndexOf('/'));
 
   fileSystem.directoryMake(folderPath)

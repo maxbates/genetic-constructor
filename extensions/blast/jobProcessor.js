@@ -34,10 +34,11 @@ try {
 }
 
 const writeFile = (url, fileContent) =>
-  fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: fileContent });
+  fetch(url, { method: 'PUT', headers: { 'Content-Type': 'text/plain' }, body: fileContent });
 
-//'jobs' queue used to delegate to other queues
-queue.process((job) => {
+//at most 5 in parallel so don't overload server
+//todo - should batch them based on sequence length, not just hard stop at 5
+queue.process(5, (job) => {
   try {
     const { jobId, data } = job;
     const { projectId, parentJobId, urlData, urlOutput } = job.opts;
