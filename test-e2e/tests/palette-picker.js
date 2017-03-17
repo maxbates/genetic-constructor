@@ -15,16 +15,16 @@ module.exports = {
       .click('.ProjectHeader .title .text')
       .waitForElementPresent('.expando[data-expando*="Color Palette"]', 1000, 'expected color palette picker expando')
       .click('.expando[data-expando*="Color Palette"]')
-      .waitForElementPresent('.palette-picker-content > .color-picker > .color', 5000, 'expected a color chip')
-      .assert.countelements('.palette-picker-content > .color-picker > .color', 16);
+      .waitForElementPresent('.palette-picker-content .color', 5000, 'expected a color chip')
+      .assert.countelements('.palette-picker-content .color', 16);
 
     // test palette picker on construct
     browser
       .click('.construct-viewer .title')
       .waitForElementPresent('.expando[data-expando*="Color Palette"]', 1000, 'expected color palette picker expando')
       .click('.expando[data-expando*="Color Palette"]')
-      .waitForElementPresent('.palette-picker-content > .color-picker > .color', 1000, 'expected a color chip')
-      .assert.countelements('.palette-picker-content > .color-picker > .color', 16)
+      .waitForElementPresent('.palette-picker-content .color', 1000, 'expected a color chip')
+      .assert.countelements('.palette-picker-content .color', 16)
       .end();
   }
 };

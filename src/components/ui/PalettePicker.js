@@ -39,7 +39,22 @@ export default class PalettePicker extends Component {
   };
 
   render() {
-    const currentPalette = getPalette(this.props.paletteName);
+    // the palette to display
+    const currentPalette = getPalette(this.props.paletteName).slice();
+    // number of colors per row
+    const rowSizes = [4, 3, 5];
+    const rows = [];
+    while (currentPalette.length) {
+      const rowSize = rowSizes.shift();
+      rowSizes.push(rowSize);
+      const colors = currentPalette.splice(0, rowSize);
+      rows.push((
+        <div className="row" key={colors[0].hex}>
+          {colors.map(color => <div className="color" style={{ backgroundColor: color.hex }} key={color.hex} />)}
+        </div>
+      ));
+    }
+
     return (
       <div className="color-tabs">
         <div className="ribbon">
@@ -60,14 +75,8 @@ export default class PalettePicker extends Component {
           })}
         </div>
         <div className="palette-picker-content">
-          <div className="color-picker">
-            {currentPalette.map((color, index) =>
-              (<div
-                key={index}
-                className="color"
-                style={{ backgroundColor: color.hex, cursor: 'default' }}
-              />),
-            )}
+          <div className="color-container">
+            {rows}
           </div>
         </div>
       </div>
