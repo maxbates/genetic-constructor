@@ -17,10 +17,11 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import Rollup from '../../../models/Rollup';
 import { blockStash, blockAddComponent, blockSetJobId } from '../../../actions/blocks';
 import { focusConstruct } from '../../../actions/focus';
 import { uiSetGrunt } from '../../../actions/ui';
-import { projectRemoveConstruct } from '../../../actions/projects';
+import { projectAddConstruct, projectRemoveConstruct } from '../../../actions/projects';
 import { jobPoll, jobGet, jobGetResult } from '../../../middleware/jobs';
 import TitleAndToolbar from '../../../components/toolbars/title-and-toolbar';
 
@@ -38,6 +39,7 @@ export class ConstructViewerJob extends Component {
     blockSetJobId: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
+    projectAddConstruct: PropTypes.func.isRequired,
     projectRemoveConstruct: PropTypes.func.isRequired,
   };
 
@@ -77,8 +79,6 @@ export class ConstructViewerJob extends Component {
     const { failure, error, job, result } = jobObj;
 
     console.log(jobObj);
-    console.log(result);
-
     this.cancelPolling();
 
     if (failure === true || !result) {
@@ -86,26 +86,50 @@ export class ConstructViewerJob extends Component {
       console.log(job); //eslint-disable-line no-console
       console.log(error); //eslint-disable-line no-console
 
-      //todo - better mark failure? like on the block? delete it?
-      this.setState({
-        failure: true,
-      });
-      return;
+      return this.onFailure();
     }
 
     //job is done, get the result in s3
     jobGetResult(projectId, jobId)
     .then(result => {
-      //todo - check if it is a rollup or something (have different types)
-      //todo - make more generic. this is bozo
-      //todo - need rollup utilities which process job results and handle appropriately
+      // ? rollup utility to handle this merging, share with import middleware?
+      // difficult to handle in one place the differences between client and server
+      // wait until try to handle genbank and handle similarly
 
-      const { project, blocks } = result;
-      const list = project.components[0];
+      //assume we got a rollup, and update project accordingly
+      if (result && result.blocks && result.project) {
+        const rollup = Rollup.classify(result);
+        const { project, blocks } = rollup;
 
-      this.props.blockStash(..._.values(blocks));
-      this.props.blockAddComponent(this.props.construct.id, list);
-      this.props.blockSetJobId(this.props.construct.id, null);
+        //assign information from this construct to the new constructs (maintain inheritance, etc.)
+        const toMerge = _.cloneDeep(construct);
+        delete toMerge.jobId; //remove the job ID
+        delete toMerge.id; //remove ID to handle more than one result
+
+        const constructs = _.mapValues(rollup.getBlocks(...project.components), block => block.merge(toMerge));
+
+        //add the updated constructs to the rollup
+        Object.assign(blocks, constructs);
+
+        //store all the blocks
+        this.props.blockStash(..._.values(blocks));
+
+        //hack kinda - insert all the results in the construct, not as constructs
+        //we have weird wrapping where constructs aren't allowed to be lists etc.
+        //add each construct in the rollup, merging with this job construct (to keep inheritance etc.)
+        _.forEach(constructs, (block, constructId) => {
+          this.props.blockAddComponent(construct.id, constructId);
+        });
+      }
+
+      this.props.blockSetJobId(construct.id, null);
+    });
+  };
+
+  //todo - better mark failure? like on in block data? delete it?
+  onFailure = () => {
+    this.setState({
+      failure: true,
     });
   };
 
@@ -126,8 +150,7 @@ export class ConstructViewerJob extends Component {
       this.poller = jobPoll(projectId, jobId).then(this.onJobComplete);
     })
     .catch((err) => {
-      //swallow
-      //todo - what to do?
+      //swallow - the job didn't exist, and we aren't polling
     });
   };
 
@@ -185,5 +208,6 @@ export default connect((state, props) => ({
   blockSetJobId,
   uiSetGrunt,
   focusConstruct,
+  projectAddConstruct,
   projectRemoveConstruct,
 })(ConstructViewerJob);

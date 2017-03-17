@@ -43,7 +43,6 @@ describe('Extensions', () => {
       }))
       .then(resp => resp.json())
       .then(result => {
-        console.log(result);
         expect(typeof result).to.equal('object');
 
         //assert valid rollup

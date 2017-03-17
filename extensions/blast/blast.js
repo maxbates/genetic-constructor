@@ -139,7 +139,7 @@ function blastId(id, options = {}) {
       const resultTime = /RTOE = (.*)/.exec(text);
       const rtoe = resultTime[1] * 1000;
 
-      console.log(`[blast] got RID ${rid}`);
+      logger(`[blast] got RID ${rid}`);
       logger(`expected to take (sec): ${rtoe / 1000}`);
 
       return pollJob(rid);

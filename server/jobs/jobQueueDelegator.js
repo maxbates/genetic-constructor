@@ -27,6 +27,7 @@ import {
   FILE_NAME_RAW_RESULT,
   FILE_NAME_RESULT,
 } from '../files/constants';
+import Rollup from '../../src/models/Rollup';
 
 /*
  NOTES
@@ -108,8 +109,20 @@ const createSlaveJobCompleteHandler = (job, promiseResolver) => (result) => {
   .then(() => getRawResultPromise)
   .then((result) => {
     const gotRollup = (result && typeof result.blocks === 'object');
-    if (gotRollup && result.sequences) {
-      return sequenceWriteManyChunksAndUpdateRollup(result);
+    if (gotRollup) {
+      try {
+        //if got an apparent rollup, validate that the rollup is valid
+        Rollup.validate(result, true);
+      } catch (err) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`slave: ${job.jobId} - error validating output rollup`);
+        }
+        throw err;
+      }
+
+      if (result.sequences) {
+        return sequenceWriteManyChunksAndUpdateRollup(result);
+      }
     }
     return result;
   })
