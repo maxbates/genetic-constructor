@@ -47,7 +47,15 @@ module.exports = function parseJson(json, job = dummyJob()) {
   //get fasta
   //todo - get genbank and actually parse it
   return Promise.all(hits.map(hit => ncbi.getFasta(hit.accession)))
-  .then(fastas => {
+  .then((fastas) => {
+    //if we got no hits, just return an empty project as the patch
+    //todo - should be able to return an error message
+    if (!hits.length) {
+      return new Rollup({
+        project: new Project({ id: projectId }),
+      });
+    }
+
     //track block to sequence
     const blockToSequence = {};
 

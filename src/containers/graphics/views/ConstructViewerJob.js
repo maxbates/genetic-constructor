@@ -16,7 +16,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-
 import Rollup from '../../../models/Rollup';
 import { blockStash, blockAddComponent, blockSetJobId } from '../../../actions/blocks';
 import { focusConstruct } from '../../../actions/focus';
@@ -39,7 +38,6 @@ export class ConstructViewerJob extends Component {
     blockSetJobId: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
-    projectAddConstruct: PropTypes.func.isRequired,
     projectRemoveConstruct: PropTypes.func.isRequired,
   };
 
@@ -78,7 +76,6 @@ export class ConstructViewerJob extends Component {
     const { projectId, jobId } = construct;
     const { failure, error, job, result } = jobObj;
 
-    console.log(jobObj);
     this.cancelPolling();
 
     if (failure === true || !result) {
@@ -100,6 +97,13 @@ export class ConstructViewerJob extends Component {
       if (result && result.blocks && result.project) {
         const rollup = Rollup.classify(result);
         const { project, blocks } = rollup;
+
+        //handle the empty construct scenario
+        //todo - this is somewhat blast specific, should return a more specific message
+        if (!project.components.length) {
+          this.onFailure('No matches were found');
+          return;
+        }
 
         //assign information from this construct to the new constructs (maintain inheritance, etc.)
         const toMerge = _.cloneDeep(construct);
@@ -126,11 +130,9 @@ export class ConstructViewerJob extends Component {
     });
   };
 
-  //todo - better mark failure? like on in block data? delete it?
-  onFailure = () => {
-    this.setState({
-      failure: true,
-    });
+  onFailure = (failureMessage = 'Your job could not be completed. Try again in a few minutes.') => {
+    const name = this.props.construct.getName();
+    this.props.uiSetGrunt(`${name}: ${failureMessage}`, -1);
   };
 
   //first, try to just get the job, then poll if not complete
@@ -162,7 +164,6 @@ export class ConstructViewerJob extends Component {
   }
 
   render() {
-    const { failure } = this.state;
     const { isFocused, focusConstruct, construct } = this.props;
 
     return (
@@ -171,10 +172,8 @@ export class ConstructViewerJob extends Component {
         onClick={() => focusConstruct(this.props.construct.id)}
       >
         <div className="sceneGraphContainer">
-          <div className={`ConstructViewerJob-text${failure ? ' failure' : ''}`}>
-            {failure ?
-              'Job failed!' :
-              'Working on your optimization request...'}
+          <div className="ConstructViewerJob-text">
+            Working on your optimization request...
           </div>
         </div>
 
