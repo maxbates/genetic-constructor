@@ -243,6 +243,7 @@ export default class Block extends Instance {
 
   /**
    * Check whether Block is frozen
+   * A block is frozen if it is marked frozen (e.g. when in the commons)
    * @method isFrozen
    * @memberOf Block
    * @returns {boolean}

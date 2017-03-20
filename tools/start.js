@@ -12,11 +12,11 @@ import setup from './setup';
 
 const DEBUG = !process.argv.includes('--release');
 
+let processes = [];
+
 async function start() {
   try {
-    if (!process.env.CONSTRUCTOR_SKIP_SETUP) {
-      await run(setup);
-    }
+    processes = await run(setup);
 
     console.log(colors.blue(`Bundling application with Webpack [${DEBUG ? 'dev' : 'release'}] (this may take a moment)...`));
 
@@ -194,5 +194,13 @@ async function start() {
     throw err;
   }
 }
+
+const handleTermination = () => {
+  processes.forEach(proc => proc.kill('SIGTERM'));
+  process.exit(0);
+};
+
+process.on('SIGINT', handleTermination);
+process.on('SIGTERM', handleTermination);
 
 export default start;
