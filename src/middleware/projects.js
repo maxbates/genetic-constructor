@@ -16,7 +16,6 @@
 import invariant from 'invariant';
 
 import Rollup from '../models/Rollup';
-import { noteFailure, noteSave } from '../store/saveState';
 import safeValidate from '../schemas/fields/safeValidate';
 import * as validators from '../schemas/fields/validators';
 import { getBlockContents } from './querying';
@@ -47,11 +46,7 @@ export const loadProject = (projectId) => {
 
   const url = dataApiPath(`projects/${projectId}`);
   return rejectingFetch(url, headersGet())
-    .then(resp => resp.json())
-    .then((rollup) => {
-      noteSave(rollup.project.id, rollup.project.version);
-      return rollup;
-    });
+    .then(resp => resp.json());
 };
 
 //Save project

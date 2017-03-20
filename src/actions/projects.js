@@ -321,6 +321,8 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
           userOwnsProject: userId === rollup.project.owner,
         });
 
+        noteSave(rollup.project.id, rollup.project.version);
+
         return rollup;
       });
     });
