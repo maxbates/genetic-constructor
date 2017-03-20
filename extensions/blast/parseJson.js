@@ -81,6 +81,10 @@ module.exports = function parseJson(json, job = dummyJob()) {
         list: true,
       },
       options: blocks.reduce((acc, block) => Object.assign(acc, { [block.id]: true }), {}),
+      source: {
+        source: 'BLAST',
+        file: urlData,
+      },
       notes: {
         'BLAST Hits': allHits.length,
         blast: {
