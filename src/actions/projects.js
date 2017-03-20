@@ -32,6 +32,7 @@ import * as validators from '../schemas/fields/validators';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import Project from '../models/Project';
 import Rollup from '../models/Rollup';
+import { noteSave, noteFailure } from '../store/saveState';
 import * as instanceMap from '../store/instanceMap';
 import * as undoActions from '../store/undo/actions';
 import { getLocal, setLocal } from '../utils/localstorage';
@@ -43,6 +44,7 @@ const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
 
 const projectIdNotDefined = 'projectId is required';
+const projectInvalidError = 'Project data is invalid';
 const projectNotLoadedError = 'Project has not been loaded';
 const projectNotOwnedError = 'User does not own this project'; //todo - unify with server, handle 403 on load
 
@@ -131,13 +133,14 @@ export const projectList = () =>
  * Save the project, e.g. for autosave.
  * @function
  * @param {UUID} [inputProjectId] Omit to save the current project
- * @param {boolean} [forceSave=false] Force saving, even if the project has not changed since last save
+ * @param {boolean} [forceSave=false] Force saving, even if the project has not changed since last save (creates a new version)
  * @returns {Promise}
  * @resolve {number|null} version of save, or null if save was unnecessary
  * @reject {string|Response} Error message
  */
 export const projectSave = (inputProjectId, forceSave = false) =>
   (dispatch, getState) => {
+    const state = getState();
     const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
     const projectId = inputProjectId || currentProjectId;
 
@@ -145,16 +148,26 @@ export const projectSave = (inputProjectId, forceSave = false) =>
       return Promise.resolve(null);
     }
 
-    let roll;
     try {
-      roll = dispatch(projectSelectors.projectCreateRollup(projectId));
+      //check if the project + constructs have been loaded, assume project is loaded if they are
+      const project = _getProject(state, projectId);
+      project.components.every(constructId => _getBlock(state, constructId));
     } catch (err) {
       return Promise.reject(projectNotLoadedError);
     }
 
+    //try to construct rollup... project is not valid if this fails
+    let roll;
+    try {
+      roll = dispatch(projectSelectors.projectCreateRollup(projectId));
+    } catch (err) {
+      noteFailure(projectId, projectInvalidError);
+      return Promise.reject(projectInvalidError);
+    }
+
     // gracefully resolve on save when not owned
     // probably should update our autosaving to be a little smarter
-    const userId = getState().user.userid;
+    const userId = state.user.userid;
     if (userId !== roll.getOwner()) {
       return Promise.resolve(null);
     }
@@ -164,10 +177,13 @@ export const projectSave = (inputProjectId, forceSave = false) =>
       return Promise.resolve(null);
     }
 
+    //ok, initiate the save... save in our save-cache and send to server
+
     instanceMap.saveRollup(roll);
 
     return saveProject(projectId, roll)
     .then((versionInfo) => {
+      const { version, time } = versionInfo;
       setLocal(recentProjectKey, projectId);
 
       //if no version => first time saving, show a grunt
@@ -179,7 +195,8 @@ export const projectSave = (inputProjectId, forceSave = false) =>
         setLocal(saveMessageKey, true);
       }
 
-      const { version, time } = versionInfo;
+      noteSave(projectId, version);
+
       dispatch({
         type: ActionTypes.PROJECT_SAVE,
         projectId,
@@ -188,6 +205,10 @@ export const projectSave = (inputProjectId, forceSave = false) =>
       });
 
       return version;
+    })
+    .catch((err) => {
+      noteFailure(projectId, err);
+      return Promise.reject(err);
     });
   };
 
@@ -300,6 +321,8 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
           userOwnsProject: userId === rollup.project.owner,
         });
 
+        noteSave(rollup.project.id, rollup.project.version);
+
         return rollup;
       });
     });
@@ -318,8 +341,7 @@ export const projectOpen = (inputProjectId, skipSave = false) =>
   (dispatch, getState) => {
     const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
     const projectId = inputProjectId || getLocal(recentProjectKey) || null;
-    const projectIdBogus = !currentProjectId ||
-      !idValidator(currentProjectId) ||
+    const projectIdBogus = !currentProjectId || !idValidator(currentProjectId) ||
       currentProjectId === 'null' ||
       currentProjectId === 'undefined';
 

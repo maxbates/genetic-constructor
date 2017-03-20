@@ -16,7 +16,6 @@
 import invariant from 'invariant';
 
 import Rollup from '../models/Rollup';
-import { noteFailure, noteSave } from '../store/saveState';
 import safeValidate from '../schemas/fields/safeValidate';
 import * as validators from '../schemas/fields/validators';
 import { getBlockContents } from './querying';
@@ -47,16 +46,12 @@ export const loadProject = (projectId) => {
 
   const url = dataApiPath(`projects/${projectId}`);
   return rejectingFetch(url, headersGet())
-    .then(resp => resp.json())
-    .then((rollup) => {
-      noteSave(rollup.project.id, rollup.project.version);
-      return rollup;
-    });
+    .then(resp => resp.json());
 };
 
 //Save project
-//expects a rollup, which is validated
-//autosave
+//expects a rollup, which has been validated (also validated on server)
+//used for autosave - recommend you call the action, which interacts with caching + app state
 //returns the commit with version, message, or null if no need to save
 //resolves to null if the project has not changed
 export const saveProject = (projectId, rollup) => {
@@ -68,16 +63,7 @@ export const saveProject = (projectId, rollup) => {
   const stringified = JSON.stringify(rollup);
 
   return rejectingFetch(url, headersPost(stringified))
-    .then(resp => resp.json())
-    .then((versionInfo) => {
-      const { version } = versionInfo;
-      noteSave(projectId, version);
-      return versionInfo;
-    })
-    .catch((err) => {
-      noteFailure(projectId, err);
-      return Promise.reject(err);
-    });
+    .then(resp => resp.json());
 };
 
 export const deleteProject = (projectId) => {
