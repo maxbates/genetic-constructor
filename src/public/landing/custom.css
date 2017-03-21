@@ -151,13 +151,13 @@ p
 #cookiesModal
 {
     position: fixed;
-    top: 0px;
+    top: 69px;
     width: 100%;
     color: rgba(0, 0, 0, 0.8);
     background: white;
     z-index: 100;
-    padding: 22px 100px 17px 20px;
-    border-bottom: solid 1px rgba(0, 0, 0, 0.1)
+    padding: 10px 100px 0px 20px;
+    border: solid 1px #2FE695
 }
 
 .cookiesButton
@@ -167,7 +167,7 @@ p
     top: 0px;
     right: 0;
     height: 100%;
-    width: 100px;
+    width: 75px;
     border: none;
     background-color: #2FE695;
     font-family: 'art-med';
