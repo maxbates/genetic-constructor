@@ -1,6 +1,6 @@
 import invariant from 'invariant';
-import Block from '../../src/models/Block';
 import _, { merge } from 'lodash';
+import Block from '../../src/models/Block';
 
 //note that technically, these keys are strings, and passing a number will cast to a string as the key
 export const templateSymbols = {
@@ -102,7 +102,6 @@ export const templateFromComponents = (components, toMerge = {}) => {
       components: components.map(comp => comp.id),
       rules: {
         fixed: true,
-        frozen: true,
       },
     },
   ), false);

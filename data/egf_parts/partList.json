@@ -22,7 +22,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -54,7 +54,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -86,7 +86,7 @@
     },
     "rules": {
       "role": "insulator",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -118,7 +118,7 @@
     },
     "rules": {
       "role": "promoter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -150,7 +150,7 @@
     },
     "rules": {
       "role": "promoter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -182,7 +182,7 @@
     },
     "rules": {
       "role": "promoter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -214,7 +214,7 @@
     },
     "rules": {
       "role": "promoter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -246,7 +246,7 @@
     },
     "rules": {
       "role": "regulatory",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -278,7 +278,7 @@
     },
     "rules": {
       "role": "restrictionSite",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -310,7 +310,7 @@
     },
     "rules": {
       "role": "regulatory",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -342,7 +342,7 @@
     },
     "rules": {
       "role": "regulatory",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -374,7 +374,7 @@
     },
     "rules": {
       "role": "regulatory",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -406,7 +406,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -438,7 +438,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -470,7 +470,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -502,7 +502,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -534,7 +534,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -566,7 +566,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -598,7 +598,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -630,7 +630,7 @@
     },
     "rules": {
       "role": "restrictionSite",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -662,7 +662,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -694,7 +694,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -726,7 +726,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -758,7 +758,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -790,7 +790,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -822,7 +822,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -854,7 +854,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -886,7 +886,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -918,7 +918,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -950,7 +950,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -982,7 +982,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1014,7 +1014,7 @@
     },
     "rules": {
       "role": "rbs",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1046,7 +1046,7 @@
     },
     "rules": {
       "role": "selection",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1078,7 +1078,7 @@
     },
     "rules": {
       "role": "selection",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1110,7 +1110,7 @@
     },
     "rules": {
       "role": "selection",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1142,7 +1142,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1174,7 +1174,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1206,7 +1206,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1238,7 +1238,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1270,7 +1270,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1302,7 +1302,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1334,7 +1334,7 @@
     },
     "rules": {
       "role": "regulatory",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1366,7 +1366,7 @@
     },
     "rules": {
       "role": "terminator",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1398,7 +1398,7 @@
     },
     "rules": {
       "role": "promoter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1430,7 +1430,7 @@
     },
     "rules": {
       "role": "selection",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1462,7 +1462,7 @@
     },
     "rules": {
       "role": "terminator",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1494,7 +1494,7 @@
     },
     "rules": {
       "role": "promoter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1526,7 +1526,7 @@
     },
     "rules": {
       "role": "promoter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1558,7 +1558,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1590,7 +1590,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1622,7 +1622,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1654,7 +1654,7 @@
     },
     "rules": {
       "role": "cds",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1686,7 +1686,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1718,7 +1718,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1750,7 +1750,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1782,7 +1782,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1814,7 +1814,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1846,7 +1846,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1878,7 +1878,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1910,7 +1910,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1942,7 +1942,7 @@
     },
     "rules": {
       "role": "reporter",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1974,7 +1974,7 @@
     },
     "rules": {
       "role": "selection",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2006,7 +2006,7 @@
     },
     "rules": {
       "role": "terminator",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2038,7 +2038,7 @@
     },
     "rules": {
       "role": "insulator",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2070,7 +2070,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2102,7 +2102,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2134,7 +2134,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true
+      "fixed": true
     },
     "components": [],
     "options": {},
