@@ -50,10 +50,12 @@ export class Inventory extends Component {
       title: 'Projects',
       dragTarget: true,
     },
+    /*
     Templates: {
       type: 'templates',
       title: 'Templates',
     },
+    */
     Commons: {
       type: 'commons',
       title: 'Commons',
