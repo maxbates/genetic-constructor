@@ -21,7 +21,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -50,7 +50,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -79,7 +79,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -108,7 +108,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -137,7 +137,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -166,7 +166,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -195,7 +195,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -224,7 +224,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -253,7 +253,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -282,7 +282,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -311,7 +311,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -340,7 +340,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -369,7 +369,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -398,7 +398,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -427,7 +427,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -456,7 +456,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -485,7 +485,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -514,7 +514,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -543,7 +543,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -572,7 +572,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -601,7 +601,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -630,7 +630,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -659,7 +659,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -688,7 +688,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -717,7 +717,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -746,7 +746,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -775,7 +775,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -804,7 +804,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -833,7 +833,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -862,7 +862,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -891,7 +891,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -920,7 +920,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],
@@ -949,7 +949,7 @@
     },
     "rules": {
       "role": "structural",
-      "frozen": true,
+      "fixed": true,
       "hidden": true
     },
     "components": [],

@@ -279,22 +279,8 @@ export class InspectorBlock extends Component {
         </InspectorRow>
 
         <InspectorRow
-          heading="Source"
-          condition={!!currentSourceElement}
-        >
-          {currentSourceElement}
-        </InspectorRow>
-
-        <InspectorRow
-          heading="Sequence Length"
-          condition={hasSequence}
-        >
-          <p><strong>{this.currentSequenceLength()}</strong></p>
-        </InspectorRow>
-
-        <InspectorRow
           heading="Protected"
-          condition={isConstruct}
+          condition={singleInstance}
           glyphUrl="/images/ui/lock.svg"
           hasSwitch
           switchDisabled={readOnly || isFrozen || !userOwnsProject}
@@ -315,6 +301,31 @@ export class InspectorBlock extends Component {
           condition={hasNotes}
         >
           <BlockNotes notes={instances[0].notes} />
+        </InspectorRow>
+
+        <InspectorRow
+          heading={`${type} Rules`}
+          condition={singleInstance && !isConstruct}
+        >
+          <TemplateRules
+            block={instances[0]}
+            readOnly={cannotEdit}
+            isConstruct={isParentBlock}
+          />
+        </InspectorRow>
+
+        <InspectorRow
+          heading="Source"
+          condition={!!currentSourceElement}
+        >
+          {currentSourceElement}
+        </InspectorRow>
+
+        <InspectorRow
+          heading="Sequence Length"
+          condition={hasSequence}
+        >
+          <p><strong>{this.currentSequenceLength()}</strong></p>
         </InspectorRow>
 
         <InspectorRow
@@ -351,17 +362,6 @@ export class InspectorBlock extends Component {
               ) :
               null}
           </div>
-        </InspectorRow>
-
-        <InspectorRow
-          heading={`${type} Rules`}
-          condition={singleInstance && !isConstruct}
-        >
-          <TemplateRules
-            block={instances[0]}
-            readOnly={cannotEdit}
-            isConstruct={isParentBlock}
-          />
         </InspectorRow>
 
         <InspectorRow

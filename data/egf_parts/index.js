@@ -8,13 +8,13 @@ function makeProject(userId, componentIds) {
     owner: userId,
     rules: { frozen: true },
     metadata: {
-      name: 'EGF Sample Templates',
-      description: 'This project includes a set of templates - combinatorial constructs with biological function - which can be fabricated at the Edinburgh Genome Foundry. This sample project is locked. To use the templates, drag them from the inventory list on the left, into one of your own projects.',
+      name: 'EGF Templates',
+      description: 'This project includes a set of templates - combinatorial constructs with biological function - which can be fabricated at the Edinburgh Genome Foundry. To use the templates, drag them from the inventory list on the left, into one of your own projects.',
     },
     components: componentIds,
   });
 
-  project.id = `egf_${project.id}`;
+  //project.id = `egf_${project.id}`;
 
   return project;
 }
