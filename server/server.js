@@ -114,6 +114,9 @@ if (process.env.BIO_NANO_AUTH) {
     emailDirectory: 'emails',
     verifyLanding: '/homepage',
     loginPath: '/homepage/signin',
+    addNewRegToSendGrid: true,
+    contactList: 1049400,
+    defaultSendGridList: 1049400,
   };
   app.use(initAuthMiddleware(authConfig));
 } else {
