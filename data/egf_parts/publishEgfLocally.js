@@ -24,11 +24,11 @@ import colors from 'colors/safe';
 import makeEgfRollup from './index';
 import * as fileSystem from '../../server/data/middleware/fileSystem';
 import * as projects from '../../server/data/persistence/projects';
-import * as commons from '../../server/data/persistence/commons';
+import { dbPost } from '../../server/data/middleware/db';
+import { SNAPSHOT_TYPE_PUBLISH, COMMONS_TAG } from '../../server/data/util/commons';
 import * as sequencePersistence from '../../server/data/persistence/sequence';
-import * as userHandlers from '../../server/user/updateUserHandler';
 
-const user = {
+const mockUser = {
   uuid: uuid.v1(),
   email: 'egf-software@ed.ac.uk',
   password: 'wahoo123',
@@ -36,7 +36,7 @@ const user = {
   lastName: 'Genome Foundry',
 };
 
-const roll = makeEgfRollup(user.uuid);
+const roll = makeEgfRollup(mockUser.uuid);
 
 async function publishEgfLocally() {
   try {
@@ -57,22 +57,22 @@ async function publishEgfLocally() {
       console.log(err.stack);
     });
 
-    console.log(colors.blue('Creating mock EGF user....'));
-    const mappedUser = userHandlers.transformUserForRegistration(user);
-    await fetch(userHandlers.authRegisterUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(mappedUser),
-    });
-
-    //todo - get user id from registration + assert works in local (with mock id)
-    //todo - dont mutate local user (update local auth)
-
     console.log(colors.blue('Publishing project...'));
-    await projects.projectWrite(roll.project.id, roll, user.uuid);
-    await commons.commonsPublishVersion(roll.project.id, user.uuid, 0);
+    await projects.projectWrite(roll.project.id, roll, mockUser.uuid);
+    //hack + brittle
+    //can't use snapshotWrite because expects user to exist, so we'll mock it
+    const snapshot = {
+      projectId: roll.project.id,
+      type: SNAPSHOT_TYPE_PUBLISH,
+      message: 'Mock Published EGF Project',
+      keywords: ['mock'],
+      tags: {
+        [COMMONS_TAG]: true,
+        author: `${mockUser.firstName} ${mockUser.lastName}`,
+        projectName: roll.project.metadata.name,
+      },
+    };
+    await dbPost('snapshots/', mockUser.uuid, {}, {}, snapshot);
 
     console.log(colors.green('EGF project published'));
   } catch (err) {

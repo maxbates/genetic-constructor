@@ -31,7 +31,7 @@ export function verifyCaptcha(response, secret = captchaSecret) {
   })
   .then(resp => resp.json())
   .then((result) => {
-    console.log(result);
+    //console.log(result);
     if (result.success === true) {
       return result;
     }
@@ -47,7 +47,7 @@ export function verifyCaptchaProductionOnly(...args) {
   //not in production, just return the error, but don't reject
   return verifyCaptcha(...args)
   .catch((err) => {
-    console.log('captcha failed', err);
+    //console.log('captcha failed', err);
     return err;
   });
 }

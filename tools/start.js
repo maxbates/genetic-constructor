@@ -95,89 +95,92 @@ async function start() {
         console.log(colors.blue('Starting server...'));
 
         runServer((err, host) => {
-          if (!err) {
-            const bs = BrowserSync.create();
+          if (err) {
+            throw err;
+          }
 
-            bs.init({
-              // no need to watch *.js, webpack will take care of it for us
-              // no need to watch *.css, since imported so webpack will handle
-              files: [
-                'src/content/**/*.*',
-                //todo - webpack server, let webpack handle watching
+          const bs = BrowserSync.create();
+
+          bs.init({
+            // no need to watch *.js, webpack will take care of it for us
+            // no need to watch *.css, since imported so webpack will handle
+            files: [
+              'src/content/**/*.*',
+              //todo - webpack server, let webpack handle watching
+            ],
+
+            //dont sync events
+            ghostMode: false,
+
+            ...(DEBUG ? {} : { notify: false, ui: false }),
+
+            proxy: {
+              target: host,
+              middleware: [
+                clientDevMiddleware,
+                hotMiddleware,
               ],
-
-              ghostMode: false,
-
-              ...(DEBUG ? {} : { notify: false, ui: false }),
-
-              proxy: {
-                target: host,
-                middleware: [
-                  clientDevMiddleware,
-                  hotMiddleware,
-                ],
-              },
-            }, resolve);
-
-            //todo - we want ton only recompile once per batch of changes - currently every single file change will trigger a build. Maybe just debounce?
-            const ignoreDotFilesAndNestedNodeModules = /([/\\]\.)|(node_modules\/.*?\/node_modules)/gi;
-            const checkSymlinkedNodeModule = /(.*?\/)?extensions\/.*?\/node_modules/;
-            const checkIsInServerExtensions = /^server\//;
-            const checkTempFile = /temp/gi;
-
-            const ignoreFilePathCheck = (path) => {
-              if (ignoreDotFilesAndNestedNodeModules.test(path)) {
-                return true;
-              }
-              //ignore jetbrains temp filesystem
-              if (/__jb_/ig.test(path)) {
-                return true;
-              }
-              //ignore compiled python
-              if (/\.pyc$/.test(path)) {
-                return true;
-              }
-              //ignore node_modules for things in the root server/extensions/ folder
-              //additional check needed to handle symlinked files (nested node modules wont pick this up in symlinks)
-              //ugly because javascript doesnt support negative lookaheads
-              if (checkSymlinkedNodeModule.test(path) && checkIsInServerExtensions.test(path)) {
-                return true;
-              }
-              if (checkTempFile.test(path)) {
-                return true;
-              }
-              return false;
-            };
-
-            const eventsCareAbout = ['add', 'change', 'unlink', 'addDir', 'unlinkDir'];
-            const handleChange = (evt, path, stat) => {
-              if (ignoreFilePathCheck(path)) {
-                return;
-              }
-              if (eventsCareAbout.includes(evt)) {
-                console.log(colors.yellow('webpack watch:', evt, path));
-                debouncedRunServer();
-              }
-            };
-
-            //while we are not bundling the server, we can set up a watch to recompile on changes
-            const watcher = bs.watch('server/**/*', {
-              ignored: ignoreFilePathCheck,
-            });
-
-            //wait for initial scan to complete then listen for events
-            watcher.on('ready', () => watcher.on('all', handleChange));
-
-            //if we're not in production, create EGF project and publish it
-            //todo - initiate / time this better
+            },
+          }, () => {
+            //if we're not in production, create EGF project and publish it before resolving
             if (process.env.NODE_ENV !== 'production') {
               const publishEgfLocally = require('../data/egf_parts/publishEgfLocally');
-              publishEgfLocally();
+              return resolve(publishEgfLocally());
             }
 
-            //reassign so that we arent creating multiple browsersync entities, or rebuilding over and over
-            handleServerBundleComplete = () => {};
-          }
+            resolve();
+          });
+
+          const ignoreDotFilesAndNestedNodeModules = /([/\\]\.)|(node_modules\/.*?\/node_modules)/gi;
+          const checkSymlinkedNodeModule = /(.*?\/)?extensions\/.*?\/node_modules/;
+          const checkIsInServerExtensions = /^server\//;
+          const checkTempFile = /temp/gi;
+
+          const ignoreFilePathCheck = (path) => {
+            if (ignoreDotFilesAndNestedNodeModules.test(path)) {
+              return true;
+            }
+            //ignore jetbrains temp filesystem
+            if (/__jb_/ig.test(path)) {
+              return true;
+            }
+            //ignore compiled python
+            if (/\.pyc$/.test(path)) {
+              return true;
+            }
+            //ignore node_modules for things in the root server/extensions/ folder
+            //additional check needed to handle symlinked files (nested node modules wont pick this up in symlinks)
+            //ugly because javascript doesnt support negative lookaheads
+            if (checkSymlinkedNodeModule.test(path) && checkIsInServerExtensions.test(path)) {
+              return true;
+            }
+            if (checkTempFile.test(path)) {
+              return true;
+            }
+            return false;
+          };
+
+          const eventsCareAbout = ['add', 'change', 'unlink', 'addDir', 'unlinkDir'];
+          const handleChange = (evt, path, stat) => {
+            if (ignoreFilePathCheck(path)) {
+              return;
+            }
+            if (eventsCareAbout.includes(evt)) {
+              console.log(colors.yellow('webpack watch:', evt, path));
+              debouncedRunServer();
+            }
+          };
+
+          //while we are not bundling the server, we can set up a watch to recompile on changes
+          const watcher = bs.watch('server/**/*', {
+            ignored: ignoreFilePathCheck,
+          });
+
+          //wait for initial scan to complete then listen for events
+          watcher.on('ready', () => watcher.on('all', handleChange));
+
+          //reassign so that we arent creating multiple browsersync entities, or rebuilding over and over
+          handleServerBundleComplete = () => {};
         });
       };
 

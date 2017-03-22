@@ -29,8 +29,7 @@ function run(fn, options) {
   })
     .catch((err) => {
       redLog(`Error running task: ${task.name}`);
-      redLog(err);
-      redLog(err.stack);
+      console.error(err);
       throw err;
     });
 }
@@ -42,8 +41,6 @@ if (process.mainModule.children.length === 0 && process.argv.length > 2) {
 
   run(theScript)
     .catch((err) => {
-      console.error(err);
-      console.error(err.stack);
       process.exit(1);
     });
 }

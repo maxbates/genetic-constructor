@@ -253,7 +253,6 @@ export class InventoryGroupCommons extends Component {
     return snapshots.map(snapshot => ({
       text: snapshot.tags.projectName || 'Untitled Project',
       testid: `commons/${snapshot.projectId}/${snapshot.owner}`,
-      bold: false,
       selected: currentProjectId === snapshot.projectId,
       selectedAlt: focus.forceProject && snapshot.projectId === focus.forceProject.id,
       onClick: isOpen => this.onClickSnapshot(snapshot, isOpen),
