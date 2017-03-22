@@ -119,7 +119,7 @@ class InventoryGroupRole extends Component {
       source: 'inventory',
     }, {
       onDropFailure: (error, target) => {
-        this.props.uiSetGrunt(`There was an error creating a block for ${this.state.current.metadata.name}`);
+        this.props.uiSetGrunt(`There was an error creating a block for ${this.state.current.name}`);
         this.props.uiSpin();
       },
     });

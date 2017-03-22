@@ -15,6 +15,7 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import moment from 'moment';
 
 import { uiSaveFailure } from '../../actions/ui';
 import { getProjectSaveState } from '../../store/saveState';
@@ -46,8 +47,8 @@ export class autosaveTracking extends Component {
 
     //there was an error saving, they are in a bad state
     if (!saveSuccessful && !lastErrOffline) {
-      uiSaveFailure();
       clearInterval(this.interval);
+      uiSaveFailure();
     }
   }
 
@@ -59,13 +60,11 @@ export class autosaveTracking extends Component {
     const { autosave, projectId } = this.props;
     const { dirty } = autosave;
     const saveState = getProjectSaveState(projectId);
-    const { updated, saveDelta, saveSuccessful } = saveState;
+    const { updated, saveDelta } = saveState;
 
     let text;
-    if (!saveSuccessful) {
-      text = `Last Saved: ${(new Date(updated)).toLocaleTimeString()}`;
-    } else if (dirty || saveDelta > 15000) {
-      text = '';
+    if (dirty) {
+      text = `Saved ${moment(updated).fromNow()}`;
     } else if (saveDelta <= 500) {
       //we're not actually saving... we're just faking it...
       text = 'Saving...';

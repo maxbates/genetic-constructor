@@ -311,7 +311,6 @@ export default class Block extends Instance {
     return this.setRule('role', role);
   }
 
-  //todo - should this delete the options entirely?
   /**
    * Specify whether Block is a list block. Clears components when setting to true, and clears options when setting to false.
    * @method setListBlock
