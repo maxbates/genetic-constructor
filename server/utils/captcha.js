@@ -47,7 +47,7 @@ export function verifyCaptchaProductionOnly(...args) {
   //not in production, just return the error, but don't reject
   return verifyCaptcha(...args)
   .catch((err) => {
-    //console.log('captcha failed', err);
+    console.log('captcha failed', err);
     return err;
   });
 }
