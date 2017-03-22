@@ -157,7 +157,15 @@ p
     background: white;
     z-index: 100;
     padding: 10px 100px 0px 20px;
-    border: solid 1px #2FE695
+    background: #2FE695
+}
+
+#cookiesModal p {
+    text-align: right;
+}
+
+#cookiesModal p a {
+    color: rgba(0, 0, 0, 0.8);
 }
 
 .cookiesButton
