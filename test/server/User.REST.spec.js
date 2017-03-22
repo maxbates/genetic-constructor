@@ -21,7 +21,7 @@ import userConfigOverrides from '../../server/onboarding/userConfigOverrides';
 import devServer from '../../server/server';
 
 describe('Server', () => {
-  describe.only('User', () => {
+  describe('User', () => {
     let server;
     beforeEach('server setup', () => {
       server = devServer.listen();
