@@ -21,7 +21,7 @@ import userConfigOverrides from '../../server/onboarding/userConfigOverrides';
 import devServer from '../../server/server';
 
 describe('Server', () => {
-  describe('User', () => {
+  describe.only('User', () => {
     let server;
     beforeEach('server setup', () => {
       server = devServer.listen();
@@ -109,6 +109,8 @@ describe('Server', () => {
     it('/register works without a configuration', (done) => {
       const agent = request.agent(server);
       const user = {
+        firstName: 'yahoo',
+        lastName: 'wahoo',
         email: `T.${Math.random()}@test.com`,
         password: 'abc123456',
       };
@@ -134,6 +136,8 @@ describe('Server', () => {
       const allInactive = Object.keys(userConfigDefaults.extensions).reduce((acc, key) => Object.assign(acc, { [key]: { active: false } }), {});
       const nextConfig = { extensions: allInactive };
       const user = {
+        firstName: 'yahoo',
+        lastName: 'wahoo',
         email: `T.${Math.random()}@test.com`,
         password: 'abc123456',
       };
