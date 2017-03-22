@@ -1,10 +1,8 @@
 webapp:
-  extends:
-    file: docker-compose-common.yml
-    service: webapp
   build: .
   links:
     - db
+    - redis
   command:
     npm run start-instance
   ports:
@@ -13,6 +11,8 @@ webapp:
     PORT: 3000
     NO_DOCKER: "true"
     PGHOST: db
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
 
 db:
   extends:
