@@ -13,6 +13,7 @@ webapp:
     PGHOST: db
     REDIS_HOST: redis
     REDIS_PORT: 6379
+    REDIS_DB: 1
 
 db:
   extends:

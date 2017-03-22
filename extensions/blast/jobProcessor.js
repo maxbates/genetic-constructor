@@ -27,7 +27,9 @@ const parseJson = require('./parseJson');
 
 let queue;
 try {
-  queue = Queue('blast', process.env.REDIS_PORT, process.env.REDIS_HOST);  //eslint-disable-line new-cap
+  queue = Queue('blast', process.env.REDIS_PORT, process.env.REDIS_HOST, { //eslint-disable-line new-cap
+    db: process.env.REDIS_DB || 1, // matches default in GC's urlConstants.js
+  });
 } catch (err) {
   console.log('[blast] could not start queue - is redis running?');
   throw err;

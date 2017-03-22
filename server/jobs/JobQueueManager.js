@@ -17,9 +17,10 @@ import invariant from 'invariant';
 import uuid from 'uuid';
 import Queue from 'bull';
 import debug from 'debug';
+import _ from 'lodash';
 
 import { id as idRegex } from '../../src/utils/regex';
-import { REDIS_PORT, REDIS_HOST } from '../urlConstants';
+import { REDIS_PORT, REDIS_HOST, REDIS_DB } from '../urlConstants';
 
 const logger = debug('constructor:jobs:manager');
 
@@ -28,9 +29,9 @@ const logger = debug('constructor:jobs:manager');
 //job queue manager
 export default class JobQueueManager {
   //args to create Queue from bull
-  constructor(queue, port = REDIS_PORT, host = REDIS_HOST, redisOpts) {
+  constructor(queue, port = REDIS_PORT, host = REDIS_HOST, db = REDIS_DB, redisOpts) {
     this.queueName = queue;
-    this.queue = Queue(queue, port, host, redisOpts); //eslint-disable-line new-cap
+    this.queue = Queue(queue, port, host, _.assignIn({}, { db: db }, redisOpts)); //eslint-disable-line new-cap
 
     //on start, log the initial job counts in background
     this.queue.getJobCounts()

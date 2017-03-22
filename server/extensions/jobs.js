@@ -18,7 +18,7 @@ import path from 'path';
 import debug from 'debug';
 import colors from 'colors/safe';
 import { getServerExtensions } from './registry';
-import { REDIS_PORT, REDIS_HOST } from '../urlConstants';
+import { REDIS_PORT, REDIS_HOST, REDIS_DB } from '../urlConstants';
 
 const logger = debug('constructor:jobs:extensions');
 
@@ -54,6 +54,7 @@ Object.keys(jobExtensions).forEach((key) => {
       env: {
         REDIS_PORT,
         REDIS_HOST,
+        REDIS_DB,
         NODE_ENV: process.env.NODE_ENV,
         DEBUG: process.env.DEBUG,
       },
