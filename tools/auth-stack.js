@@ -88,7 +88,7 @@ async function authStack() {
     await installAuthModule();
     await startRunAuth();
   } catch (err) {
-    console.log('CAUGHT', err);
+    console.log('[auth-stack] CAUGHT', err);
     throw err;
   }
 }

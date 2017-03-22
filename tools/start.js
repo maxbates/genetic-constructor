@@ -96,6 +96,7 @@ async function start() {
 
         runServer((err, host) => {
           if (err) {
+            console.error(colors.red('error running server'));
             throw err;
           }
 

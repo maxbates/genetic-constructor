@@ -3,6 +3,7 @@ var newProject = require('../fixtures/newproject');
 var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var size = require('../fixtures/size');
 var dragFromTo = require('../fixtures/dragfromto.js');
+var openEgfProject = require('../fixtures/open-egf-project');
 
 module.exports = {
   'Verify we can order a template' : function (browser) {
@@ -10,12 +11,8 @@ module.exports = {
     size(browser);
     homepageRegister(browser);
     newProject(browser);
-    openInventoryPanel(browser, 'Templates');
-    browser
-      .waitForElementPresent('[data-testid^="inventoryProject/egf_project"] .label-base')
-      .click('[data-testid^="inventoryProject/egf_project"] .label-base')
-      .waitForElementPresent('[data-testid^="block-"]');
 
+    openEgfProject(browser);
     dragFromTo(browser, '[data-testid^="block-"]', 50, 10, '.inter-construct-drop-target', 50, 4);
 
     browser

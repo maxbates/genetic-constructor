@@ -60,7 +60,7 @@ async function publishEgfLocally() {
     console.log(colors.blue('Publishing project...'));
     await projects.projectWrite(roll.project.id, roll, mockUser.uuid);
     //hack + brittle
-    //can't use snapshotWrite because expects user to exist, so we'll mock it
+    //can't use snapshotWrite because expects user to exist, so we'll write directly to the database
     const snapshot = {
       projectId: roll.project.id,
       type: SNAPSHOT_TYPE_PUBLISH,

@@ -4,7 +4,6 @@ var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var openInspectorPanel = require('../fixtures/open-inspector-panel');
 var size = require('../fixtures/size');
 var dragFromTo = require('../fixtures/dragfromto.js');
-
 var openEgfProject = require('../fixtures/open-egf-project');
 
 module.exports = {
