@@ -99,10 +99,11 @@ export default function onboardNewUser(user) {
   logger(`Onboarding ${user.uuid} ${user.email}`);
 
   const roll = emptyProjectWithConstruct(user.uuid, false);
+
   return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
-  .then((roll) => {
+  .then((writeResult) => {
     logger('onboarding complete');
     //legacy - return array of rolls generated
-    return [roll];
+    return [writeResult.data];
   });
 }

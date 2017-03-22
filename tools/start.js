@@ -168,6 +168,13 @@ async function start() {
             //wait for initial scan to complete then listen for events
             watcher.on('ready', () => watcher.on('all', handleChange));
 
+            //if we're not in production, create EGF project and publish it
+            //todo - initiate / time this better
+            if (process.env.NODE_ENV !== 'production') {
+              const publishEgfLocally = require('../data/egf_parts/publishEgfLocally');
+              publishEgfLocally();
+            }
+
             //reassign so that we arent creating multiple browsersync entities, or rebuilding over and over
             handleServerBundleComplete = () => {};
           }

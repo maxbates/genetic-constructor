@@ -20,6 +20,7 @@ import clean from './clean';
 import setupFiles from './setupFiles';
 import copy from './copy';
 import startDb from './startDb';
+import publishEgfLocally from '../data/egf_parts/publishEgfLocally';
 
 // returns an array of child processes which may be holding onto the process (e.g. if pass IO)
 // you must kill yourself for the process to exit

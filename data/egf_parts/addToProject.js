@@ -14,6 +14,8 @@
  limitations under the License.
  */
 
+// script for generating a new EGF project and adding it to your own projects via the clipboard in the constructor app
+
 import fs from 'fs';
 import fetch from 'isomorphic-fetch';
 

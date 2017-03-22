@@ -18,6 +18,7 @@ import debug from 'debug';
 import EmailValidator from 'email-validator';
 import fetch from 'isomorphic-fetch';
 import _ from 'lodash';
+import invariant from 'invariant';
 
 import { headersPost } from '../../src/middleware/utils/headers';
 import userConfigDefaults from '../onboarding/userConfigDefaults';
@@ -31,51 +32,22 @@ const SEND_VERIFY = 'true';
 
 const logger = debug('constructor:auth');
 
-const authRegisterUrl = `${INTERNAL_HOST}/auth/register`;
-const authLoginUrl = `${INTERNAL_HOST}/auth/login`;
-const authUpdateUrl = `${INTERNAL_HOST}/auth/update-all`;
+export const authRegisterUrl = `${INTERNAL_HOST}/auth/register`;
+export const authLoginUrl = `${INTERNAL_HOST}/auth/login`;
+export const authUpdateUrl = `${INTERNAL_HOST}/auth/update-all`;
 
-//todo - share fetch handling with config / register routes
+//transform user to send to auth routes
+//will throw on errors
+export function transformUserForRegistration(user, config = {}) {
+  const { email, password, firstName, lastName } = user;
 
-//need error handling to handle them already registered
-//note - expects JSON parser ahead of it
-export function registrationHandler(req, res, next) {
-  if (!req.body || typeof req.body !== 'object') {
-    logger('[User Register] invalid body for registration');
-    next('must pass object to login handler, use json parser');
-  }
-
-  const { user, config } = req.body;
-  const { email, password, firstName, lastName, captcha } = user;
-
-  //basic checks before we hand off to auth/register
-  if (!email || !EmailValidator.validate(email)) {
-    logger(`[User Register] email invalid: ${email}`);
-    return res.status(422).json({ message: 'invalid email' });
-  }
-  if (!password || password.length < 6) {
-    logger(`[User Register] password invalid: ${password}`);
-    return res.status(422).json({ message: 'invalid password' });
-  }
-  //require captcha in production so we dont get flooded / automated signups
-  if (process.env.BNR_ENVIRONMENT === 'prod') {
-    if (!captcha) {
-      return res.status(422).json({ message: 'captcha required' });
-    }
-  }
+  invariant(email && password && firstName && lastName, 'must have all needed fields');
 
   //shallow assign, so explicitly declare projects + extensions, not merging with defaults
   const mergedConfig = Object.assign({}, userConfigDefaults, config);
   _.merge(mergedConfig, userConfigOverrides);
 
-  try {
-    validateConfig(mergedConfig);
-  } catch (err) {
-    logger('[User Register] Error in input config');
-    logger(err);
-    logger(err.stack);
-    return res.status(422).json(err);
-  }
+  validateConfig(mergedConfig);
 
   const mappedUser = mergeConfigToUserData({
     email,
@@ -85,16 +57,12 @@ export function registrationHandler(req, res, next) {
     sendVerify: SEND_VERIFY,
   }, mergedConfig);
 
-  logger('[User Register] Checking Captcha...');
+  return mappedUser;
+}
 
-  return verifyCaptchaProductionOnly(captcha)
-  .then(() => {
-    logger('[User Register] Captcha success');
-    logger('[User Register] registering...');
-    logger(mappedUser);
-
-    return fetch(authRegisterUrl, headersPost(JSON.stringify(mappedUser)));
-  })
+//handle sending a request to the auth api + remap the cookies
+export function handleAuthApiRequest(route, postBody, res, name = 'User Register', sendConfig = false) {
+  return fetch(route, headersPost(JSON.stringify(postBody)))
   .then((resp) => {
     //e.g. if user already registered, just pass the error through
     if (resp.status >= 400) {
@@ -111,7 +79,7 @@ export function registrationHandler(req, res, next) {
     return resp.json();
   })
   .then((userPayload) => {
-    //logger('userPayload');
+    //logger(`[${name}] userPayload`);
     //logger(userPayload);
 
     if (userPayload.message) {
@@ -119,18 +87,70 @@ export function registrationHandler(req, res, next) {
     }
 
     const pruned = pruneUserObject(userPayload);
+    const toSend = sendConfig === true ? pruned.config : pruned;
 
-    //logger('sending pruned');
-    //logger(pruned);
-
-    res.json(pruned);
+    res.json(toSend);
   })
   .catch((err) => {
-    logger('[User Register] Error registering');
-    logger(req.body);
+    logger(`[${name}] Error`);
+    logger(postBody);
     logger(err);
     logger(err.stack);
     res.status(500).json(err);
+  });
+}
+
+//need error handling to handle them already registered
+//note - expects JSON parser ahead of it
+export function registrationHandler(req, res, next) {
+  if (!req.body || typeof req.body !== 'object') {
+    logger('[User Register] invalid body for registration');
+    next('must pass object to login handler, use json parser');
+  }
+
+  const { user, config } = req.body;
+  const { email, password, firstName, lastName, captcha } = user;
+
+  //basic checks before we hand off to auth/register
+  if (!firstName || !lastName) {
+    logger(`[User Register] name invalid: ${firstName} ${lastName}`);
+    return res.status(422).json({ message: 'invalid name' });
+  }
+  if (!email || !EmailValidator.validate(email)) {
+    logger(`[User Register] email invalid: ${email}`);
+    return res.status(422).json({ message: 'invalid email' });
+  }
+  if (!password || password.length < 6) {
+    logger(`[User Register] password invalid: ${password}`);
+    return res.status(422).json({ message: 'invalid password' });
+  }
+
+  //require captcha in production so we dont get flooded / automated signups
+  if (process.env.BNR_ENVIRONMENT === 'prod') {
+    if (!captcha) {
+      return res.status(422).json({ message: 'captcha required' });
+    }
+  }
+
+  let mappedUser;
+  try {
+    mappedUser = transformUserForRegistration(user, config);
+  } catch (err) {
+    logger('[User Register] Error in input config');
+    logger(err);
+    logger(err.stack);
+    return res.status(422).json(err);
+  }
+
+  logger('[User Register] Checking Captcha...');
+  return verifyCaptchaProductionOnly(captcha)
+  .then(() => {
+    logger('[User Register] Captcha success');
+    logger('[User Register] registering...');
+    logger(mappedUser);
+
+
+    return handleAuthApiRequest(authRegisterUrl, mappedUser, res, 'User Register');
   });
 }
 
@@ -154,44 +174,7 @@ export function loginHandler(req, res, next) {
   logger('[User Login] Logging in:');
   logger(email, password, authLoginUrl);
 
-  return fetch(authLoginUrl, headersPost(JSON.stringify(req.body)))
-  .then((resp) => {
-    //e.g. if user already registered, just pass the error through
-    if (resp.status >= 400) {
-      return resp.json()
-      .then(json => res.status(422).json(json));
-    }
-
-    //re-assign cookies from platform authentication
-    const cookies = resp.headers.getAll('set-cookie');
-    cookies.forEach((cookie) => {
-      res.set('set-cookie', cookie);
-    });
-
-    return resp.json();
-  })
-  .then((userPayload) => {
-    logger('[User Login] received payload');
-    logger(userPayload);
-
-    if (userPayload.message) {
-      return Promise.reject(userPayload);
-    }
-
-    const pruned = pruneUserObject(userPayload);
-
-    logger('[User Login] sending pruned:');
-    logger(pruned);
-
-    res.json(pruned);
-  })
-  .catch((err) => {
-    logger('[User Login] Error logging in');
-    logger(req.body);
-    logger(err);
-    logger(err.stack);
-    res.status(500).json(err);
-  });
+  return handleAuthApiRequest(authLoginUrl, req.body, res, 'User Login');
 }
 
 //parameterized route handler for setting user config
@@ -211,7 +194,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     if (wholeUser && !userPatch) next('if updating user, set req.userPatch');
     if (!wholeUser && !configInput) next('if updating config, set req.config');
 
-    let user = userInput;
+    let user;
 
     try {
       if (wholeUser) {
@@ -229,6 +212,7 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     //console.log('USER CONFIG HANDLER');
     //console.log(user, userInput, configInput, userPatch);
 
+    //todo - determine if we need this, or just use REST to keep everything consistent ??
     //to update user, issues with setting cookies as auth and making a new fetch, so call user update function
     //might want to abstract to same across local + real auth
     if (process.env.BIO_NANO_AUTH) {
@@ -252,40 +236,6 @@ export default function updateUserHandler({ updateWholeUser = false } = {}) {
     // otherwise, delegate to auth routes
     // Real auth - dont need to worry about passing cookies on fetch, since registering (not authenticated)
     // local auth - just call our mock routes
-    return fetch(authUpdateUrl, headersPost(JSON.stringify(user)))
-    .then((resp) => {
-      //e.g. if user already registered, just pass the error through
-      if (resp.status >= 400) {
-        return resp.json()
-        .then(json => res.status(422).json(json));
-      }
-
-      //re-assign cookies from platform authentication
-      const cookies = resp.headers.getAll('set-cookie');
-      cookies.forEach((cookie) => {
-        res.set('set-cookie', cookie);
-      });
-
-      return resp.json();
-    })
-    .then((userPayload) => {
-      logger('[User Config] received payload');
-      logger(userPayload);
-
-      if (userPayload.message) {
-        return Promise.reject(userPayload);
-      }
-
-      const pruned = pruneUserObject(userPayload);
-      const toSend = wholeUser ? pruned : pruned.config;
-
-      res.json(toSend);
-    })
-    .catch((err) => {
-      logger('[User Config] got error setting user config');
-      logger(err);
-      logger(err.stack);
-      res.status(500).json(err);
-    });
+    return handleAuthApiRequest(authUpdateUrl, user, res, 'User Config', wholeUser !== true);
   };
 }
