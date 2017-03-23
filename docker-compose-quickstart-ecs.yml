@@ -21,6 +21,7 @@ webapp:
   command:
     npm run server-auth
   log_driver: json-file
-  restart: always
+  # 8 GB RAM for gc docker stats as of 22-Mar-17 show max mem usage of 6.5 GB in dev
+  mem_limit: 8400000000 
   ports:
-    - "3000:3000"
+    - "3000"
