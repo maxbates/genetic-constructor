@@ -14,28 +14,10 @@
  limitations under the License.
  */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
 
-import Header from './Header';
-import Footer from './Footer';
-
-import '../styles/App.css';
-
-//wrap the page component in app chrome
-export default class App extends React.Component {
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-  };
-
-  render() {
-    const { children, ...otherProps } = this.props;
-
-    return (
-      <div className="App">
-        <Header />
-        {React.cloneElement(children, { ...otherProps })}
-        <Footer />
-      </div>
-    );
-  }
+export default function Project() {
+  return (
+    <div className="Project">Project page!</div>
+  );
 }

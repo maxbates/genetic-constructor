@@ -29,7 +29,7 @@ import dataRouter from './data/router';
 import extensionsRouter from './extensions/router';
 import orderRouter from './order/router';
 import reportRouter from './report/router';
-import commonsRouter from '../commons/server/router';
+import commonsRouter from '../commons/router';
 import userRouter from './user/userRouter';
 import checkUserSetup from './onboarding/userSetup';
 import { registrationHandler } from './user/updateUserHandler';

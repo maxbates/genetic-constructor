@@ -16,16 +16,15 @@
 
 import React from 'react';
 import { render } from 'react-dom';
+import { browserHistory, Router } from 'react-router';
+//import { syncHistoryWithStore } from 'react-router-redux';
 
 //store
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import commonsReducer from './reducers';
 
-//components
-import App from './components/App';
-import Home from './components/Home';
-
+import routes from './routes';
 
 // get passed state; allow the passed state to be garbage-collected
 const preloadedState = window.__PRELOADED_STATE__;
@@ -33,11 +32,16 @@ delete window.__PRELOADED_STATE__;
 
 const store = createStore(commonsReducer, preloadedState);
 
+//todo - update router then attempt this
+//const history = syncHistoryWithStore(browserHistory, store, {
+//  selectLocationState: state => state.router,
+//});
+
 render(
   <Provider store={store}>
-    <App>
-      <Home />
-    </App>
+    <Router>
+      {routes}
+    </Router>
   </Provider>,
   document.getElementById('root'),
 );

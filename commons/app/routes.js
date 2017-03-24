@@ -13,29 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import React from 'react';
+import { IndexRoute, Route } from 'react-router';
 
-import React, { PropTypes } from 'react';
+import App from './components/App';
+import Home from './components/Home';
+import Project from './components/Project';
 
-import Header from './Header';
-import Footer from './Footer';
+export default (
+  <Route path="/" component={App}>
+    <Route path="/project" component={Project} />
+    <IndexRoute component={Home} />
+  </Route>
+);
 
-import '../styles/App.css';
-
-//wrap the page component in app chrome
-export default class App extends React.Component {
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-  };
-
-  render() {
-    const { children, ...otherProps } = this.props;
-
-    return (
-      <div className="App">
-        <Header />
-        {React.cloneElement(children, { ...otherProps })}
-        <Footer />
-      </div>
-    );
-  }
-}
