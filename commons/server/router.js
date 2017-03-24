@@ -16,6 +16,9 @@
 import Express from 'express';
 import { renderToString } from 'react-dom/server';
 import React from 'react';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import commonsReducer from '../app/reducers';
 
 import Rollup from '../../src/models/Rollup';
 
@@ -40,7 +43,6 @@ function renderFullPage(html, preloadedState) {
       <body>
         <div id="root">${html}</div>
         <script>
-          // note - Consider security implications 
           window.__PRELOADED_STATE__ = ${JSON.stringify(preloadedState).replace(/</g, '\\u003c')}
         </script>
         <script src="/static/commons.js"></script>
@@ -64,15 +66,23 @@ function handleRender(req, res, next) {
     return Object.assign(acc, { [roll.project.id]: roll });
   }, {});
 
-  const initialState = { projects: defaultProjects };
+  // Create a new Redux store instance
+  const store = createStore(commonsReducer, { projects: defaultProjects });
+
+  // Grab the initial state from our Redux store
+  const preloadedState = store.getState();
 
   // Render the component to a string
-  const html = renderToString(<App {...initialState}>
-    <Home />
-  </App>);
+  const html = renderToString(
+    <Provider store={store}>
+      <App>
+        <Home />
+      </App>
+    </Provider>
+  );
 
   // Send the rendered page back to the client
-  res.send(renderFullPage(html, initialState));
+  res.send(renderFullPage(html, preloadedState));
 }
 
 router.route('*').get(handleRender);

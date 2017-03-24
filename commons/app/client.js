@@ -35,7 +35,7 @@ const store = createStore(commonsReducer, preloadedState);
 
 render(
   <Provider store={store}>
-    <App {...store.getState()}>
+    <App>
       <Home />
     </App>
   </Provider>,

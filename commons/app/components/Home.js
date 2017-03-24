@@ -15,12 +15,13 @@
  */
 
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 
 import ProjectCard from './ProjectCard';
 
 import '../styles/Home.css';
 
-export default function Home({ projects }) {
+export function Home({ projects }) {
   const projectKeys = Object.keys(projects);
   const numberProjects = projectKeys.length;
   const numberConstructs = projectKeys.reduce((acc, key) => acc + projects[key].project.components.length, 0);
@@ -58,3 +59,5 @@ export default function Home({ projects }) {
 Home.propTypes = {
   projects: PropTypes.object.isRequired,
 };
+
+export default connect(state => state)(Home);
