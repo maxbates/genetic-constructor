@@ -1,0 +1,44 @@
+@import '../../../src/styles/variables.css';
+
+:root {
+  --width-card: 220px;
+  --space-card: 20px;
+  --width-corner: 15px;
+}
+
+.ProjectCard {
+  position: relative;
+  padding: 15px;
+  margin: 0 var(--space-card) var(--space-card) 0;
+  width: var(--width-card);
+  height: var(--width-card);
+  background-color: var(--colors-darkerGrey);
+  border-radius: var(--space-card);
+
+  &:nth-child(4n) {
+    margin-right: 0;
+  }
+
+  &-corner {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border: var(--space-card) solid transparent;
+  }
+
+  &-name {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 17px 5px 10px;
+  }
+
+  &-description {
+    font-size: 14px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: var(--colors-white);
+  }
+}

@@ -15,25 +15,25 @@
  */
 import fs from 'fs';
 import path from 'path';
-
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import express from 'express';
-
 import colors from 'colors/safe';
 
 import pkg from '../package.json';
-import dataRouter from './data/router';
-import extensionsRouter from './extensions/router';
-import checkUserSetup from './onboarding/userSetup';
-import orderRouter from './order/router';
-import reportRouter from './report/index';
 import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
-import { registrationHandler } from './user/updateUserHandler';
-import userRouter from './user/userRouter';
-import { pruneUserObject } from './user/utils';
 import checkPortFree from './utils/checkPortFree';
 import logger from './utils/logConfig';
+
+import dataRouter from './data/router';
+import extensionsRouter from './extensions/router';
+import orderRouter from './order/router';
+import reportRouter from './report/router';
+import commonsRouter from '../commons/server/router';
+import userRouter from './user/userRouter';
+import checkUserSetup from './onboarding/userSetup';
+import { registrationHandler } from './user/updateUserHandler';
+import { pruneUserObject } from './user/utils';
 import customErrorMiddleware from './errors/customErrorMiddleware';
 import lastDitchErrorMiddleware from './errors/lastDitchErrorMiddleware';
 
@@ -147,6 +147,7 @@ app.use('/data', dataRouter);
 app.use('/order', orderRouter);
 app.use('/extensions', extensionsRouter);
 app.use('/report', reportRouter);
+app.use('/commons', commonsRouter);
 
 // STATIC ROUTES
 

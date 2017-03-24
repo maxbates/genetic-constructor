@@ -21,8 +21,8 @@ const AUTOPREFIXER_BROWSERS = [
 const dataPath = path.resolve(__dirname, '../data');
 const sourcePath = path.resolve(__dirname, '../src');
 const serverSourcePath = path.resolve(__dirname, '../server');
-const pluginsSourcePath = path.resolve(__dirname, '../plugins');
 const buildPath = path.resolve(__dirname, '../build');
+const commonsPath = path.resolve(__dirname, '../commons');
 
 const GLOBALS = {
   'process.env.NODE_ENV': DEBUG ? '"dev"' : '"production"',
@@ -53,12 +53,17 @@ const config = {
         loader: 'json-loader',
       },
       {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader!postcss-loader',
+      },
+      {
         test: /\.jsx?$/,
         loader: 'babel-loader',
+        //explicitly declare folders
         include: [
           sourcePath,
           serverSourcePath,
-          pluginsSourcePath,
+          commonsPath,
           dataPath,
         ],
         exclude: /node_modules/,
@@ -69,10 +74,6 @@ const config = {
           presets: ['stage-2', 'react', 'es2015'],
           plugins: ['transform-class-properties', 'transform-decorators-legacy', 'add-module-exports', 'transform-runtime'],
         },
-      },
-      {
-        test: /\.css$/,
-        loader: 'style-loader!css-loader!postcss-loader',
       },
       {
         test: /\.jade$/,
@@ -177,7 +178,6 @@ export const serverConfig = merge({}, config, {
   resolve: {
     root: serverSourcePath,
     alias: {
-      gd_plugins: `${buildPath}/plugins`,
       gd_extensions: `${buildPath}/node_modules`,
     },
   },
@@ -190,6 +190,9 @@ export const serverConfig = merge({}, config, {
   target: 'node',
 
   plugins: [
+    //this will ignore in webpack, but not babel-node
+    //new webpack.NormalModuleReplacementPlugin(/\.css$/, 'node-noop'),
+
     new webpack.optimize.OccurenceOrderPlugin(true),
 
     // Define free variables
@@ -221,4 +224,16 @@ export const serverConfig = merge({}, config, {
   devtool: 'cheap-module-source-map',
 });
 
-export default [clientConfig, serverConfig];
+export const commonsConfig = merge({}, clientConfig, {
+  context: commonsPath,
+
+  entry: [
+    './app/client.js',
+  ],
+
+  output: {
+    filename: 'commons.js',
+  },
+});
+
+export default [clientConfig, commonsConfig, serverConfig];

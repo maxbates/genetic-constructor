@@ -1,0 +1,9 @@
+@import '../../../node_modules/normalize.css/normalize.css';
+@import '../../../src/styles/variables.css';
+@import '../../../src/styles/base.css';
+@import '../../../src/styles/fonts.css';
+
+.App {
+  width: 980px;
+  background-color: var(--colors-white);
+}
