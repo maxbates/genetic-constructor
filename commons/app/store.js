@@ -13,21 +13,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { applyMiddleware, createStore } from 'redux';
+import thunk from 'redux-thunk';
 
-import React from 'react';
-import { render } from 'react-dom';
-import { Router } from 'react-router';
-import { Provider } from 'react-redux';
+import commonsReducer from './reducers';
 
-import routes from './routes';
-import store from './store';
-import history from './history';
+// get preloaded state
 
-render(
-  <Provider store={store}>
-    <Router history={history}>
-      {routes}
-    </Router>
-  </Provider>,
-  document.getElementById('root'),
-);
+let preloadedState;
+
+// get passed state if on browser; allow the passed state to be garbage-collected
+try {
+  preloadedState = window.__PRELOADED_STATE__ ;
+  delete window.__PRELOADED_STATE__;
+} catch (err) {
+  //we're on server, ignore
+}
+
+export default createStore(commonsReducer, preloadedState, applyMiddleware(thunk));

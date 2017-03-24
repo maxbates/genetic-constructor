@@ -14,13 +14,19 @@
  limitations under the License.
  */
 
-const initialState = {
-  projects: {},
-};
+import { combineReducers } from 'redux';
+import { routerReducer as router } from 'react-router-redux';
 
-export default function commonsReducer(state = initialState, action) {
+//projects reducer
+const projects = (state = {}, action) => {
   switch (action.type) {
     default:
       return state;
   }
-}
+};
+
+export default combineReducers({
+  router,
+  projects,
+});
+

@@ -20,6 +20,8 @@ import App from './components/App';
 import Home from './components/Home';
 import Project from './components/Project';
 
+//todo - fetch all projects when route changes? or no dynamic routing
+
 export default (
   <Route path="/" component={App}>
     <Route path="/project" component={Project} />

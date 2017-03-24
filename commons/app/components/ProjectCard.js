@@ -15,6 +15,7 @@
  */
 
 import React from 'react';
+import { Link } from 'react-router';
 
 import '../styles/ProjectCard.css';
 
@@ -24,12 +25,14 @@ export default function ProjectCard({ project }) {
   return (
     <div className="ProjectCard">
       <div className="ProjectCard-corner" style={{ borderTopColor: color, borderLeftColor: color }} />
-      <div className="ProjectCard-name" style={{ color }}>
-        {project.project.metadata.name}
-      </div>
-      <div className="ProjectCard-description">
-        {project.project.metadata.description}
-      </div>
+      <Link to={'/project'}>
+        <div className="ProjectCard-name" style={{ color }}>
+          {project.project.metadata.name}
+        </div>
+        <div className="ProjectCard-description">
+          {project.project.metadata.description}
+        </div>
+      </Link>
     </div>
   );
 }

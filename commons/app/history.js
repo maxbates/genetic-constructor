@@ -13,21 +13,19 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { createHistory } from 'history';
+import { useRouterHistory } from 'react-router';
+import { syncHistoryWithStore } from 'react-router-redux';
 
-import React from 'react';
-import { render } from 'react-dom';
-import { Router } from 'react-router';
-import { Provider } from 'react-redux';
-
-import routes from './routes';
 import store from './store';
-import history from './history';
 
-render(
-  <Provider store={store}>
-    <Router history={history}>
-      {routes}
-    </Router>
-  </Provider>,
-  document.getElementById('root'),
-);
+//todo - update for v4 of react-router
+const routerHistory = useRouterHistory(createHistory)({
+  basename: '/commons',
+});
+
+const history = syncHistoryWithStore(routerHistory, store, {
+  selectLocationState: state => state.router,
+});
+
+export default history;

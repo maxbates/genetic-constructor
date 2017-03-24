@@ -28,9 +28,6 @@ const router = Express.Router(); //eslint-disable-line new-cap
 
 //todo - compile CSS and serve (right now only client handles properly)
 
-//todo - routing
-//todo - fetch all projects when route changes? or no dynamic routing
-
 function renderFullPage(html, preloadedState) {
   return `
     <!doctype html>

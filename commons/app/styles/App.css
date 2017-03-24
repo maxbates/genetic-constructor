@@ -5,5 +5,12 @@
 
 .App {
   width: 980px;
+  margin: 0 auto;
   background-color: var(--colors-white);
+}
+
+a {
+  &, &:hover, &:visited, &:active {
+    text-decoration: none;
+  }
 }
