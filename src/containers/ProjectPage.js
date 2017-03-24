@@ -17,7 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 import { focusConstruct } from '../actions/focus';
-import { projectLoad, projectOpen } from '../actions/projects';
+import { projectSave, projectLoad, projectOpen } from '../actions/projects';
 import { snapshotsList } from '../actions/snapshots';
 import { commonsRetrieveProjectVersions } from '../actions/commons';
 
@@ -48,6 +48,7 @@ export class ProjectPage extends Component {
     project: PropTypes.object, //if have a project (not fetching)
     constructs: PropTypes.array, //if have a project (not fetching)
     projectFromCommons: PropTypes.bool, //if have a project (not fetching) //eslint-disable-line
+    projectSave: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusConstruct: PropTypes.func.isRequired,
@@ -110,6 +111,9 @@ export class ProjectPage extends Component {
 
   onWindowUnload(evt) {
     if (this.props.autosave && this.props.autosave.dirty === true && process.env.NODE_ENV === 'production') {
+      //initiate a save in the background
+      this.props.projectSave(this.props.projectId);
+      //string is required return
       return 'Project has unsaved work! Please save before leaving this page';
     }
   }
@@ -197,6 +201,7 @@ function mapStateToProps(state, ownProps) {
 }
 
 export default connect(mapStateToProps, {
+  projectSave,
   projectLoad,
   projectOpen,
   focusConstruct,
