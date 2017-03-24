@@ -21,12 +21,16 @@
 import debug from 'debug';
 import invariant from 'invariant';
 
-import makeEgfRollup from '../../data/egf_parts/index';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import * as projectPersistence from '../data/persistence/projects';
-import { getConfigFromUser } from '../user/utils';
 
 const logger = debug('constructor:auth:onboarding');
+
+/*
+//legacy - allow specifying of projects to onboard, and create those projects for the user
+
+import makeEgfRollup from '../../data/egf_parts/index';
+import { getConfigFromUser } from '../user/utils';
 
 // while we are using imports, do this statically
 // todo - use require() for dynamic (will need to reconcile with build eventually, but whatever)
@@ -86,4 +90,20 @@ export default function onboardNewUser(user) {
           return [firstRoll, ...restRolls];
         });
     });
+}
+*/
+
+export default function onboardNewUser(user) {
+  invariant(user && user.email && user.uuid, 'must pass valid user');
+
+  logger(`Onboarding ${user.uuid} ${user.email}`);
+
+  const roll = emptyProjectWithConstruct(user.uuid, false);
+
+  return projectPersistence.projectWrite(roll.project.id, roll, user.uuid, true)
+  .then((writeResult) => {
+    logger('onboarding complete');
+    //legacy - return array of rolls generated
+    return [writeResult.data];
+  });
 }

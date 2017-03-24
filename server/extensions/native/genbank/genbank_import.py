@@ -84,7 +84,8 @@ def create_block_json(id):
         "components": [],
         "sequence" : {
             "features": []
-        }
+        },
+        "parent": ""
       }
 
 # Determines the kind of relationship between 2 blocks, using only the length, start and end positions
@@ -95,19 +96,19 @@ def create_block_json(id):
 #    "partial": block1 and block2 have a partial overlap
 #    "before": block1 comes before than block2 in the sequence
 #    "after": block1 comes after block2 in the sequence
-def relationship(block1, block2):
-    if block1["sequence"]["length"] < block2["sequence"]["length"] and block2["metadata"]["start"] <= block1["metadata"]["start"] and block2["metadata"]["end"] >= block1["metadata"]["end"]:
+def relationship(block1_length, block1_start, block1_end, block2_length, block2_start, block2_end):
+    if block1_length < block2_length and block2_start <= block1_start and block2_end >= block1_end:
         return "child"
-    if block1["sequence"]["length"] == block2["sequence"]["length"] and block2["metadata"]["start"] == block1["metadata"]["start"] and block2["metadata"]["end"] == block1["metadata"]["end"]:
+    if block1_length == block2_length and block2_start == block1_start and block2_end == block1_end:
         return "equal"
-    if block1["sequence"]["length"] > block2["sequence"]["length"] and block1["metadata"]["start"] <= block2["metadata"]["start"] and block1["metadata"]["end"] >= block2["metadata"]["end"]:
+    if block1_length > block2_length and block1_start <= block2_start and block1_end >= block2_end:
         return "parent"
-    if (block1["metadata"]["start"] <= block2["metadata"]["start"] and block1["metadata"]["end"] > block2["metadata"]["start"]) or \
-        (block1["metadata"]["start"] < block2["metadata"]["end"] and block1["metadata"]["end"] >= block2["metadata"]["end"]):
+    if (block1_start <= block2_start and block1_end > block2_start) or \
+        (block1_start < block2_end and block1_end >= block2_end):
         return "partial"
-    if block1["metadata"]["end"]-1 < block2["metadata"]["start"]:
+    if block1_end-1 < block2_start:
         return "before"
-    if block1["metadata"]["start"] > block2["metadata"]["end"]-1:
+    if block1_start > block2_end-1:
         return "after"
     raise Exception("This relationship between blocks can never happen")
     return "disjoint"
@@ -155,7 +156,7 @@ def convert_block_to_annotation(all_blocks, to_convert, parent, to_remove_list):
         convert_block_to_annotation(all_blocks, to_convert_child, parent, to_remove_list)
 
 # Takes a genbank record and creates a root block
-def create_root_block_from_genbank(gb, sequence):
+def create_root_block_from_genbank(gb, sequence, import_type = "normal"):
     full_length = len(sequence["sequence"])
 
     root_id = str(uuid.uuid4())
@@ -166,6 +167,7 @@ def create_root_block_from_genbank(gb, sequence):
 
     root_block["metadata"]["start"] = 0
     root_block["metadata"]["end"] = full_length
+    root_block["import_type"] = import_type
     sequence["blocks"][root_id] = [root_block["metadata"]["start"], root_block["metadata"]["end"]]
 
     root_block["metadata"]["genbank"]["id"] = gb.id
@@ -178,6 +180,8 @@ def create_root_block_from_genbank(gb, sequence):
                 reference = {'authors': ref.authors, 'comment': ref.comment, 'consrtm': ref.consrtm, 'journal': ref.journal,
                              'medline_id': ref.medline_id, 'pubmed_id': ref.pubmed_id, 'title': ref.title}
                 root_block["metadata"]["genbank"]["references"].append(reference)
+                if "SnapGene" in ref.journal and "Vector" in ref.journal:
+                    root_block["import_type"] = "snapgene_vector"
             except:
                 pass
 
@@ -193,7 +197,13 @@ def create_root_block_from_genbank(gb, sequence):
 
 # Create the name for the block based on preference rules in the name qualifier table
 # Defaults to the genbank type if we don't have anything else to go on
-def convert_block_name(f, block):
+def convert_block_name(f, block, import_type):
+    if import_type == "snapgene_vector":
+        if "label" in f.qualifiers:
+            block["metadata"]["name"] = f.qualifiers["label"]
+            block["metadata"]["genbank"]["name_source"] = "label"
+            return
+
     genbank_type = f.type.lower()
     if genbank_type in name_qualifier_table:
         preferences = name_qualifier_table[genbank_type]
@@ -204,6 +214,18 @@ def convert_block_name(f, block):
                 return
     else:
         block["metadata"]["name"] = f.type
+
+# For some formats (Snamgene Vector) description needs to come from the different places in the record
+def convert_block_description(f, block, import_type):
+    if import_type == "snapgene_vector":
+        block["metadata"]["description"] = ""
+        if "note" in f.qualifiers:
+            block["metadata"]["description"] += f.qualifiers["note"][0] + "\n"
+        if "product" in f.qualifiers:
+            block["metadata"]["description"] += f.qualifiers["product"][0] + "\n"
+        if "gene" in f.qualifiers:
+            block["metadata"]["description"] += f.qualifiers["gene"][0] + "\n"
+
 
 # The information for GC is stored in the notes qualifier, encoded in json. Get it back out.
 def convert_GC_info(f, block):
@@ -251,7 +273,8 @@ def create_child_block_from_feature(f, all_blocks, root_block, sequence):
         # It's a regular annotation, create a block
         block_id = str(uuid.uuid4())
         child_block = create_block_json(block_id)
-        convert_block_name(f, child_block)
+        convert_block_name(f, child_block, root_block["import_type"])
+        convert_block_description(f, child_block, root_block["import_type"])
         convert_GC_info(f, child_block)
 
         for q in f.qualifiers:
@@ -274,13 +297,6 @@ def create_child_block_from_feature(f, all_blocks, root_block, sequence):
             child_block["rules"]["role"] = role_type
 
         all_blocks[block_id] = child_block
-
-# Returns true if a block id is a children of any other block
-def has_parent(block_id, all_blocks):
-    for block in all_blocks.values():
-        if block_id in block["components"]:
-            return True
-    return False
 
 def block_by_old_id(old_id, all_blocks):
     for block in all_blocks.values():
@@ -305,7 +321,7 @@ def build_block_hierarchy(all_blocks, root_block, sequence):
     for i in range(blocks_count):
         block = sorted_blocks[i]
         # Don't try to sort out the root block, anything to remove, or anything that we have already determined that it has a parent
-        if block == root_block or block["id"] in to_remove or has_parent(block["id"], all_blocks):
+        if block == root_block or block["id"] in to_remove or block["parent"] != "":
             continue
 
         # Try to rebuild the hierarchy if it's an import from GC
@@ -331,7 +347,7 @@ def build_block_hierarchy(all_blocks, root_block, sequence):
                 parents.append(sorted_blocks[j])
 
         for other_block in parents:
-            rel = relationship(block, other_block)
+            rel = relationship(block["sequence"]["length"], block["metadata"]["start"], block["metadata"]["end"], other_block["sequence"]["length"], other_block["metadata"]["start"], other_block["metadata"]["end"])
             if rel == "child":
                 insert_child_in_parent(all_blocks, block, other_block, to_remove)
                 inserted = True
@@ -364,7 +380,7 @@ def insert_child_in_parent(all_blocks, block, parent_block, to_remove):
     # Go through the siblins to see where to insert the current block
     for sib_id in parent_block["components"]:
         sibling = all_blocks[sib_id]
-        relationship_to_sibling = relationship(block, sibling)
+        relationship_to_sibling = relationship(block["sequence"]["length"], block["metadata"]["start"], block["metadata"]["end"], sibling["sequence"]["length"], sibling["metadata"]["start"], sibling["metadata"]["end"])
         # Keep moving forward until we get to one where we need to be "before"
         if relationship_to_sibling == "after":
             i += 1
@@ -374,6 +390,7 @@ def insert_child_in_parent(all_blocks, block, parent_block, to_remove):
     # Insert the block where it goes
     if not is_partial_overlap:
         parent_block["components"].insert(i, block["id"])
+        block["parent"] = parent_block["id"]
     else:
         # Partial match, make this block just an annotation of the parent
         convert_block_to_annotation(all_blocks, block, parent_block, to_remove)
@@ -397,6 +414,7 @@ def create_filler_blocks_for_holes(all_blocks, sequence):
                 # start and where it actually starts. Add the filler block to the parent.
                 block_id = str(uuid.uuid4())
                 filler_block = create_block_json(block_id)
+                filler_block["parent"] = block["id"]
                 filler_block["metadata"]["color"] = None
 
                 filler_block["metadata"]["start"] = current_position
@@ -414,6 +432,7 @@ def create_filler_blocks_for_holes(all_blocks, sequence):
         if child and current_position < block["metadata"]["end"]:
             block_id = str(uuid.uuid4())
             filler_block = create_block_json(block_id)
+            filler_block["parent"] = block["id"]
             filler_block["metadata"]["color"] = None
 
             filler_block["metadata"]["start"] = current_position
@@ -438,6 +457,7 @@ def remove_sequence_from_parents(all_blocks):
 def remove_start_and_end_of_blocks(all_blocks):
     for block in all_blocks.values():
         try:
+            del block["parent"]
             del block["metadata"]["start"]
             del block["metadata"]["end"]
             del block["metadata"]["is_annotation"]
@@ -465,6 +485,7 @@ def convert_genbank_record_to_blocks(gb):
 
     remove_sequence_from_parents(all_blocks)
     remove_start_and_end_of_blocks(all_blocks)
+    del root_block["import_type"]
 
     return { "root": all_blocks[root_block["id"]], "blocks": all_blocks, "sequence": sequence }
 

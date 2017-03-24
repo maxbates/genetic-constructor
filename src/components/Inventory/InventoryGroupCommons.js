@@ -58,10 +58,6 @@ export class InventoryGroupCommons extends Component {
     inspectorSelectTab: PropTypes.func.isRequired,
   };
 
-  static onCommonsProjectDrag(snapshot, globalPoint) {
-    //todo - should we do anything on dragging the project?
-  }
-
   static onCommonsConstructDrag(block, globalPoint) {
     DnD.startDrag(InventoryProjectTree.makeDnDProxy(block), globalPoint, {
       item: block,
@@ -170,6 +166,7 @@ export class InventoryGroupCommons extends Component {
       return {
         block,
         text: block.getName(),
+        testid: block.id,
         items: [], //only one level allowed
         selectedAlt: this.props.focus.forceBlocks[0] === block,
         onClick: () => this.props.focusForceBlocks([block]),
@@ -255,13 +252,11 @@ export class InventoryGroupCommons extends Component {
 
     return snapshots.map(snapshot => ({
       text: snapshot.tags.projectName || 'Untitled Project',
-      testid: `commons/${snapshot.owner}/${snapshot.projectId}`,
-      bold: false,
+      testid: `commons/${snapshot.projectId}/${snapshot.owner}`,
       selected: currentProjectId === snapshot.projectId,
       selectedAlt: focus.forceProject && snapshot.projectId === focus.forceProject.id,
       onClick: isOpen => this.onClickSnapshot(snapshot, isOpen),
       onContextMenu: evt => this.onSnapshotContextMenu(snapshot, evt),
-      // startDrag: globalPoint => InventoryGroupCommons.onCommonsProjectDrag(snapshot, globalPoint),
       items: this.getCommonsProjectBlocks(snapshot),
       showArrowWhenEmpty: true,
       labelWidgets: [

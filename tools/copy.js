@@ -20,10 +20,15 @@ async function copy() {
 
     //docs
     console.log('Copying documentation...');
-    await ncp(`docs/jsdoc/genetic-constructor/${pkg.version}`, 'build/jsdoc');
+    try {
+      await ncp(`docs/jsdoc/genetic-constructor/${pkg.version}`, 'build/jsdoc');
+    } catch (err) {
+      console.log('Docs not generated... run npm install');
+      throw err;
+    }
 
     //copy installed extensions
-    console.log('Copying extensions ...');
+    console.log('Copying extensions...');
     await ncp('server/extensions/node_modules', 'build/node_modules');
 
     await writeFile('./build/package.json', JSON.stringify({

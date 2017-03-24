@@ -19,6 +19,7 @@
 //requires that SERVER_MANUAL=true env var is set
 
 import { listenSafely } from '../server/server';
+import makeEgfProject from '../data/egf_parts/publishEgfLocally';
 import { testUserId } from './constants';
 import { deleteUser } from '../server/data/persistence/admin';
 
@@ -36,6 +37,7 @@ before(() => {
       console.log('deleting all testUser data from DB...'); //eslint-disable-line no-console
       return deleteUser(testUserId);
     })
+    .then(() => makeEgfProject())
     .then(() => {
       console.log('Test setup complete, beginning suite:\n'); //eslint-disable-line no-console
     });

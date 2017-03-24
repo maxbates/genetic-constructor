@@ -96,7 +96,7 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
       });
 
       spawned.stderr.on('data', (data) => {
-        log(`${data}`, true);
+        log(`${data}`, forceOutput);
         if (`${data}`.indexOf(waitUntil) >= 0) {
           return resolve(spawned);
         }

@@ -64,6 +64,7 @@ const startRunAuth = () => {
   console.log('\n\n');
   return spawnAsync('npm', ['run', 'start'],
     { cwd: pathProjectRoot,
+      stdio: 'inherit',
       env: Object.assign({
         BIO_NANO_AUTH: 1,
         HOST_URL,
@@ -87,7 +88,7 @@ async function authStack() {
     await installAuthModule();
     await startRunAuth();
   } catch (err) {
-    console.log('CAUGHT', err);
+    console.log('[auth-stack] CAUGHT', err);
     throw err;
   }
 }
