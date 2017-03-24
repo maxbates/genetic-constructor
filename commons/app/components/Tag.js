@@ -13,29 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import React from 'react';
 
-import { combineReducers } from 'redux';
-import { routerReducer as router } from 'react-router-redux';
+import '../styles/Tag.css';
 
-//projects reducer
-const projects = (state = {}, action) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
-};
-
-//snapshots reducer
-const snapshots = (state = {}, action) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
-};
-
-export default combineReducers({
-  router,
-  projects,
-  snapshots,
-});
-
+export default function Tag({ text, description }) {
+  return (
+    <div
+      className="Tag"
+      alt={`${text}${description ? `: ${description}` : ''}`}
+    >
+      {text}
+    </div>
+  );
+}

@@ -13,29 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import React from 'react';
 
-import { combineReducers } from 'redux';
-import { routerReducer as router } from 'react-router-redux';
+export default function ConstructAbout({ constructId, project }) {
+  const construct = project.blocks[constructId];
 
-//projects reducer
-const projects = (state = {}, action) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
-};
-
-//snapshots reducer
-const snapshots = (state = {}, action) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
-};
-
-export default combineReducers({
-  router,
-  projects,
-  snapshots,
-});
-
+  return (
+    <div className="ConstructAbout">
+      <div className="ConstructAbout-name">{construct.metadata.name}</div>
+    </div>
+  );
+}

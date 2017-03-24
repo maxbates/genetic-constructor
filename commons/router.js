@@ -22,7 +22,8 @@ import { Provider } from 'react-redux';
 import commonsReducer from './app/reducers';
 import routes from './app/routes';
 
-import Rollup from '../src/models/Rollup';
+import { projectVersionByUUID } from '../server/data/persistence/projectVersions';
+import * as commons from '../server/data/persistence/commons';
 
 const router = Express.Router(); //eslint-disable-line new-cap
 
@@ -47,24 +48,15 @@ function renderFullPage(html, preloadedState) {
     `;
 }
 
-const defaultProjects = ['red', 'green', 'rebeccapurple', 'orange', 'violet', 'aquamarine'].reduce((acc, color, ind) => {
-  const roll = new Rollup();
-
-  Object.assign(roll.project.metadata, {
-    name: `Project ${ind}`,
-    description: 'Here is a description of the project',
-    color,
-  });
-
-  return Object.assign(acc, { [roll.project.id]: roll });
-}, {});
-
 //todo - update react router: https://reacttraining.com/react-router/web/guides/server-rendering
 
-function handleRender(req, res, next) {
-  //todo - fetch all the projects
+async function handleRender(req, res, next) {
+  const snapshots = await commons.commonsQuery();
 
-  console.log(req.url);
+  //todo - optimize
+  const projects = await Promise.all(
+    snapshots.map(({ projectUUID }) => projectVersionByUUID(projectUUID)),
+  );
 
   match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
     if (error) {
@@ -72,11 +64,8 @@ function handleRender(req, res, next) {
     } else if (redirectLocation) {
       res.redirect(302, redirectLocation.pathname + redirectLocation.search);
     } else if (renderProps) {
-      //todo - check renderProps.routes / renderProps.components and 404 accordingly
-      //console.log(renderProps);
-
       // Create a new Redux store instance
-      const store = createStore(commonsReducer, { projects: defaultProjects });
+      const store = createStore(commonsReducer, { projects, snapshots });
 
       // Grab the initial state from our Redux store
       const preloadedState = store.getState();

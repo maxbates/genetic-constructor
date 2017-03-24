@@ -1,0 +1,9 @@
+@import '../../../src/styles/variables.css';
+
+.Tag {
+  display: inline-block;
+  padding: 5px;
+  margin: 0 10px 10px 0;
+  border-radius: 3px;
+  background-color: var(--colors-lighterGrey);
+}
