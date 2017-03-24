@@ -51,10 +51,10 @@ let currentCookie = generateMockCookieValue();
 export const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json();
 
-const defaultUserForcedFields = () => {
+const defaultUserForcedFields = (shouldUpdate = false) => {
   //for test environment, allow forcing of a new ID so can start with a clean slate
   //note - this will not support logging out and back in, you will get a new ID on each log in
-  if (process.env.LOCAL_AUTH_NEW_USERS) {
+  if (process.env.LOCAL_AUTH_NEW_USERS && shouldUpdate) {
     return { uuid: uuid.v4() };
   }
   return { uuid: testUserId };
@@ -88,15 +88,19 @@ export const defaultUser = Object.assign(
 
 //initial user setup for the default user
 export const ensureUserSetup = () => checkUserSetup(defaultUser)
-    .catch((resp) => {
-      log('error checking user setup in ensureUserSetup');
-      log(resp);
+.catch((resp) => {
+  log('error checking user setup in ensureUserSetup');
+  log(resp);
 
-      return resp.text().then((text) => {
-        console.log(`${text}`);
-        return Promise.reject(text);
-      });
-    });
+  if (!resp.text) {
+    return Promise.reject(resp);
+  }
+
+  return resp.text().then((text) => {
+    console.log(`${text}`);
+    return Promise.reject(text);
+  });
+});
 
 // @ req.user.data[userConfigKey]
 
@@ -159,7 +163,7 @@ const handleUpdate = (req, res, next) => {
 
   //force ID unless minting new ones across all signins
   if (!process.env.LOCAL_AUTH_NEW_USERS) {
-    Object.assign(defaultUser, defaultUserForcedFields());
+    Object.assign(defaultUser, defaultUserForcedFields(false));
   }
 
   log('User Update:');
@@ -183,7 +187,7 @@ const handleRegister = (req, res, next) => {
     res.status(400).json({ message: 'invalid password' });
   }
 
-  Object.assign(defaultUser, { email, firstName, lastName }, defaultUserForcedFields());
+  Object.assign(defaultUser, { email, firstName, lastName }, defaultUserForcedFields(true));
   if (data) {
     Object.assign(defaultUser, { data });
   }
@@ -193,15 +197,15 @@ const handleRegister = (req, res, next) => {
 
   //if not logged in (requireLogin) then mockAuth won't setup user on register, so lets double check here (even though ID not changing)
   checkUserSetup(defaultUser)
-    .then(() => {
-      currentCookie = generateMockCookieValue();
-      res.cookie('sess', currentCookie);
-      res.send(defaultUser);
-    })
-    .catch((err) => {
-      console.error(err, err.stack);
-      res.status(500).send(err);
-    });
+  .then(() => {
+    currentCookie = generateMockCookieValue();
+    res.cookie('sess', currentCookie);
+    res.send(defaultUser);
+  })
+  .catch((err) => {
+    console.error(err, err.stack);
+    res.status(500).send(err);
+  });
 };
 
 // register the new user
@@ -235,10 +239,10 @@ export const mockUser = (req, res, next) => {
     if (listeners.length > 0) {
       log('mockUser() clearing listeners...');
       return Promise.all(listeners.map(listener => listener()))
-        .then(() => {
-          listeners.length = 0;
-          next();
-        });
+      .then(() => {
+        listeners.length = 0;
+        next();
+      });
     }
 
     next();

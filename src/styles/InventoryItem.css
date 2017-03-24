@@ -78,7 +78,6 @@
 
   &.loading,
   &.selected {
-
     color: var(--colors-white);
 
     .InventoryItem-text {

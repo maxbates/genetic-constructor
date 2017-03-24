@@ -48,7 +48,7 @@ module.exports = {
             openInventoryPanel(browser, 'Commons');
 
             var treeSelector = '[data-testid="commons/' + publishedProject.owner + '"]';
-            var projectSelector = '[data-testid="commons/' + publishedProject.owner + '/' + publishedProject.id + '"]';
+            var projectSelector = '[data-testid="commons/' + publishedProject.id + '/' + publishedProject.owner + '"]';
             var projectOpenSelector = '[data-testid="commonsopen/' + publishedProject.id + '"]';
 
             browser

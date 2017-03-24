@@ -80,10 +80,10 @@ export default class Tree extends Component {
             }}
           >
             <Expando
+              key={index}
               showArrowWhenEmpty={this.props.depth === 0 || item.showArrowWhenEmpty}
               onExpand={() => Tree.onExpandBranch(item)}
               onClick={() => Tree.onClickBlock(item)}
-              key={index}
               text={item.text}
               testid={item.testid}
               textWidgets={item.textWidgets}
