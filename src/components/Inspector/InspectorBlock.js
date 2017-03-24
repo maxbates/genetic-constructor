@@ -296,25 +296,18 @@ export class InspectorBlock extends Component {
         )}
 
         <InspectorRow
-          heading="Source"
-          condition={!!currentSourceElement}
-        >
-          {currentSourceElement}
-        </InspectorRow>
-
-        <InspectorRow
-          heading="Sequence Length"
-          condition={hasSequence}
-        >
-          <p><strong>{this.currentSequenceLength()}</strong></p>
-        </InspectorRow>
-
-        <InspectorRow
           heading={`${type} Metadata`}
           hasToggle
           condition={hasNotes}
         >
           <BlockNotes notes={instances[0].notes} />
+        </InspectorRow>
+
+        <InspectorRow
+          heading="Source"
+          condition={!!currentSourceElement}
+        >
+          {currentSourceElement}
         </InspectorRow>
 
         <InspectorRow
@@ -326,13 +319,6 @@ export class InspectorBlock extends Component {
             readOnly={cannotEdit}
             isConstruct={isParentBlock}
           />
-        </InspectorRow>
-
-        <InspectorRow
-          heading="Source"
-          condition={!!currentSourceElement}
-        >
-          {currentSourceElement}
         </InspectorRow>
 
         <InspectorRow
