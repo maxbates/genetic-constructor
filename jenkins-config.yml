@@ -6,7 +6,7 @@ environment: dev
 # NOTE set this value in the Jenkins job as it varies by environment
 cfn-stack-name: ""
 cfn-param-compose-file: docker-compose-quickstart.yml
-cfn-param-compose-start-params: "AUTH_ENV_TAG=.dev NODE_ENV=dev GITHUB_ACCESS_TOKEN=2c369f80d72af49540a19e417caa75f213a4459c GC_AWS_ACCESS_KEY_ID=AKIAILT7T5W3BL7NUM7Q GC_AWS_SECRET_ACCESS_KEY=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 CAPTCHA_SECRET_REGISTER=6LdvyREUAAAAAOBtCs7ZcwC6E1oU_AENY9iTsR1W VERBOSE_REQUEST_LOGS=true"
+cfn-param-compose-start-params: ""
 # NOTE set this value in the Jenkins job as it varies by environment
 cfn-param-compose-cmd-prefix: ""
 
