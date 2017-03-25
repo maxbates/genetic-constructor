@@ -74,12 +74,12 @@ export class ConstructViewerJob extends Component {
   onJobComplete = (jobObj) => {
     const { construct } = this.props;
     const { projectId, jobId } = construct;
-    const { failure, error, job, result } = jobObj;
+    const { failure, error, job } = jobObj;
 
     this.cancelPolling();
 
-    if (failure === true || !result) {
-      this.props.uiSetGrunt('Your job failed... Sorry!');
+    if (failure === true) {
+      console.log('Job Failed');
       console.log(job); //eslint-disable-line no-console
       console.log(error); //eslint-disable-line no-console
 
