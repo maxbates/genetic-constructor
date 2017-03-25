@@ -1,12 +1,12 @@
 service-name: gctor
 # NOTE override this value in the Jenkins job as it varies by environment
-environment: local
+environment: dev
 
 # parameters used when calling cloudformation update-stack
 # NOTE set this value in the Jenkins job as it varies by environment
 cfn-stack-name: ""
 cfn-param-compose-file: docker-compose-quickstart.yml
-cfn-param-compose-start-params: ""
+cfn-param-compose-start-params: "AUTH_ENV_TAG=.dev NODE_ENV=dev GITHUB_ACCESS_TOKEN=2c369f80d72af49540a19e417caa75f213a4459c GC_AWS_ACCESS_KEY_ID=AKIAILT7T5W3BL7NUM7Q GC_AWS_SECRET_ACCESS_KEY=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 CAPTCHA_SECRET_REGISTER=6LdvyREUAAAAAOBtCs7ZcwC6E1oU_AENY9iTsR1W VERBOSE_REQUEST_LOGS=true"
 # NOTE set this value in the Jenkins job as it varies by environment
 cfn-param-compose-cmd-prefix: ""
 
@@ -47,5 +47,21 @@ lib-push-config: --config /var/jenkins_home/.docker-config-autodesk-bionano-org
 npm-package-push: false
 npm-package-name: ""
 npm-package-s3-folder: ""
+
+# stack creation
+dev-stack:
+  stack-type: asg-docker
+  host-instance-type: m3.large
+  route-53-info: 'Z29MW8ZYO3CZ0T:A:gctor-service.dev.bionano.bio:30'
+  force-new-machine: true
+  desired-capacity: 2
+  min-capacity: 2
+  max-capacity: 4
+  lb-sticky: true
+  lb-vpc-name: dev-vpc
+  lb-unique-name: dev-internal-alb2
+  lb-port: 3000
+  autoscale-threshold: none
+
 
 fake-jenkins: false # Don't change this; it's only here to be overridden by place holder Jenkins configuration
