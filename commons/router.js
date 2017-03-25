@@ -49,14 +49,18 @@ function renderFullPage(html, preloadedState) {
 }
 
 //todo - update react router: https://reacttraining.com/react-router/web/guides/server-rendering
+//todo - enable hot loading: https://github.com/gaearon/react-hot-loader/tree/master/docs#migration-to-30
+
+//todo - routing by name, not hash
+//todo - only fetch all projects if root request, not for project pages
 
 async function handleRender(req, res, next) {
   const snapshots = await commons.commonsQuery();
 
-  //todo - optimize
-  const projects = await Promise.all(
+  //todo - optimize - call multiple at once
+  const projects = (await Promise.all(
     snapshots.map(({ projectUUID }) => projectVersionByUUID(projectUUID)),
-  );
+  )).reduce((acc, project) => ({ ...acc, [project.project.id]: project }), {});
 
   match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
     if (error) {
@@ -82,6 +86,7 @@ async function handleRender(req, res, next) {
       // Send the rendered page back to the client
       res.send(renderFullPage(html, preloadedState));
     } else {
+      //todo - move 404 rendering into the app
       res.status(404).send('Not found');
     }
   });

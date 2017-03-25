@@ -27,7 +27,7 @@
 
   &-stats {
     text-align: center;
-    margin: var(--space-card);
+    margin: var(--space-card) 0;
     color: var(--colors-selected);
     font-size: 18px;
 
@@ -44,7 +44,7 @@
   }
 
   &-projects {
-    margin: var(--space-card);
+    margin: var(--space-card) 0;
     display: flex;
     flex-wrap: wrap;
 

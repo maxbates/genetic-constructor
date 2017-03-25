@@ -14,14 +14,17 @@
  limitations under the License.
  */
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
 import InfoTable from './InfoTable';
 import ConstructAbout from './ConstructAbout';
+import BigOpenLink from './BigOpenLink';
 
 export function Project({ project, snapshot }) {
+  const openLink = `/project/${project.project.id}`;
+
   const numberBlocks = Object.keys(project.blocks).length;
   const numberBases = Object.keys(project.blocks).reduce((acc, blockId) => acc + (project.blocks[blockId].sequence.length || 0), 0);
 
@@ -34,17 +37,19 @@ export function Project({ project, snapshot }) {
       <div className="Project-overview">
         <InfoTable
           values={[
-            ['Project', project.project.metadata.name],
+            ['Project', project.project.metadata.name, { bold: true }],
             ['Description', project.project.metadata.description],
             ['Keywords', project.project.metadata.keywords],
             ['Publisher', 'TODO'],
             ['Updated', 'TODO'],
           ]}
+          style={{ width: '500px' }}
         />
+        <BigOpenLink href={openLink} />
       </div>
 
       <div className="Project-preview">
-        <div className="Project-preview-title">Project Preview</div>
+        <h3 className="Project-preview-title">Project Preview</h3>
         <div className="Project-preview-stats">
           <div className="Project-preview-stats-stat">{project.project.components.length} Constructs</div>
           <div className="Project-preview-stats-stat">{numberBlocks} Blocks</div>
@@ -77,7 +82,15 @@ export function Project({ project, snapshot }) {
   );
 }
 
+Project.propTypes = {
+  params: PropTypes.shape({
+    projectId: PropTypes.string.isRequired,
+  }).isRequired,
+  project: PropTypes.object.isRequired,
+  snapshot: PropTypes.object.isRequired,
+};
+
 export default connect((state, props) => ({
-  project: state.projects[Object.keys(state.projects)[0]],
-  snapshot: state.snapshots[Object.keys(state.snapshots)[0]],
+  project: state.projects[props.params.projectId],
+  snapshot: state.snapshots.find(snapshot => snapshot.projectId === props.params.projectId),
 }))(Project);

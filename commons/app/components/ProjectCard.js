@@ -14,18 +14,18 @@
  limitations under the License.
  */
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 
 import '../styles/ProjectCard.css';
 
 export default function ProjectCard({ project }) {
-  const color = project.project.metadata.color;
+  const color = project.project.metadata.color || 'red';
 
   return (
     <div className="ProjectCard">
       <div className="ProjectCard-corner" style={{ borderTopColor: color, borderLeftColor: color }} />
-      <Link to={'/project'}>
+      <Link to={`/${project.project.id}`}>
         <div className="ProjectCard-name" style={{ color }}>
           {project.project.metadata.name}
         </div>
@@ -36,3 +36,13 @@ export default function ProjectCard({ project }) {
     </div>
   );
 }
+
+ProjectCard.propTypes = {
+  project: PropTypes.shape({
+    project: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      metadata: PropTypes.object.isRequired,
+    }).isRequired,
+    blocks: PropTypes.object.isRequired,
+  }).isRequired,
+};

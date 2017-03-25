@@ -18,27 +18,32 @@ import React from 'react';
 
 import Tag from './Tag';
 
-export default function InfoTable({ values }) {
+import '../styles/InfoTable.css';
+
+export default function InfoTable({ values, ...rest }) {
   return (
-    <div className="InfoTable">
-      {values.map(([key, value], index) => {
+    <table className="InfoTable" {...rest}>
+      <tbody>
+      {values.map(([key, value, options = {}], index) => {
         if (!value) {
           return null;
         }
+        const { bold } = options;
 
-        const content = Array.isArray(value) ? value.map(val => (<Tag text={val} />)) : value;
+        const content = Array.isArray(value) ? value.map((val, index) => (<Tag text={val} key={index} />)) : value;
 
         return (
-          <div className="InfoTable-row" key={index}>
-            <div className="InfoTable-key">
+          <tr className="InfoTable-row" key={index}>
+            <td className="InfoTable-key">
               {key}
-            </div>
-            <div className="InfoTable-val">
+            </td>
+            <td className={`InfoTable-value ${bold ? 'bold' : ''}`}>
               {content}
-            </div>
-          </div>
+            </td>
+          </tr>
         );
       })}
-    </div>
+      </tbody>
+    </table>
   );
 }

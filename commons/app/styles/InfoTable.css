@@ -1,0 +1,22 @@
+@import '../../../src/styles/variables.css';
+
+.InfoTable {
+  margin: 1em 0;
+
+  &-row {
+    padding: 0.25rem 0 0;
+
+  }
+
+  &-key {
+    color: var(--colors-slightlyLightGrey);
+    padding-right: 1rem;
+  }
+
+  &-value {
+
+    &.bold {
+      font-family: var(--font-family-bold);
+    }
+  }
+}

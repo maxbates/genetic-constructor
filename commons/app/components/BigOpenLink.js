@@ -13,19 +13,18 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React from 'react';
-import { IndexRoute, Route } from 'react-router';
+import React, { PropTypes } from 'react';
 
-import App from './components/App';
-import Home from './components/Home';
-import Project from './components/Project';
+import '../styles/BigOpenLink.css';
 
-//todo - fetch all projects when route changes? or no dynamic routing
+export default function BigOpenLink(props) {
+  return (
+    <a className="BigOpenLink" target="_blank" rel="noopener noreferrer" {...props}>
+      Open in Genetic Constructor -&gt;
+    </a>
+  );
+}
 
-export default (
-  <Route path="/" component={App}>
-    <Route path="/:projectId" component={Project} />
-    <IndexRoute component={Home} />
-  </Route>
-);
-
+BigOpenLink.propTypes = {
+  href: PropTypes.string.isRequired,
+};
