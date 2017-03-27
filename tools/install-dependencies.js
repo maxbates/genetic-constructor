@@ -20,7 +20,7 @@ async function installDependencies() {
       forceOutput: true,
     });
   } catch (err) {
-    console.log('CAUGHT', err);
+    console.log('[install-dependencies] CAUGHT', err);
     throw err;
   }
 }

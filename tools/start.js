@@ -91,7 +91,7 @@ async function start() {
 
         runServer((err, host) => {
           if (err) {
-            console.log('Error running server');
+            console.log(colors.red('Error running server'));
             return reject(err);
           }
 
@@ -105,6 +105,7 @@ async function start() {
               //todo - webpack server, let webpack handle watching
             ],
 
+            //dont sync events
             ghostMode: false,
 
             ...(DEBUG ? {} : { notify: false, ui: false }),
@@ -116,9 +117,16 @@ async function start() {
                 hotMiddleware,
               ],
             },
-          }, resolve);
+          }, () => {
+            //if we're not in production, create EGF project and publish it before resolving
+            if (process.env.NODE_ENV !== 'production') {
+              const publishEgfLocally = require('../data/egf_parts/publishEgfLocally');
+              return resolve(publishEgfLocally());
+            }
 
-          //todo - we want ton only recompile once per batch of changes - currently every single file change will trigger a build. Maybe just debounce?
+            resolve();
+          });
+
           const ignoreDotFilesAndNestedNodeModules = /([/\\]\.)|(node_modules\/.*?\/node_modules)/gi;
           const checkSymlinkedNodeModule = /(.*?\/)?extensions\/.*?\/node_modules/;
           const checkIsInServerExtensions = /^server\//;

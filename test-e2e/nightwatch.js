@@ -32,6 +32,10 @@ module.exports = {
       globals: {
         waitForConditionTimeout: 10000,
       },
+      test_workers: {
+        enabled: true,
+        workers: 4,
+      },
       desiredCapabilities: {
         browserName: 'chrome',
         javascriptEnabled: true,
@@ -62,6 +66,10 @@ module.exports = {
       },
       globals: {
         waitForConditionTimeout: 10000,
+      },
+      test_workers: {
+        enabled: false,
+        workers: 2,
       },
     },
   },
