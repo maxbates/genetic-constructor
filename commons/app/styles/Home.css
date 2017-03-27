@@ -8,6 +8,7 @@
   font-family: var(--font-family-light);
 
   &-splash {
+    margin: 2rem;
     text-align: center;
     color: var(--colors-nearlyBlack);
 
@@ -16,7 +17,7 @@
       font-size: 64px;
       text-transform: uppercase;
       line-height: 1em;
-      margin: 2rem 0 1rem;
+      margin: 2rem 0;
     }
 
     &-subheading {

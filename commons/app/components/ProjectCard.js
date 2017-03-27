@@ -17,22 +17,30 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 
+import { getPalette } from '../../../src/utils/color/index';
+
 import '../styles/ProjectCard.css';
 
 export default function ProjectCard({ project }) {
-  const color = project.project.metadata.color || 'red';
+  const firstConstruct = project.blocks[project.project.components[0]];
+  const paletteName = firstConstruct.metadata.palette || project.project.metadata.palette;
+  const palette = getPalette(paletteName);
+  const colorIndex = firstConstruct.metadata.color || 0;
+  const color = palette[colorIndex].hex;
 
   return (
     <div className="ProjectCard">
       <div className="ProjectCard-corner" style={{ borderTopColor: color, borderLeftColor: color }} />
-      <Link to={`/${project.project.id}`}>
-        <div className="ProjectCard-name" style={{ color }}>
-          {project.project.metadata.name}
-        </div>
-        <div className="ProjectCard-description">
-          {project.project.metadata.description}
-        </div>
-      </Link>
+      <div className="ProjectCard-metadata">
+        <Link to={`/${project.project.id}`}>
+          <div className="ProjectCard-name" style={{ color }}>
+            {project.project.metadata.name}
+          </div>
+          <div className="ProjectCard-description">
+            {project.project.metadata.description}
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }

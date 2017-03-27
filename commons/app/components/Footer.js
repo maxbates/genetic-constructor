@@ -29,8 +29,8 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
           >Documentation</a>
-          <a href="homepage/register">Create your account</a>
-          <a href="homepage/signin">Sign In</a>
+          <a href="/homepage/register">Create your account</a>
+          <a href="/homepage/signin">Sign In</a>
           <a
             href="http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement"
             target="_blank"

@@ -29,7 +29,15 @@
     border: var(--space-card) solid transparent;
   }
 
+  &-metadata {
+    display: flex;
+    max-height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   &-name {
+    flex-shrink: 0;
     font-size: 18px;
     font-weight: bold;
     padding: 17px 5px 10px;
@@ -37,8 +45,7 @@
 
   &-description {
     font-size: 14px;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    line-height: 1.43;
     color: var(--colors-white);
   }
 }
