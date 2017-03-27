@@ -14,25 +14,25 @@
  limitations under the License.
  */
 
-//experimental palette PASTEL
+//experimental palette FULL
 
 export default [
-  { hex: '#D47A86', name: '' },
-  { hex: '#4382B8', name: '' },
-  { hex: '#D54084', name: '' },
-  { hex: '#376CBF', name: '' },
-  { hex: '#EB9E89', name: '' },
-  { hex: '#74A496', name: '' },
-  { hex: '#D1EB89', name: '' },
-  { hex: '#A9D171', name: '' },
-  { hex: '#587C84', name: '' },
-  { hex: '#275F78', name: '' },
-  { hex: '#899B90', name: '' },
-  { hex: '#BBBA9C', name: '' },
-  { hex: '#814E99', name: '' },
-  { hex: '#8A6CAB', name: '' },
-  { hex: '#908BAC', name: '' },
-  { hex: '#85CFAE', name: '' },
+  { hex: '#EE5E54', name: '' },
+  { hex: '#DC4578', name: '' },
+  { hex: '#1E84D4', name: '' },
+  { hex: '#4CAE50', name: '' },
+  { hex: '#4B5DC1', name: '' },
+  { hex: '#009688', name: '' },
+  { hex: '#9E50AC', name: '' },
+  { hex: '#03A9F4', name: '' },
+  { hex: '#8BC34A', name: '' },
+  { hex: '#8964CB', name: '' },
+  { hex: '#00C9E2', name: '' },
+  { hex: '#E0EE5C', name: '' },
+  { hex: '#686F93', name: '' },
+  { hex: '#7499B7', name: '' },
+  { hex: '#77B3CE', name: '' },
+  { hex: '#BBD2DD', name: '' },
 ];
 
 //export default [
