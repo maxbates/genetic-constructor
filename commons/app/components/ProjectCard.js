@@ -29,19 +29,19 @@ export default function ProjectCard({ project }) {
   const color = palette[colorIndex].hex;
 
   return (
-    <div className="ProjectCard">
-      <div className="ProjectCard-corner" style={{ borderTopColor: color, borderLeftColor: color }} />
-      <div className="ProjectCard-metadata">
-        <Link to={`/${project.project.id}`}>
+    <article className="ProjectCard">
+      <Link to={`/${project.project.id}`}>
+        <div className="ProjectCard-corner" style={{ borderTopColor: color, borderLeftColor: color }} />
+        <div className="ProjectCard-metadata">
           <div className="ProjectCard-name" style={{ color }}>
             {project.project.metadata.name}
           </div>
           <div className="ProjectCard-description">
             {project.project.metadata.description}
           </div>
-        </Link>
-      </div>
-    </div>
+        </div>
+      </Link>
+    </article>
   );
 }
 

@@ -16,18 +16,26 @@
 import React from 'react';
 
 import InfoTable from './InfoTable';
-
+import ConstructRadial from './ConstructRadial';
 import '../styles/ConstructAbout.css';
 
 export default function ConstructAbout({ constructId, project }) {
-  const construct = project.blocks[constructId];
+  const construct = project.getBlock(constructId);
+  const { components, options } = project.getContents(constructId);
+  const contents = { ...components, ...options };
 
-  //todo - get all annotations, including nested
-  const annotations = [];
+  const annotations = Object.keys(contents).reduce((acc, blockId) => {
+    acc.concat(project.blocks[blockId].sequence.annotations);
+    return acc;
+  }, []);
 
   return (
     <div className="ConstructAbout">
-      <div className="ConstructAbout-glyph">todo</div>
+      <ConstructRadial
+        constructId={constructId}
+        project={project}
+      />
+
       <div className="ConstructAbout-metadata">
         <h3 className="ConstructAbout-name">{construct.metadata.name}</h3>
         <InfoTable

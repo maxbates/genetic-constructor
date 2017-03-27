@@ -24,7 +24,7 @@ let preloadedState;
 
 // get passed state if on browser; allow the passed state to be garbage-collected
 try {
-  preloadedState = window.__PRELOADED_STATE__ ;
+  preloadedState = window.__PRELOADED_STATE__;
   delete window.__PRELOADED_STATE__;
 } catch (err) {
   //we're on server, ignore

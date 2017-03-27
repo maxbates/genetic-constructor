@@ -19,6 +19,8 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import moment from 'moment';
 
+import Rollup from '../../../src/models/Rollup';
+
 import InfoTable from './InfoTable';
 import ConstructAbout from './ConstructAbout';
 import BigOpenLink from './BigOpenLink';
@@ -27,6 +29,10 @@ import '../styles/Project.css';
 
 export function Project({ project, snapshot }) {
   const openLink = `/project/${project.project.id}`;
+
+  //todo - hydrate app state and do this there?
+  //create a rollup for all the components on this page + nested
+  const rollup = Rollup.classify(project);
 
   const numberBlocks = Object.keys(project.blocks).length;
   const numberBases = Object.keys(project.blocks).reduce((acc, blockId) => acc + (project.blocks[blockId].sequence.length || 0), 0);
@@ -62,13 +68,13 @@ export function Project({ project, snapshot }) {
             <ConstructAbout
               key={constructId}
               constructId={constructId}
-              project={project}
+              project={rollup}
             />
           ))}
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end'}}>
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
         <BigOpenLink href={openLink} />
       </div>
 
