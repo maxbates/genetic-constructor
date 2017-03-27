@@ -31,13 +31,13 @@ const blockAttributionFields = {
 
   text: [
     fields.string().required,
-    'URL to resource, relative paths are relative to genetic construct root URL',
+    'Text for attribution, defaults to owner',
     { avoidScaffold: true },
   ],
 
   time: [
     fields.number().required,
-    'URL to file, relative paths are relative to genetic construct root URL',
+    'Time attribution was published',
     { scaffold: () => Date.now() },
   ],
 };

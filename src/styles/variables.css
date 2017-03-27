@@ -1,7 +1,5 @@
 :root {
-
-  /* Typography
-  ==================== */
+  /* Colors */
 
   --colors-black: #000000;
   --colors-nearlyBlack: #1D222D;
@@ -26,8 +24,8 @@
   --colors-text: var(--colors-nearlyBlack);
   --colors-bluetext: var(--colors-selected);
 
-  /* Typography
-  ==================== */
+  /* Typography */
+
   --font-size-text: 12px;
   --font-size-heading: 11px;
   --font-size-modal: 14px;
@@ -39,16 +37,14 @@
   --font-family-light: ArtifaktElementLight, sans-serif;
   --font-family-panels: Helvetica, sans-serif;
 
-  /* Media queries breakpoints
-  ==================== */
+  /* Media queries breakpoints */
 
-  --screen-xs-min: 480px; /* Extra small screen / phone */
-  --screen-sm-min: 768px; /* Small screen / tablet */
-  --screen-md-min: 992px; /* Medium screen / desktop */
-  --screen-lg-min: 1200px; /* Large screen / wide desktop */
+  --screen-xs-min: 480px;
+  --screen-sm-min: 768px;
+  --screen-md-min: 992px;
+  --screen-lg-min: 1200px;
 
-  /* Layout
- ==================== */
+  /* Layout */
 
   --SidePanel-width-padding-content: 12px;
   --SidePanel-width-padding-heading: 10px;
@@ -61,30 +57,27 @@
 
   --grunt-height: 32px;
 
-  /* Backgrounds
- ==================== */
+  /* Backgrounds */
 
-  --background-dark-semiTransparent: rgba(0,0,0,0.9);
+  --background-dark-semiTransparent: rgba(0, 0, 0, 0.9);
 
-  /* Timing
-  ==================== */
+  /* Timing */
 
   --timing-extrafast: 0.05s;
   --timing-fast: 0.15s;
 
-  /* Z Order
-  =================== */
+  /* Z Order */
+
   --zMenuContainer: 10;
   --zMenu: 20;
-  --zModal:15;
-  --zFence:20;
+  --zModal: 15;
+  --zFence: 20;
   --z404: 100;
   --z-landingPageFrame: 10;
   --z-grunt: 20;
   --z-spinner: 25;
+  /* Modal windows */
 
-  /* Modal windows
-  ==================== */
   --modal-radius: 3px;
   --modal-element-height: 3rem;
   --modal-inputcolor: #E1E2E5;
@@ -94,6 +87,7 @@
   --modal-fontsize: 1.25rem;
 
   /* Project Details */
+
   --projectDetailHeaderHeight: 3rem;
   --projectDetailFooterHeight: 3rem;
   --projectDetailsHeight: calc(100% - var(--projectDetailHeaderHeight));

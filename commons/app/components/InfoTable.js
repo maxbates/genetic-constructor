@@ -25,16 +25,19 @@ export default function InfoTable({ values, ...rest }) {
     <table className="InfoTable" {...rest}>
       <tbody>
       {values.map(([key, value, options = {}], index) => {
-        if (!value) {
+        const isArray = Array.isArray(value);
+
+        if (!value || (isArray && value.length === 0)) {
           return null;
         }
+
         const { bold } = options;
 
-        const content = Array.isArray(value) ? value.map((val, index) => (<Tag text={val} key={index} />)) : value;
+        const content = isArray ? value.map((val, index) => (<Tag text={val} key={index} />)) : value;
 
         return (
           <tr className="InfoTable-row" key={index}>
-            <td className="InfoTable-key">
+            <td className={`InfoTable-key ${isArray ? 'tags' : ''}`}>
               {key}
             </td>
             <td className={`InfoTable-value ${bold ? 'bold' : ''}`}>

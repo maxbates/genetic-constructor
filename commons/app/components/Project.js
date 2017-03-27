@@ -17,10 +17,13 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import moment from 'moment';
 
 import InfoTable from './InfoTable';
 import ConstructAbout from './ConstructAbout';
 import BigOpenLink from './BigOpenLink';
+
+import '../styles/Project.css';
 
 export function Project({ project, snapshot }) {
   const openLink = `/project/${project.project.id}`;
@@ -39,11 +42,10 @@ export function Project({ project, snapshot }) {
           values={[
             ['Project', project.project.metadata.name, { bold: true }],
             ['Description', project.project.metadata.description],
-            ['Keywords', project.project.metadata.keywords],
-            ['Publisher', 'TODO'],
-            ['Updated', 'TODO'],
+            ['Keywords', snapshot.keywords],
+            ['Publisher', snapshot.tags.author],
+            ['Updated', moment(snapshot.updated).format('LL')],
           ]}
-          style={{ width: '500px' }}
         />
         <BigOpenLink href={openLink} />
       </div>
@@ -66,24 +68,34 @@ export function Project({ project, snapshot }) {
         </div>
       </div>
 
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end'}}>
+        <BigOpenLink href={openLink} />
+      </div>
+
       <div className="Project-license">
-        This project is made available license-free in the public domain under the&nbsp;
-        <a href="" target="_blank" rel="noopener noreferrer">Creative Commons CCØ</a> license.&nbsp;
-        <a href="" target="_blank" rel="noopener noreferrer">Learn more…</a>
+        <h3>License</h3>
+        <div className="Project-textblock">
+          This project is made available license-free in the public domain under the&nbsp;
+          <a href="" target="_blank" rel="noopener noreferrer">Creative Commons CCØ</a> license.&nbsp;
+          <a href="" target="_blank" rel="noopener noreferrer">Learn more…</a>
+        </div>
       </div>
 
       <div className="Project-what">
-        Genetic Constructor is a web application for biologists working in protein engineering and synthetic biology.
-        The Commons is a public repository of Genetic Constructor projects (like the one shown on this page) that
-        everyone can publish and reuse — directly from within the app. To explore this project in Genetic Constructor
-        click OPEN IN GENETIC CONSTRUCTOR, then sign in or create a free account.
+        <h3>What is this?</h3>
+        <div className="Project-textblock">
+          Genetic Constructor is a web application for biologists working in protein engineering and synthetic biology.
+          The Commons is a public repository of Genetic Constructor projects (like the one shown on this page) that
+          everyone can publish and reuse — directly from within the app. To explore this project in Genetic Constructor
+          click OPEN IN GENETIC CONSTRUCTOR, then sign in or create a free account.
+        </div>
       </div>
     </div>
   );
 }
 
 Project.propTypes = {
-  params: PropTypes.shape({
+  params: PropTypes.shape({ //eslint-disable-line react/no-unused-prop-types
     projectId: PropTypes.string.isRequired,
   }).isRequired,
   project: PropTypes.object.isRequired,

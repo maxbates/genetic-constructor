@@ -15,12 +15,31 @@
  */
 import React from 'react';
 
+import InfoTable from './InfoTable';
+
+import '../styles/ConstructAbout.css';
+
 export default function ConstructAbout({ constructId, project }) {
   const construct = project.blocks[constructId];
 
+  //todo - get all annotations, including nested
+  const annotations = [];
+
   return (
     <div className="ConstructAbout">
-      <div className="ConstructAbout-name">{construct.metadata.name}</div>
+      <div className="ConstructAbout-glyph">todo</div>
+      <div className="ConstructAbout-metadata">
+        <h3 className="ConstructAbout-name">{construct.metadata.name}</h3>
+        <InfoTable
+          values={[
+            ['Description', construct.metadata.description],
+            ['Attribution', construct.attribution.map(attr => attr.text)],
+            ['Organism', construct.notes.Organism],
+            ['Molecule', 'DNA'],
+            ['Annotations', annotations],
+          ]}
+        />
+      </div>
     </div>
   );
 }

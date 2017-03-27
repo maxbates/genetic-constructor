@@ -1,19 +1,25 @@
 @import '../../../src/styles/variables.css';
 
 .InfoTable {
-  margin: 1em 0;
+  margin: 0 0 1em;
+  border-collapse: collapse;
 
   &-row {
-    padding: 0.25rem 0 0;
 
   }
 
   &-key {
     color: var(--colors-slightlyLightGrey);
-    padding-right: 1rem;
+    padding: 0.25em 1em 0.25em 0;
+    vertical-align: top;
+
+    &.tags {
+      vertical-align: middle;
+    }
   }
 
   &-value {
+    padding: 0.25em 0;
 
     &.bold {
       font-family: var(--font-family-bold);

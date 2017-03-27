@@ -1,7 +1,8 @@
 @import '../../../src/styles/variables.css';
 
-.BigOpenLink {
+a.BigOpenLink {
   display: inline-block;
+  align-self: flex-start;
   padding: 0.5rem 2rem;
   font-size: 1.5rem;
   border-radius: 1em;
