@@ -1,5 +1,18 @@
+@import './variables.css';
+@import './form.css';
+
 .ok-cancel-form {
   min-width: 50rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--textcolor);
+
+  * {
+    width: 80%;
+    margin-bottom: 0.5rem;
+    border-radius: var(--radius);
+  }
 
   button {
     width: 30rem;
@@ -9,8 +22,7 @@
     margin: 0 auto;
     display: inline-block;
     text-align: center;
-    .line {
-      margin: 0 auto;
-    }
+    white-space: pre-wrap;
+    font-size: var(--fontsize);
   }
 }

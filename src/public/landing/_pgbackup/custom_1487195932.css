@@ -1,0 +1,746 @@
+
+
+.paddingBottom
+{
+    padding-bottom: 40px;
+}
+
+.imgPadding
+{
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.largePadding
+{
+    padding-right: 40px;
+    padding-left: 40px;
+}
+
+.line
+{
+    border-top: solid 1px rgba(0, 0, 0, 0.3);
+    padding-bottom: 20px;
+}
+
+.divider
+{
+    border-top: solid 1px rgba(0, 0, 0, 0.5);
+    padding-bottom: 10px;
+    width: 150px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.triangle
+{
+   padding-top: 60px   
+}
+
+body
+{
+    overflow-x: hidden;
+}
+
+/* ---------------------- FONTS --------------------- */
+
+@font-face{
+   font-family: 'art-thin';
+   src: url('assets/fonts/Artifakt Element Thin.otf');
+}
+
+@font-face{
+   font-family: 'art-light';
+   src: url('assets/fonts/Artifakt Element Light.otf');
+}
+
+@font-face{
+   font-family: 'art-reg';
+   src: url('assets/fonts/Artifakt Element Regular.otf');
+}
+
+@font-face{
+   font-family: 'art-med';
+   src: url('assets/fonts/Artifakt Element Medium.otf');
+}
+
+@font-face{
+   font-family: 'art-bold';
+   src: url('assets/fonts/Artifakt Element Bold.otf');
+}
+
+h1
+{
+    font-size: 5em;
+    color: rgba(0, 0, 0, 0.8);
+    font-family: 'art-thin';
+    cursor: default;
+    margin-bottom: -20px;
+}
+
+.heroSubText
+{
+    font-size: 1.5em;
+    color: rgba(0, 0, 0, 0.8);
+    font-family: 'art-reg';
+    line-height: 1.5;
+    cursor: default;
+    margin-bottom: 40px;
+}
+
+h2
+{
+    font-size: 4em;
+    font-family: 'art-thin';
+    cursor: default;
+}
+
+
+h3,.h3
+{
+    font-size: 1.5em;
+    font-family: 'art-bold';
+    padding-bottom: 20px;
+    line-height: 1.5;
+    cursor: default;
+}
+
+h4
+{
+    font-size: 1.2em;
+    font-family: 'art-reg';
+    line-height: 1.5;
+    cursor: default;
+}
+
+h5
+{
+    font-size: 1.2em;
+    padding-bottom: 10px;
+    font-family: 'art-bold';
+    cursor: default;
+}
+
+p
+{
+    font-family: 'art-med';
+    line-height: 1.6;
+    cursor: default;
+}
+
+.fontBy
+{
+    margin-top: -10px;
+}
+
+
+#heroText
+{
+    width: 100%;
+}
+
+#heroText a:hover
+{
+    text-decoration: none;
+}
+
+
+
+/* ---------------------- COOKIES --------------------- */
+
+#cookiesModal
+{
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    color: rgba(0, 0, 0, 0.8);
+    background: white;
+    z-index: 100;
+    padding: 22px 100px 17px 20px;
+    border-bottom: solid 1px rgba(0, 0, 0, 0.1)
+}
+
+.cookiesButton
+{
+    position: absolute;
+    color: white;
+    top: 0px;
+    right: 0;
+    height: 100%;
+    width: 100px;
+    border: none;
+    background-color: #2FE695;
+    font-family: 'art-med';
+}
+
+
+/* ---------------------- NAVIGATION --------------------- */
+
+.navbar
+{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: white;
+    z-index: 2;
+}
+
+.nav
+{
+    font-family: 'art-med';
+}
+
+.navbar-brand
+{
+    padding-top: 10px;
+}
+
+.navbar-nav > li > a {
+    cursor: pointer;
+}
+
+/* ---------------------- HERO SECTION --------------------- */
+
+#heroSection
+{
+    background-image: url("assets/images/hero.png");
+    background-size: cover;
+    background-position: top center;
+    color: rgba(0, 0, 0, 0.8);
+    text-align: center;
+    min-height: 500px;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bigButton, .bigButton:focus
+{
+    display: block;
+    margin: 0 auto;
+    border-radius: 50px;
+    font-family: 'art-bold';
+    border: none;
+    padding: 15px 30px 15px 30px;
+    width: 100%;
+    max-width: 250px;
+    background-color: #5981FF;;
+    color: white;
+    outline: none;
+    opacity: 0.9;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+}
+
+.bigButton:hover
+{
+    opacity: 1;
+    transform: translate3d(0px, -1px, 0px);
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+    text-decoration: none;
+    color: white;
+}
+
+.downButton
+{
+    margin-top: 20px;
+}
+
+
+/* ---------------------- VALUE SECTION --------------------- */
+
+#valueSection
+{
+    color: rgba(0, 0, 0, 0.8);
+    text-align: center;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    padding-top: 30px;
+    padding-bottom: 20px;
+}
+
+
+/* ---------------------- INTERFACE SECTION --------------------- */
+
+#interfaceSection
+{
+    color: rgba(0, 0, 0, 0.8);
+    padding-top: 120px;
+    text-align: center;
+    position: relative;
+}
+
+.back1 
+{
+    position: absolute;
+    top: 350px;
+}
+
+.textBlockColor
+{
+    padding: 10px;
+    background: #5981FF;
+    color: white;   
+}
+
+
+/* ---------------------- FEATURE SECTION --------------------- */
+
+.feature1
+{
+    color: rgba(0, 0, 0, 0.8);
+    padding-top: 120px;
+    position: relative;
+}
+
+.back2 
+{
+    position: absolute;
+    top: 300px;
+    right: 0px;
+}
+
+.feature2
+{
+    color: rgba(0, 0, 0, 0.8);
+    padding-top: 120px;
+    padding-bottom: 400px;
+    position: relative;
+}
+
+.back3
+{
+    position: absolute;
+    top: 400px;
+    left: 0px;
+}
+
+.feature3 {
+    color: rgba(0, 0, 0, 0.8);
+    padding-top: 120px;
+    padding-bottom: 60px;
+    position: relative;
+}
+
+.back4 
+{
+    position: absolute;
+    top: -300px;
+    right: 0px;
+}
+
+.slideStart
+{
+    float: right;
+    width: 100%;
+}
+
+.slideEnd
+{
+    animation-name: slideShow;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    width: 100%;
+    padding-right: 30px;
+    position: absolute;
+    float: right;
+}
+
+@keyframes slideShow {
+    0%   {opacity: 0; }
+    25%  {opacity: 1; }
+    50%  {opacity: 1; }
+    100% {opacity: 0; }
+}
+
+.collNoPadding
+{
+    padding-right: 0px;
+}
+
+.link, .link:visited
+{
+    color: #5981FF;
+    font-size: 1em;
+    font-family: 'art-med';
+    opacity: 1;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.link:hover
+{
+    color: #5981FF;
+    opacity: 0.8;
+    text-decoration: none;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+}
+
+
+/* ---------------------- TRY SECTION --------------------- */
+
+.trySectionTop
+{
+    color: rgba(0, 0, 0, 0.8);
+    text-align: center;
+    padding-top: 100px;
+    padding-bottom: 60px;
+}
+
+.trySectionCards
+{
+    background-image: url("assets/images/back5.png");
+    text-align: center;
+    padding-top: 80px;
+    padding-bottom: 180px;
+}
+
+.card1
+{
+    background: #103068;
+    color: white;
+    height: 360px;
+    margin-top: 65px
+}
+
+.card2
+{
+    background: #2ACD87;  
+    color: white;
+    height: 440px;
+    box-shadow: 0px 10px 80px rgba(0, 0, 0, 1);
+} 
+
+.card3
+{
+    background: #103068;
+    color: white;
+    height: 360px;
+    margin-top: 65px
+}
+
+.cardTop
+{
+    background: white;
+    padding: 20px;
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.cardBody
+{
+    padding: 20px;
+}
+
+.fontSuperscript
+{
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.medButton, .medButton:focus
+{
+    display: block;
+    margin: 0 auto;
+    border-radius: 50px;
+    font-family: 'art-bold';
+    border: none;
+    padding: 12px 20px 12px 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 220px;
+    background-color: white;
+    color: rgba(0, 0, 0, 0.8);
+    outline: none;
+    opacity: 0.9;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+}
+
+.medButton:hover
+{
+    opacity: 1;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.smallButton, .smallButton:focus
+{
+    display: block;
+    margin: 0 auto;
+    border-radius: 50px;
+    font-family: 'art-bold';
+    border: solid 2px rgba(255, 255, 255, 0.5);
+    padding: 8px 16px 8px 16px;
+    margin-bottom: 20px;
+    max-width: 180px;
+    background-color: none;
+    color: white;
+    outline: none;
+    opacity: 0.6;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+}
+
+.smallButton:hover
+{
+    opacity: 1;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+    text-decoration: none;
+    color: white;
+}
+
+
+
+.cardHeader
+{
+    font-size: 3em;
+    font-family: 'art-thin';
+    cursor: default;
+}
+
+h6
+{
+    font-family: 'art-bold';
+    color: white;
+    font-size: 4em;
+    cursor: default;
+    margin-bottom: 40px;
+}
+
+
+/* ---------------------- FUTURE SECTION --------------------- */
+
+#futureSection
+{
+    color: rgba(0, 0, 0, 0.8);
+    text-align: left;
+    padding-top: 100px;
+}
+
+
+/* ---------------------- AUTODESK SECTION --------------------- */
+
+#autodeskSection
+{
+    color: rgba(0, 0, 0, 0.8);
+    text-align: center;
+    padding-top: 120px;
+}
+
+
+/* ---------------------- TEAM SECTION --------------------- */
+
+#teamSection
+{
+    color: rgba(0, 0, 0, 0.8);
+    background: white;
+    text-align: center;
+    padding-top: 120px;
+    padding-bottom: 60px;
+}
+
+
+/* ---------------------- FOOTER SECTION --------------------- */
+
+#footerSection
+{
+    color: rgba(0, 0, 0, 0.8);
+    background: white;
+    padding-top: 120px;
+}
+
+.footer, .footer:visited
+{
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 1em;
+    font-family: 'art-med';
+    opacity: 0.6;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.footer:hover
+{
+    color: rgba(0, 0, 0, 0.8);
+    opacity: 0.8;
+    text-decoration: none;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+}
+
+
+/* ---------------------- RESPONSIVE --------------------- */
+
+@media (max-width:992px)
+{
+    .cardHeader
+    {
+        font-size: 2em;
+        font-family: 'art-light';
+    }
+}
+
+
+@media (max-width:768px)
+{
+    .back1
+    {
+        top: 300px;
+    }
+    .back2
+    {
+        top: 400px;
+    }
+    .back3
+    {
+        top: 350px;
+    }
+    .back4
+    {
+        top: 250px;
+    }
+    h1
+    {
+        font-size: 3em;
+    }
+    h2
+    {
+        font-size: 2.5em;
+        font-family: 'art-thin';
+        cursor: default;
+    }
+    #interfaceSection
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .feature1
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .feature2
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .feature3
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    #futureSection
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .trySectionTop
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .trySectionCards
+    {
+        padding-top: 0px;
+        padding-bottom: 160px;
+    }
+    #teamSection
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    #footerSection
+    {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    .extraPaddingPhone
+    {
+        padding-top: 120px;
+    }
+    .cardHeader
+    {
+        font-size: 3em;
+        font-family: 'art-thin';
+    }
+    .card2
+    {
+        margin-top: 60px;
+    }
+}
+
+/* Light YouTube Embeds by @labnol */
+/* Web: http://labnol.org/?p=27941 */
+.youtube-player {
+    position: relative;
+    padding-bottom: 56.23%;
+    /* Use 75% for 4:3 videos */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    background: #000;
+    margin: 5px;
+}
+
+.youtube-player iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: transparent;
+}
+
+.youtube-player img {
+    bottom: 0;
+    display: block;
+    left: 0;
+    margin: auto;
+    max-width: 100%;
+    width: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border: none;
+    height: auto;
+    cursor: pointer;
+    -webkit-transition: .4s all;
+    -moz-transition: .4s all;
+    transition: .4s all;
+}
+
+.youtube-player img:hover {
+    -webkit-filter: brightness(75%);
+}
+
+.youtube-player .play {
+    height: 72px;
+    width: 72px;
+    left: 50%;
+    top: 50%;
+    margin-left: -36px;
+    margin-top: -36px;
+    position: absolute;
+    background: url("//i.imgur.com/TxzC70f.png") no-repeat;
+    cursor: pointer;
+}
+
+.overlay-fader {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000000000;
+    background-color: white;
+    opacity: 0;
+}

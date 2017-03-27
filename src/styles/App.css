@@ -1,11 +1,12 @@
 @import '../../node_modules/normalize.css/normalize.css';
 @import 'variables.css';
 @import 'base.css';
+@import 'fonts.css';
 
 .App {
   display: flex;
   flex-direction: column;
-  background-color: var(--colors-blueGreyDark);
+  background-color: var(--colors-darkerGrey);
   height: 100vh;
   overflow: hidden;
 }
@@ -45,14 +46,14 @@
   padding: 0.25rem 2rem 0.25rem 2rem;
 }
 .button-primary {
-  background-color: var(--colors-blueBlack);
-  border: 1px solid var(--colors-blueBlack);
+  background-color: var(--colors-nearlyBlack);
+  border: 1px solid var(--colors-nearlyBlack);
   color: white;
 }
 .button-normal {
   background-color: white;
-  border: 1px solid var(--colors-blueBlack);
-  color: var(--colors-blueBlack);
+  border: 1px solid var(--colors-nearlyBlack);
+  color: var(--colors-nearlyBlack);
 }
 .button-nostyle {
   background-color: transparent;
@@ -82,4 +83,20 @@ svg text tspan {
 svg text::selection,
 svg text tspan::selection{
   background: none;
+}
+
+:placeholder-shown {
+  color: #888b96 !important;
+}
+
+::-webkit-input-placeholder {
+  color: #888b96;
+}
+
+::-moz-placeholder {
+  color: #888b96;
+}
+
+:-ms-input-placeholder {
+  color: #888b96;
 }

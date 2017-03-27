@@ -15,72 +15,129 @@
  */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { inspectorToggleVisibility } from '../actions/ui';
+
+import { inspectorSelectTab, inspectorToggleVisibility } from '../actions/ui';
+import InspectorGroup from '../components/Inspector/InspectorGroup';
 import { _getFocused } from '../selectors/focus';
-
-import InspectorRole from '../components/Inspector/InspectorRole';
-import InspectorBlock from '../components/Inspector/InspectorBlock';
-import InspectorProject from '../components/Inspector/InspectorProject';
-
 import '../styles/Inspector.css';
 import '../styles/SidePanel.css';
+import SectionIcon from './SectionIcon';
+import InspectorRightNav from './InspectorRightNav';
 
 export class Inspector extends Component {
   static propTypes = {
-    showingGrunt: PropTypes.bool,
     isVisible: PropTypes.bool.isRequired,
+    currentTab: PropTypes.string.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
-    readOnly: PropTypes.bool.isRequired,
-    forceIsConstruct: PropTypes.bool.isRequired,
+    inspectorSelectTab: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
+    project: PropTypes.object,
+    userOwnsProject: PropTypes.bool.isRequired,
+    construct: PropTypes.object,
     type: PropTypes.string.isRequired,
-    focused: PropTypes.any.isRequired,
   };
+
+  setActive = (group) => {
+    this.props.inspectorSelectTab(group);
+  };
+
+  getTitle(tabInfo) {
+    let title = tabInfo ? tabInfo.title : '';
+    if (title === 'Information') {
+      switch (this.props.type) {
+        case 'project':
+          title = 'Project Information';
+          break;
+        case 'construct':
+          title = 'Construct Information';
+          break;
+        default:
+          title = 'Block Information';
+      }
+    }
+    return title;
+  }
 
   toggle = (forceVal) => {
     this.props.inspectorToggleVisibility(forceVal);
   };
 
-  render() {
-    const { showingGrunt, isVisible, focused, orders, type, readOnly, forceIsConstruct } = this.props;
+  sections = {
+    Information: {
+      type: 'information',
+      title: 'Information',
+    },
+    Orders: {
+      type: 'orders',
+      title: 'Orders',
+    },
+    // Settings: {
+    //   type: 'settings',
+    //   title: 'Settings',
+    // },
+    Extensions: {
+      type: 'extensions',
+      title: 'Plugins',
+    },
+    Help: {
+      type: 'help',
+      title: 'Help',
+    },
+    History: {
+      type: 'history',
+      title: 'Version History',
+    },
+    Feedback: {
+      type: 'feedback',
+      title: 'Feedback',
+    },
+  };
 
-    // inspect instances, or construct if no instance or project if no construct or instances
-    let inspect;
-    switch (type) {
-    case 'role' :
-      inspect = (<InspectorRole roleId={focused} readOnly/>);
-      break;
-    case 'project':
-      inspect = (<InspectorProject instance={focused}
-                                   orders={orders}
-                                   readOnly={readOnly}/>);
-      break;
-    case 'construct':
-    default:
-      inspect = (<InspectorBlock instances={focused}
-                                 orders={orders}
-                                 readOnly={readOnly}
-                                 forceIsConstruct={forceIsConstruct}/>);
-      break;
+  render() {
+    const { isVisible, projectId, project, construct, userOwnsProject } = this.props;
+    // classes for content area
+    const contentClasses = `no-vertical-scroll content${isVisible ? '' : ' content-closed'}`;
+    // map sections to icons
+    const icons = Object.keys(this.sections).map(sectionName => (
+      <SectionIcon
+        key={sectionName}
+        open={isVisible}
+        onSelect={this.setActive}
+        onToggle={() => this.toggle(!isVisible)}
+        selected={this.props.currentTab === sectionName && isVisible}
+        section={sectionName}
+      />
+    ));
+
+    // setup content area
+    const tabInfo = this.sections[this.props.currentTab];
+    let tab;
+    if (tabInfo) {
+      tab = (
+        <InspectorGroup
+          tabInfo={tabInfo}
+          projectId={projectId}
+          project={project}
+          construct={construct}
+          userOwnsProject={userOwnsProject}
+        />
+      );
     }
 
     return (
-      <div className={'SidePanel Inspector' +
-      (isVisible ? ' visible' : '') +
-      (readOnly ? ' readOnly' : '') +
-      (showingGrunt ? ' gruntPushdown' : '')}>
-
-        <div className="SidePanel-heading">
-          <button tabIndex="-1" className="button-nostyle SidePanel-heading-trigger Inspector-trigger"
-                  onClick={() => this.toggle()}/>
-          <div className="SidePanel-heading-content">
-            <span className="SidePanel-heading-title">Inspector</span>
-            <button tabIndex="-1" className="button-nostyle SidePanel-heading-close"
-                    onClick={() => this.toggle(false)}/>
-          </div>
+      <div className={`SidePanel Inspector${isVisible ? ' visible' : ''}`}>
+        <InspectorRightNav
+          isVisible={isVisible}
+          currentProjectId={this.props.projectId}
+        />
+        <span className="title">{this.getTitle(tabInfo)}</span>
+        <div className="vertical-menu">
+          {icons}
         </div>
-
-        <div className="SidePanel-content no-vertical-scroll">
-          {inspect}
+        <div className="container">
+          <div className={contentClasses}>
+            {tab}
+          </div>
         </div>
       </div>
     );
@@ -88,35 +145,51 @@ export class Inspector extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { isVisible } = state.ui.inspector;
-  //UI adjustment
-  const showingGrunt = !!state.ui.modals.gruntMessage;
+  const { isVisible, currentTab } = state.ui.inspector;
+  const projectId = props.projectId;
 
-  const { level, blockIds } = state.focus;
+  const { level, blockIds, constructId } = state.focus;
   const currentProject = state.projects[props.projectId];
+
+  const currentConstruct = state.blocks[constructId];
 
   //delegate handling of focus state handling to selector
   const { type, readOnly, focused } = _getFocused(state, true, props.projectId);
 
+  //handle overrides if a list option
+  const overrides = {};
+  if (type === 'option') {
+    const blockId = state.focus.blockIds[0];
+    const block = state.blocks[blockId];
+    if (block) {
+      Object.assign(overrides, {
+        color: block.getColor(),
+        role: block.getRole(false),
+      });
+    }
+  }
+
   const forceIsConstruct = (level === 'construct') ||
     blockIds.some(blockId => currentProject.components.indexOf(blockId) >= 0);
 
-  const orders = Object.keys(state.orders)
-    .map(orderId => state.orders[orderId])
-    .filter(order => order.projectId === currentProject.id && order.isSubmitted())
-    .sort((one, two) => one.status.timeSent - two.status.timeSent);
+  const userOwnsProject = currentProject.owner === state.user.userid;
 
   return {
-    showingGrunt,
     isVisible,
+    currentTab,
     type,
     readOnly,
-    focused,
     forceIsConstruct,
-    orders,
+    projectId,
+    project: currentProject,
+    construct: currentConstruct,
+    userOwnsProject,
+    focused,
+    overrides,
   };
 }
 
 export default connect(mapStateToProps, {
   inspectorToggleVisibility,
+  inspectorSelectTab,
 })(Inspector);

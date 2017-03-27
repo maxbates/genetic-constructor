@@ -1,56 +1,46 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+
+import '../../../src/styles/SceneGraphPage.css';
+import '../../../src/styles/ordermodal.css';
+import { orderGenerateConstructs } from '../../actions/orders';
 import SceneGraph2D from '../../containers/graphics/scenegraph2d/scenegraph2d';
 import Layout from '../../containers/graphics/views/layout';
-import { orderGenerateConstructs } from '../../actions/orders';
-import invariant from 'invariant';
+import Block from '../../models/Block';
 import UpDown from './updown';
-
-import '../../../src/styles/ordermodal.css';
-import '../../../src/styles/SceneGraphPage.css';
 
 class ConstructPreview extends Component {
   static propTypes = {
+    blocks: PropTypes.object.isRequired,
     order: PropTypes.object.isRequired,
     orderGenerateConstructs: PropTypes.func.isRequired,
   };
 
   constructor(props) {
-    super();
+    super(props);
     this.generateConstructs(props);
   }
 
   state = {
     index: 1,
   };
-
-  get dom() {
-    return ReactDOM.findDOMNode(this);
-  }
-
-  get sceneGraphEl() {
-    return this.dom.querySelector('.scenegraph');
-  }
-
-  get containerEl() {
-    return this.dom.querySelector('.container');
-  }
 
   /**
    * construct scene graph and layout once mounted
@@ -93,23 +83,61 @@ class ConstructPreview extends Component {
       const constructIndex = this.state.index;
       const componentIds = construct;
       this.layout.update({
-        construct: {
+        construct: new Block({
           metadata: {
             color: parentConstruct.metadata.color || 'lightgray',
+            palette: 'anime',
           },
           components: componentIds,
-          // this fake construct should not be a template, so we don't get empty list block placeholders
-          isTemplate: () => {return false;},
-        },
+          rules: {
+            fixed: false,
+          },
+        }),
         blocks: this.props.blocks,
         currentBlocks: [],
         currentConstructId: constructIndex,
-        blockColor: (blockId) => {
-          return this.blockColor(blockId);
-        },
+        blockColor: blockId => this.blockColor(blockId),
       });
       this.sg.update();
     }
+  }
+
+  /**
+   * when the value is changed in the up down
+   */
+  onChangeConstruct = (index) => {
+    this.setState({ index });
+  };
+
+  /**
+   * this is because the layout object thinks we are construct viewer. At the very least we have to
+   * return an object with a .metadata property
+   */
+  getProject() { //eslint-disable-line class-methods-use-this
+    return {
+      metadata: {
+
+      },
+    };
+  }
+
+  /**
+   * because we also pretent to be a construct viewer.
+   */
+  isCircularConstruct() { //eslint-disable-line class-methods-use-this
+    return false;
+  }
+
+  get dom() {
+    return ReactDOM.findDOMNode(this);
+  }
+
+  get sceneGraphEl() {
+    return this.dom.querySelector('.scenegraph');
+  }
+
+  get containerEl() {
+    return this.dom.querySelector('.container');
   }
 
   /**
@@ -129,39 +157,33 @@ class ConstructPreview extends Component {
     });
     if (blockIndex >= 0) {
       // we have the index of the parent block
-      return this.optionColorHash[optionId] = this.props.blocks[parentConstruct.components[blockIndex]].metadata.color;
+      this.optionColorHash[optionId] = this.props.blocks[parentConstruct.components[blockIndex]].getColor();
+      return this.optionColorHash[optionId];
     }
     return 'lightgray';
   }
 
-  generateConstructs(props = this.props) {
-    this.constructs = props.orderGenerateConstructs(props.order.id);
+  generateConstructs() {
+    this.constructs = this.props.orderGenerateConstructs(this.props.order.id);
   }
-
-  /**
-   * when the value is changed in the up down
-   */
-  onChangeConstruct = (index) => {
-    this.setState({index});
-  };
 
   render() {
     const label = `of ${this.constructs ? this.constructs.length : 1} combinations`;
     return (
       <div className="preview">
         <div className="top-row">
-          <label className="review">Reviewing assembly</label>
+          <p className="review">Reviewing assembly</p>
           <UpDown
             min={1}
             max={this.constructs ? this.constructs.length : 1}
             value={this.state.index}
-            enabled={this.constructs}
+            enabled={!!(this.constructs && this.constructs.length)}
             onChange={this.onChangeConstruct}
           />
-          <label className="of">{label}</label>
+          <p className="of">{label}</p>
         </div>
         <div className="container">
-          <div className="scenegraph"></div>
+          <div className="scenegraph" />
         </div>
       </div>
     );

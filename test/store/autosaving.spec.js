@@ -20,7 +20,7 @@ describe('Store', () => {
     };
 
     const throttleTime = 30;
-    const waitTime = 13;
+    const waitTime = 12;
     assert(throttleTime > waitTime * 2, 'wait time must be less than throttle time');
 
     const saveSpy = sinon.spy();
@@ -76,7 +76,7 @@ describe('Store', () => {
         expect(saveSpy.callCount).to.equal(callCount + 1);
 
         setTimeout(done, throttleTime); //make sure throttle ends
-      }, waitTime);
+      }, waitTime + 3);
     });
 
     it('marks dirty when in between throttles', (done) => {

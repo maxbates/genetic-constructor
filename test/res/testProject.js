@@ -15,9 +15,10 @@ limitations under the License.
 */
 import Block from '../../src/models/Block';
 import Project from '../../src/models/Project';
+import { testUserId } from '../constants'
 
 import exampleWithAnnotations from './exampleWithAnnotations';
-import dummyBlocks from '../../data/egf_parts/parts';
+import dummyBlocks from '../../data/egf_parts/partList.json';
 
 const annotationExample = new Block(exampleWithAnnotations);
 
@@ -45,6 +46,7 @@ export const blocks = [
 
 export const project = new Project({
   id: 'test',
+  owner: testUserId,
   metadata: {
     name: 'My Test Project',
     description: 'Create a versatile and robust templating system for combinatorial recombinant designs using Yeast parts from EGF.',

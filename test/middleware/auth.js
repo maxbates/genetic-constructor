@@ -1,9 +1,8 @@
 import { assert, expect } from 'chai';
-import request from 'supertest';
-import { login, getUser } from '../../src/middleware/auth';
-
-//noinspection JSUnusedLocalSymbols
-const devServer = require('../../server/server'); // starts the server which will be accessed by methods below
+import { merge } from 'lodash';
+import { login, getUser, getUserConfig, setUserConfig } from '../../src/middleware/auth';
+import userConfigDefaults from '../../server/onboarding/userConfigDefaults';
+import userConfigOverrides from '../../server/onboarding/userConfigOverrides';
 
 describe('middleware', () => {
   describe('auth', () => {
@@ -15,9 +14,9 @@ describe('middleware', () => {
     it('login() receive the user object', () => {
       return login(dummyUser.email, dummyUser.password)
         .then(userInfo => {
-          expect(userInfo).to.be.not.null;
-          expect(userInfo.uuid).to.be.not.null;
-          expect(userInfo.email).to.be.not.null;
+          expect(userInfo).to.be.defined;
+          expect(userInfo.uuid).to.be.defined;
+          expect(userInfo.email).to.be.defined;
         });
     });
 
@@ -27,13 +26,43 @@ describe('middleware', () => {
     it('getUser() should fetch a user object if you are logged in', () => {
       return getUser()
         .then(user => {
-          expect(user).to.be.not.null;
-          expect(user.uuid).to.be.not.null;
+          expect(user).to.be.defined;
+          expect(user.uuid).to.be.defined;
           expect(typeof user.uuid).to.be.equal('string');
         });
     });
 
     //not sure how to test this...
+    //local logout should clear cookie (set empty / expired - same way as platform) -- test headers
     it('logout() should clear cookie');
+
+    it('getUserConfig() should get user config', () => {
+      return getUserConfig()
+        .then(config => {
+          assert(typeof config === 'object', 'expected a config');
+          assert(typeof config.projects === 'object', 'expected projects config');
+          assert(typeof config.extensions === 'object', 'expected an extensions config');
+        });
+    });
+
+    it('setUserConfig() should set user config', () => {
+      const allInactive = Object.keys(userConfigDefaults.extensions).reduce((acc, key) => Object.assign(acc, { [key]: { active: false } }), {});
+      const nextConfig = merge({}, userConfigDefaults, { extensions: allInactive }, userConfigOverrides);
+
+      return getUserConfig()
+        .then(oldConfig => {
+          return setUserConfig(nextConfig)
+            .then(newConfig => {
+              expect(oldConfig.projects).to.eql(newConfig.projects);
+              expect(oldConfig.extensions).not.to.eql(newConfig.extensions);
+              expect(newConfig.extensions).to.eql(nextConfig.extensions);
+              return getUserConfig();
+            })
+            .then(confirmConfig => {
+              expect(oldConfig.projects).to.eql(confirmConfig.projects);
+              expect(nextConfig.extensions).to.eql(confirmConfig.extensions);
+            });
+        });
+    });
   });
 });

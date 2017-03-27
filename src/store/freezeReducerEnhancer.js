@@ -1,4 +1,5 @@
 import deepFreeze from 'deep-freeze';
+
 const defaultConfig = { deep: false };
 
 export const freezeReducerEnhancerCreator = (inputConfig = {}) => (reducer) => {

@@ -57,21 +57,21 @@ const patchSubscribe = (options = {}, reducer, createStore, initialState, ...sto
   const pause = () => {
     paused += 1;
 
-    if (!!timeoutId) {
+    if (timeoutId) {
       timeoutId = window.setTimeout(() => resume(false, true), params.timeout);
     }
 
     return isPaused();
   };
 
-  const makePausableReducer = (options, reducer) => {
-    return (state, action, ...args) => {
-      switch (action.type) {
-      case PAUSE_ACTION :
+  const makePausableReducer = (options, reducer) => (state, action, ...args) => {
+    switch (action.type) {
+      case PAUSE_ACTION : {
         pause();
         return state;
+      }
 
-      case RESUME_ACTION :
+      case RESUME_ACTION : {
         const { preventDispatch = false, reset } = action;
         const wasPaused = isPaused();
 
@@ -82,11 +82,11 @@ const patchSubscribe = (options = {}, reducer, createStore, initialState, ...sto
           return state;
         }
         return reducer(state, action, ...args);
+      }
 
       default :
         return reducer(state, action, ...args);
-      }
-    };
+    }
   };
 
   const pausableReducer = makePausableReducer(options, reducer);
@@ -110,7 +110,5 @@ const patchSubscribe = (options = {}, reducer, createStore, initialState, ...sto
 };
 
 export default function pausableStore(options) {
-  return createStore => (reducer, initialState, ...storeArgs) => {
-    return patchSubscribe(options, reducer, createStore, initialState, ...storeArgs);
-  };
+  return createStore => (reducer, initialState, ...storeArgs) => patchSubscribe(options, reducer, createStore, initialState, ...storeArgs);
 }

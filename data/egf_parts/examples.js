@@ -3,22 +3,25 @@
 
 import invariant from 'invariant';
 import { cloneDeep, merge } from 'lodash';
-import { list, templateSymbols } from './templateUtils';
-import { templates, blocks as templateBlocks } from './templates';
-import Block from '../../src/models/Block';
+import { list } from './templateUtils';
+import { baseTemplates, blocks as templateBlocks } from './templates';
 
 //list of list blocks created while creating our examples
 const created = [];
 
-const getTemplate = (name) => templates.find(tmpl => tmpl.metadata.name.toLowerCase().indexOf(`${name}`.toLowerCase()) === 0);
+//todo - need to pass in specific instances of templates to pull from
+
+const getTemplate = (name) => baseTemplates.find(tmpl => tmpl.metadata.name.toLowerCase().indexOf(`${name}`.toLowerCase()) === 0);
 
 //need to find the specific one for this position, not just by name, because dependent on position
+//mark it frozen to save a mapping call later...
+//note - does not make a real block. Does not have an ID. need to wrap these appropriately.
 const exampleOfTemplate = (template, options, toMerge = {}) => {
   let optionSpecifiedIndex = 0;
   const components = template.components
     .map(componentId => templateBlocks.find(block => block.id === componentId))
     .map(component => {
-      if (!component.isList()) {
+      if (!component.rules.list) {
         return component.id;
       }
 
@@ -48,17 +51,15 @@ const exampleOfTemplate = (template, options, toMerge = {}) => {
       return newListComponent.id;
     });
 
-  const mergeWith = merge({}, toMerge, {
+  return merge({}, toMerge, {
     components,
     rules: {
       frozen: true,
     },
-  });
-
-  return template.clone(false, mergeWith);
+  }, template);
 };
 
-export const examples = [
+export const makeBaseExamples = () => [
   //vector 12
   exampleOfTemplate(
     getTemplate('1A'),
@@ -369,5 +370,8 @@ The final resulting vector encode for a tetracycline inducible expression system
    */
 
 ];
+
+//need to make them so we can track the created blocks
+export const baseExamples = makeBaseExamples();
 
 export const blocks = [... new Set(created)];

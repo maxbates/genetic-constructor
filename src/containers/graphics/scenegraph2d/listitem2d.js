@@ -13,15 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import Vector2D from '../geometry/vector2d';
+import kT from '../views/layoutconstants';
 import Node2D from './node2d';
-import kT from '../views/layoutconstants.js';
 
 /**
  * basic rectangular node
  */
 export default class ListItem2D extends Node2D {
-
   constructor(props) {
     super(Object.assign({}, props, {
       glyph: 'listitem',
@@ -35,12 +33,13 @@ export default class ListItem2D extends Node2D {
    * @return {String}
    */
   toString() {
-    return 'LIST: ' + this.text;
+    return `LIST: ${this.text}`;
   }
 
   /**
    * List items are sized by parent
    */
+  //eslint-disable-next-line class-methods-use-this
   getPreferredSize(str) {
     throw new Error('Not valid to call on a list item');
   }

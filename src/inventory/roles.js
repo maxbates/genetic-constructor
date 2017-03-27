@@ -24,7 +24,7 @@ limitations under the License.
 
 export const symbolMap = {
   //include null for string matching, but the value will be the object null in blocks, not the string 'null'
-  'null': 'No Symbol',
+  null: 'Blank',
   promoter: 'Promoter',
   cds: 'CDS',
   terminator: 'Terminator',
@@ -38,21 +38,49 @@ export const symbolMap = {
   rnaStability: 'RNA stability',
   restrictionSite: 'Restriction Site',
   structural: 'Structural',
+  list: 'List Block',
+  backbone: 'Backbone',
 };
 
-export const roleMassager = {
-  'gene': 'cds',
-  'ribosome entry site': 'rbs',
-  'ribonuclease site': 'ribonuclease',
-  'rna stability element': 'rnaStability',
-  'protease site': 'protease',
-  'protein stability element': 'proteinStability',
-  'origin of replication': 'originReplication',
-  'restriction site': 'restrictionSite',
-  'regulatory': 'promoter',
-  'mat_peptide': 'cds',
-  'rep_origin': 'originReplication',
-};
+/**
+ * dictates the sort order of sbol tiles
+ * //todo - should be in roles.js so shared with role picker
+ */
+export const sortOrder = [
+  'promoter',
+  'cds',
+  'rbs',
+  'terminator',
+  'protease',
+  'ribonuclease',
+  'rna stability',
+  'protein stability',
+  'origin of replication',
+  'operator',
+  'insulator',
+  'restriction site',
+  'structural',
+  'bidrectional promoter',
+  'plasmin backbone',
+  'combinatorial list',
+  'list block',
+  'backbone',
+  'no symbol',
+];
+
+// export const roleMassager = {
+//   gene: 'cds',
+//   'ribosome entry site': 'rbs',
+//   'ribonuclease site': 'ribonuclease',
+//   'rna stability element': 'rnaStability',
+//   'protease site': 'protease',
+//   'protein stability element': 'proteinStability',
+//   'origin of replication': 'originReplication',
+//   'restriction site': 'restrictionSite',
+//   regulatory: 'promoter',
+//   mat_peptide: 'cds',
+//   rep_origin: 'originReplication',
+// };
 
 /*
  proposed roles:
@@ -67,9 +95,8 @@ export const roleMassager = {
  */
 
 
-const symbols = Object.keys(symbolMap).map(key => ({
+export const symbols = Object.keys(symbolMap).map(key => ({
   id: key,
   name: symbolMap[key],
 }));
 
-export default symbols;

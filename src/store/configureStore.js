@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
-//import createLogger from 'redux-logger';
-import { routerMiddleware } from 'react-router-redux';
 import { browserHistory } from 'react-router';
-import saveLastActionMiddleware from './saveLastActionMiddleware';
-import combinedReducer from '../reducers/index';
+import { routerMiddleware } from 'react-router-redux';
+import { applyMiddleware, compose, createStore } from 'redux';
+import thunk from 'redux-thunk';
+
+import combinedReducerCreator from '../reducers/index';
 import pausableStore from './pausableStore';
+import saveLastActionMiddleware from './saveLastActionMiddleware';
 
 // note that the store loads the routes, which in turn load components
 // Routes are provided to the store. ReduxRouter works with react-router. see routes.js - they are injected as middleware here so they can be provided to components, and route information can be accessed as application state.
@@ -36,31 +36,29 @@ const middleware = [
   routerMiddleware(browserHistory),
 ];
 
-let finalCreateStore;
-if (process.env.DEBUGMODE) {
-  const DevTools = require('../containers/DevTools.js');
+const storeCreationFunctions = [
+  applyMiddleware(...middleware),
+  pausableStore(),
+];
 
-  finalCreateStore = compose(
-    applyMiddleware(...middleware),
-    pausableStore(),
-    DevTools.instrument()
-  )(createStore);
-} else {
-  finalCreateStore = compose(
-    applyMiddleware(...middleware),
-    pausableStore()
-  )(createStore);
+//set by webpack
+if (process.env.DEBUG_REDUX) {
+  const DevTools = require('../containers/DevTools.js'); //eslint-disable-line global-require
+  storeCreationFunctions.push(DevTools.instrument());
 }
+
+const finalCreateStore = compose(...storeCreationFunctions)(createStore);
 
 // expose reducer so you can pass in only one reducer for tests
 // (probably need to compose the way reducer does, e.g. using combineReducers, so retrieving data from store is correct)
-export default function configureStore(initialState, reducer = combinedReducer) {
+export default function configureStore(initialState, reducer = combinedReducerCreator()) {
   const store = finalCreateStore(reducer, initialState);
 
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
     module.hot.accept('../reducers', () => {
-      const nextRootReducer = require('../reducers');
+      const nextRootReducerCreator = require('../reducers'); //eslint-disable-line global-require
+      const nextRootReducer = nextRootReducerCreator();
       store.replaceReducer(nextRootReducer);
     });
   }

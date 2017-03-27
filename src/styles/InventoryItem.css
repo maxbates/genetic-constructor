@@ -7,26 +7,30 @@
   height: 30px;
   line-height: 30px;
   font-size: 12px;
-  font-weight: bolder;
-  border: 2px solid white;
-  background-color: black;
-  color: white;
+  font-weight: bold;
+  border: 1px solid gray;
+  background-color: lightgray;
+  color: black;
   padding: 0 1rem 0 1rem;
   cursor: pointer;
+  svg {
+    width: 32px;
+    height: 32px;
+    filter: brightness(0%);
+  }
 }
 
 .InventoryItem {
   display: block;
   font-size: 12px;
   cursor: default;
-  border-radius: 3px;
+  border-radius: 2px;
 
   &.hasImage {
     white-space: nowrap;
     text-overflow: ellipsis;
 
     .InventoryItem-text {
-      margin-left: 0.5em;
     }
   }
 
@@ -36,8 +40,7 @@
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: center;
-    padding: 2px 5px;
-    margin: 1px 0;
+    cursor: pointer;
     width: 100%;
     max-width: 100%;
   }
@@ -48,10 +51,20 @@
     white-space: nowrap;
     overflow: hidden;
     flex-shrink: 1;
+    padding: 4px 4px;
+  }
+
+  &-image {
+    display: inline-block;
+    background-size: contain;
+    margin-top: -0.25em;
+    height: 27px;
+    width: 27px;
   }
 
   &-detail {
     padding-left: 0.75em;
+    padding-top: 4px;
     opacity: 0.5;
     flex-shrink: 0;
     align-self: flex-start;
@@ -65,29 +78,33 @@
 
   &.loading,
   &.selected {
-    transition: background-color var(--timing-extrafast) ease-out;
-    background-color: var(--listItem-background);
+    color: var(--colors-white);
 
     .InventoryItem-text {
       white-space: normal;
     }
   }
 
+  &:hover {
+    transition: 0s;
+    background-color: var(--colors-lightGrey);
+  }
+
   &.loading {
     animation: softpulse 1s infinite;
+    background-color: var(--colors-grey);
+  }
+
+  &.selected {
+    background-color: var(--colors-selected);
   }
 
   &.loadError {
+    text-decoration: line-through;
     cursor: not-allowed;
 
     .InventoryItem-text {
-      color: #ff0000;
+      color: var(--colors-mediumLightGrey);
     }
-  }
-
-  &:hover {
-    transition: 0s;
-    background-color: var(--listItem-backgroundHover);
-    animation: none;
   }
 }

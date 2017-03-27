@@ -1,19 +1,20 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
+
 import TransactionManager from './SectionManager';
 
 export default class UndoManager {
@@ -59,12 +60,11 @@ export default class UndoManager {
       //if at start, just continue and make payloa as normal
       if (this.transactionAtStart === true) {
         this.transactionAtStart = false;
-      }
-      //if not at start, add key if its different
-      else {
+      } else {
+        //if not at start, add key if its different
         const lastItem = this.past.pop();
         const newKeys = [...new Set(lastItem.keys.concat(key))];
-        Object.assign(lastItem, {keys: newKeys});
+        Object.assign(lastItem, { keys: newKeys });
         this.past.push(lastItem);
         return;
       }
@@ -109,7 +109,7 @@ export default class UndoManager {
     Object.keys(this.slaves).forEach(key => this.slaves[key].purge());
   };
 
-  undo = (action) => this.doOnce(action, () => {
+  undo = action => this.doOnce(action, () => {
     const lastItem = this.getLastHistoryItem();
     if (lastItem) {
       lastItem.keys.forEach(key => this.slaves[key].undo());
@@ -117,7 +117,7 @@ export default class UndoManager {
     }
   });
 
-  redo = (action) => this.doOnce(action, () => {
+  redo = action => this.doOnce(action, () => {
     const nextItem = this.getFirstFutureItem();
     if (nextItem) {
       nextItem.keys.forEach(key => this.slaves[key].redo());
@@ -131,19 +131,19 @@ export default class UndoManager {
 
   //transactions are just delegated to section reducers to handle
 
-  transact = (action) => this.doOnce(action, () => {
+  transact = action => this.doOnce(action, () => {
     this.transactionDepth++;
     this.transactionAtStart = true;
     Object.keys(this.slaves).forEach(key => this.slaves[key].transact(action));
   });
 
-  commit = (action) => this.doOnce(action, () => {
+  commit = action => this.doOnce(action, () => {
     invariant(this.transactionDepth > 0, 'cant commit outside of a transaction!');
     this.transactionDepth--;
     Object.keys(this.slaves).forEach(key => this.slaves[key].commit(action));
   });
 
-  abort = (action) => this.doOnce(action, () => {
+  abort = action => this.doOnce(action, () => {
     invariant(this.transactionDepth > 0, 'cant abort outside of a transaction!');
     this.transactionDepth--;
     Object.keys(this.slaves).forEach(key => this.slaves[key].abort(action));

@@ -1,46 +1,12 @@
 @import 'variables.css';
 
 .ProjectHeader {
-  display: flex;
+  margin-left: 5px;
+  width: calc(100% - 17px);
+  height: 41px;
   flex-shrink: 0;
-  padding: 10px;
-  flex-direction: row;
-  justify-content: space-between;
-  color: var(--colors-blueGreyLighter);
-  cursor: default;
-  transition: background-color var(--timing-fast) ease-out;
-
-  /* left side */
-  &-info {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: column;
-    max-width: 100%;
-  }
-
-  &-title {
-    font-size: 16px;
-  }
-
-  &-description {
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    max-height: 4.25em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* right side */
-  &-actions {
-    align-self: center;
-  }
-
-  &-detailToggle {
-    padding: 1em;
-    cursor: pointer;
-  }
-
-  &.focused {
-    background-color: var(--colors-grey);
-  }
+  display: inline-flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-end;
 }

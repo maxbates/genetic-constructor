@@ -1,24 +1,27 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+import invariant from 'invariant';
+
+import BlockSourceSchema from './BlockSource';
+import { InstanceSchemaClass } from './Instance';
+import RulesSchema from './Rules';
+import SequenceSchema from './Sequence';
+import BlockAttributionSchema from './BlockAttribution';
 import fields from './fields/index';
 import * as validators from './fields/validators';
-import { InstanceSchemaClass } from './Instance';
-import SequenceSchema from './Sequence';
-import RulesSchema from './Rules';
-import BlockSourceSchema from './BlockSource';
 
 /**
  * A component of a construct, or construct itself.
@@ -47,32 +50,37 @@ const blockFields = {
 
   sequence: [
     SequenceSchema,
-    `Associated Sequence (link, not the sequence itself), and Annotations etc. associated`,
+    'Associated Sequence (link, not the sequence itself), and Annotations etc. associated',
   ],
 
   source: [
     BlockSourceSchema,
-    `Source (Inventory) ID of the Part`,
+    'Source (Inventory) ID of the Part',
   ],
 
   rules: [
     RulesSchema,
-    `Grammar/rules governing the whole Block and direct descendants`,
+    'Grammar/rules governing the whole Block and direct descendants',
   ],
 
   components: [
     fields.arrayOf(validators.id()).required,
-    `Array of Blocks of which this Block is comprised`,
+    'Array of Blocks of which this Block is comprised',
   ],
 
   options: [
     fields.object().required,
-    `Map of Blocks that form the List Block, if rules.isList === true, where keys are block IDs possible and key is boolean whether selected. Each block MUST be a spec.`,
+    'Map of Blocks that form the List Block, if rules.isList === true, where keys are block IDs possible and key is boolean whether selected. Each block MUST be a spec.',
   ],
 
   notes: [
     fields.object().required,
-    `Notes about the whole Block`,
+    'Notes about the whole Block',
+  ],
+
+  attribution: [
+    fields.arrayOf(BlockAttributionSchema.validate.bind(BlockAttributionSchema)).required,
+    'Provenance of claimed ownership of the block',
   ],
 };
 
@@ -82,24 +90,17 @@ export class BlockSchemaClass extends InstanceSchemaClass {
   }
 
   validate(instance, shouldThrow) {
-    const fieldsValid = super.validateFields(instance, shouldThrow);
-
-    if (!fieldsValid) {
+    try {
+      super.validateFields(instance, true);
+      invariant(Object.keys(instance.options).filter(opt => instance.options[opt]).length === 0 || instance.components.length === 0, 'Components and Options fields are mutually exclusive');
+    } catch (err) {
+      if (shouldThrow === true) {
+        throw err;
+      }
       return false;
     }
 
-    const optionsComponentsExclusive = Object.keys(instance.options).filter(opt => instance.options[opt]).length === 0 || instance.components.length === 0;
-
-    if (!optionsComponentsExclusive) {
-      const errorMessage = 'Components and Options fields are mutually exlusive';
-      if (shouldThrow) {
-        throw Error(errorMessage, instance);
-      } else if (process.env.NODE_ENV !== 'production') {
-        console.error(errorMessage); //eslint-disable-line
-      }
-    }
-
-    return optionsComponentsExclusive;
+    return true;
   }
 }
 

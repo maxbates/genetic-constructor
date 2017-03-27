@@ -13,12 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import Vector2D from '../geometry/vector2d';
-import Box2D from '../geometry/box2d';
 import invariant from 'invariant';
-import { commit, abort } from '../../../store/undo/actions';
+
 import { dispatch } from '../../../store/index';
+import { abort, commit } from '../../../store/undo/actions';
 import { difference } from '../../../utils/set/set';
+import Box2D from '../geometry/box2d';
+import Vector2D from '../geometry/vector2d';
 
 /**
  * Drag and Drop manager. Creates a singleton which allows registration of drag targets and drop targets
@@ -26,6 +27,24 @@ import { difference } from '../../../utils/set/set';
  * @module DnD
  */
 class DnD {
+  /**
+   * return the bounds of the element in document coordinates.
+   */
+  static getElementBounds(element) {
+    invariant(element, 'Bad parameter');
+    const domRECT = element.getBoundingClientRect();
+    return new Box2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY, domRECT.width, domRECT.height);
+  }
+
+  /**
+   * return the top/left of the element relative to the document. Includes any scrolling.
+   */
+  static getElementPosition(element) {
+    invariant(element && arguments.length === 1, 'Bad parameter');
+    const domRECT = element.getBoundingClientRect();
+    return new Vector2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY);
+  }
+
   constructor() {
     this.targets = [];
     this.monitors = new Set();
@@ -53,7 +72,7 @@ class DnD {
     this.proxy.style.zIndex = 2147483647;
     // remove any transform from proxy and make semi-transparent
     this.proxy.style.transform = null;
-    this.proxy.style.opacity = 2 / 3;
+    this.proxy.style.opacity = 0.7;
     // give the proxy the hand cursor
     this.proxy.style.cursor = 'pointer';
 
@@ -116,15 +135,15 @@ class DnD {
     // update monitors
     const monitors = this.findMonitorsAt(globalPosition);
     // any prior monitors not in the current set, we need to call monitorLeave
-    difference(this.lastMonitors, monitors).forEach(monitor => {
+    difference(this.lastMonitors, monitors).forEach((monitor) => {
       monitor.options.monitorLeave.call(this, globalPosition, this.payload);
     });
     // call monitorEnter for any new ones
-    difference(monitors, this.lastMonitors).forEach(monitor => {
+    difference(monitors, this.lastMonitors).forEach((monitor) => {
       monitor.options.monitorEnter.call(this, globalPosition, this.payload);
     });
     this.lastMonitors = monitors;
-    this.lastMonitors.forEach(monitor => {
+    this.lastMonitors.forEach((monitor) => {
       monitor.options.monitorOver.call(this, globalPosition, this.payload);
     });
   }
@@ -139,7 +158,7 @@ class DnD {
     const globalPosition = this.mouseToGlobal(evt);
 
     // send monitor leave to all monitors
-    this.monitors.forEach(monitor => {
+    this.monitors.forEach((monitor) => {
       monitor.options.monitorLeave.call(this, globalPosition, this.payload);
     });
 
@@ -147,6 +166,10 @@ class DnD {
     const target = this.findTargetAt(globalPosition);
 
     if (target && target.options) {
+      if (target.options.dragEnd) {
+        target.options.dragEnd.call(this, globalPosition, null, evt);
+      }
+
       const savedPayload = this.payload;
 
       Promise.resolve(this.onDrop(target, globalPosition))
@@ -187,12 +210,11 @@ class DnD {
             dispatch(commit());
           }
         });
-    } else {
+    } else if (this.undoCommit) {
       // abort the undo/redo transaction since nothing is going to change
-      if (this.undoCommit) {
-        dispatch(abort());
-      }
+      dispatch(abort());
     }
+
     this.cancelDrag();
   }
 
@@ -231,11 +253,9 @@ class DnD {
    */
   findTargetAt(globalPoint) {
     // find all targets at the given point
-    const hits = this.targets.filter(options => {
-      return this.getElementBounds(options.element).pointInBox(globalPoint);
-    });
+    const hits = this.targets.filter(options => DnD.getElementBounds(options.element).pointInBox(globalPoint));
     // sort by zorder and return the one with the highest values
-    hits.sort((aaa, bbb) => {return aaa.options.zorder - bbb.options.zorder;});
+    hits.sort((aaa, bbb) => aaa.options.zorder - bbb.options.zorder);
     return hits.pop();  // undefined on an empty array
   }
 
@@ -243,9 +263,7 @@ class DnD {
    * return all monitors at the given global position as a Set
    */
   findMonitorsAt(globalPoint) {
-    const monitors = [...this.monitors].filter(options => {
-      return this.getElementBounds(options.element).pointInBox(globalPoint);
-    });
+    const monitors = [...this.monitors].filter(options => DnD.getElementBounds(options.element).pointInBox(globalPoint));
     return new Set(monitors);
   }
 
@@ -273,11 +291,10 @@ class DnD {
    * unregister a drop target via the registered element
    */
   unregisterTarget(element) {
-    const targetIndex = this.targets.findIndex(obj => obj.element);
+    const targetIndex = this.targets.findIndex(record => record.element === element);
     invariant(targetIndex >= 0, 'element is not registered');
     this.targets.splice(targetIndex, 1);
   }
-
   /**
    * a monitor element will get called regardless of it zorder relative to
    * other drop target and monitors. It is primary use is to allow things
@@ -294,36 +311,19 @@ class DnD {
    * unregister a drop target via the registered element
    */
   unregisterMonitor(element) {
-    const monitor = [...this.monitors].find(obj => obj.element);
+    const monitor = [...this.monitors].find(obj => obj.element === element);
     invariant(monitor, 'element is not registered');
     this.monitors.delete(monitor);
   }
 
   /**
-   * return the bounds of the element in document coordinates.
-   */
-  getElementBounds(element) {
-    invariant(element, 'Bad parameter');
-    const domRECT = element.getBoundingClientRect();
-    return new Box2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY, domRECT.width, domRECT.height);
-  }
-
-  /**
    * x-browser solution for the global mouse position
    */
+  //eslint-disable-next-line class-methods-use-this
   mouseToGlobal(event) {
     invariant(arguments.length === 1, 'expect only an event for this method');
-    const parentPosition = this.getElementPosition(event.target);
+    const parentPosition = DnD.getElementPosition(event.target);
     return new Vector2D(event.offsetX + parentPosition.x, event.offsetY + parentPosition.y);
-  }
-
-  /**
-   * return the top/left of the element relative to the document. Includes any scrolling.
-   */
-  getElementPosition(element) {
-    invariant(element && arguments.length === 1, 'Bad parameter');
-    const domRECT = element.getBoundingClientRect();
-    return new Vector2D(domRECT.left + window.scrollX, domRECT.top + window.scrollY);
   }
 }
 

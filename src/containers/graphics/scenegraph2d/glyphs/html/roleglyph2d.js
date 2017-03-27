@@ -13,10 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import Glyph2D from '../glyph2d';
-
-import kT from '../../../views/layoutconstants';
 import { setAttribute } from '../../../utils';
+import kT from '../../../views/layoutconstants';
+import Glyph2D from '../glyph2d';
 
 export default class RoleGlyph2D extends Glyph2D {
 
@@ -48,11 +47,16 @@ export default class RoleGlyph2D extends Glyph2D {
   update() {
     // basic rectangle
     const sw = this.node.strokeWidth;
-    this.el.style.left = -(sw / 2) + 'px';
-    this.el.style.top = -(sw / 2) + 'px';
-    this.el.style.width = (this.node.width + sw) + 'px';
-    this.el.style.height = (this.node.height + sw) + 'px';
+    this.el.style.left = `${-(sw / 2)}px`;
+    this.el.style.top = `${-(sw / 2)}px`;
+    this.el.style.width = `${this.node.width + sw}px`;
+    this.el.style.height = `${this.node.height + sw}px`;
     this.el.style.backgroundColor = this.node.fill;
+    if (this.node.hidden) {
+      this.el.style.filter = 'brightness(50%)';
+    } else {
+      this.el.style.filter = null;
+    }
     this.el.style.border = sw ? `${sw}px solid ${this.node.stroke}` : 'none';
     if (this.node.roleName) {
       if (this.roleName !== this.node.roleName) {
@@ -81,11 +85,12 @@ export default class RoleGlyph2D extends Glyph2D {
         }
       }
       // update geometry of container
-      this.svgContainer.style.left = (this.node.width - kT.roleIcon - 2 - kT.contextDotsW) + 'px';
-      this.svgContainer.style.top = (this.node.height / 2 - kT.roleIcon / 2) + 'px';
-      this.svgContainer.style.width = kT.roleIcon + 'px';
+      this.svgContainer.style.left = `${this.node.width - kT.roleIcon - 2}px`;
+      this.svgContainer.style.top = `${this.node.height / 2 - kT.roleIcon / 2}px`;
+      this.svgContainer.style.width = `${kT.roleIcon}px`;
     } else {
       this.svgContainer.style.display = 'none';
+      this.roleName = null;
     }
     this.triangle.style.display = this.node.hasChildren ? 'block' : 'none';
   }

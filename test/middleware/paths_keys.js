@@ -1,5 +1,5 @@
 import chai from 'chai';
-import * as pathsApi from '../../src/middleware/paths';
+import * as pathsApi from '../../src/middleware/utils/paths';
 const { assert, expect } = chai;
 
 describe('Middleware', () => {

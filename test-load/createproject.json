@@ -1,0 +1,56 @@
+{
+  "comment": "Register a user and create and save a very simple construct.",
+  "config": {
+    "processor": "./helpers.js",
+    "target": "https://geneticconstructor.dev.bionano.autodesk.com",
+    "timeout": 120,
+    "phases": [
+      {
+        "duration": 60,
+        "arrivalCount": 1
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "name": "register",
+      "flow": [
+        {
+          "post": {
+            "url": "/register",
+            "beforeRequest": "createUserJSON",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "json": {
+              "user": {
+                "email": "placeholderA",
+                "firstName": "placeholderB",
+                "lastName": "placeholderC",
+                "password": "abc123456"
+              },
+              "config": {
+                "projects": {
+                  "emptyProject" : {
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "think": 5
+        },
+        {
+          "post": {
+            "beforeRequest": "createSimpleProjectJSON",
+            "headers": {
+              "Content-Type": "application/json"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import webpack from 'webpack';
 
 const DEBUG = !process.argv.includes('--release');
 const VERBOSE = process.argv.includes('--verbose');
-const DEBUGMODE = process.argv.includes('--debugmode'); //hook for devtools etc.
+const DEBUG_REDUX = process.env.DEBUG && process.env.DEBUG.indexOf('redux') >= 0; //hook for devtools etc.
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
   'Android >= 4',
@@ -28,16 +28,16 @@ const GLOBALS = {
   'process.env.NODE_ENV': DEBUG ? '"dev"' : '"production"',
   __DEV__: DEBUG,
   'process.env.BUILD': true,
-  'process.env.DEBUGMODE': !!DEBUGMODE,
+  'process.env.DEBUG_REDUX': DEBUG_REDUX,
 };
 
 //get list of node modules for webpack to avoid bundling on server
 const nodeModules = fs.readdirSync('node_modules')
-  .filter((x) => ['.bin'].indexOf(x) === -1)
-  .reduce(
-    (acc, mod) => Object.assign(acc, { [mod]: true }),
-    {}
-  );
+.filter(x => ['.bin'].indexOf(x) === -1)
+.reduce(
+  (acc, mod) => Object.assign(acc, { [mod]: true }),
+  {},
+);
 
 //common configuration
 const config = {
@@ -77,6 +77,10 @@ const config = {
       {
         test: /\.jade$/,
         loader: 'jade-loader',
+      },
+      {
+        test: /\.svg/,
+        loader: 'svg-url-loader',
       },
     ],
   },
@@ -163,7 +167,7 @@ export const clientConfig = merge({}, config, {
 
   // Choose a developer tool to enhance debugging
   // http://webpack.github.io/docs/configuration.html#devtool
-  devtool: DEBUG ? 'cheap-module-source-map' : false,
+  devtool: DEBUG ? 'inline-source-map' : false,
 });
 
 export const serverConfig = merge({}, config, {
@@ -173,8 +177,8 @@ export const serverConfig = merge({}, config, {
   resolve: {
     root: serverSourcePath,
     alias: {
-      gd_plugins: buildPath + '/plugins',
-      gd_extensions: buildPath + '/node_modules',
+      gd_plugins: `${buildPath}/plugins`,
+      gd_extensions: `${buildPath}/node_modules`,
     },
   },
 
@@ -214,7 +218,7 @@ export const serverConfig = merge({}, config, {
 
   externals: nodeModules,
 
-  devtool: 'source-map',
+  devtool: 'cheap-module-source-map',
 });
 
 export default [clientConfig, serverConfig];

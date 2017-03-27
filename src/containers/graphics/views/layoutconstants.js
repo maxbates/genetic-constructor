@@ -15,24 +15,22 @@ limitations under the License.
 */
 // height of blocks
 const blockH = 30;
-// width of title
-const titleW = 200;
-const titleH = 40;
 // total height of each row
 const rowH = 60;
 // row header bar height
 const rowBarH = 4;
 // vertical bar width
-const rowBarW = 1;
+const rowBarW = 2;
 // padding around text on blocks
-const textPad = 8;
-// width of context menu 3 dots
-const contextDotsW = 10;
-const contextDotsH = 18;
+const textPad = 10;
+// min width of blocks
+const minBlockWidth = 80;
 // width of condensed text blocks
 const condensedText = 40;
 // height of banner bar above construct name
-const bannerHeight = 18;
+const bannerHeight = 30;
+// gap between banner and start of construct
+const bannerGap = 12;
 // inset of layout in graph
 const insetX = 0;
 const insetY = 0;
@@ -40,7 +38,6 @@ const insetY = 0;
 const nestedInsetX = 20;
 const nestedInsetY = 20;
 // font size
-const titleFontSize = '20px';
 const blockFontSize = '12px';
 // background
 const background = 'rgb(52, 57, 77)';
@@ -48,9 +45,9 @@ const background = 'rgb(52, 57, 77)';
 const roleIcon = 27;
 // min size of layout
 const minWidth = blockH * 4;
-const minHeight = blockH + rowBarH + titleH;
+const minHeight = blockH + rowBarH + bannerHeight;
 // padding at right / bottom of scenegraph to make selection easier
-const bottomPad = 50;
+const bottomPad = 30;
 const rightPad = 30;
 // width of reserved space for selection dot on options
 const optionDotW = 16;
@@ -67,40 +64,29 @@ export default {
   layoutFull: 'full',
 
   // layout metrics
-  blockH: blockH,
-  optionH: optionH,
-  optionDotW: optionDotW,
-  optionDotS: optionDotS,
-  optionDotL: optionDotL,
-  contextDotsW: contextDotsW,
-  contextDotsH: contextDotsH,
-  titleW: titleW,
-  titleH: titleH,
-  rowH: rowH,
-  rowBarH: rowBarH,
-  rowBarW: rowBarW,
-  textPad: textPad,
-  condensedText: condensedText,
-  insetX: insetX,
-  insetY: insetY,
-  nestedInsetX: nestedInsetX,
-  nestedInsetY: nestedInsetY,
-  bannerHeight: bannerHeight,
-  roleIcon: roleIcon,
-  minWidth: minWidth,
-  minHeight: minHeight,
-  bottomPad: bottomPad,
-  rightPad: rightPad,
+  blockH,
+  optionH,
+  optionDotW,
+  optionDotS,
+  optionDotL,
+  rowH,
+  rowBarH,
+  rowBarW,
+  textPad,
+  minBlockWidth,
+  condensedText,
+  insetX,
+  insetY,
+  nestedInsetX,
+  nestedInsetY,
+  bannerHeight,
+  bannerGap,
+  roleIcon,
+  minWidth,
+  minHeight,
+  bottomPad,
+  rightPad,
 
-  // display properties for various elements
-  titleAppearance: {
-    fill: 'transparent',
-    glyph: 'rectangle',
-    strokeWidth: 0,
-    fontSize: titleFontSize,
-    textAlign: 'left',
-    height: titleH,
-  },
   // row bar
   rowAppearance: {
     height: rowBarH,
@@ -117,6 +103,14 @@ export default {
     glyph: 'rectangle',
     strokeWidth: 1,
     stroke: background,
+    fontSize: blockFontSize,
+  },
+  labelAppearance: {
+    color: 'white',
+    fill: 'transparent',
+    glyph: 'rectangle',
+    strokeWidth: 0,
+    stroke: 'transparent',
     fontSize: blockFontSize,
   },
   connectorAppearance: {

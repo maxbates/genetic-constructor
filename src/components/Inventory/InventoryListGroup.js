@@ -13,12 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React, { Component, PropTypes } from 'react';
 import invariant from 'invariant';
-import Spinner from '../ui/Spinner';
-import Toggler from '../ui/Toggler';
+import React, { Component, PropTypes } from 'react';
 
 import '../../styles/InventoryListGroup.css';
+import Spinner from '../ui/Spinner';
+import Toggler from '../ui/Toggler';
 import InventoryListGroupAction from './InventoryListGroupAction';
 
 export default class InventoryListGroup extends Component {
@@ -57,7 +57,7 @@ export default class InventoryListGroup extends Component {
   };
 
   componentWillMount() {
-    invariant(!this.props.manual || (this.props.hasOwnProperty('isExpanded') && this.props.hasOwnProperty('onToggle')), 'If the component is manual, you must pass isExpanded and onToggle to handle state changes');
+    invariant(!this.props.manual || (this.props.hasOwnProperty('isExpanded') && this.props.hasOwnProperty('onToggle')), 'If the component is manual, you must pass isExpanded and onToggle to handle state changes'); //eslint-disable-line no-prototype-builtins
   }
 
   //e.g. for registering mouse drag handler, only on header
@@ -79,7 +79,9 @@ export default class InventoryListGroup extends Component {
       this.setState({ expanded: nextState });
     }
 
-    onToggle && onToggle(nextState);
+    if (typeof onToggle === 'function') {
+      onToggle(nextState);
+    }
   };
 
   handleSelect = (evt) => {
@@ -95,7 +97,7 @@ export default class InventoryListGroup extends Component {
   };
 
   render() {
-    const { isSelectable, hideToggle, title, manual, isLoading, isExpanded, isActive, children, disabled, canToggle, dataAttribute, actionButton } = this.props;
+    const { isSelectable, hideToggle, title, manual, isLoading, isExpanded, isActive, children, disabled, dataAttribute, actionButton } = this.props;
     const expanded = manual ? isExpanded : this.state.expanded;
 
     const rightSide = actionButton ?
@@ -103,18 +105,24 @@ export default class InventoryListGroup extends Component {
       <span className="InventoryListGroup-heading-filler" />;
 
     return (
-      <div className={'InventoryListGroup' +
-      (isSelectable ? ' isSelectable' : '') +
-      (expanded ? ' expanded' : '') +
-      (disabled ? ' disabled' : '') +
-      (isActive ? ' active' : '')}
-           data-inventory={dataAttribute}>
-        <div className="InventoryListGroup-heading"
-             ref={(el) => this.headingElement = el}
-             onClick={this.handleSelect}>
-          <Toggler hidden={hideToggle}
-                   onClick={this.handleToggle}
-                   open={expanded}/>
+      <div
+        className={`InventoryListGroup${
+      isSelectable ? ' isSelectable' : ''
+      }${expanded ? ' expanded' : ''
+      }${disabled ? ' disabled' : ''
+      }${isActive ? ' active' : ''}`}
+        data-inventory={dataAttribute}
+      >
+        <div
+          className="InventoryListGroup-heading"
+          ref={(el) => { this.headingElement = el; }}
+          onClick={this.handleSelect}
+        >
+          <Toggler
+            hidden={hideToggle}
+            onClick={this.handleToggle}
+            open={expanded}
+          />
           <a className="InventoryListGroup-title">
             <span>{title}</span>
           </a>

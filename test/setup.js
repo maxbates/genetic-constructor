@@ -1,10 +1,9 @@
 import { jsdom } from 'jsdom';
-import mkpath from 'mkpath';
-//import { login } from '../src/middleware/api';
+import rimraf from 'rimraf';
 
 //FILE SYSTEM SETUP
 
-mkpath('storage/test/sequence');
+rimraf.sync('server/auth/temp.config.json');
 
 //DOM SETUP
 
@@ -16,7 +15,7 @@ global.navigator = global.window.navigator;
 window.console = global.console;
 
 //hack - for history/lib/DOMStateStorage
-window.localStorage = window.sessionStorage = {
+global.localStorage = global.sessionStorage = window.localStorage = window.sessionStorage = {
   getItem: function getItem(key) {
     return this[key];
   },
@@ -24,10 +23,3 @@ window.localStorage = window.sessionStorage = {
     this[key] = value;
   },
 };
-
-// setup authentication
-// used for middleware functions, which store the sessionKey manually
-
-//file must be required (not imported), so that it runs here and is not part of the static build, as the middleware relies on the window being present, which is set up above
-//const api = require('../src/middleware/api');
-//api.login('', '');

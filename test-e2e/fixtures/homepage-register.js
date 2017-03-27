@@ -1,61 +1,73 @@
-var registerViaHomepage = function(browser) {
+//accepts a callback: (browser, credentials) => {}
+var registerViaHomepage = function (browser, cb) {
+
+  var credentials = {};
 
   browser
-    .url('http://localhost:3001/homepage')
-    // wait for homepage to be present before starting
-    .waitForElementPresent('.homepage', 5000, 'Expected homepage element to be present')
-    // open sign in dialog
-    .click('.homepage-getstarted')
-    // allow transition to complete
-    .pause(1000)
-    // wait for it to be present
-    .waitForElementPresent('#auth-signin', 5000, 'Expected form to become visible')
-    // ensure it is the sign in dialog
-    .getText('#auth-signin .title', function(result) {
-      browser.assert.equal(result.value, "Sign In")
-    })
-    // click the a tag that switches to registration
-    .click('#auth-signin a:nth-of-type(1)')
-    // wait for registration dialog to appear
-    .waitForElementPresent('#auth-signup', 5000, 'Expected form to become visible')
-    // submit with no values to ensure errors appear
-    .submitForm('#auth-signup')
-    .pause(1000)
-    // expect 6 errors to appear ( name error, two email errors, two password erros TOS error )
-    .assert.countelements('.error.visible', 6);
-    // create fields with viable values including a random email
-  var email = new Date().getTime() + '@hotmail.com';
-  var password = '123456';
-  var firstName = 'George';
-  var lastName = 'Washington';
+  .url(browser.launchUrl + '/homepage')
+  // wait for homepage to be present before starting
+  .waitForElementPresent('.LandingPage', 5000, 'Expected landing page to be present')
 
-  browser
-    .clearValue('#auth-signup input:nth-of-type(1)')
-    .clearValue('#auth-signup input:nth-of-type(2)')
-    .clearValue('#auth-signup input:nth-of-type(3)')
-    .clearValue('#auth-signup input:nth-of-type(4)')
-    .clearValue('#auth-signup input:nth-of-type(5)')
-    .clearValue('#auth-signup input:nth-of-type(6)')
+  // wait for login form to be present
+  .waitForElementPresent('#auth-signin', 10000, 'Expected signin form to become visible')
+  .waitForElementPresent('button.Modal-action', 5000, 'Modal actions should appear')
+  // ensure it is the sign in dialog
+  .pause(2000)
+  .getText('button.Modal-action', function (result) {
+    browser.assert.equal(result.value, "Sign In")
+  })
+  // click the a tag that switches to registration
+  .click('#auth-showRegister')
 
-    .setValue('#auth-signup input:nth-of-type(1)', firstName)
-    .setValue('#auth-signup input:nth-of-type(2)', lastName)
-    .setValue('#auth-signup input:nth-of-type(3)', email)
-    .setValue('#auth-signup input:nth-of-type(4)', email)
-    .setValue('#auth-signup input:nth-of-type(5)', password)
-    .setValue('#auth-signup input:nth-of-type(6)', password)
-    .click('.checkbox input')
-    .pause(1000)
-    .submitForm('#auth-signup')
-    .pause(1000)
-    .waitForElementNotPresent('#auth-signup', 10000, 'expected form to be dismissed')
-    .waitForElementPresent('.userwidget', 10000, 'expected to land on page with the user widget visible')
-    // wait for inventory and inspector to be present to ensure we are on a project page
-    .waitForElementPresent('.SidePanel.Inventory', 10000, 'Expected Inventory Groups')
-    .waitForElementPresent('.SidePanel.Inspector', 10000, 'Expected Inspector')
-    .pause(1000)
+  // wait for registration dialog to appear
+  //.pause(2000)
+  .waitForElementPresent('#auth-register', 10000, 'Expected register form to become visible')
+  .waitForElementPresent('#auth-register input[name="firstName"]', 1000, 'Expected input name=firstName')
+  //wait a second for the form....
+  .pause(250)
 
-  return {email, password, firstName, lastName};
+  //todo - should test and make an error pop up -- need to work around captcha
+  /*
+   // submit with no values to ensure errors appear
+   .submitForm('#auth-register')
+   //expect it to complain about there being an error
+   .waitForElementPresent('.Form-errorMessage', 5000);
+   */
 
-}
+  //use the trick to bypass the captcha
+  .setValue('#auth-register input[name="firstName"]', 'darwin magic')
+  .pause(250)
+  //make sure fields populated
+  .assert.value('#auth-register input[name="lastName"]', 'Darwin')
+  // get the field values and save for later
+  .execute(function () {
+    return {
+      firstName: document.querySelector('#auth-register input[name="firstName"]').value,
+      lastName: document.querySelector('#auth-register input[name="lastName"]').value,
+      email: document.querySelector('#auth-register input[name="email"]').value,
+      password: document.querySelector('#auth-register input[name="password"]').value,
+    };
+  }, [], function (result) {
+    Object.assign(credentials, result.value);
+  })
+
+  // "submit" using click
+  .click('.Modal-action')
+
+  //todo - need to work aconut captcha to get submit to work
+  //.submitForm('#auth-register')
+
+  //.pause(1000)
+  .waitForElementNotPresent('#auth-register', 15000, 'expected form to be dismissed')
+  .waitForElementPresent('.userwidget', 10000, 'expected to land on page with the user widget visible')
+  //.pause(1000)
+  // wait for inventory and inspector to be present to ensure we are on a project page
+  .waitForElementPresent('.SidePanel.Inventory', 10000, 'Expected Inventory Groups')
+  .waitForElementPresent('.SidePanel.Inspector', 10000, 'Expected Inspector');
+
+  if (cb) {
+    browser.execute(() => {}, [], () => cb(browser, credentials));
+  }
+};
 
 module.exports = registerViaHomepage;

@@ -1,7 +1,9 @@
-import register from './registerExtension';
-import { isRegistered, onRegister, validRegion } from './clientRegistry';
+import { projectFileWrite as write } from '../actions/projects';
 import { callExtensionApi as api } from '../middleware/extensions';
-import { readProjectFile as read, writeProjectFile as write, listProjectFiles as list } from '../middleware/projectFile';
+import { projectFileList as list, projectFileRead as read } from '../selectors/projects';
+import { dispatch } from '../store/index';
+import { isRegistered, onRegister, validRegion } from './clientRegistry';
+import register from './register';
 
 /**
  * `window.constructor.extensions`
@@ -14,9 +16,9 @@ export default {
   register,
   api,
   files: {
-    read,
-    write,
-    list,
+    read: (...args) => dispatch(read(...args)),
+    write: (...args) => dispatch(write(...args)),
+    list: (...args) => dispatch(list(...args)),
   },
   isRegistered,
   onRegister,

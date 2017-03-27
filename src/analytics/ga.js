@@ -13,6 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+/* global ga:false */
 /**
  * send a custom event to Google Analytics tracking
  * Documentation on these parameters can be found at: https://developers.google.com/analytics/devguides/collection/analyticsjs/events
@@ -27,11 +29,11 @@
  * track('Project', 'New Project', 'Via Menu')
  * ```
  */
-export default function track(category, action, label, value, non_interaction) {
+export default function track(category, action, label, value, nonInteraction) {
   // only send if in production env and google analytics is present
   if (process.env.NODE_ENV === 'production') {
     if (typeof ga === 'function') {
-      ga('send', 'event', category, action, label, value, non_interaction);
+      ga('send', 'event', category, action, label, value, nonInteraction);
     }
   }
 }

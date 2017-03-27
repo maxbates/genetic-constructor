@@ -1,0 +1,16 @@
+@import './variables.css';
+
+.BlockAttribution {
+  &-inner {
+    margin: 0.5rem 0 0 1.5rem;
+  }
+
+  &-attributions {
+    margin-top: 0.5rem;
+    color: var(--colors-grey);
+  }
+
+  &-attribution {
+
+  }
+}

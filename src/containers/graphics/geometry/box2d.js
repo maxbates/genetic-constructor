@@ -1,21 +1,22 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
-import Vector2D from './vector2d';
+
 import Line2D from './line2d';
+import Vector2D from './vector2d';
 
 export default class Box2D {
   /**
@@ -35,42 +36,36 @@ export default class Box2D {
       this.y = y;
       this.w = w;
       this.h = h;
-    } else {
-      if (arguments.length === 1) {
+    } else if (arguments.length === 1) {
         // map the properties ( keys ), if present, to our
         // named property ( the values )
-        this.extend(arguments[0], {
-          x: 'x',
-          left: 'x',
-          y: 'y',
-          top: 'y',
-          w: 'w',
-          h: 'h',
-          width: 'w',
-          height: 'h',
-          right: 'r',
-          bottom: 'b',
-          r: 'r',
-          b: 'b',
-        });
-      } else {
-        if (arguments.length === 0) {
-          this.x = this.y = this.w = this.h = 0;
-        } else {
-          throw new Error('Bad parameters');
-        }
-      }
+      this.extend(arguments[0], {
+        x: 'x',
+        left: 'x',
+        y: 'y',
+        top: 'y',
+        w: 'w',
+        h: 'h',
+        width: 'w',
+        height: 'h',
+        right: 'r',
+        bottom: 'b',
+        r: 'r',
+        b: 'b',
+      });
+    } else if (arguments.length === 0) {
+      this.x = this.y = this.w = this.h = 0;
+    } else {
+      throw new Error('Bad parameters');
     }
   }
 
   /**
    * extend ourselves with any of the property names in props,
    * renaming them to the given target property name
-   * 
-   * 
-   * 
    */
   extend(from, props) {
+    //eslint-disable-next-line no-restricted-syntax
     for (const key in props) {
       // hasOwnProperty fails on ClientRect, plus this ensures its a number
       if (from[key] === +from[key]) {
@@ -125,82 +120,107 @@ export default class Box2D {
   get left() {
     return this.x;
   }
+
   set left(_x) {
     this.x = _x;
   }
+
   get width() {
     return this.w;
   }
+
   set width(_w) {
     this.w = _w;
   }
+
   get height() {
     return this.h;
   }
+
   set height(_h) {
     this.h = _h;
   }
+
   get top() {
     return this.y;
   }
+
   set top(_y) {
     this.y = _y;
   }
+
   get right() {
     return this.x + this.w;
   }
+
   set right(_r) {
     this.w = _r - this.x;
   }
+
   get bottom() {
     return this.y + this.h;
   }
+
   set bottom(_b) {
     this.h = _b - this.y;
   }
+
   get cx() {
     return this.x + this.w / 2;
   }
+
   set cx(_cx) {
     this.x = _cx - this.w / 2;
   }
+
   get cy() {
     return this.y + this.h / 2;
   }
+
   set cy(_cy) {
     this.y = _cy - this.h / 2;
   }
+
   get center() {
     return new Vector2D(this.cx, this.cy);
   }
+
   set center(vector) {
     this.cx = vector.x;
     this.cy = vector.y;
   }
+
   get topLeft() {
     return new Vector2D(this.x, this.y);
   }
+
   set topLeft(vector) {
     this.x = vector.x;
     this.y = vector.y;
   }
+
   get topRight() {
     return new Vector2D(this.right, this.y);
   }
+
   set topRight(vector) {
     this.right = vector.x;
     this.y = vector.y;
   }
+
   get bottomRight() {
     return new Vector2D(this.right, this.bottom);
   }
+
   set bottomRight(vector) {
     this.right = vector.x;
     this.bottom = vector.y;
   }
+
   get bottomLeft() {
     return new Vector2D(this.x, this.bottom);
   }
+
   set bottomLeft(vector) {
     this.x = vector.x;
     this.bottom = vector.y;
@@ -222,7 +242,7 @@ export default class Box2D {
       Math.min(this.x, this.right),
       Math.min(this.y, this.bottom),
       Math.abs(this.w),
-      Math.abs(this.h)
+      Math.abs(this.h),
     );
   }
 
@@ -288,7 +308,7 @@ export default class Box2D {
     const uni = new Box2D(
       Math.min(this.x, box.x),
       Math.min(this.y, box.y),
-      0, 0
+      0, 0,
     );
 
     uni.right = Math.max(this.right, box.x + box.w);
@@ -308,14 +328,14 @@ export default class Box2D {
   getEdge(nth) {
     invariant(nth >= 0 && nth < 4, 'Bad parameter');
     switch (nth) {
-    case 0:
-      return new Line2D(new Vector2D(this.x, this.y), new Vector2D(this.right, this.y));
-    case 1:
-      return new Line2D(new Vector2D(this.right, this.y), new Vector2D(this.right, this.bottom));
-    case 2:
-      return new Line2D(new Vector2D(this.right, this.bottom), new Vector2D(this.x, this.bottom));
-    default:
-      return new Line2D(new Vector2D(this.x, this.bottom), new Vector2D(this.x, this.y));
+      case 0:
+        return new Line2D(new Vector2D(this.x, this.y), new Vector2D(this.right, this.y));
+      case 1:
+        return new Line2D(new Vector2D(this.right, this.y), new Vector2D(this.right, this.bottom));
+      case 2:
+        return new Line2D(new Vector2D(this.right, this.bottom), new Vector2D(this.x, this.bottom));
+      default:
+        return new Line2D(new Vector2D(this.x, this.bottom), new Vector2D(this.x, this.y));
     }
   }
 
@@ -366,6 +386,7 @@ export default class Box2D {
   proximityX(other) {
     return Math.abs(this.center.x - other.center.x);
   }
+
   proximityY(other) {
     return Math.abs(this.center.y - other.center.y);
   }

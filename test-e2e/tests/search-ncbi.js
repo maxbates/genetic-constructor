@@ -18,14 +18,14 @@ module.exports = {
       .pause(1000);
 
     // term matches insulin in IGEM registry
-    searchFor(browser, 'NZ_JUOA01000505');
+    searchFor(browser, 'Ncbi', 'NZ_JUOA01000505');
 
     // drag first result to create new construct
-    dragFromTo(browser, '.InventoryItem-item',10, 10, '.cvc-drop-target', 10, 10);
+    dragFromTo(browser, '.InventoryItem-item',10, 10, '.inter-construct-drop-target', 50, 4);
 
     browser
       // wait for a block to appear
-      .waitForElementPresent('[data-nodetype="block"]', 5000, 'expected blocks to appear')
+      .waitForElementPresent('[data-nodetype="block"]', 30000, 'expected blocks to appear')
       .assert.countelements('[data-nodetype="block"]', 25)
       .end();
   }

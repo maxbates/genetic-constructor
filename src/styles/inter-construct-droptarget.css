@@ -1,0 +1,23 @@
+@import 'variables.css';
+
+.inter-construct-drop-target {
+  box-sizing: border-box;
+  height: 10px;
+  width: calc(100% - 2rem);
+  border-top: 10px solid transparent;
+  margin: 0.75rem 1rem 1rem 1rem;
+
+  &:last-child {
+    height: 400px;
+  }
+
+  &:first-child {
+    margin: 0 1rem 2px 1rem;
+    border-top-width: 7px;
+    height: 7px;
+  }
+}
+
+.inter-construct-drop-target-hovered {
+  border-top: 10px solid var(--colors-selected);
+}

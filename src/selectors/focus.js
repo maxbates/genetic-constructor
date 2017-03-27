@@ -1,18 +1,24 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+/**
+ * @module Selectors_Focus
+ * @memberOf module:Selectors
+ */
+
 import * as BlockSelector from './blocks';
 
 const _getCurrentProjectId = () => {
@@ -21,10 +27,13 @@ const _getCurrentProjectId = () => {
 };
 
 //todo - this should not be exposed as part of 3rd party API... exported so inspector can share
+// todo - refactor. this is kinda a mess
+// type: project, construct, block, option, role
 export const _getFocused = (state, defaultToConstruct = true, defaultProjectId = null) => {
-  const { level, forceProject, forceBlocks, constructId, blockIds, options, roleId } = state.focus;
+  const { level, forceProject, forceBlocks, constructId, blockIds, roleId, options } = state.focus;
   const projectId = _getCurrentProjectId();
 
+  //can be this be deprecate?
   if (level === 'role') {
     return {
       type: 'role',
@@ -34,9 +43,9 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
   }
 
   //focus doesnt update on undo, just the blocks... so need to filter / make sure defined
-  const project = forceProject || state.projects[projectId || defaultProjectId];
+  const project = forceProject || state.projects[defaultProjectId || projectId];
   const construct = state.blocks[constructId];
-  const blocks = !!forceBlocks.length ?
+  const blocks = forceBlocks.length ?
     forceBlocks :
     blockIds.map(blockId => state.blocks[blockId]).filter(block => !!block);
   const option = blockIds.length === 1 ? state.blocks[options[blockIds[0]]] : null;
@@ -47,18 +56,25 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
 
   if (level === 'project' || (!construct && !blocks.length)) {
     focused = project;
-    readOnly = !!forceProject || !!project.isSample;
+    readOnly = !!forceProject || project.rules.frozen;
     type = 'project'; //override in case here because construct / blocks unspecified
-  } else if (level === 'construct' && construct || (defaultToConstruct === true && construct && !blocks.length)) {
+  } else if ((level === 'construct' && construct) || (defaultToConstruct === true && construct && !blocks.length)) {
     focused = [construct];
     readOnly = construct.isFrozen();
+    type = 'construct';
   } else if (level === 'option' && option) {
     focused = [option];
+    //todo - these should not be frozen, should be able to inspect. need to update EGF project.
     readOnly = true;
   } else {
     focused = blocks;
-    readOnly = !!forceBlocks.length || focused.some(instance => instance.isFrozen());
+    type = (focused.length === 1 && project && project.components && project.components.indexOf(focused[0].id) >= 0) ? 'construct' : 'block';
+    readOnly = forceBlocks.length > 0 || focused.some(instance => instance.isFrozen());
   }
+
+  //force read-only if project not owned by user
+  const projectIsPublished = project.owner !== state.user.userid;
+  readOnly = readOnly || projectIsPublished;
 
   return {
     type,
@@ -67,71 +83,92 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
   };
 };
 
-//primary way to get focused things for the inspector
-export const focusGetFocused = (defaultToConstruct = true, defaultProjectId = null) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    return _getFocused(state, defaultToConstruct, defaultProjectId);
-  };
+/**
+ * Get pieces of app in focus. May be project, top-level construct, block, option, or role
+ * @function
+ * @param {boolean} [defaultToConstruct=true]
+ * @param {*} [defaultProjectId=null] Default if current project is not defined
+ * @returns {Object} returns {type: string, readOnly: boolean, focused: *}
+ * Where type is project, construct, block, option, or role
+ * readOnly is if forced, or block is frozen
+ * focused may be a project, block
+ */
+export const focusGetFocused = (defaultToConstruct = true, defaultProjectId = null) => (dispatch, getState) => {
+  const state = getState();
+  return _getFocused(state, defaultToConstruct, defaultProjectId);
 };
 
-export const focusGetProject = () => {
-  return (dispatch, getState) => {
-    const { forceProject } = getState().focus;
-    if (forceProject) {
-      return forceProject;
+/**
+ * Get currently selected project
+ * @function
+ * @returns {Project} null if no project id is active
+ */
+export const focusGetProject = () => (dispatch, getState) => {
+  const { forceProject } = getState().focus;
+  if (forceProject) {
+    return forceProject;
+  }
+  const projectId = _getCurrentProjectId();
+  return projectId ? getState().projects[projectId] : null;
+};
+
+/**
+ * Currently selected top-level construct
+ * @function
+ * @returns {Block}
+ */
+export const focusGetConstruct = () => (dispatch, getState) => {
+  const state = getState();
+  return state.blocks[state.focus.constructId];
+};
+
+/**
+ * Get currently selected blocks
+ * @function
+ * @param {boolean} [defaultToConstruct=true]
+ * @returns {Array<Block>}
+ */
+export const focusGetBlocks = (defaultToConstruct = true) => (dispatch, getState) => {
+  const state = getState();
+  const { forceBlocks, blockIds, constructId } = state.focus;
+  if (forceBlocks.length) {
+    return forceBlocks;
+  }
+  if (!blockIds.length && defaultToConstruct === true) {
+    return [state.blocks[constructId]];
+  }
+  return blockIds.map(blockId => state.blocks[blockId]);
+};
+
+/**
+ * Get range of currently selected blocks
+ * @function
+ * @returns {Array<Block>} Array of currently selected blocks, construct if no blocks selected, or empty if neither selected
+ */
+export const focusGetBlockRange = () => (dispatch, getState) => {
+  const focusedBlocks = dispatch(focusGetBlocks(false));
+  const focusedConstruct = dispatch(focusGetConstruct());
+
+  if (!focusedBlocks.length) {
+    if (focusedConstruct) {
+      return [focusedConstruct];
     }
-    const projectId = _getCurrentProjectId();
-    return !!projectId ? getState().projects[projectId] : null;
-  };
+    return [];
+  }
+
+  //dispatch just in case other construct is in focus for some reason... also assumes that all focused blocks are within the same construct
+  const focusedIds = focusedBlocks.map(block => block.id);
+  return dispatch(BlockSelector.blockGetRange(...focusedIds));
 };
 
-export const focusGetConstruct = () => {
-  return (dispatch, getState) => {
-    const state = getState();
-    return state.blocks[state.focus.constructId];
-  };
-};
-
-export const focusGetBlocks = (defaultToConstruct = true) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { forceBlocks, blockIds, constructId } = state.focus;
-    if (forceBlocks.length) {
-      return forceBlocks;
-    }
-    if (!blockIds.length && defaultToConstruct === true) {
-      return [state.blocks[constructId]];
-    }
-    return blockIds.map(blockId => state.blocks[blockId]);
-  };
-};
-
-export const focusGetBlockRange = () => {
-  return (dispatch, getState) => {
-    const focusedBlocks = dispatch(focusGetBlocks(false));
-    const focusedConstruct = dispatch(focusGetConstruct());
-
-    if (!focusedBlocks.length) {
-      if (focusedConstruct) {
-        return [focusedConstruct];
-      }
-      return [];
-    }
-
-    //dispatch just in case other construct is in focus for some reason... also assumes that all focused blocks are within the same construct
-    const focusedIds = focusedBlocks.map(block => block.id);
-    return dispatch(BlockSelector.blockGetRange(...focusedIds));
-  };
-};
-
-//if focused blocks / construct have components
-//e.g. whether can open sequence detail view
-export const focusDetailsExist = () => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { forceBlocks, blockIds, constructId } = state.focus;
-    const construct = state.blocks[constructId];
-    return !!forceBlocks.length || !!blockIds.length || (construct && !!construct.components.length);
-  };
+/**
+ * Check if the detail view is relevant, i.e. there are blocks / construct selected
+ * @function
+ * @returns {boolean} true if relevant
+ */
+export const focusDetailsExist = () => (dispatch, getState) => {
+  const state = getState();
+  const { forceBlocks, blockIds, constructId } = state.focus;
+  const construct = state.blocks[constructId];
+  return !!forceBlocks.length || !!blockIds.length || (construct && !!construct.components.length);
 };

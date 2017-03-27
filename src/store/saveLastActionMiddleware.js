@@ -15,12 +15,10 @@ limitations under the License.
 */
 let lastAction;
 
-export const getLastAction = () => {
-  return lastAction;
-};
+export const getLastAction = () => lastAction;
 
-export default function saveLastActionMiddleware({dispatch, getState}) {
-  return next => action => {
+export default function saveLastActionMiddleware({ dispatch, getState }) {
+  return next => (action) => {
     lastAction = action;
     return next(action);
   };

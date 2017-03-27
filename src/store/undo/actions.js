@@ -23,7 +23,7 @@ export const redo = () => ({
   type: ActionTypes.REDO,
 });
 
-export const jump = (number) => ({
+export const jump = number => ({
   type: ActionTypes.JUMP,
   number,
 });

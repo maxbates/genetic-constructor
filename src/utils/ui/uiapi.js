@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
+
 import { blockGetParents } from '../../selectors/blocks';
 import { dispatch } from '../../store/index';
 
@@ -35,17 +36,11 @@ import { dispatch } from '../../store/index';
  * [F, E, B, D, A, C]
  */
 export function sortBlocksByIndexAndDepth(blockIds) {
-  const getParents = (blockId) => {
-    return dispatch(blockGetParents(blockId));
-  };
+  const getParents = blockId => dispatch(blockGetParents(blockId));
 
-  const getParent = (blockId) => {
-    return getParents(blockId)[0];
-  };
+  const getParent = blockId => getParents(blockId)[0];
 
-  const hasParent = (blockId) => {
-    return dispatch(blockGetParents(blockId)).length;
-  };
+  const hasParent = blockId => dispatch(blockGetParents(blockId)).length;
 
   const getIndex = (blockId) => {
     const parentBlock = getParent(blockId);
@@ -65,7 +60,7 @@ export function sortBlocksByIndexAndDepth(blockIds) {
     const path = [];
     let current = blockId;
     while (hasParent(current)) {
-      path.unshift({blockId: current, index: getIndex(current)});
+      path.unshift({ blockId: current, index: getIndex(current) });
       current = getParent(current).id;
     }
     return path;
@@ -76,7 +71,8 @@ export function sortBlocksByIndexAndDepth(blockIds) {
    */
   const compareBlockPaths = (infoA, infoB) => {
     let i = 0;
-    while (true) {
+    //todo - refactor to non-constant condition
+    while (true) { //eslint-disable-line no-constant-condition
       if (i < infoA.length && i < infoB.length && infoA[i].index === infoB[i].index) {
         i++;
       } else {
@@ -93,7 +89,7 @@ export function sortBlocksByIndexAndDepth(blockIds) {
   // ( trueIndices is an array of arrays, where the last block is the actual block
   //   and the preceeding blocks are its parents )
   return trueIndices.map(ary => ary.pop());
-};
+}
 
 /**
  * similar to sortBlocksByIndexAndDepth except that if any of a blocks
@@ -102,23 +98,22 @@ export function sortBlocksByIndexAndDepth(blockIds) {
 export function sortBlocksByIndexAndDepthExclude(blockIds) {
   // get unfiltered list
   const list = sortBlocksByIndexAndDepth(blockIds);
-  return list.filter(info => {
+  return list.filter((info) => {
     const parents = dispatch(blockGetParents(info.blockId));
     let found = false;
-    parents.forEach(parent => {
+    parents.forEach((parent) => {
       if (list.find(info => info.blockId === parent.id)) {
         found = true;
       }
     });
     return !found;
   });
-};
+}
 
 /**
  * clear any selected text in the entire document
  */
 export function clearSelection() {
-
   let selection = null;
   if (window.getSelection) {
     selection = window.getSelection();
@@ -178,6 +173,3 @@ export function domSummary() {
   //   console.log(`${classInfo.className} / Count: ${classInfo.count}`);
   // });
 }
-
-export const tos = 'http://www.autodesk.com/company/legal-notices-trademarks/terms-of-service-autodesk360-web-services';
-export const privacy = 'http://www.autodesk.com/company/legal-notices-trademarks/privacy-statement';

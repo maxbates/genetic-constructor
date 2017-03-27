@@ -13,18 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import React, { PropTypes, Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import autosaveInstance from '../../store/autosave/autosaveInstance';
-import { getProjectSaveState } from '../../store/saveState';
-import { uiSaveFailure } from '../../actions/ui';
+import moment from 'moment';
 
+import { uiSaveFailure } from '../../actions/ui';
+import { getProjectSaveState } from '../../store/saveState';
 import '../../styles/AutosaveTracking.css';
 
 export class autosaveTracking extends Component {
   static propTypes = {
     projectId: PropTypes.string.isRequired,
     uiSaveFailure: PropTypes.func.isRequired,
+    autosave: PropTypes.shape({
+      dirty: PropTypes.bool.isRequired,
+    }).isRequired,
   };
 
   state = {
@@ -44,8 +47,8 @@ export class autosaveTracking extends Component {
 
     //there was an error saving, they are in a bad state
     if (!saveSuccessful && !lastErrOffline) {
-      uiSaveFailure();
       clearInterval(this.interval);
+      uiSaveFailure();
     }
   }
 
@@ -54,16 +57,14 @@ export class autosaveTracking extends Component {
   }
 
   render() {
-    const { projectId } = this.props;
+    const { autosave, projectId } = this.props;
+    const { dirty } = autosave;
     const saveState = getProjectSaveState(projectId);
-    const { lastSaved, saveDelta, saveSuccessful } = saveState;
-    const dirty = autosaveInstance.isDirty();
+    const { updated, saveDelta } = saveState;
 
     let text;
-    if (!saveSuccessful) {
-      text = `Last Saved: ${(new Date(lastSaved)).toLocaleTimeString()}`;
-    } else if (dirty || saveDelta > 15000) {
-      text = '';
+    if (dirty) {
+      text = `Saved ${moment(updated).fromNow()}`;
     } else if (saveDelta <= 500) {
       //we're not actually saving... we're just faking it...
       text = 'Saving...';
@@ -75,6 +76,8 @@ export class autosaveTracking extends Component {
   }
 }
 
-export default connect(() => ({}), {
+export default connect(state => ({
+  autosave: state.autosave,
+}), {
   uiSaveFailure,
 })(autosaveTracking);

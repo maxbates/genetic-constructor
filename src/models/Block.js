@@ -13,27 +13,29 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import Instance from './Instance';
 import invariant from 'invariant';
-import { merge, cloneDeep } from 'lodash';
-import BlockSchema from '../schemas/Block';
+import _, { assign, cloneDeep, merge } from 'lodash';
+
+import { symbolMap } from '../inventory/roles';
 import { getSequence, writeSequence } from '../middleware/sequence';
 import AnnotationSchema from '../schemas/Annotation';
-import md5 from 'md5';
-import color from '../utils/generators/color';
-import { dnaStrict, dnaLoose } from '../utils/dna/dna';
-import * as validators from '../schemas/fields/validators';
+import BlockSchema from '../schemas/Block';
+import SequenceSchema from '../schemas/Sequence';
+import BlockAttributionSchema from '../schemas/BlockAttribution';
 import safeValidate from '../schemas/fields/safeValidate';
-import { symbolMap } from '../inventory/roles';
+import * as validators from '../schemas/fields/validators';
+import { colorFiller, getPalette, isHex, nextColor, palettes } from '../utils/color/index';
+import { dnaLooseRegexp, dnaStrictRegexp } from '../utils/dna';
+import Instance from './Instance';
 
-const idValidator = (id) => safeValidate(validators.id(), true, id);
+const idValidator = id => safeValidate(validators.id(), true, id);
 
 /**
  * Blocks are the foundational data type for representing DNA constructs in Genetic Constructor. Blocks can be thought of as parts, except they may not specify a sequence, and accommodate many more types of data than just base pairs and annotations.
  *
  * Notes
  *
- * - when blocks are frozen, they are just copied between projects. When a block becomes unfrozen, it needs to be cloned. This is in part because blocks that are frozen are shared between projects, and when two projects share a block with the same ID, it is assumed (and should be guaranteed) that they are completely identical.
+ * - when blocks are frozen, they are just copied between projects. To unfreeze a block, it must be cloned. This is in part for access control / ownership, and because blocks that are frozen may be shared between projects, and when two projects share a block with the same ID, it is assumed (and should be guaranteed) that they are completely identical.
  *
  * @name Block
  * @class
@@ -46,10 +48,13 @@ export default class Block extends Instance {
    * Create a block given some input object
    * @constructor
    * @param {Object} [input]
+   * @param {Boolean} [immutable=true] Whether the model is immutable (false => POJO)
    * @returns {Block}
    */
-  constructor(input) {
-    super(input, BlockSchema.scaffold(), { metadata: { color: color() } });
+  constructor(input, immutable = true) {
+    const scaff = BlockSchema.scaffold();
+    scaff.metadata.color = nextColor();
+    super(input, scaff, immutable);
   }
 
   /************
@@ -57,15 +62,16 @@ export default class Block extends Instance {
    ************/
 
   /**
-   * Create an unfrozen block, extending input with schema
+   * Create an unimmutable block, extending input with schema
+   * If you just want an unimmutable block with instance methods, call new Block(input, false)
    * @method classless
    * @memberOf Block
    * @static
    * @param {Object} [input]
-   * @returns {Object} an unfrozen JSON, no instance methods
+   * @returns {Object} an unimmutable JSON, no instance methods
    */
   static classless(input) {
-    return Object.assign({}, cloneDeep(new Block(input)));
+    return assign({}, new Block(input, false));
   }
 
   /**
@@ -88,22 +94,24 @@ export default class Block extends Instance {
   /**
    * Clone a block, adding parent to the ancestry.
    * Calls {@link Instance.clone} internally, but structure of block history is different than that of the Instance class.
-   * Cloning a block will disable the frozen rule.
+   * Cloning a block will disable the frozen rule, unless you pass in overwrite
    * note that if you are cloning multiple blocks / blocks with components, you likely need to clone the components as well. You will need to re-map the IDs outside of this function. See {@link blockClone} action for an example.
    * @method clone
    * @memberOf Block
-   * @param {object|null} parentInfo Parent info for denoting ancestry. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
-   * @param overwrites
+   * @param {object|null} parentInfo Parent info for denoting ancestry. Parent info should include project information: owner and version. If pass null to parentInfo, the Block is cloned without adding anything to the history, and it is unfrozen (and keeps the same ID).
+   * @param {object} overwrites Overwrites to make to the cloned block, e.g. { owner: userId }
    * @returns {Block} Cloned block
    */
   clone(parentInfo = {}, overwrites = {}) {
-    const [ firstParent ] = this.parents;
+    const [firstParent] = this.parents;
+
+    const mergeWith = merge({ projectId: null }, overwrites);
 
     //unfreeze a clone by default if it is frozen, but allow overwriting if really want to
     //don't want to add the field if unnecessary
-    const mergeWith = this.rules.frozen === true ?
-      merge({ rules: { frozen: false } }, overwrites) :
-      overwrites;
+    if (this.rules.frozen === true && (!mergeWith.rules || mergeWith.rules.frozen !== true)) {
+      merge(mergeWith, { rules: { frozen: false } });
+    }
 
     if (parentInfo === null) {
       return super.clone(parentInfo, mergeWith);
@@ -267,7 +275,7 @@ export default class Block extends Instance {
    * @returns {string} Block rule
    */
   getRole(userFriendly = true) {
-    const role = this.rules.role;
+    const role = this.rules.role || this.metadata.role;
     const friendly = symbolMap[role];
 
     return (userFriendly === true && friendly) ?
@@ -302,7 +310,6 @@ export default class Block extends Instance {
     return this.setRule('role', role);
   }
 
-  //todo - should this delete the options entirely?
   /**
    * Specify whether Block is a list block. Clears components when setting to true, and clears options when setting to false.
    * @method setListBlock
@@ -311,23 +318,70 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   setListBlock(isList = true) {
-    if (!!isList) {
+    if (isList) {
       //clear components
-      const cleared = this.merge({
-        components: [],
-      });
+      const cleared = this.mutate('components', []);
       return cleared.setRule('list', true);
     }
 
-    const cleared = this.merge(Object.keys(this.options).reduce((acc, key) => Object.assign(acc, { [key]: false })));
+    const cleared = this.mutate('options', {});
     return cleared.setRule('list', false);
+  }
+
+  /**
+   * Mark a construct fixed, so its components cannot be moved
+   * @method setFixed
+   * @memberOf Block
+   * @param {boolean} [isFixed=true]
+   */
+  setFixed(isFixed = true) {
+    return this.setRule('fixed', Boolean(isFixed));
+  }
+
+  /**
+   * Mark a block as hidden
+   * @method setHidden
+   * @memberOf Block
+   * @param {boolean} [isHidden=true]
+   * @returns {Block}
+   */
+  setHidden(isHidden = true) {
+    invariant(!this.isTemplate(), 'cannnot hide a template');
+    return this.setRule('hidden', Boolean(isHidden));
+  }
+
+  /**
+   * Adds a new attribution
+   * @method attribute
+   * @memberOf Block
+   * @param {Object|null} attribution Attribution in form { owner, time, text }, or null to remove
+   * @param {String} userId Used to determine whether attribution should be updated or added
+   * @returns {Block}
+   */
+  attribute(attribution, userId) {
+    invariant(userId, 'userId is required to attribute');
+
+    const lastAttribution = _.last(this.attribution);
+    const lastAttributionIsUsers = lastAttribution && lastAttribution.owner === userId;
+
+    if (attribution === null) {
+      invariant(lastAttributionIsUsers, 'user must own last attribution to remove it');
+      return this.mutate('attribution', _.dropRight(this.attribution, 1));
+    }
+
+    BlockAttributionSchema.validate(attribution, true);
+
+    if (lastAttributionIsUsers) {
+      const lastIndex = this.attribution.length - 1;
+      return this.mutate(`attribution[${lastIndex}]`, attribution);
+    }
+    return this.mutate('attribution', [...this.attribution, attribution]);
   }
 
   /************
    metadata
    ************/
 
-  //todo - avoid setting project ID once already associated? force clone? or allow moving block from one project to another?
   /**
    * Set Project ID for block.
    * @method setProjectId
@@ -336,7 +390,12 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   setProjectId(projectId) {
-    invariant(idValidator(projectId) || projectId === null, 'project Id is required, or null to mark unassociated');
+    invariant(projectId === null || idValidator(projectId), 'project Id is required, or null to mark unassociated');
+    invariant(!this.projectId || (this.projectId && projectId === null), 'if project ID is set, must unset first');
+
+    if (this.projectId === projectId) {
+      return this;
+    }
     return this.mutate('projectId', projectId);
   }
 
@@ -352,8 +411,8 @@ export default class Block extends Instance {
     // called many K per second, no es6 fluffy stuff in here.
     if (this.metadata.name) return this.metadata.name;
     if (this.rules.role) return this.getRole();
-    if ((!!defaultToBases || this.isFiller()) && this.metadata.initialBases) return this.metadata.initialBases.substring(0, 3) + '...';
-    return defaultName || 'New ' + this.getType();
+    if ((!!defaultToBases || this.isFiller()) && this.metadata.initialBases) return `${this.metadata.initialBases.substring(0, 3)}...`;
+    return defaultName || `New ${this.getType()}`;
   }
 
   /**
@@ -382,8 +441,8 @@ export default class Block extends Instance {
    * @returns {string}
    */
   getType(defaultType = 'Block') {
-    if (this.isTemplate()) return 'Template';
-    if (this.isConstruct()) return 'Construct';
+    //if (this.isConstruct()) return 'Construct';
+    if (this.isList()) return 'List Block';
     if (this.isFiller()) return 'Filler';
     return defaultType;
   }
@@ -400,6 +459,21 @@ export default class Block extends Instance {
   }
 
   /**
+   * Set a construct's color palette.
+   * Should only apply to top-level constructs
+   * @method setPalette
+   * @memberOf Block
+   * @param {string} [palette] Palette name or null to default to project palette
+   * @returns {Block}
+   * @example
+   * new Block().setPalette('bright');
+   */
+  setPalette(palette) {
+    invariant(palettes.indexOf(palette) >= 0, 'must be a valid palette');
+    return this.mutate('metadata.palette', palette);
+  }
+
+  /**
    * Set Block's color
    * @method setColor
    * @memberOf Block
@@ -408,8 +482,45 @@ export default class Block extends Instance {
    * @example
    * new Block().setColor('#99aaaa');
    */
-  setColor(newColor = color()) {
+  setColor(newColor = nextColor()) {
+    invariant(Number.isInteger(newColor), 'color must be an index');
     return this.mutate('metadata.color', newColor);
+  }
+
+  /**
+   * Get Block's color
+   * @method getColor
+   * @memberOf Block
+   * @returns {string} Hex Color value
+   */
+  getColor(paletteName, byRole = false) {
+    if (this.isFiller()) {
+      return colorFiller;
+    }
+
+    //backwards compatible / if someone sets hex for some reason  (e.g. a weird import / strong preference)
+    //note that this will not change with the palette
+    //todo - should we try to convert it?
+    if (isHex(this.metadata.color)) {
+      console.warn('todo - migrate and avoid hex as color'); //eslint-disable-line
+      return this.metadata.color;
+    }
+
+    //color should always be defined... may happen if defined wrong / is null
+    if (!Number.isInteger(this.metadata.color)) {
+      return 'lightgray';
+    }
+
+    const palette = getPalette(paletteName || this.metadata.palette);
+
+    //todo - handle coloring by role
+    if (byRole === true) {
+      console.warn('todo - handle color by role'); //eslint-disable-line
+      const role = this.getRole(false);
+      return role ? palette[0].hex : colorFiller;
+    }
+
+    return palette[this.metadata.color].hex;
   }
 
   /************
@@ -434,7 +545,10 @@ export default class Block extends Instance {
     const spliceIndex = (Number.isInteger(index) && index >= 0) ? index : this.components.length;
     const newComponents = this.components.slice();
     newComponents.splice(spliceIndex, 0, componentId);
-    return this.mutate('components', newComponents);
+
+    return this
+    .mutate('components', newComponents)
+    .clearBlockLevelFields();
   }
 
   /**
@@ -508,7 +622,7 @@ export default class Block extends Instance {
     invariant(optionIds.every(optionId => Object.prototype.hasOwnProperty.call(this.options, optionId)), 'Option ID must be present to toggle it');
 
     const options = cloneDeep(this.options);
-    optionIds.forEach(optionId => {
+    optionIds.forEach((optionId) => {
       Object.assign(options, { [optionId]: !this.options[optionId] });
     });
 
@@ -522,7 +636,6 @@ export default class Block extends Instance {
 
   /**
    * Add list options as possibilities (they will be inactive).
-   * For template authoring.
    * @method addOptions
    * @memberOf Block
    *
@@ -533,9 +646,10 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   addOptions(...optionIds) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove options');
     invariant(this.isList(), 'must be a list block to add list options');
     invariant(optionIds.every(option => idValidator(option)), 'must pass component IDs');
-    const toAdd = optionIds.reduce((acc, id) => Object.assign(acc, { [id]: false }), {});
+    const toAdd = optionIds.reduce((acc, id) => Object.assign(acc, { [id]: true }), {});
     const newOptions = Object.assign(cloneDeep(this.options), toAdd);
 
     if (Object.keys(newOptions).length === Object.keys(this.options).length) {
@@ -547,7 +661,6 @@ export default class Block extends Instance {
 
   /**
    * Remove list options from possibilities.
-   * For template authoring.
    * @method removeOptions
    * @memberOf Block
    *
@@ -557,8 +670,9 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   removeOptions(...optionIds) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot add/remove options');
     const cloned = cloneDeep(this.options);
-    optionIds.forEach(id => {
+    optionIds.forEach((id) => {
       delete cloned[id];
     });
 
@@ -602,7 +716,7 @@ export default class Block extends Instance {
    */
   getSequenceLength(ignoreTrim = false) {
     const { length, trim } = this.sequence;
-    if (!Array.isArray(trim) || !!ignoreTrim) {
+    if (!Array.isArray(trim) || ignoreTrim) {
       return length;
     }
     return length - trim[0] - trim[1];
@@ -628,7 +742,7 @@ export default class Block extends Instance {
       promise = Promise.resolve(null);
     }
 
-    return promise.then(seq => {
+    return promise.then((seq) => {
       if (typeof seq === 'string' && Array.isArray(trim) && ignoreTrim !== true) {
         return seq.substring(trim[0], seq.length - trim[1]);
       }
@@ -636,7 +750,6 @@ export default class Block extends Instance {
     });
   }
 
-  //todo - ability to set source
   /**
    * Set sequence and write to server. Updates the length and initial bases. The block's source will be set to 'user'.
    * @method setSequence
@@ -647,36 +760,35 @@ export default class Block extends Instance {
    * @returns {Promise} Promise which resolves with the udpated block after the sequence is written to the server
    */
   setSequence(sequence, useStrict = false, persistSource = false) {
-    const sequenceLength = sequence.length;
-    const sequenceMd5 = md5(sequence);
+    invariant(!this.isFixed(), 'Block is fixed - cannot change sequence');
 
-    const validatorStrict = new RegExp(`^[${dnaStrict}]*$`, 'gi');
-    const validatorLoose = new RegExp(`^[${dnaLoose}]*$`, 'gi');
-
-    const validator = !!useStrict ? validatorStrict : validatorLoose;
+    const validator = useStrict ? dnaStrictRegexp() : dnaLooseRegexp();
 
     if (!validator.test(sequence)) {
       return Promise.reject('sequence has invalid characters');
     }
 
-    //todo - 'user' source should be marked as a constant and shared with sequence dialog
-    const updatedSource = persistSource === true ? this.source : { source: 'user', id: null };
+    const updatedSource = persistSource === true ?
+      this.source :
+      { source: 'user', id: null };
 
-    return writeSequence(sequenceMd5, sequence, this.id)
-      .then(() => {
-        const updatedSequence = {
-          md5: sequenceMd5,
-          length: sequenceLength,
-          initialBases: '' + sequence.substr(0, 6),
-          download: null,
-          trim: null,
-        };
+    return writeSequence(sequence)
+    .then((md5) => {
+      const sequenceLength = sequence.length;
 
-        return this.merge({
-          sequence: updatedSequence,
-          source: updatedSource,
-        });
+      const updatedSequence = {
+        md5,
+        length: sequenceLength,
+        initialBases: `${sequence.substr(0, 6)}`,
+        download: null,
+        trim: null,
+      };
+
+      return this.merge({
+        sequence: updatedSequence,
+        source: updatedSource,
       });
+    });
   }
 
   /**
@@ -687,6 +799,7 @@ export default class Block extends Instance {
    * @param {number} end
    */
   setSequenceTrim(start = 0, end = 0) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot change sequence');
     invariant(this.hasSequence(), 'must have a sequence to set trim');
     invariant(Number.isInteger(start) && start >= 0, 'must pass 0 or positive integer for start');
     invariant(Number.isInteger(end) && end >= 0, 'must pass 0 or positive integer for end');
@@ -709,6 +822,7 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   annotate(annotation) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot change annotations');
     invariant(AnnotationSchema.validate(annotation), `annotation is not valid: ${annotation}`);
     return this.mutate('sequence.annotations', this.sequence.annotations.concat(annotation));
   }
@@ -721,11 +835,12 @@ export default class Block extends Instance {
    * @returns {Block}
    */
   removeAnnotation(annotation) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot change annotations');
     const annotationName = typeof annotation === 'object' ? annotation.name : annotation;
     invariant(typeof annotationName === 'string', `Must pass object with Name or annotation Name directly, got ${annotation}`);
 
     const annotations = this.sequence.annotations.slice();
-    const toSplice = annotations.findIndex((ann) => ann.name === annotationName);
+    const toSplice = annotations.findIndex(ann => ann.name === annotationName);
 
     if (toSplice < 0) {
       console.warn('annotation not found'); // eslint-disable-line
@@ -734,5 +849,22 @@ export default class Block extends Instance {
 
     annotations.splice(toSplice, 1);
     return this.mutate('sequence.annotations', annotations);
+  }
+
+  /*********
+   Construct Things
+   *********/
+
+  clearBlockLevelFields() {
+    return this.mutate('sequence', SequenceSchema.scaffold());
+  }
+
+  //when something becomes a not-top level construct, do some cleanup
+  clearToplevelFields() {
+    return this.merge({
+      metadata: {
+        palette: null,
+      },
+    });
   }
 }

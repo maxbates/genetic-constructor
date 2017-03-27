@@ -47,7 +47,7 @@ export default class StoreHistory {
     const { past, present, future } = this;
 
     if (past.length <= 0) {
-      console.warn('called undo with no past in history');
+      console.warn('called undo with no past in history'); //eslint-disable-line no-console
       return this;
     }
 
@@ -66,7 +66,7 @@ export default class StoreHistory {
     const { past, present, future } = this;
 
     if (future.length <= 0) {
-      console.warn('called redo with no future in history');
+      console.warn('called redo with no future in history'); //eslint-disable-line no-console
       return this;
     }
 

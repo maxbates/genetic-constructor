@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import {isOne, isZero, deg2rad, rad2deg} from '../utils';
+
+import { deg2rad, isOne, isZero, rad2deg } from '../utils';
 import Vector2D from './vector2d';
 
 export default class Matrix2D {
-
   /**
    * a 3x3 matrix designed to perform transformations in 2D space.
    * This class currently only implements the most basic operations e.g. Matrix x Vector, Matrix x Matrix, Inverse
@@ -57,27 +57,6 @@ export default class Matrix2D {
       isZero(this._v[6]) &&
       isZero(this._v[7]) &&
       isOne(this._v[8]);
-  }
-
-  /**
-   * ensure all the numbers in the matrix are reasonable
-   */
-  validate() {
-    return true;
-    // if (this._v && this._v.length === 9) {
-    //   for (let i = 0; i < 9; i += 1) {
-    //     // all 9 elements should be numbers and not NaN or Infinity or -Infinity
-    //     if (!isRealNumber(this._v[i])) {
-    //       return false;
-    //     }
-    //   }
-    //   // bottom row should always be identity, or very close
-    //   if (!isZero(this._v[6]) || !isZero(this._v[7]) || !isOne(this._v[8])) {
-    //     return false;
-    //   }
-    //   return true;
-    // }
-    // return false;
   }
 
   /**
@@ -251,5 +230,27 @@ export default class Matrix2D {
     const _v = this._v;
     // using limited notation since Safari doesn't like a matrix with values like 6.123233995736766e-17
     return `matrix(${_v[0].toFixed(8)}, ${_v[3].toFixed(8)}, ${_v[1].toFixed(8)}, ${_v[4].toFixed(8)}, ${_v[2].toFixed(8)}, ${_v[5].toFixed(8)})`;
+  }
+
+  /**
+   * ensure all the numbers in the matrix are reasonable
+   */
+  //eslint-disable-next-line class-methods-use-this
+  validate() {
+    return true;
+    // if (this._v && this._v.length === 9) {
+    //   for (let i = 0; i < 9; i += 1) {
+    //     // all 9 elements should be numbers and not NaN or Infinity or -Infinity
+    //     if (!isRealNumber(this._v[i])) {
+    //       return false;
+    //     }
+    //   }
+    //   // bottom row should always be identity, or very close
+    //   if (!isZero(this._v[6]) || !isZero(this._v[7]) || !isOne(this._v[8])) {
+    //     return false;
+    //   }
+    //   return true;
+    // }
+    // return false;
   }
 }

@@ -64,7 +64,7 @@ req.user = {
   uuid: <uuid>,
   email: <string>,
   firstName: <string>,
-  lastName; <string>,
+  lastName: <string>
 }
 ```
 

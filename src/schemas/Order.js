@@ -1,24 +1,24 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-import fields from './fields/index';
-import * as validators from './fields/validators';
-import Schema from './SchemaClass';
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import MetadataSchema from './Metadata';
 import OrderParametersSchema from './OrderParameters';
 import OrderStatusSchema from './OrderStatus';
+import Schema from './SchemaClass';
+import fields from './fields/index';
+import * as validators from './fields/validators';
 
 /**
  * Orders are intended / placed orders of DNA with a remote foundry.
@@ -44,24 +44,25 @@ const orderFields = {
   ],
 
   projectVersion: [
-    fields.version().required,
-    'SHA1 version of project when order is submitted',
+    fields.number().required,
+    'Version of project when order is submitted',
     { avoidScaffold: true },
   ],
 
   constructIds: [
-    fields.arrayOf(validators.id()).required,
-    `IDs of constructs in project involved in order`,
+    fields.arrayOf(validators.id(), { required: true }).required,
+    'IDs of constructs in project involved in order',
   ],
 
+  //todo - deprecate
   numberCombinations: [
-    fields.number(validators.id()).required,
-    `Number of possible combinations, determined when making the order`,
+    fields.number().required,
+    'Number of possible combinations, determined when making the order',
   ],
 
   parameters: [
     OrderParametersSchema,
-    `Parameters associated with this order`,
+    'Parameters associated with this order',
   ],
 
   user: [
@@ -77,7 +78,7 @@ const orderFields = {
 
   notes: [
     fields.object().required,
-    `Notes about the Order`,
+    'Notes about the Order',
   ],
 };
 

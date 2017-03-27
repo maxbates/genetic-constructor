@@ -1,35 +1,36 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 /**
  * @module Actions_Orders
  * @memberOf module:Actions
  */
 import invariant from 'invariant';
-import Order from '../models/Order';
-import { getOrder, getOrders } from '../middleware/order';
+import { cloneDeep, flatten, merge, range, shuffle } from 'lodash';
+
 import * as ActionTypes from '../constants/ActionTypes';
-import * as undoActions from '../store/undo/actions';
-import { pauseAction, resumeAction } from '../store/pausableStore';
-import * as blockActions from './blocks';
+import { getOrder, getOrders } from '../middleware/order';
+import Order from '../models/Order';
+
+import * as projectActions from '../actions/projects';
+import * as snapshotActions from '../actions/snapshots';
 import * as blockSelectors from '../selectors/blocks';
-import { cloneDeep, merge, flatten, sampleSize, range, shuffle } from 'lodash';
 import * as instanceMap from '../store/instanceMap';
 
-//so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
-const space_filler = 10;
+//hack - so this is super weird - jsdoc will work when you have some statements here. This file needs 1!
+const spaceFiller = 10; //eslint-disable-line no-unused-vars
 
 /**
  * List a user's orders
@@ -38,27 +39,26 @@ const space_filler = 10;
  * @param {boolean} [avoidCache=false]
  * @returns {Array.<Order>} Manifests of user's Orders
  */
-export const orderList = (projectId, avoidCache = false) => {
-  return (dispatch, getState) => {
+export const orderList = (projectId, avoidCache = false) =>
+  (dispatch, getState) => {
     const cached = instanceMap.projectOrdersLoaded(projectId);
     if (cached && avoidCache !== true) {
       return Promise.resolve(instanceMap.getProjectOrders(projectId));
     }
 
     return getOrders(projectId)
-      .then(ordersData => {
-        const orders = ordersData.map(order => new Order(order));
+    .then((ordersData) => {
+      const orders = ordersData.map(order => new Order(order));
 
-        instanceMap.saveProjectOrders(projectId, ...orders);
+      instanceMap.saveProjectOrders(projectId, ...orders);
 
-        dispatch({
-          type: ActionTypes.ORDER_STASH,
-          orders,
-        });
-        return orders;
+      dispatch({
+        type: ActionTypes.ORDER_STASH,
+        orders,
       });
+      return orders;
+    });
   };
-};
 
 /**
  * Retreive an order
@@ -70,8 +70,8 @@ export const orderList = (projectId, avoidCache = false) => {
  * @resolve {Order}
  * @reject {Response}
  */
-export const orderGet = (projectId, orderId, avoidCache = false) => {
-  return (dispatch, getState) => {
+export const orderGet = (projectId, orderId, avoidCache = false) =>
+  (dispatch, getState) => {
     const cached = instanceMap.orderLoaded(orderId);
 
     if (cached && avoidCache !== true) {
@@ -79,19 +79,18 @@ export const orderGet = (projectId, orderId, avoidCache = false) => {
     }
 
     return getOrder(projectId, orderId)
-      .then(orderData => {
-        const order = new Order(orderData);
+    .then((orderData) => {
+      const order = new Order(orderData);
 
-        instanceMap.saveOrder(order);
+      instanceMap.saveOrder(order);
 
-        dispatch({
-          type: ActionTypes.ORDER_STASH,
-          order,
-        });
-        return order;
+      dispatch({
+        type: ActionTypes.ORDER_STASH,
+        order,
       });
+      return order;
+    });
   };
-};
 
 /**
  * Create an order with basic fields
@@ -101,8 +100,8 @@ export const orderGet = (projectId, orderId, avoidCache = false) => {
  * @param {Object} parameters
  * @returns {Order}
  */
-export const orderCreate = (projectId, constructIds = [], parameters = {}) => {
-  return (dispatch, getState) => {
+export const orderCreate = (projectId, constructIds = [], parameters = {}) =>
+  (dispatch, getState) => {
     invariant(projectId, 'must pass project ID');
 
     invariant(Array.isArray(constructIds) && constructIds.length, 'must pass array of construct IDs to use in order');
@@ -129,9 +128,8 @@ export const orderCreate = (projectId, constructIds = [], parameters = {}) => {
 
     return order;
   };
-};
 
-//todo - selector
+//todo - selector / put in order model directly
 //todo - ensure this code (generating constructs from order + rollup) is shared between client and server
 /**
  * Generate all combinations for the constructs of an order (i.e., expand list blocks etc.)
@@ -143,11 +141,11 @@ export const orderCreate = (projectId, constructIds = [], parameters = {}) => {
  * @throws If the constructs are not specs
  * @returns {function(*, *)}
  */
-export const orderGenerateConstructs = (orderId, allPossibilities = false) => {
-  return (dispatch, getState) => {
+export const orderGenerateConstructs = (orderId, allPossibilities = false) =>
+  (dispatch, getState) => {
     const state = getState();
     const order = state.orders[orderId];
-    const { projectId, constructIds, parameters } = order;
+    const { constructIds, parameters } = order;
     invariant(Order.validateParameters(parameters), 'parameters must pass validation');
 
     //for each constructId, get construct combinations as blocks
@@ -160,8 +158,8 @@ export const orderGenerateConstructs = (orderId, allPossibilities = false) => {
 
     return combinations.filter((el, idx, arr) => parameters.activeIndices[idx] === true);
   };
-};
 
+//todo - this logic should go into order class, and just assume the component will handle before calling action
 /**
  * Set the parameters of the order
  * @function
@@ -170,27 +168,31 @@ export const orderGenerateConstructs = (orderId, allPossibilities = false) => {
  * @param {boolean} [shouldMerge=false]
  * @returns {Order}
  */
-export const orderSetParameters = (orderId, inputParameters = {}, shouldMerge = false) => {
-  return (dispatch, getState) => {
+export const orderSetParameters = (orderId, inputParameters = {}, shouldMerge = false) =>
+  (dispatch, getState) => {
     const oldOrder = getState().orders[orderId];
     const parameters = shouldMerge ? merge(cloneDeep(oldOrder.parameters), inputParameters) : inputParameters;
 
     const { numberCombinations } = oldOrder;
-    if (!parameters.onePot && parameters.permutations < numberCombinations) {
+
+    //if not a one pot, define how the combinations will be selected
+    if (!parameters.onePot) {
+      //options are "random" and "maximum unique"
       const keepers = (parameters.combinatorialMethod === 'Maximum Unique Set')
         ?
         //may generate extras so slice at the end
         range(numberCombinations)
-          .filter(idx => idx % Math.floor(numberCombinations / parameters.permutations) === 0)
+        .filter(idx => idx % Math.floor(numberCombinations / parameters.permutations) === 0)
         :
         shuffle(range(numberCombinations));
 
       const map = keepers.slice(0, parameters.permutations)
-        .reduce((acc, idx) => Object.assign(acc, { [idx]: true }), {});
+      .reduce((acc, idx) => Object.assign(acc, { [idx]: true }), {});
 
       parameters.activeIndices = map;
     }
 
+    //EGF specific
     if (parameters.onePot) {
       parameters.sequenceAssemblies = false;
     }
@@ -205,7 +207,6 @@ export const orderSetParameters = (orderId, inputParameters = {}, shouldMerge = 
 
     return order;
   };
-};
 
 /**
  * Set the name of an order
@@ -214,17 +215,15 @@ export const orderSetParameters = (orderId, inputParameters = {}, shouldMerge = 
  * @param {string} name
  * @returns {Order}
  */
-export const orderSetName = (orderId, name) => {
-  return (dispatch, getState) => {
-    const oldOrder = getState().orders[orderId];
-    const order = oldOrder.setName(name);
+export const orderSetName = (orderId, name) => (dispatch, getState) => {
+  const oldOrder = getState().orders[orderId];
+  const order = oldOrder.setName(name);
 
-    dispatch({
-      type: ActionTypes.ORDER_SET_NAME,
-      order,
-    });
-    return order;
-  };
+  dispatch({
+    type: ActionTypes.ORDER_SET_NAME,
+    order,
+  });
+  return order;
 };
 
 /**
@@ -238,44 +237,45 @@ export const orderSetName = (orderId, name) => {
  * @resolve {order} The fully valid order, with status set
  * @reject {String|Object} reason for failure, dependent on the foundry
  */
-export const orderSubmit = (orderId, foundry) => {
-  return (dispatch, getState) => {
-    const retrievedOrder = getState().orders[orderId];
+export const orderSubmit = (orderId, foundry) =>
+  (dispatch, getState) => {
+    const state = getState();
+    const retrievedOrder = state.orders[orderId];
     invariant(retrievedOrder, 'order not in the store...');
     invariant(!retrievedOrder.isSubmitted(), 'Cant submit an order twice');
 
-    const positionalCombinations = retrievedOrder.constructIds.reduce((acc, constructId) => {
-      return Object.assign(acc, { [constructId]: dispatch(blockSelectors.blockGetPositionalCombinations(constructId, true)) });
-    }, {});
+    const { projectId, projectVersion } = retrievedOrder;
+    const project = state.projects[projectId];
 
-    return retrievedOrder.submit(foundry, positionalCombinations)
-      .then(orderData => {
-        const order = new Order(orderData);
+    invariant(project, 'project must be loaded');
 
-        dispatch(pauseAction());
-        dispatch(undoActions.transact());
+    //todo - should be generated on the server. no need to do that here.
 
-        //todo - the order is also frozen on the server... this is for parity. maybe we should just send + save the project...
-        order.constructIds.forEach(constructId => dispatch(blockActions.blockFreeze(constructId, true)));
+    const positionalCombinations = retrievedOrder.constructIds.reduce((acc, constructId) => Object.assign(acc, { [constructId]: dispatch(blockSelectors.blockGetPositionalCombinations(constructId, true)) }), {});
 
-        dispatch({
-          type: ActionTypes.PROJECT_SNAPSHOT,
-          projectId: order.projectId,
-          sha: order.projectVersion,
-        });
+    //if want the latest state, so need to save first
+    //can set projectVersion, or server will do it, so lets just be specific
+    const savePromise = (!Number.isInteger(projectVersion))
+      ?
+      dispatch(projectActions.projectSave(projectId, true))
+      .then(version => retrievedOrder.mutate('projectVersion', version))
+      :
+      Promise.resolve(retrievedOrder);
 
-        dispatch({
-          type: ActionTypes.ORDER_SUBMIT,
-          order,
-        });
-
-        dispatch(undoActions.commit());
-        dispatch(resumeAction());
-
-        return order;
+    return savePromise
+    .then(order => order.submit(foundry, positionalCombinations))
+    .then((order) => {
+      dispatch({
+        type: ActionTypes.ORDER_SUBMIT,
+        order,
       });
+
+      //fetch the snapshot, so our state is updated, but async and dont rely on it
+      dispatch(snapshotActions.snapshotRetrieve(projectId, order.projectVersion));
+
+      return order;
+    });
   };
-};
 
 /**
  * Remove an order from the store
@@ -283,8 +283,8 @@ export const orderSubmit = (orderId, foundry) => {
  * @param {UUID} orderId
  * @returns {UUID} Order ID
  */
-export const orderDetach = (orderId) => {
-  return (dispatch, getState) => {
+export const orderDetach = orderId =>
+  (dispatch, getState) => {
     const order = getState().orders[orderId];
 
     invariant(!order.isSubmitted(), 'cannot delete a submitted order');
@@ -295,4 +295,3 @@ export const orderDetach = (orderId) => {
     });
     return orderId;
   };
-};

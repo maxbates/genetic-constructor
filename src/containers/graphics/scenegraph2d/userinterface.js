@@ -13,11 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import MouseTrap from '../mousetrap';
 import invariant from 'invariant';
 
-export default class UserInterface {
+import MouseTrap from '../mousetrap';
 
+/* eslint-disable class-methods-use-this */
+
+export default class UserInterface {
   constructor(sg) {
     // the scenegraph we are on top of.
     this.sg = sg;
@@ -44,6 +46,13 @@ export default class UserInterface {
       contextMenu: this.contextMenu.bind(this),
     });
   }
+
+  destroy() {
+    invariant(!this.destroyed, 'already destroyed');
+    this.destroyed = true;
+    this.mouseTrap.dispose();
+  }
+
   /**
    * replace current selections, call with falsey to reset selections
    *
@@ -53,44 +62,6 @@ export default class UserInterface {
     this.updateSelections();
   }
   /**
-   * add to selections, ignores if already present
-   *
-   */
-  addToSelections(nodes) {
-    let added = 0;
-    (nodes || []).forEach(node => {
-      if (!this.isSelected(node)) {
-        this.selections.push(node);
-        added += 1;
-      }
-    });
-    if (added) {
-      this.updateSelections();
-    }
-  }
-  /**
-   * remove from selections, ignores if not present
-   *
-   *
-   */
-  removeFromSelections(node) {
-    invariant(node.sg === this.sg, 'node is not in our scenegraph');
-    const index = this.selections.indexOf(node);
-    if (index >= 0) {
-      this.selections.splice(index, 1);
-      this.updateSelections();
-    }
-  }
-  /**
-   * returns true if the node is selected
-   *
-   * @return {Boolean}      [description]
-   */
-  isSelected(node) {
-    return this.selections.indexOf(node) >= 0;
-  }
-
-  /**
    * create / add / remove selection elements according to current selections
    *
    */
@@ -98,7 +69,7 @@ export default class UserInterface {
     // bucket any items are don't need anymore, we will try to reuse them
     // before removing them from the DOM
     const bucket = [];
-    Object.keys(this.selectionMap).forEach(nodeUUID => {
+    Object.keys(this.selectionMap).forEach((nodeUUID) => {
       if (!this.selections.find(node => nodeUUID === node.uuid)) {
         const element = this.selectionMap[nodeUUID];
         delete this.selectionMap[nodeUUID];
@@ -106,7 +77,7 @@ export default class UserInterface {
       }
     });
 
-    this.selections.forEach(node => {
+    this.selections.forEach((node) => {
       // create an element if we need one
       let sel = this.selectionMap[node.uuid];
       if (!sel) {
@@ -120,14 +91,14 @@ export default class UserInterface {
       }
       // update to current node bounds
       const bounds = node.getAABBWithChildren();
-      sel.style.left = bounds.x + 'px';
-      sel.style.top = bounds.y + 'px';
-      sel.style.width = bounds.width + 1 +'px';
-      sel.style.height = bounds.height + 1 + 'px';
+      sel.style.left = `${bounds.x}px`;
+      sel.style.top = `${bounds.y}px`;
+      sel.style.width = `${bounds.width + 1}px`;
+      sel.style.height = `${bounds.height + 1}px`;
     });
 
     // now we have to say goodbye to items left in the bucket
-    bucket.forEach(element => {
+    bucket.forEach((element) => {
       this.el.removeChild(element);
     });
   }
@@ -189,7 +160,9 @@ export default class UserInterface {
    *
    */
   updateSize() {
-    this.el.style.width = this.sg.width + 'px';
-    this.el.style.height = this.sg.height + 'px';
+    this.el.style.width = `${this.sg.width}px`;
+    this.el.style.height = `${this.sg.height}px`;
   }
 }
+
+/* eslint-enable class-methods-use-this */

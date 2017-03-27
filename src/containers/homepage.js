@@ -1,62 +1,70 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-import React, {Component, PropTypes} from 'react';
-import {connect} from 'react-redux';
-import {
-  uiShowAuthenticationForm,
-  uiSetGrunt,
-  uiShowUserWidget,
- } from '../actions/ui';
-import '../styles/homepage.css';
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
+
 import { projectOpen } from '../actions/projects';
-import {
-  privacy,
-} from '../utils/ui/uiapi';
+import { uiSetGrunt, uiShowAuthenticationForm, uiShowUserWidget } from '../actions/ui';
+import '../styles/homepage.css';
+import { getLocal, setLocal } from '../utils/localstorage';
+import { PRIVACY_POLICY } from '../constants/links';
 
-export default class HomePage extends Component {
+export class HomePage extends Component {
   static propTypes = {
     uiShowAuthenticationForm: PropTypes.func.isRequired,
     uiShowUserWidget: PropTypes.func.isRequired,
     uiSetGrunt: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
-    location: PropTypes.object.isRequired,
-    params: PropTypes.object.isRequired,
+    location: PropTypes.shape({
+      query: PropTypes.object,
+    }).isRequired,
+    params: PropTypes.shape({
+      comp: PropTypes.oneOf(['signin', 'register', 'account', 'reset', 'forgot']),
+    }).isRequired,
     user: PropTypes.object,
   };
 
-  state = {
-    showCookieWarning: this.showCookieWarning(),
-  };
+  // truthy if the cookie warning must be shown
+  static showCookieWarning() {
+    return !getLocal('cookie-warning', false);
+  }
 
+  static isIE() {
+    const ua = window.navigator.userAgent;
+    const msie = ua.indexOf('MSIE ');
+    return msie > 0 || !!navigator.userAgent.match(/Trident.*rv:11\./);
+  }
+
+  state = {
+    showCookieWarning: HomePage.showCookieWarning(),
+  };
 
   // this route can result from path like 'homepage/signin', 'homepage', 'homepage/register' etc.
   // If the final path is the name of an authorization form we will show it
   componentDidMount() {
-
     const authForm = this.props.params.comp;
-    if (['signin', 'signup', 'account', 'reset', 'forgot'].indexOf(authForm) >= 0) {
+    if (authForm) {
       this.props.uiShowAuthenticationForm(authForm);
-    } else {
+    } else if (this.props.user && this.props.user.userid && (this.props.location.query && !this.props.location.query.noredirect)) {
       // if not showing an auth form goto most recent project or demo project
       // NOTE: the nodirect query string prevents redirection
-      if (this.props.user && this.props.user.userid && !this.props.location.query.noredirect) {
-        // revisit last project
-        this.props.projectOpen(null, true);
-        return;
-      }
+
+      // revisit last project
+      this.props.projectOpen(null, true);
+      return;
     }
 
     // user widget is hidden on homepage
@@ -71,50 +79,53 @@ export default class HomePage extends Component {
     this.props.uiShowUserWidget(true);
   }
 
-  signIn(evt) {
+  signIn = (evt) => {
     evt.preventDefault();
+    if (HomePage.isIE()) {
+      this.props.uiSetGrunt('Sorry we do not currently support Internet Explorer. We recommend the Chrome browser from Google.');
+      return;
+    }
     this.props.uiShowAuthenticationForm('signin');
-  }
+  };
 
   /**
    * used is closing the cookie warnig so update local storage as seen
    */
-  cookieWarningClosed() {
-    localStorage.setItem('cookie-warning', 'acknowledged');
+  cookieWarningClosed = () => {
+    setLocal('cookie-warning', 'acknowledged');
     this.setState({
       showCookieWarning: false,
     });
-  }
-  // truthy if the cookie warning must be shown
-  showCookieWarning() {
-    return !localStorage.getItem('cookie-warning');
-  }
+  };
 
   render() {
-    const warning =  this.state.showCookieWarning ? 'block' : 'none';
+    const warning = this.state.showCookieWarning ? (
+      <div className="homepage-cookie-warning">
+        Genetic Constructor uses cookies to ensure you get the best experience.
+        <a href={PRIVACY_POLICY} target="_blank" rel="noopener noreferrer">More Information</a>
+        <div onClick={this.cookieWarningClosed} className="homepage-cookie-close">
+          Close
+        </div>
+      </div>
+      ) : null;
+
     return (
       <div className="homepage">
         <div className="homepage-image-area">
-          <img className="homepage-logo" src="/images/homepage/app-logo.png"/>
-          <div className="homepage-cookie-warning" style={{display: warning}}>
-            Genetic Constructor uses cookies to ensure you get the best experience.
-            <a href={privacy} target="_blank">More Information</a>
-            <div onClick={this.cookieWarningClosed.bind(this)} className="homepage-cookie-close">
-              Close
-            </div>
+          <img className="homepage-logo" src="/images/homepage/app-logo.png" role="presentation" />
+          {warning}
+          <img className="homepage-background" src="/images/homepage/tiles.jpg" role="presentation" />
+          <div className="homepage-name">
+            <div className="lighter">Autodesk&nbsp;</div>
+            <div>Genetic Constructor</div>
           </div>
-          <img className="homepage-background" src="/images/homepage/tiles.jpg"/>
-            <div className="homepage-name">
-              <div className="lighter">Autodesk&nbsp;</div>
-              <div>Genetic Constructor</div>
-            </div>
-            <div className="homepage-title">
-              <div>Design and manufacture<br/>living things</div>
-            </div>
-          <div className="homepage-getstarted" onClick={this.signIn.bind(this)}>Get started</div>
+          <div className="homepage-title">
+            <div>Design and manufacture<br />living things</div>
+          </div>
+          <div className="homepage-getstarted" onClick={this.signIn}>Get started</div>
         </div>
-        <img className="homepage-autodesk" src="/images/homepage/autodesk-logo.png"/>
-        <img className="homepage-egf" src="/images/homepage/egf-logo.png"/>
+        <img className="homepage-autodesk" role="presentation" src="/images/homepage/autodesk-logo.png" />
+        <img className="homepage-egf" role="presentation" src="/images/homepage/egf-logo.png" />
         <div className="homepage-footer">
           <div className="homepage-footer-title">New in version 0.1:</div>
           <div className="homepage-footer-list">

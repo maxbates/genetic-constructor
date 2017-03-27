@@ -1,0 +1,30 @@
+@import './variables.css';
+
+.inline-editor {
+  position: absolute;
+  outline: none;
+  border-width: 0;
+  z-index: var(--zModal);
+  border-radius: 2px;
+}
+/*styles for specific inline editing contexts*/
+.inline-editor-project {
+  text-indent: 5px;
+  font-size: 16px;
+  font-family: Helvetica;
+}
+.inline-editor-construct-title {
+  font-size: 16px;
+  text-indent: 0.5rem;
+  padding-right: 4px;
+  font-family: Helvetica;
+}
+.inline-editor-block {
+  font-size: 12px;
+  text-indent: 9px;
+  padding-right: 7px;
+  font-family: Helvetica;
+}
+
+
+

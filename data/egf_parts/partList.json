@@ -1,6 +1,5 @@
 [
   {
-    "id": "block-a2741651-80bc-4fb3-aa8a-71cbda590be3",
     "parents": [],
     "metadata": {
       "name": "5'HA-hAAVS1",
@@ -8,7 +7,6 @@
       "authors": [],
       "created": 1468259940884,
       "tags": {},
-      "color": "#6DA19C",
       "shortName": "",
       "egfPosition": "1"
     },
@@ -23,7 +21,8 @@
       "id": "EGF_ML_1_5hahaavs1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -33,7 +32,6 @@
     }
   },
   {
-    "id": "block-abb60df6-7db4-4adc-9352-6b96144d1497",
     "parents": [],
     "metadata": {
       "name": "5'-ITR-PB",
@@ -41,7 +39,6 @@
       "authors": [],
       "created": 1468259940885,
       "tags": {},
-      "color": "#B1CED0",
       "shortName": "",
       "egfPosition": "1"
     },
@@ -56,7 +53,8 @@
       "id": "EGF_ML_1_5itrpb"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -66,7 +64,6 @@
     }
   },
   {
-    "id": "block-d5dbec3b-5038-43da-aae5-e2c0efe88f70",
     "parents": [],
     "metadata": {
       "name": "Insulator_FB",
@@ -74,7 +71,6 @@
       "authors": [],
       "created": 1468259940886,
       "tags": {},
-      "color": "#65AAB1",
       "shortName": "IS_FB",
       "egfPosition": "2"
     },
@@ -89,7 +85,8 @@
       "id": "EGF_ML_2_insulatorfb"
     },
     "rules": {
-      "role": "insulator"
+      "role": "insulator",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -99,7 +96,6 @@
     }
   },
   {
-    "id": "block-c91c72da-b5a8-49c0-b3b8-1aa698970bf9",
     "parents": [],
     "metadata": {
       "name": "CAGp",
@@ -107,7 +103,6 @@
       "authors": [],
       "created": 1468259940886,
       "tags": {},
-      "color": "#8EC78D",
       "shortName": "",
       "egfPosition": "3"
     },
@@ -122,7 +117,8 @@
       "id": "EGF_ML_3_cagp"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -132,7 +128,6 @@
     }
   },
   {
-    "id": "block-6583f240-7509-4b75-bcbe-b42f11ce1069",
     "parents": [],
     "metadata": {
       "name": "CMVp_Tet",
@@ -140,7 +135,6 @@
       "authors": [],
       "created": 1468259940888,
       "tags": {},
-      "color": "#53B15F",
       "shortName": "",
       "egfPosition": "3"
     },
@@ -155,7 +149,8 @@
       "id": "EGF_ML_3_cmvptet"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -165,7 +160,6 @@
     }
   },
   {
-    "id": "block-2da77eb4-a789-4890-93d9-012e932fde44",
     "parents": [],
     "metadata": {
       "name": "EF1ap",
@@ -173,7 +167,6 @@
       "authors": [],
       "created": 1468259940888,
       "tags": {},
-      "color": "#C5C4C1",
       "shortName": "",
       "egfPosition": "3"
     },
@@ -188,7 +181,8 @@
       "id": "EGF_ML_3_ef1ap"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -198,7 +192,6 @@
     }
   },
   {
-    "id": "block-cf6cb9ac-aa53-41be-81e0-90229f3fd978",
     "parents": [],
     "metadata": {
       "name": "TRE3Gp",
@@ -206,7 +199,6 @@
       "authors": [],
       "created": 1468259940889,
       "tags": {},
-      "color": "#A5A6A2",
       "shortName": "",
       "egfPosition": "3"
     },
@@ -221,7 +213,8 @@
       "id": "EGF_ML_3_tre3gp"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -231,7 +224,6 @@
     }
   },
   {
-    "id": "block-e20de3a8-388e-489f-a137-75d840c126ab",
     "parents": [],
     "metadata": {
       "name": "Kt-L7Ae - Weiss",
@@ -239,7 +231,6 @@
       "authors": [],
       "created": 1468259940890,
       "tags": {},
-      "color": "#e7aaa9",
       "shortName": "Kt",
       "egfPosition": "4"
     },
@@ -254,7 +245,8 @@
       "id": "EGF_ML_4_ktl7aeweiss"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -264,7 +256,6 @@
     }
   },
   {
-    "id": "block-3d7a90a7-6c66-466d-995b-8dac952e081b",
     "parents": [],
     "metadata": {
       "name": "attP - BxB1",
@@ -272,7 +263,6 @@
       "authors": [],
       "created": 1468259940891,
       "tags": {},
-      "color": "#D28482",
       "shortName": "attP",
       "egfPosition": "5"
     },
@@ -287,7 +277,8 @@
       "id": "EGF_ML_5_attpbxb1"
     },
     "rules": {
-      "role": "restrictionSite"
+      "role": "restrictionSite",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -297,7 +288,6 @@
     }
   },
   {
-    "id": "block-8a339152-e264-49a6-a82b-e75a00048139",
     "parents": [],
     "metadata": {
       "name": "K1-K1 -L7Ae",
@@ -305,7 +295,6 @@
       "authors": [],
       "created": 1468259940892,
       "tags": {},
-      "color": "#E9BA9b",
       "shortName": "K1",
       "egfPosition": "5"
     },
@@ -320,7 +309,8 @@
       "id": "EGF_ML_5_k1k1l7ae"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -330,7 +320,6 @@
     }
   },
   {
-    "id": "block-7c798b28-7084-4081-90fe-085009c2e5df",
     "parents": [],
     "metadata": {
       "name": "Kt-Kt -L7Ae-Weiss",
@@ -338,7 +327,6 @@
       "authors": [],
       "created": 1468259940893,
       "tags": {},
-      "color": "#efac7e",
       "shortName": "Kt-Kt",
       "egfPosition": "5"
     },
@@ -353,7 +341,8 @@
       "id": "EGF_ML_5_ktktl7aeweiss"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -363,7 +352,6 @@
     }
   },
   {
-    "id": "block-894ab5d3-3fcb-42b8-b1be-fa0f64f1c776",
     "parents": [],
     "metadata": {
       "name": "ATG-BoxC (L7Ae)",
@@ -371,7 +359,6 @@
       "authors": [],
       "created": 1468259940894,
       "tags": {},
-      "color": "#EFD79A",
       "shortName": "",
       "egfPosition": "6"
     },
@@ -386,7 +373,8 @@
       "id": "EGF_ML_6_atgboxcl7ae"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -396,7 +384,6 @@
     }
   },
   {
-    "id": "block-4b0467cd-7edb-4cf2-9099-9d71d21c8a04",
     "parents": [],
     "metadata": {
       "name": "Kozak_ATG",
@@ -404,7 +391,6 @@
       "authors": [],
       "created": 1468259940894,
       "tags": {},
-      "color": "#F1D26C",
       "shortName": "Kz_1",
       "egfPosition": "6"
     },
@@ -419,7 +405,8 @@
       "id": "EGF_ML_6_kozakatg"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -429,7 +416,6 @@
     }
   },
   {
-    "id": "block-6f97c11a-c92c-41af-9d65-9db1217261cf",
     "parents": [],
     "metadata": {
       "name": "Nt-IgKL sequence",
@@ -437,7 +423,6 @@
       "authors": [],
       "created": 1468259940895,
       "tags": {},
-      "color": "#E4E480",
       "shortName": "IgKL",
       "egfPosition": "6"
     },
@@ -452,7 +437,8 @@
       "id": "EGF_ML_6_ntigklsequence"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -462,7 +448,6 @@
     }
   },
   {
-    "id": "block-4ce92693-3fdf-4454-8d5c-595fd9e94a30",
     "parents": [],
     "metadata": {
       "name": "Nt-MLS",
@@ -470,7 +455,6 @@
       "authors": [],
       "created": 1468259940896,
       "tags": {},
-      "color": "#D3D34F",
       "shortName": "MLS",
       "egfPosition": "6"
     },
@@ -485,7 +469,8 @@
       "id": "EGF_ML_6_ntmls"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -495,7 +480,6 @@
     }
   },
   {
-    "id": "block-d39f4706-0071-4891-bf05-645a184f1827",
     "parents": [],
     "metadata": {
       "name": "Nt-myristoylation signal",
@@ -503,7 +487,6 @@
       "authors": [],
       "created": 1468259940897,
       "tags": {},
-      "color": "#9CC6C0",
       "shortName": "",
       "egfPosition": "6"
     },
@@ -518,7 +501,8 @@
       "id": "EGF_ML_6_ntmyristoylationsignal"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -528,7 +512,6 @@
     }
   },
   {
-    "id": "block-2f550b28-4495-4866-aa5f-fe0fcbdfe521",
     "parents": [],
     "metadata": {
       "name": "Nt-Palmytolination sequence",
@@ -536,7 +519,6 @@
       "authors": [],
       "created": 1468259940898,
       "tags": {},
-      "color": "#6DA19C",
       "shortName": "Pal",
       "egfPosition": "6"
     },
@@ -551,7 +533,8 @@
       "id": "EGF_ML_6_ntpalmytolinationsequence"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -561,7 +544,6 @@
     }
   },
   {
-    "id": "block-acdeb320-70ab-425c-94f7-d081a3e372a9",
     "parents": [],
     "metadata": {
       "name": "Nt-SV40-NLS",
@@ -569,7 +551,6 @@
       "authors": [],
       "created": 1468259940899,
       "tags": {},
-      "color": "#B1CED0",
       "shortName": "SV40-NLS",
       "egfPosition": "6"
     },
@@ -584,7 +565,8 @@
       "id": "EGF_ML_6_ntsv40nls"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -594,7 +576,6 @@
     }
   },
   {
-    "id": "block-956af19b-6336-4bff-91b4-da9ea1e99337",
     "parents": [],
     "metadata": {
       "name": "3X-FLAG",
@@ -602,7 +583,6 @@
       "authors": [],
       "created": 1468259940899,
       "tags": {},
-      "color": "#65AAB1",
       "shortName": "3X-FLAG",
       "egfPosition": "6"
     },
@@ -617,7 +597,8 @@
       "id": "EGF_ML_6_3xflag"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -627,7 +608,6 @@
     }
   },
   {
-    "id": "block-d94d2b15-09a0-456f-8291-b34ee1189a68",
     "parents": [],
     "metadata": {
       "name": "BxB1",
@@ -635,7 +615,6 @@
       "authors": [],
       "created": 1468259940900,
       "tags": {},
-      "color": "#8EC78D",
       "shortName": "",
       "egfPosition": "7"
     },
@@ -650,7 +629,8 @@
       "id": "EGF_ML_7_bxb1"
     },
     "rules": {
-      "role": "restrictionSite"
+      "role": "restrictionSite",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -660,7 +640,6 @@
     }
   },
   {
-    "id": "block-c7edeff2-27de-4f91-89eb-d5cf9f7bb347",
     "parents": [],
     "metadata": {
       "name": "L7Ae - Weiss",
@@ -668,7 +647,6 @@
       "authors": [],
       "created": 1468259940901,
       "tags": {},
-      "color": "#53B15F",
       "shortName": "L7Ae",
       "egfPosition": "7"
     },
@@ -683,7 +661,8 @@
       "id": "EGF_ML_7_l7aeweiss"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -693,7 +672,6 @@
     }
   },
   {
-    "id": "block-2ea316e3-1bc1-483e-84ae-0c4505913025",
     "parents": [],
     "metadata": {
       "name": "L7Ae ",
@@ -701,7 +679,6 @@
       "authors": [],
       "created": 1468259940901,
       "tags": {},
-      "color": "#C5C4C1",
       "shortName": "",
       "egfPosition": "7"
     },
@@ -716,7 +693,8 @@
       "id": "EGF_ML_7_l7ae"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -726,7 +704,6 @@
     }
   },
   {
-    "id": "block-9634db1c-9a2e-41b3-afba-849da6eda76e",
     "parents": [],
     "metadata": {
       "name": "mKate2",
@@ -734,7 +711,6 @@
       "authors": [],
       "created": 1468259940902,
       "tags": {},
-      "color": "#A5A6A2",
       "shortName": "mK2",
       "egfPosition": "7"
     },
@@ -749,7 +725,8 @@
       "id": "EGF_ML_7_mkate2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -759,7 +736,6 @@
     }
   },
   {
-    "id": "block-7611cee5-dae6-4e6c-a71c-1448dccad814",
     "parents": [],
     "metadata": {
       "name": "mNeoGreen",
@@ -767,7 +743,6 @@
       "authors": [],
       "created": 1468259940903,
       "tags": {},
-      "color": "#e7aaa9",
       "shortName": "mNG",
       "egfPosition": "7"
     },
@@ -782,7 +757,8 @@
       "id": "EGF_ML_7_mneogreen"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -792,7 +768,6 @@
     }
   },
   {
-    "id": "block-b3036bbb-9e4b-42cb-b7be-4c49f4836e9f",
     "parents": [],
     "metadata": {
       "name": "mRuby2",
@@ -800,7 +775,6 @@
       "authors": [],
       "created": 1468259940904,
       "tags": {},
-      "color": "#D28482",
       "shortName": "mR2",
       "egfPosition": "7"
     },
@@ -815,7 +789,8 @@
       "id": "EGF_ML_7_mruby2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -825,7 +800,6 @@
     }
   },
   {
-    "id": "block-8357346a-1bb0-4aea-9350-cb21eb2d3c2c",
     "parents": [],
     "metadata": {
       "name": "mTagBFP2",
@@ -833,7 +807,6 @@
       "authors": [],
       "created": 1468259940904,
       "tags": {},
-      "color": "#E9BA9b",
       "shortName": "mBP2",
       "egfPosition": "7"
     },
@@ -848,7 +821,8 @@
       "id": "EGF_ML_7_mtagbfp2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -858,7 +832,6 @@
     }
   },
   {
-    "id": "block-e4164889-3743-4d6e-b120-28e2979c4416",
     "parents": [],
     "metadata": {
       "name": "Fyrefly Luciferase ",
@@ -866,7 +839,6 @@
       "authors": [],
       "created": 1468259940905,
       "tags": {},
-      "color": "#efac7e",
       "shortName": "LCF",
       "egfPosition": "7"
     },
@@ -881,7 +853,8 @@
       "id": "EGF_ML_7_fyreflyluciferase"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -891,7 +864,6 @@
     }
   },
   {
-    "id": "block-dd957447-78a8-4650-97a3-8b3ecd7c3495",
     "parents": [],
     "metadata": {
       "name": "Linker 1",
@@ -899,7 +871,6 @@
       "authors": [],
       "created": 1468259940906,
       "tags": {},
-      "color": "#EFD79A",
       "shortName": "LK-1",
       "egfPosition": "8"
     },
@@ -914,7 +885,8 @@
       "id": "EGF_ML_8_linker1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -924,7 +896,6 @@
     }
   },
   {
-    "id": "block-4d643391-675e-463b-9aa2-ed0c2cf2e9fc",
     "parents": [],
     "metadata": {
       "name": "Linker 2",
@@ -932,7 +903,6 @@
       "authors": [],
       "created": 1468259940906,
       "tags": {},
-      "color": "#F1D26C",
       "shortName": "LK-2",
       "egfPosition": "8"
     },
@@ -947,7 +917,8 @@
       "id": "EGF_ML_8_linker2"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -957,7 +928,6 @@
     }
   },
   {
-    "id": "block-82b9a70f-49c4-46c6-9f9b-d96201b28b85",
     "parents": [],
     "metadata": {
       "name": "p2A-Porcine teschovirus-1 ",
@@ -965,7 +935,6 @@
       "authors": [],
       "created": 1468259940907,
       "tags": {},
-      "color": "#E4E480",
       "shortName": "p2A",
       "egfPosition": "8"
     },
@@ -980,7 +949,8 @@
       "id": "EGF_ML_8_p2aporcineteschovirus1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -990,7 +960,6 @@
     }
   },
   {
-    "id": "block-6084a964-0753-4155-8f9e-6a8d40d9e362",
     "parents": [],
     "metadata": {
       "name": "Ct-KDEL",
@@ -998,7 +967,6 @@
       "authors": [],
       "created": 1468259940907,
       "tags": {},
-      "color": "#D3D34F",
       "shortName": "KDEL",
       "egfPosition": "8a"
     },
@@ -1013,7 +981,8 @@
       "id": "EGF_ML_8a_ctkdel"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1023,7 +992,6 @@
     }
   },
   {
-    "id": "block-5a643e3b-73b8-490e-b3e0-32e2f206e7f0",
     "parents": [],
     "metadata": {
       "name": "IRES2",
@@ -1031,7 +999,6 @@
       "authors": [],
       "created": 1468259940908,
       "tags": {},
-      "color": "#9CC6C0",
       "shortName": "",
       "egfPosition": "8b"
     },
@@ -1046,7 +1013,8 @@
       "id": "EGF_ML_8b_ires2"
     },
     "rules": {
-      "role": "rbs"
+      "role": "rbs",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1056,7 +1024,6 @@
     }
   },
   {
-    "id": "block-154842b2-13d9-4991-a678-b8bb3c1ad547",
     "parents": [],
     "metadata": {
       "name": "BSDR",
@@ -1064,7 +1031,6 @@
       "authors": [],
       "created": 1468259940909,
       "tags": {},
-      "color": "#6DA19C",
       "shortName": "",
       "egfPosition": "9"
     },
@@ -1079,7 +1045,8 @@
       "id": "EGF_ML_9_bsdr"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1089,7 +1056,6 @@
     }
   },
   {
-    "id": "block-cccb17a2-b9b5-411e-b194-9c94c7135402",
     "parents": [],
     "metadata": {
       "name": "PuroR",
@@ -1097,7 +1063,6 @@
       "authors": [],
       "created": 1468259940909,
       "tags": {},
-      "color": "#B1CED0",
       "shortName": "",
       "egfPosition": "9"
     },
@@ -1112,7 +1077,8 @@
       "id": "EGF_ML_9_puror"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1122,7 +1088,6 @@
     }
   },
   {
-    "id": "block-bb19b48f-c32c-4355-ab63-ddbf2c6db7f3",
     "parents": [],
     "metadata": {
       "name": "NeoR",
@@ -1130,7 +1095,6 @@
       "authors": [],
       "created": 1468259940910,
       "tags": {},
-      "color": "#65AAB1",
       "shortName": "",
       "egfPosition": "9"
     },
@@ -1145,7 +1109,8 @@
       "id": "EGF_ML_9_neor"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1155,7 +1120,6 @@
     }
   },
   {
-    "id": "block-397fba2e-032b-4d96-b9d3-ff8642ee99c0",
     "parents": [],
     "metadata": {
       "name": "DmrC",
@@ -1163,7 +1127,6 @@
       "authors": [],
       "created": 1468259940911,
       "tags": {},
-      "color": "#8EC78D",
       "shortName": "",
       "egfPosition": "9"
     },
@@ -1178,7 +1141,8 @@
       "id": "EGF_ML_9_dmrc"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1188,7 +1152,6 @@
     }
   },
   {
-    "id": "block-17b785e0-3a92-4118-b84f-89651c304bec",
     "parents": [],
     "metadata": {
       "name": "Fyrefly Luciferase -3XFLAG",
@@ -1196,7 +1159,6 @@
       "authors": [],
       "created": 1468259940912,
       "tags": {},
-      "color": "#53B15F",
       "shortName": "LCF-3XFLAG",
       "egfPosition": "9"
     },
@@ -1211,7 +1173,8 @@
       "id": "EGF_ML_9_fyreflyluciferase3xflag"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1221,7 +1184,6 @@
     }
   },
   {
-    "id": "block-d014edb5-856e-4d87-b759-2cf18045291b",
     "parents": [],
     "metadata": {
       "name": "mNeoGreen",
@@ -1229,7 +1191,6 @@
       "authors": [],
       "created": 1468259940913,
       "tags": {},
-      "color": "#C5C4C1",
       "shortName": "mNG",
       "egfPosition": "9"
     },
@@ -1244,7 +1205,8 @@
       "id": "EGF_ML_9_mneogreen"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1254,7 +1216,6 @@
     }
   },
   {
-    "id": "block-efd1004e-a4e8-48f0-b033-cf0d14d75e7b",
     "parents": [],
     "metadata": {
       "name": "mRuby2",
@@ -1262,7 +1223,6 @@
       "authors": [],
       "created": 1468259940913,
       "tags": {},
-      "color": "#A5A6A2",
       "shortName": "mR2",
       "egfPosition": "9"
     },
@@ -1277,7 +1237,8 @@
       "id": "EGF_ML_9_mruby2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1287,7 +1248,6 @@
     }
   },
   {
-    "id": "block-fa20c757-bf77-4b27-afdd-f301893059d4",
     "parents": [],
     "metadata": {
       "name": "mTagBFP2",
@@ -1295,7 +1255,6 @@
       "authors": [],
       "created": 1468259940914,
       "tags": {},
-      "color": "#e7aaa9",
       "shortName": "mBP2",
       "egfPosition": "9"
     },
@@ -1310,7 +1269,8 @@
       "id": "EGF_ML_9_mtagbfp2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1320,7 +1280,6 @@
     }
   },
   {
-    "id": "block-b8daec5c-ebae-4e3b-a08f-815894f0b38d",
     "parents": [],
     "metadata": {
       "name": "a-Tubulin",
@@ -1328,7 +1287,6 @@
       "authors": [],
       "created": 1468259940915,
       "tags": {},
-      "color": "#D28482",
       "shortName": "Tb",
       "egfPosition": "9"
     },
@@ -1343,7 +1301,8 @@
       "id": "EGF_ML_9_atubulin"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1353,7 +1312,6 @@
     }
   },
   {
-    "id": "block-9edc4ded-040a-4529-9711-57bcc8bb847c",
     "parents": [],
     "metadata": {
       "name": "Tet-Aptazyme",
@@ -1361,7 +1319,6 @@
       "authors": [],
       "created": 1468259940916,
       "tags": {},
-      "color": "#E9BA9b",
       "shortName": "",
       "egfPosition": "10"
     },
@@ -1376,7 +1333,8 @@
       "id": "EGF_ML_10_tetaptazyme"
     },
     "rules": {
-      "role": "regulatory"
+      "role": "regulatory",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1386,7 +1344,6 @@
     }
   },
   {
-    "id": "block-eb4ed506-6d95-4346-bb4f-72576680eedf",
     "parents": [],
     "metadata": {
       "name": "SV40 polyA",
@@ -1394,7 +1351,6 @@
       "authors": [],
       "created": 1468259940916,
       "tags": {},
-      "color": "#efac7e",
       "shortName": "SV40pA",
       "egfPosition": "11"
     },
@@ -1409,7 +1365,8 @@
       "id": "EGF_ML_11_sv40polya"
     },
     "rules": {
-      "role": "terminator"
+      "role": "terminator",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1419,7 +1376,6 @@
     }
   },
   {
-    "id": "block-8e38e3ee-884f-408d-a4f7-1491544d7a14",
     "parents": [],
     "metadata": {
       "name": "SV40p",
@@ -1427,7 +1383,6 @@
       "authors": [],
       "created": 1468259940916,
       "tags": {},
-      "color": "#EFD79A",
       "shortName": "",
       "egfPosition": "14"
     },
@@ -1442,7 +1397,8 @@
       "id": "EGF_ML_14_sv40p"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1452,7 +1408,6 @@
     }
   },
   {
-    "id": "block-fab9ecda-1314-4ac7-950f-ae9d902f36db",
     "parents": [],
     "metadata": {
       "name": "PuroR",
@@ -1460,7 +1415,6 @@
       "authors": [],
       "created": 1468259940917,
       "tags": {},
-      "color": "#F1D26C",
       "shortName": "",
       "egfPosition": "15"
     },
@@ -1475,7 +1429,8 @@
       "id": "EGF_ML_15_puror"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1485,7 +1440,6 @@
     }
   },
   {
-    "id": "block-218e0a0a-3128-40ce-af14-f1bf745489d5",
     "parents": [],
     "metadata": {
       "name": "bGH polyA",
@@ -1493,7 +1447,6 @@
       "authors": [],
       "created": 1468259940917,
       "tags": {},
-      "color": "#E4E480",
       "shortName": "bGHpA",
       "egfPosition": "16"
     },
@@ -1508,7 +1461,8 @@
       "id": "EGF_ML_16_bghpolya"
     },
     "rules": {
-      "role": "terminator"
+      "role": "terminator",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1518,7 +1472,6 @@
     }
   },
   {
-    "id": "block-124214b7-7479-4a74-959f-8aa374433c11",
     "parents": [],
     "metadata": {
       "name": "CMVp",
@@ -1526,7 +1479,6 @@
       "authors": [],
       "created": 1468259940918,
       "tags": {},
-      "color": "#D3D34F",
       "shortName": "",
       "egfPosition": "18"
     },
@@ -1541,7 +1493,8 @@
       "id": "EGF_ML_18_cmvp"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1551,7 +1504,6 @@
     }
   },
   {
-    "id": "block-eff6d2b1-e46a-47c4-8a12-6839de3d94cd",
     "parents": [],
     "metadata": {
       "name": "EF1ap",
@@ -1559,7 +1511,6 @@
       "authors": [],
       "created": 1468259940918,
       "tags": {},
-      "color": "#9CC6C0",
       "shortName": "",
       "egfPosition": "18"
     },
@@ -1574,7 +1525,8 @@
       "id": "EGF_ML_18_ef1ap"
     },
     "rules": {
-      "role": "promoter"
+      "role": "promoter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1584,7 +1536,6 @@
     }
   },
   {
-    "id": "block-88b6f220-a1cf-46a0-b766-bfc38f7d153b",
     "parents": [],
     "metadata": {
       "name": "mNeoGreen",
@@ -1592,7 +1543,6 @@
       "authors": [],
       "created": 1468259940919,
       "tags": {},
-      "color": "#6DA19C",
       "shortName": "mNG",
       "egfPosition": "19"
     },
@@ -1607,7 +1557,8 @@
       "id": "EGF_ML_19_mneogreen"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1617,7 +1568,6 @@
     }
   },
   {
-    "id": "block-d7e0816b-d37b-4e05-8e2a-20ef05134a28",
     "parents": [],
     "metadata": {
       "name": "mRuby2",
@@ -1625,7 +1575,6 @@
       "authors": [],
       "created": 1468259940919,
       "tags": {},
-      "color": "#B1CED0",
       "shortName": "mR2",
       "egfPosition": "19"
     },
@@ -1640,7 +1589,8 @@
       "id": "EGF_ML_19_mruby2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1650,7 +1600,6 @@
     }
   },
   {
-    "id": "block-51375f96-a370-460d-a305-42def03066c5",
     "parents": [],
     "metadata": {
       "name": "mTagBFP2",
@@ -1658,7 +1607,6 @@
       "authors": [],
       "created": 1468259940920,
       "tags": {},
-      "color": "#65AAB1",
       "shortName": "mBP2",
       "egfPosition": "19"
     },
@@ -1673,7 +1621,8 @@
       "id": "EGF_ML_19_mtagbfp2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1683,7 +1632,6 @@
     }
   },
   {
-    "id": "block-0690bdd6-1b02-4dd1-a967-0ea2a9b0d1e9",
     "parents": [],
     "metadata": {
       "name": "Tet-ON-3G",
@@ -1691,7 +1639,6 @@
       "authors": [],
       "created": 1468259940920,
       "tags": {},
-      "color": "#8EC78D",
       "shortName": "",
       "egfPosition": "19"
     },
@@ -1706,7 +1653,8 @@
       "id": "EGF_ML_19_teton3g"
     },
     "rules": {
-      "role": "cds"
+      "role": "cds",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1716,7 +1664,6 @@
     }
   },
   {
-    "id": "block-f7245100-a774-44a6-94f0-5d558f1e6a6b",
     "parents": [],
     "metadata": {
       "name": "Ct-minute-NES",
@@ -1724,7 +1671,6 @@
       "authors": [],
       "created": 1468259940920,
       "tags": {},
-      "color": "#53B15F",
       "shortName": "NES",
       "egfPosition": "20"
     },
@@ -1739,7 +1685,8 @@
       "id": "EGF_ML_20_ctminutenes"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1749,7 +1696,6 @@
     }
   },
   {
-    "id": "block-1d6f141d-9b42-414e-b07c-5c7a3105b1fb",
     "parents": [],
     "metadata": {
       "name": "Ct-NES",
@@ -1757,7 +1703,6 @@
       "authors": [],
       "created": 1468259940921,
       "tags": {},
-      "color": "#C5C4C1",
       "shortName": "",
       "egfPosition": "20"
     },
@@ -1772,7 +1717,8 @@
       "id": "EGF_ML_20_ctnes"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1782,7 +1728,6 @@
     }
   },
   {
-    "id": "block-6446add2-d86e-49c9-9536-5ccf819a8f9f",
     "parents": [],
     "metadata": {
       "name": "Linker 3",
@@ -1790,7 +1735,6 @@
       "authors": [],
       "created": 1468259940921,
       "tags": {},
-      "color": "#A5A6A2",
       "shortName": "LK-3",
       "egfPosition": "20"
     },
@@ -1805,7 +1749,8 @@
       "id": "EGF_ML_20_linker3"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1815,7 +1760,6 @@
     }
   },
   {
-    "id": "block-ca2e8327-1179-449f-8b03-471bada2a73d",
     "parents": [],
     "metadata": {
       "name": "p2A-Porcine teschovirus-1 ",
@@ -1823,7 +1767,6 @@
       "authors": [],
       "created": 1468259940922,
       "tags": {},
-      "color": "#e7aaa9",
       "shortName": "p2A",
       "egfPosition": "20"
     },
@@ -1838,7 +1781,8 @@
       "id": "EGF_ML_20_p2aporcineteschovirus1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1848,7 +1792,6 @@
     }
   },
   {
-    "id": "block-ab244a54-4ccd-4da0-b544-3dc20cce3970",
     "parents": [],
     "metadata": {
       "name": "DmrA",
@@ -1856,7 +1799,6 @@
       "authors": [],
       "created": 1468259940922,
       "tags": {},
-      "color": "#D28482",
       "shortName": "",
       "egfPosition": "21"
     },
@@ -1871,7 +1813,8 @@
       "id": "EGF_ML_21_dmra"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1881,7 +1824,6 @@
     }
   },
   {
-    "id": "block-2fd164be-ceb5-404e-81b1-d06d83097335",
     "parents": [],
     "metadata": {
       "name": "mKate2",
@@ -1889,7 +1831,6 @@
       "authors": [],
       "created": 1468259940923,
       "tags": {},
-      "color": "#E9BA9b",
       "shortName": "mK2",
       "egfPosition": "21"
     },
@@ -1904,7 +1845,8 @@
       "id": "EGF_ML_21_mkate2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1914,7 +1856,6 @@
     }
   },
   {
-    "id": "block-827a79ea-4f5e-478c-9ff2-d1b53ac62760",
     "parents": [],
     "metadata": {
       "name": "mNeoGreen",
@@ -1922,7 +1863,6 @@
       "authors": [],
       "created": 1468259940923,
       "tags": {},
-      "color": "#efac7e",
       "shortName": "mNG",
       "egfPosition": "21"
     },
@@ -1937,7 +1877,8 @@
       "id": "EGF_ML_21_mneogreen"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1947,7 +1888,6 @@
     }
   },
   {
-    "id": "block-9c384279-4fa9-4d87-b123-5e9b75dc41d0",
     "parents": [],
     "metadata": {
       "name": "mRuby2",
@@ -1955,7 +1895,6 @@
       "authors": [],
       "created": 1468259940923,
       "tags": {},
-      "color": "#EFD79A",
       "shortName": "mR2",
       "egfPosition": "21"
     },
@@ -1970,7 +1909,8 @@
       "id": "EGF_ML_21_mruby2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -1980,7 +1920,6 @@
     }
   },
   {
-    "id": "block-d93fd366-28b4-4cea-a893-bbbcf0a990a1",
     "parents": [],
     "metadata": {
       "name": "mTagBFP2",
@@ -1988,7 +1927,6 @@
       "authors": [],
       "created": 1468259940924,
       "tags": {},
-      "color": "#F1D26C",
       "shortName": "mBP2",
       "egfPosition": "21"
     },
@@ -2003,7 +1941,8 @@
       "id": "EGF_ML_21_mtagbfp2"
     },
     "rules": {
-      "role": "reporter"
+      "role": "reporter",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2013,7 +1952,6 @@
     }
   },
   {
-    "id": "block-4d797a30-35d5-4b37-96d1-8f167810a3e7",
     "parents": [],
     "metadata": {
       "name": "PuroR",
@@ -2021,7 +1959,6 @@
       "authors": [],
       "created": 1468259940924,
       "tags": {},
-      "color": "#E4E480",
       "shortName": "",
       "egfPosition": "21"
     },
@@ -2036,7 +1973,8 @@
       "id": "EGF_ML_21_puror"
     },
     "rules": {
-      "role": "selection"
+      "role": "selection",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2046,7 +1984,6 @@
     }
   },
   {
-    "id": "block-b53c5ae8-d1a9-4439-a4dc-e77c169d9884",
     "parents": [],
     "metadata": {
       "name": "PGK polyA",
@@ -2054,7 +1991,6 @@
       "authors": [],
       "created": 1468259940925,
       "tags": {},
-      "color": "#D3D34F",
       "shortName": "PGKpA",
       "egfPosition": "22"
     },
@@ -2069,7 +2005,8 @@
       "id": "EGF_ML_22_pgkpolya"
     },
     "rules": {
-      "role": "terminator"
+      "role": "terminator",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2079,7 +2016,6 @@
     }
   },
   {
-    "id": "block-ac490387-ab86-48d9-ba85-5bd7ede3cb70",
     "parents": [],
     "metadata": {
       "name": "Insulator_FB",
@@ -2087,7 +2023,6 @@
       "authors": [],
       "created": 1468259940925,
       "tags": {},
-      "color": "#9CC6C0",
       "shortName": "IS_FB",
       "egfPosition": "23"
     },
@@ -2102,7 +2037,8 @@
       "id": "EGF_ML_23_insulatorfb"
     },
     "rules": {
-      "role": "insulator"
+      "role": "insulator",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2112,7 +2048,6 @@
     }
   },
   {
-    "id": "block-60050480-eccc-4b21-a62c-8daf79110f57",
     "parents": [],
     "metadata": {
       "name": "3'HA-hAAVS1",
@@ -2120,7 +2055,6 @@
       "authors": [],
       "created": 1468259940926,
       "tags": {},
-      "color": "#6DA19C",
       "shortName": "",
       "egfPosition": "24"
     },
@@ -2135,7 +2069,8 @@
       "id": "EGF_ML_24_3hahaavs1"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2145,7 +2080,6 @@
     }
   },
   {
-    "id": "block-e778c09f-9a15-4bd3-8aa4-914d3143fe02",
     "parents": [],
     "metadata": {
       "name": "3'-ITR-PB",
@@ -2153,7 +2087,6 @@
       "authors": [],
       "created": 1468259940926,
       "tags": {},
-      "color": "#B1CED0",
       "shortName": "",
       "egfPosition": "24"
     },
@@ -2168,7 +2101,8 @@
       "id": "EGF_ML_24_3itrpb"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},
@@ -2178,7 +2112,6 @@
     }
   },
   {
-    "id": "block-2e7a5180-5ac3-4caf-bbfc-24182325828f",
     "parents": [],
     "metadata": {
       "name": "SV40-ORI",
@@ -2186,7 +2119,6 @@
       "authors": [],
       "created": 1468259940926,
       "tags": {},
-      "color": "#65AAB1",
       "shortName": "",
       "egfPosition": "25"
     },
@@ -2201,7 +2133,8 @@
       "id": "EGF_ML_25_sv40ori"
     },
     "rules": {
-      "role": "structural"
+      "role": "structural",
+      "fixed": true
     },
     "components": [],
     "options": {},

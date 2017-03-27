@@ -1,56 +1,37 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import invariant from 'invariant';
+
 import * as ActionTypes from './ActionTypes';
 import SectionManager from './SectionManager';
 import UndoManager from './UndoManager';
 
 //future - support for reducerEnhancing the whole store. Key parts will be weird?
 
-//note - this creates a singleton. May want to offer ability to create multiple of these for some reason (but this is kinda anti-redux) - also so can configure things like action fields undoable and undoPurge
-const manager = new UndoManager();
-
-//hack - curently required to be last reducer (to run after enhancers have run to update undoManager, relying on key order in combineReducers)
-//note that if you pass manager into enhancerCreator, this will not work
-export const undoReducer = (state = {}, action) => {
-  const { past, future, time } = manager.getUndoState();
-
-  if (state.past === past && state.future === future) {
-    return state;
-  }
-
-  return {
-    past,
-    future,
-    time,
-  };
-};
-
 //passing in manager is for testing, but you may not want to use the singleton... but the reducer will not work if you pass it in (WIP)
-export const undoReducerEnhancerCreator = (config, undoManager = manager) => {
+//each creator creates a new manager, so we dont have a singleton. Tests may create multiple stores, we dont want their actions affecting each other.
+export const undoReducerEnhancerCreator = (config, undoManager = new UndoManager()) => {
   const params = Object.assign({
     initTypes: ['@@redux/INIT', '@@INIT'],
     purgeOn: () => false,
     filter: () => false,
-    debug: (process && process.env && process.env.NODE_ENV === 'dev'),
   }, config);
 
-  return (reducer, key = reducer.name) => {
-    //todo - why is a key required?
-    invariant(key, 'key is required, key in e.g. combineReducers');
+  function undoReducerEnhancer(reducer, key = reducer.name) {
+    invariant(key, 'key is required, key in e.g. combineReducers, for registering section properly');
     const initialState = reducer(undefined, {});
 
     //create a manager for this section of the store, register()
@@ -59,27 +40,28 @@ export const undoReducerEnhancerCreator = (config, undoManager = manager) => {
 
     return (state = initialState, action) => {
       switch (action.type) {
-      case ActionTypes.UNDO :
-        undoManager.undo(action);
-        break;
-      case ActionTypes.REDO :
-        undoManager.redo(action);
-        break;
-      case ActionTypes.JUMP :
-        const { number } = action;
-        undoManager.jump(number, action);
-        break;
+        case ActionTypes.UNDO :
+          undoManager.undo(action);
+          break;
+        case ActionTypes.REDO :
+          undoManager.redo(action);
+          break;
+        case ActionTypes.JUMP : {
+          const { number } = action;
+          undoManager.jump(number, action);
+          break;
+        }
 
-      case ActionTypes.TRANSACT :
-        undoManager.transact(action);
-        break;
-      case ActionTypes.COMMIT :
-        undoManager.commit(action);
-        break;
-      case ActionTypes.ABORT :
-        undoManager.abort(action);
-        break;
-      default:
+        case ActionTypes.TRANSACT :
+          undoManager.transact(action);
+          break;
+        case ActionTypes.COMMIT :
+          undoManager.commit(action);
+          break;
+        case ActionTypes.ABORT :
+          undoManager.abort(action);
+          break;
+        default:
         //no impact on undo manager, compute as normal
       }
 
@@ -95,13 +77,17 @@ export const undoReducerEnhancerCreator = (config, undoManager = manager) => {
 
       //on redux init types, reset the history
       if (params.initTypes.some(type => type === action.type)) {
+        //this is very hard to trace otherwise
+        if (process.env.NODE_ENV !== 'production' && (undoManager.past.length > 0 || undoManager.future.length > 0)) {
+          console.log('store init event (undo reducer enhancer resetting, had history which is now purged)'); //eslint-disable-line no-console
+        }
         undoManager.purge();
         undoManager.patch(key, nextState, action);
         return sectionManager.getCurrentState();
       }
 
       //if marked to purge, lets clear the history
-      if (!!action.undoPurge || params.purgeOn(action, nextState, state)) {
+      if (action.undoPurge || params.purgeOn(action, nextState, state)) {
         undoManager.purge(action);
       }
 
@@ -111,7 +97,7 @@ export const undoReducerEnhancerCreator = (config, undoManager = manager) => {
       }
 
       //if we make it this far, then this reducer has been affected and we can assume the action is specific to this section of reducers
-      if (!!action.undoable || params.filter(action, nextState, state)) {
+      if (action.undoable || params.filter(action, nextState, state)) {
         //shouldnt have undoPurge and undoable on same action
         undoManager.insert(key, nextState, action);
       } else {
@@ -122,10 +108,17 @@ export const undoReducerEnhancerCreator = (config, undoManager = manager) => {
       //should be consistent with the return if undoActionCalled
       return sectionManager.getCurrentState();
     };
-  };
+  }
+
+  //expose the manager, so easy to see state of undo manager
+  undoReducerEnhancer.manager = undoManager;
+
+  return undoReducerEnhancer;
 };
 
-export const makeUndoable = (action) => Object.assign(action, { undoable: true });
-export const makePurging = (action) => Object.assign(action, { undoPurge: true });
+//todo - these should be in actions.js
+export const makeUndoable = action => Object.assign(action, { undoable: true });
+export const actionIsUndoable = action => action.undoable === true;
+export const makePurging = action => Object.assign(action, { undoPurge: true });
 
 export default undoReducerEnhancerCreator;

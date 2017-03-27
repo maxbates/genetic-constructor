@@ -19,19 +19,21 @@ import '../../styles/InventoryListGroupAction.css';
 
 export default function InventoryListGroupAction({ visible, disabled, onClick, text, ...rest }) {
   return (
-      <a className={'InventoryListGroupAction' +
-      (visible ? ' visible' : '') +
-      (disabled ? ' disabled' : '')}
-         onClick={(evt) => {
-           evt.stopPropagation();
-           if (visible && !disabled) {
-             onClick(evt);
-           }
-         }}
-         {...rest}>
-        <span className="InventoryListGroupAction-text">{text}</span>
-      </a>
-    );
+    <a
+      className={`InventoryListGroupAction${
+      visible ? ' visible' : ''
+      }${disabled ? ' disabled' : ''}`}
+      onClick={(evt) => {
+        evt.stopPropagation();
+        if (visible && !disabled) {
+          onClick(evt);
+        }
+      }}
+      {...rest}
+    >
+      <span className="InventoryListGroupAction-text">{text}</span>
+    </a>
+  );
 }
 
 InventoryListGroupAction.propTypes = {

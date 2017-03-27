@@ -13,12 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from './rejectingFetch';
 import invariant from 'invariant';
-import { headersGet, headersPost} from './headers';
-import { reportApiPath } from './paths';
 
-export const reportError = (title, description, url, user) => {
+import { headersPost } from './utils/headers';
+import { reportApiPath } from './utils/paths';
+import rejectingFetch from './utils/rejectingFetch';
+
+export const reportError = (title, description, url, additional = null) => {
   invariant(title, 'title is required');
   invariant(description, 'description is required');
   invariant(url, 'current url is required');
@@ -32,14 +33,14 @@ ${url}
 
 ${description}
 
-### User
+### Additional:
 
-${user}`;
+${JSON.stringify(additional, null, 2)}`;
 
   const payload = JSON.stringify({
     title,
     body,
-    labels: ['bug:web'],
+    labels: ['bug:user_reported'],
   });
 
   return rejectingFetch(postUrl, headersPost(payload))

@@ -13,10 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import safeValidate from './safeValidate';
+import _ from 'lodash';
 import urlRegex from 'url-regex';
-import { dnaStrictRegexp, dnaLooseRegexp } from '../../utils/dna/dna';
+
+import { dnaLooseRegexp, dnaStrictRegexp } from '../../utils/dna';
 import { id as idRegex } from '../../utils/regex';
+import { validPseudoMd5, validRealMd5 } from '../../utils/sequenceMd5';
+import safeValidate from './safeValidate';
 
 //any additions to this file should be tested, and everything will be exported, so only export real validators
 
@@ -36,15 +39,15 @@ import { id as idRegex } from '../../utils/regex';
  * validator(40); //true
  */
 
-export const any = params => input => {};
+export const any = params => (input) => {};
 
-export const id = params => input => {
+export const id = params => (input) => {
   if (!idRegex().test(input)) {
     return new Error(`${input} is not a RFC4122-compliant UUID`);
   }
 };
 
-export const string = ({ max, min } = {}) => input => {
+export const string = ({ regex, max, min } = {}) => (input) => {
   if (!isString(input)) {
     return new Error(`${input} is not a string`);
   }
@@ -56,7 +59,7 @@ export const string = ({ max, min } = {}) => input => {
   }
 };
 
-export const number = ({ reals, min, max } = {}) => input => {
+export const number = ({ reals, min, max } = {}) => (input) => {
   if (!isNumber(input)) {
     return new Error(`input ${input} is not a number`);
   }
@@ -66,39 +69,39 @@ export const number = ({ reals, min, max } = {}) => input => {
   }
 
   if (isNumber(min) && input < min) {
-    return new Error(`input ${input} is less than minimum ${params.min}`);
+    return new Error(`input ${input} is less than minimum ${min}`);
   }
 
   if (isNumber(max) && input > max) {
-    return new Error(`input ${input} is greater than maximum ${params.max}`);
+    return new Error(`input ${input} is greater than maximum ${max}`);
   }
 };
 
-export const func = params => input => {
+export const func = params => (input) => {
   if (!isFunction(input)) {
     return new Error(`${input} is not a function`);
   }
 };
 
-export const array = params => input => {
+export const array = params => (input) => {
   if (!Array.isArray(input)) {
     return new Error(`${input} is not an array`);
   }
 };
 
-export const object = params => input => {
+export const object = params => (input) => {
   if (!isRealObject(input)) {
     return new Error(`${input} is not an object`);
   }
 };
 
-export const bool = params => input => {
+export const bool = params => (input) => {
   if (!(input === true || input === false)) {
     return new Error(`${input} is not a boolean`);
   }
 };
 
-export const undef = params => input => {
+export const undef = params => (input) => {
   if (input !== undefined) {
     return new Error(`${input} is not undefined`);
   }
@@ -108,7 +111,7 @@ export const undef = params => input => {
  string subtypes
  *******/
 
-export const sequence = (params = {}) => input => {
+export const sequence = (params = {}) => (input) => {
   if (!isString(input)) {
     return new Error(`${input} is not a string`);
   }
@@ -116,13 +119,27 @@ export const sequence = (params = {}) => input => {
   const sequenceRegex = params.loose === true ? dnaLooseRegexp() : dnaStrictRegexp();
 
   if (sequenceRegex.test(input) !== true) {
-    console.log('got error');
+    console.log('got error validating sequence', input); //eslint-disable-line no-console
     return new Error(`${input} is not a valid sequence`);
   }
 };
 
+export const sequenceMd5 = ({ real = false } = {}) => (input) => {
+  if (!isString(input)) {
+    return new Error(`${input} is not a string`);
+  }
+
+  if (!validPseudoMd5(input)) {
+    return new Error(`${input} is not a valid pseudoMd5 (md5[start:end])`);
+  }
+
+  if (real === true && !validRealMd5(input)) {
+    return new Error(`${input} is not a simple md5`);
+  }
+};
+
 //todo - get a robust one, i just hacked this together
-export const email = params => input => {
+export const email = params => (input) => {
   if (!isString(input)) {
     return new Error(`${input} is not a string`);
   }
@@ -135,7 +152,7 @@ export const email = params => input => {
 };
 
 //remove package if you remove this test
-export const version = params => input => {
+export const version = params => (input) => {
   if (!isString(input)) {
     return new Error(`${input} is not a string`);
   }
@@ -148,7 +165,7 @@ export const version = params => input => {
 };
 
 //remove package if you remove this test
-export const url = params => input => {
+export const url = params => (input) => {
   if (!isString(input)) {
     return new Error(`${input} is not a string`);
   }
@@ -158,7 +175,7 @@ export const url = params => input => {
   }
 };
 
-export const date = params => input => {
+export const date = params => (input) => {
   if (!isDate(input)) {
     return new Error(`${input} is not a valid date`);
   }
@@ -168,61 +185,57 @@ export const date = params => input => {
  complex
  *******/
 
-export const instanceOf = type => input => {
-  if (!input instanceof type) {
+export const instanceOf = type => (input) => {
+  if (!(input instanceof type)) {
     return new Error(`${input} is not an instance of ${type}`);
   }
 };
 
 //reference check only. Might want another one for deep equality check
-export const equal = checker => input => {
+export const equal = checker => (input) => {
   if (!Object.is(checker, input)) {
     return new Error(`${input} does not equal ${checker}`);
   }
 };
 
-export const shape = (fields, { required = false } = {}) => input => {
+export const shape = (fields, { required = false } = {}) => (input) => {
   if (!isRealObject(fields)) {
     return new Error(`shape ${fields} is not an object`);
   }
 
-  const checker = (key) => {
-    return safeValidate(fields[key], required, input[key]);
-  };
+  const checker = key => safeValidate(fields[key], required, input[key]);
 
   if (!Object.keys(fields).every(checker)) {
     return new Error(`input ${input} passed to shape did not pass validation`);
   }
 };
 
-export const oneOf = possible => input => {
+export const oneOf = possible => (input) => {
   if (!Array.isArray(possible)) {
     return new Error(`possible values ${possible} for oneOf not an array`);
   }
 
   if (possible.indexOf(input) < 0) {
-    return new Error(input + ' not found in ' + possible.join(', '));
+    return new Error(`${input} not found in ${possible.join(', ')}`);
   }
 };
 
 //can pass either function to validate, or an object to check instanceof
-export const oneOfType = (types, { required = false } = {}) => input => {
+export const oneOfType = (types, { required = false } = {}) => (input) => {
   if (!Array.isArray(types)) {
     return new Error(`possible types ${types} for oneOfType not an array`);
   }
 
-  const checker = type => {
-    return isFunction(type) ?
+  const checker = type => isFunction(type) ?
       safeValidate(type, required, input) :
     input instanceof type;
-  };
 
   if (!types.some(checker)) {
     return new Error(`input ${input} passed to oneOfType not found in ${types}`);
   }
 };
 
-export const arrayOf = (validator, { required = false } = {}) => input => {
+export const arrayOf = (validator, { required = false } = {}) => (input) => {
   if (!isFunction(validator)) {
     return new Error(`validator ${validator} passed to arrayOf is not a function`);
   }
@@ -235,8 +248,28 @@ export const arrayOf = (validator, { required = false } = {}) => input => {
     return new Error(`this arrayOf requires values, but got an empty array: ${input}`);
   }
 
-  if (!input.every(item => safeValidate(validator, required, item))) {
-    return new Error(`input ${input} passed to arrayOf did not pass validation`);
+  const found = _.find(input, item => !safeValidate(validator, required, item));
+  if (found) {
+    return new Error(`item ${found} in ${input} passed to arrayOf did not pass validation`);
+  }
+};
+
+export const objectOf = (validator, { required = false } = {}) => (input) => {
+  if (!isFunction(validator)) {
+    return new Error(`validator ${validator} passed to arrayOf is not a function`);
+  }
+
+  if (!isRealObject(input)) {
+    return new Error(`input ${input} passed to object is not a plain object, or is an array`);
+  }
+
+  if (required && !Object.keys(input).length) {
+    return new Error(`this objectOf requires values, but got an empty object: ${input}`);
+  }
+
+  const found = _.find(input, (value, key) => !safeValidate(validator, required, value, key));
+  if (found) {
+    return new Error(`item ${found} in ${input} passed to objectOf did not pass validation`);
   }
 };
 

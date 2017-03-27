@@ -13,8 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { set as pathSet, unset as pathUnset, cloneDeep, merge } from 'lodash';
+import deepFreeze from 'deep-freeze';
 import invariant from 'invariant';
+import { assign, cloneDeep, merge, set as pathSet, unset as pathUnset } from 'lodash';
 
 /**
  * The Immutable class creates Immutable objects, whose properties are immutable and cannot be modifed except through their defined API.
@@ -27,17 +28,16 @@ export default class Immutable {
   /**
    * @constructor
    * @param {Object} input
+   * @param {Boolean} [frozen=true] Make it frozen (an immutable)
    * @returns {Immutable}
    */
-  constructor(input = {}) {
+  constructor(input = {}, frozen = true) {
     invariant(typeof input === 'object', 'must pass an object Immutable constructor');
 
-    merge(this,
-      input,
-    );
+    assign(this, input);
 
-    if (process.env.NODE_ENV !== 'production') {
-      require('deep-freeze')(this);
+    if (frozen !== false && process.env.NODE_ENV !== 'production') {
+      deepFreeze(this);
     }
 
     return this;
@@ -66,6 +66,27 @@ export default class Immutable {
   }
 
   /**
+   * Remove a property, returning a new Immutable
+   * Uses {@link https://lodash.com/docs#unset lodash _.unset()} syntax for path, e.g. `a[0].b.c`
+   * @method remove
+   * @memberOf Immutable
+   * @param {string} path Path of property to change
+   * @returns {Immutable} A new instance
+   * @example
+   * const initial = new Immutable({some: {value: 9}});
+   * initial.some.value; //9
+   * const next = initial.remove('some.value');
+   * next.some.value; //undefined
+   * initial.some.value; //9
+   */
+  remove(path) {
+    //use cloneDeep and perform mutation prior to calling constructor because constructor may freeze object
+    const base = cloneDeep(this);
+    pathUnset(base, path);
+    return new this.constructor(base);
+  }
+
+  /**
    * Return a new Immutable with input object merged into it
    * Uses {@link https://lodash.com/docs#merge lodash _.merge()} for performing a deep merge
    * @method merge
@@ -77,9 +98,7 @@ export default class Immutable {
    * const next = initial.merge({new: 'stuff'});
    */
   merge(obj) {
-    //use cloneDeep and perform mutation prior to calling constructor because constructor may freeze object
-    const base = cloneDeep(this);
-    merge(base, obj);
-    return new this.constructor(base);
+    //use merge and perform mutation prior to calling constructor because constructor may freeze object
+    return new this.constructor(merge({}, this, obj));
   }
 }

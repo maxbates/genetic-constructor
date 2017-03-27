@@ -13,9 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import Box2D from '../geometry/box2d';
 import invariant from 'invariant';
+
 import { clearSelection } from '../../../utils/ui/uiapi';
+import Box2D from '../geometry/box2d';
 
 /**
  * an interactive fence / drag box for the construct viewer
@@ -58,10 +59,10 @@ export default class Fence {
     client.x = client.y = 0;
     const final = box.intersectWithBox(client);
     if (final) {
-      this.fenceElement.style.left = final.x + 'px';
-      this.fenceElement.style.top = final.y + 'px';
-      this.fenceElement.style.width = final.w + 'px';
-      this.fenceElement.style.height = final.h + 'px';
+      this.fenceElement.style.left = `${final.x}px`;
+      this.fenceElement.style.top = `${final.y}px`;
+      this.fenceElement.style.width = `${final.w}px`;
+      this.fenceElement.style.height = `${final.h}px`;
     }
   }
 

@@ -15,11 +15,10 @@ limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { transact, commit } from '../../store/undo/actions';
 
-import InventoryItem from './InventoryItem';
-
+import { commit, transact } from '../../store/undo/actions';
 import '../../styles/InventoryList.css';
+import InventoryItem from './InventoryItem';
 
 export class InventoryList extends Component {
   static propTypes = {
@@ -43,18 +42,18 @@ export class InventoryList extends Component {
 
     return (
       <div className="InventoryList no-vertical-scroll">
-        {items.map(item => {
-          return (
-            <InventoryItem key={item.id}
-                           inventoryType={inventoryType}
-                           onDragStart={transact}
-                           onDragComplete={commit}
-                           onDrop={onDrop}
-                           onSelect={onSelect}
-                           item={item}
-                           dataAttribute={`${dataAttributePrefix} ${item.id}`}/>
-          );
-        })}
+        {items.map(item => (
+          <InventoryItem
+            key={item.id}
+            inventoryType={inventoryType}
+            onDragStart={transact}
+            onDragComplete={commit}
+            onDrop={onDrop}
+            onSelect={onSelect}
+            item={item}
+            dataAttribute={`${dataAttributePrefix} ${item.id}`}
+          />
+          ))}
       </div>
     );
   }

@@ -1,0 +1,11 @@
+{
+  "globals": {
+    "heap": false
+  },
+  "rules" : {
+    "max-len" : 0,
+
+    //we often need to pierce component abstraction and get DOM element, e.g. for drag-drop interactions
+    "react/no-find-dom-node": 0
+  }
+}

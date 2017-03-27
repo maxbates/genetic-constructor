@@ -13,11 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import fields from './fields/index';
-import Schema from './SchemaClass';
-
-import ParentSchema from './Parent';
 import MetadataSchema from './Metadata';
+import ParentSchema from './Parent';
+import Schema from './SchemaClass';
+import fields from './fields/index';
 
 /**
  * Instance is a parent class. These are IDed and versioned objects with an ancestry, with a dedicated metadata field.

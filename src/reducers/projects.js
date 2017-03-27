@@ -19,7 +19,7 @@ import * as instanceMap from '../store/instanceMap';
 const initialState = {};
 
 if (process.env.NODE_ENV === 'test') {
-  const testProject = require('../../test/res/testProject').project;
+  const testProject = require('../../test/res/testProject').project; //eslint-disable-line global-require
   Object.assign(initialState, {
     test: testProject,
   });
@@ -27,43 +27,52 @@ if (process.env.NODE_ENV === 'test') {
 
 export default function projects(state = initialState, action) {
   switch (action.type) {
-  case ActionTypes.PROJECT_CREATE :
-  case ActionTypes.PROJECT_LOAD :
-  case ActionTypes.PROJECT_MERGE :
-  case ActionTypes.PROJECT_RENAME :
-  case ActionTypes.PROJECT_REMOVE_CONSTRUCT:
-  case ActionTypes.PROJECT_ADD_CONSTRUCT :
-    const { project } = action;
-    instanceMap.saveProject(project);
-    return Object.assign({}, state, { [project.id]: project });
+    case ActionTypes.PROJECT_CREATE :
+    case ActionTypes.PROJECT_CLONE :
+    case ActionTypes.PROJECT_STASH :
+    case ActionTypes.PROJECT_LOAD :
+    case ActionTypes.PROJECT_MERGE :
+    case ActionTypes.PROJECT_RENAME :
+    case ActionTypes.PROJECT_SET_DESCRIPTION :
+    case ActionTypes.PROJECT_SET_KEYWORDS :
+    case ActionTypes.PROJECT_REMOVE_CONSTRUCT:
+    case ActionTypes.PROJECT_ADD_CONSTRUCT :
+    case ActionTypes.PROJECT_FILE_WRITE :
+      const { project } = action;
+      instanceMap.saveProject(project);
+      return Object.assign({}, state, { [project.id]: project });
 
-  case ActionTypes.PROJECT_SNAPSHOT :
-  case ActionTypes.PROJECT_SAVE :
-    const { projectId, sha, time } = action;
-    const gotProject = state[projectId];
-    const updatedProject = gotProject.updateVersion(sha, time);
-    instanceMap.saveProject(updatedProject);
-    return Object.assign({}, state, { [projectId]: updatedProject });
+    case ActionTypes.PROJECT_SETPALETTE :
+      action.project.setPalette(action.paletteName);
+      instanceMap.saveProject(action.project);
+      return Object.assign({}, state, { [action.project.id]: action.project });
 
-  case ActionTypes.PROJECT_LIST :
-    const { projects } = action;
-    instanceMap.saveProject(...projects);
-    const zippedProjects = projects.reduce((acc, project) => Object.assign(acc, { [project.id]: project }), {});
+
+    case ActionTypes.PROJECT_SAVE :
+    case ActionTypes.SNAPSHOT_PROJECT :
+    case ActionTypes.COMMONS_PUBLISH :
+      const { projectId, version, time } = action;
+      const gotProject = state[projectId];
+      const updatedProject = gotProject.updateVersion(version, time);
+      instanceMap.saveProject(updatedProject);
+      return Object.assign({}, state, { [projectId]: updatedProject });
+
+    case ActionTypes.PROJECT_LIST :
+      const { projects } = action;
+      instanceMap.saveProject(...projects);
+      const zippedProjects = projects.reduce((acc, project) => Object.assign(acc, { [project.id]: project }), {});
     //prefer state versions to zipped versions
-    return Object.assign({}, zippedProjects, state);
+      return Object.assign({}, zippedProjects, state);
 
-  case ActionTypes.PROJECT_DELETE : {
-    const { projectId } = action;
-    const nextState = Object.assign({}, state);
-    delete nextState[projectId];
-    instanceMap.removeProject(projectId);
-    return nextState;
-  }
+    case ActionTypes.PROJECT_DELETE : {
+      const { projectId } = action;
+      const nextState = Object.assign({}, state);
+      delete nextState[projectId];
+      instanceMap.removeProject(projectId);
+      return nextState;
+    }
 
-  case ActionTypes.USER_SET_USER :
-    return Object.assign({}, initialState);
-
-  default :
-    return state;
+    default :
+      return state;
   }
 }

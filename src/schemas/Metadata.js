@@ -13,9 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import fields from './fields/index';
-import * as validators from './fields/validators';
 import Schema from './SchemaClass';
+import fields from './fields/index';
 
 /**
  * Metadata is a subfield of Instances
@@ -32,18 +31,28 @@ const fieldDefs = {
     fields.string({ max: 2048 }),
     'Description of instance',
   ],
-  authors: [
-    fields.arrayOf(validators.id(), { required: true }).required,
-    'IDs of authors',
-  ],
   created: [
     fields.number(),
     'POSIX time when object was created',
     { scaffold: () => Date.now() },
   ],
+  updated: [
+    fields.number(),
+    'POSIX time when object was updated',
+    { avoidScaffold: true },
+  ],
   tags: [
     fields.object().required,
     'Dictionary of tags defining object',
+  ],
+  keywords: [
+    fields.arrayOf((value => typeof value === 'string')).required,
+    'Keywords (lowercase)',
+  ],
+  palette: [
+    fields.string(),
+    'Color palette (for Project or Construct)',
+    { avoidScaffold: true },
   ],
 };
 

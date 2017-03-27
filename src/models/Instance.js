@@ -13,14 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { set as pathSet, unset as pathUnset, cloneDeep, merge } from 'lodash';
 import invariant from 'invariant';
-import Immutable from './Immutable';
-import InstanceSchema from '../schemas/Instance';
-import safeValidate from '../schemas/fields/safeValidate';
-import { version } from '../schemas/fields/validators';
+import { assign, cloneDeep, merge } from 'lodash';
 
-const versionValidator = (ver, required = false) => safeValidate(version(), required, ver);
+import InstanceSchema from '../schemas/Instance';
+import ParentSchema from '../schemas/Parent';
+import Immutable from './Immutable';
 
 /**
  * Instances are immutable objects, which conform to a schema, and provide an explicit API for modifying their data.
@@ -36,18 +34,18 @@ export default class Instance extends Immutable {
    * @constructor
    * @param {Object} input Input object
    * @param {Object} [subclassBase] If extending the class, additional fields to use in the scaffold
-   * @param {Object} [moreFields] Additional fields, beyond the scaffold
+   * @param {Object} [frozen=true] Additional fields, beyond the scaffold
    * @returns {Instance} An instance, frozen if not in production
    */
-  constructor(input = {}, subclassBase, moreFields) {
+  constructor(input = {}, subclassBase, frozen) {
     invariant(typeof input === 'object', 'must pass an object (or leave undefined) to model constructor');
 
+    //not sure why this is complaining...
+    //eslint-disable-next-line constructor-super
     return super(merge(
-      InstanceSchema.scaffold(),
-      subclassBase,
-      moreFields,
+      assign(InstanceSchema.scaffold(), subclassBase), //perf. NB - this is only valid so long as no overlapping fields (esp. nested ones)
       input,
-    ));
+    ), frozen);
   }
 
   /**
@@ -69,10 +67,12 @@ export default class Instance extends Immutable {
   }
 
   /**
-   * Clone an instance, adding the parent to the ancestry of the child Instance.
+   * Clone an instance, with a new ID
+   * parentInfo === null -> simply copy
+   * parentInfo !== null, add the parent to the ancestry of the child Instance.
    * @method clone
    * @memberOf Instance
-   * @param {object|null|string} [parentInfo={}] Parent info for denoting ancestry. If pass null to parentInfo, the instance is simply cloned, and nothing is added to the history. If pass a string, it will be used as the version.
+   * @param {object|null} [parentInfo={}] Parent info for denoting ancestry. If pass null to parentInfo, the instance is simply cloned, and nothing is added to the history.
    * @param {Object} [overwrites={}] object to merge into the cloned Instance
    * @throws if version is invalid (not provided and no field version on the instance)
    * @returns {Instance}
@@ -84,23 +84,24 @@ export default class Instance extends Immutable {
     if (parentInfo === null) {
       clone = merge(cloned, overwrites);
     } else {
-      const inputObject = (typeof parentInfo === 'string') ?
-      { version: parentInfo } :
-        parentInfo;
-
       const parentObject = Object.assign({
         id: cloned.id,
+        owner: cloned.owner,
         version: cloned.version,
-      }, inputObject);
+        created: Date.now(),
+      }, parentInfo);
 
-      invariant(versionValidator(parentObject.version), 'must pass a valid version (SHA), got ' + parentObject.version);
+      //throw if invalid parent
+      ParentSchema.validate(parentObject, true);
 
       const parents = [parentObject, ...cloned.parents];
 
       //unclear why, but merging parents was not overwriting the clone, so shallow assign parents specifically
       clone = Object.assign(merge(cloned, overwrites), { parents });
-      delete clone.id;
     }
+
+    //unset the ID, so we make it fresh
+    delete clone.id;
 
     return new this.constructor(clone);
   }

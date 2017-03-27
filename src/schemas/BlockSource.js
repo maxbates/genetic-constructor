@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import fields from './fields/index';
 import Schema from './SchemaClass';
+import fields from './fields/index';
 
 /**
  * BlockSource denotes where a block came from. It is generally set on import / addition to the project
@@ -25,18 +25,24 @@ import Schema from './SchemaClass';
 const blockSourceFields = {
   source: [
     fields.string(),
-    `key of foundry the Order has been submitted to`,
+    'Source key for where the block came from',
   ],
 
   id: [
     fields.string(),
-    `ID at remote foundry`,
+    'ID of remote resource',
   ],
 
   url: [
     fields.string(),
-    `URL to resource, relative paths are relative to genetic construct root URL`,
-    { scaffold: false },
+    'URL to resource, relative paths are relative to genetic construct root URL',
+    { avoidScaffold: true },
+  ],
+
+  file: [
+    fields.string(),
+    'URL to file, relative paths are relative to genetic construct root URL',
+    { avoidScaffold: true },
   ],
 };
 

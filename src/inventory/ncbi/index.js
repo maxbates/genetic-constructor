@@ -13,53 +13,56 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch from '../../middleware/rejectingFetch';
+import _, { merge } from 'lodash';
 import queryString from 'query-string';
+
+import { convert } from '../../middleware/genbank';
+import rejectingFetch from '../../middleware/utils/rejectingFetch';
 import Block from '../../models/Block';
-import { merge, debounce } from 'lodash';
-import { convertGenbank } from '../../middleware/genbank';
+
+const fetchOpts = {
+  mode: 'cors',
+};
 
 // NCBI limits number of requests per user/ IP, so better to initate from the client and I support process on client...
 export const name = 'NCBI';
 
-const makeFastaUrl = (id) => `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${id}&rettype=fasta&retmode=text`;
+const makeNcbiUrl = id => `https://www.ncbi.nlm.nih.gov/nuccore/${id}`;
+
+const makeFastaUrl = id => `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${id}&rettype=fasta&retmode=text`;
 
 //todo - handle RNA? reject it? what do we want to do?
 
 //convert genbank file to bunch of blocks
 //assume there is always one root construct
 //returns array in form [construct, ...blocks]
-const genbankToBlock = (gb, onlyConstruct) => {
-  return convertGenbank(gb, onlyConstruct)
-    .then(result => {
-      const { blocks, roots } = result;
-      const blockArray = Object.keys(blocks).map(blockId => blocks[blockId]);
-      const constructIndex = blockArray.findIndex(block => block.id === roots[0]);
+const genbankToBlock = (gb, onlyConstruct) => convert(gb, onlyConstruct)
+    .then((result) => {
+      const { project, blocks } = result;
+      //put the construct first in a sorted array
+      const blockArray = _.values(blocks);
+      const constructIndex = blockArray.findIndex(block => block.id === project.components[0]);
       const construct = blockArray.splice(constructIndex, 1);
       return [...construct, ...blockArray];
     });
-};
 
-const wrapBlock = (block, id) => {
-  return new Block(merge({}, block, {
-    source: {
-      source: 'ncbi',
-      id,
-    },
-  }));
-};
+const wrapBlock = (block, id) => new Block(merge({}, block, {
+  source: {
+    source: 'ncbi',
+    url: makeNcbiUrl(id),
+    id,
+  },
+}));
 
 //pass in form { blockField: summaryField }
-const mapSummaryToNotes = (map, summary) => {
-  return Object.keys(map).reduce((acc, blockField) => {
-    const summaryField = map[blockField];
-    const summaryValue = summary[summaryField];
-    if (summaryValue) {
-      return Object.assign(acc, { [ blockField]: summaryValue });
-    }
-    return acc;
-  }, {});
-};
+const mapSummaryToNotes = (map, summary) => Object.keys(map).reduce((acc, blockField) => {
+  const summaryField = map[blockField];
+  const summaryValue = summary[summaryField];
+  if (summaryValue) {
+    return Object.assign(acc, { [blockField]: summaryValue });
+  }
+  return acc;
+}, {});
 
 const parseSummary = (summary) => {
   const fastaUrl = makeFastaUrl(summary.accessionversion);
@@ -80,6 +83,7 @@ NCBI Accession: ${summary.accessionversion}`,
     source: {
       source: 'ncbi',
       id: summary.accessionversion,
+      url: makeNcbiUrl(summary.accessionversion),
     },
     notes: mapSummaryToNotes({
       Organism: 'organism',
@@ -100,9 +104,9 @@ const getSummary = (...ids) => {
 
   const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=nuccore&id=${idList}&retmode=json`;
 
-  return rejectingFetch(url)
+  return rejectingFetch(url, fetchOpts)
     .then(resp => resp.json())
-    .then(json => {
+    .then((json) => {
       //returns dictionary of UID -> ncbi entry, with extra key uids
       const results = json.result;
       delete results.uids;
@@ -112,10 +116,10 @@ const getSummary = (...ids) => {
     .then(results => results
       .map(result => parseSummary(result))
       //filter out results more than a megabase since we cant handle them very well
-      .filter(summary => summary.sequence.length < 1000000)
+      .filter(summary => summary.sequence.length < 1000000),
     )
-    .catch(err => {
-      console.log(err);
+    .catch((err) => {
+      console.log(err); //eslint-disable-line no-console
       throw err;
     });
 };
@@ -132,9 +136,9 @@ export const get = (accessionVersion, parameters = {}, searchResult) => {
 
   const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=${accessionVersion}&rettype=${format}&retmode=text`;
 
-  return rejectingFetch(url)
+  return rejectingFetch(url, fetchOpts)
     .then(resp => resp.text())
-    .then(text => {
+    .then((text) => {
       //make sure we didnt get a 500 error from them
       if (text.indexOf('<!DOCTYPE') === 0) {
         return Promise.reject(text);
@@ -143,8 +147,8 @@ export const get = (accessionVersion, parameters = {}, searchResult) => {
     })
     .then(genbank => genbankToBlock(genbank, parametersMapped.onlyConstruct))
     .then(blocks => blocks.map(block => wrapBlock(block, accessionVersion)))
-    .then(blockModels => {
-      const [constructUnmerged, ... rest] = blockModels;
+    .then((blockModels) => {
+      const [constructUnmerged, ...rest] = blockModels;
 
       //we assign the ID so it matches the summary, and focuses in the inventory properly
       //note that this depends on the construct being cloned on drop
@@ -158,8 +162,8 @@ export const get = (accessionVersion, parameters = {}, searchResult) => {
         [construct.merge({ sequence: searchResult.sequence })] : //if just returning the construct (e.g. for inventory), patch it with the sequence information
         [construct, ...rest];
     })
-    .catch(err => {
-      console.log(err);
+    .catch((err) => {
+      console.log(err); //eslint-disable-line no-console
       throw err;
     });
 };
@@ -176,7 +180,7 @@ export const search = (query, options = {}) => {
   const mappedParameters = {
     retstart: parameters.start,
     retmax: parameters.entries,
-    term: query,
+    term: `${query} 1:1000000[SLEN]`,
     retmode: 'json',
     sort: 'relevance',
   };
@@ -187,16 +191,16 @@ export const search = (query, options = {}) => {
 
   let count;
 
-  return rejectingFetch(url)
+  return rejectingFetch(url, fetchOpts)
     .then(resp => resp.json())
-    .then(json => {
+    .then((json) => {
       count = json.esearchresult.count;
       return json.esearchresult.idlist;
     })
     .then(ids => getSummary(...ids))
     .then(results => Object.assign(results, { count, parameters }))
-    .catch(err => {
-      console.log(err);
+    .catch((err) => {
+      console.log(err); //eslint-disable-line no-console
       throw err;
     });
 };
@@ -205,5 +209,5 @@ export const sourceUrl = ({ url, id }) => {
   if (!id && !url) {
     return null;
   }
-  return !!id ? `https://www.ncbi.nlm.nih.gov/nuccore/${id}` : url;
+  return id ? makeNcbiUrl(id) : url;
 };

@@ -14,24 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
-import {connect} from 'react-redux';
-import { uiSetGrunt } from '../actions/ui';
+import { connect } from 'react-redux';
 
 import '../../src/styles/ribbongrunt.css';
+import { uiSetGrunt } from '../actions/ui';
 
 // MS display time for grunt messages
 const DISPLAY_TIME = 5000;
 
 class RibbonGrunt extends Component {
-
   static propTypes = {
     gruntMessage: PropTypes.string,
     uiSetGrunt: PropTypes.func.isRequired,
+    atTop: PropTypes.bool,
   };
-
-  constructor() {
-    super();
-  }
 
   // if we going to show a message then start or extend the close timer
   componentWillReceiveProps(nextProps) {
@@ -41,25 +37,28 @@ class RibbonGrunt extends Component {
     }
   }
 
-  close() {
+  close = () => {
     window.clearTimeout(this.closeTimer);
     this.props.uiSetGrunt('');
-  }
-
-  cancelTimer() {
-    window.clearTimeout(this.closeTimer);
-  }
+  };
 
   render() {
-    if (this.props.gruntMessage) {
-      return (
-        <div className="ribbongrunt">{this.props.gruntMessage}
-          <button onClick={this.close.bind(this)}>&times;</button>
-        </div>
-      );
-    }
-    return null;
+    const message = this.props.gruntMessage || this.lastMessage;
+    this.lastMessage = this.props.gruntMessage;
+    const classes = `ribbongrunt ${
+      this.props.gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}${
+      this.props.atTop ? ' atTop' : ''}`;
+
+    return (
+      <div className={classes}>
+        <span>{message}
+          <img src="/images/ui/close_icon_dark.svg" onClick={this.close} />
+        </span>
+
+      </div>
+    );
   }
+  //
 }
 
 function mapStateToProps(state) {

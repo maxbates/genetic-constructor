@@ -1,0 +1,44 @@
+@import './variables.css';
+
+.FormText {
+  outline: 0;
+  padding: 0.25rem 0.75rem;
+  margin: 0;
+  border-radius: 2px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--colors-nearlyBlack);
+  background-color: var(--colors-white);
+  border: solid 2px var(--colors-lightGrey);
+  transition: border-color var(--timing-fast) ease-out, backgrond-color var(--timing-fast) ease-out;
+
+  textarea& {
+    padding: 0.5rem 0.75rem;
+    vertical-align: top;
+  }
+
+  &.transparent {
+    border-color: transparent !important;
+    background-color: transparent !important;
+  }
+
+  &:focus {
+    border-color: var(--colors-slightlyDarkGrey);
+  }
+
+  &:not(:first-child) {
+    margin-left: 1rem;
+  }
+
+  &[disabled] {
+    background-color: var(--colors-lighterGrey);
+    cursor: not-allowed;
+  }
+}
+
+::-webkit-input-placeholder,
+:-moz-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+  color: var(--colors-grey);
+}

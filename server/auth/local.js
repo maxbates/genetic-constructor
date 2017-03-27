@@ -22,20 +22,95 @@
  *
  * This user is used in unit testing.
  */
+import fs from 'fs';
+import path from 'path';
+
+import bodyParser from 'body-parser';
+import debug from 'debug';
+import EmailValidator from 'email-validator';
 import express from 'express';
-import checkUserSetup from './userSetup';
+import uuid from 'node-uuid';
+
+import { testUserId } from '../../test/constants';
+import userConfigDefaults from '../onboarding/userConfigDefaults';
+import checkUserSetup from '../onboarding/userSetup';
+import { userConfigKey } from '../user/userConstants';
+import { getConfigFromUser, mergeConfigToUserData } from '../user/utils';
+
+const log = debug('constructor:auth:local');
+
+//note - mocks missing for forgot-password and reset-password
+
+//super basic session handling
+const requireLogin = Boolean(process.env.REQUIRELOGIN);
+const generateMockCookieValue = () => requireLogin ?
+  `cookie${Math.floor(Math.random() * 10000000)}` :
+  'mock-auth';
+let currentCookie = generateMockCookieValue();
 
 export const router = express.Router(); //eslint-disable-line new-cap
+const jsonParser = bodyParser.json();
 
-export const defaultUser = {
-  uuid: '0',
-  email: 'developer@localhost',
-  firstName: 'Dev',
-  lastName: 'Eloper',
+const defaultUserForcedFields = (shouldUpdate = false) => {
+  //for test environment, allow forcing of a new ID so can start with a clean slate
+  //note - this will not support logging out and back in, you will get a new ID on each log in
+  if (process.env.LOCAL_AUTH_NEW_USERS && shouldUpdate) {
+    return { uuid: uuid.v4() };
+  }
+  return { uuid: testUserId };
 };
 
+const configForDefaultUser = Object.assign({}, userConfigDefaults);
+const userData = Object.assign({}, { [userConfigKey]: configForDefaultUser });
+
+//save user in a temporary file, so it is not cleared across server-reloads
+const userConfigTempPath = path.resolve(__dirname, 'temp.config.json');
+let loadedUser = {};
+try {
+  const fileText = fs.readFileSync(userConfigTempPath, 'utf8');
+  loadedUser = JSON.parse(fileText);
+} catch (err) {
+  //no need to report error...
+}
+
+// THIS IS THE MOCKED USER
+//this object will get updated as /register and /update the user (one user in local auth)
+export const defaultUser = Object.assign(
+  {
+    email: 'developer@localhost.com',
+    firstName: 'Dev',
+    lastName: 'Eloper',
+  },
+  { data: userData },
+  loadedUser,
+  defaultUserForcedFields(),
+);
+
+//initial user setup for the default user
+export const ensureUserSetup = () => checkUserSetup(defaultUser)
+.catch((resp) => {
+  log('error checking user setup in ensureUserSetup');
+  log(resp);
+
+  if (!resp.text) {
+    return Promise.reject(resp);
+  }
+
+  return resp.text().then((text) => {
+    console.log(`${text}`);
+    return Promise.reject(text);
+  });
+});
+
+// @ req.user.data[userConfigKey]
+
+//basic auth routes
+
 router.post('/login', (req, res) => {
-  res.cookie('sess', 'mock-auth');
+  log('Logging in...');
+
+  currentCookie = generateMockCookieValue();
+  res.cookie('sess', currentCookie);
   res.statusCode = 200;
   res.send(defaultUser);
   return res.end();
@@ -58,7 +133,94 @@ router.get('/current-user', (req, res) => {
   return res.end();
 });
 
-//testing only - route not present in auth module
+router.post('/find', (req, res) => {
+  const { uuid } = req.body;
+  log(`finding ${uuid}`);
+
+  return res.status(200).send(defaultUser);
+});
+
+router.get('/logout', (req, res) => {
+  log('Logging out...');
+
+  currentCookie = null;
+  res.clearCookie('sess');
+  res.status(200).send();
+});
+
+// simulate saving to the user object.
+// allow writing user config, but not ID etc.
+// expects full user object to be posted
+const handleUpdate = (req, res, next) => {
+  const userInput = req.body;
+  const inputConfig = getConfigFromUser(userInput);
+
+  //merge deep here to match the auth platform
+  const mappedUser = mergeConfigToUserData(userInput, inputConfig);
+
+  //assign to the default user
+  Object.assign(defaultUser, mappedUser);
+
+  //force ID unless minting new ones across all signins
+  if (!process.env.LOCAL_AUTH_NEW_USERS) {
+    Object.assign(defaultUser, defaultUserForcedFields(false));
+  }
+
+  log('User Update:');
+  log(defaultUser);
+
+  fs.writeFileSync(userConfigTempPath, JSON.stringify(defaultUser, null, 2), 'utf8');
+
+  res.json(defaultUser);
+};
+
+//we dont really do anything on register, but do need to handle it the same way as auth platform
+// this route expects an email and password (fristname ,lastname, config), not the whole user.
+const handleRegister = (req, res, next) => {
+  const { email, password, firstName, lastName, data } = req.body;
+
+  //basic checks, auth platform usually sends 400
+  if (!email || !EmailValidator.validate(email)) {
+    res.status(400).json({ message: 'invalid email' });
+  }
+  if (!password || password.length < 6) {
+    res.status(400).json({ message: 'invalid password' });
+  }
+
+  Object.assign(defaultUser, { email, firstName, lastName }, defaultUserForcedFields(true));
+  if (data) {
+    Object.assign(defaultUser, { data });
+  }
+
+  log('User Register:');
+  log(defaultUser);
+
+  //if not logged in (requireLogin) then mockAuth won't setup user on register, so lets double check here (even though ID not changing)
+  checkUserSetup(defaultUser)
+  .then(() => {
+    currentCookie = generateMockCookieValue();
+    res.cookie('sess', currentCookie);
+    res.send(defaultUser);
+  })
+  .catch((err) => {
+    console.error(err, err.stack);
+    res.status(500).send(err);
+  });
+};
+
+// register the new user
+// POST config object (not user object)
+//we aren't really creating a user - we are just updating the preferences of default user (since there is only one user in local auth)
+router.post('/register', jsonParser, handleRegister);
+
+// update user information
+// POST user object
+// for the moment, not actually persisted, just save for the session of the server (and there is only one user)
+router.post('/update-all', jsonParser, handleUpdate);
+
+// testing only
+
+// route not present in auth module
 router.get('/cookies', (req, res) => {
   if (req.cookies.sess) {
     return res.send(req.cookies.sess);
@@ -67,12 +229,29 @@ router.get('/cookies', (req, res) => {
   res.send(':(');
 });
 
-export const mockUser = (req, res, next) => {
-  if (req.cookies.sess !== null) {
-    Object.assign(req, { user: defaultUser });
-  }
+const listeners = [];
 
-  //stub the initial user setup here as well
-  checkUserSetup({ uuid: "0" })
-    .then(() => next());
+//assign the user to the request, including their config
+export const mockUser = (req, res, next) => {
+  if (requireLogin !== true || req.cookies.sess === currentCookie) {
+    Object.assign(req, { user: defaultUser });
+
+    if (listeners.length > 0) {
+      log('mockUser() clearing listeners...');
+      return Promise.all(listeners.map(listener => listener()))
+      .then(() => {
+        listeners.length = 0;
+        next();
+      });
+    }
+
+    next();
+  } else {
+    next();
+  }
+};
+
+//can't call userSetup immediately, need to wait until server has started, so cue it for first request
+export const prepareUserSetup = () => {
+  listeners.push(ensureUserSetup);
 };

@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import Block from '../../models/Block';
 import { merge } from 'lodash';
+
+import Block from '../../models/Block';
 
 function normalizePartType(inputType) {
   let partType = inputType.toLowerCase();
@@ -32,7 +33,7 @@ function parseBasicFields(result) {
 
   return {
     metadata: {
-      name: name,
+      name,
     },
     rules: {
       role: partType,

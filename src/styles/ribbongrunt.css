@@ -3,34 +3,54 @@
 :root {
 --background: #FFFA81;
 --color: #67654D;
---fontsize: 1rem;
+--ribbon-fontsize: 1rem;
+--ribbon-height: 32px;
 --close-size: 20px;
 }
 
 .ribbongrunt {
-  height: var(--grunt-height);
-  line-height: var(--grunt-height);
-  font-size: var(--fontsize);
+  position: fixed;
+  top: var(--GlobalNav-height-chrome);
+  left: 50%;
+  z-index: var(--z-grunt);
+  font-size: var(--ribbon-fontsize);
   background-color: var(--background);
   color: var(--color);
   text-align: center;
-  position: absolute;
-  bottom: 0;
-  transform: translateY(100%);
-  z-index: 1;
-  width: 100%;
-}
-.ribbongrunt button {
-  float: right;
-  width: var(--close-size);
-  height: var(--grunt-height);
-  padding: 0;
-  margin: 0;
-  font-size: 1em;
-  font-size: var(--close-size);
-  line-height: var(--close-size);
-  background-color: transparent;
-  border: none;
-  outline: none;
-  margin-right: 15px;
+  border-radius: 0 0 5px 5px;
+  transform: translateX(-50%);
+  transition: top 250ms ease;
+  height: var(--ribbon-height);
+
+  &-visible {
+    top: 0;
+  }
+
+  &-hidden {
+    top: calc(0 - 100px);
+  }
+
+  span {
+    font-family: var(--font-family-base);
+    height: var(--ribbon-height);
+    line-height: var(--ribbon-height);
+    padding: 0 5rem;
+    position: relative;
+  }
+
+  img {
+    cursor: pointer;
+    transform: scale(0.5);
+    height: 32px;
+    float: right;
+    position: absolute;
+    right: 0;
+    top: -7px;
+  }
+
+  /* will go away with new UI design */
+  &.atTop {
+    bottom: 0;
+    height: 32px;
+  }
 }

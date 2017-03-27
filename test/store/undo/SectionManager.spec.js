@@ -9,7 +9,7 @@ describe('Store', () => {
       const stateB = { state: 'B', newVal: 'B' };
       const stateC = { state: 'C' };
 
-      const manager = new SectionManager(initialState, { debug: true });
+      const manager = new SectionManager(initialState);
 
       it('constructor() creates initial state for present', () => {
         const present = manager.getPresent();

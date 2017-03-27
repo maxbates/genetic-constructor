@@ -15,7 +15,7 @@
  do not import this file into client bundle. it will break it because it requires not specific packages.
  */
 
-import * as fileSystem from '../../server/utils/fileSystem';
+import * as fileSystem from '../../server/data/middleware/fileSystem';
 import invariant from 'invariant';
 import Block from '../../src/models/Block';
 import parse from 'csv-parse';

@@ -1,9 +1,10 @@
 var clickcontextmenu = function(browser, index) {
   browser
-    .waitForElementPresent('.menu-popup-blocker-visible .menu-popup-container', 5000, 'expected an open menu')
+    .waitForElementPresent('.menu-overlay .menu-overlay-menu', 5000, 'expected an open menu')
     .pause(250)
-    .click('.menu-popup-blocker-visible .menu-popup-container .menu-item:nth-of-type(' + index + ')')
-    .waitForElementNotPresent('.menu-popup-blocker-visible .menu-popup-container', 5000, 'expected a closed menu')
+    .click('.menu-overlay .menu-overlay-menu .menu-item:nth-of-type(' + index + ')')
+    .waitForElementNotPresent('.menu-overlay .menu-overlay-menu', 5000, 'expected a closed menu')
+    .pause(1000)
 };
 
 module.exports = clickcontextmenu;

@@ -7,12 +7,12 @@
     user-select: none;
 
     &-heading {
-      color: var(--colors-blueBlack);
+      color: var(--colors-nearlyBlack);
     }
 
     &-names,
     &-time {
-      color: var(--colors-grey);
+      color: var(--colors-slightlyDarkGrey);
     }
 
     &-action {

@@ -14,17 +14,15 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+
 import { block as blockDragType } from '../../constants/DragTypes';
 import { registry } from '../../inventory/registry';
-
+import '../../styles/InventorySearchResultGroup.css';
 import InventoryList from './InventoryList';
-import InventoryListGroup from './InventoryListGroup';
 
 export default class InventorySearchResultsBySource extends Component {
   static propTypes = {
     searchResults: PropTypes.object.isRequired,
-    sourcesVisible: PropTypes.object.isRequired,
-    onListGroupToggle: PropTypes.func.isRequired,
     onItemSelect: PropTypes.func.isRequired,
     onItemDrop: PropTypes.func.isRequired,
     onListGroupAction: PropTypes.func.isRequired,
@@ -36,41 +34,23 @@ export default class InventorySearchResultsBySource extends Component {
   }
 
   render() {
-    const { searchResults, sourcesVisible, onListGroupToggle, onItemSelect, onItemDrop } = this.props;
+    const { searchResults, onItemSelect, onItemDrop } = this.props;
 
     return (
       <div className="InventorySearchResultGroup">
         {Object.keys(searchResults).map((key) => {
           const name = registry[key].name;
           const results = searchResults[key];
-
-          //todo - this will not handle case where number results % number entries == 0
-          const moreResults = Number.isInteger(results.count) ?
-            results.length < results.count :
-            results.length % results.parameters.entries === 0;
-          const actionVisible = results.length > 0 && moreResults && sourcesVisible[key];
-
           return (
-            <InventoryListGroup title={`${name} (${results.length})`}
-                                disabled={!results.length}
-                                actionButton={{
-                                  text: 'Load More',
-                                  disabled: !!searchResults[key].loading,
-                                  visible: actionVisible,
-                                  onClick: (evt) => { this.handleListGroupAction(evt, key);},
-                                  'data-inventory': `load-more ${key}`,
-                                }}
-                                manual
-                                isExpanded={sourcesVisible[key]}
-                                onToggle={() => onListGroupToggle(key)}
-                                key={key}
-                                dataAttribute={`searchgroup ${name}`}>
-              <InventoryList inventoryType={blockDragType}
-                             onDrop={(item) => onItemDrop(key, item)}
-                             onSelect={(item) => onItemSelect(key, item)}
-                             items={results}
-                             dataAttributePrefix={`searchresult ${name}`}/>
-            </InventoryListGroup>
+            <div key={key}>
+              <InventoryList
+                inventoryType={blockDragType}
+                onDrop={item => onItemDrop(key, item)}
+                onSelect={item => onItemSelect(key, item)}
+                items={results}
+                dataAttributePrefix={`searchresult ${name}`}
+              />
+            </div>
           );
         })}
       </div>

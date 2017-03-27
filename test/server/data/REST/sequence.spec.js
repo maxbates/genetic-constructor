@@ -1,10 +1,13 @@
 import { assert, expect } from 'chai';
+import { testUserId } from '../../../constants';
 import request from 'supertest';
 import md5 from 'md5';
 import uuid from 'node-uuid';
+import Rollup from '../../../../src/models/Rollup';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
-import * as persistence from '../../../../server/data/persistence';
+import * as projectPersistence from '../../../../server/data/persistence/projects';
+import * as sequences from '../../../../server/data/persistence/sequence';
 import devServer from '../../../../server/server';
 
 describe('Server', () => {
@@ -12,8 +15,8 @@ describe('Server', () => {
     describe('REST', () => {
       describe('Sequence', () => {
         let server;
-        const userId = uuid.v4();
-        const projectData = new Project();
+        const userId = testUserId;
+        const projectData = new Project({ owner: testUserId });
         const projectId = projectData.id;
 
         const sequence = 'aaaaacccccccgggggggtttttt';
@@ -26,12 +29,12 @@ describe('Server', () => {
             length: sequence.length,
           },
         });
-        const blockId = blockData.id;
+
+        const roll = Rollup.fromArray(projectData, blockData);
 
         before(() => {
-          return persistence.projectCreate(projectId, projectData, userId)
-            .then(() => persistence.blockWrite(projectId, blockData))
-            .then(() => persistence.sequenceWrite(sequenceMd5, sequence));
+          return projectPersistence.projectWrite(projectId, roll, userId)
+            .then(() => sequences.sequenceWrite(sequenceMd5, sequence));
         });
 
         beforeEach('server setup', () => {
@@ -41,11 +44,18 @@ describe('Server', () => {
           server.close();
         });
 
-        it('GET errors with 400 when sequence doesnt exist', (done) => {
+        it('GET errors with 422 for invalid md5', (done) => {
           const url = `/data/sequence/notReal`;
           request(server)
             .get(url)
-            .expect(400, done);
+            .expect(422, done);
+        });
+
+        it('GET errors with 404 when sequence doesnt exist', (done) => {
+          const url = `/data/sequence/${md5(uuid.v4())}`;
+          request(server)
+            .get(url)
+            .expect(404, done);
         });
 
         it('GET an existing sequence returns the sequence', (done) => {
@@ -75,7 +85,7 @@ describe('Server', () => {
                 return;
               }
 
-              persistence.sequenceGet(newMd5)
+              sequences.sequenceGet(newMd5)
                 .then(seq => {
                   expect(seq).to.equal(newSequence);
                   done();
@@ -84,21 +94,65 @@ describe('Server', () => {
             });
         });
 
-        //todo
-        it('POST validates the sequence');
+        it('POST does not require md5', (done) => {
+          const newSequence = 'ACGTACTACTGACTGATCGAC';
+          const newMd5 = md5(newSequence);
+          const url = `/data/sequence/`;
 
-        it('DELETE does not allow deletion', (done) => {
-          const url = `/data/sequence/${sequenceMd5}`;
           request(server)
-            .del(url)
-            .expect(403)
+            .post(url)
+            .send({ sequence: newSequence })
+            .expect(200)
             .end((err, result) => {
               if (err) {
                 done(err);
                 return;
               }
 
-              persistence.sequenceGet(sequenceMd5)
+              expect(result.text).to.equal(newMd5);
+
+              sequences.sequenceGet(newMd5)
+                .then(seq => {
+                  expect(seq).to.equal(newSequence);
+                  done();
+                })
+                .catch(done);
+            });
+        });
+
+        it('POST validates the sequence', (done) => {
+          const fakeSeq = 'QWERTY';
+
+          const url = `/data/sequence/`;
+          request(server)
+            .post(url)
+            .send({ sequence: fakeSeq })
+            .expect(400, done);
+        });
+
+        it('POST validates the md5 if provided', (done) => {
+          const fakeSeq = 'BBBBBBB';
+          const fakeMd5 = md5(fakeSeq + 'asdf');
+
+          const url = `/data/sequence/${fakeMd5}`;
+          request(server)
+            .post(url)
+            .send({ sequence: fakeSeq })
+            .expect(409, done);
+        });
+
+        it('DELETE does not allow deletion', (done) => {
+          const url = `/data/sequence/${sequenceMd5}`;
+          request(server)
+            .del(url)
+            .expect(405)
+            .end((err, result) => {
+              if (err) {
+                done(err);
+                return;
+              }
+
+              sequences.sequenceGet(sequenceMd5)
                 .then((seq) => {
                   assert(seq === sequence, 'should be the same...');
                   done();

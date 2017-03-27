@@ -13,9 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import { InstanceSchemaClass } from './Instance';
+import ProjectFileSchema from './ProjectFile';
+import RulesSchema from './Rules';
 import fields from './fields/index';
 import * as validators from './fields/validators';
-import { InstanceSchemaClass } from './Instance';
 
 /**
  * Project is the container for a body of work. It consists primarily of constructs, but also orders, settings, etc.
@@ -30,25 +32,35 @@ const projectFields = {
     'Project UUID',
   ],
 
-  version: [
-    fields.version(),
-    'SHA1 version of project',
+  owner: [
+    fields.id(),
+    'Owner user ID, automatically set on get/set from server',
     { avoidScaffold: true },
   ],
 
-  lastSaved: [
+  version: [
     fields.number(),
-    'POSIX time (ms since 1970) when last saved',
+    'numeric version of project',
   ],
 
   components: [
     fields.arrayOf(validators.id()).required,
-    `Constructs associated with this project`,
+    'Constructs associated with this project',
   ],
 
   settings: [
     fields.object().required,
-    `Settings associated with this project`,
+    'Settings associated with this project',
+  ],
+
+  rules: [
+    RulesSchema,
+    'Rules governing the whole Project',
+  ],
+
+  files: [
+    fields.arrayOf(ProjectFileSchema.validate.bind(ProjectFileSchema)).required,
+    'Files associated with the project',
   ],
 };
 

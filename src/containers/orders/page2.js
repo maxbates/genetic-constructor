@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+
 import ConstructPreview from './constructpreview';
 
 export default class Page2 extends Component {
@@ -30,7 +31,7 @@ export default class Page2 extends Component {
 
     return (
       <div className="order-page page2">
-      <ConstructPreview order={this.props.order} />
+        <ConstructPreview order={this.props.order} />
       </div>
     );
   }

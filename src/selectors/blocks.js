@@ -13,12 +13,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+/**
+ * @module Selectors_Blocks
+ * @memberOf module:Selectors
+ */
 import invariant from 'invariant';
+import { flatten, get as pathGet, pickBy, values } from 'lodash';
+
 import BlockSchema from '../schemas/Block';
-import { values, flatten, get as pathGet, pickBy } from 'lodash';
 import saveCombinations from '../utils/generators/orderConstructs';
 
-const assertBlockExists = (block, blockId) => invariant(block && block.metadata, 'no block exists for block ID ' + blockId);
+const assertBlockExists = (block, blockId) => invariant(block && typeof block.metadata === 'object', `no block exists for block ID ${blockId}`);
 
 /***************************************
  * Parent accessing / store knowledge-requiring
@@ -31,20 +36,11 @@ const _getBlockFromStore = (blockId, store) => {
 };
 
 const _getParentFromStore = (blockId, store, def = null) => {
-  const id = Object.keys(store.blocks).find(id => {
+  const id = Object.keys(store.blocks).find((id) => {
     const block = _getBlockFromStore(id, store);
     return block.components.indexOf(blockId) > -1;
   });
-  return !!id ? store.blocks[id] : def;
-};
-
-//ommitting constructId will just return first found list owner
-const _getListOwnerFromStore = (optionId, constructId, store) => {
-  const block = _getBlockFromStore(optionId, store); //assert option is in the store
-  const contents = !!constructId ? _getAllContents(constructId, store) : store.blocks;
-  return Object.keys(contents)
-    .map(blockId => contents[blockId])
-    .find(block => block.options.hasOwnProperty(optionId));
+  return id ? store.blocks[id] : def;
 };
 
 //todo - move to object
@@ -63,10 +59,11 @@ const _getAllComponents = (rootId, store, children = []) => {
   return children;
 };
 
+//return map, of children IDs to depth
 const _getAllComponentsByDepth = (rootId, store, children = {}, depth = 1) => {
   const kids = _getComponentsShallow(rootId, store);
   if (kids.length) {
-    kids.forEach(kid => {
+    kids.forEach((kid) => {
       children[kid.id] = depth;
       _getAllComponentsByDepth(kid.id, store, children, depth + 1);
     });
@@ -75,23 +72,23 @@ const _getAllComponentsByDepth = (rootId, store, children = {}, depth = 1) => {
 };
 
 //returns map
-const _getOptionsShallow = (blockId, store) => {
+const _getOptionsShallow = (blockId, store) => { //eslint-disable-line no-unused-vars
   const block = _getBlockFromStore(blockId, store);
   return Object.keys(block.options)
     .map(id => _getBlockFromStore(id, store))
-    .reduce((acc, block) => Object.assign(acc, { [block.id ]: block }), {});
+    .reduce((acc, block) => Object.assign(acc, { [block.id]: block }), {});
 };
 
 //returns map
 const _getAllOptions = (rootId, store, includeUnselected) => {
+  const options = _getOptionsShallow(rootId, store);
   const components = _getAllComponents(rootId, store);
+  //note - only shallow. does not handle constructs in options
   //for each component (in flat list), create map of options, and assign to accumulator, return accumulator
-  return components.reduce((acc, block) => {
-    return Object.assign(acc,
+  return components.reduce((acc, block) => Object.assign(acc,
       block.getOptions(includeUnselected)
         .map(optionId => _getBlockFromStore(optionId, store))
-        .reduce((acc, option) => Object.assign(acc, { [option.id]: option }), {}));
-  }, {});
+        .reduce((acc, option) => Object.assign(acc, { [option.id]: option }), {})), options);
 };
 
 const _getAllContents = (rootId, state) => {
@@ -100,7 +97,7 @@ const _getAllContents = (rootId, state) => {
   return Object.assign(options, components);
 };
 
-const _filterToLeafNodes = (blocks) => blocks.filter(child => !child.components.length);
+const _filterToLeafNodes = blocks => blocks.filter(child => !child.components.length);
 
 const _getParents = (blockId, state) => {
   const parents = [];
@@ -115,6 +112,14 @@ const _getParents = (blockId, state) => {
 const _getSiblings = (blockId, state) => {
   const parent = _getParentFromStore(blockId, state, {});
   return (parent.components || []).map(id => _getBlockFromStore(id, state));
+};
+
+//ommitting constructId will just return first found list owner
+const _getListOwnerFromStore = (optionId, constructId, store) => {
+  const contents = constructId ? _getAllContents(constructId, store) : store.blocks;
+  return Object.keys(contents)
+    .map(blockId => contents[blockId])
+    .find(block => block.options.hasOwnProperty(optionId));
 };
 
 //returns map of { optionId : option }
@@ -141,89 +146,133 @@ const _flattenConstruct = (blockId, state) => {
 
   return flatten(components.map(component => component.isConstruct() ?
     _flattenConstruct(component.id, state) :
-    [component]
+    [component],
   ));
 };
 
 //e.g. _getWithFieldValue('metadata.name', 'my block', state)
-const _getWithFieldValue = (path, value, store) => {
-  return pickBy(store.blocks, (block) => pathGet(block, path) === value);
+const _getWithFieldValue = (path, value, store) => pickBy(store.blocks, block => pathGet(block, path) === value);
+
+/**
+ * Retrieves a block by ID
+ * @function
+ * @param {UUID} blockId
+ * @throws if block doesn't exist
+ * @returns {Block} Block
+ */
+export const blockGet = blockId => (dispatch, getState) => _getBlockFromStore(blockId, getState());
+
+/**
+ * Retrieves a block by ID
+ * @function
+ * @param {string} name
+ * @returns {Array<Block>} Blocks with matching name (exact), or empty array
+ */
+export const blockGetBlocksWithName = name => (dispatch, getState) => _getWithFieldValue('metadata.name', name, getState());
+
+/**
+ * Check if block is a top-level construct (direct descendant of project)
+ * @function
+ * @param {UUID} blockId
+ * @throws if blockId does not exist
+ * @returns {boolean} true if direct descendant
+ */
+export const blockIsTopLevelConstruct = blockId => (dispatch, getState) => {
+  const state = getState();
+  const block = _getBlockFromStore(blockId, state);
+  const { projectId } = block;
+
+    //not in a project
+  if (!projectId) {
+    return false;
+  }
+
+    //cant rely on project selectors (circular dep)
+  const project = state.projects[projectId];
+
+  return !!project && project.components.indexOf(blockId) >= 0;
 };
 
-export const blockGet = (blockId) => {
-  return (dispatch, getState) => {
-    return _getBlockFromStore(blockId, getState());
-  };
+/**
+ * Get a block's parent
+ * @function
+ * @param {UUID} blockId
+ * @returns {Block} parent Block, or null
+ */
+export const blockGetParent = blockId => (dispatch, getState) => _getParentFromStore(blockId, getState());
+
+/**
+ * Get all of a block's parents.
+ * @function
+ * @param {UUID} blockId
+ * @throws if blockId does not exist
+ * @returns {Array<Block>} Parents, first parent is direct parent, last parent is top-level construct
+ */
+export const blockGetParents = blockId => (dispatch, getState) => _getParents(blockId, getState());
+
+/**
+ * Get Block's top-level construct
+ * @function
+ * @param {UUID} blockId
+ * @returns {Block} Top-level construct, or null if it is detached.
+ */
+export const blockGetParentRoot = blockId => (dispatch, getState) => {
+  const parents = _getParents(blockId, getState());
+  return parents.length ? parents.pop() : null;
 };
 
-export const blockGetBlocksWithName = (name) => {
-  return (dispatch, getState) => {
-    return _getWithFieldValue('metadata.name', name, getState());
-  };
-};
+/**
+ * Get all components, recursively, of a Block. Does not include options.
+ * todo - move to object, not array
+ * @function
+ * @param {UUID} blockId
+ * @returns {Array<Block>} All components.
+ */
+export const blockGetComponentsRecursive = blockId => (dispatch, getState) => _getAllComponents(blockId, getState());
 
-export const blockGetParent = (blockId) => {
-  return (dispatch, getState) => {
-    return _getParentFromStore(blockId, getState());
-  };
-};
+/**
+ * Get all components, recursively, of a Block, and returns their depth, relative to the block.
+ * @function
+ * @param {UUID} blockId
+ * @returns {Object.<UUID,number>} All components mapped to depth, { BlockId: depth }
+ */
+export const blockGetComponentsByDepth = blockId => (dispatch, getState) => _getAllComponentsByDepth(blockId, getState());
 
-//first parent is direct parent, last parent is construct
-//returns blocks, not ids
-export const blockGetParents = (blockId) => {
-  return (dispatch, getState) => {
-    return _getParents(blockId, getState());
-  };
-};
+/**
+ * Get all options, recursively, of a Block
+ * @function
+ * @param {UUID} blockId
+ * @returns {Object.<UUID,Block>} All options by id
+ */
+export const blockGetOptionsRecursive = blockId => (dispatch, getState) => _getAllOptions(blockId, getState());
 
-//i.e. get construct, or null if it is the construct (or detached)
-export const blockGetParentRoot = (blockId) => {
-  return (dispatch, getState) => {
-    const parents = _getParents(blockId, getState());
-    return parents.length ? parents.pop() : null;
-  };
-};
+/**
+ * Get all contents (components & options), recursively, of a Block
+ * @function
+ * @param {UUID} blockId
+ * @returns {Object.<UUID,Block>} All contents by id
+ */
+export const blockGetContentsRecursive = blockId => (dispatch, getState) => _getAllContents(blockId, getState());
 
-export const blockGetComponentsRecursive = (blockId) => {
-  return (dispatch, getState) => {
-    return _getAllComponents(blockId, getState());
-  };
-};
+/**
+ * Get all blocks which are not constructs (i.e., have no components). They are leaves of the tree.
+ * //todo - move to object
+ * //todo - include list blocks
+ * @function
+ * @param {UUID} blockId
+ * @returns {Object.<UUID,Block>} All components mapped to depth, { BlockId: depth }
+ */
+export const blockGetLeaves = blockId => (dispatch, getState) => _filterToLeafNodes(_getAllComponents(blockId, getState()));
 
-export const blockGetComponentsByDepth = (blockId) => {
-  return (dispatch, getState) => {
-    return _getAllComponentsByDepth(blockId, getState());
-  };
-};
-
-//returns object
-export const blockGetOptionsRecursive = (blockId) => {
-  return (dispatch, getState) => {
-    return _getAllOptions(blockId, getState());
-  };
-};
-
-//returns object
-export const blockGetContentsRecursive = (blockId) => {
-  return (dispatch, getState) => {
-    return _getAllContents(blockId, getState());
-  };
-};
-
-//get all non-constructs
-//todo - move to object
-//todo - include list blocks
-export const blockGetLeaves = (blockId) => {
-  return (dispatch, getState) => {
-    return _filterToLeafNodes(_getAllComponents(blockId, getState()));
-  };
-};
-
-export const blockGetSiblings = (blockId) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    return _getSiblings(blockId, state);
-  };
+/**
+ * Get all siblings of a Block, including the block itself. I.e. get components of parent
+ * @function
+ * @param {UUID} blockId
+ * @returns {Array<Block>} sibling Blocks, including block itself
+ */
+export const blockGetSiblings = blockId => (dispatch, getState) => {
+  const state = getState();
+  return _getSiblings(blockId, state);
 };
 
 //this could be optimized...
@@ -237,7 +286,7 @@ const _nearestParent = (state, ...blockIds) => {
 
   //if any block is detached (doesn't have a parent) and not the current construct ID, return null
   //todo - check if any construct, not the currently focused one
-  if (Object.keys(parentsMap).some(blockId => {
+  if (Object.keys(parentsMap).some((blockId) => {
     const parents = parentsMap[blockId];
     return parents.length === 0 && state.focus.constructId !== blockId;
   })) {
@@ -279,30 +328,40 @@ const _getBoundingBlocks = (state, ...blockIds) => {
   return [left, right];
 };
 
-export const blockGetBounds = (...blockIds) => {
-  return (dispatch, getState) => {
-    return _getBoundingBlocks(getState(), ...blockIds);
-  };
+/**
+ * Get bounds of the current selection, using the lowest common parent,
+ * @function
+ * @param {...UUID} blockIds
+ * @returns {Array<Block>} [ start, end ] bounds, where start === end === parent if only one block selected
+ */
+export const blockGetBounds = (...blockIds) => (dispatch, getState) => _getBoundingBlocks(getState(), ...blockIds);
+
+/**
+ * Get range of selection
+ * @function
+ * @param {UUID} blockId
+ * @returns {Array<Block>} Components of lowest common parent, trimmed to bounding components
+ */
+export const blockGetRange = (...blockIds) => (dispatch, getState) => {
+  const state = getState();
+  const bounds = _getBoundingBlocks(state, ...blockIds);
+  if (!bounds) {
+    return null;
+  }
+  const siblings = _getSiblings(bounds[0].id, state);
+  const [boundStart, boundEnd] = bounds.map(boundBlock => siblings.findIndex(sibling => sibling.id === boundBlock.id));
+  return siblings.slice(boundStart, boundEnd + 1);
 };
 
-export const blockGetRange = (...blockIds) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const bounds = _getBoundingBlocks(state, ...blockIds);
-    if (!bounds) {
-      return null;
-    }
-    const siblings = _getSiblings(bounds[0].id, state);
-    const [boundStart, boundEnd] = bounds.map(boundBlock => siblings.findIndex(sibling => sibling.id === boundBlock.id));
-    return siblings.slice(boundStart, boundEnd + 1);
-  };
-};
-
-export const blockGetIndex = (blockId) => {
-  return (dispatch, getState) => {
-    const parent = _getParentFromStore(blockId, getState(), {});
-    return Array.isArray(parent.components) ? parent.components.indexOf(blockId) : -1;
-  };
+/**
+ * Get component index
+ * @function
+ * @param {UUID} blockId
+ * @returns {number} index of component, -1 if no parent
+ */
+export const blockGetIndex = blockId => (dispatch, getState) => {
+  const parent = _getParentFromStore(blockId, getState(), {});
+  return Array.isArray(parent.components) ? parent.components.indexOf(blockId) : -1;
 };
 
 const _checkSingleBlockIsSpec = (block) => {
@@ -310,90 +369,89 @@ const _checkSingleBlockIsSpec = (block) => {
   return block.sequence.length > 0;
 };
 
-export const blockIsSpec = (blockId) => {
-  return (dispatch, getState) => {
-    const store = getState();
-    const flattened = _flattenConstruct(blockId, store);
+/**
+ * Check if a block is a spec. That is, all of its components and options have a sequence
+ * @function
+ * @param {UUID} blockId
+ * @returns {number} index of component, -1 if no parent
+ */
+export const blockIsSpec = blockId => (dispatch, getState) => {
+  const store = getState();
+  const flattened = _flattenConstruct(blockId, store);
 
-    return flattened.every(block => {
-      if (block.isList()) {
+  return flattened.every((block) => {
+    if (block.isList()) {
         //only want selected options
-        const options = values(_getOptions(block.id, store, false));
-        return options.length > 0 && options.every(selectedBlock => _checkSingleBlockIsSpec(selectedBlock));
-      }
-      return _checkSingleBlockIsSpec(block);
-    });
-  };
+      const options = values(_getOptions(block.id, store, false));
+      return options.length > 0 && options.every(selectedBlock => _checkSingleBlockIsSpec(selectedBlock));
+    }
+    return _checkSingleBlockIsSpec(block);
+  });
 };
 
-export const blockIsValid = (model) => {
-  return (dispatch, getState) => {
-    return BlockSchema.validate(model);
-  };
+/**
+ * Validate a block mocel
+ * @function
+ * @param {object} model
+ * @returns {boolean} whether model is valid
+ */
+export const blockIsValid = model => (dispatch, getState) => BlockSchema.validate(model);
+
+/**
+ * Check if a block has sequence
+ * @function
+ * @param {UUID} blockId
+ * @throws if blockId not in store
+ * @returns {boolean} true if has sequence
+*/
+export const blockHasSequence = blockId => (dispatch, getState) => {
+  const block = _getBlockFromStore(blockId, getState());
+  return block.hasSequence();
 };
 
-export const blockHasSequence = blockId => {
-  return (dispatch, getState) => {
-    const block = _getBlockFromStore(blockId, getState());
-    return !!block && block.hasSequence();
-  };
-};
+/**
+ * Given id of a list block option, get list block containing it
+ * @function
+ * @param {UUID} optionId
+ * @param {UUID} constructId required as list options may exist in multiple places within a project - should be lowest known parent
+ * @returns {number} index of component, -1 if no parent
+ */
+export const blockGetListOwner = (optionId, constructId) => (dispatch, getState) => _getListOwnerFromStore(optionId, constructId, getState());
 
-//constructId is required as list options may exist in multiple places within a project - should be lowest known parent
-export const blockGetListOwner = (optionId, constructId) => {
-  return (dispatch, getState) => {
-    return _getListOwnerFromStore(optionId, constructId, getState());
-  };
-};
-
-export const blockIsListOption = (optionId, constructId, returnParentId = false) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const block = _getBlockFromStore(optionId, state);
+/**
+ * Check if a block is a list option of a given construct
+ * @function
+ * @param {UUID} optionId
+ * @param {UUID} constructId required as list options may exist in multiple places within a project - should be lowest known parent
+ * @param {boolean} [returnParentId=false] if true, returns ID instead of true
+ * @returns {boolean} true if has a list owner
+ */
+export const blockIsListOption = (optionId, constructId, returnParentId = false) => (dispatch, getState) => {
+  const state = getState();
+  const block = _getBlockFromStore(optionId, state);
 
     //basic checks
-    if (block.isConstruct() || block.isList()) {
-      return false;
-    }
+  if (block.isConstruct() || block.isList()) {
+    return false;
+  }
 
-    const listOwner = _getListOwnerFromStore(optionId, constructId, state);
+  const listOwner = _getListOwnerFromStore(optionId, constructId, state);
 
-    if (!listOwner) {
-      return false;
-    }
+  if (!listOwner) {
+    return false;
+  }
 
-    return !!returnParentId ? listOwner.id : true;
-  };
+  return returnParentId ? listOwner.id : true;
 };
 
-/*
- deprecated filters for now
- //expects object block.rules.filter
- export const blockGetFiltered = filters => {
- return (dispatch, getState) => {
- invariant(typeof filters === 'object', 'must pass ovject of filters');
- const blockState = getState().blocks;
-
- return Object.keys(blockState)
- .map(id => blockState[id])
- .filter(block => {
- return Object.keys(filters).every(key => {
- const value = filters[key];
- return pathGet(block, key) === value;
- });
- });
- };
- };
- */
-
-//given a construct, returns an array of parts that have sequence / are list blocks, including hidden blocks
-export const blockFlattenConstruct = (blockId) => {
-  return (dispatch, getState) => {
-    return _flattenConstruct(blockId, getState());
-  };
-};
-
-/*
+/**
+ * Get 2D array, maintaing component indices, where each index is an array of blocks (1 if part, N if list block)
+ * @function
+ * @param {UUID} blockId
+ * @param {boolean} [onlyIds=true] return Block ids. False to get blocks.
+ * @param {UUID} [includeUnselected=false] include inactive list options
+ * @returns {Array<Array<Block>>} Flat list of blocks which either 1) have sequence 2) are list blocks or 3) are sketches. includes hidden blocks.
+ * @example
  returns 2D array - based on position - of block combinations (including hidden blocks), e.g.
 
  given:
@@ -401,39 +459,50 @@ export const blockFlattenConstruct = (blockId) => {
  B: { options: {2: true, 3: true, 4: true, 5: false } } //list block with 3 selected options
  C: { options: { 6: true } }                            //list block, one option
 
- generates:
+ generates
  [
- [A],
- [block2, block3, block4],
- [block6],
+   [A],
+   [block2, block3, block4],
+   [block6],
  ]
  */
-export const blockGetPositionalCombinations = (blockId, onlyIds = false, includeUnselected = false) => {
-  return (dispatch, getState) => {
-    invariant(dispatch(blockIsSpec(blockId)), 'block must be a spec to get combinations');
+export const blockGetPositionalCombinations = (blockId, onlyIds = true, includeUnselected = false) => (dispatch, getState) => {
+  invariant(dispatch(blockIsSpec(blockId)), 'block must be a spec to get combinations');
 
-    const state = getState();
+  const state = getState();
 
     //generate 2D array, outer array for positions, inner array with lists of parts
-    const combinations = _flattenConstruct(blockId, state)
+  const combinations = _flattenConstruct(blockId, state)
       .map(block => block.isList() ?
         values(_getOptions(block.id, state, includeUnselected)) :
-        [block]
+        [block],
       );
 
-    return (onlyIds === true) ?
+  return (onlyIds === true) ?
       combinations.map(combo => combo.map(part => part.id)) :
       combinations;
-  };
 };
 
-export const blockGetNumberCombinations = (blockId, includeUnselected = false) => {
-  return (dispatch, getState) => {
-    const positions = dispatch(blockGetPositionalCombinations(blockId, includeUnselected));
-    return positions.reduce((acc, position) => acc * position.length, 1);
-  };
+/**
+ * Get number of possible combinations of a given construct
+ * @function
+ * @param {UUID} blockId
+ * @param {boolean} [includeUnselected=false] Unselected list options
+ * @returns {number} number combinations
+ */
+export const blockGetNumberCombinations = (blockId, includeUnselected = false) => (dispatch, getState) => {
+  const positions = dispatch(blockGetPositionalCombinations(blockId, includeUnselected));
+  return positions.reduce((acc, position) => acc * position.length, 1);
 };
-/*
+
+/**
+ * Get all combinations of blocks, returning an array of combinations
+ * @function
+ * @param {UUID} blockId
+ * @param {boolean} onlyIds
+ * @param {boolean} includeUnselected
+ * @returns {Array<Array<Block>>} Array of combinations, where each combination is an array of blocks, or blockIds if onlyIds = true
+ * @example
  returns 2D array of all possible constructs, flattened, and with options unfurled, including hidden blocks
 
  given:
@@ -443,14 +512,13 @@ export const blockGetNumberCombinations = (blockId, includeUnselected = false) =
 
  generates:
  [
- [A, block2, block6],
- [A, block3, block6],
- [A, block4, block6],
+   [A, block2, block6],
+   [A, block3, block6],
+   [A, block4, block6],
  ]
  */
-export const blockGetCombinations = (blockId, onlyIds, includeUnselected) => {
-  return (dispatch, getState) => {
-    const positions = dispatch(blockGetPositionalCombinations(blockId, onlyIds, includeUnselected));
+export const blockGetCombinations = (blockId, onlyIds, includeUnselected) => (dispatch, getState) => {
+  const positions = dispatch(blockGetPositionalCombinations(blockId, onlyIds, includeUnselected));
 
     /*
      //guarantee both accumulator (and positions) array have at least one item to map over
@@ -464,27 +532,36 @@ export const blockGetCombinations = (blockId, onlyIds, includeUnselected) => {
      return combos;
      */
 
-    const combinations = [];
-    saveCombinations(positions, combinations);
-    return combinations;
-  };
+  return saveCombinations(positions);
 };
 
-export const blockFlattenConstructAndLists = (blockId) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    const optionPreferences = state.focus.options;
-    const flattened = _flattenConstruct(blockId, state);
-    return flattened.map(block => {
-      const options = block.getOptions();
-      const preference = optionPreferences[block.id];
-      return (block.isList() && options.length) ?
+/**
+ * Flatten a construct to its leaf nodes (non-construct blocks)
+ * @function
+ * @param {UUID} blockId
+ * @returns {Array<Block>} Flat list of blocks which either 1) have sequence 2) are list blocks or 3) are sketches. includes hidden blocks.
+ */
+export const blockFlattenConstruct = blockId => (dispatch, getState) => _flattenConstruct(blockId, getState());
+
+/**
+ * Flatten a construct and list blocks -> array of parts, no list blocks.
+ * @function
+ * @param {UUID} blockId
+ * @returns {Array<Block>} Array of blocks
+ */
+export const blockFlattenConstructAndLists = blockId => (dispatch, getState) => {
+  const state = getState();
+  const optionPreferences = state.focus.options;
+  const flattened = _flattenConstruct(blockId, state);
+  return flattened.map((block) => {
+    const options = block.getOptions();
+    const preference = optionPreferences[block.id];
+    return (block.isList() && options.length) ?
         //give the block a color if in a list - technically the block in the store but all immutable so whatever
         //clone it because technically frozen
         state.blocks[preference || options[0]]
           .clone(null)
           .merge({ metadata: { color: block.metadata.color } }) :
         block;
-    });
-  };
+  });
 };

@@ -13,16 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import { throttle } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { uiToggleDetailView, detailViewSelectExtension } from '../actions/ui';
-import { focusDetailsExist } from '../selectors/focus';
+import { detailViewSelectExtension, uiToggleDetailView } from '../actions/ui';
 import { extensionsByRegion, getExtensionName, onRegister } from '../extensions/clientRegistry';
-import { throttle } from 'lodash';
-
-import ExtensionView from './ExtensionView';
-
 import '../styles/ProjectDetail.css';
+import ExtensionView from './ExtensionView';
 
 const projectDetailExtensionRegion = 'projectDetail';
 
@@ -30,24 +27,25 @@ export class ProjectDetail extends Component {
   static propTypes = {
     uiToggleDetailView: PropTypes.func.isRequired,
     detailViewSelectExtension: PropTypes.func.isRequired,
-    focusDetailsExist: PropTypes.func.isRequired,
     isVisible: PropTypes.bool.isRequired,
     currentExtension: PropTypes.any, //todo - allow null or key
-    project: PropTypes.object.isRequired,
   };
+
+  constructor() {
+    super();
+    this.extensions = [];
+  }
 
   state = {
     //default open height
     openHeight: 400,
   };
 
-  extensions = [];
-
   componentDidMount() {
     //listen to get relevant manifests here.
     //run on first time (key === null) in case registry is already populated.
-    this.extensionsListener = onRegister((registry, key, region) => {
-      if (key === null || region === projectDetailExtensionRegion) {
+    this.extensionsListener = onRegister((registry, key, regions) => {
+      if (key === null || regions.indexOf(projectDetailExtensionRegion) >= 0) {
         this.extensions = extensionsByRegion(projectDetailExtensionRegion);
         this.forceUpdate();
       }
@@ -74,7 +72,7 @@ export class ProjectDetail extends Component {
 
   throttledDispatchResize = throttle(() => window.dispatchEvent(new Event('resize')), 50);
 
-  handleResizableMouseDown = evt => {
+  handleResizableMouseDown = (evt) => {
     evt.preventDefault();
     this.refs.resizeHandle.classList.add('dragging');
     document.addEventListener('mousemove', this.handleResizeMouseMove);
@@ -86,7 +84,7 @@ export class ProjectDetail extends Component {
     this.openStart = this.state.openHeight;
   };
 
-  handleResizeMouseMove = evt => {
+  handleResizeMouseMove = (evt) => {
     evt.preventDefault();
     const delta = this.dragStart - evt.pageY;
     const minHeight = 200;
@@ -95,7 +93,7 @@ export class ProjectDetail extends Component {
     this.throttledDispatchResize();
   };
 
-  handleResizeMouseUp = evt => {
+  handleResizeMouseUp = (evt) => {
     evt.preventDefault();
     this.refs.resizeHandle.classList.remove('dragging');
     this.dragStart = null;
@@ -107,53 +105,85 @@ export class ProjectDetail extends Component {
 
   /** end resize things **/
 
-  handleClickToggle = evt => {
-    if (this.props.isVisible) {
-      return this.toggle(false);
-    }
-
-    this.toggle(true);
-    this.loadExtension(this.extensions[0]);
-  };
-
   toggle = (forceVal) => {
     this.props.uiToggleDetailView(forceVal);
   };
 
+  /**
+   * So the sequence viewer appears first
+   */
+  forceSequenceViewerFirst() {
+    const list = [...this.extensions];
+    const index = list.indexOf('GC-Sequence-Viewer');
+    if (index > 0) {
+      list.splice(index, 1);
+      list.unshift('GC-Sequence-Viewer');
+    }
+    return list;
+  }
+
   render() {
     const { isVisible, currentExtension } = this.props;
-
     if (!this.extensions.length) {
       return null;
     }
-
-    return (
-      <div className={'ProjectDetail' + (isVisible ? ' visible' : '')}
-           style={{ height: (isVisible ? `${this.state.openHeight}px` : null) }}>
-        {(isVisible) && (<div ref="resizeHandle"
-                              className="ProjectDetail-resizeHandle"
-                              onMouseDown={this.handleResizableMouseDown}></div>)}
-        <div className="ProjectDetail-heading">
-          {!isVisible && (<a ref="open"
-             className={'ProjectDetail-heading-toggle' + (isVisible ? ' visible' : '')}
-             onClick={this.handleClickToggle}/>)}
-          <div className={'ProjectDetail-heading-extensionList' + (isVisible ? ' visible' : '')}>
-            {this.extensions.map(key => {
-              const name = getExtensionName(key);
-              return (
-                <a key={key}
-                   className={'ProjectDetail-heading-extension' + (key === currentExtension ? ' active' : '')}
-                   onClick={() => this.openExtension(key)}>{name}</a>
-              );
-            })}
+    const list = this.forceSequenceViewerFirst();
+    if (isVisible) {
+      return (
+        <div className="ProjectDetail ProjectDetail-open" style={{ height: `${this.state.openHeight}px` }}>
+          <div
+            ref="resizeHandle"
+            className="ProjectDetail-open-resizeHandle"
+            onMouseDown={this.handleResizableMouseDown}
+          />
+          <div className="ProjectDetail-open-header">
+            {/* Left side of header, extension tabls */}
+            <div className="ProjectDetail-open-header-left">
+              {list.map((key) => {
+                const name = getExtensionName(key);
+                const active = key === currentExtension ? ' ProjectDetail-open-header-left-active' : '';
+                const className = `ProjectDetail-open-header-left-extension${active}`;
+                return (
+                  <a
+                    key={key}
+                    className={className}
+                    onClick={() => this.openExtension(key)}
+                  >{name}
+                  </a>
+                );
+              })}
+            </div>
+            {/* right side of header, toolbar and close button */}
+            <div className="ProjectDetail-open-header-right">
+              <a
+                ref="close"
+                className={'ProjectDetail-open-header-right-close'}
+                onClick={() => this.toggle(false)}
+              />
+            </div>
           </div>
-          {isVisible && (<a ref="close"
-                            className={'ProjectDetail-heading-close'}
-                            onClick={() => this.toggle(false)}/>)}
+          {currentExtension && (<ExtensionView
+            region={projectDetailExtensionRegion}
+            isVisible
+            extension={currentExtension}
+          />) }
         </div>
-        {currentExtension && (<ExtensionView region={projectDetailExtensionRegion}
-                                             isVisible={isVisible}
-                                             extension={currentExtension}/>) }
+      );
+    }
+    // just a list of extensions if closed
+    return (
+      <div className="ProjectDetail-closed">
+        {list.map((key) => {
+          const name = getExtensionName(key);
+          return (
+            <a
+              key={key}
+              className="ProjectDetail-closed-extension"
+              onClick={() => this.openExtension(key)}
+            >{name}
+            </a>
+          );
+        })}
       </div>
     );
   }
@@ -161,18 +191,13 @@ export class ProjectDetail extends Component {
 
 const mapStateToProps = (state, props) => {
   const { isVisible, currentExtension } = state.ui.detailView;
-  //const { constructId, forceBlocks, blockIds } = state.focus; //to force rendering (check for if details exist) on focus change
   return {
     isVisible,
     currentExtension,
-    //blockIds,
-    //constructId,
-    //forceBlocks,
   };
 };
 
 export default connect(mapStateToProps, {
   uiToggleDetailView,
   detailViewSelectExtension,
-  focusDetailsExist,
 })(ProjectDetail);

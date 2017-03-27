@@ -1,26 +1,26 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+import { focusForceProject } from '../../actions/focus';
+import { projectList, projectLoad, projectOpen, projectSave } from '../../actions/projects';
+import { inspectorToggleVisibility } from '../../actions/ui';
 import Project from '../../models/Project';
 import { projectGet, projectListAllBlocks } from '../../selectors/projects';
-import { projectList, projectLoad, projectSave, projectOpen } from '../../actions/projects';
-import { focusForceProject } from '../../actions/focus';
-import { inspectorToggleVisibility } from '../../actions/ui';
-
 import InventoryConstruct from './InventoryConstruct';
 import InventoryListGroup from './InventoryListGroup';
 
@@ -36,7 +36,7 @@ export class InventoryProject extends Component {
     isActive: PropTypes.bool.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectGet: PropTypes.func.isRequired,
-    projectSave: PropTypes.func.isRequired,
+    //projectSave: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     focusForceProject: PropTypes.func.isRequired,
     inspectorToggleVisibility: PropTypes.func.isRequired,
@@ -54,14 +54,14 @@ export class InventoryProject extends Component {
 
     //this ensures the project is in the store
     this.handleToggleProject(nextState, projectId)
-      .then(() => {
-        if (isActive) {
-          //inspect it
-          this.inspectProject(projectId);
-        } else {
-          this.props.projectOpen(projectId);
-        }
-      });
+    .then(() => {
+      if (isActive) {
+        //inspect it
+        this.inspectProject(projectId);
+      } else {
+        this.props.projectOpen(projectId);
+      }
+    });
   };
 
   //only call after project has been loaded and is in the store
@@ -71,27 +71,26 @@ export class InventoryProject extends Component {
     this.props.inspectorToggleVisibility(true);
   };
 
-  loadProject = (projectId) => {
-    //for now, just load the whole project and stick it in the store
-    //need to ensure things like blockClone will work on drag. Simplifies browsing of project.
-    //could delegate loading of construct components to InventoryConstruct, and load only one level deep
-    return this.props.projectLoad(projectId);
-  };
+  //for now, just load the whole project and stick it in the store
+  //need to ensure things like blockClone will work on drag. Simplifies browsing of project.
+  //could delegate loading of construct components to InventoryConstruct, and load only one level deep
+  loadProject = projectId =>
+    this.props.projectLoad(projectId);
 
   handleToggleProject = (nextState, projectId) => {
-    if (!!nextState) {
+    if (nextState) {
       this.setState({ isLoading: true });
 
       return this.loadProject(projectId)
-        .then(() => this.setState({
-          isLoading: false,
-          isExpanded: true,
-        }))
-        .catch(() => this.setState({
-          isLoading: false,
-          isExpanded: false,
-          errorLoading: true,
-        }));
+      .then(() => this.setState({
+        isLoading: false,
+        isExpanded: true,
+      }))
+      .catch(() => this.setState({
+        isLoading: false,
+        isExpanded: false,
+        errorLoading: true,
+      }));
     }
 
     //otherwise, closing
@@ -107,24 +106,26 @@ export class InventoryProject extends Component {
     const canToggle = true;
 
     return (
-      <InventoryListGroup title={project.getName()}
-                          manual
-                          canToggle={canToggle && !errorLoading}
-                          isLoading={isLoading}
-                          isExpanded={isExpanded && canToggle}
-                          onToggle={(nextState) => this.handleToggleProject(nextState, projectId)}
-                          onSelect={(nextState) => this.onToggleProject(nextState, projectId)}
-                          isActive={isActive}
-                          dataAttribute={`project ${project.id}`}>
+      <InventoryListGroup
+        title={project.getName()}
+        manual
+        canToggle={canToggle && !errorLoading}
+        isLoading={isLoading}
+        isExpanded={isExpanded && canToggle}
+        onToggle={nextState => this.handleToggleProject(nextState, projectId)}
+        onSelect={nextState => this.onToggleProject(nextState, projectId)}
+        isActive={isActive}
+        dataAttribute={`inventoryProject/${project.id}`}
+      >
         {project.components.length > 0
           ?
-          project.components.map(compId => {
-            return (<InventoryConstruct key={compId}
-                                        depth={0}
-                                        blockId={compId}/>);
-          })
+          project.components.map(compId => (<InventoryConstruct
+            key={compId}
+            depth={0}
+            blockId={compId}
+          />))
           :
-          (<div style={{padding: '0.25em 0.5em', userSelect: 'none', opacity: 0.5}}>No constructs</div>)
+          (<div style={{ padding: '0.25em 0 0 1em', userSelect: 'none', opacity: 0.5 }}>No constructs</div>)
         }
       </InventoryListGroup>
     );

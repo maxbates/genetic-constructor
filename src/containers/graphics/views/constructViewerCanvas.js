@@ -1,144 +1,86 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+import invariant from 'invariant';
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import invariant from 'invariant';
 import { connect } from 'react-redux';
-import { projectAddConstruct } from '../../../actions/projects';
-import {
-  blockCreate,
-  blockAddComponent,
-  blockClone,
-  blockRename,
-} from '../../../actions/blocks';
-import { uiSpin } from '../../../actions/ui';
-import { focusConstruct, focusBlocks } from '../../../actions/focus';
-import {
-  projectGetVersion,
-  projectGet,
- } from '../../../selectors/projects';
-import DnD from '../dnd/dnd';
-import ConstructViewer from './constructviewer';
-import MouseTrap from '../mousetrap';
-import { block as blockDragType } from '../../../constants/DragTypes';
 
+import { focusBlocks } from '../../../actions/focus';
+import { projectAddConstruct } from '../../../actions/projects';
+import { projectGet, projectGetVersion } from '../../../selectors/projects';
+import ConstructViewer from './constructviewer';
 import '../../../styles/constructviewercanvas.css';
+import DnD from '../dnd/dnd';
+import MouseTrap from '../mousetrap';
+import DropTarget from './inter-construct-droptarget';
 
 export class ConstructViewerCanvas extends Component {
-
   static propTypes = {
-    uiSpin: PropTypes.func.isRequired,
-    blockCreate: PropTypes.func.isRequired,
-    blockClone: PropTypes.func.isRequired,
-    blockRename: PropTypes.func.isRequired,
-    projectAddConstruct: PropTypes.func.isRequired,
-    focusConstruct: PropTypes.func.isRequired,
     focusBlocks: PropTypes.func.isRequired,
-    children: PropTypes.array.isRequired,
+    projectGet: PropTypes.func.isRequired,
     currentProjectId: PropTypes.string.isRequired,
+    constructs: PropTypes.array.isRequired,
   };
-
-  constructor(props) {
-    super(props);
-  }
-
-  /**
-   * create a new construct, add dropped block to it
-   */
-  onDrop(globalPosition, payload, event) {
-    // clone construct and add to project if a construct from inventory otherwise
-    // treat as a list of one or more blocks
-    //if the block is from the inventory, we've cloned it and dont need to worry about forcing the projectId when we add the components
-    const fromInventory = payload.source.indexOf('inventory') >= 0;
-    //dont need to check if array, since inventory drags always are single items
-    if (fromInventory && payload.type === blockDragType && payload.item.isConstruct()) {
-      const construct = this.props.blockClone(payload.item.id);
-      this.props.projectAddConstruct(this.props.currentProjectId, construct.id, fromInventory);
-      this.props.focusConstruct(construct.id);
-    } else {
-      const construct = this.props.blockCreate();
-      this.props.projectAddConstruct(this.props.currentProjectId, construct.id, fromInventory);
-      const constructViewer = ConstructViewer.getViewerForConstruct(construct.id);
-      invariant(constructViewer, 'expect to find a viewer for the new construct');
-      constructViewer.addItemAtInsertionPoint(payload, null, null);
-      this.props.focusConstruct(construct.id);
-    }
-  }
-
-  /**
-   * true if current project is a sample project
-   */
-  isSampleProject() {
-    return this.props.projectGet(this.props.currentProjectId).isSample;
-  }
 
   /**
    * register as drop target when mounted, use -1 for zorder to ensure
    * higher values ( constructviewers ) will get dropped on first
    */
   componentDidMount() {
+    const self = ReactDOM.findDOMNode(this);
     // monitor drag overs to autoscroll the canvas when the mouse is near top or bottom
-    DnD.registerMonitor(ReactDOM.findDOMNode(this), {
+    DnD.registerMonitor(self, {
       monitorOver: this.mouseScroll.bind(this),
       monitorEnter: () => {},
       monitorLeave: this.endMouseScroll.bind(this),
     });
-
-    // drop target drag and drop handlers
-    DnD.registerTarget(ReactDOM.findDOMNode(this.refs.dropTarget), {
-      drop: this.onDrop.bind(this),
-      dragEnter: () => {
-        ReactDOM.findDOMNode(this.refs.dropTarget).classList.add('cvc-hovered');
-      },
-      dragLeave: () => {
-        ReactDOM.findDOMNode(this.refs.dropTarget).classList.remove('cvc-hovered');
-      },
-      zorder: -1,
-    });
-
     // mouse trap is used for coordinate transformation
     this.mouseTrap = new MouseTrap({
-      element: ReactDOM.findDOMNode(this),
+      element: self,
     });
-  }
-
-  /**
-   * unregister DND handlers
-   */
-  componentWillUnmount() {
-    DnD.unregisterTarget(ReactDOM.findDOMNode(this.refs.dropTarget));
-    DnD.unregisterMonitor(ReactDOM.findDOMNode(this));
-    this.mouseTrap.dispose();
-    this.mouseTrap = null;
   }
 
   /**
    * scroll to top when a new construct viewer is added
    */
   componentWillReceiveProps(nextProps) {
-    if (nextProps.children.length > this.props.children.length) {
+    if (nextProps.constructs.length > this.props.constructs.length) {
       ReactDOM.findDOMNode(this).scrollTop = 0;
     }
   }
 
   /**
-   * clicking on canvas unselects all blocks
+   * unregister DND handlers
    */
-  onClick = (evt) => {
-    if (evt.target === ReactDOM.findDOMNode(this)) {
+  componentWillUnmount() {
+    DnD.unregisterMonitor(ReactDOM.findDOMNode(this));
+    this.mouseTrap.dispose();
+    this.mouseTrap = null;
+  }
+
+  /**
+   * track clicks to unselect blocks
+   */
+  onMouseDown = (evt) => {
+    this.down = evt.target === ReactDOM.findDOMNode(this) && evt.button === 0;
+  };
+
+  onMouseUp = (evt) => {
+    if (this.down && evt.button === 0) {
+      this.down = false;
       evt.preventDefault();
       evt.stopPropagation();
       this.props.focusBlocks([]);
@@ -146,11 +88,18 @@ export class ConstructViewerCanvas extends Component {
   };
 
   /**
+   * true if current project is a sample project
+   */
+  isFrozenProject() {
+    return this.props.projectGet(this.props.currentProjectId).rules.frozen;
+  }
+
+  /**
    * end mouse scrolling
    */
-  endMouseScroll() {
+  endMouseScroll = () => {
     this.autoScroll(0);
-  }
+  };
 
   /**
    * auto scroll in the given direction -1, towards top, 0 stop, 1 downwards.
@@ -189,7 +138,7 @@ export class ConstructViewerCanvas extends Component {
   /**
    * start, continue or stop autoscroll based on given global mouse position
    */
-  mouseScroll(globalPosition) {
+  mouseScroll = (globalPosition) => {
     const local = this.mouseTrap.globalToLocal(globalPosition, ReactDOM.findDOMNode(this));
     const box = this.mouseTrap.element.getBoundingClientRect();
     // autoscroll threshold is clamped at a percentage of height otherwise when the window is short
@@ -197,37 +146,60 @@ export class ConstructViewerCanvas extends Component {
     const edge = Math.max(0, Math.min(100, box.height * 0.25));
     if (local.y < edge) {
       this.autoScroll(-1);
+    } else if (local.y > box.height - edge) {
+      this.autoScroll(1);
     } else {
-      if (local.y > box.height - edge) {
-        this.autoScroll(1);
-      } else {
-        // cancel the autoscroll
-        this.autoScroll(0);
-      }
+      // cancel the autoscroll
+      this.autoScroll(0);
     }
-  }
+  };
 
   /**
    * render the component, the scene graph will render later when componentDidUpdate is called
    */
   render() {
     // map construct viewers so we can pass down mouseScroll and endMouseScroll as properties
-    const constructViewers = this.props.children.map(constructViewer => {
-      return React.cloneElement(constructViewer, {
-        mouseScroll: this.mouseScroll.bind(this),
-        endMouseScroll: this.endMouseScroll.bind(this),
-        currentProjectId: this.props.currentProjectId,
-      });
-    });
+    // and inject drop targets before each construct and at the end IF there is more than one construct
 
-    // get class name for drop target which might hide it
-    const dropClasses = `cvc-drop-target${this.isSampleProject() ? ' cvc-hidden' : ''}`;
+    const elements = [];
+    this.props.constructs.forEach((construct, index) => {
+      if (!construct) {
+        return;
+      }
+
+      elements.push(<DropTarget
+        currentProjectId={this.props.currentProjectId}
+        index={index}
+        key={index}
+        disabled={this.isFrozenProject()}
+      />);
+
+      elements.push(<ConstructViewer
+        mouseScroll={this.mouseScroll}
+        endMouseScroll={this.endMouseScroll}
+        currentProjectId={this.props.currentProjectId}
+        key={construct.id}
+        projectId={this.props.currentProjectId}
+        constructId={construct.id}
+        testIndex={index}
+      />);
+    });
+    // put a drop target at the end, force a unique key so it won't clash with the other drop targets
+    elements.push(<DropTarget
+      currentProjectId={this.props.currentProjectId}
+      index={this.props.constructs.length}
+      key={this.props.constructs.length}
+      disabled={this.isFrozenProject()}
+    />);
 
     // map construct viewers so we can propagate projectId and any recently dropped blocks
     return (
-      <div className="ProjectPage-constructs no-vertical-scroll" onClick={this.onClick}>
-        <div className={dropClasses} ref="dropTarget" key="dropTarget">Drop blocks here to create a new construct.</div>;
-        {constructViewers}
+      <div
+        className="ProjectPage-constructs no-vertical-scroll"
+        onMouseDown={this.onMouseDown}
+        onMouseUp={this.onMouseUp}
+      >
+        {elements}
       </div>
     );
   }
@@ -240,14 +212,8 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  uiSpin,
-  focusConstruct,
   focusBlocks,
   projectAddConstruct,
-  blockCreate,
-  blockRename,
-  blockAddComponent,
   projectGetVersion,
   projectGet,
-  blockClone,
 })(ConstructViewerCanvas);

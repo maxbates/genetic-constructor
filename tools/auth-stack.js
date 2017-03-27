@@ -1,161 +1,96 @@
-import { exec, spawn } from 'child_process';
-import path from 'path';
+/*
+ Copyright 2016 Autodesk,Inc.
 
-//todo - have a check to make sure docker is running
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+import path from 'path';
+import run from './run';
+import setup from './setup';
+import { spawnAsync, promisedExec } from './lib/cp';
+import HOST_URL from '../server/urlConstants';
 
 /** paths **/
 
 const pathProjectRoot = path.resolve(__dirname, '../');
-let pathBioNanoPlatform = path.resolve(pathProjectRoot, '../bio-user-platform');
-
-/** config **/
-
-//if this isnt working, you can debug with --DEBUG flag
-const DEBUG = process.argv.includes('--DEBUG');
-if (!DEBUG) {
-  console.log('debug auth startup by passing --DEBUG');
-}
-
-//allow overwriting the bio-user-platform path
-process.argv.forEach((val, index) => {
-  const argFlag = 'PLATFORM_PATH';
-  if (val.startsWith(argFlag)) {
-    const newPath = val.substr(argFlag.length + 1);
-    pathBioNanoPlatform = newPath;
-  }
-});
-console.log('path for bio-user-platform is ' + pathBioNanoPlatform + '. Set by passing --PLATFORM_PATH=/your/path');
-
-/** command utils **/
-
-//simple wrap around console.log
-const log = (output = '', forceOutput = false) => {
-  if (DEBUG || forceOutput === true) {
-    console.log(output.trim());
-  }
-};
-
-const promisedExec = (cmd, opts, {
-  forceOutput = false,
-} = {}) => {
-  console.log('running ' + cmd);
-
-  return new Promise((resolve, reject) => {
-    exec(cmd, opts, (err, stdout, stderr) => {
-      if (err) {
-        console.error(err);
-        return reject(err);
-      }
-
-      //`` to convert from buffers
-      if (stdout) {
-        log(`${stdout}`, forceOutput);
-      }
-      if (stderr) {
-        log(`${stderr}`, forceOutput);
-      }
-
-      return resolve(`${stdout}`, `${stderr}`);
-    });
-  });
-};
-
-const spawnWaitUntilString = (cmd, args, opts, {
-  waitUntil = `${Math.random()}`,
-  forceOutput = false,
-  failOnStderr = false,
-} = {}) => {
-  console.log('\nrunning: ' + cmd + ' ' + args.join(' '));
-
-  return new Promise((resolve, reject) => {
-    //const [ command, ...args ] = cmd.split(' ');
-    const process = spawn(cmd, args, opts);
-
-    process.stdout.on('data', data => {
-      log(`${data}`, forceOutput);
-      if (`${data}`.indexOf(waitUntil) >= 0) {
-        resolve(process);
-      }
-    });
-
-    process.stderr.on('data', data => {
-      log(`${data}`, true);
-      if (`${data}`.indexOf(waitUntil) >= 0) {
-        return resolve(process);
-      }
-      if (failOnStderr === true) {
-        console.log('REJECTING');
-        process.kill();
-        reject(process);
-      }
-    });
-
-    process.on('error', (err) => {
-      console.log('Error in process');
-      console.log(err);
-    });
-
-    process.on('close', (code) => {
-      log(`child process exited with code ${code}`, forceOutput);
-    });
-  });
-};
+const pathBioNanoPlatform = process.env.PLATFORM_PATH || path.resolve(pathProjectRoot, '../bio-user-platform');
+const PGPASSWORD = process.env.PGPASSWORD || 'storageGCTOR'; // TODO export this default from `gctor-storage`
 
 /** scripts **/
 
-let dockerEnv;
-
 const setupBioNanoPlatform = (useGenomeDesignerBranch = false) => {
-  const checkoutPromise = useGenomeDesignerBranch == true ?
-    promisedExec(`git checkout genome-designer`,
-      { cwd: pathBioNanoPlatform }
+  console.log(`PLATFORM_PATH=${pathBioNanoPlatform}`);
+
+  const checkoutPromise = useGenomeDesignerBranch === true ?
+    promisedExec('git checkout genome-designer',
+      { cwd: pathBioNanoPlatform },
+      { comment: 'Checking out \'genome-designer\' branch of User Platform...' },
     ) :
     Promise.resolve();
 
   return checkoutPromise
-    .then(() => promisedExec(`npm install`,
-      { cwd: pathBioNanoPlatform }
+    .then(() => promisedExec('npm install',
+      { cwd: pathBioNanoPlatform },
+      { comment: 'Installing User Platform dependencies...' },
     ));
 };
 
-const startBioNanoPlatform = () => {
-  return spawnWaitUntilString('npm', ['run', 'storage-background'],
-    {
-      cwd: pathBioNanoPlatform,
-      env: Object.assign({}, process.env, dockerEnv),
-    },
-    { waitUntil: 'database system is ready to accept connections' }
-  );
-};
+const startAuthServer = () => spawnAsync('npm', ['start'],
+  {
+    cwd: pathBioNanoPlatform,
+    env: Object.assign({ PGPASSWORD }, process.env),
+  },
+  {
+    comment: 'Starting User Platform...',
+    waitUntil: '{ address: { address: \'::\', family: \'IPv6\', port: 8080 } } \'started\'',
+  });
 
-const startAuthServer = () => {
-  return spawnWaitUntilString('npm', ['start'],
-    { cwd: pathBioNanoPlatform },
-    { waitUntil: `{ address: { address: '::', family: 'IPv6', port: 8080 } } 'started'` });
-};
+const installAuthModule = () => promisedExec(`npm install ${pathBioNanoPlatform}`, {
+  cwd: pathProjectRoot,
+}, {
+  comment: 'Installing User Platform Authentication Module...',
+});
 
 const startRunAuth = () => {
   console.log('\n\n');
-  return spawnWaitUntilString('npm', ['run', 'auth'],
-    { cwd: pathProjectRoot },
+  return spawnAsync('npm', ['run', 'start'],
+    { cwd: pathProjectRoot,
+      stdio: 'inherit',
+      env: Object.assign({
+        BIO_NANO_AUTH: 1,
+        HOST_URL,
+        CONSTRUCTOR_SKIP_SETUP: 'true',
+      }, process.env),
+    },
     {
-      waitUntil: 'Server listening at http://0.0.0.0:3000/',
+      comment: '\n\nStarting Constructor with Authentication...',
+      waitUntil: `Server listening at ${HOST_URL}/`,
       forceOutput: true,
       failOnStderr: false,
-    }
+    },
   );
 };
 
-async function auth() {
+async function authStack() {
   try {
+    await run(setup);
     await setupBioNanoPlatform();
-    await startBioNanoPlatform();
     await startAuthServer();
+    await installAuthModule();
     await startRunAuth();
   } catch (err) {
-    console.log('CAUGHT', err);
+    console.log('[auth-stack] CAUGHT', err);
     throw err;
   }
 }
 
-export default auth;
+export default authStack;

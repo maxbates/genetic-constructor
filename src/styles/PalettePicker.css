@@ -1,0 +1,66 @@
+@import './variables.css';
+
+.color-tabs {
+  margin-top: 0.5rem;
+
+  .ribbon {
+    display: flex;
+    justify-content: center;
+
+    .tab {
+      display: inline-block;
+      padding: 0.25rem 0.9rem;
+      margin: 0 0.2rem;
+      background-color: var(--colors-lightGrey);
+      color: var(--colors-nearlyBlack);
+      border-radius: 3px 3px 0 0;
+      cursor: pointer;
+      text-transform: capitalize;
+
+      &.active {
+        background-color: var(--colors-darkGrey);
+        color: var(--colors-white);
+      }
+
+      &.readOnly {
+        cursor: default;
+      }
+    }
+  }
+
+  .palette-picker-content {
+    padding: 4px 18px;
+    background-color: var(--colors-darkGrey);
+    width: 282px;
+    transform: translateX(-12px);
+    cursor: default;
+
+    .color-container {
+
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem 0;
+      width: 100%;
+
+      .row {
+        width: 100%;
+        height: 10px;
+        display: flex;
+        &:not(:last-child) {
+          margin-bottom: 1px;
+        }
+
+        .color {
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          &:not(:last-child) {
+            margin-right: 1px;
+          }
+        }
+      }
+    }
+  }
+}

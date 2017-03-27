@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+
 import { setAttribute } from '../containers/graphics/utils';
 
 const serializer = navigator.userAgent.indexOf('Node.js') < 0 ? new XMLSerializer() : {
-  serializeToString: () => {return '<SVG/>';},
+  serializeToString: () => '<SVG/>',
 };
 
 //todo - should generalize this class (or wrap the SBOL ones) so that not tied to the sbol-svg namespace (e.g. for lock icon)
@@ -30,7 +31,11 @@ export default class RoleSvg extends Component {
     width: PropTypes.string,
     height: PropTypes.string,
     styles: PropTypes.object,
-    stroke: PropTypes.number,
+    classes: PropTypes.string,
+    onClick: PropTypes.func,
+    onMouseEnter: PropTypes.func,
+    onMouseLeave: PropTypes.func,
+    large: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -39,10 +44,18 @@ export default class RoleSvg extends Component {
     styles: {},
   };
 
+  /**
+   * reset markup whenever props are changed
+   */
+  componentWillReceiveProps() {
+    this.markup = null;
+  }
+
   render() {
     if (!this.markup) {
       // clone the template
-      const templateId = `sbol-svg-${this.props.symbolName}`;
+      const name = this.props.symbolName || 'null';
+      const templateId = `sbol-svg-${name}${this.props.large ? '-large' : ''}`;
       const template = document.getElementById(templateId);
       // some role symbols may not be supported so ignore the ones without templates
       if (template) {
@@ -62,10 +75,6 @@ export default class RoleSvg extends Component {
         }
         if (this.props.height) {
           svg.setAttribute('height', this.props.height);
-        }
-        // if the owner wants to modify the stroke width apply
-        if (this.props.stroke) {
-          setAttribute(svg, 'stroke-width', this.props.stroke, true);
         }
         this.markup = serializer.serializeToString(svg);
       } else {
@@ -87,6 +96,15 @@ export default class RoleSvg extends Component {
     if (this.props.height) {
       style.height = this.props.height;
     }
-    return <div style={style} className="RoleSvg" dangerouslySetInnerHTML={{__html: this.markup}}/>;
+    const classes = `RoleSvg ${this.props.classes || ''}`;
+    return (<div
+      onClick={this.props.onClick}
+      onMouseEnter={this.props.onMouseEnter}
+      onMouseLeave={this.props.onMouseLeave}
+      data-symbol={this.props.symbolName}
+      style={style}
+      className={classes}
+      dangerouslySetInnerHTML={{ __html: this.markup }}
+    />);
   }
 }

@@ -1,38 +1,49 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+import invariant from 'invariant';
+import { values as objectValues } from 'lodash';
 import Box2D from '../geometry/box2d';
-import Vector2D from '../geometry/vector2d';
 import Line2D from '../geometry/line2d';
-import Node2D from '../scenegraph2d/node2d';
-import Role2D from '../scenegraph2d/role2d';
-import ListItem2D from '../scenegraph2d/listitem2d';
+import Vector2D from '../geometry/vector2d';
 import EmptyListItem2D from '../scenegraph2d/emptylistitem2d';
 import LineNode2D from '../scenegraph2d/line2d';
+import ListItem2D from '../scenegraph2d/listitem2d';
+import Node2D from '../scenegraph2d/node2d';
+import Role2D from '../scenegraph2d/role2d';
+import Backbone2D from '../scenegraph2d/backbone2d';
 import kT from './layoutconstants';
-import objectValues from '../../../utils/object/values';
-import invariant from 'invariant';
-
-// just for internal tracking of what type of block a node represents.
-const blockType = 'block';
-const roleType = 'role';
 
 /**
  * layout and scene graph manager for the construct viewer
  */
 export default class Layout {
+  /**
+   * remove a node
+   */
+  static removeNode(node) {
+    if (node && node.parent) {
+      node.parent.removeChild(node);
+    }
+  }
+
+  /**
+   */
+  static measureText(node, str) {
+    return node.getPreferredSize(str);
+  }
 
   constructor(constructViewer, sceneGraph, options) {
     // we need a construct viewer, a scene graph, a construct and options
@@ -46,6 +57,7 @@ export default class Layout {
       insetY: 0,
       initialRowXLimit: -Infinity,
       rootLayout: true,
+      palette: null,
     }, options);
 
     // prep data structures for layout`
@@ -73,14 +85,13 @@ export default class Layout {
    */
   autoSizeSceneGraph() {
     if (this.rootLayout) {
-      // start with a box at 0,0, to ensure we capture the top left of the view
-      // and ensure we at least use the available
       const aabb = this.getBlocksAABB();
       this.sceneGraph.width = Math.max(aabb.right, kT.minWidth);
       this.sceneGraph.height = Math.max(aabb.bottom, kT.minHeight) + kT.bottomPad;
       this.sceneGraph.updateSize();
     }
   }
+
   /**
    * return the AABB for our block nodes only, including any nested layouts
    */
@@ -88,16 +99,16 @@ export default class Layout {
     // always include top left and available width to anchor the bounds
     let aabb = new Box2D(0, 0, this.sceneGraph.availableWidth, 0);
     // we should only autosize the nodes representing parts
-    objectValues(this.parts2nodes).forEach(node => {
+    objectValues(this.parts2nodes).forEach((node) => {
       aabb = aabb.union(node.getAABB());
       // add in any part list items for this block
       const blockId = this.elementFromNode(node);
-      objectValues(this.listNodes[blockId]).forEach(node => {
+      objectValues(this.listNodes[blockId]).forEach((node) => {
         aabb = aabb.union(node.getAABB());
       });
     });
     // add any nested constructs
-    objectValues(this.nestedLayouts).forEach(layout => {
+    objectValues(this.nestedLayouts).forEach((layout) => {
       aabb = layout.getBlocksAABB().union(aabb);
     });
     return aabb;
@@ -110,6 +121,7 @@ export default class Layout {
     this.nodes2parts[node.uuid] = part;
     this.parts2nodes[part] = node;
   }
+
   /**
    * flag the part as currently in use i.e. should be rendered.
    * Parts that are found to be no longer be in use are removed after rendering
@@ -125,7 +137,7 @@ export default class Layout {
    */
   dropParts() {
     const keys = Object.keys(this.partUsage);
-    keys.forEach(part => {
+    keys.forEach((part) => {
       if (this.partUsage[part] < this.updateReference) {
         const node = this.parts2nodes[part];
         if (node) {
@@ -134,8 +146,6 @@ export default class Layout {
           delete this.partUsage[part];
           node.parent.removeChild(node);
         }
-        // drop any associated list items with the part.
-        //this.dropPartListItems(part);
       }
     });
   }
@@ -143,14 +153,14 @@ export default class Layout {
   /**
    * create a list part for the block
    */
-  listBlockFactory(blockId) {
-    const block = this.blocks[blockId];
+  listBlockFactory() {
     const props = Object.assign({}, {
-      dataAttribute: {name: 'nodetype', value: 'part'},
+      dataAttribute: { name: 'nodetype', value: 'part' },
       sg: this.sceneGraph,
     }, kT.partAppearance);
     return new ListItem2D(props);
   }
+
   /**
    * create an empty list block
    */
@@ -166,6 +176,7 @@ export default class Layout {
     }
     return node;
   }
+
   /**
    * drop nodes allocated with emptyListBlockFactory that are no longer needed
    *
@@ -179,6 +190,7 @@ export default class Layout {
       }
     });
   }
+
   /**
    * create / update the list items for the block
    */
@@ -190,19 +202,20 @@ export default class Layout {
     // the node representing the parent block
     const parentNode = this.nodeFromElement(block.id);
     // get the focused list for this block
-    let focusedOptionId = this.focusedOptions[block.id];
+    const focusedOptionId = this.focusedOptions[block.id];
     // get only the options that are enabled for this block
     const enabled = Object.keys(block.options).filter(opt => block.options[opt]);
     // if block list is empty add a single placeholder block
     if (enabled.length === 0) {
-        const node = this.emptyListBlockFactory(block.id, parentNode);
-        node.set({
-          bounds: new Box2D(0, kT.blockH + 1, pW, kT.optionH),
-          fill: this.fillColor(block.id),
-          updateReference: this.updateReference,
-          listParentBlock: block,
-          listParentNode: parentNode,
-        });
+      const node = this.emptyListBlockFactory(block.id, parentNode);
+      node.set({
+        bounds: new Box2D(0, kT.blockH + 1, pW, kT.optionH),
+        fill: this.fillColor(block.id),
+        updateReference: this.updateReference,
+        listParentBlock: block,
+        listParentNode: parentNode,
+        hidden: block.isHidden(),
+      });
     } else {
       // find the index of the focused list option, or default the first one
       let focusedIndex = enabled.findIndex(blockId => focusedOptionId === blockId);
@@ -221,7 +234,7 @@ export default class Layout {
         // create node as necessary for this block
         let listNode = nodes[blockId];
         if (!listNode) {
-          listNode = nodes[blockId] = this.listBlockFactory(blockId);
+          listNode = nodes[blockId] = this.listBlockFactory();
           parentNode.appendChild(listNode);
         }
         // update position and other visual attributes of list part
@@ -235,19 +248,16 @@ export default class Layout {
           listParentNode: this.nodeFromElement(block.id),
           listBlock,
           optionSelected: index === focusedIndex,
+          hidden: block.isHidden(),
         });
       });
     }
   }
 
-  /**
-   * drop any list nodes that are not up tp date with the updateReference
-   */
   dropListItems() {
     // outer loop will iterate over a hash of list node each block with list items
-    Object.keys(this.listNodes).forEach(blockId => {
-      const nodeHash = this.listNodes[blockId];
-      Object.keys(nodeHash).forEach(key => {
+    Object.values(this.listNodes).forEach((nodeHash) => {
+      Object.keys(nodeHash).forEach((key) => {
         const node = nodeHash[key];
         if (node.updateReference !== this.updateReference) {
           node.parent.removeChild(node);
@@ -263,6 +273,12 @@ export default class Layout {
    */
   elementFromNode(node) {
     let part = this.nodes2parts[node.uuid];
+    // one of many hacks to handle circular constructs, this returns the ID for the initial block
+    // which we assume is the circular block itself when given the id for the end cap.
+    if (part === Layout.backboneEndCapId) {
+      invariant(this.constructViewer.isCircularConstruct() && this.rootLayout, 'this should only occur in the root layout');
+      return this.construct.components[0];
+    }
     if (!part) {
       const nestedKeys = Object.keys(this.nestedLayouts);
       for (let i = 0; i < nestedKeys.length && !part; i += 1) {
@@ -271,6 +287,28 @@ export default class Layout {
     }
     return part;
   }
+
+  /**
+   * if we are showing a circular construct return the node representing the start block
+   * NOTE: We don't have to worry about nested constructs here.
+   */
+  getCircularStartNode() {
+    if (this.constructViewer.isCircularConstruct()) {
+      return this.parts2nodes[this.construct.components[0]];
+    }
+    return null;
+  }
+  /**
+   * if we are showing a circular construct return the node representing the end cap
+   * NOTE: We don't have to worry about nested constructs here.
+   */
+  getCircularEndNode() {
+    if (this.constructViewer.isCircularConstruct()) {
+      return this.parts2nodes[Layout.backboneEndCapId];
+    }
+    return null;
+  }
+
   /**
    * reverse mapping from anything with an 'uuid' property to a node
    * Looks into nested constructs as well.
@@ -285,15 +323,14 @@ export default class Layout {
     }
     return node;
   }
+
   /**
    * return an array of {block, node} objects for this layout
    * and all nested layouts.
    */
   allNodesAndBlocks() {
-    let list = Object.keys(this.parts2nodes).map(block => {
-      return {block, node: this.parts2nodes[block]};
-    });
-    Object.keys(this.nestedLayouts).forEach(key => {
+    let list = Object.keys(this.parts2nodes).map(block => ({ block, node: this.parts2nodes[block] }));
+    Object.keys(this.nestedLayouts).forEach((key) => {
       list = list.concat(this.nestedLayouts[key].allNodesAndBlocks());
     });
     return list;
@@ -302,34 +339,38 @@ export default class Layout {
   /**
    * create a node, if not already created for the given piece.
    * Add to our hash for tracking
-   *
-   *
-   *
    */
   partFactory(part, appearance) {
     let node = this.nodeFromElement(part);
     if (!node) {
       const props = Object.assign({}, {
-        dataAttribute: {name: 'nodetype', value: 'block'},
+        dataAttribute: { name: 'nodetype', value: 'block' },
         sg: this.sceneGraph,
       }, appearance);
-      props.roleName = this.isSBOL(part) ? this.blocks[part].rules.role  || this.blocks[part].metadata.role: null;
-      node = new Role2D(props);
+      if (part === Layout.backboneEndCapId) {
+        props.roleName = 'backbone-endcap';
+      } else {
+        props.roleName = this.isSBOL(part) ? this.blocks[part].rules.role || this.blocks[part].metadata.role : null;
+      }
+      switch (props.roleName) {
+        case 'backbone':
+          node = new Backbone2D(props);
+          break;
+        case 'backbone-endcap':
+          node = new Backbone2D(props);
+          node.endCap = true;
+          break;
+        default: node = new Role2D(props);
+      }
       this.sceneGraph.root.appendChild(node);
       this.map(part, node);
     }
-    // hide/or child expand/collapse glyph
+    // hide/show child expand glyph
     node.set({
-      hasChildren: this.hasChildren(part),
+      hasChildren: this.someChildrenVisible(part),
     });
     // mark part as in use
     this.usePart(part);
-  }
-  /**
-   * return one of the meta data properties for a part.
-   */
-  partMeta(part, meta) {
-    return this.blocks[part].metadata[meta];
   }
 
   /**
@@ -337,14 +378,14 @@ export default class Layout {
    */
   fillColor(part) {
     const block = this.blocks[part];
-    if (block.isFiller()) return '#4B505E';
-    // allow an optional blockColor method to override the block color
+
     if (this.blockColor) {
       return this.blockColor(part);
     }
-    // use color in meta data
-    return block.metadata.color || 'lightgray';
+
+    return block.getColor(this.palette);
   }
+
   /**
    * filler blocks get a special color
    */
@@ -355,10 +396,36 @@ export default class Layout {
   }
 
   /**
-   * return the property within the rule part of the blocks data
+   * NOTE: In authoring mode blocks are never hidden.
+   * @param  {string} blockId
+   * @return {boolean}
    */
-  partRule(part, name) {
-    return this.blocks[part].rules[name];
+  blockIsHidden(blockId) {
+    const block = this.blocks[blockId];
+    return block.isHidden();
+  }
+
+  /**
+   * return true if all the children of the given block are hidden.
+   * Also returns true if the block has no children
+   * @param  {string} blockId
+   * @return {boolean}
+   */
+  allChildrenHidden(blockId) {
+    return this.blocks[blockId].components.every(childId => this.blockIsHidden(childId));
+  }
+
+  /**
+   * true if any of the children are visible
+   * @param  {string} blockId
+   0   * @return {boolean}
+   */
+  someChildrenVisible(blockId) {
+    // end cap never shows children even though its referenced start block can
+    if (blockId === Layout.backboneEndCapId) {
+      return false;
+    }
+    return this.blocks[blockId].components.some(childId => !this.blockIsHidden(childId));
   }
 
   /**
@@ -387,11 +454,24 @@ export default class Layout {
   }
 
   /**
+   * first child then is not hidden
+   * @param  {[type]} blockId [description]
+   * @return {[type]}         [description]
+   */
+  firstVisibleChild(blockId) {
+    const block = this.blocks[blockId];
+    invariant(block, 'expect to be able to find the block');
+    const cid = block.components.find(childId => !this.blockIsHidden(childId));
+    invariant(cid, 'expect to find a visible child');
+    return cid;
+  }
+
+  /**
    * return the two nodes that we need to graphically connect to show a connection.
    * The given block is the source block
    */
   connectionInfo(sourceBlockId) {
-    const destinationBlockId = this.firstChild(sourceBlockId);
+    const destinationBlockId = this.firstVisibleChild(sourceBlockId);
     invariant(destinationBlockId, 'expected a child if this method is called');
     return {
       sourceBlock: this.blocks[sourceBlockId],
@@ -406,8 +486,9 @@ export default class Layout {
    * If the part is an SBOL symbol then use the symbol name preferentially
    */
   partName(part) {
-    return this.blocks[part].getName('Block', true);
+    return this.blocks[part].getName('New Block', true);
   }
+
   /**
    * create the banner / bar for the construct ( contains the triangle )
    *
@@ -417,6 +498,7 @@ export default class Layout {
       this.banner = new Node2D({
         sg: this.sceneGraph,
         glyph: 'construct-banner',
+        dataAttribute: { name: 'nodetype', value: 'construct-banner' },
       });
       this.sceneGraph.root.appendChild(this.banner);
     }
@@ -424,55 +506,12 @@ export default class Layout {
       this.banner.set({
         fill: this.baseColor,
         stroke: this.baseColor,
-        bounds: new Box2D(this.insetX, this.insetY, this.sceneGraph.availableWidth - this.insetX, kT.bannerHeight),
+        bounds: new Box2D(this.insetX, this.insetY, kT.bannerHeight, kT.bannerHeight),
       });
     }
   }
-  /**
-   * create title as necessary
-   *
-   *
-   */
-  titleFactory() {
-    if (this.showHeader) {
-      if (!this.titleNode) {
-        // node that carries the text
-        this.titleNode = new Node2D(Object.assign({
-          dataAttribute: {name: 'nodetype', value: 'construct-title'},
-          sg: this.sceneGraph,
-        }, kT.titleAppearance));
-        // add the context menu dots
-        this.titleNodeDots = new Node2D({
-          sg: this.sceneGraph,
-          glyph: 'dots',
-        });
-        this.titleNode.appendChild(this.titleNodeDots);
-        this.sceneGraph.root.appendChild(this.titleNode);
-      }
 
-      // update title to current position and text and width, also add gray text
-      // to indicate template if appropriate
-      let text = this.construct.getName('New Construct');
-      if (this.construct.isTemplate()) {
-        text += '<span style="color:gray">&nbsp;Template</span>';
-      }
-      this.titleNodeTextWidth = this.titleNode.measureText(text).x + kT.textPad;
 
-      this.titleNode.set({
-        text: text,
-        color: this.baseColor,
-        bounds: new Box2D(this.insetX, this.insetY + kT.bannerHeight, this.sceneGraph.availableWidth - this.insetX - kT.rightPad, kT.titleH),
-        dataAttribute: {name: 'construct-title', value: text},
-      });
-
-      // set dots to the right of the text
-      this.titleNodeDots.set({
-        bounds: new Box2D(this.titleNodeTextWidth, (kT.titleH - kT.contextDotsH) / 2, kT.contextDotsW, kT.contextDotsH),
-        visible: this.titleNode.hover,
-        dotColor: this.baseColor,
-      });
-    }
-  }
   /**
    * create the vertical bar as necessary and update its color
    */
@@ -487,6 +526,30 @@ export default class Layout {
       fill: this.baseColor,
     });
   }
+
+  /**
+   * circular constructs have an end bar on
+   * the outer most construct
+   */
+  endBarFactory() {
+    if (this.constructViewer.isCircularConstruct() && this.rootLayout) {
+      if (!this.endBar) {
+        this.endBar = new Node2D(Object.assign({
+          sg: this.sceneGraph,
+        }, kT.verticalAppearance));
+        this.sceneGraph.root.appendChild(this.endBar);
+      }
+      this.endBar.set({
+        fill: this.baseColor,
+      });
+    } else {
+      if (this.endBar) {
+        this.endBar.parent.removeChild(this.endBar);
+        this.endBar = null;
+      }
+    }
+  }
+
   /**
    * create or recycle a row on demand.
    */
@@ -503,7 +566,7 @@ export default class Layout {
     }
     // set bounds and update to current color
     row.set({
-      bounds: bounds,
+      bounds,
       fill: this.baseColor,
       strokeWidth: 0,
       updateReference: this.updateReference,
@@ -517,13 +580,14 @@ export default class Layout {
   resetNestedConstructs() {
     this.newNestedLayouts = {};
   }
+
   /**
    * dispose and unused rows
    */
   disposeRows() {
     // keep rows still in use, remove the others
     const keepers = [];
-    this.rows.forEach(row => {
+    this.rows.forEach((row) => {
       if (row.updateReference === this.updateReference) {
         keepers.push(row);
       } else {
@@ -537,39 +601,53 @@ export default class Layout {
    * dispose any nested constructs no longer referenced.
    */
   disposeNestedLayouts() {
-    Object.keys(this.nestedLayouts).forEach(key => {
-      this.nestedLayouts[key].dispose();
-    });
+    Object.values(this.nestedLayouts).forEach(nestedLayout => nestedLayout.dispose());
     this.nestedLayouts = this.newNestedLayouts;
   }
+
   /**
    * store layout information on our cloned copy of the data, constructing
-   * display elements as required
+   * display elements as required.
+   * NOTE: The project might have been delete while we are updating. So handle that edge case.
    *
    */
   update(options) {
+    const project = this.constructViewer.getProject();
+    if (!project) {
+      return;
+    }
     this.options = options;
+    this.showHidden = options.showHidden;
     this.construct = options.construct;
-    this.blocks = options.blocks;
+    this.palette = this.rootLayout ? this.construct.metadata.palette || project.metadata.palette : this.palette;
+    // we might need to hack in a fake block if this is a circular construct
+    if (this.constructViewer.isCircularConstruct()) {
+      this.blocks = Object.entries(options.blocks).reduce((blocks, keyValuePair) => {
+        blocks[keyValuePair[0]] = keyValuePair[1];
+        return blocks;
+      }, {});
+    } else {
+      this.blocks = options.blocks;
+    }
     this.currentConstructId = options.currentConstructId;
     this.currentBlocks = options.currentBlocks;
     this.focusedOptions = options.focusedOptions || {};
     this.blockColor = options.blockColor;
     invariant(this.construct && this.blocks && this.currentBlocks && this.focusedOptions, 'missing required options');
 
-    this.baseColor = this.construct.metadata.color;
+    this.baseColor = this.construct.getColor();
 
     // perform layout and remember how much vertical was required
-    const heightUsed = this.layoutWrap();
+    const layoutResults = this.layoutWrap();
 
     // update connections etc after layout
-    this.postLayout();
+    this.postLayout(layoutResults);
 
     // auto size scene after layout
     this.autoSizeSceneGraph();
 
-    // nest layouts need to the vertical space required
-    return heightUsed;
+    // return our layout results for our parent, if any
+    return layoutResults;
   }
 
   /**
@@ -582,18 +660,13 @@ export default class Layout {
       condensed: false,
     });
   }
-  /**
-   */
 
-  measureText(node, str) {
-    return node.getPreferredSize(str);
-  }
   /**
    * return the point where layout of actual blocks begins
    *
    */
   getInitialLayoutPoint() {
-    return new Vector2D(this.insetX + kT.rowBarW, this.insetY + (this.showHeader ? kT.bannerHeight + kT.titleH + kT.rowBarH : kT.rowBarH));
+    return new Vector2D(this.insetX + kT.rowBarW, this.insetY + (this.showHeader ? kT.bannerHeight + kT.bannerGap + kT.rowBarH : kT.rowBarH));
   }
 
   /**
@@ -604,6 +677,12 @@ export default class Layout {
     invariant(item, 'list item not found');
     return item;
   }
+
+  /**
+   * fake ID for backbone end cap.
+   */
+  static backboneEndCapId = 'backbone-end-cap';
+
   /**
    * layout, configured with various options:
    * xlimit: maximum x extent
@@ -616,8 +695,6 @@ export default class Layout {
     const ct = this.construct;
     // construct the banner if required
     this.bannerFactory();
-    // create and update title
-    this.titleFactory();
     // maximum x position
     const mx = layoutOptions.xlimit;
     // reset nested constructs
@@ -636,26 +713,53 @@ export default class Layout {
     // additional vertical space consumed on every row for nested constructs
     let nestedVertical = 0;
 
-    // additional height required by the tallest list on the row
+    // additional height required by the tallest list on the row including an allowance
+    // for empty list blocks which have the text 'Emtpy List' below them.
     let maxListHeight = 0;
+
+    // used to track the nested constructs on each row
+    let nestedConstructs = [];
 
     // width of first row is effected by parent block, so we have to track
     // which row we are on.
     let rowIndex = 0;
-    // display only non hidden blocks
-    const components = ct.components.filter(part => !this.blocks[part].isHidden());
-    // layout all non hidden blocks
-    components.forEach(part => {
 
-      // create a row bar as neccessary
+    // display only non hidden blocks
+    const components = this.showHidden ? [...ct.components] : ct.components.filter(blockId => !this.blockIsHidden(blockId));
+
+    if (this.constructViewer.isCircularConstruct() && this.rootLayout) {
+      // put a reference to the first component ( the backbone block ) into block hash
+      this.blocks[Layout.backboneEndCapId] = this.blocks[components[0]];
+      // add the fake ID to the components list
+      components.push(Layout.backboneEndCapId);
+    }
+
+    // end bar is used only to cap circular constructs
+    this.endBarFactory();
+
+    // layout all non hidden blocks
+    components.forEach((part) => {
+      // create a row bar as necessary
       if (!row) {
         row = this.rowFactory(new Box2D(this.insetX, yp - kT.rowBarH, 0, kT.rowBarH));
       }
       // resize row bar to current row width
       const rowStart = this.insetX;
-      const rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      let rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      rowEnd += this.endBar ? 1 : 0;
       const rowWidth = rowEnd - rowStart;
-      row.set({translateX: rowStart + rowWidth / 2, width: rowWidth});
+      row.set({ translateX: rowStart + rowWidth / 2, width: rowWidth });
+
+      // update end bar as required
+      if (this.endBar) {
+        const height = kT.rowBarH + kT.blockH;
+        this.endBar.set({
+          translateX: rowEnd + kT.rowBarW / 2,
+          width: kT.rowBarW,
+          translateY: yp - kT.rowBarH + height / 2,
+          height,
+        });
+      }
 
       // create the node representing the part
       this.partFactory(part, kT.partAppearance);
@@ -664,25 +768,41 @@ export default class Layout {
       const node = this.nodeFromElement(part);
       const block = this.blocks[part];
       const name = this.partName(part);
-      const listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      let listN = Object.keys(block.options).filter(opt => block.options[opt]).length;
+      // empty list blocks has a message below them so allow for that.
+      listN = block.isList() ? Math.max(listN, 1) : listN;
 
-      // set role part name if any
+      // set role part name if any, and set hidden property
       node.set({
         roleName: this.isSBOL(part) ? block.rules.role || block.metadata.role : null,
+        hidden: block.isHidden(),
       });
 
       // measure element text or used condensed spacing
-      let td = this.measureText(node, name);
+      const td = Layout.measureText(node, name);
 
       // measure the max required width of all list blocks
-      Object.keys(block.options).filter(opt => block.options[opt]).forEach(blockId => {
-        let width = this.measureText(node, this.getListBlock(blockId).metadata.name).x;
+      Object.keys(block.options).filter(opt => block.options[opt]).forEach((blockId) => {
+        let width = Layout.measureText(node, this.getListBlock(blockId).metadata.name).x;
         width += kT.optionDotW;
         td.x = Math.max(td.x, width);
       });
 
       // if position would exceed x limit then wrap
       if (xp + td.x > mx) {
+        // ensure all nested constructs on the row are updated for list block height
+        if (nestedConstructs.length && maxListHeight > 0) {
+          nestedConstructs.forEach((child) => {
+            child.insetY += maxListHeight;
+            child.update({
+              construct: child.construct,
+              blocks: this.blocks,
+              currentBlocks: this.currentBlocks,
+              currentConstructId: this.currentConstructId,
+            });
+          });
+        }
+        nestedConstructs = [];
         xp = startX;
         yp += kT.rowH + nestedVertical + maxListHeight;
         nestedVertical = 0;
@@ -692,10 +812,10 @@ export default class Layout {
       }
 
       // update maxListHeight based on how many list items this block has
-      maxListHeight = Math.max(maxListHeight, listN * kT.blockH);
+      maxListHeight = Math.max(maxListHeight, listN * kT.optionH);
       invariant(isFinite(maxListHeight) && maxListHeight >= 0, 'expected a valid number');
 
-      // update part, including its text and color and with height to accomodate list items
+      // update part, including its text and color and with height to accommodate list items
       node.set({
         bounds: new Box2D(xp, yp, td.x, kT.blockH),
         text: name,
@@ -706,8 +826,12 @@ export default class Layout {
       // update any list parts for this blocks
       this.updateListForBlock(block, td.x);
 
-      // render children ( nested constructs )
-      if (this.hasChildren(part) && node.showChildren) {
+      // render children unless it is hidden OR all its children are hidden
+      let hidden = this.blockIsHidden(part);
+      if (hidden && this.showHidden) {
+        hidden = false;
+      }
+      if (node.showChildren && !hidden && this.someChildrenVisible(part)) {
         // establish the position
         const nestedX = this.insetX + kT.nestedInsetX;
         const nestedY = yp + nestedVertical + kT.blockH + kT.nestedInsetY;
@@ -719,11 +843,19 @@ export default class Layout {
             insetX: nestedX,
             insetY: nestedY,
             rootLayout: false,
+            palette: this.palette,
           });
         }
 
+        // track the nested layouts per row since they might need adjusting for list blocks
+        // at the end of the row
+        nestedConstructs.push(nestedLayout);
+
         // update base color of nested construct skeleton
-        nestedLayout.baseColor = block.metadata.color || this.baseColor;
+        nestedLayout.baseColor = block.getColor() || this.baseColor;
+
+        // update palette
+        nestedLayout.palette = this.palette;
 
         // update minimum x extent of first rowH
         nestedLayout.initialRowXLimit = this.getConnectionRowLimit(part);
@@ -737,7 +869,9 @@ export default class Layout {
           construct: this.blocks[part],
           blocks: this.blocks,
           currentBlocks: this.currentBlocks,
-          currentConstructId: this.currentConstructId}) + kT.nestedInsetY;
+          currentConstructId: this.currentConstructId,
+          showHidden: this.showHidden,
+        }).height + kT.nestedInsetY;
 
         // remove from old collection so the layout won't get disposed
         // and add to the new set of layouts
@@ -751,9 +885,35 @@ export default class Layout {
     // ensure final row has the final row width
     if (row) {
       const rowStart = this.insetX + 1;
-      const rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      let rowEnd = rowIndex === 0 ? Math.max(xp, this.initialRowXLimit) : xp;
+      rowEnd += this.endBar ? 1 : 0;
       const rowWidth = rowEnd - rowStart;
-      row.set({translateX: rowStart + rowWidth / 2, width: rowWidth});
+      row.set({ translateX: rowStart + rowWidth / 2, width: rowWidth });
+
+      // update end bar as required
+      if (this.endBar) {
+        const height = kT.rowBarH + kT.blockH;
+        this.endBar.set({
+          translateX: rowEnd + kT.rowBarW / 2,
+          width: kT.rowBarW,
+          translateY: yp - kT.rowBarH + height / 2,
+          height,
+        });
+      }
+
+      // ensure all nested constructs on the row are updated for list block height
+      if (nestedConstructs.length && maxListHeight > 0) {
+        nestedConstructs.forEach((child) => {
+          child.insetY += maxListHeight;
+          child.update({
+            construct: child.construct,
+            blocks: this.blocks,
+            currentBlocks: this.currentBlocks,
+            currentConstructId: this.currentConstructId,
+            showHidden: this.showHidden,
+          });
+        });
+      }
     }
 
     // cleanup any dangling rows
@@ -776,46 +936,47 @@ export default class Layout {
 
     // position and size vertical bar
     const heightUsed = yp - startY + kT.blockH;
-    let barHeight = heightUsed - kT.blockH + kT.rowBarH;
-    // if the height is small just make zero since its not needed
-    if (barHeight <= kT.rowBarH) {
+    let barHeight = Math.max(kT.rowBarH + kT.blockH, heightUsed - kT.blockH + kT.rowBarH);
+    // do not display if no blocks
+    if (!components.length) {
       barHeight = 0;
     }
     this.vertical.set({
       bounds: new Box2D(this.insetX, startY - kT.rowBarH, kT.rowBarW, barHeight),
     });
+
     // filter the selections so that we eliminate those block we don't contain
     let selectedNodes = [];
     if (this.currentBlocks) {
-      const containedBlockIds = this.currentBlocks.filter(blockId => {
-        return !!this.nodeFromElement(blockId);
-      });
+      const containedBlockIds = this.currentBlocks.filter(blockId => !!this.nodeFromElement(blockId));
       // get nodes for selected blocks
-      selectedNodes = containedBlockIds.map(blockId => {
-        return this.nodeFromElement(blockId);
-      });
+      selectedNodes = containedBlockIds.map(blockId => this.nodeFromElement(blockId));
     }
     // apply selections to scene graph
     if (this.sceneGraph.ui) {
       this.sceneGraph.ui.setSelections(selectedNodes);
     }
 
-    // for nesting return the height consumed by the layout
-    return heightUsed + nestedVertical + kT.rowBarH;
+    // return height
+    return {
+      height: heightUsed + nestedVertical + kT.rowBarH + maxListHeight,
+    };
   }
 
   /**
    * update connections after the layout
    */
-  postLayout() {
+  postLayout(layoutResults) {
     // update / make all the parts
-    this.construct.components.forEach(part => {
+    this.construct.components.forEach((part) => {
       // render children ( nested constructs )
-      if (this.hasChildren(part) && this.nodeFromElement(part).showChildren) {
+      if (this.hasChildren(part) && !this.blockIsHidden(part) && !this.allChildrenHidden(part) &&
+        this.nodeFromElement(part).showChildren) {
         // update / create connection
         this.updateConnection(part);
       }
     });
+
     // dispose dangling connections
     this.disposeConnections();
   }
@@ -827,12 +988,16 @@ export default class Layout {
     const sourceRectangle = cnodes.sourceNode.getAABB();
     return sourceRectangle.center.x + kT.rowBarW / 2;
   }
+
   /**
    * update / create the connection between the part which must be the
    * parent of a nested construct.
    */
   updateConnection(part) {
     const cnodes = this.connectionInfo(part);
+    if (!cnodes.destinationNode) {
+      return;
+    }
     // the source and destination node id's are used to as the cache key for the connectors
     const key = `${cnodes.sourceBlock.id}-${cnodes.destinationBlock.id}`;
     // get or create connection line
@@ -843,16 +1008,16 @@ export default class Layout {
         strokeWidth: kT.rowBarW,
         sg: this.sceneGraph,
         parent: this.sceneGraph.root,
-        dataAttribute: {name: 'connection', value: cnodes.sourceBlock.id},
+        dataAttribute: { name: 'connection', value: cnodes.sourceBlock.id },
       });
-      connector = {line};
+      connector = { line };
       this.connectors[key] = connector;
     }
     // update connector position
     const sourceRectangle = cnodes.sourceNode.getAABB();
     const destinationRectangle = cnodes.destinationNode.getAABB();
     connector.line.set({
-      stroke: this.partMeta(cnodes.sourceBlock.id, 'color'),
+      stroke: this.fillColor(cnodes.sourceBlock.id),
       line: new Line2D(sourceRectangle.center, new Vector2D(sourceRectangle.center.x, destinationRectangle.y)),
     });
     // ensure the connectors are always behind the blocks
@@ -866,10 +1031,10 @@ export default class Layout {
    * remove any connections that are no longer in use
    */
   disposeConnections() {
-    Object.keys(this.connectors).forEach(key => {
+    Object.keys(this.connectors).forEach((key) => {
       const connector = this.connectors[key];
       if (connector.updateReference !== this.updateReference) {
-        this.removeNode(connector.line);
+        Layout.removeNode(connector.line);
         delete this.connectors[key];
       }
     });
@@ -882,28 +1047,12 @@ export default class Layout {
   dispose() {
     invariant(!this.disposed, 'Layout already disposed');
     this.disposed = true;
-    this.removeNode(this.banner);
-    this.removeNode(this.titleNode);
-    this.removeNode(this.vertical);
-    this.rows.forEach( node => {
-      this.removeNode(node);
-    });
-    Object.keys(this.parts2nodes).forEach(part => {
-      this.removeNode(this.parts2nodes[part]);
-    });
-    Object.keys(this.connectors).forEach(key => {
-      this.removeNode(this.connectors[key].line);
-    });
+    Layout.removeNode(this.banner);
+    Layout.removeNode(this.vertical);
+    this.rows.forEach(node => Layout.removeNode(node));
+    Object.values(this.parts2nodes).forEach(node => Layout.removeNode(node));
+    Object.values(this.connectors).forEach(connector => Layout.removeNode(connector.line));
     this.disposeNestedLayouts();
-  }
-
-  /**
-   * remove a node
-   */
-  removeNode(node) {
-    if (node && node.parent) {
-      node.parent.removeChild(node);
-    }
   }
 
 }

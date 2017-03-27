@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import React, { Component, PropTypes } from 'react';
+
 import { role as roleDragType } from '../../constants/DragTypes';
 import Block from '../../models/Block';
-
 import InventoryItem from './InventoryItem';
-
-//note - if we know we have a (non-construct) block as inventory item, then we dont need to do any transactions / deep cloning - inventory drag + drop is straight forward. Use InventoryConstruct if you have a block that may be a construct (with components) OR a block.
 
 export default class InventoryItemRole extends Component {
   static propTypes = {
@@ -27,6 +25,7 @@ export default class InventoryItemRole extends Component {
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
     }).isRequired,
+    hover: PropTypes.string.isRequired,
   };
 
   constructor(props) {
@@ -48,16 +47,31 @@ export default class InventoryItemRole extends Component {
     });
   }
 
+  state = {
+    inside: false,
+  };
+
   render() {
     const { role, ...rest } = this.props;
+    const highlight = this.props.hover && this.state.inside;
 
     return (
-      <div className="InventoryItemRole">
-        <InventoryItem {...rest}
+      <div
+        className="InventoryItemRole"
+        onMouseEnter={() => this.setState({ inside: true })}
+        onMouseLeave={() => this.setState({ inside: false })}
+      >
+        <InventoryItem
+          {...rest}
           inventoryType={roleDragType}
           svg={role.id}
           item={this.roleBlock}
-          dataAttribute={`sbol ${role.id}`}/>
+          svgProps={{
+            fill: 'transparent',
+            color: highlight ? this.props.hover : '#1D222D',
+          }}
+          dataAttribute={`sbol ${role.id}`}
+        />
       </div>
     );
   }

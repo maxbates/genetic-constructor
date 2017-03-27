@@ -10,7 +10,7 @@
     display: inline-block;
 
     .Picker-item {
-      background-color: rgba(255,255,255,0.15);
+      background-color: rgba(0, 0, 0,0.15);
     }
   }
 
@@ -29,10 +29,11 @@
 
   &-content {
     position: absolute;
+    z-index: 1; /* make stacking context so appears on top */
     display: block;
     width: 270px; /* todo - var */
-    background-color: var(--colors-blueGreyMed);
-    border: 1px solid var(--colors-blueGreyLighter);
+    background-color: var(--colors-mediumDarkGrey);
+    border: 1px solid var(--colors-lightGrey);
     border-radius: 5px;
     padding: 15px;
     margin-top: 5px;
@@ -51,13 +52,13 @@
 
     &:after {
       border-color: rgba(136, 183, 213, 0);
-      border-bottom-color: var(--colors-blueGreyMed);
+      border-bottom-color: var(--colors-mediumDarkGrey);
       border-width: 12px;
       margin-left: -12px;
     }
     &:before {
       border-color: rgba(194, 225, 245, 0);
-      border-bottom-color: var(--colors-blueGreyLighter);
+      border-bottom-color: var(--colors-lightGrey);
       border-width: 13px;
       margin-left: -13px;
     }
@@ -85,7 +86,7 @@
     background-color: rgba(0,0,0,0.15);
     background-size: contain;
     text-align:center;
-    transition: border-color var(--timing-fast) ease-out;
+    transition: border-color var(--timing-fast) ease-out, background-color var(--timing-fast) ease-out;
 
     &:nth-child(4n + 1) {
       clear: left;

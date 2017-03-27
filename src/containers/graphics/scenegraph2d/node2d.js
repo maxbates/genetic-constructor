@@ -1,30 +1,32 @@
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+import invariant from 'invariant';
 import uuid from 'node-uuid';
-import Vector2D from '../geometry/vector2d';
+
 import Box2D from '../geometry/box2d';
 import Transform2D from '../geometry/transform2d';
-import invariant from 'invariant';
-import NodeText2D from './nodetext2d';
+import Vector2D from '../geometry/vector2d';
+import ConstructBanner from './glyphs/canvas/constructbanner';
+import LineGlyph2D from './glyphs/html/lineglyph2d';
+import ListItemGlyph2D from './glyphs/html/listitemglyph2d';
 import RectangleGlyph2D from './glyphs/html/rectangleglyph2d';
 import RoleGlyph2D from './glyphs/html/roleglyph2d';
-import ListItemGlyph2D from './glyphs/html/listitemglyph2d';
-import LineGlyph2D from './glyphs/html/lineglyph2d';
-import ContextDots2D from './glyphs/html/contextdots2d';
-import ConstructBanner from './glyphs/canvas/constructbanner';
+import BackboneGlyph2D from './glyphs/html/backbone-glyph';
+import NodeText2D from './nodetext2d';
+
 /**
  * shared DIV for measuring text,
  */
@@ -35,7 +37,6 @@ const textCache = {};
  * basic rectangular node
  */
 export default class Node2D {
-
   constructor(props) {
     // top level element is just a div
     this.el = document.createElement('div');
@@ -48,7 +49,6 @@ export default class Node2D {
     // extend default options with the given options
     this.set(Object.assign({
       visible: true,
-      hover: false,
       stroke: 'black',
       strokeWidth: 0,
       fill: 'dodgerblue',
@@ -60,7 +60,7 @@ export default class Node2D {
       scale: 1,
       fontSize: '2rem',
       fontWeight: 'normal',
-      fontFamily: 'Arial',
+      fontFamily: 'Helvetica',
       color: 'black',
       uuid: uuid.v4(),
       glyph: 'none',
@@ -73,29 +73,29 @@ export default class Node2D {
 
     // create our glyph at the same time
     switch (this.glyph) {
-    case 'rectangle':
-      this.glyphObject = new RectangleGlyph2D(this);
-      break;
-    case 'construct-banner':
-      this.glyphObject = new ConstructBanner(this);
-      break;
-    case 'role':
-      this.glyphObject = new RoleGlyph2D(this);
-      break;
-    case 'dots':
-      this.glyphObject = new ContextDots2D(this);
-      break;
-    case 'line':
-      this.glyphObject = new LineGlyph2D(this);
-      break;
-    case 'listitem':
-      this.glyphObject = new ListItemGlyph2D(this);
-      break;
+      case 'rectangle':
+        this.glyphObject = new RectangleGlyph2D(this);
+        break;
+      case 'construct-banner':
+        this.glyphObject = new ConstructBanner(this);
+        break;
+      case 'role':
+        this.glyphObject = new RoleGlyph2D(this);
+        break;
+      case 'backbone':
+        this.glyphObject = new BackboneGlyph2D(this);
+        break;
+      case 'line':
+        this.glyphObject = new LineGlyph2D(this);
+        break;
+      case 'listitem':
+        this.glyphObject = new ListItemGlyph2D(this);
+        break;
 
-    case 'none':
-      break;
-    default:
-      throw new Error('unrecognized glyph type');
+      case 'none':
+        break;
+      default:
+        throw new Error('unrecognized glyph type');
     }
     // create our text element
     this.textGlyph = new NodeText2D(this);
@@ -114,38 +114,39 @@ export default class Node2D {
    * @param {Object} props - key / value pairs of properties
    */
   set(props) {
-    Object.keys(props).forEach(key => {
+    Object.keys(props).forEach((key) => {
       // value associated with key
       const value = props[key];
 
       switch (key) {
 
-      case 'parent':
-        value.appendChild(this);
-        break;
+        case 'parent':
+          value.appendChild(this);
+          break;
 
-      case 'bounds':
-        this.translateX = value.cx;
-        this.translateY = value.cy;
-        this.width = value.w;
-        this.height = value.h;
-        break;
+        case 'bounds':
+          this.translateX = value.cx;
+          this.translateY = value.cy;
+          this.width = value.w;
+          this.height = value.h;
+          break;
 
-      case 'glyph':
-        invariant(!this.glyph, 'nodes do not expect their glyph type to change after construction');
-        this.glyph = value;
-        break;
+        case 'glyph':
+          invariant(!this.glyph, 'nodes do not expect their glyph type to change after construction');
+          this.glyph = value;
+          break;
 
-      // apply a data-??? attribute with the given value to our element
-      // value should be {name:'xyz', value:'123'} which would appear in
-      // the dom as data-xyz="123"
-      case 'dataAttribute':
-        this.dataAttribute = value;
-        this.el.setAttribute(`data-${value.name}`, value.value);
-        break;
+        // apply a data-??? attribute with the given value to our element
+        // value should be {name:'xyz', value:'123'} which would appear in
+        // the dom as data-xyz="123"
+        case 'dataAttribute':
+          this.dataAttribute = value;
+          this.el.setAttribute(`data-${value.name}`, value.value);
+          break;
 
         // default behaviour is to just set the property
-      default: this[key] = props[key];
+        default:
+          this[key] = props[key];
       }
     });
   }
@@ -196,9 +197,8 @@ export default class Node2D {
     while (current) {
       if (current === otherNode) {
         return true;
-      } else {
-        current = current.parent;
       }
+      current = current.parent;
     }
     return false;
   }
@@ -208,9 +208,7 @@ export default class Node2D {
    */
   globalToLocal(point) {
     if (Array.isArray(point)) {
-      return point.map(pt => {
-        return this.globalToLocal(pt);
-      }, this);
+      return point.map(pt => this.globalToLocal(pt), this);
     }
     return this.inverseTransformationMatrix.multiplyVector(point);
   }
@@ -220,9 +218,7 @@ export default class Node2D {
    */
   localToGlobal(point) {
     if (Array.isArray(point)) {
-      return point.map(pt => {
-        return this.localToGlobal(pt);
-      }, this);
+      return point.map(pt => this.localToGlobal(pt), this);
     }
     return this.transformationMatrix.multiplyVector(point);
   }
@@ -260,7 +256,7 @@ export default class Node2D {
       textDIV = document.createElement('DIV');
       textDIV.style.display = 'inline-block';
       textDIV.style.position = 'absolute';
-      textDIV.style.left = '-100000px';
+      textDIV.style.left = textDIV.style.top = '-100000px';
       textDIV.style.padding = 0;
       textDIV.style.visibility = 'hidden';
       document.body.appendChild(textDIV);
@@ -302,14 +298,13 @@ export default class Node2D {
 
     return new Box2D(xmin, ymin, xmax - xmin, ymax - ymin);
   }
+
   /**
    * AABB of node including all child nodes
    * @return {Box2D}
    */
   getAABBWithChildren() {
-    return this.children.reduce((aabb, child) => {
-      return aabb.union(child.getAABBWithChildren());
-    }, this.getAABB());
+    return this.children.reduce((aabb, child) => aabb.union(child.getAABBWithChildren()), this.getAABB());
   }
 
   /**
@@ -328,8 +323,8 @@ export default class Node2D {
   }
 
   /**
- * remove from our current parent.
- */
+   * remove from our current parent.
+   */
   detach() {
     invariant(this.parent, 'Node is not parented');
     this.parent.children.splice(this.parent.children.indexOf(this), 1);
@@ -381,7 +376,6 @@ export default class Node2D {
     return child;
   }
 
-
   /**
    * Updating all display properties of the node and returning our element.
    *
@@ -393,8 +387,8 @@ export default class Node2D {
     }
 
     // set width/height and transform
-    this.el.style.width = this.width + 'px';
-    this.el.style.height = this.height + 'px';
+    this.el.style.width = `${this.width}px`;
+    this.el.style.height = `${this.height}px`;
     this.el.style.transform = this.localTransform.toCSSString();
 
     // visibility is controlled with opacity
@@ -419,7 +413,7 @@ export default class Node2D {
    */
   updateBranch() {
     this.update();
-    this.children.forEach(child => {
+    this.children.forEach((child) => {
       child.updateBranch();
     });
     return this.el;

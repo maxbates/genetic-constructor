@@ -13,11 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import * as validatorFunctions from './validators';
-import createFieldType from './createFieldType';
-import mapValues from '../../utils/object/mapValues';
+import { mapValues } from 'lodash';
 import uuid from 'node-uuid';
 import sha1 from 'sha1';
+
+import createFieldType from './createFieldType';
+import * as validatorFunctions from './validators';
 
 /**
  * Exports a dictionary of field types to unparameterized fieldType functions. These are called with parameters passed to the baseValidator, and return a fully defined fieldType object.
@@ -68,7 +69,7 @@ const fields = mapValues({
     baseValidator: validatorFunctions.id,
     typeDescription: 'A UUID',
     scaffold: (params) => {
-      const prefix = '' + ((params && params.prefix) ? (params.prefix.toLowerCase() + '-') : '');
+      const prefix = `${(params && params.prefix) ? (`${params.prefix.toLowerCase()}-`) : ''}`;
       return prefix + uuid.v4();
     },
   },
@@ -85,7 +86,7 @@ const fields = mapValues({
   func: {
     baseValidator: validatorFunctions.func,
     typeDescription: 'A function',
-    scaffold: () => { return () => {}; },
+    scaffold: () => () => {},
   },
   array: {
     baseValidator: validatorFunctions.array,
@@ -115,6 +116,11 @@ const fields = mapValues({
     typeDescription: 'An IUPAC compliant sequence',
     scaffold: () => '',
   },
+  sequenceMd5: {
+    baseValidator: validatorFunctions.sequenceMd5,
+    typeDescription: 'either an md5, or md5 with range: md5[start:end]',
+    scaffold: () => null,
+  },
   email: {
     baseValidator: validatorFunctions.email,
     typeDescription: 'A valid email address',
@@ -123,7 +129,7 @@ const fields = mapValues({
   version: {
     baseValidator: validatorFunctions.version,
     typeDescription: 'String representing a git SHA',
-    scaffold: () => sha1('' + Math.floor((Math.random() * 10000000) + 1) + Date.now()),
+    scaffold: () => sha1(`${Math.floor((Math.random() * 10000000) + 1)}${Date.now()}`),
   },
   url: {
     baseValidator: validatorFunctions.url,
@@ -135,8 +141,13 @@ const fields = mapValues({
 
   arrayOf: {
     baseValidator: validatorFunctions.arrayOf,
-    typeDescription: 'An array, where each item passes the passed validation function',
+    typeDescription: 'An array, where each item passes the passed validation function (value) => {}',
     scaffold: () => [],
+  },
+  objectOf: {
+    baseValidator: validatorFunctions.objectOf,
+    typeDescription: 'An object, where each value passes the passed validation function (value, key) => {}',
+    scaffold: () => ({}),
   },
   shape: {
     baseValidator: validatorFunctions.shape,
@@ -164,8 +175,5 @@ const fields = mapValues({
     scaffold: () => null, //todo - ideally would take an input
   },
 }, createFieldType);
-
-export const fieldNames = Object.keys(fields);
-export const fieldDescriptions = mapValues(fields, val => val.typeDescription);
 
 export default fields;

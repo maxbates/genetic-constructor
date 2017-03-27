@@ -10,25 +10,35 @@
   --fontsize: 1.25rem;
 }
 
+
+/* new form styles - don't delete */
+
+.Form {
+
+  &-errorMessage {
+    color: var(--colors-red);
+    text-align: center;
+  }
+
+  .link {
+    color: var(--colors-selected);
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+
 .gd-form {
   padding-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   font-size: 1.5rem;
 
-  * {
-    width: 80%;
-    margin-bottom: 0.5rem;
-    border-radius: var(--radius);
-  }
-
-  fieldset {
-    width: 100%;
-  }
-
   .title {
-    font-size: var(--element-height * 0.5);
+    font-size: var(--element-height);
+    font-weight: 200;
     color: var(--textcolor);
     text-align: center;
     margin-top: 1rem;
@@ -79,6 +89,7 @@
     background-color: white;
     border: 1px solid lightgray;
     color: lightgray;
+    cursor: default;
   }
   /* errors are hidden by default, add the .visible class to make them appear*/
   .error {
@@ -134,15 +145,5 @@
   }
   a.blue-link {
     color: var(--colors-bluetext);
-  }
-  /* classes for positioning forgot link inside the password box*/
-  .forgot-box {
-    position: relative;
-    .forgot-link {
-      position: absolute;
-      width: auto;
-      left: 326px;
-      top: -33px;
-    }
   }
 }

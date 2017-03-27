@@ -1,20 +1,21 @@
+
 /*
-Copyright 2016 Autodesk,Inc.
+ Copyright 2016 Autodesk,Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-import fields from './fields/index';
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import Schema from './SchemaClass';
+import fields from './fields/index';
 
 /**
  * Rules defining a block and its function. See the chart in Rules_notes.png
@@ -36,12 +37,12 @@ const rulesFields = {
   ],
   hidden: [
     fields.bool(),
-    'The block is hidden in the design canvas. It serves as template logic.',
+    'The instance is not visible.',
     { avoidScaffold: true },
   ],
   frozen: [
     fields.bool(),
-    'The block is immutable - no changes are allowed',
+    'The instance is immutable - no changes are allowed',
     { avoidScaffold: true },
   ],
   fixed: [
@@ -49,13 +50,6 @@ const rulesFields = {
     'Block Ids of components are fixed - no movement, insertions, deletions, substitutions',
     { avoidScaffold: true },
   ],
-  /*
-   //deprecated filters for now
-   filter: [
-   fields.object(),
-   'Map of fields to allowed values for constituents (options / components)',
-   ],
-   */
 };
 
 export class RulesSchemaClass extends Schema {

@@ -1,0 +1,72 @@
+@import './variables.css';
+
+.title-and-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+
+  .title {
+    font-family: Helvetica;
+    text-indent: 0.5rem;
+    white-space: nowrap;
+    max-width: calc(100% - 32px);
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 1;
+
+    .text {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      flex-shrink: 1;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      font-size: 16px;
+
+      .subtitle {
+        margin-left: 1rem;
+        color: gray;
+        text-indent: 0;
+      }
+      .label {
+        background-color: gray;
+        color: white;
+        padding: 1px 6px;
+        border-radius: 5px;
+        text-indent: 0;
+        margin-left: 1rem;
+        font-size: 14px;
+      }
+    }
+    img {
+      flex-shrink: 0;
+      visibility: hidden;
+    }
+
+    &:hover:not([disabled]) {
+      background-color: gray;
+      border-radius: 2px;
+      color: black;
+      img {
+        visibility: visible;
+      }
+      .text {
+        color: var(--colors-lighterGrey);
+      }
+      .subtitle {
+        color: var(--colors-darkGrey);
+      }
+      .label {
+        color: var(--colors-darkGrey);
+        background-color: transparent;
+      }
+    }
+  }
+  .bar {
+    min-width: 32px;
+    height: 32px;
+    overflow: hidden;
+  }
+}

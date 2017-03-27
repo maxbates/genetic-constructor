@@ -13,13 +13,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import rejectingFetch, { fetch } from './rejectingFetch';
-import { headersGet } from './headers';
-import { extensionsPath, extensionApiPath } from './paths';
 import invariant from 'invariant';
 
-export const getExtensionsInfo = () => {
-  return rejectingFetch(extensionsPath('list'), headersGet())
+import { headersGet } from './utils/headers';
+import { extensionApiPath, extensionsPath } from './utils/paths';
+import rejectingFetch, { fetch } from './utils/rejectingFetch';
+
+export const getExtensionsInfo = (listAll = false) => {
+  const url = listAll === true ? 'listAll' : 'list';
+  return rejectingFetch(extensionsPath(url), headersGet())
     .then(resp => resp.json());
 };
 
@@ -43,5 +45,7 @@ export const callExtensionApi = (extensionKey, route, fetchBody = {}) => {
   invariant(typeof extensionKey === 'string' && !!extensionKey, 'must pass extensionKey');
   invariant(typeof route === 'string', 'must pass a route');
   const url = extensionApiPath(extensionKey, route);
-  return fetch(url, fetchBody);
+
+  const fetchOpts = Object.assign({ credentials: 'same-origin' }, fetchBody);
+  return fetch(url, fetchOpts);
 };

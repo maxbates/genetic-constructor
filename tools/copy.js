@@ -6,31 +6,43 @@ import pkg from '../package.json';
  * output (build) folder.
  */
 async function copy() {
-  const ncp = Promise.promisify(require('ncp'));
+  try {
+    const ncp = Promise.promisify(require('ncp'));
 
-  await Promise.all([
     //public assets
-    ncp('src/public', 'build/public'),
+    console.log('Copying public assets...');
+    await ncp('src/public', 'build/public');
 
     //static page content
-    ncp('src/images', 'build/images'),
-    ncp('src/content', 'build/content'),
+    console.log('Copying static content...');
+    await ncp('src/images', 'build/images');
+    await ncp('src/content', 'build/content');
 
-    //todo - dynamically get the version number
-    ncp('docs/jsdoc/genetic-constructor/0.5.0', 'build/jsdoc'),
+    //docs
+    console.log('Copying documentation...');
+    try {
+      await ncp(`docs/jsdoc/genetic-constructor/${pkg.version}`, 'build/jsdoc');
+    } catch (err) {
+      console.log('Docs not generated... run npm install');
+      throw err;
+    }
 
     //copy installed extensions
-    ncp('server/extensions/node_modules', 'build/node_modules'),
-  ]);
+    console.log('Copying extensions...');
+    await ncp('server/extensions/node_modules', 'build/node_modules');
 
-  await writeFile('./build/package.json', JSON.stringify({
-    private: true,
-    engines: pkg.engines,
-    dependencies: pkg.dependencies,
-    scripts: {
-      start: 'node server.js',
-    },
-  }, null, 2));
+    await writeFile('./build/package.json', JSON.stringify({
+      private: true,
+      engines: pkg.engines,
+      dependencies: pkg.dependencies,
+      scripts: {
+        start: 'node server.js',
+      },
+    }, null, 2));
+  } catch (err) {
+    console.log('Error Running Copy...');
+    throw err;
+  }
 }
 
 export default copy;

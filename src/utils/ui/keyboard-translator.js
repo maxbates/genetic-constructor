@@ -22,29 +22,29 @@ limitations under the License.
  */
 
 export const microsoft = {
-  'ctrl': 'Ctrl',
-  'mod': 'Ctrl',
+  ctrl: 'Ctrl',
+  mod: 'Ctrl',
   '⌘': 'Ctrl',
-  'option': 'Ctrl',
-  'meta': 'Ctrl',
+  option: 'Ctrl',
+  meta: 'Ctrl',
   '^': 'Ctrl',
-  'shift': 'Shift',
+  shift: 'Shift',
   '⇧': 'Shift',
-  'alt': 'Alt',
+  alt: 'Alt',
   '⌥': 'Alt',
   join: '+',
 };
 
 export const apple = {
-  'ctrl': '^',
-  'mod': '⌘',
+  ctrl: '^',
+  mod: '⌘',
   '⌘': '⌘',
-  'meta': '⌘',
+  meta: '⌘',
   '^': '^',
-  'shift': '⇧',
+  shift: '⇧',
   '⇧': '⇧',
-  'alt': '⌥',
-  'option': '⌥',
+  alt: '⌥',
+  option: '⌥',
   '⌥': '⌥',
   join: '',
 };
@@ -55,7 +55,5 @@ export function stringToShortcut(str) {
 }
 
 export function translate(table, str) {
-  return str.toLowerCase().split(' ').map(symbol => {
-    return table[symbol] ? table[symbol] : symbol.toUpperCase();
-  }).join(table.join);
+  return str.toLowerCase().split(' ').map(symbol => table[symbol] ? table[symbol] : symbol.toUpperCase()).join(table.join);
 }
