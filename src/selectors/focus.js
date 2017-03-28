@@ -30,7 +30,7 @@ const _getCurrentProjectId = () => {
 // todo - refactor. this is kinda a mess
 // type: project, construct, block, option, role
 export const _getFocused = (state, defaultToConstruct = true, defaultProjectId = null) => {
-  const { level, forceProject, forceBlocks, constructId, blockIds, roleId, options } = state.focus;
+  const { level, forceProject, forceBlocks, constructId, blockIds, options } = state.focus;
   const projectId = _getCurrentProjectId();
 
   //focus doesnt update on undo, just the blocks... so need to filter / make sure defined

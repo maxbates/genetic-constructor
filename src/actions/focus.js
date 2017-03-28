@@ -189,22 +189,6 @@ export const focusPrioritize = (level = 'project') => (dispatch, getState) => {
 };
 
 /**
- * Focus a role
- * @function
- * @param {string} roleId
- * @returns {string} roleId
- */
-export const focusRole = roleId => (dispatch, getState) => {
-  invariant(symbolMap[roleId], 'must pass a valid Role ID');
-
-  dispatch({
-    type: ActionTypes.FOCUS_ROLE,
-    roleId,
-  });
-  return roleId;
-};
-
-/**
  * Specify which list option is selected for a list Block
  * @function
  * @param {UUID} blockId List block ID
