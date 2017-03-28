@@ -1,11 +1,12 @@
 import path from 'path';
 import fs from 'fs';
-import merge from 'lodash.merge';
+import { find, merge } from 'lodash';
 import webpack from 'webpack';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 const DEBUG = !process.argv.includes('--release');
 const VERBOSE = process.argv.includes('--verbose');
-const DEBUG_REDUX = process.env.DEBUG && process.env.DEBUG.indexOf('redux') >= 0; //hook for devtools etc.
+const DEBUG_REDUX = process.env.DEBUG_REDUX || (process.env.DEBUG && process.env.DEBUG.indexOf('redux') >= 0); //hook for devtools etc.
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
   'Android >= 4',
@@ -226,6 +227,7 @@ export const serverConfig = merge({}, config, {
 
 export const commonsConfig = merge({}, clientConfig, {
   context: commonsPath,
+  resolve: { root: commonsPath },
 
   entry: [
     './app/client.js',
@@ -234,6 +236,14 @@ export const commonsConfig = merge({}, clientConfig, {
   output: {
     filename: 'commons.js',
   },
+});
+
+//update commons config to extract CSS into separate stylesheet
+const cssExtractor = new ExtractTextPlugin('commons.css');
+commonsConfig.plugins.push(cssExtractor);
+const loader = find(commonsConfig.module.loaders, mod => mod.loader.startsWith('style'));
+merge(loader, {
+  loader: cssExtractor.extract(['css', 'postcss']),
 });
 
 export default [clientConfig, commonsConfig, serverConfig];

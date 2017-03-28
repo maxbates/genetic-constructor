@@ -19,8 +19,6 @@ import { connect } from 'react-redux';
 
 import ProjectCard from './ProjectCard';
 
-import '../styles/Home.css';
-
 export function Home({ projects }) {
   const projectKeys = Object.keys(projects);
   const numberProjects = projectKeys.length;

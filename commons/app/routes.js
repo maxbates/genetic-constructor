@@ -23,8 +23,8 @@ import Project from './components/Project';
 //todo - fetch all projects when route changes? or no dynamic routing
 
 export default (
-  <Route path="/" component={App}>
-    <Route path="/:projectId" component={Project} />
+  <Route path="/commons" component={App}>
+    <Route path="/commons/:projectId" component={Project} />
     <IndexRoute component={Home} />
   </Route>
 );

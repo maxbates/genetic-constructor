@@ -19,8 +19,6 @@ import { Link } from 'react-router';
 
 import { getPalette } from '../../../src/utils/color/index';
 
-import '../styles/ProjectCard.css';
-
 export default function ProjectCard({ project }) {
   const firstConstruct = project.blocks[project.project.components[0]];
   const paletteName = firstConstruct.metadata.palette || project.project.metadata.palette;
@@ -30,7 +28,7 @@ export default function ProjectCard({ project }) {
 
   return (
     <article className="ProjectCard">
-      <Link to={`/${project.project.id}`}>
+      <Link to={`/commons/${project.project.id}`}>
         <div className="ProjectCard-corner" style={{ borderTopColor: color, borderLeftColor: color }} />
         <div className="ProjectCard-metadata">
           <div className="ProjectCard-name" style={{ color }}>

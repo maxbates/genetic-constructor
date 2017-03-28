@@ -18,8 +18,6 @@ import React, { PropTypes } from 'react';
 
 import Tag from './Tag';
 
-import '../styles/InfoTable.css';
-
 export default function InfoTable({ values, ...rest }) {
   return (
     <table className="InfoTable" {...rest}>

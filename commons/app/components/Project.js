@@ -25,9 +25,12 @@ import InfoTable from './InfoTable';
 import ConstructAbout from './ConstructAbout';
 import BigOpenLink from './BigOpenLink';
 
-import '../styles/Project.css';
-
 export function Project({ project, snapshot }) {
+  if (!project || !snapshot) {
+    //todo - redirect if project / snapshot not available
+    return null;
+  }
+
   const openLink = `/project/${project.project.id}`;
 
   //todo - hydrate app state and do this there?
@@ -40,7 +43,7 @@ export function Project({ project, snapshot }) {
   return (
     <div className="Project">
       <h3 className="Project-header">
-        <Link to="/">The Commons</Link> &gt; {project.project.metadata.name}
+        <Link to="/commons">The Commons</Link> &gt; {project.project.metadata.name}
       </h3>
 
       <div className="Project-overview">

@@ -19,7 +19,9 @@ import React, { PropTypes } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 
-import '../styles/App.css';
+if (process.env.BROWSER) {
+  require('../styles/index.css');
+}
 
 //wrap the page component in app chrome
 export default function App({ children, ...otherProps }) {

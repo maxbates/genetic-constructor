@@ -31,7 +31,9 @@ const router = Express.Router(); //eslint-disable-line new-cap
 //todo - compile CSS and serve (right now only client handles properly)
 
 function renderFullPage(html, preloadedState) {
+  const dev = process.env.NODE_ENV !== 'production';
   const stateString = JSON.stringify(preloadedState).replace(/</g, '\\u003c');
+  const cssLink ='<link rel="stylesheet" href="/static/commons.css"></script>';
 
   return `
     <!doctype html>
@@ -45,14 +47,14 @@ function renderFullPage(html, preloadedState) {
         <meta name="author" content="Autodesk Life Sciences">
         <meta name="keywords" content="genetic design software, genetic design tool, dna sequence editor, molecular design software, promoter library, CAD software for biology">
         <link rel="canonical" href="https://geneticconstructor.bionano.autodesk.com">
-        <link rel="stylesheet" href="/static/commons.css"></script>
+        ${dev && cssLink}
       </head>
       <body>
-        <div id="root">${html}</div>
+        <div id="root">${dev && html}</div>
         <script>
           window.__PRELOADED_STATE__ = ${stateString}
         </script>
-       
+       <script src="/static/commons.js"></script>
       </body>
     </html>
     `;
@@ -68,13 +70,14 @@ async function handleRender(req, res, next) {
   const snapshots = await commons.commonsQuery();
 
   //todo - optimize - call multiple at once
+  //todo - don't get blocks at this point
   const fetchedProjects = await Promise.all(
     snapshots.map(({ projectUUID }) => projectVersionByUUID(projectUUID)),
   );
 
   const projects = _.keyBy(fetchedProjects, proj => proj.project.id);
 
-  match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
+  match({ routes, location: req.originalUrl }, (error, redirectLocation, renderProps) => {
     if (error) {
       res.status(500).send(error.message);
     } else if (redirectLocation) {

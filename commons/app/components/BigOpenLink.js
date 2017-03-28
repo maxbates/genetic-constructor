@@ -15,8 +15,6 @@
  */
 import React, { PropTypes } from 'react';
 
-import '../styles/BigOpenLink.css';
-
 export default function BigOpenLink(props) {
   return (
     <a className="BigOpenLink" target="_blank" rel="noopener noreferrer" {...props}>

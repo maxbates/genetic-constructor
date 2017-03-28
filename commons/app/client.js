@@ -23,11 +23,22 @@ import routes from './routes';
 import store from './store';
 import history from './history';
 
-render(
-  <Provider store={store}>
-    <Router history={history}>
-      {routes}
-    </Router>
-  </Provider>,
-  document.getElementById('root'),
-);
+const renderApp = (routes) => {
+  render(
+    <Provider store={store}>
+      <Router history={history}>
+        {routes}
+      </Router>
+    </Provider>,
+    document.getElementById('root'),
+  );
+};
+
+renderApp(routes);
+
+if (process.env.NODE_ENV !== 'production' && module.hot) {
+  module.hot.accept('./routes', () => {
+    const newRoutes = require('./routes').default;
+    renderApp(newRoutes);
+  });
+}

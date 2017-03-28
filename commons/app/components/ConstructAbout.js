@@ -18,8 +18,6 @@ import React, { PropTypes } from 'react';
 import InfoTable from './InfoTable';
 import ConstructRadial from './ConstructRadial';
 
-import '../styles/ConstructAbout.css';
-
 export default function ConstructAbout({ constructId, project }) {
   const construct = project.getBlock(constructId);
   const { components, options } = project.getContents(constructId);

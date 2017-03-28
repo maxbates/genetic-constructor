@@ -15,8 +15,6 @@
  */
 import React, { PropTypes } from 'react';
 
-import '../styles/Tag.css';
-
 export default function Tag({ text, description }) {
   return (
     <div

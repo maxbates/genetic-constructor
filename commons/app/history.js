@@ -20,9 +20,11 @@ import { syncHistoryWithStore } from 'react-router-redux';
 import store from './store';
 
 //todo - update for v4 of react-router
-const routerHistory = useRouterHistory(createHistory)({
-  basename: '/commons',
-});
+const routerHistory = useRouterHistory(createHistory)();
+
+//const routerHistory = useRouterHistory(createHistory)({
+//  basename: '/commons',
+//});
 
 const history = syncHistoryWithStore(routerHistory, store, {
   selectLocationState: state => state.router,
