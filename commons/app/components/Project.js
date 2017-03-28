@@ -74,9 +74,11 @@ export function Project({ project, snapshot }) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-        <BigOpenLink href={openLink} />
-      </div>
+      {project.project.components.length > 3 && (
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+          <BigOpenLink href={openLink} />
+        </div>
+      )}
 
       <div className="Project-license">
         <h3>License</h3>

@@ -16,7 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import * as d3 from 'd3'; //todo - pare down to libs needed
 
-import { getPalette } from '../../../src/utils/color/index';
+import { getPalette, colorFiller } from '../../../src/utils/color/index';
 
 export default class ConstructRadial extends Component {
   static propTypes = {
@@ -45,9 +45,14 @@ export default class ConstructRadial extends Component {
           parent: rootBlock,
         });
 
-        return ConstructRadial.createTree(component);
+        return ConstructRadial.createTree(component, project);
       }),
     });
+  }
+
+  static getColor(index, paletteName) {
+    const palette = getPalette(paletteName);
+    return (Number.isInteger(index) && palette[index]) ? palette[index].hex : colorFiller;
   }
 
   //todo - server friendly, should render SVG on server
@@ -60,7 +65,6 @@ export default class ConstructRadial extends Component {
 
     const construct = project.getBlock(constructId);
     const paletteName = construct.metadata.palette || project.project.metadata.palette;
-    const palette = getPalette(paletteName);
 
     const width = 200;
     const height = 200;
@@ -94,7 +98,7 @@ export default class ConstructRadial extends Component {
     .append('svg:path')
     //.attr('display', d => d.id !== constructId ? null : 'none') //hide root node
     .attr('d', arc)
-    .style('fill', d => palette[d.data.metadata.color].hex || '#cccccc')
+    .style('fill', d => ConstructRadial.getColor(d.data.metadata.color, paletteName))
     .style('stroke', 'transparent')
     .style('opacity', 1)
     .style('strokeWidth', '3px');
