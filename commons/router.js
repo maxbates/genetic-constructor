@@ -87,7 +87,7 @@ async function handleRender(req, res, next) {
           <RouterContext {...renderProps}>
             {routes}
           </RouterContext>
-        </Provider>
+        </Provider>,
       );
 
       // Send the rendered page back to the client

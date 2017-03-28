@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import '../styles/Tag.css';
 
@@ -27,3 +27,8 @@ export default function Tag({ text, description }) {
     </div>
   );
 }
+
+Tag.propTypes = {
+  text: PropTypes.string.isRequired,
+  description: PropTypes.string,
+};

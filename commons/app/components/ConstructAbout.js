@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import InfoTable from './InfoTable';
 import ConstructRadial from './ConstructRadial';
@@ -26,8 +26,7 @@ export default function ConstructAbout({ constructId, project }) {
   const contents = { ...components, ...options };
 
   const annotations = Object.keys(contents).reduce((acc, blockId) => {
-    acc.concat(project.blocks[blockId].sequence.annotations);
-    return acc;
+    return acc.concat(project.blocks[blockId].sequence.annotations.map(ann => ann.name));
   }, []);
 
   return (
@@ -52,3 +51,9 @@ export default function ConstructAbout({ constructId, project }) {
     </div>
   );
 }
+
+ConstructAbout.propTypes = {
+  constructId: PropTypes.string.isRequired,
+  project: PropTypes.object.isRequired,
+};
+

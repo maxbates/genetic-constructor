@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import Tag from './Tag';
 
@@ -24,29 +24,33 @@ export default function InfoTable({ values, ...rest }) {
   return (
     <table className="InfoTable" {...rest}>
       <tbody>
-      {values.map(([key, value, options = {}], index) => {
-        const isArray = Array.isArray(value);
+        {values.map(([key, value, options = {}], index) => {
+          const isArray = Array.isArray(value);
 
-        if (!value || (isArray && value.length === 0)) {
-          return null;
-        }
+          if (!value || (isArray && value.length === 0)) {
+            return null;
+          }
 
-        const { bold } = options;
+          const { bold } = options;
 
-        const content = isArray ? value.map((val, index) => (<Tag text={val} key={index} />)) : value;
+          const content = isArray ? value.map((val, index) => (<Tag text={val} key={index} />)) : value;
 
-        return (
-          <tr className="InfoTable-row" key={index}>
-            <td className={`InfoTable-key ${isArray ? 'tags' : ''}`}>
-              {key}
-            </td>
-            <td className={`InfoTable-value ${bold ? 'bold' : ''}`}>
-              {content}
-            </td>
-          </tr>
-        );
-      })}
+          return (
+            <tr className="InfoTable-row" key={index}>
+              <td className={`InfoTable-key ${isArray ? 'tags' : ''}`}>
+                {key}
+              </td>
+              <td className={`InfoTable-value ${bold ? 'bold' : ''}`}>
+                {content}
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
 }
+
+InfoTable.propTypes = {
+  values: PropTypes.arrayOf(PropTypes.array).isRequired,
+};

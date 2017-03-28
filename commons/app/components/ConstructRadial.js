@@ -38,7 +38,7 @@ export default class ConstructRadial extends Component {
     }
 
     return Object.assign(rootBlock, {
-      children: rootBlock.components.map(componentId => {
+      children: rootBlock.components.map((componentId) => {
         const component = project.getBlock(componentId);
 
         Object.assign(component, {
@@ -96,12 +96,14 @@ export default class ConstructRadial extends Component {
 
     path.enter()
     .append('svg:path')
-    //.attr('display', d => d.id !== constructId ? null : 'none') //hide root node
+    .attr('display', d => d.depth > 0 ? null : 'none') //hide root node //todo - make hollow ring
     .attr('d', arc)
     .style('fill', d => ConstructRadial.getColor(d.data.metadata.color, paletteName))
     .style('stroke', 'transparent')
     .style('opacity', 1)
-    .style('strokeWidth', '3px');
+    .style('strokeWidth', '3px')
+    .append('svg:title')
+    .text(d => `${d.data.metadata.name || 'Untitled Block'} - ${d.value} bp`);
   };
 
   render() {
