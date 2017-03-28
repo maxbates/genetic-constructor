@@ -15,6 +15,7 @@
  */
 import Express from 'express';
 import React from 'react';
+import _ from 'lodash';
 import { renderToString } from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import { createStore } from 'redux';
@@ -30,6 +31,8 @@ const router = Express.Router(); //eslint-disable-line new-cap
 //todo - compile CSS and serve (right now only client handles properly)
 
 function renderFullPage(html, preloadedState) {
+  const stateString = JSON.stringify(preloadedState).replace(/</g, '\\u003c');
+
   return `
     <!doctype html>
     <html>
@@ -47,9 +50,9 @@ function renderFullPage(html, preloadedState) {
       <body>
         <div id="root">${html}</div>
         <script>
-          window.__PRELOADED_STATE__ = ${JSON.stringify(preloadedState).replace(/</g, '\\u003c')}
+          window.__PRELOADED_STATE__ = ${stateString}
         </script>
-        <script src="/static/commons.js"></script>
+       
       </body>
     </html>
     `;
@@ -65,9 +68,11 @@ async function handleRender(req, res, next) {
   const snapshots = await commons.commonsQuery();
 
   //todo - optimize - call multiple at once
-  const projects = (await Promise.all(
+  const fetchedProjects = await Promise.all(
     snapshots.map(({ projectUUID }) => projectVersionByUUID(projectUUID)),
-  )).reduce((acc, project) => ({ ...acc, [project.project.id]: project }), {});
+  );
+
+  const projects = _.keyBy(fetchedProjects, proj => proj.project.id);
 
   match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
     if (error) {

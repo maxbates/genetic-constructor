@@ -19,7 +19,7 @@ import '../styles/Footer.css';
 
 export default function Footer() {
   return (
-    <div className="Footer">
+    <footer className="Footer">
       <div className="Footer-row Footer-links">
         <div className="Footer-column">
           <h4>Genetic Constructor</h4>
@@ -93,6 +93,6 @@ export default function Footer() {
         />
         <p style={{ paddingTop: '1rem' }}>&copy; 2017</p>
       </div>
-    </div>
+    </footer>
   );
 }

@@ -40,12 +40,11 @@ export default class ConstructRadial extends Component {
     return Object.assign(rootBlock, {
       children: rootBlock.components.map((componentId) => {
         const component = project.getBlock(componentId);
-
-        Object.assign(component, {
+        const copied = Object.assign({}, component, {
           parent: rootBlock,
         });
 
-        return ConstructRadial.createTree(component, project);
+        return ConstructRadial.createTree(copied, project);
       }),
     });
   }
@@ -55,62 +54,79 @@ export default class ConstructRadial extends Component {
     return (Number.isInteger(index) && palette[index]) ? palette[index].hex : colorFiller;
   }
 
-  //todo - server friendly, should render SVG on server
-  componentDidMount() {
-    this.drawSunburst();
-  }
+  constructor(props) {
+    super(props);
 
-  drawSunburst = () => {
-    const { constructId, project } = this.props;
+    //width / height
+    this.dimension = 200;
 
-    const construct = project.getBlock(constructId);
-    const paletteName = construct.metadata.palette || project.project.metadata.palette;
-
-    const width = 200;
-    const height = 200;
-    const radius = Math.min(width, height) / 2;
-
-    //generate tree data structure we want
-    const tree = ConstructRadial.createTree({ ...project.getBlock(constructId) }, project);
-
-    const partition = d3.partition(tree)
-    .size([2 * Math.PI, radius * radius]);
-
-    const arc = d3.arc()
+    this.arc = d3.arc()
     .startAngle(d => d.x0)
     .endAngle(d => d.x1)
     .innerRadius(d => Math.sqrt(d.y0))
     .outerRadius(d => Math.sqrt(d.y1));
 
+    this.calculateStuff(props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.calculateStuff(nextProps);
+  }
+
+  calculateStuff(forceProps) {
+    const props = forceProps || this.props;
+
+    const { constructId, project } = props;
+
+    //should only compute this when props change...
+    //generate tree data structure we want
+    const rootClone = Object.assign({}, project.getBlock(constructId));
+    const tree = ConstructRadial.createTree(rootClone, project);
+
+    const partition = d3.partition(tree)
+    .size([2 * Math.PI, this.dimension * this.dimension / 4]);
+
     const root = d3.hierarchy(tree)
     .sum(d => d.size);
 
-    const nodes = partition(root).descendants();
+    this.nodes = partition(root).descendants();
     // For efficiency, filter nodes to keep only those large enough to see.0.005 radians = 0.29 degrees
     //.filter(d => d.x1 - d.x0 > 0.005);
-
-    const path = d3.select(this.svg)
-    .data([tree])
-    .selectAll('path')
-    .data(nodes);
-
-    path.enter()
-    .append('svg:path')
-    .attr('display', d => d.depth > 0 ? null : 'none') //hide root node //todo - make hollow ring
-    .attr('d', arc)
-    .style('fill', d => ConstructRadial.getColor(d.data.metadata.color, paletteName))
-    .style('stroke', 'transparent')
-    .style('opacity', 1)
-    .style('strokeWidth', '3px')
-    .append('svg:title')
-    .text(d => `${d.data.metadata.name || 'Untitled Block'} - ${d.value} bp`);
-  };
+  }
 
   render() {
+    const { constructId, project } = this.props;
+
+    //todo - only calc when needed
+    this.calculateStuff();
+
+    const construct = project.getBlock(constructId);
+    const paletteName = construct.metadata.palette || project.project.metadata.palette;
+
+    const dim = this.dimension;
+
+    //todo - make hollow ring (attr display)
+
     return (
-      <div style={{ width: '200px', height: '200px' }}>
-        <svg width="200" height="200">
-          <g ref={(el) => { this.svg = el; }} transform="translate(100,100)" />
+      <div style={{ width: `${dim}px`, height: `${dim}px` }}>
+        <svg width={dim} height={dim}>
+          <g transform={`translate(${dim / 2},${dim / 2})`}>
+            {this.nodes.map(d => (
+              <path
+                key={d.data.id}
+                display={d.depth > 0 ? null : 'none'}
+                d={this.arc(d)}
+                style={{
+                  fill: ConstructRadial.getColor(d.data.metadata.color, paletteName),
+                  stroke: 'transparent',
+                  opacity: 1,
+                  strokeWidth: '3px',
+                }}
+              >
+                <title>{`${d.data.metadata.name || 'Untitled Block'} - ${d.value} bp`}</title>
+              </path>
+            ))}
+          </g>
         </svg>
       </div>
     );
