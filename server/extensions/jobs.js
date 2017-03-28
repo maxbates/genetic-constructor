@@ -75,7 +75,7 @@ const handleTermination = () => {
 
   Object.keys(processes)
   .map(key => processes[key])
-  .forEach(process => {
+  .forEach((process) => {
     logger(`killing ${process.pid}`);
     process.kill('SIGHUP');
   });

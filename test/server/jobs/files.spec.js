@@ -14,13 +14,14 @@
  limitations under the License.
  */
 import { assert, expect } from 'chai';
+import uuid from 'uuid';
 import * as jobFiles from '../../../server/files/jobs';
 
 //note - jobs and project files are basically the same, so not differentiating between local and remote suite
 
 describe('Server', () => {
   describe('Jobs', () => {
-    describe('files', () => {
+    describe.only('files', () => {
       const projectId = 'project-0928342309492038402938402934280349';
       const contents = `Here
 Are
@@ -28,7 +29,7 @@ Some
 Contents!`;
       const contentBuffer = new Buffer('here are some contents!', 'utf8');
       const namespace = 'myNamespace';
-      let filePath;
+      let fileName;
 
       it('jobFileWrite() requires contents, namespace, and can generate key', () => {
         expect(() => jobFiles.jobFileWrite()).to.throw();
@@ -44,15 +45,15 @@ Contents!`;
           assert(typeof result === 'object');
 
           assert(result.name, 'should have a name');
-          filePath = result.name;
+          fileName = result.name;
 
           assert(result.Key, 'should have a key');
-          assert(result.Key.indexOf(filePath) > 0, 'name should be in Key');
+          assert(result.Key.indexOf(fileName) > 0, 'name should be in Key');
         });
       });
 
       it('jobFileRead() returns contents', () => {
-        return jobFiles.jobFileRead(projectId, namespace, filePath)
+        return jobFiles.jobFileRead(projectId, namespace, fileName)
         .then(fileContent => {
           expect(fileContent).to.equal(contents);
         });
@@ -69,7 +70,32 @@ Contents!`;
         return jobFiles.jobFileList(projectId, namespace)
         .then(results => {
           expect(results.length).to.equal(3);
-          assert(results.some(item => item.indexOf(filePath)) >= 0);
+          assert(results.some(item => item.indexOf(fileName)) >= 0);
+        });
+      });
+
+      const fileSigned = uuid.v4();
+      const fileSignedContents = 'my string';
+
+      it('can write to a signed url', () => {
+        const url = jobFiles.jobFileSignedUrl(projectId, namespace, fileSigned, 'putObject');
+
+        return fetch(url, { method: 'PUT', body: fileSignedContents })
+        .then(resp => {
+          assert(resp.status === 200);
+        });
+      });
+
+      it('can read from a signed url', () => {
+        const url = jobFiles.jobFileSignedUrl(projectId, namespace, fileSigned, 'getObject');
+
+        return fetch(url, { method: 'GET' })
+        .then(resp => {
+          assert(resp.status === 200, 'should get 200');
+          return resp.text();
+        })
+        .then(txt => {
+          assert(txt === fileSignedContents, 'contents should match');
         });
       });
     });

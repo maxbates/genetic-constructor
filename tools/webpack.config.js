@@ -59,21 +59,21 @@ const clientSidePlugins = [
   ...(DEBUG ? [] : [
       // Search for equal or similar files and deduplicate them in the output
       // https://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
-      new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.DedupePlugin(),
 
       // Minimize all JavaScript output of chunks
       // https://github.com/mishoo/UglifyJS2#compressor-options
-      new webpack.optimize.UglifyJsPlugin({
-        compress: {
-          screw_ie8: true, // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
-          warnings: VERBOSE,
-        },
-      }),
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        screw_ie8: true, // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
+        warnings: VERBOSE,
+      },
+    }),
 
       // A plugin for a more aggressive chunk merging strategy
       // https://webpack.github.io/docs/list-of-plugins.html#aggressivemergingplugin
-      new webpack.optimize.AggressiveMergingPlugin(),
-    ]),
+    new webpack.optimize.AggressiveMergingPlugin(),
+  ]),
 ];
 
 //common configuration

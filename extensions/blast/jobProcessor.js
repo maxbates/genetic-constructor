@@ -36,7 +36,26 @@ try {
 }
 
 const writeFile = (url, fileContent) =>
-  fetch(url, { method: 'PUT', headers: { 'Content-Type': 'text/plain' }, body: fileContent });
+  fetch(url, { method: 'PUT', body: fileContent })
+  .catch(err => {
+    console.log('fetch error');
+    console.log(err);
+    throw err;
+  })
+  .then(resp => {
+    logger(`[writeFile] ${resp.status} - ${url}`);
+
+    if (resp.status >= 400 && process.env.NODE_ENV !== 'production') {
+      return resp.clone().text()
+      .then(txt => {
+        console.log('fetch failure');
+        console.log(txt);
+        return resp;
+      });
+    }
+
+    return resp;
+  });
 
 //at most 5 in parallel so don't overload server
 //todo - should batch them based on sequence length, not just hard stop at 5
@@ -72,6 +91,7 @@ projectId: ${projectId}`);
     })
     .then((result) => {
       logger(`${jobId} parse json finished`);
+      //logger(result);
 
       //write the output file
       return writeFile(urlOutput, JSON.stringify(result, null, 2))

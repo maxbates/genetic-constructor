@@ -24,17 +24,16 @@ import Rollup from '../../src/models/Rollup';
 
 const queueManager = new JobQueueManager('test');
 
-queueManager.setProcessor((job) => {
+queueManager.setProcessor(job =>
   //console.log(job.opts);
 
   //test writing to the s3 mock before returning result
-  return rejectingFetch(job.opts.urlOutput, headersPut(JSON.stringify(new Rollup(), null, 2), {
-    headers: { 'Content-Type': 'text/plain' },
-  }))
+   rejectingFetch(job.opts.urlOutput, headersPut(JSON.stringify(new Rollup(), null, 2), {
+     headers: { 'Content-Type': 'text/plain' },
+   }))
   .then(() => Promise.resolve(job.data))
-  .catch(err => {
+  .catch((err) => {
     console.log(err);
     console.log(err.stack);
     throw err;
-  });
-});
+  }));

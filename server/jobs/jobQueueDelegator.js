@@ -53,6 +53,7 @@ import Rollup from '../../src/models/Rollup';
  - (comms) need to listen across all queues, since storing state on server
  - (memory) a promise is required for every job running, between initiate + resolution
  */
+//todo - need to durably set slave jobId -- when server restarts if job wasnt complete, the master-slave link is lost, and when a new job starts up, it starts a new slave. The first job never resolves. The client never knew about the second job.
 
 const delegatorManager = new JobQueueManager('jobs');
 const logger = debug('constructor:jobs:processor');
@@ -84,7 +85,7 @@ const createSlaveJobCompleteHandler = (job, promiseResolver) => (result) => {
     logger(`slave: ${job.jobId} - no output file found`);
     return null;
   })
-  .then(output => {
+  .then((output) => {
     if (!output) {
       return null;
     }
@@ -199,9 +200,9 @@ delegatorManager.setProcessor((job) => {
     return jobFiles.jobFileWrite(projectId, jobId, JSON.stringify(data, null, 2), FILE_NAME_INPUT)
     .then(() => {
       //urls for files the extension is expected to read / write
-      const urlInput = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_INPUT}`, 'getObject');
-      const urlData = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_DATA}`, 'putObject');
-      const urlOutput = agnosticFs.signedUrl(jobFiles.s3bucket, `${projectId}/${jobId}/${FILE_NAME_OUTPUT}`, 'putObject');
+      const urlInput = jobFiles.jobFileSignedUrl(projectId, jobId, FILE_NAME_INPUT, 'getObject');
+      const urlData = jobFiles.jobFileSignedUrl(projectId, jobId, FILE_NAME_DATA, 'putObject');
+      const urlOutput = jobFiles.jobFileSignedUrl(projectId, jobId, FILE_NAME_OUTPUT, 'putObject');
 
       //create specific jobId for the slave job
       const taskJobId = JobQueueManager.createJobId();

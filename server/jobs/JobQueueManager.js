@@ -31,7 +31,7 @@ export default class JobQueueManager {
   //args to create Queue from bull
   constructor(queue, port = REDIS_PORT, host = REDIS_HOST, db = REDIS_DB, redisOpts) {
     this.queueName = queue;
-    this.queue = Queue(queue, port, host, _.assignIn({}, { db: db }, redisOpts)); //eslint-disable-line new-cap
+    this.queue = Queue(queue, port, host, _.assignIn({}, { db }, redisOpts)); //eslint-disable-line new-cap
 
     //on start, log the initial job counts in background
     this.queue.getJobCounts()
@@ -130,10 +130,10 @@ export default class JobQueueManager {
     logger(`[jobCompleted] [${this.queueName}] checking... ${jobId}`);
 
     return this.getJob(jobId)
-    .then((job) => {
+    .then(job =>
       //logger(`[jobCompleted] [${this.queueName}] retrieved... ${jobId}`);
 
-      return job.isCompleted()
+       job.isCompleted()
       .then((complete) => {
         logger(`[jobCompleted] [${this.queueName}] complete? ${complete} ${jobId}`);
 
@@ -152,8 +152,7 @@ export default class JobQueueManager {
           job,
           jobId,
         };
-      });
-    });
+      }));
   }
 
   //polling = will resolve / reject on complete / fail

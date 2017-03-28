@@ -110,3 +110,13 @@ export const jobFileList = (projectId, namespace) => {
 
   return agnosticFs.fileList(s3bucket, dirPath);
 };
+
+export const jobFileSignedUrl = (projectId, namespace, fileName, operation) => {
+  invariant(projectId, 'projectId is required');
+  invariant(namespace, 'need to pass a namespace');
+  invariant(fileName, 'need to pass a namespace + fileName');
+  //we could allow more, but need to build out s3 mock router
+  invariant(operation === 'getObject' || operation === 'putObject', 'must specif operation as getObject or putObject');
+
+  return agnosticFs.signedUrl(s3bucket, `${projectId}/${namespace}/${fileName}`, operation);
+};

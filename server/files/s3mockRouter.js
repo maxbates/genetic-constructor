@@ -14,22 +14,24 @@
  limitations under the License.
  */
 
-// mocks s3 routes, so we have simple file URLs (e.g. for jobs)
+// mocks s3 routes for getObject and putObject, so we have simple file URLs (e.g. for jobs)
 // see agnosticFs signedUrl
 // has no permissions / ACL
 // returns different things than S3 does, but read / write should work
 
-import bodyParser from 'body-parser';
 import express from 'express';
 
 import * as fileSystem from '../data/middleware/fileSystem';
 
 const router = express.Router(); //eslint-disable-line new-cap
-const textParser = bodyParser.text({
-  limit: '500mb',
-});
 
-//todo - check if s3 differentiates between POST / PUT on signed URLs (i.e. putObject)
+//s3 signs without any headers, passing headers will fail, so interpret all bodies as strings
+const textParser = (req, res, next) => {
+  req.setEncoding('utf8');
+  req.body = '';
+  req.on('data', (chunk) => { req.body += chunk; });
+  req.on('end', () => next());
+};
 
 router.route(/.*/)
 .all((req, res, next) => {
@@ -40,19 +42,7 @@ router.route(/.*/)
 })
 .get((req, res, next) => {
   fileSystem.fileRead(req.filePath, false)
-  .then(res.send)
-  .catch(err => res.status(500).send(err));
-})
-.post(textParser, (req, res, next) => {
-  if (typeof req.body !== 'string') {
-    return res.status(422).send('send a string');
-  }
-
-  const folderPath = req.filePath.substring(0, req.filePath.lastIndexOf('/'));
-
-  fileSystem.directoryMake(folderPath)
-  .then(() => fileSystem.fileWrite(req.filePath, req.body, false))
-  .then(() => res.status(200).send())
+  .then(contents => res.send(contents))
   .catch(err => res.status(500).send(err));
 })
 .put(textParser, (req, res, next) => {

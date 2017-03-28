@@ -88,7 +88,7 @@ export class ConstructViewerJob extends Component {
 
     //job is done, get the result in s3
     jobGetResult(projectId, jobId)
-    .then(result => {
+    .then((result) => {
       // ? rollup utility to handle this merging, share with import middleware?
       // difficult to handle in one place the differences between client and server
       // wait until try to handle genbank and handle similarly
@@ -131,8 +131,10 @@ export class ConstructViewerJob extends Component {
   };
 
   onFailure = (failureMessage = 'Your job could not be completed. Try again in a few minutes.') => {
-    const name = this.props.construct.getName();
+    const fullName = this.props.construct.getName();
+    const name = fullName.length > 40 ? `${fullName.substring(0, 40)}...` : fullName;
     this.props.uiSetGrunt(`${name}: ${failureMessage}`, -1);
+    this.onDelete();
   };
 
   //first, try to just get the job, then poll if not complete

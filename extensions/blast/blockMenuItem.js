@@ -18,11 +18,13 @@ constructor.extensions.register('blast', 'menu:block',
   (singleBlockSelected, block) => [{
     text: 'BLAST for similar sequences',
     disabled: !singleBlockSelected || !block.hasSequence(),
-    action: () => {
-      runBlast(block)
+    action: () =>
+      block.getSequence()
+      .then(sequence => constructor.jobs.jobCreate(block.projectId, 'blast', { id: block.id, sequence }))
+      .then(result => result.jobId)
       .then((jobId) => {
         const construct = constructor.api.blocks.blockClone(block.id, {}, {
-          metadata: { name: `BLAST: ${block.metadata.name || 'Unnamed Block'}` },
+          metadata: { name: `BLAST: ${block.getName()}` },
           jobId,
           components: [],
         });
@@ -32,13 +34,5 @@ constructor.extensions.register('blast', 'menu:block',
       .catch(err => {
         constructor.api.ui.uiSetGrunt('There was an error starting your BLAST search...');
         console.error(err); //eslint-disable-line no-console
-      });
-    },
+      }),
   }]);
-
-//start a job
-function runBlast(block) {
-  return block.getSequence()
-  .then(sequence => constructor.jobs.jobCreate(block.projectId, 'blast', { id: block.id, sequence }))
-  .then(result => result.jobId);
-}
