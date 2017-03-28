@@ -34,22 +34,3 @@ export default [
   { hex: '#E0EE5C', name: '' },
   { hex: '#B3D694', name: '' },
 ];
-
-//export default [
-//  { hex: '#eea38d', name: '' },
-//  { hex: '#ff824f', name: '' },
-//  { hex: '#fd504c', name: '' },
-//  { hex: '#e41313', name: '' },
-//  { hex: '#f574ed', name: '' },
-//  { hex: '#ff41a1', name: '' },
-//  { hex: '#c01079', name: '' },
-//  { hex: '#943cec', name: '' },
-//  { hex: '#50f7ff', name: '' },
-//  { hex: '#15b6b2', name: '' },
-//  { hex: '#6085ff', name: '' },
-//  { hex: '#1147cd', name: '' },
-//  { hex: '#f5fb81', name: '' },
-//  { hex: '#a0f977', name: '' },
-//  { hex: '#09f998', name: '' },
-//  { hex: '#137651', name: '' },
-//];
