@@ -32,7 +32,7 @@ export function Project({ project, snapshot }) {
 
   //todo - hydrate app state and do this there?
   //create a rollup for all the components on this page + nested
-  const rollup = Rollup.classify(project);
+  const rollup = new Rollup(project);
 
   const numberBlocks = Object.keys(project.blocks).length;
   const numberBases = Object.keys(project.blocks).reduce((acc, blockId) => acc + (project.blocks[blockId].sequence.length || 0), 0);

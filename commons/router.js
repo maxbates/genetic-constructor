@@ -34,7 +34,14 @@ function renderFullPage(html, preloadedState) {
     <!doctype html>
     <html>
       <head>
+        <meta charset="utf-8">
         <title>Genetic Constructor - Commons</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Genetic Constructor Commons hosts published projects and constructs from users.">
+        <meta name="author" content="Autodesk Life Sciences">
+        <meta name="keywords" content="genetic design software, genetic design tool, dna sequence editor, molecular design software, promoter library, CAD software for biology">
+        <link rel="canonical" href="https://geneticconstructor.bionano.autodesk.com">
         <link rel="stylesheet" href="/static/commons.css"></script>
       </head>
       <body>

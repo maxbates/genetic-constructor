@@ -17,6 +17,7 @@ import React from 'react';
 
 import InfoTable from './InfoTable';
 import ConstructRadial from './ConstructRadial';
+
 import '../styles/ConstructAbout.css';
 
 export default function ConstructAbout({ constructId, project }) {
