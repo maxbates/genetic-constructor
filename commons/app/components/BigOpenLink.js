@@ -22,7 +22,8 @@ if (process.env.BROWSER) {
 export default function BigOpenLink(props) {
   return (
     <a className="BigOpenLink" target="_blank" rel="noopener noreferrer" {...props}>
-      Open in Genetic Constructor -&gt;
+      Open in Genetic Constructor
+      <span className="BigOpenLink-glyph" />
     </a>
   );
 }

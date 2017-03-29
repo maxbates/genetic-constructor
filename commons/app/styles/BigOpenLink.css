@@ -1,6 +1,6 @@
 @import '../../../src/styles/variables.css';
 
-a.BigOpenLink {
+.BigOpenLink {
   display: inline-block;
   align-self: flex-start;
   padding: 0.5rem 2rem;
@@ -9,4 +9,12 @@ a.BigOpenLink {
   background-color: var(--colors-selected);
   color: var(--colors-white);
   text-transform: uppercase;
+
+  &-glyph {
+    display: inline-block;
+    background: url('/images/ui/go-white.svg');
+    margin-left: 1rem;
+    width: 23px;
+    height: 13px;
+  }
 }

@@ -47,7 +47,9 @@ export function Project({ project, snapshot }) {
   return (
     <div className="Project">
       <h3 className="Project-header">
-        <Link to="/commons">The Commons</Link> &gt; {project.project.metadata.name}
+        <Link to="/commons">The Commons</Link>
+        <span className="Project-header-separator" />
+        {project.project.metadata.name}
       </h3>
 
       <div className="Project-overview">
