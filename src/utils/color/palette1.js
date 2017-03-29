@@ -14,6 +14,8 @@
  limitations under the License.
  */
 
+// WESTERN palette (was ANIME):
+
 export default [
   { hex: '#e7aaa9', name: 'pink' },
   { hex: '#D28482', name: 'red' },
