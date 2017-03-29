@@ -59,16 +59,19 @@ function renderFullPage(html, preloadedState) {
 }
 
 //todo - update react router: https://reacttraining.com/react-router/web/guides/server-rendering
-//todo - enable hot loading: https://github.com/gaearon/react-hot-loader/tree/master/docs#migration-to-30
 
 //todo - routing by name, not hash
-//todo - only fetch all projects if root request, not for project pages
+
+//todo - only fetch all projects on main page, no blocks
+
+//todo - optimize - single call with multiple UUIDs
+
+// todo - update react-hot-loader and get component AppContainer
+// https://github.com/gaearon/react-hot-loader/tree/master/docs#migration-to-30
 
 async function handleRender(req, res, next) {
   const snapshots = await commons.commonsQuery();
 
-  //todo - optimize - call multiple at once
-  //todo - don't get blocks at this point
   const fetchedProjects = await Promise.all(
     snapshots.map(({ projectUUID }) => projectVersionByUUID(projectUUID)),
   );

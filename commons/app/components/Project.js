@@ -52,7 +52,7 @@ export function Project({ project, snapshot }) {
         {project.project.metadata.name}
       </h3>
 
-      <div className="Project-overview">
+      <summary className="Project-overview">
         <InfoTable
           values={[
             ['Project', project.project.metadata.name, { bold: true }],
@@ -63,9 +63,9 @@ export function Project({ project, snapshot }) {
           ]}
         />
         <BigOpenLink href={openLink} />
-      </div>
+      </summary>
 
-      <div className="Project-preview">
+      <main className="Project-preview">
         <h3 className="Project-preview-title">Project Preview</h3>
         <div className="Project-preview-stats">
           <div className="Project-preview-stats-stat">{project.project.components.length} Constructs</div>
@@ -81,7 +81,7 @@ export function Project({ project, snapshot }) {
             />
           ))}
         </div>
-      </div>
+      </main>
 
       {project.project.components.length > 3 && (
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
@@ -89,16 +89,16 @@ export function Project({ project, snapshot }) {
         </div>
       )}
 
-      <div className="Project-license">
+      <aside className="Project-license">
         <h3>License</h3>
         <div className="Project-textblock">
           This project is made available license-free in the public domain under the&nbsp;
           <a href="" target="_blank" rel="noopener noreferrer">Creative Commons CCØ</a> license.&nbsp;
           <a href="" target="_blank" rel="noopener noreferrer">Learn more…</a>
         </div>
-      </div>
+      </aside>
 
-      <div className="Project-what">
+      <aside className="Project-what">
         <h3>What is this?</h3>
         <div className="Project-textblock">
           Genetic Constructor is a web application for biologists working in protein engineering and synthetic biology.
@@ -106,7 +106,7 @@ export function Project({ project, snapshot }) {
           everyone can publish and reuse — directly from within the app. To explore this project in Genetic Constructor
           click OPEN IN GENETIC CONSTRUCTOR, then sign in or create a free account.
         </div>
-      </div>
+      </aside>
     </div>
   );
 }

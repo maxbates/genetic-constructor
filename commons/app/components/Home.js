@@ -16,6 +16,7 @@
 
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import ProjectCard from './ProjectCard';
 
@@ -28,8 +29,11 @@ export function Home({ projects }) {
   const numberProjects = projectKeys.length;
   const numberConstructs = projectKeys.reduce((acc, key) => acc + projects[key].project.components.length, 0);
 
-  //todo - calculate
-  const basePairs = 92023;
+  const basePairs = _.reduce(projects,
+    (count, project) => count + _.reduce(project.blocks,
+      (counter, block) => counter + block.sequence.length || 0,
+      0),
+    0);
 
   return (
     <div className="Home">
@@ -40,11 +44,11 @@ export function Home({ projects }) {
         </h4>
       </div>
 
-      <div className="Home-stats">
+      <summary className="Home-stats">
         <span className="Home-stats-stat">{numberProjects} Projects</span>
         <span className="Home-stats-stat">{numberConstructs} Constructs</span>
         <span className="Home-stats-stat">{basePairs} Base Pairs</span>
-      </div>
+      </summary>
 
       <div className="Home-projects">
         {Object.keys(projects).map(projectId => (

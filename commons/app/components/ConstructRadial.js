@@ -108,7 +108,7 @@ export default class ConstructRadial extends Component {
     //todo - make hollow ring (attr display)
 
     return (
-      <div style={{ width: `${dim}px`, height: `${dim}px` }}>
+      <figure style={{ width: `${dim}px`, height: `${dim}px` }}>
         <svg width={dim} height={dim}>
           <g transform={`translate(${dim / 2},${dim / 2})`}>
             {this.nodes.map(d => (
@@ -128,7 +128,7 @@ export default class ConstructRadial extends Component {
             ))}
           </g>
         </svg>
-      </div>
+      </figure>
     );
   }
 }
