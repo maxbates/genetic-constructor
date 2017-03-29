@@ -20,7 +20,6 @@
 import invariant from 'invariant';
 
 import * as ActionTypes from '../constants/ActionTypes';
-import { symbolMap } from '../inventory/roles';
 import Block from '../models/Block';
 import Project from '../models/Project';
 import safeValidate from '../schemas/fields/safeValidate';

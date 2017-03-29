@@ -16,7 +16,6 @@
 
 import debug from 'debug';
 import JobQueueManager from './JobQueueManager';
-import * as agnosticFs from '../files/agnosticFs';
 import * as jobFiles from '../files/jobs';
 import { sequenceWriteManyChunksAndUpdateRollup } from '../data/persistence/sequence';
 import { getServerExtensions } from '../extensions/registry';
