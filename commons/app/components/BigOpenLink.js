@@ -15,6 +15,10 @@
  */
 import React, { PropTypes } from 'react';
 
+if (process.env.BROWSER) {
+  require('../styles/BigOpenLink.css'); //eslint-disable-line global-require
+}
+
 export default function BigOpenLink(props) {
   return (
     <a className="BigOpenLink" target="_blank" rel="noopener noreferrer" {...props}>

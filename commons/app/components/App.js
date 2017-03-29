@@ -20,7 +20,7 @@ import Header from './Header';
 import Footer from './Footer';
 
 if (process.env.BROWSER) {
-  require('../styles/index.css');
+  require('../styles/App.css'); //eslint-disable-line global-require
 }
 
 //wrap the page component in app chrome

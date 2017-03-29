@@ -18,6 +18,10 @@ import React, { PropTypes } from 'react';
 import InfoTable from './InfoTable';
 import ConstructRadial from './ConstructRadial';
 
+if (process.env.BROWSER) {
+  require('../styles/ConstructAbout.css'); //eslint-disable-line global-require
+}
+
 export default function ConstructAbout({ constructId, project }) {
   const construct = project.getBlock(constructId);
   const { components, options } = project.getContents(constructId);

@@ -19,6 +19,10 @@ import { Link } from 'react-router';
 
 import { getPalette } from '../../../src/utils/color/index';
 
+if (process.env.BROWSER) {
+  require('../styles/ProjectCard.css'); //eslint-disable-line global-require
+}
+
 export default function ProjectCard({ project }) {
   const firstConstruct = project.blocks[project.project.components[0]];
   const paletteName = firstConstruct.metadata.palette || project.project.metadata.palette;

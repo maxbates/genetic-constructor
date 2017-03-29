@@ -25,6 +25,10 @@ import InfoTable from './InfoTable';
 import ConstructAbout from './ConstructAbout';
 import BigOpenLink from './BigOpenLink';
 
+if (process.env.BROWSER) {
+  require('../styles/Project.css'); //eslint-disable-line global-require
+}
+
 export function Project({ project, snapshot }) {
   if (!project || !snapshot) {
     //todo - redirect if project / snapshot not available

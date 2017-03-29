@@ -28,12 +28,10 @@ import * as commons from '../server/data/persistence/commons';
 
 const router = Express.Router(); //eslint-disable-line new-cap
 
-//todo - compile CSS and serve (right now only client handles properly)
-
 function renderFullPage(html, preloadedState) {
-  const dev = process.env.NODE_ENV !== 'production';
+  const prod = process.env.NODE_ENV === 'production';
   const stateString = JSON.stringify(preloadedState).replace(/</g, '\\u003c');
-  const cssLink ='<link rel="stylesheet" href="/static/commons.css"></script>';
+  const cssLink = '<link rel="stylesheet" href="/static/commons.css"></script>';
 
   return `
     <!doctype html>
@@ -47,10 +45,10 @@ function renderFullPage(html, preloadedState) {
         <meta name="author" content="Autodesk Life Sciences">
         <meta name="keywords" content="genetic design software, genetic design tool, dna sequence editor, molecular design software, promoter library, CAD software for biology">
         <link rel="canonical" href="https://geneticconstructor.bionano.autodesk.com">
-        ${dev && cssLink}
+        ${cssLink}
       </head>
       <body>
-        <div id="root">${dev && html}</div>
+        <div id="root">${prod ? html : ''}</div>
         <script>
           window.__PRELOADED_STATE__ = ${stateString}
         </script>

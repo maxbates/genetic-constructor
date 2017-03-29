@@ -15,6 +15,10 @@
  */
 import React, { PropTypes } from 'react';
 
+if (process.env.BROWSER) {
+  require('../styles/Tag.css'); //eslint-disable-line global-require
+}
+
 export default function Tag({ text, description }) {
   return (
     <div

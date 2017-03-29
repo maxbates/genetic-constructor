@@ -18,6 +18,10 @@ import React, { PropTypes } from 'react';
 
 import Tag from './Tag';
 
+if (process.env.BROWSER) {
+  require('../styles/InfoTable.css'); //eslint-disable-line global-require
+}
+
 export default function InfoTable({ values, ...rest }) {
   return (
     <table className="InfoTable" {...rest}>

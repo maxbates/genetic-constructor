@@ -15,6 +15,10 @@
  */
 import React from 'react';
 
+if (process.env.BROWSER) {
+  require('../styles/Footer.css'); //eslint-disable-line global-require
+}
+
 export default function Footer() {
   return (
     <footer className="Footer">

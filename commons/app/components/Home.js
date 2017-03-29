@@ -19,6 +19,10 @@ import { connect } from 'react-redux';
 
 import ProjectCard from './ProjectCard';
 
+if (process.env.BROWSER) {
+  require('../styles/Home.css'); //eslint-disable-line global-require
+}
+
 export function Home({ projects }) {
   const projectKeys = Object.keys(projects);
   const numberProjects = projectKeys.length;
