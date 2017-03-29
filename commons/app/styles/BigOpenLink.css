@@ -1,14 +1,16 @@
 @import '../../../src/styles/variables.css';
 
 .BigOpenLink {
-  display: inline-block;
-  align-self: flex-start;
-  padding: 0.5rem 2rem;
-  font-size: 1.5rem;
-  border-radius: 1em;
-  background-color: var(--colors-selected);
-  color: var(--colors-white);
-  text-transform: uppercase;
+  a& {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 0.5rem 2rem;
+    font-size: 1.5rem;
+    border-radius: 1em;
+    background-color: var(--colors-selected);
+    color: var(--colors-white);
+    text-transform: uppercase;
+  }
 
   &-glyph {
     display: inline-block;
