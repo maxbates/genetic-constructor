@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-//Experimental palette SMOOTH:
+//Experimental palette SOUVENIR SMOOTH (was bright):
 
 export default [
   { hex: '#4CAE50', name: '' },
