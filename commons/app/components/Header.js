@@ -15,7 +15,7 @@
  */
 
 import React, { PropTypes } from 'react';
-import { connect } from 'redux';
+import { connect } from 'react-redux';
 
 if (process.env.BROWSER) {
   require('../styles/Header.css'); //eslint-disable-line global-require
@@ -26,7 +26,7 @@ function Header({ signedIn }) {
     (
       <a
         className="Header-link Header-user"
-        href="/project/"
+        href="/"
       />
     )
     :

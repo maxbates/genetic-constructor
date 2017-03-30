@@ -14,13 +14,12 @@ body {
   margin: 0 auto;
   color: var(--colors-darkGrey);
   background-color: var(--colors-white);
+  font-size: 14px;
+  line-height: 20px;
 }
 
 a {
-  &, &:hover, &:visited, &:active {
-    color: var(--colors-selected);
-    text-decoration: none;
-  }
+  text-decoration: none;
 }
 
 h3 {

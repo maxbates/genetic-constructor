@@ -17,6 +17,13 @@
 import { combineReducers } from 'redux';
 import { routerReducer as router } from 'react-router-redux';
 
+const user = (state = 'acgactgatcgac', action) => {
+  switch (action.type) {
+    default:
+      return state;
+  }
+};
+
 //projects reducer
 const projects = (state = {}, action) => {
   switch (action.type) {
@@ -35,6 +42,7 @@ const snapshots = (state = {}, action) => {
 
 export default combineReducers({
   router,
+  user,
   projects,
   snapshots,
 });

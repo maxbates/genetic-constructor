@@ -165,6 +165,7 @@ export const commonsPublishVersion = (projectId, userId, version, body) => {
   invariant(!body || typeof body === 'object', 'body must be an object');
 
   const snapshotBody = _.defaultsDeep({}, body, snapshotBodyScaffold);
+
   //add publishing tag
   snapshotBody.tags[COMMONS_TAG] = true;
 

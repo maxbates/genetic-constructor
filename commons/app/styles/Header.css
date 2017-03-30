@@ -5,38 +5,48 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 15px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--colors-lighterGrey);
 
   &-left,
   &-right {
-
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
   }
 
   &-logo {
     background: url('/landing/assets/images/logo.svg');
     background-size: contain;
+    background-repeat: no-repeat;
     width: 30px;
-    height: 25px;
+    height: 30px;
     margin: 10px 15px;
+    display: block;
   }
 
   &-link {
     color: var(--colors-slightlyDarkGrey);
+    font-size: 14px;
+    font-family: var(--font-family-base);
     padding: 15px;
     line-height: 20px;
-
-    &:hover {
-      color: var(--colors-darkGrey);
-    }
 
     &.active {
       color: var(--colors-mediumDarkGrey);
       background-color: var(--colors-lighterGrey)
+    }
+
+    &:hover {
+      color: var(--colors-darkGrey);
     }
   }
 
   &-user {
     background: url('/images/ui/user.svg');
     background-size: contain;
+    background-repeat: no-repeat;
+    height: 50px;
+    width: 50px;
   }
 }
