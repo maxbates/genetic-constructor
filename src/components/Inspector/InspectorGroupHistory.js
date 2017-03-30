@@ -186,9 +186,18 @@ export class InspectorGroupHistory extends Component {
             />
           );
 
-          const widgets = snapshot.isPublished() ?
-            [(<img src="/images/ui/commonsVersion.svg" role="presentation" key={snapshot.snapshotUUID} />)] :
-            [];
+          const widgets = snapshot.isPublished()
+            ? [(
+              <a href={`/commons/${snapshot.projectId}`} target="_blank" rel="noopener noreferrer">
+                <img
+                  src="/images/ui/commonsVersion.svg"
+                  alt="Open in The Commons"
+                  role="presentation"
+                  key={snapshot.snapshotUUID}
+                />
+              </a>
+            )]
+            : [];
 
           return (
             <Expando
