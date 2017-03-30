@@ -11,6 +11,7 @@ var routes = [
   route('/projects', require('./projects')),
   route('/orders', require('./orders')),
   route('/snapshots', require('./snapshots')),
+  route('/search', require('./search')),
   route('*', function (req, res) {
     return res.status(501).send('/api' + req.url + ' not found').end();
   }),

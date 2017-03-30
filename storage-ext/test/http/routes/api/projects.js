@@ -6,6 +6,9 @@ var request = require("supertest");
 var describeAppTest = require("../../../api-app");
 
 var each = require('underscore').each;
+var find = require('underscore').find;
+
+var uuid = require('uuid');
 
 var Project = require('../../../../lib/project');
 var Order = require('../../../../lib/order');
@@ -702,6 +705,113 @@ describeAppTest("http", function (app) {
           assert.notEqual(res.body.updatedAt, null);
           done();
         });
+    });
+
+    it('should fetch an array of projects from list of project UUIDs', function fetchListByUUID(done) {
+      return async.waterfall([
+        function (cbFunc) {
+          var projectSeeds = [0,1,2,3,4,5];
+          async.map(projectSeeds, function (projectSeed, cb) {
+            request(app.proxy)
+              .post('/api/projects')
+              .send({
+                owner: owner,
+                id: 'project-' + projectSeed + '-' + uuid.v1(),
+                data: {
+                  test: 'foo',
+                  blocks: 'blocks here'
+                },
+              })
+              .expect(200)
+              .end(function (err, res) {
+                if (err) {
+                  return cb(err);
+                }
+
+                return cb(null, res.body.uuid);
+              });
+          }, cbFunc);
+        },
+        function (createdProjectUUIDs, cbFunc) {
+          request(app.proxy)
+            .post('/api/search/projects/list')
+            .send(createdProjectUUIDs)
+            .expect(200)
+            .end(function (err, res) {
+              if (err) {
+                return cbFunc(err);
+              }
+              if (! res || ! res.body || ! Array.isArray(res.body)) {
+                return cbFunc(new Error('array result expected'));
+              }
+
+              each(res.body, function (project) {
+                if (! project) {
+                  return cbFunc(new Error('unexpected null project'));
+                }
+
+                if (! project.uuid || (project.uuid === '')) {
+                  return cbFunc(new Error('project UUID is missing'));
+                }
+
+                if (!project.data) {
+                  return cbFunc(new Error('project missing data'));
+                }
+
+                if (!project.data.test || (project.data.test !== 'foo')) {
+                  return cbFunc(new Error('unexpected data test value in project'));
+                }
+
+                if (project.data.blocks != null) {
+                  return cbFunc(new Error('blocks should not be included in project result'));
+                }
+              });
+
+              return cbFunc(null, createdProjectUUIDs);
+            });
+        },
+        function (createdProjectUUIDs, cbFunc) {
+          request(app.proxy)
+            .post('/api/search/projects/list?blocks=true')
+            .send(createdProjectUUIDs)
+            .expect(200)
+            .end(function (err, res) {
+              if (err) {
+                return cbFunc(err);
+              }
+              if (! res || ! res.body || ! Array.isArray(res.body)) {
+                return cbFunc(new Error('array result expected'));
+              }
+
+              each(res.body, function (project) {
+                if (! project) {
+                  return cbFunc(new Error('unexpected null project'));
+                }
+
+                if (! project.uuid || (project.uuid === '')) {
+                  return cbFunc(new Error('project UUID is missing'));
+                }
+
+                if (!project.data) {
+                  return cbFunc(new Error('project missing data'));
+                }
+
+                if (!project.data.test || (project.data.test !== 'foo')) {
+                  return cbFunc(new Error('unexpected data test value in project'));
+                }
+
+                if (!project.data.blocks || (project.data.blocks !== 'blocks here')) {
+                  return cbFunc(new Error('project should contain blocks'));
+                }
+              });
+
+              return cbFunc(null, null);
+            });
+        },
+      ], function (err) {
+        assert.ifError(err);
+        done();
+      });
     });
   });
 });
