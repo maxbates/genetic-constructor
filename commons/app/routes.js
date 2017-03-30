@@ -14,18 +14,32 @@
  limitations under the License.
  */
 import React from 'react';
-import { IndexRoute, Route } from 'react-router';
+import { IndexRoute, Route, Redirect } from 'react-router';
 
+import * as middleware from './middleware';
 import App from './components/App';
 import Home from './components/Home';
 import Project from './components/Project';
+//import RouteNotFound from '../../src/containers/routenotfound';
 
 //todo - fetch all projects when route changes? or no dynamic routing
 
+const onEnterProject = (nextState, replace, callback) => {
+  console.log(nextState, replace);
+  callback();
+};
+
 export default (
   <Route path="/commons" component={App}>
-    <Route path="/commons/:projectId" component={Project} />
-    <IndexRoute component={Home} />
+    <Route
+      path="/commons/:projectId"
+      component={Project}
+      onEnter={onEnterProject}
+    />
+    <IndexRoute
+      component={Home}
+    />
+    <Redirect from="*" to="/commons" />
   </Route>
 );
 

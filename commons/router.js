@@ -24,6 +24,8 @@ import PrettyError from 'pretty-error';
 
 import { projectVersionByUUID } from '../server/data/persistence/projectVersions';
 import * as commons from '../server/data/persistence/commons';
+import safeValidate from '../src/schemas/fields/safeValidate';
+import { id as idValidatorCreator } from '../src/schemas/fields/validators';
 
 import commonsReducer from './app/reducers';
 import routes from './app/routes';
@@ -32,35 +34,77 @@ import ErrorPage from './app/components/ErrorPage';
 
 const router = Express.Router(); //eslint-disable-line new-cap
 
-//todo - update react router: https://reacttraining.com/react-router/web/guides/server-rendering
+const idValidator = id => safeValidate(idValidatorCreator(), true, id);
 
-//todo - routing by name, not hash
+// future - update react router: https://reacttraining.com/react-router/web/guides/server-rendering
+// still in beta. react-router-redux still in alpha
 
-//todo - only fetch all projects on main page, no blocks
-
-//todo - optimize - single call with multiple UUIDs
-
-// todo - update react-hot-loader and get component AppContainer
+// future - update react-hot-loader and get component AppContainer
 // https://github.com/gaearon/react-hot-loader/tree/master/docs#migration-to-30
+
+//todo - routing by name, not UUID
+const findProjectByName = name => Promise.resolve('todo');
 
 async function handleRender(req, res, next) {
   try {
-    const snapshots = await commons.commonsQuery();
+    const projectQuery = req.url.substr(1);
+    const forceProjectId = req.query.projectId;
 
-    const fetchedProjects = await Promise.all(
-      snapshots.map(({ projectUUID }) => projectVersionByUUID(projectUUID)),
-    );
+    const initialState = {};
 
-    const projects = _.keyBy(fetchedProjects, proj => proj.project.id);
+    console.log(projectQuery, forceProjectId, idValidator(forceProjectId));
+
+    //todo - put data fetching in the router. router should be async
+    //todo - should dispatch actions to the store to update data
+
+    //on project page
+    //  - if search by name, figure out the projectId
+    //  - get the entire project and latest snapshot
+    //if on home page
+    //  - get all the projects
+    //  - todo - omit bp count, or add to published snapshot as tag
+
+    try {
+      const atHome = !(projectQuery || forceProjectId);
+      const projectId = atHome ?
+        null :
+        (forceProjectId && idValidator(forceProjectId)) ?
+          forceProjectId :
+          (await findProjectByName(projectQuery));
+
+      const snapshots = projectId ? (await commons.commonsQuery({}, true, projectId)) : [];
+
+      //todo - optimize - single call with multiple UUIDs
+      //todo - no blocks on home page
+      const fetchedProjects = await Promise.all(
+        snapshots.map(({ projectUUID }) => projectVersionByUUID(projectUUID)),
+      );
+
+      const projects = _.keyBy(fetchedProjects, proj => proj.project.id);
+
+      Object.assign(initialState, { projects, snapshots });
+
+      const snapshot = await commons.getLatestPublicVersion(projectId);
+      const project = await projectVersionByUUID(snapshot.projectUUID);
+
+      Object.assign(initialState, {
+        projects: { [project.project.id]: project },
+        snapshots: [snapshot],
+      });
+    } catch (err) {
+      //todo - handle not published. redirect properly
+
+      throw new Error(err);
+    }
 
     match({ routes, location: req.originalUrl }, (error, redirectLocation, renderProps) => {
       if (error) {
-        res.status(500).send(error.message);
+        throw error;
       } else if (redirectLocation) {
         res.redirect(302, redirectLocation.pathname + redirectLocation.search);
       } else if (renderProps) {
         // Create a new Redux store instance
-        const store = createStore(commonsReducer, { projects, snapshots });
+        const store = createStore(commonsReducer, initialState);
 
         // Grab the initial state from our Redux store
         const preloadedState = store.getState();
@@ -74,14 +118,10 @@ async function handleRender(req, res, next) {
           </Provider>,
         );
 
-        const html = renderToStaticMarkup(
-          <Html state={preloadedState}>
-          {appHtml}
-          </Html>
-        );
+        const html = renderToStaticMarkup(<Html state={preloadedState}>{appHtml}</Html>);
         res.send(`<!doctype html>${html}`);
       } else {
-        //todo - move 404 rendering into the app
+        //this shouldn't happen, app should catch all 404 routes
         res.status(404).send('Not found');
       }
     });
@@ -90,7 +130,7 @@ async function handleRender(req, res, next) {
   }
 }
 
-router.route('*').get(handleRender);
+router.route('/*').get(handleRender);
 
 //
 // Error handling

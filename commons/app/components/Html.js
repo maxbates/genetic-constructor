@@ -22,7 +22,7 @@ export default class Html extends React.Component {
     description: PropTypes.string,
     author: PropTypes.string,
     keywords: PropTypes.string,
-    //styles: PropTypes.arrayOf(PropTypes.string.isRequired),
+    styles: PropTypes.arrayOf(PropTypes.string.isRequired),
     scripts: PropTypes.arrayOf(PropTypes.string.isRequired),
     state: PropTypes.object,
     children: PropTypes.string.isRequired,
@@ -34,12 +34,12 @@ export default class Html extends React.Component {
     author: 'Autodesk Life Sciences',
     keywords: 'genetic design software, genetic design tool, dna sequence editor, molecular design software, promoter library, CAD software for biology',
     state: {},
-    //styles: ['/static/commons.css'],
-    scripts: ['/static/commons.js'], //todo - compute from webpack
+    styles: ['/static/commons.css'],
+    scripts: ['/static/commons.js'],
   };
 
   render() {
-    const { title, description, author, keywords, scripts, state, children } = this.props;
+    const { title, description, author, keywords, styles, scripts, state, children } = this.props;
 
     //lame security handling
     const stateString = JSON.stringify(state).replace(/</g, '\\u003c');
@@ -55,7 +55,7 @@ export default class Html extends React.Component {
           <meta name="author" content={author} />
           <meta name="keywords" content={keywords} />
           <link rel="canonical" href="https://geneticconstructor.bionano.autodesk.com" />
-          <link rel="stylesheet" href="/static/commons.css" />
+          {styles.map(file => (<link rel="stylesheet" key={file} href={file} />))}
         </head>
 
         <body>

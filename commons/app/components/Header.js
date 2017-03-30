@@ -16,8 +16,27 @@
 
 import React from 'react';
 
+//todo - handle when user is signed in. get the nav glyph from the main app
+
+if (process.env.BROWSER) {
+  require('../styles/Header.css'); //eslint-disable-line global-require
+}
+
 export default function Header() {
   return (
-    <div className="Header" />
+    <nav className="Header">
+      <div className="Header-left">
+        <a href="/" className="Header-logo" />
+        <a className="Header-link" href="/#interfaceSection">Features</a>
+        <a className="Header-link" href="/#trySectionTop">Pricing</a>
+        <a className="Header-link" href="/#teamSection">Team</a>
+        <a className="Header-link" href="https://docs.geneticconstructor.bionano.autodesk.com/docs">Docs</a>
+        <a className="Header-link" href="https://autodeskbionano.blogspot.com/search/label/Genetic%20Constructor">Blog</a>
+        <a className="Header-link active" href="https://autodeskbionano.blogspot.com/search/label/Genetic%20Constructor">Commons</a>
+      </div>
+      <div className="Header-right">
+        <a className="Header-link" href="/homepage/signin">Sign In</a>
+      </div>
+    </nav>
   );
 }

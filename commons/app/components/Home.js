@@ -16,6 +16,7 @@
 
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import _ from 'lodash';
 
 import ProjectCard from './ProjectCard';
@@ -24,7 +25,14 @@ if (process.env.BROWSER) {
   require('../styles/Home.css'); //eslint-disable-line global-require
 }
 
-export function Home({ projects }) {
+export function Home({ location, router, projects }) {
+  //todo - better handling of query param
+  if (location.query.projectId) {
+    const projectId = location.query.projectId;
+    const project = projects[projectId];
+    router.replace(`/commons/${project.project.metadata.name}?projectId=${projectId}`);
+  }
+
   const projectKeys = Object.keys(projects);
   const numberProjects = projectKeys.length;
   const numberConstructs = projectKeys.reduce((acc, key) => acc + projects[key].project.components.length, 0);
@@ -64,6 +72,10 @@ export function Home({ projects }) {
 
 Home.propTypes = {
   projects: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired,
+  router: PropTypes.object.isRequired,
 };
 
-export default connect(state => state)(Home);
+export default connect(state => ({
+  projects: state.projects,
+}))(withRouter(Home));

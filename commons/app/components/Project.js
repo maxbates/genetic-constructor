@@ -16,7 +16,7 @@
 
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, withRouter } from 'react-router';
 import moment from 'moment';
 
 import Rollup from '../../../src/models/Rollup';
@@ -29,17 +29,17 @@ if (process.env.BROWSER) {
   require('../styles/Project.css'); //eslint-disable-line global-require
 }
 
-export function Project({ project, snapshot }) {
+export function Project({ router, project, snapshot }) {
   if (!project || !snapshot) {
-    //todo - redirect if project / snapshot not available
+    router.replace('/commons/');
     return null;
   }
 
   const openLink = `/project/${project.project.id}`;
 
-  //todo - hydrate app state and do this there?
+  //NB - if rendering multiple times, should only create Rollup if needed
   //create a rollup for all the components on this page + nested
-  const rollup = new Rollup(project);
+  const rollup = Rollup.classify(project);
 
   const numberBlocks = Object.keys(project.blocks).length;
   const numberBases = Object.keys(project.blocks).reduce((acc, blockId) => acc + (project.blocks[blockId].sequence.length || 0), 0);
@@ -122,4 +122,4 @@ Project.propTypes = {
 export default connect((state, props) => ({
   project: state.projects[props.params.projectId],
   snapshot: state.snapshots.find(snapshot => snapshot.projectId === props.params.projectId),
-}))(Project);
+}))(withRouter(Project));
