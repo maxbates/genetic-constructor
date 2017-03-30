@@ -14,7 +14,8 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import * as d3 from 'd3'; //todo - pare down to libs needed
+import d3Shape from 'd3-shape';
+import d3Hierarchy from 'd3-hierarchy';
 
 import { getPalette, colorFiller } from '../../../src/utils/color/index';
 
@@ -60,7 +61,9 @@ export default class ConstructRadial extends Component {
     //width / height
     this.dimension = 200;
 
-    this.arc = d3.arc()
+    //todo - make hollow ring for construct(adjust attr display in render)
+
+    this.arc = d3Shape.arc()
     .startAngle(d => d.x0)
     .endAngle(d => d.x1)
     .innerRadius(d => Math.sqrt(d.y0))
@@ -83,10 +86,10 @@ export default class ConstructRadial extends Component {
     const rootClone = Object.assign({}, project.getBlock(constructId));
     const tree = ConstructRadial.createTree(rootClone, project);
 
-    const partition = d3.partition(tree)
+    const partition = d3Hierarchy.partition(tree)
     .size([2 * Math.PI, this.dimension * this.dimension / 4]);
 
-    const root = d3.hierarchy(tree)
+    const root = d3Hierarchy.hierarchy(tree)
     .sum(d => d.size);
 
     this.nodes = partition(root).descendants();
@@ -104,8 +107,6 @@ export default class ConstructRadial extends Component {
     const paletteName = construct.metadata.palette || project.project.metadata.palette;
 
     const dim = this.dimension;
-
-    //todo - make hollow ring (attr display)
 
     return (
       <figure style={{ width: `${dim}px`, height: `${dim}px` }}>
