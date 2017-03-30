@@ -235,7 +235,7 @@ class ProjectHeader extends Component {
       },
       {
         text: 'Publish Project...',
-        disabled: this.props.readOnly || (this.props.projectVersionIsPublished && !this.props.projectIsDirty),
+        disabled: this.props.readOnly || (this.props.projectVersionIsPublished && !this.props.projectIsDirty) || (this.props.project.components.length === 0),
         action: this.onShareProject,
       },
       {
