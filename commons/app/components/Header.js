@@ -14,29 +14,79 @@
  limitations under the License.
  */
 
-import React from 'react';
-
-//todo - handle when user is signed in. get the nav glyph from the main app
+import React, { PropTypes } from 'react';
+import { connect } from 'redux';
 
 if (process.env.BROWSER) {
   require('../styles/Header.css'); //eslint-disable-line global-require
 }
 
-export default function Header() {
+function Header({ signedIn }) {
+  const rightContent = signedIn === true ?
+    (
+      <a
+        className="Header-link Header-user"
+        href="/project/"
+      />
+    )
+    :
+    (
+      <a
+        className="Header-link"
+        href="/homepage/signin"
+      >
+        Sign In
+      </a>
+    );
+
   return (
     <nav className="Header">
       <div className="Header-left">
-        <a href="/" className="Header-logo" />
-        <a className="Header-link" href="/#interfaceSection">Features</a>
-        <a className="Header-link" href="/#trySectionTop">Pricing</a>
-        <a className="Header-link" href="/#teamSection">Team</a>
-        <a className="Header-link" href="https://docs.geneticconstructor.bionano.autodesk.com/docs">Docs</a>
-        <a className="Header-link" href="https://autodeskbionano.blogspot.com/search/label/Genetic%20Constructor">Blog</a>
-        <a className="Header-link active" href="https://autodeskbionano.blogspot.com/search/label/Genetic%20Constructor">Commons</a>
+        <a
+          href="/"
+          className="Header-logo"
+        />
+        <a
+          className="Header-link"
+          href="/#interfaceSection"
+        >Features</a>
+        <a
+          className="Header-link"
+          href="/#trySectionTop"
+        >Pricing</a>
+        <a
+          className="Header-link"
+          href="/#teamSection"
+        >Team</a>
+        <a
+          className="Header-link"
+          href="https://docs.geneticconstructor.bionano.autodesk.com/docs"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Docs</a>
+        <a
+          className="Header-link"
+          href="https://autodeskbionano.blogspot.com/search/label/Genetic%20Constructor"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Blog</a>
+        <a
+          className="Header-link active"
+          href="https://autodeskbionano.blogspot.com/search/label/Genetic%20Constructor"
+        >Commons</a>
       </div>
+
       <div className="Header-right">
-        <a className="Header-link" href="/homepage/signin">Sign In</a>
+        {rightContent}
       </div>
     </nav>
   );
 }
+
+Header.propTypes = {
+  signedIn: PropTypes.bool,
+};
+
+export default connect(state => ({
+  signedIn: !!state.user,
+}))(Header);

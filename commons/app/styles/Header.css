@@ -1,5 +1,11 @@
-.Header {
+@import '../../../src/styles/variables.css';
 
+.Header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
 
   &-left,
   &-right {
@@ -7,14 +13,30 @@
   }
 
   &-logo {
-
+    background: url('/landing/assets/images/logo.svg');
+    background-size: contain;
+    width: 30px;
+    height: 25px;
+    margin: 10px 15px;
   }
 
   &-link {
+    color: var(--colors-slightlyDarkGrey);
+    padding: 15px;
+    line-height: 20px;
 
+    &:hover {
+      color: var(--colors-darkGrey);
+    }
 
     &.active {
-
+      color: var(--colors-mediumDarkGrey);
+      background-color: var(--colors-lighterGrey)
     }
+  }
+
+  &-user {
+    background: url('/images/ui/user.svg');
+    background-size: contain;
   }
 }

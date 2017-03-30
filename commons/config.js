@@ -17,6 +17,6 @@
 export const analytics = {
   // https://analytics.google.com/
   google: {
-    trackingId: process.env.GOOGLE_TRACKING_ID, // UA-XXXXX-X
+    trackingId: (process.env.NODE_ENV === 'production') ? 'UA-63638898-3' : null,
   },
 };
