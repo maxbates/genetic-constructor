@@ -15,67 +15,20 @@
  */
 import Express from 'express';
 import React from 'react';
-import _ from 'lodash';
 import { renderToString, renderToStaticMarkup } from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import PrettyError from 'pretty-error';
 
-import { projectVersionByUUID } from '../server/data/persistence/projectVersions';
-import * as commons from '../server/data/persistence/commons';
-import safeValidate from '../src/schemas/fields/safeValidate';
-import { id as idValidatorCreator } from '../src/schemas/fields/validators';
 import { errorNotPublished } from '../server/errors/errorConstants';
 
 import commonsReducer from './app/store/reducers';
 import routes from './app/routes';
 import Html from './app/components/Html';
 import ErrorPage from './app/components/ErrorPage';
-import * as middleware from './app/middleware';
 
 const router = Express.Router(); //eslint-disable-line new-cap
-
-const idValidator = id => safeValidate(idValidatorCreator(), true, id);
-
-async function getInitialState(req) {
-  const projectQuery = req.url.substr(1);
-  const forceProjectId = req.query.projectId;
-
-  const initialState = {
-    user: (req.user) ? req.user.uuid : null,
-  };
-
-  // todo - put data fetching in the router. router should be async
-  // todo - don't use onEnter, use some other property and handle ourselves?
-  // todo - ideally, update store from routes. But routes onEnter expects singleton. reconcile!
-
-  //on project page
-  //  - if search by name, figure out the projectId
-  //  - get the entire project and latest snapshot
-  //if on home page
-  //  - get all the projects
-  //  - todo - omit bp count, or add to published snapshot as tag
-
-  const atHome = !(projectQuery || forceProjectId);
-  const projectId = atHome ?
-    undefined :
-    (forceProjectId && idValidator(forceProjectId)) ?
-      forceProjectId :
-      (await middleware.findProjectByName(projectQuery));
-
-  // now, either we have a projectId or we don't
-  // if we do, the query will be filtered appropriately
-  console.log('projectId', projectId, projectQuery, forceProjectId, idValidator(forceProjectId));
-
-  const snapshots = await middleware.getCommonsSnapshots(projectId);
-  const fetchedProjects = await middleware.loadProjects(snapshots);
-
-  // todo - should dispatch actions to the store
-
-  const projects = _.keyBy(fetchedProjects, proj => proj.project.id);
-  return Object.assign(initialState, { projects, snapshots });
-}
 
 function handleRender(req, res, next) {
   try {
@@ -85,9 +38,16 @@ function handleRender(req, res, next) {
       } else if (redirectLocation) {
         res.redirect(302, redirectLocation.pathname + redirectLocation.search);
       } else if (renderProps) {
-        getInitialState(req, res)
+        //generate app initial state
+        const initialState = {
+          user: (req.user) ? req.user.uuid : null,
+        };
+
+        //check each route's loadData function, generate state patches
+        Promise.all(renderProps.routes.map(route => route.loadData ? route.loadData(renderProps.params, renderProps.location.query) : {}))
+        .then(patches => Object.assign(initialState, ...patches))
         .then(initialState => {
-          // Create a new Redux store instance
+          // Create a new Redux store instance from initialState
           const store = createStore(commonsReducer, initialState);
 
           // Grab the initial state from our Redux store

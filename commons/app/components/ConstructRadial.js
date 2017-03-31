@@ -14,8 +14,8 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
-import d3Shape from 'd3-shape';
-import d3Hierarchy from 'd3-hierarchy';
+import * as d3Shape from 'd3-shape';
+import * as d3Hierarchy from 'd3-hierarchy';
 
 import { getPalette, colorFiller } from '../../../src/utils/color/index';
 
@@ -108,6 +108,8 @@ export default class ConstructRadial extends Component {
 
     const dim = this.dimension;
 
+    //todo - account for when no basepairs in entire project
+
     return (
       <figure style={{ width: `${dim}px`, height: `${dim}px` }}>
         <svg width={dim} height={dim}>
@@ -115,7 +117,7 @@ export default class ConstructRadial extends Component {
             {this.nodes.map(d => (
               <path
                 key={d.data.id}
-                display={d.depth > 0 ? null : 'none'}
+                display={(d.depth > 0 || d.value === 0) ? null : 'none'}
                 d={this.arc(d)}
                 style={{
                   fill: ConstructRadial.getColor(d.data.metadata.color, paletteName),

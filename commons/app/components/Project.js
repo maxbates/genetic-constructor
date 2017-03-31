@@ -32,7 +32,7 @@ if (process.env.BROWSER) {
 export function Project({ router, project, snapshot }) {
   if (!project || !snapshot) {
     //todo - load projects on re-direct on client (or make sure router is loading)
-    router.replace('/commons/');
+    //router.replace('/commons/');
     return null;
   }
 
@@ -42,6 +42,7 @@ export function Project({ router, project, snapshot }) {
   //create a rollup for all the components on this page + nested
   const rollup = Rollup.classify(project);
 
+  const numberConstructs = project.project.components.length;
   const numberBlocks = Object.keys(project.blocks).length;
   const numberBases = Object.keys(project.blocks).reduce((acc, blockId) => acc + (project.blocks[blockId].sequence.length || 0), 0);
 
@@ -69,7 +70,7 @@ export function Project({ router, project, snapshot }) {
       <main className="Project-preview">
         <h3 className="Project-preview-title">Project Preview</h3>
         <div className="Project-preview-stats">
-          <div className="Project-preview-stats-stat">{project.project.components.length} Constructs</div>
+          <div className="Project-preview-stats-stat">{`${numberConstructs} Construct${(numberConstructs > 1) ? 's' : ''}`}</div>
           <div className="Project-preview-stats-stat">{numberBlocks} Blocks</div>
           <div className="Project-preview-stats-stat">{numberBases} Base pairs</div>
         </div>
@@ -114,13 +115,22 @@ export function Project({ router, project, snapshot }) {
 
 Project.propTypes = {
   params: PropTypes.shape({ //eslint-disable-line react/no-unused-prop-types
-    projectId: PropTypes.string.isRequired,
+    projectQuery: PropTypes.string,
+  }).isRequired,
+  location: PropTypes.shape({ //eslint-disable-line react/no-unused-prop-types
+    query: PropTypes.shape({
+      projectId: PropTypes.string,
+    }).isRequired,
   }).isRequired,
   project: PropTypes.object.isRequired,
   snapshot: PropTypes.object.isRequired,
 };
 
-export default connect((state, props) => ({
-  project: state.projects[props.params.projectId],
-  snapshot: state.snapshots.find(snapshot => snapshot.projectId === props.params.projectId),
-}))(withRouter(Project));
+export default withRouter(connect((state, props) => {
+  const projectId = props.location.query.projectId || ''; //todo
+
+  return {
+    project: state.projects[projectId],
+    snapshot: state.snapshots.find(snapshot => snapshot.projectId === projectId),
+  };
+})(Project));

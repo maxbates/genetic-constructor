@@ -1,14 +1,14 @@
 @import '../../../src/styles/variables.css';
 
 .BigOpenLink {
-  a& {
+  & {
     display: inline-block;
     align-self: flex-start;
     padding: 0.5rem 2rem;
     font-size: 1.5rem;
     border-radius: 1em;
     background-color: var(--colors-selected);
-    color: var(--colors-white);
+    color: var(--colors-white) !important;
     text-transform: uppercase;
   }
 

@@ -23,6 +23,8 @@ if (process.env.BROWSER) {
   require('../styles/ProjectCard.css'); //eslint-disable-line global-require
 }
 
+//todo - sanitize projectQuery
+
 export default function ProjectCard({ project }) {
   const firstConstruct = project.blocks[project.project.components[0]];
   const paletteName = firstConstruct.metadata.palette || project.project.metadata.palette;
@@ -32,7 +34,7 @@ export default function ProjectCard({ project }) {
 
   return (
     <article className="ProjectCard">
-      <Link to={`/commons/${project.project.id}`}>
+      <Link to={`/commons/${escape(project.project.metadata.name)}?projectId=${project.project.id}`}>
         <div className="ProjectCard-corner" style={{ borderTopColor: color, borderLeftColor: color }} />
         <div className="ProjectCard-metadata">
           <div className="ProjectCard-name" style={{ color }}>

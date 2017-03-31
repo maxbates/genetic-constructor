@@ -14,13 +14,13 @@
  limitations under the License.
  */
 import React from 'react';
+import { keyBy } from 'lodash';
 import { IndexRoute, Route, Redirect } from 'react-router';
 
 import safeValidate from '../../src/schemas/fields/safeValidate';
 import { id as idValidatorCreator } from '../../src/schemas/fields/validators';
 
-import * as actions from './store/actions';
-import { getState, dispatch } from './store/store';
+import * as middleware from './middleware';
 
 import App from './components/App';
 import Home from './components/Home';
@@ -29,27 +29,43 @@ import Project from './components/Project';
 
 const idValidator = id => safeValidate(idValidatorCreator(), true, id);
 
-// we use onEnter to fetch data before entering a route
-// todo - move to react-router v4 (once out of beta) and use matchRoutes, rather than onEnter
+// future - move to react-router v4 (once out of beta) and use matchRoutes
 // these can only expect a store singleton to dispatch actions to
 // https://reacttraining.com/react-router/web/guides/server-rendering
 
-//todo - check state to see if project / snapshot is loaded
+//todo - check state to see if project / snapshot is loaded, rather than fetching every time
 
-//todo - handle query param
+//todo - handle query param (redirect?)
 
-const onEnterProject = (nextState, replace, callback) => {
-  console.log(nextState, replace);
-  console.log('waiting...');
-  setTimeout(() => callback(), 200);
-};
+//todo - sanitize projectQuery
 
-const onEnterHome = (nextState, replace, callback) => {
-  console.log(nextState, replace);
-  console.log('waiting...');
-  setTimeout(() => callback(), 200);
-};
+// load data + create state patch on route entry
+//return a state patch, because on server we need to create a new initial sate on every request, can't treat the store as a singleton
+//
+//on project page
+//  - if search by name, figure out the projectId
+//  - get the entire project and latest snapshot
+//if on home page
+//  - get all the projects
+async function onEnterPage(params, query) {
+  const { projectQuery } = params;
+  const forceProjectId = query.projectId;
+  const forceProjectIdValid = forceProjectId && idValidator(forceProjectId);
 
+  // determine projectId (forced by query param, or lookup from name
+  let projectId;
+  if (forceProjectIdValid) {
+    projectId = forceProjectId;
+  } else if (projectQuery) {
+    projectId = await middleware.findProjectByName(projectQuery);
+  }
+
+  //retrieve relevant snapshots and projects, filtering by projectId if on project page
+  const snapshots = await middleware.getCommonsSnapshots(projectId);
+  const fetchedProjects = await middleware.loadProjects(snapshots);
+  const projects = keyBy(fetchedProjects, proj => proj.project.id);
+  return { projects, snapshots };
+}
 
 export default (
   <Route
@@ -57,13 +73,13 @@ export default (
     component={App}
   >
     <Route
-      path="/commons/:projectId"
+      path="/commons/:projectQuery"
       component={Project}
-      onEnter={onEnterProject}
+      loadData={onEnterPage}
     />
     <IndexRoute
-      onEnter={onEnterHome}
       component={Home}
+      loadData={onEnterPage}
     />
     <Redirect from="*" to="/commons" />
   </Route>

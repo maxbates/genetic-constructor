@@ -5,7 +5,9 @@
 }
 
 .Project {
-
+  a {
+    color: var(--colors-selected);
+  }
 
   &-header {
 
