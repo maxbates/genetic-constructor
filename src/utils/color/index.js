@@ -24,15 +24,15 @@ const paletteLength = 16;
 export const colorFiller = '#4B505E';
 let lastIndex = 0;
 
-export const palettes = ['Western', 'Souvenir', 'Neon', 'Forest'];
+export const palettes = ['Western', 'Souvenir', 'Forest', 'Neon'];
 
 export function getPalette(name) {
   switch (name) {
     case 'Souvenir':
       return palette2;
-    case 'Neon':
-      return palette3;
     case 'Forest':
+      return palette3;
+    case 'Neon':
       return palette4;
     case 'Western':
     case 'default':
