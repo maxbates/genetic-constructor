@@ -72,7 +72,7 @@ export const commonsUnpublish = (projectId, version) => {
   .then(resp => resp.json());
 };
 
-export const commonsProjectByName = name => {
+export const commonsProjectByName = (name) => {
   const stringified = JSON.stringify({ name });
 
   return rejectingFetch(commonsApiPath('search'), headersPost(stringified))

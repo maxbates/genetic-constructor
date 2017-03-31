@@ -271,7 +271,7 @@ export const commonsProjectByName = name =>
     commonsQuery().then(snapshots => snapshots.map(snapshot => snapshot.projectUUID)),
   ])
   .then(([named, queried]) => _.intersection(named, queried))
-  .then(publicUUIDs => {
+  .then((publicUUIDs) => {
     if (!publicUUIDs || !publicUUIDs.length) {
       return null;
     }

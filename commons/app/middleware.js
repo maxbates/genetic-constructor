@@ -44,9 +44,9 @@ export const loadProjects = (snapshots, withBlocks = true) => {
   // here for isomorphism, currently expected to run on server
   if (process.env.BROWSER) {
     return Promise.all(snapshots.map(loadProjectVersion))
-    .then(projects => {
+    .then((projects) => {
       if (withBlocks === false) {
-        projects.forEach(project => { delete project.blocks });
+        projects.forEach((project) => { delete project.blocks; });
       }
       return projects;
     });
