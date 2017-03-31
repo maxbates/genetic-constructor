@@ -15,10 +15,10 @@
  */
 import invariant from 'invariant';
 import debug from 'debug';
-import * as s3 from '../middleware/s3';
-import * as filePaths from '../middleware/filePaths';
+import * as s3 from '../data/middleware/s3';
+import * as filePaths from '../data/middleware/filePaths';
 import * as agnosticFs from './agnosticFs';
-import { HOST_URL } from '../../urlConstants';
+import { HOST_URL } from '../urlConstants';
 
 const logger = debug('constructor:data:files:projectFiles');
 

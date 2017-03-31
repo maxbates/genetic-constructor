@@ -27,6 +27,7 @@ export default function loadAllExtensions(loadAll = true, shouldClear = true) {
       Object.keys(manifests)
         .map(key => manifests[key])
         .forEach(manifest => registerManifest(manifest));
-    })
-    .then(() => registry);
+
+      return registry;
+    });
 }

@@ -25,6 +25,7 @@ export const initialState = {
   orderId: null,
   showAbout: false,
   gruntMessage: null,
+  gruntTime: 5000,
   showGenBankImport: false,
   userWidgetVisible: true,
   spinMessage: '',
@@ -80,8 +81,8 @@ export default function modals(state = initialState, action) {
       return { ...state, userWidgetVisible };
 
     case ActionTypes.UI_SET_GRUNT :
-      const { gruntMessage } = action;
-      return { ...state, gruntMessage };
+      const { gruntMessage, gruntTime } = action;
+      return { ...state, gruntMessage, gruntTime };
 
     case ActionTypes.UI_SHOW_MENU :
       const { menuItems, menuPosition, menuHat } = action;

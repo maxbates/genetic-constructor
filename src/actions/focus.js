@@ -20,7 +20,6 @@
 import invariant from 'invariant';
 
 import * as ActionTypes from '../constants/ActionTypes';
-import { symbolMap } from '../inventory/roles';
 import Block from '../models/Block';
 import Project from '../models/Project';
 import safeValidate from '../schemas/fields/safeValidate';
@@ -186,22 +185,6 @@ export const focusPrioritize = (level = 'project') => (dispatch, getState) => {
     level,
   });
   return level;
-};
-
-/**
- * Focus a role
- * @function
- * @param {string} roleId
- * @returns {string} roleId
- */
-export const focusRole = roleId => (dispatch, getState) => {
-  invariant(symbolMap[roleId], 'must pass a valid Role ID');
-
-  dispatch({
-    type: ActionTypes.FOCUS_ROLE,
-    roleId,
-  });
-  return roleId;
 };
 
 /**

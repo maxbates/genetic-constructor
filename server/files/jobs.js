@@ -16,12 +16,12 @@
 import invariant from 'invariant';
 import md5 from 'md5';
 import debug from 'debug';
-import * as s3 from '../middleware/s3';
-import * as filePaths from '../middleware/filePaths';
+import * as s3 from '../data/middleware/s3';
+import * as filePaths from '../data/middleware/filePaths';
 import * as agnosticFs from './agnosticFs';
-import { HOST_URL } from '../../urlConstants';
+import { HOST_URL } from '../urlConstants';
 
-const logger = debug('constructor:data:files:projectFiles');
+const logger = debug('constructor:jobs:files');
 
 //note - this module is incredibly similar to project files...
 //notable, filename not required to write - will be generated and returned
@@ -33,12 +33,13 @@ export const bucketName = 'bionano-gctor-jobs';
 // when using S3, write to the bucket
 // when using local, prefix with appropriate path
 
-let s3bucket;
+export const s3bucket = s3.useRemote ?
+  s3.getBucket(bucketName) :
+  filePaths.createJobFilePath();
+
 if (s3.useRemote) {
-  s3bucket = s3.getBucket(bucketName);
   logger(`Bucket: ${bucketName}`);
 } else {
-  s3bucket = filePaths.createJobFilePath();
   logger(`File Path: ${s3bucket}`);
 }
 
@@ -54,7 +55,7 @@ const getFilePath = (...paths) => {
 //ensure that this matches the router
 export const makeJobFileLink = (...paths) => {
   invariant(paths.length > 0, 'must pass some namespace');
-  return `${HOST_URL}/data/jobs/${paths.join('/')}`;
+  return `${HOST_URL}/jobs/file/${paths.join('/')}`;
 };
 
 export const jobFileName = contents => md5(contents);
@@ -108,4 +109,14 @@ export const jobFileList = (projectId, namespace) => {
   logger(`[jobFileList] ${dirPath}`);
 
   return agnosticFs.fileList(s3bucket, dirPath);
+};
+
+export const jobFileSignedUrl = (projectId, namespace, fileName, operation) => {
+  invariant(projectId, 'projectId is required');
+  invariant(namespace, 'need to pass a namespace');
+  invariant(fileName, 'need to pass a namespace + fileName');
+  //we could allow more, but need to build out s3 mock router
+  invariant(operation === 'getObject' || operation === 'putObject', 'must specif operation as getObject or putObject');
+
+  return agnosticFs.signedUrl(s3bucket, `${projectId}/${namespace}/${fileName}`, operation);
 };

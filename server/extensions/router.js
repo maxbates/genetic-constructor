@@ -19,6 +19,7 @@ import express from 'express';
 import { ensureReqUserMiddleware } from '../data/permissions';
 import errorHandlingMiddleware from '../errors/lastDitchErrorMiddleware';
 import { errorDoesNotExist } from '../errors/errorConstants';
+import { getExtensionInternalPath, getExtensions } from './registry';
 import extensionApiRouter from './routerApi';
 import { manifestIsClient, manifestIsServer } from './manifestUtils';
 import {
@@ -32,7 +33,6 @@ import {
 import csvRouter from './native/csv/index';
 import fastaRouter from './native/fasta/index';
 import genbankRouter from './native/genbank/index';
-import { getExtensionInternalPath, getExtensions } from './registry';
 
 const router = express.Router(); //eslint-disable-line new-cap
 const jsonParser = bodyParser.json();

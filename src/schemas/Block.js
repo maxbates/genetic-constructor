@@ -41,10 +41,16 @@ const blockFields = {
     'Block UUID',
   ],
 
-  //todo - scaffold this to null to mark unassociated? and require the field?
   projectId: [
-    fields.id({ prefix: 'project' }),
+    fields.oneOfType([validators.id({ prefix: 'project' }), validators.nil()]).required,
     'Project UUID',
+    { scaffold: () => null },
+  ],
+
+  //later, this will become part of threads? may want to keep track of the job IDs over time
+  jobId: [
+    fields.string(),
+    'If the construct is tied to a job, the ID of the job while it is running, or null',
     { avoidScaffold: true },
   ],
 

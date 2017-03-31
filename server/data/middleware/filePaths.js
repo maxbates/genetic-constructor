@@ -21,6 +21,7 @@ const makePath = (...paths) => path.resolve('/tmp', rootNamespace, ...paths);
 export const jobPath = 'jobs';
 export const sequencePath = 'sequence';
 export const projectFilesPath = 'files';
+export const s3MockPath = 's3mock';
 
 //All files are put in the /tmp/ folder in local development
 export const createStorageUrl = (...urls) => {
@@ -37,7 +38,7 @@ export const createJobFilePath = (...paths) => createStorageUrl(jobPath, ...path
 
 //SEQUENCE
 
-export const createSequencePath = md5 => createStorageUrl(sequencePath, md5);
+export const createSequencePath = md5 => createStorageUrl(sequencePath, md5 || '');
 
 // PROJECT FILES
 

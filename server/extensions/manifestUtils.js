@@ -1,13 +1,11 @@
 import invariant from 'invariant';
 
-//todo (future) - allow manifest to specify multiple regions for a single file. Allow region to be an array, not just a string.
-
 //validate a manifest
 export function validateManifest(manifest) {
   invariant(typeof manifest === 'object', 'must pass manifest to clientCheck');
   invariant(typeof manifest.geneticConstructor === 'object', 'must pass a valid genetic constructor manifest');
 
-  const { type, router, client } = manifest.geneticConstructor;
+  const { type, router, client, job } = manifest.geneticConstructor;
 
   invariant(typeof type === 'string', 'must specify geneticConstructor.type');
 
@@ -26,6 +24,10 @@ export function validateManifest(manifest) {
 
   if (router) {
     invariant(typeof router === 'string' && router.endsWith('.js'), 'must specify javascript router as file');
+  }
+
+  if (job) {
+    invariant(typeof job === 'string' && job.endsWith('.js'), 'must specify javascript job as file');
   }
 
   return manifest;
@@ -57,7 +59,7 @@ export function manifestIsClient(manifest) {
  * @returns {boolean} true if server components
  */
 export function manifestIsServer(manifest) {
-  return !!manifest.geneticConstructor.router;
+  return !!manifest.geneticConstructor.router || !!manifest.geneticConstructor.job;
 }
 
 export function manifestClientFiles(manifest) {
@@ -95,6 +97,3 @@ export function extensionType(manifest) {
   return manifest.geneticConstructor.type || '';
 }
 
-export function extensionRegion(manifest) {
-  return manifest.geneticConstructor.region;
-}

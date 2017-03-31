@@ -304,6 +304,13 @@ export class InspectorBlock extends Component {
         </InspectorRow>
 
         <InspectorRow
+          heading="Source"
+          condition={!!currentSourceElement}
+        >
+          {currentSourceElement}
+        </InspectorRow>
+
+        <InspectorRow
           heading={`${type} Rules`}
           condition={singleInstance && !isConstruct}
         >
@@ -312,13 +319,6 @@ export class InspectorBlock extends Component {
             readOnly={cannotEdit}
             isConstruct={isParentBlock}
           />
-        </InspectorRow>
-
-        <InspectorRow
-          heading="Source"
-          condition={!!currentSourceElement}
-        >
-          {currentSourceElement}
         </InspectorRow>
 
         <InspectorRow

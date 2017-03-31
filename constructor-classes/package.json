@@ -1,0 +1,12 @@
+{
+  "name": "constructor-classes",
+  "version": "1.0.0",
+  "description": "Set of classes and models for Genetic Constructor",
+  "main": "index.js",
+  "keywords": [
+    "genetic",
+    "constructor"
+  ],
+  "author": "Autodesk BioNano",
+  "license": "Apache-2.0"
+}

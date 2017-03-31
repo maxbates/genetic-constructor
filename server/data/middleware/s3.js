@@ -44,10 +44,6 @@ const forceLocal = ((process.env.FORCE_LOCAL !== null) && (process.env.FORCE_LOC
 
 export const useRemote = ((!forceLocal) && ((process.env.NODE_ENV === 'production') || awsKeyEnvVarsSet));
 
-log(`[S3 Config] AWS Keys set via environment variables? ${awsKeyEnvVarsSet}`);
-log(`[S3 Config] Force Local Storage? ${forceLocal}`);
-log(`[S3 Config] Remote Persistence Enabled? ${useRemote}`);
-
 //these are all the buckets the app expects
 // TODO these should be configurable
 export const buckets = [
@@ -75,11 +71,6 @@ const generatePrefix = () => {
 
 const setupKey = key => generatePrefix() + key;
 
-log(`[S3 Config] prefix = ${generatePrefix()}`);
-if (useRemote && !log.enabled) {
-  console.log(`[S3] prefix: ${generatePrefix()}`); //eslint-ignore-line
-}
-
 //ensure we have consistent fields returned
 const massageResult = (obj, forcePrefix) => {
   const prefix = forcePrefix ?
@@ -94,6 +85,17 @@ const massageResult = (obj, forcePrefix) => {
     Size: obj.Size,
   });
 };
+
+/* log our config */
+
+log(`[S3 Config] AWS Keys set via environment variables? ${awsKeyEnvVarsSet}`);
+log(`[S3 Config] Force Local Storage? ${forceLocal}`);
+log(`[S3 Config] Remote Persistence Enabled? ${useRemote}`);
+
+log(`[S3 Config] prefix = ${generatePrefix()}`);
+if (useRemote && !log.enabled) {
+  console.log(`[S3] prefix: ${generatePrefix()}`); //eslint-ignore-line
+}
 
 if (useRemote) {
   invariant(!!process.env.AWS_ACCESS_KEY_ID, 'production environment uses AWS, unless specify env var FORCE_LOCAL=true. expected env var AWS_ACCESS_KEY_ID');
@@ -155,11 +157,14 @@ export const ensureBucketProvisioned = Bucket => new Promise((resolve, reject) =
 export const getBucket = Bucket => new AWS.S3({ params: { Bucket } });
 
 //synchronous
+//by default, expires in 15 minutes
 export const getSignedUrl = (bucket, key, operation = 'getObject', opts = {}) => {
   const Key = setupKey(key);
-  const params = Object.assign({ Expires: 60 }, opts, { Key });
+  const params = Object.assign({}, opts, { Key });
 
-  return bucket.getSignedUrl(operation, params);
+  const url = bucket.getSignedUrl(operation, params);
+  log(`[getSignedUrl] (${operation}) ${url}`);
+  return url;
 };
 
 export const itemExists = (bucket, key) => {

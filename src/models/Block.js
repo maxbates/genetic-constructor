@@ -243,6 +243,7 @@ export default class Block extends Instance {
 
   /**
    * Check whether Block is frozen
+   * A block is frozen if it is marked frozen (e.g. when in the commons)
    * @method isFrozen
    * @memberOf Block
    * @returns {boolean}
@@ -849,6 +850,19 @@ export default class Block extends Instance {
 
     annotations.splice(toSplice, 1);
     return this.mutate('sequence.annotations', annotations);
+  }
+
+  /*********
+   Job related things
+   *********/
+
+  setJobId(jobId) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot attach job');
+    return this.mutate('jobId', jobId);
+  }
+
+  hasJob() {
+    return this.jobId || null;
   }
 
   /*********

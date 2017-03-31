@@ -60,7 +60,7 @@ export const fileExists = path => new Promise((resolve, reject) => {
   });
 });
 
-// ?? buffering not crucial, since will only affect local file system once move to S3 for remote storage
+// ?? buffering not crucial, since will only affect local file system when using S3 for remote storage
 
 export const fileRead = (path, jsonParse = true, opts = {}) => {
   const options = Object.assign({}, opts, { encoding: 'utf8' });
@@ -84,7 +84,7 @@ export const fileRead = (path, jsonParse = true, opts = {}) => {
 };
 
 export const fileWrite = (path, contents, stringify = true) => new Promise((resolve, reject) => {
-  const fileContent = (!!stringify && typeof contents === 'object') ?
+  const fileContent = (stringify === true && typeof contents === 'object') ?
       stringifier(contents) :
       contents;
 

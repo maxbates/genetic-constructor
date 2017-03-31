@@ -30,17 +30,8 @@ const _getCurrentProjectId = () => {
 // todo - refactor. this is kinda a mess
 // type: project, construct, block, option, role
 export const _getFocused = (state, defaultToConstruct = true, defaultProjectId = null) => {
-  const { level, forceProject, forceBlocks, constructId, blockIds, roleId, options } = state.focus;
+  const { level, forceProject, forceBlocks, constructId, blockIds, options } = state.focus;
   const projectId = _getCurrentProjectId();
-
-  //can be this be deprecate?
-  if (level === 'role') {
-    return {
-      type: 'role',
-      readOnly: true,
-      focused: roleId,
-    };
-  }
 
   //focus doesnt update on undo, just the blocks... so need to filter / make sure defined
   const project = forceProject || state.projects[defaultProjectId || projectId];
@@ -64,8 +55,6 @@ export const _getFocused = (state, defaultToConstruct = true, defaultProjectId =
     type = 'construct';
   } else if (level === 'option' && option) {
     focused = [option];
-    //todo - these should not be frozen, should be able to inspect. need to update EGF project.
-    readOnly = true;
   } else {
     focused = blocks;
     type = (focused.length === 1 && project && project.components && project.components.indexOf(focused[0].id) >= 0) ? 'construct' : 'block';

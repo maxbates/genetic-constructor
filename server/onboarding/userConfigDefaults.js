@@ -28,6 +28,9 @@ export default {
     'GC-GSL-Editor': {
       active: true,
     },
+    blast: {
+      active: true,
+    },
     SequenceDetail: {
       active: false,
     },

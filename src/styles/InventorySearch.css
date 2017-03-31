@@ -54,9 +54,9 @@
     transform: translateY(-2px);
 
     background: linear-gradient(
-                    left,
+                    to right,
                     dodgerblue 30%,
-                    lightgray 80%,
+                    #97cfff 80%,
                     dodgerblue 100%
     ) repeat;
 

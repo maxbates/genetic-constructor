@@ -20,6 +20,11 @@ webapp:
     BNR_ENV_URL_SUFFIX: ${BNR_ENV_URL_SUFFIX}
     EMAIL: ${EMAIL}
     VERBOSE_REQUEST_LOGS: ${VERBOSE_REQUEST_LOGS}
+    SEND_GRID_LIST_ID: ${SEND_GRID_LIST_ID}
+    REDIS_HOST: ${REDIS_HOST}
+    REDIS_PORT: ${REDIS_PORT}
+    REDIS_DB: ${REDIS_DB}
+    BLAST_URL: ${BLAST_URL}
   command:
     npm run server-auth
   log_driver: json-file
