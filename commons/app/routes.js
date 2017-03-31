@@ -35,6 +35,8 @@ const idValidator = id => safeValidate(idValidatorCreator(), true, id);
 
 //todo - check state to see if project / snapshot is loaded
 
+//todo - handle query param
+
 const onEnterProject = (nextState, replace, callback) => {
   console.log(nextState, replace);
   console.log('waiting...');
@@ -46,6 +48,7 @@ const onEnterHome = (nextState, replace, callback) => {
   console.log('waiting...');
   setTimeout(() => callback(), 2000);
 };
+
 
 export default (
   <Route

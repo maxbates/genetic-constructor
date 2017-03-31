@@ -25,23 +25,11 @@ if (process.env.BROWSER) {
   require('../styles/Home.css'); //eslint-disable-line global-require
 }
 
-export function Home({ location, router, projects }) {
-  //todo - better handling of query param
-  if (location.query.projectId) {
-    const projectId = location.query.projectId;
-    const project = projects[projectId];
-    router.replace(`/commons/${project.project.metadata.name}?projectId=${projectId}`);
-  }
-
+export function Home({ location, router, projects, snapshots }) {
   const projectKeys = Object.keys(projects);
   const numberProjects = projectKeys.length;
   const numberConstructs = projectKeys.reduce((acc, key) => acc + projects[key].project.components.length, 0);
-
-  const basePairs = _.reduce(projects,
-    (count, project) => count + _.reduce(project.blocks,
-      (counter, block) => counter + block.sequence.length || 0,
-      0),
-    0);
+  const basePairs = _.reduce(snapshots, (count, snapshot) => count + (snapshot.tags.basePairs || 0), 0);
 
   return (
     <div className="Home">
@@ -72,10 +60,12 @@ export function Home({ location, router, projects }) {
 
 Home.propTypes = {
   projects: PropTypes.object.isRequired,
+  snapshots: PropTypes.array.isRequired,
   location: PropTypes.object.isRequired,
   router: PropTypes.object.isRequired,
 };
 
 export default connect(state => ({
   projects: state.projects,
+  snapshots: state.snapshots,
 }))(withRouter(Home));
