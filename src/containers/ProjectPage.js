@@ -123,7 +123,7 @@ export class ProjectPage extends Component {
 
     //handle project not loaded at all
     if (!project || !project.metadata) {
-      this.props.projectLoad(projectId, false, true)
+      this.props.projectLoad(projectId, true)
       .then((rollup) => {
         if (rollup.project.id !== projectId) {
           this.props.projectOpen(rollup.project.id);

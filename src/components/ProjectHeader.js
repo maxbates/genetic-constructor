@@ -261,7 +261,7 @@ class ProjectHeader extends Component {
       this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
     } else {
       //load another project, avoiding this one
-      this.props.projectLoad(null, false, [project.id])
+      this.props.projectLoad(null, [project.id])
       //open the new project, skip saving the previous one
       .then(rollup => this.props.projectOpen(rollup.project.id, true))
       //delete after we've navigated so dont trigger project page to complain about not being able to laod the project

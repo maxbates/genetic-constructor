@@ -113,7 +113,7 @@ class DeleteProjectModal extends Component {
 
     //to gracefully delete...
     //load another project, avoiding this one
-    this.props.projectLoad(nextProject.id, false, [projectId])
+    this.props.projectLoad(nextProject.id, [projectId])
     //open the new project, skip saving the previous one
     .then(roll => this.props.projectOpen(roll.project.id, true))
     //delete after we've navigated so dont trigger project page to complain about not being able to laod the project

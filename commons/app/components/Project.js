@@ -31,6 +31,7 @@ if (process.env.BROWSER) {
 
 export function Project({ router, project, snapshot }) {
   if (!project || !snapshot) {
+    //todo - load projects on re-direct on client (or make sure router is loading)
     router.replace('/commons/');
     return null;
   }

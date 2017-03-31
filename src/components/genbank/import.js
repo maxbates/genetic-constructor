@@ -91,7 +91,7 @@ class ImportGenBankModal extends Component {
         this.props.uiSpin();
         if (projectId === this.props.currentProjectId) {
           //true to forcibly reload the project, avoid our cache
-          this.props.projectLoad(projectId, true);
+          this.props.projectLoad(projectId, false, { force: true });
         } else {
           this.props.projectOpen(projectId);
         }

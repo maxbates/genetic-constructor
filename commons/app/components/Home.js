@@ -47,7 +47,7 @@ export function Home({ location, router, projects, snapshots }) {
       </summary>
 
       <div className="Home-projects">
-        {Object.keys(projects).map(projectId => (
+        {Object.keys(projects).sort().map(projectId => (
           <ProjectCard
             key={projectId}
             project={projects[projectId]}

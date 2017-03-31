@@ -32,7 +32,7 @@ export const getCommonsSnapshots = projectId =>
   commons.commonsQuery({}, true, projectId);
 
 export const loadProjectVersion = (snapshot) => {
-  if (proces.env.BROWSER) {
+  if (process.env.BROWSER) {
     return commons.retrieve(snapshot.projectId, snapshot.version);
   }
 
@@ -43,6 +43,6 @@ export const loadProjectVersion = (snapshot) => {
 //todo - optimize - single call with multiple UUIDs (server specific version)
 //todo - no blocks on home page
 export const loadProjects = snapshots =>
-  Promise.all(snapshots.map(loadProjectVersion()));
+  Promise.all(snapshots.map(loadProjectVersion));
 
 /* eslint-enable global-require */

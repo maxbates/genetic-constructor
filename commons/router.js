@@ -107,7 +107,7 @@ function handleRender(req, res, next) {
           res.send(`<!doctype html>${html}`);
         })
         .catch(err => {
-          console.log('Error rendering page');
+          console.log(`Error rendering page ${req.originalUrl}`);
           console.log(err);
 
           if (err === errorNotPublished) {
