@@ -20,7 +20,7 @@
     "biojs-io-blast": "0.0.10",
     "body-parser": "^1.17.1",
     "bull": "^2.2.3",
-    "constructor-classes": "../../constructor-classes",
+    "constructor-classes": "maxbates/constructor-classes",
     "debug": "^2.6.3",
     "express": "^4.15.2",
     "isomorphic-fetch": "^2.2.1",
