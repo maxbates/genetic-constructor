@@ -14,21 +14,23 @@
  limitations under the License.
  */
 
+// WESTERN palette (was ANIME):
+
 export default [
-  { hex: '#e7aaa9', name: 'pink' },
-  { hex: '#D28482', name: 'red' },
-  { hex: '#E9BA9b', name: 'tangerine' },
-  { hex: '#efac7e', name: 'orange' },
-  { hex: '#EFD79A', name: 'gold' },
+  { hex: '#e7aaa9', name: 'pastel red' },
+  { hex: '#D28482', name: 'mauve taupe' },
+  { hex: '#E9BA9b', name: 'sand' },
+  { hex: '#efac7e', name: 'dusty orange' },
+  { hex: '#EFD79A', name: 'beige' },
   { hex: '#F1D26C', name: 'yellow' },
-  { hex: '#E4E480', name: 'sassafras' },
-  { hex: '#D3D34F', name: 'yellow green' },
-  { hex: '#9CC6C0', name: 'cerulean' },
-  { hex: '#6DA19C', name: 'teal' },
-  { hex: '#B1CED0', name: 'baby blue' },
-  { hex: '#65AAB1', name: 'blue' },
-  { hex: '#8EC78D', name: 'spring' },
+  { hex: '#E4E480', name: 'lemondrop' },
+  { hex: '#D3D34F', name: 'honeydew' },
+  { hex: '#9CC6C0', name: 'magnesium' },
+  { hex: '#6DA19C', name: 'slate green' },
+  { hex: '#B1CED0', name: 'crystal' },
+  { hex: '#65AAB1', name: 'breeze' },
+  { hex: '#8EC78D', name: 'dusty green' },
   { hex: '#53B15F', name: 'green' },
-  { hex: '#C5C4C1', name: 'light grey' },
-  { hex: '#A5A6A2', name: 'grey' },
+  { hex: '#C5C4C1', name: 'aluminum' },
+  { hex: '#A5A6A2', name: 'steel' },
 ];
