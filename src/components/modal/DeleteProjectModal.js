@@ -108,7 +108,12 @@ class DeleteProjectModal extends Component {
     if (!nextProject) {
       const newProject = this.createNewProject();
       return this.props.projectSave(newProject.project.id, true)
-      .then(() => this.props.projectDelete(projectId));
+      .then(() => {
+        console.log('Delete Project Action:', projectId);
+        console.log('PROPS:', this.props.projectId);
+        debugger;
+        this.props.projectDelete(this.props.projectId);
+      });
     }
 
     //to gracefully delete...
@@ -117,7 +122,12 @@ class DeleteProjectModal extends Component {
     //open the new project, skip saving the previous one
     .then(roll => this.props.projectOpen(roll.project.id, true))
     //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-    .then(() => this.props.projectDelete(projectId));
+    .then(() => {
+      console.log('Delete Project Action:', projectId);
+      console.log('PROPS:', this.props.projectId);
+      debugger;
+      this.props.projectDelete(projectId);
+    });
   }
 
   //todo - share with InventoryProjectTree better
