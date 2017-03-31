@@ -40,10 +40,12 @@ describe('middleware', () => {
       return baseTag;
     };
 
-    const updateRollupName = (roll) => _.merge(roll, {
+    const projectName = uuid.v4();
+
+    const updateRollupName = (roll, name = projectName) => _.merge(roll, {
       project: {
         metadata: {
-          name: uuid.v4(),
+          name,
         },
       },
     });
@@ -165,6 +167,14 @@ describe('middleware', () => {
       const query = await api.commonsQuery({ keywords: [keywords[0]] });
 
       assert(query.length > 0, 'should find things by tag');
+    });
+
+    it('commonsProjectByName() searches projects by name', async () => {
+      const results = await api.commonsProjectByName(projectName);
+
+      console.log(results);
+
+      assert(results.length > 0, 'should get results');
     });
 
     //create in tests

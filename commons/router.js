@@ -46,7 +46,7 @@ function handleRender(req, res, next) {
         //check each route's loadData function, generate state patches
         Promise.all(renderProps.routes.map(route => route.loadData ? route.loadData(renderProps) : {}))
         .then(patches => Object.assign(initialState, ...patches))
-        .then(initialState => {
+        .then((initialState) => {
           // Create a new Redux store instance from initialState
           const store = createStore(commonsReducer, initialState);
 
@@ -67,7 +67,7 @@ function handleRender(req, res, next) {
           const html = renderToStaticMarkup(<Html serverOnly state={preloadedState}>{appHtml}</Html>);
           res.send(`<!doctype html>${html}`);
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(`Error rendering page ${req.originalUrl}`);
           console.log(err);
 

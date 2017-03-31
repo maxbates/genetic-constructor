@@ -38,7 +38,6 @@ export const commonsQuery = (query = {}, collapse = true, projectId = null) => {
   .then(resp => resp.json());
 };
 
-
 export const commonsRetrieve = (projectId, version) => {
   invariant(projectId, 'Project ID required to retrieve');
 
@@ -70,5 +69,12 @@ export const commonsUnpublish = (projectId, version) => {
   invariant(version === undefined || Number.isInteger(version), 'version must be a number');
 
   return rejectingFetch(commonsApiPath(projectId, version), headersDelete())
+  .then(resp => resp.json());
+};
+
+export const commonsProjectByName = name => {
+  const stringified = JSON.stringify({ name });
+
+  return rejectingFetch(commonsApiPath('search'), headersPost(stringified))
   .then(resp => resp.json());
 };

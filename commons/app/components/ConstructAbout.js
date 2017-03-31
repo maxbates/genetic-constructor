@@ -27,9 +27,7 @@ export default function ConstructAbout({ constructId, project }) {
   const { components, options } = project.getContents(constructId);
   const contents = { ...components, ...options };
 
-  const annotations = Object.keys(contents).reduce((acc, blockId) => {
-    return acc.concat(project.blocks[blockId].sequence.annotations.map(ann => ann.name));
-  }, []);
+  const annotations = Object.keys(contents).reduce((acc, blockId) => acc.concat(project.blocks[blockId].sequence.annotations.map(ann => ann.name)), []);
 
   return (
     <div className="ConstructAbout">

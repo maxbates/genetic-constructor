@@ -54,6 +54,7 @@ async function onEnterPage({ params, location }) {
     projectId = forceProjectId;
   } else if (projectQuery) {
     const parsedQuery = unsanitize(projectQuery);
+    console.log(parsedQuery);
     projectId = await middleware.findProjectByName(parsedQuery);
   }
 

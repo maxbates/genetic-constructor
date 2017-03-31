@@ -13,26 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import { PropTypes, Component } from 'react';
-import { withRouter } from 'react-router';
 
-class ScrollToTop extends Component {
-  static propTypes = {
-    location: PropTypes.object, //maybe not available in server
-    children: PropTypes.node.isRequired,
-  }
+import { dbEncodeString, dbGet } from '../middleware/db';
 
-  componentDidUpdate(prevProps) {
-    if (process.env.BROWSER) {
-      if (this.props.location && (this.props.location !== prevProps.location)) {
-        window.scrollTo(0, 0);
-      }
-    }
-  }
-
-  render() {
-    return this.props.children;
-  }
-}
-
-export default withRouter(ScrollToTop);
+export const searchProjectByName = (name) => {
+  const encodedName = dbEncodeString(name);
+  return dbGet(`search/projects/name/${encodedName}`);
+};

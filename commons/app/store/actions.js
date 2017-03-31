@@ -22,7 +22,7 @@ import * as actionTypes from './actionTypes';
  * Add projects (rollups)
  * @param {Array<Rollup>} projects
  */
-export const stashProjects = projects => {
+export const stashProjects = (projects) => {
   invariant(Array.isArray(projects), 'projects must be array');
 
   return {
@@ -35,7 +35,7 @@ export const stashProjects = projects => {
  * Add snapshots
  * @param {Array<Snapshot>} snapshots
  */
-export const stashSnapshots = snapshots => {
+export const stashSnapshots = (snapshots) => {
   invariant(Array.isArray(snapshots), 'must pass array of snapshots');
 
   return {

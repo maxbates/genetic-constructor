@@ -42,6 +42,20 @@ router.use(ensureReqUserMiddleware);
 
 // routes
 
+//expects search in form { name }
+router.route('/search')
+.post((req, res, next) => {
+  const { name } = req.body;
+
+  if (!name) {
+    return res.status(422).send('name required in body');
+  }
+
+  return commons.commonsProjectByName(name)
+  .then(result => res.json(result))
+  .catch(next);
+});
+
 //expects object in form { query: { tags: {}, keywords: [] }, projectId }
 router.route('/query')
 .post((req, res, next) => {

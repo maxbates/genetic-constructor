@@ -21,6 +21,7 @@ import _ from 'lodash';
 import { SNAPSHOT_TYPE_PUBLISH, COMMONS_TAG, commonsDefaultMessage } from '../util/commons';
 import * as projectPersistence from './projects';
 import * as projectVersions from './projectVersions';
+import * as search from './search';
 import * as snapshots from './snapshots';
 import Snapshot from '../../../src/models/Snapshot';
 import { errorNotPublished, errorDoesNotExist } from '../../errors/errorConstants';
@@ -45,7 +46,7 @@ const reduceSnapshotsToLatestPerProject = snapshots =>
  * @resolve {Snapshot} Latest snapshot
  * @reject not public (errorNotPublished), doesnt exit (errorDoesNotExist)
  */
-export const getLatestPublicVersion = (projectId) =>
+export const getLatestPublicVersion = projectId =>
   snapshots.snapshotQuery({ tags: { [COMMONS_TAG]: true } }, projectId)
   .then((results) => {
     const hasResults = results && results.length > 0;
@@ -261,3 +262,18 @@ export const checkProjectPublicMiddleware = (req, res, next) => {
   .then(() => next())
   .catch(next);
 };
+
+//need to do a union of project UUIDs we get back + UUIDs of projects in commons, to make sure we are getting a published project
+export const commonsProjectByName = name =>
+  Promise.all([
+    search.searchProjectByName(name),
+    commonsQuery().then(snapshots => snapshots.map(snapshot => snapshot.projectUUID)),
+  ])
+  .then(_.intersection)
+  .then(publicUUIDs => {
+    if (!publicUUIDs || !publicUUIDs.length) {
+      return null;
+    }
+
+    return projectVersions.projectVersionByUUID(publicUUIDs[0]);
+  });

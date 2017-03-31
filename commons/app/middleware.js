@@ -23,9 +23,8 @@ const commons = process.env.BROWSER ?
   require('../../src/middleware/commons') :
   require('../../server/data/persistence/commons');
 
-//todo - routing by name, not UUID (add isomorphic function to commons middleware)
 export const findProjectByName = name =>
-  Promise.resolve('todo');
+  commons.commonsProjectByName(name);
 
 //projectId optional, can be used to filter query to that project (i.e. only fetch single project)
 export const getCommonsSnapshots = projectId =>
@@ -40,9 +39,22 @@ export const loadProjectVersion = (snapshot) => {
   return projectVersions.projectVersionByUUID(snapshot.projectUUID);
 };
 
-//todo - optimize - single call with multiple UUIDs (server specific version)
-//todo - no blocks on home page
-export const loadProjects = snapshots =>
-  Promise.all(snapshots.map(loadProjectVersion));
+export const loadProjects = (snapshots, withBlocks = true) => {
+  //todo - optimize client version. this will be slow. probably want dedicated route.
+  // here for isomorphism, currently expected to run on server
+  if (process.env.BROWSER) {
+    return Promise.all(snapshots.map(loadProjectVersion))
+    .then(projects => {
+      if (withBlocks === false) {
+        projects.forEach(project => { delete project.blocks });
+      }
+      return projects;
+    });
+  }
+
+  const UUIDs = snapshots.map(snapshot => snapshot.projectUUID);
+  const projectVersions = require('../../server/data/persistence/projectVersions');
+  return projectVersions.projectVersionsByUUID(UUIDs, withBlocks);
+};
 
 /* eslint-enable global-require */

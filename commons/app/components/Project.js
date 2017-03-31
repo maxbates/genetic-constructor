@@ -118,6 +118,7 @@ Project.propTypes = {
       projectId: PropTypes.string,
     }).isRequired,
   }).isRequired,
+  router: PropTypes.object.isRequired,
   project: PropTypes.object.isRequired,
   snapshot: PropTypes.object.isRequired,
 };
