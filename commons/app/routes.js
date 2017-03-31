@@ -54,7 +54,9 @@ async function onEnterPage({ params, location }) {
     projectId = forceProjectId;
   } else if (projectQuery) {
     const parsedQuery = unsanitize(projectQuery);
-    projectId = await middleware.findProjectByName(parsedQuery);
+    //todo - optimize. no need to fetch this twice
+    const project = await middleware.findProjectByName(parsedQuery);
+    projectId = project.project.id;
   }
 
   //retrieve relevant snapshots and projects, filtering by projectId if on project page

@@ -17,10 +17,12 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router';
+import _ from 'lodash';
 import moment from 'moment';
 
 import Rollup from '../../../src/models/Rollup';
 
+import { unsanitize } from '../sanitize';
 import InfoTable from './InfoTable';
 import ConstructAbout from './ConstructAbout';
 import BigOpenLink from './BigOpenLink';
@@ -124,7 +126,16 @@ Project.propTypes = {
 };
 
 export default withRouter(connect((state, props) => {
-  const projectId = props.location.query.projectId || ''; //todo
+  const givenProjectName = unsanitize(props.params.projectQuery);
+  let projectId = props.location.query.projectId;
+
+  if (!projectId) {
+    const found = _.find(state.projects, project => project.project.metadata.name.indexOf(givenProjectName) >= 0);
+
+    if (found) {
+      projectId = found.project.id;
+    }
+  }
 
   return {
     project: state.projects[projectId],
