@@ -56,7 +56,7 @@ export default class Captcha extends Component {
   };
 
   static defaultProps = {
-    sitekey: '6LdvyREUAAAAAKr6h7kyBzioJsXPGNKjW9r21WSh',
+    sitekey: '6LcJXRoUAAAAAKaVC2gACevP7RGA9onCKQXM_Qe6',
     theme: 'light',
     type: 'image',
     size: 'normal',

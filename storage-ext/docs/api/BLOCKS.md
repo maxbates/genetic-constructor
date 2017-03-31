@@ -10,9 +10,11 @@ The `blocks` data entity is part of the Genetic Constructor [Project](./PROJECTS
 
 Fetch all blocks in all of the owner's projects that match the `name` provided in the URI. The method will look for the `name` value _anywhere_ in the block's name, so it doesn't have to be exact.
 
+The `name` value must be [Base64 URL-encoded](https://www.npmjs.com/package/urlsafe-base64).
+
 Returns an array of block objects from the latest version of each project where `block.metadata.name` contains the specified `name` value.
 
-Returns `404` if the 
+Returns `404` if the user has no projects with a block matching the provided name.
 
 #### Fetch Blocks by Role
 
