@@ -16,6 +16,7 @@
 
 import React, { PropTypes } from 'react';
 
+import ScrollToTop from './ScrollToTop';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -26,11 +27,13 @@ if (process.env.BROWSER) {
 //wrap the page component in app chrome
 export default function App({ children, ...otherProps }) {
   return (
-    <div className="App">
-      <Header />
-      {React.cloneElement(children, { ...otherProps })}
-      <Footer />
-    </div>
+    <ScrollToTop>
+      <div className="App">
+        <Header />
+        {React.cloneElement(children, { ...otherProps })}
+        <Footer />
+      </div>
+    </ScrollToTop>
   );
 }
 
