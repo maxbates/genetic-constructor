@@ -263,17 +263,19 @@ export const checkProjectPublicMiddleware = (req, res, next) => {
   .catch(next);
 };
 
+//given project name, returns first project with matching name
 //need to do a union of project UUIDs we get back + UUIDs of projects in commons, to make sure we are getting a published project
 export const commonsProjectByName = name =>
   Promise.all([
     search.searchProjectByName(name),
     commonsQuery().then(snapshots => snapshots.map(snapshot => snapshot.projectUUID)),
   ])
-  .then(_.intersection)
+  .then(([named, queried]) => _.intersection(named, queried))
   .then(publicUUIDs => {
     if (!publicUUIDs || !publicUUIDs.length) {
       return null;
     }
 
+    //just get the first match
     return projectVersions.projectVersionByUUID(publicUUIDs[0]);
   });
