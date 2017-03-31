@@ -14,23 +14,23 @@
  limitations under the License.
  */
 
-//experimental palette PASTEL
+//experimental palette FOREST (was PASTEL)
 
 export default [
-  { hex: '#D47A86', name: '' },
-  { hex: '#4382B8', name: '' },
-  { hex: '#D54084', name: '' },
-  { hex: '#376CBF', name: '' },
-  { hex: '#EB9E89', name: '' },
-  { hex: '#74A496', name: '' },
-  { hex: '#D1EB89', name: '' },
-  { hex: '#A9D171', name: '' },
-  { hex: '#587C84', name: '' },
-  { hex: '#275F78', name: '' },
-  { hex: '#899B90', name: '' },
-  { hex: '#BBBA9C', name: '' },
-  { hex: '#814E99', name: '' },
-  { hex: '#8A6CAB', name: '' },
-  { hex: '#908BAC', name: '' },
-  { hex: '#85CFAE', name: '' },
+  { hex: '#D47A86', name: 'spanish tile' },
+  { hex: '#4382B8', name: 'iris' },
+  { hex: '#D54084', name: 'raspberry' },
+  { hex: '#376CBF', name: 'deep ocean' },
+  { hex: '#EB9E89', name: 'terracotta' },
+  { hex: '#74A496', name: 'fern' },
+  { hex: '#D1EB89', name: 'limeade' },
+  { hex: '#A9D171', name: 'lemongrass' },
+  { hex: '#587C84', name: 'riverbank' },
+  { hex: '#275F78', name: 'midnight' },
+  { hex: '#899B90', name: 'hazey hay' },
+  { hex: '#BBBA9C', name: 'sandy taupe' },
+  { hex: '#814E99', name: 'blackberry' },
+  { hex: '#8A6CAB', name: 'lavender' },
+  { hex: '#908BAC', name: 'dusty berry' },
+  { hex: '#85CFAE', name: 'mint' },
 ];
