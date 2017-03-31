@@ -14,23 +14,23 @@
  limitations under the License.
  */
 
-//experimental palette FULL
+// NEON palette (was FULL)
 
 export default [
-  { hex: '#EE5E54', name: '' },
-  { hex: '#DC4578', name: '' },
-  { hex: '#1E84D4', name: '' },
-  { hex: '#4CAE50', name: '' },
-  { hex: '#4B5DC1', name: '' },
-  { hex: '#009688', name: '' },
-  { hex: '#9E50AC', name: '' },
-  { hex: '#03A9F4', name: '' },
-  { hex: '#8BC34A', name: '' },
-  { hex: '#8964CB', name: '' },
-  { hex: '#00C9E2', name: '' },
-  { hex: '#E0EE5C', name: '' },
-  { hex: '#686F93', name: '' },
-  { hex: '#7499B7', name: '' },
-  { hex: '#77B3CE', name: '' },
-  { hex: '#BBD2DD', name: '' },
+  { hex: '#EE5E54', name: 'sunset' },
+  { hex: '#DC4578', name: 'raspberry' },
+  { hex: '#1E84D4', name: 'water' },
+  { hex: '#4CAE50', name: 'lawn' },
+  { hex: '#4B5DC1', name: 'ocean' },
+  { hex: '#009688', name: 'leaf' },
+  { hex: '#9E50AC', name: 'purple' },
+  { hex: '#03A9F4', name: 'sky' },
+  { hex: '#8BC34A', name: 'lime' },
+  { hex: '#8964CB', name: 'lilac' },
+  { hex: '#00C9E2', name: 'mint' },
+  { hex: '#E0EE5C', name: 'lemon' },
+  { hex: '#686F93', name: 'dusty purple' },
+  { hex: '#7499B7', name: 'slate' },
+  { hex: '#77B3CE', name: 'blue-grey' },
+  { hex: '#BBD2DD', name: 'concrete' },
 ];
