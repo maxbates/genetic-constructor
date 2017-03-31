@@ -1,7 +1,8 @@
 {
   "name": "blast",
   "version": "1.0.0",
-  "description": "Run blast searches to find similar sequences and grow combinatorial spaces.",
+  "description": "Run BLAST searches to find similar sequences and grow combinatorial spaces.",
+  "author": "Autodesk Life Sciences",
   "geneticConstructor": {
     "readable": "BLAST",
     "type": "BLAST",
