@@ -15,7 +15,6 @@
  */
 import fetch from 'isomorphic-fetch';
 import JobQueueManager from './JobQueueManager';
-import { headersPut } from '../../src/middleware/utils/headers';
 
 import Rollup from '../../src/models/Rollup';
 
