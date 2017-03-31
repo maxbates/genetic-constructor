@@ -31,8 +31,11 @@ const dummyJob = () => ({
 
 //actually parse the json file we get back
 module.exports = function parseJson(json, job = dummyJob()) {
-  const jobId = job;
-  const { projectId, urlData } = job.opts;
+  const jobId = job.id;
+  const { projectId } = job.opts;
+
+  //can't use urlData because its a temporary URL
+  const urlXml = `/jobs/file/${projectId}/${jobId}/data`;
 
   //todo - probably want more control than this...
   //keep the first 10 hits
@@ -91,14 +94,14 @@ module.exports = function parseJson(json, job = dummyJob()) {
       options: blocks.reduce((acc, block) => Object.assign(acc, { [block.id]: true }), {}),
       source: {
         source: 'BLAST',
-        file: urlData,
+        file: urlXml,
       },
       notes: {
         'BLAST Hits': allHits.length,
         blast: {
           jobId,
           accessions: allHits.map(hit => hit.accession),
-          xml: urlData,
+          xml: urlXml,
         },
       },
     }, false);

@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+import fetch from 'isomorphic-fetch';
 import JobQueueManager from './JobQueueManager';
-import rejectingFetch from '../../src/middleware/utils/rejectingFetch';
 import { headersPut } from '../../src/middleware/utils/headers';
 
 import Rollup from '../../src/models/Rollup';
@@ -28,9 +28,8 @@ queueManager.setProcessor(job =>
   //console.log(job.opts);
 
   //test writing to the s3 mock before returning result
-   rejectingFetch(job.opts.urlOutput, headersPut(JSON.stringify(new Rollup(), null, 2), {
-     headers: { 'Content-Type': 'text/plain' },
-   }))
+  //need to write simply, no extra headers etc.
+  fetch(job.opts.urlOutput, { method: 'PUT', body: JSON.stringify(new Rollup(), null, 2) })
   .then(() => Promise.resolve(job.data))
   .catch((err) => {
     console.log(err);

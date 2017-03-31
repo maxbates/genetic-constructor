@@ -22,7 +22,7 @@ import * as jobFiles from '../../../server/files/jobs';
 describe('Server', () => {
   describe('Jobs', () => {
     describe('files', () => {
-      const projectId = 'project-0928342309492038402938402934280349';
+      const projectId = `project-${uuid.v4()}`;
       const contents = `Here
 Are
 Some
