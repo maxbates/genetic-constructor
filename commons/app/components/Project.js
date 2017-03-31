@@ -43,7 +43,7 @@ export function Project({ router, project, snapshot }) {
   const rollup = Rollup.classify(project);
 
   const numberConstructs = project.project.components.length;
-  const numberBlocks = Object.keys(project.blocks).length;
+  const numberBlocks = Object.keys(project.blocks).length - numberConstructs;
   const numberBases = Object.keys(project.blocks).reduce((acc, blockId) => acc + (project.blocks[blockId].sequence.length || 0), 0);
 
   return (
@@ -103,10 +103,7 @@ export function Project({ router, project, snapshot }) {
       <aside className="Project-what">
         <h3>What is this?</h3>
         <div className="Project-textblock">
-          Genetic Constructor is a web application for biologists working in protein engineering and synthetic biology.
-          The Commons is a public repository of Genetic Constructor projects (like the one shown on this page) that
-          everyone can publish and reuse — directly from within the app. To explore this project in Genetic Constructor
-          click OPEN IN GENETIC CONSTRUCTOR, then sign in or create a free account.
+          Genetic Constructor is a web application for biologists working in protein engineering and synthetic biology. The Commons is a public repository of Genetic Constructor projects (like the one shown on this page) that everyone can publish and reuse — directly from within the app. To explore this project in Genetic Constructor click <a href={openLink} target="_blank" rel="noopener noreferrer">OPEN IN GENETIC CONSTRUCTOR</a>, then sign in or create a free account.
         </div>
       </aside>
     </div>

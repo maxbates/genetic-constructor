@@ -19,11 +19,11 @@ import { Link } from 'react-router';
 
 import { getPalette } from '../../../src/utils/color/index';
 
+import { sanitize } from '../sanitize';
+
 if (process.env.BROWSER) {
   require('../styles/ProjectCard.css'); //eslint-disable-line global-require
 }
-
-//todo - sanitize projectQuery
 
 export default function ProjectCard({ project }) {
   const firstConstruct = project.blocks[project.project.components[0]];
@@ -34,7 +34,7 @@ export default function ProjectCard({ project }) {
 
   return (
     <article className="ProjectCard">
-      <Link to={`/commons/${escape(project.project.metadata.name)}?projectId=${project.project.id}`}>
+      <Link to={`/commons/${sanitize(project.project.metadata.name)}?projectId=${project.project.id}`}>
         <div className="ProjectCard-corner" style={{ borderTopColor: color, borderLeftColor: color }} />
         <div className="ProjectCard-metadata">
           <div className="ProjectCard-name" style={{ color }}>

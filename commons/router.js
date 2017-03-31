@@ -102,9 +102,9 @@ router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     <Html
       title="Internal Server Error"
       description={err.message}
-      scripts={[]}
+      serverOnly
     >
-    {renderToString(<ErrorPage error={err} />)}
+      {renderToString(<ErrorPage error={err} />)}
     </Html>,
   );
   res.status(err.status || 500);

@@ -18,7 +18,7 @@ import { analytics } from '../../config';
 
 export default class Html extends React.Component {
   static propTypes = {
-    clientApp: PropTypes.bool, //whether enable app on client
+    serverOnly: PropTypes.bool, //whether enable app on client
     title: PropTypes.string,
     description: PropTypes.string,
     author: PropTypes.string,
@@ -30,7 +30,7 @@ export default class Html extends React.Component {
   };
 
   static defaultProps = {
-    clientApp: true,
+    serverOnly: false,
     title: 'Genetic Constructor - Commons',
     description: 'Genetic Constructor Commons hosts published projects and constructs from users.',
     author: 'Autodesk Life Sciences',
@@ -41,7 +41,7 @@ export default class Html extends React.Component {
   };
 
   render() {
-    const { clientApp, title, description, author, keywords, styles, scripts, state, children } = this.props;
+    const { serverOnly, title, description, author, keywords, styles, scripts, state, children } = this.props;
 
     //lame security handling
     const stateString = JSON.stringify(state).replace(/</g, '\\u003c');
@@ -67,7 +67,7 @@ export default class Html extends React.Component {
             dangerouslySetInnerHTML={{ __html: children }}
           />
 
-          {(clientApp && state) && (
+          {(serverOnly !== true && state) && (
             <script
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{
@@ -76,7 +76,7 @@ export default class Html extends React.Component {
             />
           )}
 
-          {clientApp && <script src="/static/commons.js" />}
+          {(serverOnly !== true) && <script src="/static/commons.js" />}
 
           {scripts.map(file => (<script key={file} src={file} />))}
 

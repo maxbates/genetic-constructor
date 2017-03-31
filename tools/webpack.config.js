@@ -239,6 +239,7 @@ export const commonsConfig = merge({}, clientConfig, {
 });
 
 //update commons config to extract CSS into separate stylesheet
+//todo - this prevents SVGs from bundling with rest of code
 const cssExtractor = new ExtractTextPlugin('commons.css');
 commonsConfig.plugins.push(cssExtractor);
 const loader = find(commonsConfig.module.loaders, mod => mod.loader.startsWith('style'));

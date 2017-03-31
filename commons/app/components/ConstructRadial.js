@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import React, { Component, PropTypes } from 'react';
+import * as d3Format from 'd3-format';
 import * as d3Shape from 'd3-shape';
 import * as d3Hierarchy from 'd3-hierarchy';
 
@@ -26,8 +27,10 @@ export default class ConstructRadial extends Component {
   };
 
   //create a leaf (account for list blocks)
+  //todo - visual style to denote list block
+  //todo - account for when no basepairs (currently, give length 1)
   static createLeaf(node, project) {
-    let size = node.sequence.length || 0;
+    let size = node.sequence.length || 1;
 
     if (node.rules.list) {
       const firstOptionId = Object.keys(node.options)[0];
@@ -37,6 +40,7 @@ export default class ConstructRadial extends Component {
 
     return Object.assign(node, {
       size,
+      isList: node.rules.list,
     });
   }
 
@@ -72,11 +76,14 @@ export default class ConstructRadial extends Component {
 
     //todo - make hollow ring for construct(adjust attr display in render)
 
+    //format float points so we are consistent on server / client
+    const formatter = d3Format.format('.5f');
+
     this.arc = d3Shape.arc()
-    .startAngle(d => d.x0)
-    .endAngle(d => d.x1)
-    .innerRadius(d => Math.sqrt(d.y0))
-    .outerRadius(d => Math.sqrt(d.y1));
+    .startAngle(d => formatter(d.x0))
+    .endAngle(d => formatter(d.x1))
+    .innerRadius(d => formatter(Math.sqrt(d.y0)))
+    .outerRadius(d => formatter(Math.sqrt(d.y1)));
 
     this.calculateStuff(props);
   }
@@ -102,10 +109,8 @@ export default class ConstructRadial extends Component {
     const partition = d3Hierarchy.partition(tree)
     .size([2 * Math.PI, this.dimension * this.dimension / 4]);
 
-    //todo - account for when no basepairs (currently, give length 1)
-
     const root = d3Hierarchy.hierarchy(tree)
-    .sum(d => this.state.bySequence ? (d.size || 1) : 1);
+    .sum(d => this.state.bySequence ? d.size : 1);
 
     // For efficiency, filter nodes to keep only those large enough to see.0.005 radians = 0.29 degrees
     this.nodes = partition(root).descendants()

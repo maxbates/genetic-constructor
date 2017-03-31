@@ -20,12 +20,20 @@ import { withRouter } from 'react-router';
 import _ from 'lodash';
 
 import ProjectCard from './ProjectCard';
+import { sanitize } from '../sanitize';
 
 if (process.env.BROWSER) {
   require('../styles/Home.css'); //eslint-disable-line global-require
 }
 
 export function Home({ location, router, projects, snapshots }) {
+  if (location.query.projectId) {
+    const project = projects[location.query.projectId];
+    const name = sanitize(project && project.project.metadata.name);
+    router.replace(`/commons/${name}?projectId=${location.query.projectId}`);
+    return null;
+  }
+
   const projectKeys = Object.keys(projects);
   const numberProjects = projectKeys.length;
   const numberConstructs = projectKeys.reduce((acc, key) => acc + projects[key].project.components.length, 0);

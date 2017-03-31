@@ -39,7 +39,7 @@ export default function ConstructAbout({ constructId, project }) {
       />
 
       <div className="ConstructAbout-metadata">
-        <h3 className="ConstructAbout-name">{construct.metadata.name}</h3>
+        <h3 className="ConstructAbout-name">{construct.metadata.name || 'New Construct'}</h3>
         <InfoTable
           values={[
             ['Description', construct.metadata.description],
