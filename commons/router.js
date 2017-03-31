@@ -48,7 +48,6 @@ async function getInitialState(req) {
 
   // todo - put data fetching in the router. router should be async
   // todo - don't use onEnter, use some other property and handle ourselves?
-  // todo - should dispatch actions to the store
   // todo - ideally, update store from routes. But routes onEnter expects singleton. reconcile!
 
   //on project page
@@ -72,8 +71,9 @@ async function getInitialState(req) {
   const snapshots = await middleware.getCommonsSnapshots(projectId);
   const fetchedProjects = await middleware.loadProjects(snapshots);
 
-  const projects = _.keyBy(fetchedProjects, proj => proj.project.id);
+  // todo - should dispatch actions to the store
 
+  const projects = _.keyBy(fetchedProjects, proj => proj.project.id);
   return Object.assign(initialState, { projects, snapshots });
 }
 

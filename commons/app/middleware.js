@@ -23,7 +23,7 @@ const commons = process.env.BROWSER ?
   require('../../src/middleware/commons') :
   require('../../server/data/persistence/commons');
 
-//todo - routing by name, not UUID
+//todo - routing by name, not UUID (add isomorphic function to commons middleware)
 export const findProjectByName = name =>
   Promise.resolve('todo');
 

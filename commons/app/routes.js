@@ -31,6 +31,7 @@ const idValidator = id => safeValidate(idValidatorCreator(), true, id);
 
 // we use onEnter to fetch data before entering a route
 // todo - move to react-router v4 (once out of beta) and use matchRoutes, rather than onEnter
+// these can only expect a store singleton to dispatch actions to
 // https://reacttraining.com/react-router/web/guides/server-rendering
 
 //todo - check state to see if project / snapshot is loaded
@@ -40,13 +41,13 @@ const idValidator = id => safeValidate(idValidatorCreator(), true, id);
 const onEnterProject = (nextState, replace, callback) => {
   console.log(nextState, replace);
   console.log('waiting...');
-  setTimeout(() => callback(), 2000);
+  setTimeout(() => callback(), 200);
 };
 
 const onEnterHome = (nextState, replace, callback) => {
   console.log(nextState, replace);
   console.log('waiting...');
-  setTimeout(() => callback(), 2000);
+  setTimeout(() => callback(), 200);
 };
 
 
