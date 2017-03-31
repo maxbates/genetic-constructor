@@ -28,23 +28,15 @@ import safeValidate from '../src/schemas/fields/safeValidate';
 import { id as idValidatorCreator } from '../src/schemas/fields/validators';
 import { errorNotPublished } from '../server/errors/errorConstants';
 
-import commonsReducer from './app/reducers';
+import commonsReducer from './app/store/reducers';
 import routes from './app/routes';
 import Html from './app/components/Html';
 import ErrorPage from './app/components/ErrorPage';
+import * as middleware from './app/middleware';
 
 const router = Express.Router(); //eslint-disable-line new-cap
 
 const idValidator = id => safeValidate(idValidatorCreator(), true, id);
-
-// future - update react router: https://reacttraining.com/react-router/web/guides/server-rendering
-// still in beta. react-router-redux still in alpha
-
-// future - update react-hot-loader and get component AppContainer
-// https://github.com/gaearon/react-hot-loader/tree/master/docs#migration-to-30
-
-//todo - routing by name, not UUID
-const findProjectByName = name => Promise.resolve('todo');
 
 async function getInitialState(req) {
   const projectQuery = req.url.substr(1);
@@ -54,10 +46,10 @@ async function getInitialState(req) {
     user: (req.user) ? req.user.uuid : null,
   };
 
-  console.log(projectQuery, forceProjectId, idValidator(forceProjectId));
-
-  //todo - put data fetching in the router. router should be async
-  //todo - should dispatch actions to the store to update data
+  // todo - put data fetching in the router. router should be async
+  // todo - don't use onEnter, use some other property and handle ourselves?
+  // todo - should dispatch actions to the store
+  // todo - ideally, update store from routes. But routes onEnter expects singleton. reconcile!
 
   //on project page
   //  - if search by name, figure out the projectId
@@ -68,30 +60,21 @@ async function getInitialState(req) {
 
   const atHome = !(projectQuery || forceProjectId);
   const projectId = atHome ?
-    null :
+    undefined :
     (forceProjectId && idValidator(forceProjectId)) ?
       forceProjectId :
-      (await findProjectByName(projectQuery));
+      (await middleware.findProjectByName(projectQuery));
 
-  const snapshots = projectId ? (await commons.commonsQuery({}, true, projectId)) : [];
+  // now, either we have a projectId or we don't
+  // if we do, the query will be filtered appropriately
+  console.log('projectId', projectId, projectQuery, forceProjectId, idValidator(forceProjectId));
 
-  //todo - optimize - single call with multiple UUIDs
-  //todo - no blocks on home page
-  const fetchedProjects = await Promise.all(
-    snapshots.map(({ projectUUID }) => projectVersionByUUID(projectUUID)),
-  );
+  const snapshots = await middleware.getCommonsSnapshots(projectId);
+  const fetchedProjects = await middleware.loadProjects(snapshots);
 
   const projects = _.keyBy(fetchedProjects, proj => proj.project.id);
 
-  Object.assign(initialState, { projects, snapshots });
-
-  const snapshot = await commons.getLatestPublicVersion(projectId);
-  const project = await projectVersionByUUID(snapshot.projectUUID);
-
-  Object.assign(initialState, {
-    projects: { [project.project.id]: project },
-    snapshots: [snapshot],
-  });
+  return Object.assign(initialState, { projects, snapshots });
 }
 
 function handleRender(req, res, next) {
@@ -110,7 +93,7 @@ function handleRender(req, res, next) {
           // Grab the initial state from our Redux store
           const preloadedState = store.getState();
 
-          // Render the component to a string
+          // Render the component to a string, with React Ids
           const appHtml = renderToString(
             <Provider store={store}>
               <RouterContext {...renderProps}>
@@ -119,10 +102,14 @@ function handleRender(req, res, next) {
             </Provider>,
           );
 
+          //render the rest of the HTML as static markup
           const html = renderToStaticMarkup(<Html state={preloadedState}>{appHtml}</Html>);
           res.send(`<!doctype html>${html}`);
         })
         .catch(err => {
+          console.log('Error rendering page');
+          console.log(err);
+
           if (err === errorNotPublished) {
             return res.status(302).redirect('/commons');
           }
@@ -157,7 +144,7 @@ router.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
       description={err.message}
       scripts={[]}
     >
-      {renderToString(<ErrorPage error={err} />)}
+    {renderToString(<ErrorPage error={err} />)}
     </Html>,
   );
   res.status(err.status || 500);

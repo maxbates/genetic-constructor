@@ -20,8 +20,13 @@ import { Router } from 'react-router';
 import { Provider } from 'react-redux';
 
 import routes from './routes';
-import store from './store';
+import store from './store/store';
 import history from './history';
+
+// todo - get hot-loading working
+// pending react-router v4
+// update react-hot-loader and get component AppContainer
+// https://github.com/gaearon/react-hot-loader/tree/master/docs#migration-to-30
 
 const renderApp = (routes) => {
   render(
@@ -38,7 +43,7 @@ renderApp(routes);
 
 if (process.env.NODE_ENV !== 'production' && module.hot) {
   module.hot.accept('./routes', () => {
-    const newRoutes = require('./routes').default;
+    const newRoutes = require('./routes').default; //eslint-disable-line global-require
     renderApp(newRoutes);
   });
 }

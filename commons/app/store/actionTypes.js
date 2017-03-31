@@ -14,36 +14,8 @@
  limitations under the License.
  */
 
-import { combineReducers } from 'redux';
-import { routerReducer as router } from 'react-router-redux';
+export const STASH_PROJECTS = 'STASH_PROJECTS';
 
-const user = (state = 'acgactgatcgac', action) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
-};
+export const STASH_SNAPSHOTS = 'STASH_SNAPSHOTS';
 
-//projects reducer
-const projects = (state = {}, action) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
-};
-
-//snapshots reducer
-const snapshots = (state = {}, action) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
-};
-
-export default combineReducers({
-  router,
-  user,
-  projects,
-  snapshots,
-});
-
+export const SET_USER = 'SET_USER';

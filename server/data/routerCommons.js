@@ -42,12 +42,12 @@ router.use(ensureReqUserMiddleware);
 
 // routes
 
-//expects object in form { tags: {}, keywords: [] }
+//expects object in form { query: { tags: {}, keywords: [] }, projectId }
 router.route('/query')
 .post((req, res, next) => {
-  const query = req.body;
+  const { query, collapse, projectId } = req.body;
 
-  return commons.commonsQuery(query)
+  return commons.commonsQuery(query, collapse, projectId)
   .then(results => res.json(results))
   .catch(next);
 });

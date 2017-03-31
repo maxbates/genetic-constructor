@@ -19,5 +19,4 @@
 export const SNAPSHOT_TYPE_PUBLISH = 'SNAPSHOT_PUBLISH';
 export const COMMONS_TAG = 'COMMONS_TAG';
 
-//dont write anything by default
-export const commonsDefaultMessage = '';
+export const commonsDefaultMessage = 'Published Project';

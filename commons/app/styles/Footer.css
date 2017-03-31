@@ -26,8 +26,13 @@
     font-size: 1.25rem;
   }
 
-  a,
-  a:visited {
-    color: var(--colors-grey);
+  a {
+    &, &:visited {
+      color: var(--colors-grey);
+    }
+
+    &:hover {
+      color: var(--colors-darkerGrey);
+    }
   }
 }

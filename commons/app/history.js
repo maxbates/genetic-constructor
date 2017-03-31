@@ -17,7 +17,7 @@ import { createHistory } from 'history';
 import { useRouterHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 
-import store from './store';
+import store from './store/store';
 
 //todo - update for v4 of react-router
 const routerHistory = useRouterHistory(createHistory)();

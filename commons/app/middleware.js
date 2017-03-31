@@ -3,7 +3,7 @@
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+ You may obtain a copVy of the License at
 
  http://www.apache.org/licenses/LICENSE-2.0
 
@@ -15,7 +15,34 @@
  */
 
 //isomorphic middleware
+//necessary things are required, so only loaded as needed per environment
 
-export const loadProject = (projectId) => {
+/* eslint-disable global-require */
 
+const commons = process.env.BROWSER ?
+  require('../../src/middleware/commons') :
+  require('../../server/data/persistence/commons');
+
+//todo - routing by name, not UUID
+export const findProjectByName = name =>
+  Promise.resolve('todo');
+
+//projectId optional, can be used to filter query to that project (i.e. only fetch single project)
+export const getCommonsSnapshots = projectId =>
+  commons.commonsQuery({}, true, projectId);
+
+export const loadProjectVersion = (snapshot) => {
+  if (proces.env.BROWSER) {
+    return commons.retrieve(snapshot.projectId, snapshot.version);
+  }
+
+  const projectVersions = require('../../server/data/persistence/projectVersions');
+  return projectVersions.projectVersionByUUID(snapshot.projectUUID);
 };
+
+//todo - optimize - single call with multiple UUIDs (server specific version)
+//todo - no blocks on home page
+export const loadProjects = snapshots =>
+  Promise.all(snapshots.map(loadProjectVersion()));
+
+/* eslint-enable global-require */

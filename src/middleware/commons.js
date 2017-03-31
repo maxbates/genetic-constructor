@@ -27,6 +27,18 @@ const defaultSnapshotBody = {
   keywords: [],
 };
 
+// query in the form { tags: {}, keywords: [] }
+// collapse to only get latest snapshot for given project
+// projectId to limit to a project
+// default, list everything public
+export const commonsQuery = (query = {}, collapse = true, projectId = null) => {
+  const stringified = JSON.stringify({ query, collapse, projectId });
+
+  return rejectingFetch(commonsApiPath('query'), headersPost(stringified))
+  .then(resp => resp.json());
+};
+
+
 export const commonsRetrieve = (projectId, version) => {
   invariant(projectId, 'Project ID required to retrieve');
 
@@ -34,7 +46,7 @@ export const commonsRetrieve = (projectId, version) => {
   .then(resp => resp.json());
 };
 
-export const commonsListVersions = (projectId) => {
+export const commonsRetrieveVersions = (projectId) => {
   invariant(projectId, 'Project ID required to retrieve versions');
 
   return rejectingFetch(commonsApiPath(projectId, 'versions'), headersGet())
@@ -58,14 +70,5 @@ export const commonsUnpublish = (projectId, version) => {
   invariant(version === undefined || Number.isInteger(version), 'version must be a number');
 
   return rejectingFetch(commonsApiPath(projectId, version), headersDelete())
-  .then(resp => resp.json());
-};
-
-// query in the form { tags: {}, keywords: [] }
-// default, list everything public
-export const commonsQuery = (query = {}) => {
-  const stringified = JSON.stringify(query);
-
-  return rejectingFetch(commonsApiPath('query'), headersPost(stringified))
   .then(resp => resp.json());
 };

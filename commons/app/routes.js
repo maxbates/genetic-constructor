@@ -16,27 +16,49 @@
 import React from 'react';
 import { IndexRoute, Route, Redirect } from 'react-router';
 
-import * as middleware from './middleware';
+import safeValidate from '../../src/schemas/fields/safeValidate';
+import { id as idValidatorCreator } from '../../src/schemas/fields/validators';
+
+import * as actions from './store/actions';
+import { getState, dispatch } from './store/store';
+
 import App from './components/App';
 import Home from './components/Home';
 import Project from './components/Project';
 //import RouteNotFound from '../../src/containers/routenotfound';
 
-//todo - fetch all projects when route changes? or no dynamic routing
+const idValidator = id => safeValidate(idValidatorCreator(), true, id);
+
+// we use onEnter to fetch data before entering a route
+// todo - move to react-router v4 (once out of beta) and use matchRoutes, rather than onEnter
+// https://reacttraining.com/react-router/web/guides/server-rendering
+
+//todo - check state to see if project / snapshot is loaded
 
 const onEnterProject = (nextState, replace, callback) => {
   console.log(nextState, replace);
-  callback();
+  console.log('waiting...');
+  setTimeout(() => callback(), 2000);
+};
+
+const onEnterHome = (nextState, replace, callback) => {
+  console.log(nextState, replace);
+  console.log('waiting...');
+  setTimeout(() => callback(), 2000);
 };
 
 export default (
-  <Route path="/commons" component={App}>
+  <Route
+    path="/commons"
+    component={App}
+  >
     <Route
       path="/commons/:projectId"
       component={Project}
       onEnter={onEnterProject}
     />
     <IndexRoute
+      onEnter={onEnterHome}
       component={Home}
     />
     <Redirect from="*" to="/commons" />
