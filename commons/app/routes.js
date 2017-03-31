@@ -20,6 +20,7 @@ import { IndexRoute, Route, Redirect } from 'react-router';
 import safeValidate from '../../src/schemas/fields/safeValidate';
 import { id as idValidatorCreator } from '../../src/schemas/fields/validators';
 
+import { unsanitize } from './sanitize';
 import * as middleware from './middleware';
 
 import App from './components/App';
@@ -33,12 +34,6 @@ const idValidator = id => safeValidate(idValidatorCreator(), true, id);
 // these can only expect a store singleton to dispatch actions to
 // https://reacttraining.com/react-router/web/guides/server-rendering
 
-//todo - check state to see if project / snapshot is loaded, rather than fetching every time
-
-//todo - handle query param (redirect?)
-
-//todo - sanitize projectQuery
-
 // load data + create state patch on route entry
 //return a state patch, because on server we need to create a new initial sate on every request, can't treat the store as a singleton
 //
@@ -47,7 +42,8 @@ const idValidator = id => safeValidate(idValidatorCreator(), true, id);
 //  - get the entire project and latest snapshot
 //if on home page
 //  - get all the projects
-async function onEnterPage(params, query) {
+async function onEnterPage({ params, location }) {
+  const { query } = location;
   const { projectQuery } = params;
   const forceProjectId = query.projectId;
   const forceProjectIdValid = forceProjectId && idValidator(forceProjectId);
@@ -57,12 +53,24 @@ async function onEnterPage(params, query) {
   if (forceProjectIdValid) {
     projectId = forceProjectId;
   } else if (projectQuery) {
-    projectId = await middleware.findProjectByName(projectQuery);
+    const parsedQuery = unsanitize(projectQuery);
+    projectId = await middleware.findProjectByName(parsedQuery);
   }
 
   //retrieve relevant snapshots and projects, filtering by projectId if on project page
   const snapshots = await middleware.getCommonsSnapshots(projectId);
   const fetchedProjects = await middleware.loadProjects(snapshots);
+
+  //todo - isomorphic data loading (load on client)
+  //todo - check state to see if project / snapshot is loaded, rather than fetching every time
+  //if we're on the browser, update the store
+  //if (process.env.BROWSER) {
+  //  store.dispatch(actions.stashProjects(fetchedProjects));
+  //  store.dispatch(actions.stashSnapshots(snapshots));
+  //  return;
+  //}
+
+  //otherwise on server, return patch for initial state
   const projects = keyBy(fetchedProjects, proj => proj.project.id);
   return { projects, snapshots };
 }

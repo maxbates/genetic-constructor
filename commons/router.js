@@ -44,7 +44,7 @@ function handleRender(req, res, next) {
         };
 
         //check each route's loadData function, generate state patches
-        Promise.all(renderProps.routes.map(route => route.loadData ? route.loadData(renderProps.params, renderProps.location.query) : {}))
+        Promise.all(renderProps.routes.map(route => route.loadData ? route.loadData(renderProps) : {}))
         .then(patches => Object.assign(initialState, ...patches))
         .then(initialState => {
           // Create a new Redux store instance from initialState
@@ -62,8 +62,9 @@ function handleRender(req, res, next) {
             </Provider>,
           );
 
+          //todo - currently, render serverOnly. To enable client rendering, need to handle data-fetching when routes change. Probably update to react-router v4.
           //render the rest of the HTML as static markup
-          const html = renderToStaticMarkup(<Html state={preloadedState}>{appHtml}</Html>);
+          const html = renderToStaticMarkup(<Html serverOnly state={preloadedState}>{appHtml}</Html>);
           res.send(`<!doctype html>${html}`);
         })
         .catch(err => {

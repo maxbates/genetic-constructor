@@ -33,7 +33,7 @@ export const getCommonsSnapshots = projectId =>
 
 export const loadProjectVersion = (snapshot) => {
   if (process.env.BROWSER) {
-    return commons.retrieve(snapshot.projectId, snapshot.version);
+    return commons.commonsRetrieve(snapshot.projectId, snapshot.version);
   }
 
   const projectVersions = require('../../server/data/persistence/projectVersions');

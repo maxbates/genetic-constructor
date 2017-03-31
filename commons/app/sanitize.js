@@ -19,3 +19,5 @@
 const defaultName = 'project';
 
 export const sanitize = name => name ? escape(name) : defaultName;
+
+export const unsanitize = name => (name !== defaultName) ? unescape(name) : '';
