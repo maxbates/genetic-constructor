@@ -7,6 +7,8 @@ var describeAppTest = require("../../../api-app");
 
 var each = require('underscore').each;
 var find = require('underscore').find;
+var sortBy = require('underscore').sortBy;
+
 
 var uuid = require('uuid');
 
@@ -718,6 +720,11 @@ describeAppTest("http", function (app) {
                 owner: owner,
                 id: 'project-' + projectSeed + '-' + uuid.v1(),
                 data: {
+                  project: {
+                    metadata: {
+                      name: 'bbbbbbbaaaacbababa',
+                    },
+                  },
                   test: 'foo',
                   blocks: 'blocks here'
                 },
@@ -731,6 +738,28 @@ describeAppTest("http", function (app) {
                 return cb(null, res.body.uuid);
               });
           }, cbFunc);
+        },
+        function (createdProjectUUIDs, cbFunc) {
+          request(app.proxy)
+            .get('/api/search/projects/name/acb')
+            .expect(200)
+            .end(function (err, res) {
+              if (err) {
+                  return cbFunc(err);
+              }
+
+              if (! res || ! res.body || ! Array.isArray(res.body)) {
+                return cbFunc(new Error('array result expected'));
+              }
+
+              try {
+                assert.deepEqual(sortBy(res.body), sortBy(createdProjectUUIDs));
+              } catch (e) {
+                return cbFunc(e);
+              }
+
+              return cbFunc(null, res.body);
+            });
         },
         function (createdProjectUUIDs, cbFunc) {
           request(app.proxy)

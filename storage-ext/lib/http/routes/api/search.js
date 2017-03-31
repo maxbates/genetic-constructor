@@ -22,6 +22,73 @@ var Project = require('../../../project');
 var Order = require('../../../order');
 var Snapshot = require('../../../snapshot');
 
+function collapseProjectsToUUIDs(projectsArray) {
+  var groupedProjects = groupBy(projectsArray, function (project) {
+    return project.id;
+  });
+
+  return map(pairs(groupedProjects), function (pair) {
+    return max(pair[1], function (projObj) {
+      return projObj.version;
+    }).uuid;
+  });
+}
+
+var searchProjectName = function (req, res) {
+  var nameQuery = req.params.nameQuery;
+  if (! nameQuery) {
+    return res.status(400).send({
+      message: 'failed to parse query from URI',
+    }).end();
+  }
+
+  nameQuery = '%' + nameQuery + '%';
+
+  var where = {
+    status: 1,
+    data: {
+      project: {
+        metadata: {
+          name: {
+            $like: nameQuery,
+          }
+        }
+      }
+    }
+  };
+
+  if (notNullOrEmpty(req.query.owner)) {
+    if (!uuidValidate(req.query.owner, 1)) {
+      return res.status(400).send({
+        message: 'invalid owner UUID',
+      }).end();
+    }
+
+    where.owner = req.query.owner;
+  }
+
+  return Project.findAll({
+    where: where,
+    attributes: ['uuid', 'id', 'version'],
+  }).then(function (results) {
+    if (results.length < 1) {
+      var msg = 'no projects found with name matching: ' + nameQuery;
+      if (where.owner != null) {
+        msg = msg + ' and ownerId: ' + where.owner;
+      }
+      return res.status(404).send({
+        message: msg,
+      }).end();
+    }
+
+    return res.status(200).send(collapseProjectsToUUIDs(results)).end();
+  }).catch(function (err) {
+    console.error(err);
+    return res.status(500).send({
+      message: err.message,
+    }).end();
+  });
+};
 
 var fetchProjectList = function (req, res) {
   var projectUUIDs = req.body;
@@ -68,6 +135,7 @@ var fetchProjectList = function (req, res) {
 };
 
 var routes = [
+  route('GET /projects/name/:nameQuery', searchProjectName),
   route('POST /projects/list', fetchProjectList),
   route('GET /', function (req, res) {
     res.statusCode = 200;
