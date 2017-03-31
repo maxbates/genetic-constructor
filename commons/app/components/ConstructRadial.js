@@ -25,9 +25,18 @@ export default class ConstructRadial extends Component {
     project: PropTypes.object.isRequired,
   };
 
-  static createLeaf(node) {
+  //create a leaf (account for list blocks)
+  static createLeaf(node, project) {
+    let size = node.sequence.length || 0;
+
+    if (node.rules.list) {
+      const firstOptionId = Object.keys(node.options)[0];
+      const firstListOption = firstOptionId && project.blocks[firstOptionId];
+      size = firstListOption.sequence.length;
+    }
+
     return Object.assign(node, {
-      size: node.sequence.length || 0,
+      size,
     });
   }
 
@@ -35,7 +44,7 @@ export default class ConstructRadial extends Component {
   //NB - pass in cloned root
   static createTree(rootBlock, project) {
     if (!rootBlock.components.length) {
-      return ConstructRadial.createLeaf(rootBlock);
+      return ConstructRadial.createLeaf(rootBlock, project);
     }
 
     return Object.assign(rootBlock, {
@@ -72,6 +81,10 @@ export default class ConstructRadial extends Component {
     this.calculateStuff(props);
   }
 
+  state = {
+    bySequence: true,
+  };
+
   componentWillReceiveProps(nextProps) {
     this.calculateStuff(nextProps);
   }
@@ -89,18 +102,20 @@ export default class ConstructRadial extends Component {
     const partition = d3Hierarchy.partition(tree)
     .size([2 * Math.PI, this.dimension * this.dimension / 4]);
 
-    const root = d3Hierarchy.hierarchy(tree)
-    .sum(d => d.size);
+    //todo - account for when no basepairs (currently, give length 1)
 
-    this.nodes = partition(root).descendants();
+    const root = d3Hierarchy.hierarchy(tree)
+    .sum(d => this.state.bySequence ? (d.size || 1) : 1);
+
     // For efficiency, filter nodes to keep only those large enough to see.0.005 radians = 0.29 degrees
-    //.filter(d => d.x1 - d.x0 > 0.005);
+    this.nodes = partition(root).descendants()
+    .filter(d => d.x1 - d.x0 > 0.005);
   }
 
   render() {
     const { constructId, project } = this.props;
 
-    //todo - only calc when needed
+    //PERF - only calc when needed (i.e. update if we have dynamic rendering)
     this.calculateStuff();
 
     const construct = project.getBlock(constructId);
@@ -108,16 +123,14 @@ export default class ConstructRadial extends Component {
 
     const dim = this.dimension;
 
-    //todo - account for when no basepairs in entire project
-
     return (
       <figure style={{ width: `${dim}px`, height: `${dim}px` }}>
-        <svg width={dim} height={dim}>
+        <svg ref={(el) => { this.svg = el; }} width={dim} height={dim}>
           <g transform={`translate(${dim / 2},${dim / 2})`}>
             {this.nodes.map(d => (
               <path
                 key={d.data.id}
-                display={(d.depth > 0 || d.value === 0) ? null : 'none'}
+                display={(d.depth === 0 && d.value !== 0) ? 'none' : null}
                 d={this.arc(d)}
                 style={{
                   fill: ConstructRadial.getColor(d.data.metadata.color, paletteName),
