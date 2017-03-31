@@ -27,6 +27,7 @@ webapp:
     REDIS_HOST: ${REDIS_HOST}
     REDIS_PORT: ${REDIS_PORT}
     REDIS_DB: ${REDIS_DB}
+    BLAST_URL: ${BLAST_URL}
   command:
     npm run server-auth
   log_driver: json-file
