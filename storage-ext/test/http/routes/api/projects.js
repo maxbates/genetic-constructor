@@ -9,7 +9,7 @@ var each = require('underscore').each;
 var find = require('underscore').find;
 var sortBy = require('underscore').sortBy;
 
-
+var urlSafeBase64 = require('urlsafe-base64');
 var uuid = require('uuid');
 
 var Project = require('../../../../lib/project');
@@ -740,8 +740,9 @@ describeAppTest("http", function (app) {
           }, cbFunc);
         },
         function (createdProjectUUIDs, cbFunc) {
+          var encodedNameQuery = urlSafeBase64.encode(Buffer.from('acb', 'utf8'));
           request(app.proxy)
-            .get('/api/search/projects/name/acb')
+            .get('/api/search/projects/name/' + encodedNameQuery)
             .expect(200)
             .end(function (err, res) {
               if (err) {
@@ -834,6 +835,105 @@ describeAppTest("http", function (app) {
                 }
               });
 
+              return cbFunc(null, null);
+            });
+        },
+      ], function (err) {
+        assert.ifError(err);
+        done();
+      });
+    });
+
+    it('should search for projects by name', function fetchListByUUID(done) {
+      return async.waterfall([
+        function (cbFunc) {
+          var projectSeeds = [0,1,2,3,4,5];
+          async.map(projectSeeds, function (projectSeed, cb) {
+            request(app.proxy)
+              .post('/api/projects')
+              .send({
+                owner: owner,
+                id: 'project-' + projectSeed + '-' + uuid.v1(),
+                data: {
+                  project: {
+                    metadata: {
+                      name: 'This is Drew\'s project; don\'t touch',
+                    },
+                  },
+                  test: 'foo',
+                  blocks: 'blocks here'
+                },
+              })
+              .expect(200)
+              .end(function (err, res) {
+                if (err) {
+                  return cb(err);
+                }
+
+                return cb(null, res.body.uuid);
+              });
+          }, cbFunc);
+        },
+        function (createdProjectUUIDs, cbFunc) {
+          var encodedNameQuery = urlSafeBase64.encode(Buffer.from('Drew\'s project', 'utf8'));
+          request(app.proxy)
+            .get('/api/search/projects/name/' + encodedNameQuery)
+            .expect(200)
+            .end(function (err, res) {
+              if (err) {
+                return cbFunc(err);
+              }
+
+              if (! res || ! res.body || ! Array.isArray(res.body)) {
+                return cbFunc(new Error('array result expected'));
+              }
+
+              try {
+                assert.deepEqual(sortBy(res.body), sortBy(createdProjectUUIDs));
+              } catch (e) {
+                return cbFunc(e);
+              }
+
+              return cbFunc(null, res.body);
+            });
+        },
+        function (createdProjectUUIDs, cbFunc) {
+          var encodedNameQuery = urlSafeBase64.encode(Buffer.from('touch', 'utf8'));
+          request(app.proxy)
+            .get('/api/search/projects/name/' + encodedNameQuery + '?owner=' + owner)
+            .expect(200)
+            .end(function (err, res) {
+              if (err) {
+                return cbFunc(err);
+              }
+
+              if (! res || ! res.body || ! Array.isArray(res.body)) {
+                return cbFunc(new Error('array result expected'));
+              }
+
+              try {
+                assert.deepEqual(sortBy(res.body), sortBy(createdProjectUUIDs));
+              } catch (e) {
+                return cbFunc(e);
+              }
+
+              return cbFunc(null, res.body);
+            });
+        },
+        function (createdProjectUUIDs, cbFunc) {
+          var encodedNameQuery = urlSafeBase64.encode(Buffer.from('Drew\'s project', 'utf8'));
+          request(app.proxy)
+            .get('/api/search/projects/name/' + encodedNameQuery + '?owner=c1d71d50-15af-11e7-beea-c3d8eb6c09f8')
+            .expect(404)
+            .end(function (err, res) {
+              if (err) {
+                return cbFunc(err);
+              }
+
+              if (! res || ! res.body || ! res.body.message || (res.body.message === '')) {
+                return cbFunc(new Error('expected 404 message'));
+              }
+              console.log(res.body.message);
               return cbFunc(null, null);
             });
         },

@@ -10,6 +10,7 @@ var pairs = require('underscore').pairs;
 var omit = require('underscore').omit;
 var reduce = require('underscore').reduce;
 
+var urlSafeBase64 = require('urlsafe-base64');
 var uuidValidate = require("uuid-validate");
 
 var route = require("http-route");
@@ -35,10 +36,23 @@ function collapseProjectsToUUIDs(projectsArray) {
 }
 
 var searchProjectName = function (req, res) {
-  var nameQuery = req.params.nameQuery;
-  if (! nameQuery) {
+  var encodedNameQuery = req.params.nameQuery;
+  if ((! encodedNameQuery) || (encodedNameQuery == "")) {
     return res.status(400).send({
-      message: 'failed to parse query from URI',
+      message: 'failed to parse encoded project name query from URI',
+    }).end();
+  }
+
+  if (! urlSafeBase64.validate(encodedNameQuery)) {
+    return res.status(400).send({
+      message: 'invalid encoded project name query',
+    }).end();
+  }
+
+  var nameQuery = urlSafeBase64.decode(encodedNameQuery).toString('utf8');
+  if ((!nameQuery) || (nameQuery == "")) {
+    return res.status(400).send({
+      message: 'decoding failure of encoded project name query',
     }).end();
   }
 
