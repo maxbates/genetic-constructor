@@ -765,7 +765,7 @@ describeAppTest("http", function (app) {
         function (createdProjectUUIDs, cbFunc) {
           request(app.proxy)
             .post('/api/search/projects/list')
-            .send(createdProjectUUIDs)
+            .send({ data: createdProjectUUIDs})
             .expect(200)
             .end(function (err, res) {
               if (err) {
@@ -803,7 +803,7 @@ describeAppTest("http", function (app) {
         function (createdProjectUUIDs, cbFunc) {
           request(app.proxy)
             .post('/api/search/projects/list?blocks=true')
-            .send(createdProjectUUIDs)
+            .send({ data: createdProjectUUIDs })
             .expect(200)
             .end(function (err, res) {
               if (err) {

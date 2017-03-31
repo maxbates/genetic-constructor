@@ -105,7 +105,8 @@ var searchProjectName = function (req, res) {
 };
 
 var fetchProjectList = function (req, res) {
-  var projectUUIDs = req.body;
+  var projectUUIDs = req.body ? req.body.data : null;
+
   if(! projectUUIDs || ! Array.isArray(projectUUIDs)) {
     return res.status(400).send({
       message: 'request body required; POST JSON array of project UUIDs',
