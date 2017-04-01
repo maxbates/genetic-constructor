@@ -200,7 +200,7 @@ def create_root_block_from_genbank(gb, sequence, import_type = "normal"):
 def convert_block_name(f, block, import_type):
     if import_type == "snapgene_vector":
         if "label" in f.qualifiers:
-            block["metadata"]["name"] = f.qualifiers["label"]
+            block["metadata"]["name"] = f.qualifiers["label"][0]
             block["metadata"]["genbank"]["name_source"] = "label"
             return
 
