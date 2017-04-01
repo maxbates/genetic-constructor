@@ -33,6 +33,11 @@
 
     .Switch-nob {
       background-color: var(--colors-mediumLightGrey);
+
+      &-on {
+        background-color: var(--colors-selected);
+        opacity: 0.75;
+      }
     }
   }
 }

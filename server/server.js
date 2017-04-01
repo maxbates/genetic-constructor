@@ -22,18 +22,21 @@ import colors from 'colors/safe';
 
 import pkg from '../package.json';
 import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
-import checkPortFree from './utils/checkPortFree';
 import logger from './utils/logConfig';
 
 import dataRouter from './data/router';
+import jobRouter from './jobs/router';
 import extensionsRouter from './extensions/router';
 import orderRouter from './order/router';
 import reportRouter from './report/router';
 import commonsRouter from '../commons/router';
+import s3MockRouter from './files/s3mockRouter';
+import { s3MockPath } from './data/middleware/filePaths';
+import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
 import checkUserSetup from './onboarding/userSetup';
-import { registrationHandler } from './user/updateUserHandler';
 import { pruneUserObject } from './user/utils';
+import checkPortFree from './utils/checkPortFree';
 import customErrorMiddleware from './errors/customErrorMiddleware';
 import lastDitchErrorMiddleware from './errors/lastDitchErrorMiddleware';
 
@@ -81,7 +84,7 @@ app.set('view engine', 'pug');
 // in deployed environment this API will be available on a different host, and not at this route endpoint
 //note - should come before local auth setup, so that mockUser setup can call storage without middleware in place
 if (!process.env.STORAGE_API) {
-  console.log('[DB Storage] DB Storage API mounted locally at /api/');
+  console.log('[DB] Storage API mounted locally at /api/');
   app.use(require('gctor-storage').mockReqLog); // the storage routes expect req.log to be defined
   app.use('/api', require('gctor-storage').routes);
 }
@@ -144,10 +147,16 @@ app.use('/user', userRouter);
 // PRIMARY ROUTES
 
 app.use('/data', dataRouter);
+app.use('/jobs', jobRouter);
 app.use('/order', orderRouter);
 app.use('/extensions', extensionsRouter);
 app.use('/report', reportRouter);
 app.use('/commons', commonsRouter);
+
+if (process.env.NODE_ENV !== 'production') {
+  //mock s3 routes for jobs/extensions etc. so read/write don't fail
+  app.use(`/${s3MockPath}`, s3MockRouter);
+}
 
 // STATIC ROUTES
 
@@ -211,8 +220,8 @@ function handleError(err) {
   console.log(colors.bgRed('Error starting server. Terminating...'));
   console.log(colors.red(err));
   console.log(err.stack);
-  //87 is totally arbitrary, but listen for it in runServer.js
-  process.exit(87);
+  //42 is totally arbitrary, but listen for it in runServer.js
+  process.exit(42);
 }
 
 function startServer() {
@@ -255,5 +264,10 @@ if (process.env.SERVER_MANUAL !== 'true') {
 } else {
   console.log('Server ready, will start listening manually...');
 }
+
+//explicit listener for termination event for webpack etc, to kill process and not hog the port
+process.on('SIGTERM', () => {
+  process.exit(0);
+});
 
 export default app;

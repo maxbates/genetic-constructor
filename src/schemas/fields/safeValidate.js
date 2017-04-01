@@ -49,7 +49,10 @@ export default function safeValidate(validator, required = false, input, ...args
     const result = validator(input, ...args);
 
     if (result instanceof Error) {
-      throw result;
+      //don't throw here, so devTools doesnt complain on caught exceptions (at least at this point)
+      //e.g. if we are checking for one of n to be satisfied, don't want to error out
+      logger(result, input, ...args);
+      return false;
     }
 
     return result !== false;

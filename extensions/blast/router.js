@@ -13,24 +13,24 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+const express = require('express');
+const bodyParser = require('body-parser');
 
-//Experimental palette SMOOTH:
+const blast = require('./blast');
+const parseJson = require('./parseJson');
 
-export default [
-  { hex: '#4CAE50', name: '' },
-  { hex: '#548A6E', name: '' },
-  { hex: '#009688', name: '' },
-  { hex: '#33697B', name: '' },
-  { hex: '#8BC34A', name: '' },
-  { hex: '#79A576', name: '' },
-  { hex: '#1E84D4', name: '' },
-  { hex: '#6169A3', name: '' },
-  { hex: '#4B5DC1', name: '' },
-  { hex: '#654F81', name: '' },
-  { hex: '#03A9F4', name: '' },
-  { hex: '#6583C9', name: '' },
-  { hex: '#00C9E2', name: '' },
-  { hex: '#699ED4', name: '' },
-  { hex: '#E0EE5C', name: '' },
-  { hex: '#B3D694', name: '' },
-];
+const router = express.Router(); //eslint-disable-line new-cap
+const textParser = bodyParser.text({ limit: '10mb' });
+
+router.post('/parseXml', textParser, (req, res, next) => {
+  const json = blast.blastParseXml(req.body);
+
+  parseJson(json)
+  .then(roll => res.send(roll))
+  .catch((err) => {
+    console.log(err);
+    res.status(500).send(err);
+  });
+});
+
+module.exports = router;

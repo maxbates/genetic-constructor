@@ -291,6 +291,7 @@ export const blockSetProject = (blockId, projectId, deep = true) => (dispatch, g
 
   dispatch({
     type: ActionTypes.BLOCK_SET_PROJECT,
+    undoable: true, //undoable so that when you remove / undo a block, resets projectId
     blocks,
   });
 
@@ -880,6 +881,23 @@ export const blockTrimSequence = (blockId, start = 0, end = 0) => (dispatch, get
   const block = oldBlock.setSequenceTrim(start, end);
   dispatch({
     type: ActionTypes.BLOCK_SET_TRIM,
+    undoable: true,
+    block,
+  });
+  return block;
+};
+
+/***************************************
+ * Jobs
+ ***************************************/
+
+export const blockSetJobId = (blockId, jobId) => (dispatch, getState) => {
+  const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
+
+  const block = oldBlock.setJobId(jobId);
+  dispatch({
+    type: ActionTypes.BLOCK_SET_JOB_ID,
     undoable: true,
     block,
   });

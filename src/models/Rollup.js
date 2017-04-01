@@ -148,6 +148,9 @@ export default class Rollup {
       case 2: {
         _.forEach(roll.blocks, block => _.defaults(block, { attribution: [] }));
       }
+      case 3: {
+        _.forEach(roll.blocks, block => _.defaults(block, { projectId: null }));
+      }
     }
     /* eslint-enable no-fallthrough,default-case */
 

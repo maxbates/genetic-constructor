@@ -12,13 +12,13 @@ import { clientConfig, commonsConfig } from './webpack.config';
 
 const DEBUG = !process.argv.includes('--release');
 
+let processes = [];
+
 async function start() {
   try {
-    if (!process.env.CONSTRUCTOR_SKIP_SETUP) {
-      await run(setup);
-    }
+    processes = await run(setup);
 
-    console.log(colors.blue('Bundling application with Webpack (this may take a moment)...'));
+    console.log(colors.blue(`Bundling application with Webpack [${DEBUG ? 'dev' : 'release'}] (this may take a moment)...`));
 
     const clientConfigs = [clientConfig, commonsConfig];
 
@@ -68,7 +68,7 @@ async function start() {
         /* eslint-enable no-param-reassign */
       });
 
-      //future - reloading for server
+      //todo - build server, better reloading for server
       //const clientCompiler = webpack([clientConfig, serverConfig]);
 
       const clientCompiler = webpack(clientConfigs);
@@ -86,8 +86,6 @@ async function start() {
       let handleBundleComplete = () => {
         console.log('webpack initial build complete');
         console.log('Starting Browser-Sync proxy & injecting Webpack middleware...');
-
-        console.log(colors.blue('Starting server...'));
 
         runServer((err, host) => {
           if (err) {
@@ -168,7 +166,9 @@ async function start() {
           };
 
           //while we are not bundling the server, we can set up a watch to recompile on changes
+          //note this does not pick up changes to files in the bundle, just files in these directories
           const watcher = bs.watch('{commons,server}/**/*', {
+            followSymLinks: true,
             ignored: ignoreFilePathCheck,
           });
 
@@ -201,5 +201,13 @@ async function start() {
     throw err;
   }
 }
+
+const handleTermination = () => {
+  processes.forEach(proc => proc.kill('SIGTERM'));
+  process.exit(0);
+};
+
+process.on('SIGINT', handleTermination);
+process.on('SIGTERM', handleTermination);
 
 export default start;

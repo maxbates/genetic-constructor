@@ -20,6 +20,7 @@ import clean from './clean';
 import setupFiles from './setupFiles';
 import copy from './copy';
 import startDb from './startDb';
+import startRedis from './startRedis';
 
 // returns an array of child processes which may be holding onto the process (e.g. if pass IO)
 // you must kill yourself for the process to exit
@@ -38,6 +39,15 @@ async function setup() {
 
   //copy over public assets etc
   await run(copy.bind(undefined, { watch: true }));
+
+  //start database (note - this holds onto the process until killed)
+  //will skip under certain conditions (see the script itself)
+  const redisProcess = await run(startRedis);
+
+  //not defined if DB was already running
+  if (redisProcess) {
+    processes.push(redisProcess);
+  }
 
   //start database (note - this holds onto the process until killed)
   //will skip under certain conditions (see the script itself)

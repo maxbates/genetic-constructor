@@ -19,12 +19,10 @@ import { connect } from 'react-redux';
 import '../../src/styles/ribbongrunt.css';
 import { uiSetGrunt } from '../actions/ui';
 
-// MS display time for grunt messages
-const DISPLAY_TIME = 5000;
-
 class RibbonGrunt extends Component {
   static propTypes = {
     gruntMessage: PropTypes.string,
+    gruntTime: PropTypes.number,
     uiSetGrunt: PropTypes.func.isRequired,
     atTop: PropTypes.bool,
   };
@@ -32,8 +30,9 @@ class RibbonGrunt extends Component {
   // if we going to show a message then start or extend the close timer
   componentWillReceiveProps(nextProps) {
     window.clearTimeout(this.closeTimer);
-    if (nextProps.gruntMessage) {
-      this.closeTimer = window.setTimeout(this.close.bind(this), DISPLAY_TIME);
+    const { gruntMessage, gruntTime } = nextProps;
+    if (gruntMessage && gruntTime > 0) {
+      this.closeTimer = window.setTimeout(this.close.bind(this), gruntTime);
     }
   }
 
@@ -43,10 +42,13 @@ class RibbonGrunt extends Component {
   };
 
   render() {
-    const message = this.props.gruntMessage || this.lastMessage;
-    this.lastMessage = this.props.gruntMessage;
+    const { gruntMessage } = this.props;
+
+    const message = gruntMessage || this.lastMessage;
+    this.lastMessage = gruntMessage;
+
     const classes = `ribbongrunt ${
-      this.props.gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}${
+      gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}${
       this.props.atTop ? ' atTop' : ''}`;
 
     return (
@@ -58,12 +60,12 @@ class RibbonGrunt extends Component {
       </div>
     );
   }
-  //
 }
 
 function mapStateToProps(state) {
   return {
     gruntMessage: state.ui.modals.gruntMessage,
+    gruntTime: state.ui.modals.gruntTime,
   };
 }
 export default connect(mapStateToProps, {

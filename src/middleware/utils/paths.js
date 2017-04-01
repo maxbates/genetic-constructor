@@ -24,6 +24,7 @@ export const registerPath = () => `${serverRoot}register`;
 
 export const authPath = path => `${serverRoot}auth/${path}`;
 export const dataApiPath = path => `${serverRoot}data/${path}`;
+export const jobsApiPath = path => `${serverRoot}jobs/${path}`;
 export const orderApiPath = path => `${serverRoot}order/${path}`;
 export const extensionsPath = id => `${serverRoot}extensions/${id}`;
 export const reportApiPath = path => `${serverRoot}report/${path}`;
@@ -32,7 +33,8 @@ export const extensionApiPath = (extension, path) => `${serverRoot}extensions/ap
 
 export const projectFilePath = (projectId, namespace, fileName, version) => dataApiPath(`file/${projectId}/${namespace}${fileName ? (`/${fileName}`) : ''}${version ? (`/${version}`) : ''}`);
 
-export const jobPath = (projectId, namespace, fileName) => dataApiPath(`jobs/${projectId}/${namespace}${fileName ? (`/${fileName}`) : ''}`);
+export const jobPath = (projectId, jobId) => jobsApiPath(`${projectId}/${jobId || ''}`);
+export const jobFilePath = (projectId, namespace, fileName) => jobsApiPath(`file/${projectId}/${namespace}${fileName ? (`/${fileName}`) : ''}`);
 
 export const commonsApiPath = (projectId, version) => {
   const useVersion = typeof version === 'string' || Number.isInteger(version);

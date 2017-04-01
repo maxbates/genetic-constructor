@@ -21,8 +21,8 @@ import { connect } from 'react-redux';
 import { focusBlocks } from '../../../actions/focus';
 import { projectAddConstruct } from '../../../actions/projects';
 import { projectGet, projectGetVersion } from '../../../selectors/projects';
+import ConstructViewerJob from './ConstructViewerJob';
 import ConstructViewer from './constructviewer';
-import '../../../styles/constructviewercanvas.css';
 import DnD from '../dnd/dnd';
 import MouseTrap from '../mousetrap';
 import DropTarget from './inter-construct-droptarget';
@@ -174,15 +174,24 @@ export class ConstructViewerCanvas extends Component {
         disabled={this.isFrozenProject()}
       />);
 
-      elements.push(<ConstructViewer
-        mouseScroll={this.mouseScroll}
-        endMouseScroll={this.endMouseScroll}
-        currentProjectId={this.props.currentProjectId}
-        key={construct.id}
-        projectId={this.props.currentProjectId}
-        constructId={construct.id}
-        testIndex={index}
-      />);
+      //not the ideal way to render, but non-obvious how to recycle the construct viewer, as its not very modular (render / update)
+      if (construct.hasJob()) {
+        elements.push(<ConstructViewerJob
+          projectId={this.props.currentProjectId}
+          construct={construct}
+          key={construct.id}
+        />);
+      } else {
+        elements.push(<ConstructViewer
+          mouseScroll={this.mouseScroll}
+          endMouseScroll={this.endMouseScroll}
+          currentProjectId={this.props.currentProjectId}
+          key={construct.id}
+          projectId={this.props.currentProjectId}
+          constructId={construct.id}
+          testIndex={index}
+        />);
+      }
     });
     // put a drop target at the end, force a unique key so it won't clash with the other drop targets
     elements.push(<DropTarget

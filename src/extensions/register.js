@@ -15,7 +15,8 @@
  */
 import invariant from 'invariant';
 
-import registry, { registerRender, validRegion } from './clientRegistry';
+import registry, { registerRender, registerMenu } from './clientRegistry';
+import { validRegion, regionType } from './regions';
 
 /**
  * Register a client-side extension with Genetic Constructor.
@@ -26,9 +27,11 @@ import registry, { registerRender, validRegion } from './clientRegistry';
  * @memberOf module:constructor.module:extensions
  * @param {string} key Name of the extension, must match package.json of the extension
  * @param {string} region Region for render function. Region must be listed in package.json
- * @param {function} render Function called when the extension is requested to render. Called with signature `render(container, options)`
+ * @param {*} payload Expected payload for the region:
+ * projectDetail = Function called when the extension is requested to render. Called with signature `render(container, options)`
+ * menu:* = Array of Objects {text, disabled: () => {}, action: () => {} } defining the menu
  */
-const register = (key, region, render) => {
+const register = (key, region, payload) => {
   const manifest = registry[key];
 
   //we've already checked the manifest is valid when registering the manifest, so if its present, its valid.
@@ -37,22 +40,21 @@ const register = (key, region, render) => {
   //make sure a region is passed and its valid. This is separate than what is in the manifest, but making sure the file's render() is legit
   invariant(validRegion(region), 'must pass a valid region when render');
 
-  //check the render function is a function
-  invariant(typeof render === 'function', 'Must provide a render function to register a plugin. Plugins can interact with the exposed API at window.constructor without registering themselves.');
+  const type = regionType(region);
 
-  //wrap the render function in a closure and try-catch, and ensure it is downloaded
-  const wrappedRender = function wrappedRender() {
-    try {
-      Object.assign(registry[key], { _activated: +Date.now() });
-      return render.apply(null, arguments);
-    } catch (err) {
-      console.error(`there was an error rendering the extension ${key} in ${region}`);
-      console.error(err);
-      throw err;
+  switch (type) {
+    case 'render': {
+      //payload = render function
+      registerRender(key, region, payload);
+      break;
     }
-  };
 
-  registerRender(key, region, wrappedRender);
+    case 'menu': {
+      //payload = menu items
+      registerMenu(key, region, payload);
+      break;
+    }
+  }
 };
 
 export default register;

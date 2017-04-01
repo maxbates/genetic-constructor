@@ -15,30 +15,75 @@
  */
 import invariant from 'invariant';
 
-import { headersGet, headersPost } from './utils/headers';
-import { jobPath } from './utils/paths';
+import { headersGet, headersPost, headersDelete } from './utils/headers';
+import { jobPath, jobFilePath } from './utils/paths';
 import rejectingFetch from './utils/rejectingFetch';
 
 const contentTypeTextHeader = { headers: { 'Content-Type': 'text/plain' } };
+
+// JOBS
+
+// { jobId }
+export const jobCreate = (projectId, type, data) =>
+  rejectingFetch(jobPath(projectId, type), headersPost(JSON.stringify(data)))
+  .then(resp => resp.json());
+
+// { complete, failure, job, result, jobId }
+export const jobGet = (projectId, jobId) =>
+  rejectingFetch(jobPath(projectId, jobId), headersGet())
+  .then(resp => resp.json());
+
+export const jobPoll = (projectId, jobId, waitTime = 30000) => {
+  let interval;
+  const promise = new Promise((resolve, reject) => {
+    interval = setInterval(() => {
+      jobGet(projectId, jobId)
+      .then((result) => {
+        if (!result || result.complete !== true) {
+          return;
+        }
+
+        clearInterval(interval);
+
+        if (result.failure) {
+          return reject(result);
+        }
+
+        return resolve(result);
+      })
+      .catch(reject);
+    }, waitTime);
+  });
+
+  promise.cancelPoll = () => clearInterval(interval);
+
+  return promise;
+};
+
+export const jobCancel = (projectId, jobId) =>
+  rejectingFetch(jobPath(projectId, jobId), headersDelete())
+  .then(resp => resp.json());
+
+// FILES
 
 export const jobFileRead = (projectId, namespace, fileName) => {
   invariant(!!projectId && typeof projectId === 'string', 'projectId is required');
   invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
   invariant(!!fileName && typeof fileName === 'string', 'file name is required');
 
-  return rejectingFetch(jobPath(projectId, namespace, fileName), headersGet(contentTypeTextHeader));
+  return rejectingFetch(jobFilePath(projectId, namespace, fileName), headersGet(contentTypeTextHeader));
 };
 
-//todo - allow specifying name?
+//returns the name of the file + url etc.
 export const jobFileWrite = (projectId, namespace, contents) => {
   invariant(!!projectId && typeof projectId === 'string', 'projectId is required');
   invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
   invariant(typeof contents === 'string', 'must pass contents as string');
 
-  const filePath = jobPath(projectId, namespace);
+  const filePath = jobFilePath(projectId, namespace);
 
   return rejectingFetch(filePath, headersPost(contents, contentTypeTextHeader))
-    .then(resp => resp.json());
+  .then(resp => resp.json());
 };
 
 export const jobFileList = (projectId, namespace) => {
@@ -47,6 +92,11 @@ export const jobFileList = (projectId, namespace) => {
   //todo - don't require namespace. will need to update router
   invariant(!!namespace && typeof namespace === 'string', 'namespace key is required');
 
-  return rejectingFetch(jobPath(projectId, namespace, ''), headersGet())
-    .then(resp => resp.json());
+  return rejectingFetch(jobFilePath(projectId, namespace, ''), headersGet())
+  .then(resp => resp.json());
 };
+
+//once a job is complete, fetch the result, expected to be a rollup
+export const jobGetResult = (projectId, namespace) =>
+  jobFileRead(projectId, namespace, 'result')
+  .then(resp => resp.json());

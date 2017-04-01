@@ -7,6 +7,7 @@ import ExtractTextPlugin from 'extract-text-webpack-plugin';
 const DEBUG = !process.argv.includes('--release');
 const VERBOSE = process.argv.includes('--verbose');
 const DEBUG_REDUX = process.env.DEBUG_REDUX || (process.env.DEBUG && process.env.DEBUG.indexOf('redux') >= 0); //hook for devtools etc.
+
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
   'Android >= 4',
@@ -23,6 +24,7 @@ const dataPath = path.resolve(__dirname, '../data');
 const sourcePath = path.resolve(__dirname, '../src');
 const serverSourcePath = path.resolve(__dirname, '../server');
 const buildPath = path.resolve(__dirname, '../build');
+const classesModulePath = path.resolve(__dirname, '../constructor-classes');
 const commonsPath = path.resolve(__dirname, '../commons');
 
 const GLOBALS = {
@@ -40,8 +42,43 @@ const nodeModules = fs.readdirSync('node_modules')
   {},
 );
 
+const clientSidePlugins = [
+  // Assign the module and chunk ids by occurrence count
+  // https://webpack.github.io/docs/list-of-plugins.html#occurrenceorderplugin
+  new webpack.optimize.OccurenceOrderPlugin(true),
+
+  //Print errors, don't allow modules with errors
+  //https://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
+  new webpack.NoErrorsPlugin(),
+
+  // Define free variables
+  // https://webpack.github.io/docs/list-of-plugins.html#defineplugin
+  new webpack.DefinePlugin({
+    ...GLOBALS,
+    'process.env.BROWSER': true,
+  }),
+  ...(DEBUG ? [] : [
+      // Search for equal or similar files and deduplicate them in the output
+      // https://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
+    new webpack.optimize.DedupePlugin(),
+
+      // Minimize all JavaScript output of chunks
+      // https://github.com/mishoo/UglifyJS2#compressor-options
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        screw_ie8: true, // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
+        warnings: VERBOSE,
+      },
+    }),
+
+      // A plugin for a more aggressive chunk merging strategy
+      // https://webpack.github.io/docs/list-of-plugins.html#aggressivemergingplugin
+    new webpack.optimize.AggressiveMergingPlugin(),
+  ]),
+];
+
 //common configuration
-const config = {
+export const config = {
   output: {
     path: buildPath,
     publicPath: '/static/',
@@ -62,6 +99,7 @@ const config = {
         loader: 'babel-loader',
         //explicitly declare folders
         include: [
+          classesModulePath,
           sourcePath,
           serverSourcePath,
           commonsPath,
@@ -132,40 +170,7 @@ export const clientConfig = merge({}, config, {
 
   target: 'web',
 
-  plugins: [
-    // Assign the module and chunk ids by occurrence count
-    // https://webpack.github.io/docs/list-of-plugins.html#occurrenceorderplugin
-    new webpack.optimize.OccurenceOrderPlugin(true),
-
-    //Print errors, don't allow modules with errors
-    //https://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
-    new webpack.NoErrorsPlugin(),
-
-    // Define free variables
-    // https://webpack.github.io/docs/list-of-plugins.html#defineplugin
-    new webpack.DefinePlugin({
-      ...GLOBALS,
-      'process.env.BROWSER': true,
-    }),
-    ...(DEBUG ? [] : [
-      // Search for equal or similar files and deduplicate them in the output
-      // https://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
-      new webpack.optimize.DedupePlugin(),
-
-      // Minimize all JavaScript output of chunks
-      // https://github.com/mishoo/UglifyJS2#compressor-options
-      new webpack.optimize.UglifyJsPlugin({
-        compress: {
-          screw_ie8: true, // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
-          warnings: VERBOSE,
-        },
-      }),
-
-      // A plugin for a more aggressive chunk merging strategy
-      // https://webpack.github.io/docs/list-of-plugins.html#aggressivemergingplugin
-      new webpack.optimize.AggressiveMergingPlugin(),
-    ]),
-  ],
+  plugins: clientSidePlugins,
 
   // Choose a developer tool to enhance debugging
   // http://webpack.github.io/docs/configuration.html#devtool
@@ -221,6 +226,29 @@ export const serverConfig = merge({}, config, {
   },
 
   externals: nodeModules,
+
+  devtool: 'cheap-module-source-map',
+});
+
+//todo - not sure if this will work on the client
+export const classesConfig = merge({}, config, {
+  context: classesModulePath,
+
+  entry: './bundle.js',
+
+  output: {
+    filename: 'index.js',
+    path: classesModulePath,
+    libraryTarget: 'commonjs2',
+  },
+
+  target: 'node',
+
+  plugins: clientSidePlugins,
+
+  node: serverConfig.node,
+
+  externals: {},
 
   devtool: 'cheap-module-source-map',
 });

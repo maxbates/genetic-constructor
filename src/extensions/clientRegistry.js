@@ -18,7 +18,7 @@ import { get as getPath, isEqual, merge } from 'lodash';
 
 import { extensionName, getClientFileFromRegion, manifestClientRegions, manifestIsClient } from '../../server/extensions/manifestUtils';
 import { downloadExtension } from './downloadExtension';
-import * as regions from './regions';
+import { validRegion } from './regions';
 
 //map of extensions
 export const registry = {};
@@ -31,6 +31,7 @@ const callbacks = [];
 const extensionConfig = {};
 
 const defaultArgs = [registry, null, []];
+
 function safelyRunCallback(callback, ...args) {
   try {
     callback.apply(null, args);
@@ -70,18 +71,15 @@ export const extensionIsActive = (key) => {
   return getPath(extensionConfig, [key, 'active'], false);
 };
 
-/**
- * Check whether a region is a valid to load the extension
- * @name validRegion
- * @memberOf module:constructor.module:extensions
- * @function
- * @param {string} region Region to check
- * @returns {boolean} true if region is valid
- */
-export const validRegion = (region) => region === null || typeof regions[region] === 'string';
+const defaultFilterOptions = {
+  includeInactive : false,
+  includeServer :false,
+};
 
-//returns an array
-export const extensionsByRegion = (region, includeInactive = false, includeServer = false) => {
+//returns an array of manifests
+export const extensionsByRegion = (region, filterOptions = defaultFilterOptions) => {
+  const { includeInactive, includeServer } = filterOptions;
+
   return Object.keys(registry)
     .map(key => registry[key])
     .filter(manifest => includeServer === true || manifestIsClient(manifest))
@@ -90,9 +88,11 @@ export const extensionsByRegion = (region, includeInactive = false, includeServe
       const regions = manifestClientRegions(manifest);
       return regions.indexOf(region) >= 0;
     })
-    .sort((one, two) => one.name < two.name ? -1 : 1)
-    .map(manifest => manifest.name);
+    .sort((one, two) => one.name < two.name ? -1 : 1);
 };
+
+//check if a region expects file to download immediately
+const fileShouldDownloadImmediately = (region) => region === null || region.startsWith('menu');
 
 /**
  * Validate + register an extension manifest
@@ -129,7 +129,9 @@ export const registerManifest = (manifest) => {
       [name]: Object.assign(manifest, {
         _downloaded: +Date.now(),
         _activated: extensionIsActive(manifest.name) ? +Date.now() : null,
-        render: {} }),
+        //render obj is map of region to payload
+        render: {},
+      }),
     });
 
     //when register non-client manifest, don't try to download or anything...
@@ -140,7 +142,7 @@ export const registerManifest = (manifest) => {
     const extensionInfo = client.reduce((acc, { file, region }) => {
       acc.regions.add(region);
 
-      if (region === null) {
+      if (fileShouldDownloadImmediately(region)) {
         acc.files.add(file)
       }
 
@@ -178,10 +180,30 @@ export const registerManifest = (manifest) => {
  * @throws If extension manifest not already registered
  */
 export const registerRender = (key, region, renderFn) => {
-  invariant(!!key && typeof region === 'string' && typeof renderFn === 'function', 'improper args to registerRender');
+  invariant(!!key && typeof region === 'string', 'improper args to registerRender');
+  invariant(typeof renderFn === 'function', 'Must provide a render function to register a visual extension.');
   invariant(registry[key], 'manifest must exist for extension ' + key + ' before registering');
 
-  Object.assign(registry[key].render, { [region]: renderFn });
+  //wrap the render function in a closure and try-catch, and ensure it is downloaded
+  const wrappedRender = function wrappedRender() {
+    try {
+      Object.assign(registry[key], { _activated: +Date.now() });
+      return renderFn.apply(null, arguments);
+    } catch (err) {
+      console.error(`there was an error rendering the extension ${key} in ${region}`);
+      console.error(err);
+      throw err;
+    }
+  };
+
+  Object.assign(registry[key].render, { [region]: wrappedRender });
+};
+
+export const registerMenu = (key, region, menuItems) => {
+  invariant(typeof menuItems === 'function', 'Must provide a function returning the menu items.');
+  invariant(Array.isArray(menuItems()), 'must render an array of menu items, even with no arguments passed');
+
+  Object.assign(registry[key].render, { [region]: menuItems });
 };
 
 /**
@@ -211,6 +233,8 @@ export const getExtensionName = (key) => {
  * Attempt to download and render an extension.
  *
  * Should only call this function if there is a render function, otherwise just download it.
+ *
+ * E.g. this is called by ExtensionView component, for visual extensions, to defer loading of large visual bundle
  *
  * @private
  * @function

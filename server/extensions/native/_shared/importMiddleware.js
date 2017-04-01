@@ -18,7 +18,7 @@ import formidable from 'formidable';
 import _ from 'lodash';
 import md5 from 'md5';
 
-import * as jobFiles from '../../../../server/data/files/jobs';
+import * as jobFiles from '../../../files/jobs';
 import * as projectPersistence from '../../../../server/data/persistence/projects';
 import * as seqPersistence from '../../../../server/data/persistence/sequence';
 import Project from '../../../../src/models/Project';
@@ -49,7 +49,7 @@ export default function importMiddleware(req, res, next) {
   const mintedProjectId = (!alreadyExists) ? Project.classless().id : projectId;
   Object.assign(req, { mintedProjectId });
 
-  logger(`Importing ${mintedProjectId} (${alreadyExists ? 'exists' : 'new'}) - ${req.user.uuid}`);
+  logger(`Importing ${mintedProjectId} (${alreadyExists ? 'exists' : 'new'}) - User: ${req.user.uuid}`);
 
   //depending on the type, set variables for file urls etc.
 
@@ -107,38 +107,38 @@ export default function importMiddleware(req, res, next) {
 
             //future - buffer
             return fileSystem.fileRead(localPath, false)
-              .then(string => jobFiles.jobFileWrite(mintedProjectId, extensionKey, string)
-                  .then(info => ({
-                    name,
-                    string,
-                    fileName: info.name,
-                    filePath: localPath,
-                    fileUrl: info.url,
-                  })))
-              .catch((err) => {
-                console.log(`[Import Middleware] error reading + writing job file ${localPath}`);
-                throw err;
-              });
+            .then(string => jobFiles.jobFileWrite(mintedProjectId, extensionKey, string)
+            .then(info => ({
+              name,
+              string,
+              fileName: info.name,
+              filePath: localPath,
+              fileUrl: info.url,
+            })))
+            .catch((err) => {
+              console.log(`[Import Middleware] error reading + writing job file ${localPath}`);
+              throw err;
+            });
           }),
         )
         //resolve with files
-          .then((files) => {
-            logger('Received files');
-            logger(JSON.stringify(files, null, 2));
-            return resolve(files);
-          })
-          .catch((err) => {
-            logger('[Import Middleware] Error');
-            logger(err);
-            logger(err.stack);
-            reject(err);
-          });
+        .then((files) => {
+          logger('Received files');
+          logger(JSON.stringify(files, null, 2));
+          return resolve(files);
+        })
+        .catch((err) => {
+          logger('[Import Middleware] Error');
+          logger(err);
+          logger(err.stack);
+          reject(err);
+        });
       });
     }))
-      .catch((err) => {
-        res.status(404).send('error parsing import -- was expecting a file, or JSON object: { name, string }');
-        return Promise.reject(err);
-      });
+    .catch((err) => {
+      res.status(404).send('error parsing import -- was expecting a file, or JSON object: { name, string }');
+      return Promise.reject(err);
+    });
   }
 
   //resolves the files in form { name, string, fileName, filePath, fileUrl }
@@ -154,124 +154,82 @@ export default function importMiddleware(req, res, next) {
 
     next();
   })
-    .catch((err) => {
-      if (err === errorDoesNotExist) {
-        return res.status(404).send(errorDoesNotExist);
-      }
-      if (err === errorNoPermission) {
-        return res.status(403).send(errorNoPermission);
-      }
+  .catch((err) => {
+    if (err === errorDoesNotExist) {
+      return res.status(404).send(errorDoesNotExist);
+    }
+    if (err === errorNoPermission) {
+      return res.status(403).send(errorNoPermission);
+    }
 
-      logger('[Import Middleware] unhandled error');
-      logger(err);
-      logger(err.stack);
-      next(err);
-    });
+    logger('[Import Middleware] unhandled error');
+    logger(err);
+    logger(err.stack);
+    next(err);
+  });
 }
 
 /**
  * expects on req: roll, noSave, conversion, :projectId?
  *
- * roll can contain project { project } , blocks {blockId : block} , sequences and will be merged / written appropriately
- *
- * sequences can take two forms:
- *
- * todo - deprecate this first format. If anything, should pass in the form { blockId: sequence } and we'll set the md5 etc. extensions should not have to do this hashing
- * POTENTIALLY GOING TO BE DEPRECATED
- * object: assumes blocks already defined properly
- * { md5: sequence }
- *
- * PREFERRED:
- * array: will compute md5 and assign block.sequence.md5, accounting for range
- * [{
- *  sequence: '',
- *  blocks: {
- *    blockId: [start, end] OR true
- *  }
- * }]
+ * roll can contain project { project } , blocks {blockId : block} , sequences and will be merged / written appropriately - see sequenceWriteManyChunksAndUpdateRollup
  */
 export function mergeRollupMiddleware(req, res, next) {
   const { user, projectId, mintedProjectId, roll, noSave, conversion } = req;
-  const { project, blocks, sequences = {} } = roll;
 
   logger(`merging project (project=${projectId})`);
 
   //we write the sequences no matter what right now
   //future - param to not write sequences (e.g. when just want to look at in inspector, and dont care about sequence -- is this ever the case?)
+  return seqPersistence.sequenceWriteManyChunksAndUpdateRollup(roll)
+  .then((roll) => {
+    logger(`sequences written (project=${projectId})`);
 
-  const writeSequencesPromise = Array.isArray(sequences)
-    ?
-    Promise.all(
-      sequences
-        .filter(seqObj => seqObj && seqObj.sequence && seqObj.sequence.length > 0)
-        .map(seqObj => seqPersistence.sequenceWriteChunks(seqObj.sequence, seqObj.blocks)),
-    )
-      .then((blockMd5Maps) => {
-        //make simgle object with all blockId : md5 map
-        const blockMd5s = Object.assign({}, ...blockMd5Maps);
+    const { project, blocks } = roll;
 
-        //todo - should also assign sequence length here etc.
-        _.forEach(blockMd5s, (pseudoMd5, blockId) => {
-          //const { hash, hasRange, start, end } = parsePseudoMd5(pseudoMd5);
-          _.merge(blocks[blockId], {
-            sequence: {
-              md5: pseudoMd5,
-              //length: hasRange ? end - start : (GET_FULL_LENGTH)
-            },
-          });
-        });
-      })
-    :
-    //assumes that since we are getting md5s, the blocks already know what their sequences are, and no need to update
-    seqPersistence.sequenceWriteMany(sequences);
+    if (!projectId || conversion) {
+      //if we didnt recieve a projectId, we've assigned one already in importMiddleware above (for job file), so use here
+      //even if we are running a conversion, we had a dummy project to be rollup-compliant, so make sure blocks are ok
+      // if we are converting, ultimately we remove the project ID, but to generate the rollup (and run initial validation), a project ID is necessary
+      Object.assign(project, { id: mintedProjectId, owner: user.uuid });
+      _.forEach(blocks, block => Object.assign(block, { projectId: mintedProjectId }));
 
-  return writeSequencesPromise
-    .then(() => {
-      logger(`sequences written (project=${projectId})`);
+      return Promise.resolve(new Rollup({
+        project,
+        blocks,
+      }));
+    }
 
-      if (!projectId || conversion) {
-        //if we didnt recieve a projectId, we've assigned one already in importMiddleware above (for job file), so use here
-        //even if we are running a conversion, we had a dummy project to be rollup-compliant, so make sure blocks are ok
-        // if we are converting, ultimately we remove the project ID, but to generate the rollup (and run initial validation), a project ID is necessary
-        Object.assign(project, { id: mintedProjectId, owner: user.uuid });
-        _.forEach(blocks, block => Object.assign(block, { projectId: mintedProjectId }));
-
-        return Promise.resolve(new Rollup({
-          project,
-          blocks,
-        }));
-      }
-
-      return projectPersistence.projectGet(projectId)
-        .then((existingRoll) => {
-          existingRoll.project.components = existingRoll.project.components.concat(project.components);
-          Object.assign(existingRoll.blocks, blocks);
-          return existingRoll;
-        });
-    })
-    .then((roll) => {
-      if (noSave) {
-        return Promise.resolve(roll);
-      }
-
-      return projectPersistence.projectWrite(roll.project.id, roll, req.user.uuid)
-        .then(() => roll);
-    })
-    .then((roll) => {
-      logger(`project written, import complete (${projectId})`);
-
-      //if we did a conversion, we don't want a project ID on the blocks
-      if (conversion) {
-        _.forEach(roll.blocks, block => Object.assign(block, { projectId: null }));
-        return res.status(200).json(roll);
-      }
-
-      return res.status(200).json({ projectId: roll.project.id });
-    })
-    .catch((err) => {
-      logger('Error merging project');
-      logger(err);
-      logger(err.stack);
-      res.status(500).send(err);
+    return projectPersistence.projectGet(projectId)
+    .then((existingRoll) => {
+      existingRoll.project.components = existingRoll.project.components.concat(project.components);
+      Object.assign(existingRoll.blocks, blocks);
+      return existingRoll;
     });
+  })
+  .then((roll) => {
+    if (noSave) {
+      return Promise.resolve(roll);
+    }
+
+    return projectPersistence.projectWrite(roll.project.id, roll, req.user.uuid)
+    .then(() => roll);
+  })
+  .then((roll) => {
+    logger(`project written, import complete (${projectId})`);
+
+    //if we did a conversion, we don't want a project ID on the blocks
+    if (conversion) {
+      _.forEach(roll.blocks, block => Object.assign(block, { projectId: null }));
+      return res.status(200).json(roll);
+    }
+
+    return res.status(200).json({ projectId: roll.project.id });
+  })
+  .catch((err) => {
+    logger('Error merging project');
+    logger(err);
+    logger(err.stack);
+    res.status(500).send(err);
+  });
 }

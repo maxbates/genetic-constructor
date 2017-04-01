@@ -35,6 +35,7 @@ process.on('message', (message) => {
   /*
    // DEBUG USING SPAWN
    // todo - solidify this, so can use all the time without overflowing buffer?
+   //note - you may need to explicitly stop listening to stdio so the process dies on server restart
    const [cmd, ...args] = command.split(' ');
 
    const spawned = cp.spawn(cmd, args, { silent: false });

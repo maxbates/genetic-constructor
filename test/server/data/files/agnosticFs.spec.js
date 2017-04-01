@@ -17,7 +17,7 @@ import { assert, expect } from 'chai';
 import * as s3 from '../../../../server/data/middleware/s3';
 import * as filePaths from '../../../../server/data/middleware/filePaths';
 import uuid from 'node-uuid';
-import * as agnosticFs from '../../../../server/data/files/agnosticFs';
+import * as agnosticFs from '../../../../server/files/agnosticFs';
 
 const bucketName = 'bionano-gctor-files';
 

@@ -107,11 +107,17 @@ export const undef = params => (input) => {
   }
 };
 
+export const nil = params => (input) => {
+  if (input !== null) {
+    return new Error(`${input} is not null`);
+  }
+};
+
 /*******
  string subtypes
  *******/
 
-export const sequence = (params = {}) => (input) => {
+export const sequence = (params = { loose: false }) => (input) => {
   if (!isString(input)) {
     return new Error(`${input} is not a string`);
   }
@@ -227,7 +233,7 @@ export const oneOfType = (types, { required = false } = {}) => (input) => {
   }
 
   const checker = type => isFunction(type) ?
-      safeValidate(type, required, input) :
+    safeValidate(type, required, input) :
     input instanceof type;
 
   if (!types.some(checker)) {

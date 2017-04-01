@@ -34,20 +34,23 @@ import '../../../src/styles/title-and-toolbar.css';
  */
 export default class TitleAndToolbar extends Component {
   static propTypes = {
-    toolbarItems: PropTypes.array.isRequired,
     title: PropTypes.string.isRequired,
+    toolbarItems: PropTypes.array,
     subTitle: PropTypes.string,
     label: PropTypes.string,
-    fontSize: PropTypes.string.isRequired,
-    color: PropTypes.string.isRequired,
-    onClick: PropTypes.func.isRequired,
-    onClickBackground: PropTypes.func.isRequired,
+    fontSize: PropTypes.string,
+    color: PropTypes.string,
+    onClick: PropTypes.func,
+    onClickBackground: PropTypes.func,
     onContextMenu: PropTypes.func,
     noHover: PropTypes.bool,
     itemActivated: PropTypes.func,
   };
 
   static defaultProps = {
+    fontSize: '16px',
+    color: '#3F82FF',
+    onClick: () => {},
     onClickBackground: (evt) => {},
   };
 
@@ -105,10 +108,12 @@ export default class TitleAndToolbar extends Component {
         </div>
 
         <div className="bar">
-          <InlineToolbar
-            items={this.props.toolbarItems}
-            itemActivated={this.props.itemActivated}
-          />
+          {(this.props.toolbarItems && this.props.toolbarItems.length) && (
+            <InlineToolbar
+              items={this.props.toolbarItems}
+              itemActivated={this.props.itemActivated}
+            />
+          )}
         </div>
       </div>
     );

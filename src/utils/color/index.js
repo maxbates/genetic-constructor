@@ -14,30 +14,30 @@
  limitations under the License.
  */
 
-import paletteAnime from './paletteAnime';
-import paletteBright from './paletteBright';
-import paletteNature from './paletteNature';
-import palettePastel from './palettePastel';
+import palette1 from './palette1';
+import palette2 from './palette2';
+import palette3 from './palette3';
+import palette4 from './palette4';
 
 const paletteLength = 16;
 
 export const colorFiller = '#4B505E';
 let lastIndex = 0;
 
-export const palettes = ['anime', 'bright', 'pastel', 'nature'];
+export const palettes = ['Western', 'Souvenir', 'Forest', 'Neon'];
 
 export function getPalette(name) {
   switch (name) {
-    case 'bright':
-      return paletteBright;
-    case 'pastel':
-      return palettePastel;
-    case 'nature':
-      return paletteNature;
-    case 'anime':
+    case 'Souvenir':
+      return palette2;
+    case 'Forest':
+      return palette3;
+    case 'Neon':
+      return palette4;
+    case 'Western':
     case 'default':
     default:
-      return paletteAnime;
+      return palette1;
   }
 }
 
@@ -47,7 +47,7 @@ export function getPalette(name) {
  * @returns {string}
  */
 export function getPaletteName(name) {
-  return name || 'anime';
+  return name || 'Western';
 }
 
 //generate a random hex color

@@ -14,23 +14,11 @@
  limitations under the License.
  */
 
-//experimental palette PASTEL
+// standard file names
 
-export default [
-  { hex: '#D47A86', name: '' },
-  { hex: '#4382B8', name: '' },
-  { hex: '#D54084', name: '' },
-  { hex: '#376CBF', name: '' },
-  { hex: '#EB9E89', name: '' },
-  { hex: '#74A496', name: '' },
-  { hex: '#D1EB89', name: '' },
-  { hex: '#A9D171', name: '' },
-  { hex: '#587C84', name: '' },
-  { hex: '#275F78', name: '' },
-  { hex: '#899B90', name: '' },
-  { hex: '#BBBA9C', name: '' },
-  { hex: '#814E99', name: '' },
-  { hex: '#8A6CAB', name: '' },
-  { hex: '#908BAC', name: '' },
-  { hex: '#85CFAE', name: '' },
-];
+export const FILE_NAME_INPUT = 'input'; //data passed to job
+export const FILE_NAME_DATA = 'data'; //a file the job can write (if it wants) //todo - let extensions write whatever files they want (not just one)
+export const FILE_NAME_OUTPUT = 'output'; //output file to be written by job
+export const FILE_NAME_RAW_RESULT = 'rawresult'; //return result from job
+export const FILE_NAME_RESULT = 'result'; //return result from job, after processing by constructor
+

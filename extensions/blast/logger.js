@@ -13,24 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+const debug = require('debug');
 
-//experimental palette FULL
+const logger = debug('constructor:blast');
 
-export default [
-  { hex: '#EE5E54', name: '' },
-  { hex: '#DC4578', name: '' },
-  { hex: '#1E84D4', name: '' },
-  { hex: '#4CAE50', name: '' },
-  { hex: '#4B5DC1', name: '' },
-  { hex: '#009688', name: '' },
-  { hex: '#9E50AC', name: '' },
-  { hex: '#03A9F4', name: '' },
-  { hex: '#8BC34A', name: '' },
-  { hex: '#8964CB', name: '' },
-  { hex: '#00C9E2', name: '' },
-  { hex: '#E0EE5C', name: '' },
-  { hex: '#686F93', name: '' },
-  { hex: '#7499B7', name: '' },
-  { hex: '#77B3CE', name: '' },
-  { hex: '#BBD2DD', name: '' },
-];
+module.exports = logger;

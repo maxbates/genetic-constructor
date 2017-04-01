@@ -46,7 +46,7 @@ export class ProjectDetail extends Component {
     //run on first time (key === null) in case registry is already populated.
     this.extensionsListener = onRegister((registry, key, regions) => {
       if (key === null || regions.indexOf(projectDetailExtensionRegion) >= 0) {
-        this.extensions = extensionsByRegion(projectDetailExtensionRegion);
+        this.extensions = extensionsByRegion(projectDetailExtensionRegion).map(manifest => manifest.name);
         this.forceUpdate();
       }
     });

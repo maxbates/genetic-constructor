@@ -3,4 +3,4 @@ webapp:
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - /usr/bin/docker:/usr/bin/docker 
-    - /usr/lib64/libdevmapper.so.1.02:/usr/lib/libdevmapper.so.1.02 
+    - /usr/lib64/libdevmapper.so.1.02:/usr/lib/libdevmapper.so.1.02

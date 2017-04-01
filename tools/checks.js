@@ -48,7 +48,7 @@ export const checkDockerInstalled = () => promisedExec('docker -v', {}, { commen
       const version = findVersions(result, { loose: true });
       console.log(`Found version ${version}`);
 
-      const [/*match*/, major, minor] = /^(\d+?)\.(\d+?)\.(.+)$/.exec(version);
+      const [/*match*/, major, minor] = /(\d+?)\.(\d+?)\.(.+)$/.exec(version);
       // we ignore the 'Z' version of Docker but keep in mind it may not always be an integer
 
       let versionOk = false;
