@@ -14,6 +14,7 @@
     "build": "./node_modules/.bin/babel-node tools/run build",
     "build-client": "./node_modules/.bin/babel-node tools/run bundle",
     "build-classes": "./node_modules/.bin/babel-node tools/run bundleClasses",
+    "deploy-classes": "npm run build-classes && git subtree push --prefix constructor-classes https://github.com/maxbates/constructor-classes.git master",
     "install-extensions": "./node_modules/.bin/babel-node tools/run installExtensions",
     "install-dependencies": "./node_modules/.bin/babel-node tools/run install-dependencies",
     "jsdoc": "jsdoc -c docs/jsdoc/jsdoc.conf.json --package package.json --readme docs/jsdoc/jsdoc.md",
