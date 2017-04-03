@@ -176,13 +176,14 @@ export default class Block extends Instance {
    * @returns {boolean}
    */
   hasContents() {
-    return this.components.length || Object.keys(this.options).length;
+    return this.components.length > 0 || Object.keys(this.options).length > 0;
   }
 
   //isSpec() can't exist here, since dependent on children. use selector blockIsSpec instead.
 
   /**
    * Check if Block is a construct (it has components)
+   * todo - rename isParentBlock()
    * @method isConstruct
    * @memberOf Block
    * @returns {boolean}
@@ -527,8 +528,6 @@ export default class Block extends Instance {
   /************
    components
    ************/
-
-  //future - account for block.rules.filter
 
   /**
    * Adds a component by ID

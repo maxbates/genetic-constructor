@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import invariant from 'invariant';
-import { assign, cloneDeep, merge } from 'lodash';
+import { assign, cloneDeep, merge, mergeWith } from 'lodash';
 
 import InstanceSchema from '../schemas/Instance';
 import ParentSchema from '../schemas/Parent';
@@ -82,7 +82,7 @@ export default class Instance extends Immutable {
     let clone;
 
     if (parentInfo === null) {
-      clone = merge(cloned, overwrites);
+      clone = mergeWith(cloned, overwrites, mergeCustomizer);
     } else {
       const parentObject = Object.assign({
         id: cloned.id,
@@ -97,12 +97,18 @@ export default class Instance extends Immutable {
       const parents = [parentObject, ...cloned.parents];
 
       //unclear why, but merging parents was not overwriting the clone, so shallow assign parents specifically
-      clone = Object.assign(merge(cloned, overwrites), { parents });
+      clone = mergeWith(cloned, overwrites, { parents }, mergeCustomizer);
     }
 
     //unset the ID, so we make it fresh
     delete clone.id;
 
     return new this.constructor(clone);
+  }
+}
+
+function mergeCustomizer(objValue, srcValue) {
+  if (srcValue instanceof Array) {
+    return srcValue;
   }
 }
