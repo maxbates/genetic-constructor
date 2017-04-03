@@ -41,6 +41,7 @@ export const initialState = {
   unpublishDialog: false,
   unpublishDialogVersion: undefined,
   projectDeleteDialog: false,
+  projectDeleteForceProjectId: null,
 };
 
 export default function modals(state = initialState, action) {
@@ -136,8 +137,8 @@ export default function modals(state = initialState, action) {
       return { ...state, unpublishDialog, unpublishDialogVersion };
 
     case ActionTypes.UI_SHOW_PROJECT_DELETE_DIALOG:
-      const { projectDeleteDialog } = action;
-      return { ...state, projectDeleteDialog };
+      const { projectDeleteDialog, projectDeleteForceProjectId } = action;
+      return { ...state, projectDeleteDialog, projectDeleteForceProjectId };
 
     case LOCATION_CHANGE :
       const toKeep = ['gruntMessage'].reduce((acc, field) => Object.assign(acc, { [field]: state[field] }), {});
