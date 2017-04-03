@@ -22,7 +22,7 @@ import moment from 'moment';
 
 import Rollup from '../../../src/models/Rollup';
 
-import { unsanitize } from '../sanitize';
+import { unsanitize } from '../../sanitize';
 import InfoTable from './InfoTable';
 import ConstructAbout from './ConstructAbout';
 import BigOpenLink from './BigOpenLink';

@@ -20,7 +20,7 @@ import { IndexRoute, Route, Redirect } from 'react-router';
 import safeValidate from '../../src/schemas/fields/safeValidate';
 import { id as idValidatorCreator } from '../../src/schemas/fields/validators';
 
-import { unsanitize } from './sanitize';
+import { unsanitize } from '../sanitize';
 import * as middleware from './middleware';
 
 import App from './components/App';

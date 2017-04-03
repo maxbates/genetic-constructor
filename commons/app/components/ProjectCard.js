@@ -19,7 +19,7 @@ import { Link } from 'react-router';
 
 import { getPalette } from '../../../src/utils/color/index';
 
-import { sanitize } from '../sanitize';
+import { sanitize } from '../../sanitize';
 
 if (process.env.BROWSER) {
   require('../styles/ProjectCard.css'); //eslint-disable-line global-require

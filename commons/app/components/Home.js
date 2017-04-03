@@ -20,7 +20,7 @@ import { withRouter } from 'react-router';
 import _ from 'lodash';
 
 import ProjectCard from './ProjectCard';
-import { sanitize } from '../sanitize';
+import { sanitize } from '../../sanitize';
 
 if (process.env.BROWSER) {
   require('../styles/Home.css'); //eslint-disable-line global-require

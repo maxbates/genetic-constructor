@@ -17,6 +17,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import { sanitize } from '../../../commons/sanitize';
 import { snapshotsList } from '../../actions/snapshots';
 import { blockStash } from '../../actions/blocks';
 import { projectOpen, projectStash } from '../../actions/projects';
@@ -36,6 +37,9 @@ export class InspectorGroupHistory extends Component {
     project: PropTypes.shape({
       id: PropTypes.string.isRequired,
       owner: PropTypes.string.isRequired,
+      metadata: PropTypes.shape({
+        name: PropTypes.string,
+      }).isRequired,
     }).isRequired,
     userId: PropTypes.string.isRequired,
     userOwnsProject: PropTypes.bool.isRequired,
@@ -165,6 +169,8 @@ export class InspectorGroupHistory extends Component {
       return <Spinner />;
     }
 
+    const sanitizedName = sanitize(this.props.project.metadata.name);
+
     return (
       <div className="InspectorContent InspectorContentHistory">
         {!this.state.snapshots.length && (
@@ -188,7 +194,7 @@ export class InspectorGroupHistory extends Component {
 
           const widgets = snapshot.isPublished()
             ? [(
-              <a href={`/commons/${snapshot.projectId}`} target="_blank" rel="noopener noreferrer">
+              <a href={`/commons/${sanitizedName}?projectId=${snapshot.projectId}`} target="_blank" rel="noopener noreferrer">
                 <img
                   src="/images/ui/commonsVersion.svg"
                   alt="Open in The Commons"
