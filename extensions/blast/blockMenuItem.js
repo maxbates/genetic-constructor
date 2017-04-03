@@ -17,7 +17,7 @@
 constructor.extensions.register('blast', 'menu:block',
   (singleBlockSelected, block) => [{
     text: 'BLAST for similar sequences',
-    disabled: !singleBlockSelected || !block.hasSequence(),
+    disabled: !singleBlockSelected || !block.hasSequence() || block.hasContents(),
     action: () =>
       block.getSequence()
       .then(sequence => constructor.jobs.jobCreate(block.projectId, 'blast', { id: block.id, sequence }))
@@ -27,6 +27,9 @@ constructor.extensions.register('blast', 'menu:block',
           metadata: { name: `BLAST: ${block.getName()}` },
           jobId,
           components: [],
+          sequence: {
+            annotations: [],
+          },
         });
 
         constructor.api.projects.projectAddConstruct(block.projectId, construct.id);
