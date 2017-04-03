@@ -73,6 +73,8 @@ const _assertUserOwnsBlock = (state, blockId, options) => {
 
 const _assertBlockNotFixed = block => invariant(!block.isFixed(), 'cannot mutate fixed block');
 
+const _assertBlockIsLeaf = block => invariant(!block.hasContents(), 'block must not have children or list options');
+
 const classifyBlockIfNeeded = input => (input instanceof Block) ? input : new Block(input);
 
 /**************************************
@@ -839,6 +841,7 @@ export const blockRemoveAnnotation = (blockId, annotation) => (dispatch, getStat
  */
 export const blockGetSequence = blockId => (dispatch, getState) => {
   const block = _getBlock(getState(), blockId);
+  _assertBlockIsLeaf(block);
   return block.getSequence();
 };
 
@@ -852,8 +855,8 @@ export const blockGetSequence = blockId => (dispatch, getState) => {
  */
 export const blockSetSequence = (blockId, sequence, useStrict) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
-
   _assertBlockNotFixed(oldBlock);
+  _assertBlockIsLeaf(oldBlock);
 
   return oldBlock.setSequence(sequence, useStrict)
   .then((block) => {
