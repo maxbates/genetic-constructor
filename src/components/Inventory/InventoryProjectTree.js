@@ -263,7 +263,6 @@ export class InventoryProjectTree extends Component {
       {
         text: 'Delete Project',
         action: () => {
-          console.log('Delete Project UI:', project.id);
           this.onDeleteProject(project);
         },
       },
