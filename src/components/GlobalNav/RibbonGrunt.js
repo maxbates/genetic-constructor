@@ -48,7 +48,7 @@ class RibbonGrunt extends Component {
     this.lastMessage = gruntMessage;
 
     const classes = `ribbongrunt ${
-      !!gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}${
+      (gruntMessage && gruntMessage.length) ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}${
       this.props.atTop ? ' atTop' : ''}`;
 
     return (
