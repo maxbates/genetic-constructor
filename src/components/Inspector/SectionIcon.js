@@ -15,10 +15,10 @@
  */
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import DnD from '../graphics/dnd/dnd';
+import DnD from '../../graphics/dnd/dnd';
 
 //note - Section Icons are defined in CSS, so they can be webpacked
-import '../styles/SectionIcon.css';
+import '../../styles/SectionIcon.css';
 
 export default class SectionIcon extends Component {
   static propTypes = {

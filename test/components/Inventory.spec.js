@@ -15,7 +15,7 @@ chai.use(sinonChai);
  import configureStore from '../../src/store/configureStore';
  */
 
-import { Inventory } from '../../src/components/Inventory';
+import { Inventory } from '../../src/components/Inventory/Inventory';
 
 function setup(propOverrides = {}) {
   const store = createStore(rootReducerCreator());

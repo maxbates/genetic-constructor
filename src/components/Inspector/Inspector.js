@@ -16,11 +16,11 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { inspectorSelectTab, inspectorToggleVisibility } from '../actions/ui';
-import InspectorGroup from './Inspector/InspectorGroup';
-import { _getFocused } from '../selectors/focus';
-import '../styles/Inspector.css';
-import '../styles/SidePanel.css';
+import { inspectorSelectTab, inspectorToggleVisibility } from '../../actions/ui';
+import InspectorGroup from './InspectorGroup';
+import { _getFocused } from '../../selectors/focus';
+import '../../styles/Inspector.css';
+import '../../styles/SidePanel.css';
 import SectionIcon from './SectionIcon';
 import InspectorRightNav from './InspectorRightNav';
 

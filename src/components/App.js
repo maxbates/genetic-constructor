@@ -110,7 +110,7 @@ class App extends Component {
 
   render() {
     //set by webpack
-    const DevTools = (process.env.DEBUG_REDUX) ? require('./DevTools') : 'noscript'; //eslint-disable-line global-require
+    const DevTools = (process.env.DEBUG_REDUX) ? require('./_util/DevTools') : 'noscript'; //eslint-disable-line global-require
     //todo - should we check this better
     const onLanding = this.props.location.pathname.indexOf('homepage') >= 0;
 

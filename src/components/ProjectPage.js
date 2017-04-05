@@ -25,14 +25,14 @@ import ProjectDetail from './ProjectDetail';
 import ProjectHeader from './ProjectHeader';
 import ImportGenBankModal from './modal/ImportGenBankModal';
 import ImportDNAForm from './modal/DNAImportForm';
-import ImportPartsCSVModal from './ImportPartsCSVModal';
+import ImportPartsCSVModal from './modal/ImportPartsCSVModal';
 import SaveErrorModal from './modal/SaveErrorModal';
 import PublishModal from './modal/PublishModal';
 import UnpublishModal from './modal/UnpublishModal';
 import DeleteProjectModal from './modal/DeleteProjectModal';
 import OrderModal from './orders/ordermodal';
-import Inspector from './Inspector';
-import Inventory from './Inventory';
+import Inspector from './Inspector/Inspector';
+import Inventory from './Inventory/Inventory';
 import Spinner from './ui/Spinner';
 
 import loadAllExtensions from '../extensions/loadExtensions';

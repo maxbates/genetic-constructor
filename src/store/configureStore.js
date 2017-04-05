@@ -43,7 +43,7 @@ const storeCreationFunctions = [
 
 //set by webpack
 if (process.env.DEBUG_REDUX) {
-  const DevTools = require('../components/DevTools.js'); //eslint-disable-line global-require
+  const DevTools = require('../components/_util/DevTools.js'); //eslint-disable-line global-require
   storeCreationFunctions.push(DevTools.instrument());
 }
 

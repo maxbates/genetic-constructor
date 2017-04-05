@@ -5,7 +5,7 @@ import webpack from 'webpack';
 
 const DEBUG = !process.argv.includes('--release');
 const VERBOSE = process.argv.includes('--verbose');
-const DEBUG_REDUX = process.env.DEBUG && process.env.DEBUG.indexOf('redux') >= 0; //hook for devtools etc.
+const DEBUG_REDUX = !!process.env.DEBUG_REDUX || (process.env.DEBUG && process.env.DEBUG.indexOd('redux') >= 0); //hook for devtools etc.
 
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',

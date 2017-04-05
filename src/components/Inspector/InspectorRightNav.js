@@ -14,8 +14,8 @@
  limitations under the License.
  */
 import React, { PropTypes } from 'react';
-import UserWidget from './authentication/userwidget';
-import AutosaveTracking from './GlobalNav/autosaveTracking';
+import UserWidget from '../authentication/userwidget';
+import AutosaveTracking from '../GlobalNav/autosaveTracking';
 
 const InspectorRightNav = ({ currentProjectId, isVisible }) => {
   let autoSave;

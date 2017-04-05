@@ -16,12 +16,12 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { inventorySelectTab, inventoryToggleVisibility } from '../actions/ui';
-import InventoryGroup from './Inventory/InventoryGroup';
-import '../styles/Inventory.css';
-import '../styles/SidePanel.css';
-import SectionIcon from './SectionIcon';
-import GlobalNav from '../components/GlobalNav/GlobalNav';
+import { inventorySelectTab, inventoryToggleVisibility } from '../../actions/ui';
+import InventoryGroup from './InventoryGroup';
+import '../../styles/Inventory.css';
+import '../../styles/SidePanel.css';
+import SectionIcon from '../Inspector/SectionIcon';
+import GlobalNav from '../GlobalNav/GlobalNav';
 
 export class Inventory extends Component {
   static propTypes = {

@@ -18,13 +18,14 @@ import React, { Component, PropTypes } from 'react';
 import Dropzone from 'react-dropzone';
 import { connect } from 'react-redux';
 
-import '../styles/partscsv.css';
-import { blockOptionsAdd, blockStash } from '../actions/blocks';
-import { uiShowPartsCSVImport, uiSpin } from '../actions/ui';
-import { importFile } from '../middleware/csv';
-import Block from '../models/Block';
-import ModalWindow from './modal/modalwindow';
+import '../../styles/partscsv.css';
+import { blockOptionsAdd, blockStash } from '../../actions/blocks';
+import { uiShowPartsCSVImport, uiSpin } from '../../actions/ui';
+import { importFile } from '../../middleware/csv';
+import Block from '../../models/Block';
+import ModalWindow from '../modal/modalwindow';
 
+//todo - migrate to new modal window (this is using deprecated components)
 /**
  * Genbank import dialog.
  */
