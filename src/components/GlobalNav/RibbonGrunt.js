@@ -48,7 +48,7 @@ class RibbonGrunt extends Component {
     this.lastMessage = gruntMessage;
 
     const classes = `ribbongrunt ${
-      gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}${
+      !!gruntMessage ? 'ribbongrunt-visible' : 'ribbongrunt-hidden'}${
       this.props.atTop ? ' atTop' : ''}`;
 
     return (
@@ -65,7 +65,7 @@ class RibbonGrunt extends Component {
 function mapStateToProps(state) {
   return {
     gruntMessage: state.ui.modals.gruntMessage,
-    gruntTime: state.ui.modals.gruntTime,
+    gruntTime: state.ui.modals.gruntTime || 5000,
   };
 }
 export default connect(mapStateToProps, {
