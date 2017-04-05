@@ -6,7 +6,7 @@
     "exclude" : [
       "src/util",
       "src/components",
-      "src/containers"
+      "src/graphics"
     ]
   },
   "plugins": [
