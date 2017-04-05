@@ -6,6 +6,7 @@
     "testClient" : "../../extensions/testClient",
     "testPrivate" : "../../extensions/testPrivate",
     "testErrorServer" : "../../extensions/testErrorServer",
+    "seq-viewer": "git+http://github.com/duncanmeech/sequence-viewer.git",
     "SequenceDetail" : "IsaacLuo/onion2#8f03cd9d4820b9e98965dc945539afed9b9205cb",
     "GC-GSL-Editor" : "autodesk-bionano/gc-gsl-editor#v1.1.2",
     "GC-Sequence-Viewer": "duncanmeech/sequence-viewer",

@@ -1,0 +1,22 @@
+@import '../../../src/styles/variables.css';
+
+.BigOpenLink {
+  & {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 0.5rem 2rem;
+    font-size: 1.5rem;
+    border-radius: 1em;
+    background-color: var(--colors-selected);
+    color: var(--colors-white) !important;
+    text-transform: uppercase;
+  }
+
+  &-glyph {
+    display: inline-block;
+    background: url('/images/ui/go-white.svg');
+    margin-left: 1rem;
+    width: 23px;
+    height: 13px;
+  }
+}

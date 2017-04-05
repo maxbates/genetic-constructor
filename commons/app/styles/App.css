@@ -1,0 +1,28 @@
+@import '../../../node_modules/normalize.css/normalize.css';
+@import '../../../src/styles/variables.css';
+@import '../../../src/styles/base.css';
+@import '../../../src/styles/fonts.css';
+
+body {
+  overflow: scroll;
+}
+
+.App {
+  position: relative;
+  width: 980px;
+  padding: 0 10px;
+  margin: 0 auto;
+  color: var(--colors-darkGrey);
+  background-color: var(--colors-white);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+a {
+  text-decoration: none;
+}
+
+h3 {
+  font-family: var(--font-family-light);
+  font-size: 1.5rem;
+}

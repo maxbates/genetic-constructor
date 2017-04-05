@@ -1,3 +1,4 @@
+//NB - this expects d3 v3
 var d3 = require('d3');
 
 function assignChildren(block, state) {

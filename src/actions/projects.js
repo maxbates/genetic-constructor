@@ -27,6 +27,7 @@ import { uiSetGrunt } from '../actions/ui';
 import * as blockSelectors from '../selectors/blocks';
 import * as projectSelectors from '../selectors/projects';
 import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
+import { commonsRetrieve } from '../middleware/commons';
 import safeValidate from '../schemas/fields/safeValidate';
 import * as validators from '../schemas/fields/validators';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
@@ -249,16 +250,21 @@ export const projectClone = projectId =>
  * @private
  * @param projectId
  * @param userId
+ * @param forceOwner
  * @param {Array|boolean} [loadMoreOnFail=false] Pass array for list of IDs to ignore
  * @param dispatch Pass in the dispatch function for the store
  * @returns Promise
  * @resolve {Rollup} loaded Project + Block Map
  * @reject
  */
-const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) =>
+const _projectLoad = (projectId, userId, forceOwner, loadMoreOnFail = false, dispatch) =>
   loadProject(projectId)
-  .then(rollup => Rollup.classify(rollup))
   .catch((resp) => {
+    //get from the commons if just a permissions issue
+    if (resp && resp.status === 403 && forceOwner !== true) {
+      return commonsRetrieve(projectId);
+    }
+
     if ((resp === null || resp.status === 404) && loadMoreOnFail !== true && !Array.isArray(loadMoreOnFail)) {
       return Promise.reject(resp);
     }
@@ -279,7 +285,7 @@ const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) =>
       if (manifests.length) {
         const nextId = manifests[0].id;
         //recurse, ignoring this projectId
-        return _projectLoad(nextId, ignores, dispatch);
+        return _projectLoad(nextId, userId, forceOwner, ignores, dispatch);
       }
       //if no manifests, create a new rollup
       return emptyProjectWithConstruct(userId, true);
@@ -290,19 +296,22 @@ const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) =>
  * Load a project and add it and its contents to the store
  * @function
  * @param projectId
- * @param {boolean} [avoidCache=false]
  * @param {Array|boolean} [loadMoreOnFail=false] False to only attempt to load single project ID. Pass array of IDs to ignore in case of failure
+ * @param {Object} [options={}] { force = false, forceOwner = false } force to avoid cache and force loading, forceOwner to only load user's projects (avoid getting commons version when available)
  * @returns {Promise}
  * @resolve {Rollup} Returns whole rollup - { project, blocks }
  * @reject null
  */
-export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = false) =>
+export const projectLoad = (projectId, loadMoreOnFail = false, options = {}) =>
   (dispatch, getState) => {
+    const { force = false, forceOwner = false } = options;
     const isCached = !!projectId && instanceMap.projectLoaded(projectId);
     const userId = getState().user.userid;
-    const promise = (avoidCache !== true && isCached) ?
+
+    const promise = (force !== true && isCached) ?
       Promise.resolve(instanceMap.getRollup(projectId)) :
-      _projectLoad(projectId, userId, loadMoreOnFail, dispatch);
+      _projectLoad(projectId, userId, forceOwner, loadMoreOnFail, dispatch)
+      .then(rollup => Rollup.classify(rollup));
 
     //rollup by this point has been converted to class instances
     return promise.then((rollup) => {
