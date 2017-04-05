@@ -415,7 +415,9 @@ export class ConstructViewer extends Component {
     }] : [];
 
 
-    const extensionsWithBlockMenus = extensionsByRegion('menu:block').map(manifest => manifest.render['menu:block'](singleBlock, firstBlock));
+    const extensionsWithBlockMenus = extensionsByRegion('menu:block')
+    .filter(manifest => manifest.render['menu:block'])
+    .map(manifest => manifest.render['menu:block'](singleBlock, firstBlock));
 
     const extensionMenuItems = extensionsWithBlockMenus.length > 0 ? [
       {},
