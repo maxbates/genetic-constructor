@@ -15,7 +15,9 @@
  */
 import React from 'react';
 
-import '../styles/404.css';
+if (process.env.BROWSER) {
+  require('../styles/404.css'); //eslint-disable-line global-require
+}
 
 export default function RouteNotFound() {
   return (
@@ -23,7 +25,7 @@ export default function RouteNotFound() {
       <div className="grid">
 
         <div className="row1">
-          <span className="color-white size-medium font-regular">Autodesk</span>
+          <span className="color-white size-medium font-regular">Autodesk</span>&nbsp;
           <span className="color-white size-medium font-bold">BioNano</span>
         </div>
 

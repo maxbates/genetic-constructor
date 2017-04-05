@@ -40,10 +40,12 @@ describe('middleware', () => {
       return baseTag;
     };
 
-    const updateRollupName = (roll) => _.merge(roll, {
+    const projectName = uuid.v4();
+
+    const updateRollupName = (roll, name = projectName) => _.merge(roll, {
       project: {
         metadata: {
-          name: uuid.v4(),
+          name,
         },
       },
     });
@@ -57,7 +59,7 @@ describe('middleware', () => {
     let rollPrivate = createExampleRollup();
     let rollPrivateSnapshotted = createExampleRollup();
     let rollPublic1 = createExampleRollup();
-    let rollPublic2 = updateRollupName(rollPublic1);
+    let rollPublic2Named = updateRollupName(rollPublic1);
     let snapshotPrivate = null;
     let snapshotPublic1 = null;
     let snapshotPublic2 = null;
@@ -68,7 +70,7 @@ describe('middleware', () => {
       rollPrivate = (await projectPersistence.projectWrite(rollPrivate.project.id, rollPrivate, testUserId)).data;
       rollPrivateSnapshotted = (await projectPersistence.projectWrite(rollPrivateSnapshotted.project.id, rollPrivateSnapshotted, testUserId)).data;
       rollPublic1 = (await projectPersistence.projectWrite(rollPublic1.project.id, rollPublic1, testUserId)).data;
-      rollPublic2 = (await projectPersistence.projectWrite(rollPublic2.project.id, rollPublic2, testUserId)).data;
+      rollPublic2Named = (await projectPersistence.projectWrite(rollPublic2Named.project.id, rollPublic2Named, testUserId)).data;
 
       snapshotOtherPublic = await snapshots.snapshotWrite(
         rollOtherPublic.project.id,
@@ -92,9 +94,9 @@ describe('middleware', () => {
       );
 
       snapshotPublic2 = await snapshots.snapshotWrite(
-        rollPublic2.project.id,
+        rollPublic2Named.project.id,
         testUserId,
-        rollPublic2.project.version,
+        rollPublic2Named.project.version,
         { message: 'Some message', tags: makeTag(true), keywords },
         commonsConstants.SNAPSHOT_TYPE_PUBLISH,
       );
@@ -165,6 +167,14 @@ describe('middleware', () => {
       const query = await api.commonsQuery({ keywords: [keywords[0]] });
 
       assert(query.length > 0, 'should find things by tag');
+    });
+
+    it('commonsProjectByName() searches projects by name, gets single project', async () => {
+      const result = await api.commonsProjectByName(projectName);
+
+      assert(result, 'should get result');
+      assert(result.project && result.blocks, 'should get rollup');
+      assert(result.project.id === rollPublic2Named.project.id, 'should get expected project');
     });
 
     //create in tests

@@ -70,6 +70,7 @@ async function publishEgfLocally() {
         [COMMONS_TAG]: true,
         author: `${mockUser.firstName} ${mockUser.lastName}`,
         projectName: roll.project.metadata.name,
+        basePairs: 34451,
       },
     };
     await dbPost('snapshots/', mockUser.uuid, {}, {}, snapshot);

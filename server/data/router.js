@@ -162,12 +162,7 @@ router.route('/projects/:projectId')
     updated: info.updated,
     id: info.id,
   }))
-  .catch((err) => {
-    if (err === errorInvalidModel) {
-      return res.status(422).send(errorInvalidModel);
-    }
-    next(err);
-  });
+  .catch(next);
 })
 .delete((req, res, next) => {
   const { projectId, user, projectDoesNotExist } = req;

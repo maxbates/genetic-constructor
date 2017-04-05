@@ -14,9 +14,8 @@
  limitations under the License.
  */
 import _ from 'lodash';
-import * as urlSafeBase64 from 'urlsafe-base64';
 
-import { dbGet } from '../middleware/db';
+import { dbEncodeString, dbGet } from '../middleware/db';
 import { getUserProjects } from './projects';
 
 const reduceToMap = array => _.keyBy(array, block => block.id);
@@ -26,8 +25,7 @@ export const getAllBlocks = userId => getUserProjects(userId, true)
     .then(rolls => _.reduce(rolls, (acc, roll) => Object.assign(acc, roll.blocks), {}));
 
 export const getAllBlocksWithName = (userId, name) => {
-  // block names are the only parameters currently url-encoded
-  const encodedName = urlSafeBase64.encode(new Buffer(name, 'utf8'));
+  const encodedName = dbEncodeString(name);
   return dbGet(`blocks/name/${userId}/${encodedName}`)
     .then(reduceToMap);
 };

@@ -15,26 +15,26 @@
  */
 import fs from 'fs';
 import path from 'path';
-
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import express from 'express';
-
 import colors from 'colors/safe';
 
 import pkg from '../package.json';
+import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
 import logger from './utils/logConfig';
+
 import dataRouter from './data/router';
 import jobRouter from './jobs/router';
 import extensionsRouter from './extensions/router';
-import checkUserSetup from './onboarding/userSetup';
 import orderRouter from './order/router';
-import reportRouter from './report/index';
+import reportRouter from './report/router';
+import commonsRouter from '../commons/router';
 import s3MockRouter from './files/s3mockRouter';
 import { s3MockPath } from './data/middleware/filePaths';
-import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
+import checkUserSetup from './onboarding/userSetup';
 import { pruneUserObject } from './user/utils';
 import checkPortFree from './utils/checkPortFree';
 import customErrorMiddleware from './errors/customErrorMiddleware';
@@ -151,6 +151,7 @@ app.use('/jobs', jobRouter);
 app.use('/order', orderRouter);
 app.use('/extensions', extensionsRouter);
 app.use('/report', reportRouter);
+app.use('/commons', commonsRouter);
 
 if (process.env.NODE_ENV !== 'production') {
   //mock s3 routes for jobs/extensions etc. so read/write don't fail

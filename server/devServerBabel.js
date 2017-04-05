@@ -20,4 +20,5 @@ Prefer this method to babel-node, as babel-node creates a new child process to h
 */
 
 require('babel-core/register'); //eslint-disable-line import/no-extraneous-dependencies
+require('ignore-styles');
 require('./server');

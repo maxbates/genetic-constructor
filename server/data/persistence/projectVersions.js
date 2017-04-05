@@ -55,6 +55,7 @@ export const projectVersionWrite = (projectId, version, owner, data) => {
   .then(dbPruneResult);
 };
 
+//used e.g. in migration utilities
 export const projectVersionByUUIDRaw = uuid =>
   dbGet(`projects/uuid/${uuid}`);
 
@@ -62,3 +63,11 @@ export const projectVersionByUUID = uuid =>
   projectVersionByUUIDRaw(uuid)
   .then(mergeMetadataOntoProject)
   .then(dbPruneResult);
+
+export const projectVersionsByUUID = (uuids, withBlocks = true) => {
+  invariant(Array.isArray(uuids), 'must pass array UUID');
+
+  return dbPost(`search/projects/list?blocks=${withBlocks}`, null, uuids)
+  .then(results => results.map(mergeMetadataOntoProject))
+  .then(results => results.map(dbPruneResult));
+};

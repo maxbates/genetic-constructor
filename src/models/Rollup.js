@@ -279,11 +279,36 @@ export default class Rollup {
     };
   }
 
-  //todo
   //given a block Id, generate a flat list of blocks without hierarchy or list blocks
-  //eslint-disable-next-line class-methods-use-this
-  flattenConstruct(blockId, optionMap) {
-    invariant(false, 'todo');
+  //!flattenLists -> returns flat construct with list blocks
+  //flattenLists = {}, flattens list blocks, using dictionary of <listBlockId>: <listOptionId> when provided
+  flattenConstruct(blockId, flattenLists = {}) {
+    const construct = this.getBlock(blockId);
+    if (!construct.isConstruct()) {
+      return [construct];
+    }
+
+    const flattened = _.flattenDeep(construct.components.map(constructId => this.flattenConstruct(constructId)));
+
+    if (!flattenLists || typeof flattenLists !== 'object') {
+      return flattened;
+    }
+
+    return flattened.map((block) => {
+      if (!block.isList() || Object.keys(block.options).length === 0) {
+        return block;
+      }
+
+      //if preference specified and present as option, use it
+      const preference = flattenLists[block.id] || null;
+      if (preference && block.options.hasOwnProperty(preference)) {
+        return this.getBlock(preference);
+      }
+
+      //otherwise, get first viable option
+      const optionId = _.findKey(block.options, (active, optionId) => !!active) || Object.keys(block.options)[0];
+      return this.getBlock(optionId);
+    });
   }
 
   // classed only

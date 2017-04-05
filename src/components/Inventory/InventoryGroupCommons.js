@@ -276,7 +276,7 @@ export class InventoryGroupCommons extends Component {
     const { loading, groupBy } = this.state;
     const grouped = this.createGroupedSnapshots();
 
-    const treeItems = _.map(grouped, (groupSnapshots, key) => {
+    const treeItems = _.sortBy(_.map(grouped, (groupSnapshots, key) => {
       const innerItems = this.createProjectSnapshotTrees(groupSnapshots);
 
       //get text here to handle scenario fo users with same name
@@ -286,11 +286,12 @@ export class InventoryGroupCommons extends Component {
 
       return {
         text,
-        selected: groupBy === 'author' && key === this.props.userId,
+        key,
+        bold: groupBy === 'author' && key === this.props.userId,
         items: innerItems,
         testid: `commons/${key}`,
       };
-    });
+    }), ({ key }) => key === this.props.userId ? -1 : 1);
 
     const currentList = <Tree items={treeItems} />;
 
