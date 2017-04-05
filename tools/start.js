@@ -16,7 +16,9 @@ let processes = [];
 
 async function start() {
   try {
-    processes = await run(setup);
+    if (!process.env.CONSTRUCTOR_SKIP_SETUP) {
+      processes = await run(setup);
+    }
 
     console.log(colors.blue(`Bundling application with Webpack [${DEBUG ? 'dev' : 'release'}] (this may take a moment)...`));
 
