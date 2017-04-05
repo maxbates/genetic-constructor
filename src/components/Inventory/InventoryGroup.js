@@ -23,11 +23,11 @@ import InventoryGroupRole from './InventoryGroupRole';
 import InventoryGroupCommons from './InventoryGroupCommons';
 import InventoryGroupSearch from './InventoryGroupSearch';
 import InventoryProjectHeader from './InventoryProjectHeader';
-import DnD from '../../containers/graphics/dnd/dnd';
+import DnD from '../../graphics/dnd/dnd';
 import { blockClone, blockCreate, blockRename } from '../../actions/blocks';
 import { projectAddConstruct, projectCreate, projectOpen } from '../../actions/projects';
 import { focusConstruct } from '../../actions/focus';
-import ConstructViewer from '../../containers/graphics/views/constructviewer';
+import ConstructViewer from '../../graphics/views/constructviewer';
 import { block as blockDragType } from '../../constants/DragTypes';
 
 import '../../styles/InventoryGroup.css';

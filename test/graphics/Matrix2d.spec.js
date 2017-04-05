@@ -1,7 +1,7 @@
-import Vector2D from '../../src/containers/graphics/geometry/vector2d';
-import Transform2D from '../../src/containers/graphics/geometry/transform2d';
-import Matrix2D from '../../src/containers/graphics/geometry/matrix2d';
-import {nearly} from '../../src/containers/graphics/utils';
+import Vector2D from '../../src/graphics/geometry/vector2d';
+import Transform2D from '../../src/graphics/geometry/transform2d';
+import Matrix2D from '../../src/graphics/geometry/matrix2d';
+import {nearly} from '../../src/graphics/utils';
 import chai from 'chai';
 
 describe('Matrix2D', () => {

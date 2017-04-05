@@ -6,13 +6,11 @@ Genetic Constructor can be run a few different ways.
 
 ##### Prerequisites
 
-- Node.js (4.x) and npm (3.x)
-  - `node -v` should show `4.x` ---- note this is not latest 6.x branch
+- Node.js (6.x) and npm (3.x)
+  - `node -v` should show `6.x` ---- note this is not latest 7.x branch
   - `npm -v` should show `3.x` --- update with `npm update -g npm`
 
 - Python (2.7) and pip
-
-- If on MacOS `brew` is recommended, for installing optional dependency `fsharp` for the GSL extension
 
 ##### Instructions
 
@@ -39,13 +37,17 @@ As a result, user authentication is NOT enabled by default when running this app
 
 If you have the bio-user-platform installed, you can run the server with authentication by running:
 
-`npm run start-auth-stack`.
+`npm run start-auth`.
 
 [Click here to read how to install the bio-user-platform](./installation-bio-user-platform.md)
 
 ## Extensions
 
 Extensions should not require additional dependencies or installations steps. They may run scripts that hook into npm or git to accomplish any additional steps automatically. If you experience problems with an extension, check its README.
+
+#### GSL
+
+If developing GSL, you will need to install `fsharp`.
 
 ## Troubleshooting
 

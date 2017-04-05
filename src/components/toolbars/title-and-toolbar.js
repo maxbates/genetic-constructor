@@ -15,7 +15,7 @@
  */
 import React, { Component, PropTypes } from 'react';
 
-import MouseTrap from '../../containers/graphics/mousetrap';
+import MouseTrap from '../../graphics/mousetrap';
 import InlineToolbar from './inline-toolbar';
 
 import '../../../src/styles/title-and-toolbar.css';

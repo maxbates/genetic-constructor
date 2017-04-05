@@ -26,7 +26,7 @@ import { projectLoad, projectOpen, projectStash, projectClone } from '../../acti
 import { projectGet } from '../../selectors/projects';
 import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
 import { uiShowMenu, inspectorSelectTab, inspectorToggleVisibility } from '../../actions/ui';
-import DnD from '../../containers/graphics/dnd/dnd';
+import DnD from '../../graphics/dnd/dnd';
 import InventoryProjectTree from './InventoryProjectTree';
 import Tree from '../ui/Tree';
 import Spinner from '../ui/Spinner';

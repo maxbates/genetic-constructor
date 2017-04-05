@@ -18,10 +18,10 @@ import { browserHistory, IndexRedirect, IndexRoute, Route, Router } from 'react-
 import { syncHistoryWithStore } from 'react-router-redux';
 
 import AuthRouteWrapper from './components/authentication/authRouteWrapper';
-import App from './containers/App';
-import ProjectPage from './containers/ProjectPage';
-import LandingPage from './containers/LandingPage';
-import RouteNotFound from './containers/routenotfound';
+import App from './components/App';
+import ProjectPage from './components/ProjectPage';
+import LandingPage from './components/LandingPage';
+import RouteNotFound from './components/RouteNotFound';
 import store from './store/index';
 
 const history = syncHistoryWithStore(browserHistory, store, {
