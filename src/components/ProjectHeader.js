@@ -47,12 +47,12 @@ import {
   uiShowGenBankImport,
 } from '../actions/ui';
 import { transact, commit } from '../store/undo/actions';
-import Box2D from '../containers/graphics/geometry/box2d';
-import Vector2D from '../containers/graphics/geometry/vector2d';
+import Box2D from '../graphics/geometry/box2d';
+import Vector2D from '../graphics/geometry/vector2d';
 import TitleAndToolbar from '../components/toolbars/title-and-toolbar';
 import { downloadProject } from '../middleware/utils/downloadProject';
 import GlobalNav from './GlobalNav/GlobalNav';
-import ConstructViewer from '../containers/graphics/views/constructviewer';
+import ConstructViewer from '../graphics/views/constructviewer';
 
 import '../styles/ProjectHeader.css';
 

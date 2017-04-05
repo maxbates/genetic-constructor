@@ -15,7 +15,7 @@ limitations under the License.
 */
 import React, { PropTypes } from 'react';
 
-import RoleSvg from '../RoleSvg';
+import RoleSvg from './RoleSvg';
 
 export default function PickerItem(props) {
   const { readOnly, isCurrent, svg, name, styles, onClick, onMouseEnter, onMouseOut } = props;

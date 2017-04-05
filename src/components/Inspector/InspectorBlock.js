@@ -26,7 +26,7 @@ import {
 } from '../../actions/blocks';
 import Block from '../../models/Block';
 import { abort, commit, transact } from '../../store/undo/actions';
-import InputSimple from './../InputSimple';
+import InputSimple from '../formElements/InputSimple';
 import ColorPicker from './../ui/ColorPicker';
 import PalettePicker from './../ui/PalettePicker';
 import SBOLPicker from './../ui/SBOLPicker';

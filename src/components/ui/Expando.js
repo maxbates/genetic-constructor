@@ -16,7 +16,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 
-import MouseTrap from '../../containers/graphics/mousetrap';
+import MouseTrap from '../../graphics/mousetrap';
 import Arrow from './Arrow';
 import Label from './Label';
 import { getLocal, setLocal } from '../../utils/localstorage';

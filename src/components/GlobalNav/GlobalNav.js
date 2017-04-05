@@ -38,8 +38,8 @@ import {
   uiToggleDetailView,
   detailViewSelectExtension,
 } from '../../actions/ui';
-import OkCancel from '../modal/okcancel';
-import RibbonGrunt from '../ribbongrunt';
+import OkCancel from '../modal/OkCancel';
+import RibbonGrunt from './RibbonGrunt';
 import * as clipboardFormats from '../../constants/clipboardFormats';
 import Rollup from '../../models/Rollup';
 import { blockGetComponentsRecursive, blockGetParents } from '../../selectors/blocks';

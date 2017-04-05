@@ -19,10 +19,10 @@ import { connect } from 'react-redux';
 import { focusForceBlocks, focusRole } from '../../actions/focus';
 import { inspectorToggleVisibility, uiSetGrunt, uiSpin } from '../../actions/ui';
 import { block as blockDragType, role as roleDragType } from '../../constants/DragTypes';
-import DnD from '../../containers/graphics/dnd/dnd';
-import MouseTrap from '../../containers/graphics/mousetrap';
+import DnD from '../../graphics/dnd/dnd';
+import MouseTrap from '../../graphics/mousetrap';
 import '../../styles/InventoryItem.css';
-import RoleSvg from '../RoleSvg';
+import RoleSvg from '../ui/RoleSvg';
 import BasePairCount from '../ui/BasePairCount';
 
 export class InventoryItem extends Component {

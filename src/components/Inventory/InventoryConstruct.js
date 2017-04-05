@@ -18,8 +18,8 @@ import { connect } from 'react-redux';
 
 import { focusBlocks } from '../../actions/focus';
 import { block as blockDragType } from '../../constants/DragTypes';
-import DnD from '../../containers/graphics/dnd/dnd';
-import MouseTrap from '../../containers/graphics/mousetrap';
+import DnD from '../../graphics/dnd/dnd';
+import MouseTrap from '../../graphics/mousetrap';
 import * as instanceMap from '../../store/instanceMap';
 import InventoryItemBlock from './InventoryItemBlock';
 import InventoryListGroup from './InventoryListGroup';

@@ -18,7 +18,7 @@ import { connect } from 'react-redux';
 
 import '../../../src/styles/inline-editor.css';
 import { uiInlineEditor } from '../../actions/ui';
-import Box2D from '../../containers/graphics/geometry/box2d';
+import Box2D from '../../graphics/geometry/box2d';
 
 /**
  * modal window with user supplied payload and user defined ( optional )

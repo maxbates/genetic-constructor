@@ -1,5 +1,5 @@
-import Vector2D from '../../src/containers/graphics/geometry/vector2d';
-import {nearly} from '../../src/containers/graphics/utils';
+import Vector2D from '../../src/graphics/geometry/vector2d';
+import {nearly} from '../../src/graphics/utils';
 import chai from 'chai';
 
 describe('Vector2D', () => {
