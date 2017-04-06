@@ -5,7 +5,7 @@ import webpack from 'webpack';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 const DEBUG = !process.argv.includes('--release');
-const VERBOSE = process.argv.includes('--verbose');
+const VERBOSE = process.argv.includes('--webpack-verbose');
 const DEBUG_REDUX = !!process.env.DEBUG_REDUX || (process.env.DEBUG && process.env.DEBUG.indexOf('redux') >= 0); //hook for devtools etc.
 
 const AUTOPREFIXER_BROWSERS = [
@@ -24,6 +24,7 @@ const dataPath = path.resolve(__dirname, '../data');
 const sourcePath = path.resolve(__dirname, '../src');
 const serverSourcePath = path.resolve(__dirname, '../server');
 const buildPath = path.resolve(__dirname, '../build');
+const buildStaticPath = path.resolve(__dirname, '../build/static');
 const classesModulePath = path.resolve(__dirname, '../constructor-classes');
 const commonsPath = path.resolve(__dirname, '../commons');
 
@@ -80,7 +81,7 @@ const clientSidePlugins = [
 //common configuration
 export const config = {
   output: {
-    path: buildPath,
+    path: buildStaticPath,
     publicPath: '/static/',
   },
 
@@ -263,6 +264,10 @@ export const commonsConfig = merge({}, clientConfig, {
 
   output: {
     filename: 'commons.js',
+  },
+
+  stats: {
+    children: false,
   },
 });
 

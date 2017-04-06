@@ -52,7 +52,7 @@ export function Project({ router, project, snapshot }) {
       <h3 className="Project-header">
         <Link to="/commons">The Commons</Link>
         <span className="Project-header-separator" />
-        {project.project.metadata.name}
+        {project.project.metadata.name || 'Untitled Project'}
       </h3>
 
       <summary className="Project-overview">

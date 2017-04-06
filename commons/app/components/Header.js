@@ -22,22 +22,15 @@ if (process.env.BROWSER) {
 }
 
 function Header({ signedIn }) {
-  const rightContent = signedIn === true ?
-    (
-      <a
-        className="Header-link Header-user"
-        href="/"
-      />
-    )
-    :
-    (
-      <a
-        className="Header-link"
-        href="/homepage/signin"
-      >
-        Sign In
-      </a>
-    );
+  //for now, show sign in button even if they are signed in, since user menu etc. inaccessible outside main app
+  const rightContent = (
+    <a
+      className="Header-link"
+      href="/homepage/signin"
+    >
+      Sign In
+    </a>
+  );
 
   return (
     <nav className="Header">
