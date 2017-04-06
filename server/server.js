@@ -45,15 +45,16 @@ import lastDitchErrorMiddleware from './errors/lastDitchErrorMiddleware';
 //where the server will be listening
 const hostPath = `http://${HOST_NAME}:${HOST_PORT}/`;
 
-//file paths depending on if building or not
-//note that currently, you basically need to use npm run start in order to serve the client bundle + webpack middleware
-const createBuildPath = (isBuild, notBuild = isBuild) => path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
+// file paths depending on if building or not
+// use `npm run start` in order to serve the client bundle + webpack middleware
+// use `npm run start-instance` to build and serve client bundles
+// NB - server is not currently built when run, so process.env.BUILD is not set
+const createBuildPath = (isBuild, notBuild = isBuild) => path.join((process.env.BUILD ? '../build' : __dirname), (process.env.BUILD ? isBuild : notBuild));
 const pathContent = createBuildPath('content', '../src/content');
 const pathDocs = createBuildPath('jsdoc', `../docs/jsdoc/genetic-constructor/${pkg.version}`);
 const pathImages = createBuildPath('images', '../src/images');
 const pathPublic = createBuildPath('public', '../src/public');
-const pathClientBundle = createBuildPath('client.js', '../build/client.js');
-const pathLanding = createBuildPath('public/landing', '../src/public/landing');
+const pathPublicStatic = createBuildPath('static', '../build/static');
 
 //create server app
 const app = express();
@@ -162,7 +163,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use('/images', express.static(pathImages));
 app.use('/help/docs', express.static(pathDocs));
-app.use('/landing', express.static(pathLanding));
+app.use('/static', express.static(pathPublicStatic)); //browsersync proxy gets priority
 app.use(express.static(pathPublic));
 
 app.get('/version', (req, res) => {
@@ -181,13 +182,6 @@ app.get('*', (req, res) => {
   //on root request (ignoring query params), if not logged in, show them the landing page
   if ((req.path === '' || req.path === '/') && !req.user) {
     res.sendFile(`${pathPublic}/landing.html`);
-    return;
-  }
-
-  // client bundle may be requested at multiple relative paths
-  if (req.url.indexOf('client.js') >= 0) {
-    //should only hit this when proxy is not set up (i.e. not in development)
-    res.sendFile(pathClientBundle);
     return;
   }
 

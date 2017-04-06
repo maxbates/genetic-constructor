@@ -17,9 +17,9 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import { sanitize } from '../../../commons/sanitize';
 import { block as blockDragType } from '../../constants/DragTypes';
 import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
-
 import { blockStash } from '../../actions/blocks';
 import { focusPrioritize, focusForceProject, focusForceBlocks } from '../../actions/focus';
 import { projectLoad, projectOpen, projectStash, projectClone } from '../../actions/projects';
@@ -121,6 +121,10 @@ export class InventoryGroupCommons extends Component {
         action: this.onOpenCommonsProject.bind(this, snapshot),
       },
       {
+        text: 'Open in The Commons',
+        action: this.onOpenInCommons.bind(this, snapshot),
+      },
+      {
         text: 'Duplicate Project',
         action: () => {
           const { projectId } = snapshot;
@@ -143,6 +147,13 @@ export class InventoryGroupCommons extends Component {
 
     return this.retrieveAndStashProject(snapshot)
     .then(() => this.props.projectOpen(projectId));
+  };
+
+  onOpenInCommons = (snapshot, evt) => {
+    const sanitizedName = sanitize(snapshot.tags.projectName);
+    const url = `/commons/${sanitizedName}?projectId=${snapshot.projectId}`;
+
+    window.open(url, '_blank');
   };
 
   onFilterChange = (filter) => {
