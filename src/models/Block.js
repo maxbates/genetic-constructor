@@ -176,13 +176,14 @@ export default class Block extends Instance {
    * @returns {boolean}
    */
   hasContents() {
-    return this.components.length || Object.keys(this.options).length;
+    return this.components.length > 0 || Object.keys(this.options).length > 0;
   }
 
   //isSpec() can't exist here, since dependent on children. use selector blockIsSpec instead.
 
   /**
    * Check if Block is a construct (it has components)
+   * todo - rename isParentBlock()
    * @method isConstruct
    * @memberOf Block
    * @returns {boolean}
@@ -243,6 +244,7 @@ export default class Block extends Instance {
 
   /**
    * Check whether Block is frozen
+   * A block is frozen if it is marked frozen (e.g. when in the commons)
    * @method isFrozen
    * @memberOf Block
    * @returns {boolean}
@@ -310,7 +312,6 @@ export default class Block extends Instance {
     return this.setRule('role', role);
   }
 
-  //todo - should this delete the options entirely?
   /**
    * Specify whether Block is a list block. Clears components when setting to true, and clears options when setting to false.
    * @method setListBlock
@@ -527,8 +528,6 @@ export default class Block extends Instance {
   /************
    components
    ************/
-
-  //future - account for block.rules.filter
 
   /**
    * Adds a component by ID
@@ -850,6 +849,19 @@ export default class Block extends Instance {
 
     annotations.splice(toSplice, 1);
     return this.mutate('sequence.annotations', annotations);
+  }
+
+  /*********
+   Job related things
+   *********/
+
+  setJobId(jobId) {
+    invariant(!this.isFixed(), 'Block is fixed - cannot attach job');
+    return this.mutate('jobId', jobId);
+  }
+
+  hasJob() {
+    return this.jobId || null;
   }
 
   /*********

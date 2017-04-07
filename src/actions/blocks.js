@@ -73,6 +73,8 @@ const _assertUserOwnsBlock = (state, blockId, options) => {
 
 const _assertBlockNotFixed = block => invariant(!block.isFixed(), 'cannot mutate fixed block');
 
+const _assertBlockIsLeaf = block => invariant(!block.hasContents(), 'block must not have children or list options');
+
 const classifyBlockIfNeeded = input => (input instanceof Block) ? input : new Block(input);
 
 /**************************************
@@ -291,6 +293,7 @@ export const blockSetProject = (blockId, projectId, deep = true) => (dispatch, g
 
   dispatch({
     type: ActionTypes.BLOCK_SET_PROJECT,
+    undoable: true, //undoable so that when you remove / undo a block, resets projectId
     blocks,
   });
 
@@ -620,9 +623,8 @@ export const blockAddComponent = (blockId, componentId, index = -1, forceProject
     if (componentProjectId !== nextParentProjectId || contentProjectIds.some(compProjId => compProjId !== nextParentProjectId)) {
       invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
-      //there may be scenarios where we are adding to a detached block, so lets avoid the error when next parent has no project
       if (nextParentProjectId) {
-        dispatch(blockSetProject(componentId, nextParentProjectId, false));
+        dispatch(blockSetProject(componentId, nextParentProjectId, true));
       }
     }
 
@@ -839,6 +841,7 @@ export const blockRemoveAnnotation = (blockId, annotation) => (dispatch, getStat
  */
 export const blockGetSequence = blockId => (dispatch, getState) => {
   const block = _getBlock(getState(), blockId);
+  _assertBlockIsLeaf(block);
   return block.getSequence();
 };
 
@@ -852,8 +855,8 @@ export const blockGetSequence = blockId => (dispatch, getState) => {
  */
 export const blockSetSequence = (blockId, sequence, useStrict) => (dispatch, getState) => {
   const oldBlock = _getBlock(getState(), blockId);
-
   _assertBlockNotFixed(oldBlock);
+  _assertBlockIsLeaf(oldBlock);
 
   return oldBlock.setSequence(sequence, useStrict)
   .then((block) => {
@@ -881,6 +884,23 @@ export const blockTrimSequence = (blockId, start = 0, end = 0) => (dispatch, get
   const block = oldBlock.setSequenceTrim(start, end);
   dispatch({
     type: ActionTypes.BLOCK_SET_TRIM,
+    undoable: true,
+    block,
+  });
+  return block;
+};
+
+/***************************************
+ * Jobs
+ ***************************************/
+
+export const blockSetJobId = (blockId, jobId) => (dispatch, getState) => {
+  const oldBlock = _getBlock(getState(), blockId);
+  _assertBlockNotFixed(oldBlock);
+
+  const block = oldBlock.setJobId(jobId);
+  dispatch({
+    type: ActionTypes.BLOCK_SET_JOB_ID,
     undoable: true,
     block,
   });

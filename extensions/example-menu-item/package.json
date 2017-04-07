@@ -1,0 +1,16 @@
+{
+  "name": "example-menu-item",
+  "version": "1.0.0",
+  "description": "Example creating block menu items",
+  "geneticConstructor": {
+    "type": "(Example)",
+    "client": [
+      {
+        "file": "index.js",
+        "region": "menu:block"
+      }
+    ]
+  },
+  "license": "MIT",
+  "dependencies": {}
+}

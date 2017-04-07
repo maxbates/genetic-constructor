@@ -21,6 +21,7 @@ import _ from 'lodash';
 import { SNAPSHOT_TYPE_PUBLISH, COMMONS_TAG, commonsDefaultMessage } from '../util/commons';
 import * as projectPersistence from './projects';
 import * as projectVersions from './projectVersions';
+import * as search from './search';
 import * as snapshots from './snapshots';
 import Snapshot from '../../../src/models/Snapshot';
 import { errorNotPublished, errorDoesNotExist } from '../../errors/errorConstants';
@@ -38,6 +39,31 @@ const reduceSnapshotsToLatestPerProject = snapshots =>
   .mapValues((projectSnapshots, projectId) => _.maxBy(projectSnapshots, 'version'))
   .values()
   .value();
+
+/**
+ * Returns the latest snapshot for a public project
+ * @param projectId
+ * @resolve {Snapshot} Latest snapshot
+ * @reject not public (errorNotPublished), doesnt exit (errorDoesNotExist)
+ */
+export const getLatestPublicVersion = projectId =>
+  snapshots.snapshotQuery({ tags: { [COMMONS_TAG]: true } }, projectId)
+  .then((results) => {
+    const hasResults = results && results.length > 0;
+    const latestVersion = hasResults ?
+      _.maxBy(results, 'version') :
+      null;
+
+    logger(`[getLatestPublicVersion] Found latest:
+Project: ${projectId}
+published? ${hasResults}
+latest: ${latestVersion ? latestVersion.version : null}`);
+
+    if (!hasResults) {
+      return Promise.reject(errorNotPublished);
+    }
+    return latestVersion;
+  });
 
 /**
  * Check if a project @ version is published, or if any version is published
@@ -75,23 +101,7 @@ published? ${isPublished}`);
 Project: ${projectId}
 Version: [latest]`);
 
-  return snapshots.snapshotQuery({ tags: { [COMMONS_TAG]: true } }, projectId)
-  .then((results) => {
-    const hasResults = results && results.length > 0;
-    const latestVersion = hasResults ?
-      _.maxBy(results, 'version') :
-      null;
-
-    logger(`[checkProjectPublic] Found latest:
-Project: ${projectId}
-published? ${hasResults}
-latest: ${latestVersion && latestVersion.version}`);
-
-    if (!hasResults) {
-      return Promise.reject(errorNotPublished);
-    }
-    return latestVersion;
-  });
+  return getLatestPublicVersion(projectId);
 };
 
 /**
@@ -99,15 +109,16 @@ latest: ${latestVersion && latestVersion.version}`);
  * Prune each project to the latest version only
  * @param {Object} query in form { tags: {}, keywords: [] }
  * @param {boolean} collapse Collapse to one per project
+ * @param {UUID} projectId limit query to a project
  * @returns {Array}
  */
-export const commonsQuery = (query = {}, collapse = true) => {
+export const commonsQuery = (query = {}, collapse = true, projectId) => {
   invariant(typeof query === 'object', 'must pass object');
 
   const queryObject = Object.assign({ tags: {}, keywords: [] }, query);
   queryObject.tags[COMMONS_TAG] = true;
 
-  return snapshots.snapshotQuery(queryObject)
+  return snapshots.snapshotQuery(queryObject, projectId)
   .then(results => collapse === true ? reduceSnapshotsToLatestPerProject(results) : results);
 };
 
@@ -155,6 +166,7 @@ export const commonsPublishVersion = (projectId, userId, version, body) => {
   invariant(!body || typeof body === 'object', 'body must be an object');
 
   const snapshotBody = _.defaultsDeep({}, body, snapshotBodyScaffold);
+
   //add publishing tag
   snapshotBody.tags[COMMONS_TAG] = true;
 
@@ -250,3 +262,20 @@ export const checkProjectPublicMiddleware = (req, res, next) => {
   .then(() => next())
   .catch(next);
 };
+
+//given project name, returns first project with matching name
+//need to do a union of project UUIDs we get back + UUIDs of projects in commons, to make sure we are getting a published project
+export const commonsProjectByName = name =>
+  Promise.all([
+    search.searchProjectByName(name),
+    commonsQuery().then(snapshots => snapshots.map(snapshot => snapshot.projectUUID)),
+  ])
+  .then(([named, queried]) => _.intersection(named, queried))
+  .then((publicUUIDs) => {
+    if (!publicUUIDs || !publicUUIDs.length) {
+      return null;
+    }
+
+    //just get the first match
+    return projectVersions.projectVersionByUUID(publicUUIDs[0]);
+  });

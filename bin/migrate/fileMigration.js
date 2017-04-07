@@ -25,7 +25,7 @@ import { defaultUser } from '../../server/auth/local';
 import { errorDoesNotExist } from '../../server/errors/errorConstants';
 import * as fileSystem from '../../server/data/middleware/fileSystem';
 import * as s3 from '../../server/data/middleware/s3';
-import * as projectFiles from '../../server/data/files/projectFiles';
+import * as projectFiles from '../../server/files/projectFiles';
 import * as projectPersistence from '../../server/data/persistence/projects';
 
 import Project from '../../src/models/Project';

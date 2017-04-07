@@ -24,8 +24,10 @@ import { createExampleRollup } from '../../../_utils/rollup';
 import { errorInvalidModel, errorAlreadyExists, errorDoesNotExist } from '../../../../server/errors/errorConstants';
 import Project from '../../../../src/models/Project';
 import Block from '../../../../src/models/Block';
+import Rollup from '../../../../src/models/Rollup';
 
 import * as projectPersistence from '../../../../server/data/persistence/projects';
+import * as projectVersions from '../../../../server/data/persistence/projectVersions';
 import * as snapshots from '../../../../server/data/persistence/snapshots';
 
 describe('Server', () => {
@@ -146,6 +148,15 @@ describe('Server', () => {
               return Number.isInteger(result.version) && Number.isInteger(result.created) && !!result.message;
             }), 'invalid format for snapshots');
           });
+        });
+
+        it('snapshotList() -> projectVersions.projectVersionsByUUID gets projects', async () => {
+          const snaps = await snapshots.snapshotList(roll.project.id);
+          const UUIDs = snaps.map(snap => snap.projectUUID);
+          const projects = await projectVersions.projectVersionsByUUID(UUIDs);
+
+          expect(projects.length).to.equal(3);
+          assert(projects.every(project => Rollup.validate(project, false)), 'invalid project returned');
         });
 
         it('snapshotQuery() queries by tags', async() => {

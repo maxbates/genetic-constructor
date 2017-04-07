@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+const logger = process.env.NODE_ENV === 'dev' ? console.error.bind(console) : () => {};
 
 const getPrefix = () => {
   try {
@@ -43,13 +44,13 @@ export function getLocal(key, defaultObject, shouldPrefix = true) {
     }
     return defaultObject;
   } catch (error) {
-    console.error('error getting localStorage:', key, ' - removing.');//eslint-disable-line no-console
+    logger('error getting localStorage:', key, ' - removing.');
     try {
       if (localStorage && localStorage.removeItem) {
         localStorage.removeItem(key);
       }
     } catch (err) {
-      console.log(`error removing ${key} from localStorage`); //eslint-disable-line no-console
+      logger(`error removing ${key} from localStorage`);
     }
   }
   return defaultObject;
@@ -62,6 +63,6 @@ export function setLocal(key, value, shouldPrefix = true) {
   try {
     localStorage.setItem(getKey(key, shouldPrefix), JSON.stringify(value));
   } catch (error) {
-    console.error('Error setting localStorage item:', key);//eslint-disable-line no-console
+    logger('Error setting localStorage item:', key);
   }
 }

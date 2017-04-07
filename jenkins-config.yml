@@ -1,6 +1,6 @@
 service-name: gctor
 # NOTE override this value in the Jenkins job as it varies by environment
-environment: local
+environment: dev
 
 # parameters used when calling cloudformation update-stack
 # NOTE set this value in the Jenkins job as it varies by environment
@@ -18,7 +18,7 @@ verify-enabled: true
 # NOTE set this value in the Jenkins job as it varies by environment
 verify-url-full: ""
 
-build-compose-file: docker-compose.yml
+build-compose-file: docker-compose-quickstart.yml -f docker-compose.override-build.yml
 jenkins-test-compose-file: docker-compose-jenkins.yml
 
 version-file: ./package.json
@@ -47,5 +47,21 @@ lib-push-config: --config /var/jenkins_home/.docker-config-autodesk-bionano-org
 npm-package-push: false
 npm-package-name: ""
 npm-package-s3-folder: ""
+
+# stack creation
+dev-stack:
+  stack-type: asg-docker
+  host-instance-type: m3.large
+  route-53-info: 'Z29MW8ZYO3CZ0T:A:gctor-service.dev.bionano.bio:30'
+  force-new-machine: true
+  desired-capacity: 2
+  min-capacity: 2
+  max-capacity: 4
+  lb-sticky: true
+  lb-vpc-name: dev-vpc
+  lb-unique-name: dev-internal-alb2
+  lb-port: 3000
+  autoscale-threshold: none
+
 
 fake-jenkins: false # Don't change this; it's only here to be overridden by place holder Jenkins configuration

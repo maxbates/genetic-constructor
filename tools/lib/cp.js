@@ -21,7 +21,7 @@ import { merge } from 'lodash';
 const logger = debug('constructor:tools');
 
 if (!logger.enabled) {
-  console.log('Enable build tool debugging with env var DEBUG=constructor:tools\n');
+  console.log('Enable build tool debugging with env var DEBUG=constructor:tools');
 }
 
 const defaultOpts = {
@@ -96,7 +96,7 @@ export const spawnAsync = (cmd, args = [], opts = {}, {
       });
 
       spawned.stderr.on('data', (data) => {
-        log(`${data}`, true);
+        log(`${data}`, forceOutput);
         if (`${data}`.indexOf(waitUntil) >= 0) {
           return resolve(spawned);
         }

@@ -17,7 +17,7 @@ import React, { PropTypes } from 'react';
 
 import symbols, { symbolMap } from '../../inventory/roles';
 import PickerItem from '../ui/PickerItem';
-import InputSimple from './../InputSimple';
+import InputSimple from '../formElements/InputSimple';
 import InspectorRow from './InspectorRow';
 
 export default function InspectorRole(props) {

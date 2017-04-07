@@ -42,6 +42,11 @@ if (withJenkins) {
   testOptions += ` ${jenkinsOptions}`;
 }
 
+//if env var DEBUG is set, start node with ability to attach devtools
+if (process.env.DEBUG) {
+  testOptions += ' --inspect';
+}
+
 const unitTestCommand = `./node_modules/mocha/bin/mocha ${testOptions}`;
 
 //using babel-node and babel-istanbul is way slow
@@ -99,8 +104,8 @@ async function test() {
     }
 
     processes.forEach((proc) => {
-      if (proc && !Number.isInteger(proc.exitCode)) {
-        proc.kill();
+      if (proc) {
+        proc.kill('SIGTERM');
       }
     });
 

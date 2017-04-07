@@ -27,11 +27,13 @@ import { uiSetGrunt } from '../actions/ui';
 import * as blockSelectors from '../selectors/blocks';
 import * as projectSelectors from '../selectors/projects';
 import { deleteProject, listProjects, loadProject, saveProject } from '../middleware/projects';
+import { commonsRetrieve } from '../middleware/commons';
 import safeValidate from '../schemas/fields/safeValidate';
 import * as validators from '../schemas/fields/validators';
 import emptyProjectWithConstruct from '../../data/emptyProject/index';
 import Project from '../models/Project';
 import Rollup from '../models/Rollup';
+import { noteSave, noteFailure } from '../store/saveState';
 import * as instanceMap from '../store/instanceMap';
 import * as undoActions from '../store/undo/actions';
 import { getLocal, setLocal } from '../utils/localstorage';
@@ -43,6 +45,7 @@ const recentProjectKey = 'mostRecentProject';
 const saveMessageKey = 'projectSaveMessage';
 
 const projectIdNotDefined = 'projectId is required';
+const projectInvalidError = 'Project data is invalid';
 const projectNotLoadedError = 'Project has not been loaded';
 const projectNotOwnedError = 'User does not own this project'; //todo - unify with server, handle 403 on load
 
@@ -55,6 +58,12 @@ const _getProject = (state, projectId) => {
   const project = state.projects[projectId];
   invariant(project, projectNotLoadedError);
   return project;
+};
+
+const _getBlock = (state, blockId) => {
+  const block = state.blocks[blockId];
+  invariant(block, `block ${blockId} not found`);
+  return block;
 };
 
 const classifyProjectIfNeeded = input => (input instanceof Project) ? input : new Project(input);
@@ -125,13 +134,14 @@ export const projectList = () =>
  * Save the project, e.g. for autosave.
  * @function
  * @param {UUID} [inputProjectId] Omit to save the current project
- * @param {boolean} [forceSave=false] Force saving, even if the project has not changed since last save
+ * @param {boolean} [forceSave=false] Force saving, even if the project has not changed since last save (creates a new version)
  * @returns {Promise}
  * @resolve {number|null} version of save, or null if save was unnecessary
  * @reject {string|Response} Error message
  */
 export const projectSave = (inputProjectId, forceSave = false) =>
   (dispatch, getState) => {
+    const state = getState();
     const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
     const projectId = inputProjectId || currentProjectId;
 
@@ -139,16 +149,26 @@ export const projectSave = (inputProjectId, forceSave = false) =>
       return Promise.resolve(null);
     }
 
-    let roll;
     try {
-      roll = dispatch(projectSelectors.projectCreateRollup(projectId));
+      //check if the project + constructs have been loaded, assume project is loaded if they are
+      const project = _getProject(state, projectId);
+      project.components.every(constructId => _getBlock(state, constructId));
     } catch (err) {
       return Promise.reject(projectNotLoadedError);
     }
 
+    //try to construct rollup... project is not valid if this fails
+    let roll;
+    try {
+      roll = dispatch(projectSelectors.projectCreateRollup(projectId));
+    } catch (err) {
+      noteFailure(projectId, projectInvalidError);
+      return Promise.reject(projectInvalidError);
+    }
+
     // gracefully resolve on save when not owned
     // probably should update our autosaving to be a little smarter
-    const userId = getState().user.userid;
+    const userId = state.user.userid;
     if (userId !== roll.getOwner()) {
       return Promise.resolve(null);
     }
@@ -158,10 +178,13 @@ export const projectSave = (inputProjectId, forceSave = false) =>
       return Promise.resolve(null);
     }
 
+    //ok, initiate the save... save in our save-cache and send to server
+
     instanceMap.saveRollup(roll);
 
     return saveProject(projectId, roll)
     .then((versionInfo) => {
+      const { version, time } = versionInfo;
       setLocal(recentProjectKey, projectId);
 
       //if no version => first time saving, show a grunt
@@ -173,7 +196,8 @@ export const projectSave = (inputProjectId, forceSave = false) =>
         setLocal(saveMessageKey, true);
       }
 
-      const { version, time } = versionInfo;
+      noteSave(projectId, version);
+
       dispatch({
         type: ActionTypes.PROJECT_SAVE,
         projectId,
@@ -182,6 +206,10 @@ export const projectSave = (inputProjectId, forceSave = false) =>
       });
 
       return version;
+    })
+    .catch((err) => {
+      noteFailure(projectId, err);
+      return Promise.reject(err);
     });
   };
 
@@ -222,16 +250,21 @@ export const projectClone = projectId =>
  * @private
  * @param projectId
  * @param userId
+ * @param forceOwner
  * @param {Array|boolean} [loadMoreOnFail=false] Pass array for list of IDs to ignore
  * @param dispatch Pass in the dispatch function for the store
  * @returns Promise
  * @resolve {Rollup} loaded Project + Block Map
  * @reject
  */
-const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) =>
+const _projectLoad = (projectId, userId, forceOwner, loadMoreOnFail = false, dispatch) =>
   loadProject(projectId)
-  .then(rollup => Rollup.classify(rollup))
   .catch((resp) => {
+    //get from the commons if just a permissions issue
+    if (resp && resp.status === 403 && forceOwner !== true) {
+      return commonsRetrieve(projectId);
+    }
+
     if ((resp === null || resp.status === 404) && loadMoreOnFail !== true && !Array.isArray(loadMoreOnFail)) {
       return Promise.reject(resp);
     }
@@ -252,7 +285,7 @@ const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) =>
       if (manifests.length) {
         const nextId = manifests[0].id;
         //recurse, ignoring this projectId
-        return _projectLoad(nextId, ignores, dispatch);
+        return _projectLoad(nextId, userId, forceOwner, ignores, dispatch);
       }
       //if no manifests, create a new rollup
       return emptyProjectWithConstruct(userId, true);
@@ -263,19 +296,22 @@ const _projectLoad = (projectId, userId, loadMoreOnFail = false, dispatch) =>
  * Load a project and add it and its contents to the store
  * @function
  * @param projectId
- * @param {boolean} [avoidCache=false]
  * @param {Array|boolean} [loadMoreOnFail=false] False to only attempt to load single project ID. Pass array of IDs to ignore in case of failure
+ * @param {Object} [options={}] { force = false, forceOwner = false } force to avoid cache and force loading, forceOwner to only load user's projects (avoid getting commons version when available)
  * @returns {Promise}
  * @resolve {Rollup} Returns whole rollup - { project, blocks }
  * @reject null
  */
-export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = false) =>
+export const projectLoad = (projectId, loadMoreOnFail = false, options = {}) =>
   (dispatch, getState) => {
+    const { force = false, forceOwner = false } = options;
     const isCached = !!projectId && instanceMap.projectLoaded(projectId);
     const userId = getState().user.userid;
-    const promise = (avoidCache !== true && isCached) ?
+
+    const promise = (force !== true && isCached) ?
       Promise.resolve(instanceMap.getRollup(projectId)) :
-      _projectLoad(projectId, userId, loadMoreOnFail, dispatch);
+      _projectLoad(projectId, userId, forceOwner, loadMoreOnFail, dispatch)
+      .then(rollup => Rollup.classify(rollup));
 
     //rollup by this point has been converted to class instances
     return promise.then((rollup) => {
@@ -293,6 +329,8 @@ export const projectLoad = (projectId, avoidCache = false, loadMoreOnFail = fals
           rollup,
           userOwnsProject: userId === rollup.project.owner,
         });
+
+        noteSave(rollup.project.id, rollup.project.version);
 
         return rollup;
       });
@@ -312,8 +350,7 @@ export const projectOpen = (inputProjectId, skipSave = false) =>
   (dispatch, getState) => {
     const currentProjectId = dispatch(projectSelectors.projectGetCurrentId());
     const projectId = inputProjectId || getLocal(recentProjectKey) || null;
-    const projectIdBogus = !currentProjectId ||
-      !idValidator(currentProjectId) ||
+    const projectIdBogus = !currentProjectId || !idValidator(currentProjectId) ||
       currentProjectId === 'null' ||
       currentProjectId === 'undefined';
 
@@ -520,7 +557,7 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = tru
         project = oldProject.addComponentsAt(index, constructId);
       }
 
-      const component = getState().blocks[constructId];
+      const component = _getBlock(getState(), constructId);
       const componentProjectId = component.projectId;
 
       const contents = dispatch(blockSelectors.blockGetContentsRecursive(constructId));
@@ -531,7 +568,7 @@ export const projectAddConstruct = (projectId, constructId, forceProjectId = tru
         //ensure that Ids are null to ensure we are only adding clones
         invariant(forceProjectId === true && !componentProjectId && contentProjectIds.every(compProjId => !compProjId), 'cannot add component with different projectId! set forceProjectId = true to overwrite.');
 
-        dispatch(blockActions.blockSetProject(constructId, projectId));
+        dispatch(blockActions.blockSetProject(constructId, projectId, true));
       }
 
       dispatch({
@@ -554,10 +591,13 @@ export const projectRemoveConstruct = (projectId, constructId) =>
   (dispatch, getState) =>
     wrapPausedTransaction(dispatch, () => {
       const oldProject = _getProject(getState(), projectId);
+      const component = _getBlock(getState(), constructId);
       const project = oldProject.removeComponents(constructId);
 
-      //unset projectId of construct only
-      dispatch(blockActions.blockSetProject(constructId, null, false));
+      //unset projectId of construct only, if it is not frozen, otherwise skip it
+      if (!component.isFrozen()) {
+        dispatch(blockActions.blockSetProject(constructId, null, false));
+      }
 
       dispatch({
         type: ActionTypes.PROJECT_REMOVE_CONSTRUCT,

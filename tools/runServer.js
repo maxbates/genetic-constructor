@@ -16,6 +16,13 @@ const serverPath = './server/devServerBabel.js';
 //const { output } = serverConfig;
 //const serverPath = path.join(output.path, output.filename);
 
+const terminationHandler = () => {
+  if (server && !server.killed) {
+    console.log(colors.blue(`Killing server... (pid ${server.pid})`));
+    server.kill(terminationSignal);
+  }
+};
+
 // Launch or restart the Node.js server
 function runServer(cb) {
   let lastTime = new Date();
@@ -43,55 +50,77 @@ function runServer(cb) {
     }
   }
 
-  if (server) {
-    console.log(colors.blue('Restarting server...'));
-    server.kill(terminationSignal);
+  terminationHandler();
+
+  //arguments to node
+  const nodeArgs = ['--max_old_space_size=4096'];
+
+  //node --inspect causes issues with process detaching... not recommended with webpack, or need to get this working
+  //https://github.com/nodejs/node/issues/7742
+  if (process.env.DEBUG && process.env.DEBUG.indexOf('inspect') >= 0) {
+    nodeArgs.push('--inspect');
   }
 
+  //arguments to script
   //--color so colors module will use colors even when piping to spawn
+  const processArgs = ['--color'];
+
   //DEBUG_COLORS so debug module will use colors and not ugly timestamps
-  server = cp.spawn('node', ['--max_old_space_size=4096', serverPath, '--color'], {
-    env: Object.assign({
-      NODE_ENV: 'dev',
-      DEBUG_COLORS: 'true',
-    }, process.env),
-    silent: false,
-  });
+  const defaultEnv = {
+    NODE_ENV: 'dev',
+    DEBUG_COLORS: 'true',
+  };
 
-  server.stdout.on('data', onStdOut);
-  server.stderr.on('data', defaultWriteOut);
-
-  //if the server exits unhappily kill this process too
-  //on certain errors not explicitly triggered we could start it up again
-  server.on('exit', (code, signal) => {
-    //if we explicitly terminated the server (e.g. rebuild)
-    if (signal === terminationSignal) {
+  //poll for server to have died before spinning up another one...
+  const interval = setInterval(() => {
+    if (server && !server.killed) {
+      console.log(colors.blue('Waiting for server to die...'));
+      console.log(server.pid);
+      terminationHandler();
       return;
     }
 
-    //if we didn't get a signal, try to restart
-    if (!signal) {
-      return;
-    }
+    clearInterval(interval);
 
-    //we trigger 87 on build failure in server.js
-    if (code === 87) {
+    server = cp.spawn('node', [...nodeArgs, serverPath, ...processArgs], {
+      env: Object.assign(defaultEnv, process.env),
+      silent: false,
+    });
+    console.log(colors.blue(`Spawned new server... (pid ${server.pid})`));
+
+    server.stdout.on('data', onStdOut);
+    server.stderr.on('data', defaultWriteOut);
+
+    //if the server exits unhappily kill this process too
+    //on certain errors not explicitly triggered we could start it up again
+    server.on('exit', (code, signal) => {
+      //if we explicitly terminated the server (e.g. rebuild)
+      if (signal === terminationSignal) {
+        return;
+      }
+
+      //if we didn't get a signal, try to restart
+      if (!signal) {
+        return;
+      }
+
+      //we trigger 87 on build failure in server.js
+      if (code === 42) {
+        process.exit(1);
+        return; //in case not sync...
+      }
+
+      //otherwise something bad happened and we should we restart
+      //restarting can be tricky, so kill to be save. you could probably recursively call runServer() if you wanted..
+      console.log(colors.red(`Server exited with code ${code} and signal ${signal}`));
       process.exit(1);
-      return; //in case not sync...
-    }
-
-    //otherwise something bad happened and we should we restart
-    //restarting can be tricky, so kill to be save. you could probably recursively call runServer() if you wanted..
-    console.log(colors.red(`Server exited with code ${code} and signal ${signal}`));
-    process.exit(1);
-  });
+    });
+  }, 100);
 }
 
-process.on('exit', () => {
-  if (server) {
-    console.log('killing server');
-    server.kill(terminationSignal);
-  }
-});
+//on various death events, explicitly kill server
+process.on('exit', terminationHandler);
+process.on('SIGINT', terminationHandler);
+process.on('SIGTERM', terminationHandler);
 
 export default runServer;

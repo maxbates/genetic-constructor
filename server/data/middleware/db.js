@@ -14,6 +14,7 @@
  limitations under the License.
  */
 import debug from 'debug';
+import URLSafeBase64 from 'urlsafe-base64';
 
 import * as headers from '../../../src/middleware/utils/headers';
 import rejectingFetch from '../../../src/middleware/utils/rejectingFetch';
@@ -107,3 +108,5 @@ export const dbDelete = (path, params = {}) =>
 
 //dont strip the other fields that may be there - most basic CRUD operations include information other than just the data
 export const dbPruneResult = json => json.data;
+
+export const dbEncodeString = string => URLSafeBase64.encode(new Buffer(string, 'utf8'));

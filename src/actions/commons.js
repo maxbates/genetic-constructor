@@ -40,6 +40,7 @@ export const commonsPublish = (projectId, version, body = {}) => (dispatch, getS
   const project = getState().projects[projectId];
   const userId = getState().user.userid;
 
+  invariant(project.components.length > 0, 'must have constructs to publish');
   invariant(project.owner === userId, 'must be owner to unpublish');
 
   return commons.commonsPublishVersion(projectId, version, body)
@@ -98,7 +99,7 @@ export const commonsRetrieveProject = (projectId, version, shouldStash = false) 
  */
 export const commonsRetrieveProjectVersions = projectId =>
   (dispatch, getState) =>
-    commons.commonsListVersions(projectId)
+    commons.commonsRetrieveVersions(projectId)
     .then((rawSnapshots) => {
       const snapshots = rawSnapshots.map(rawSnapshot => new Snapshot(rawSnapshot));
       dispatch({

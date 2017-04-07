@@ -7,16 +7,27 @@ webapp:
      - "3333:3333"
   environment:
     PORT: 3333
-    API_END_POINT: http://internal-lb${BNR_ENV_URL_SUFFIX}.bionano.bio:8080/api
+    #lb dns names always have the environment included
+    API_END_POINT: http://internal-lb.${BNR_ENVIRONMENT}.bionano.bio:8080/api
     HOST_URL: https://gctor-feature${BNR_ENV_URL_SUFFIX}.bionano.autodesk.com
     NODE_ENV: ${NODE_ENV}
     GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
     CAPTCHA_SECRET_REGISTER: ${CAPTCHA_SECRET_REGISTER}
     NO_DOCKER: "true"
-    STORAGE_API: http://internal-lb${BNR_ENV_URL_SUFFIX}.bionano.bio:4747/api
+    #lb dns names always have the environment included
+    STORAGE_API: http://internal-lb.${BNR_ENVIRONMENT}.bionano.bio:4747/api
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    BNR_ENVIRONMENT: ${BNR_ENVIRONMENT}
+    BNR_ENV_TAG: ${BNR_ENV_TAG}
+    BNR_ENV_URL_SUFFIX: ${BNR_ENV_URL_SUFFIX}
     EMAIL: ${EMAIL}
+    VERBOSE_REQUEST_LOGS: ${VERBOSE_REQUEST_LOGS}
+    SEND_GRID_LIST_ID: ${SEND_GRID_LIST_ID}
+    REDIS_HOST: ${REDIS_HOST}
+    REDIS_PORT: ${REDIS_PORT}
+    REDIS_DB: ${REDIS_DB}
+    BLAST_URL: ${BLAST_URL}
   command:
     npm run server-auth
   log_driver: json-file

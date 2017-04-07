@@ -84,14 +84,13 @@ export default function commons(state = initialState, action) {
 
     case ActionTypes.PROJECT_LOAD: {
       const { rollup, userOwnsProject } = action;
-      //if owner + project is published, save it in commons as well
-      if (userOwnsProject) {
-        if (some(state.versions, snapshot => snapshot.projectId === rollup.project.id)) {
-          return {
-            versions: state.versions,
-            projects: { ...state.projects, [rollup.project.id]: rollup },
-          };
-        }
+      //if not owned, add it
+      //if owner + project is published (according to snapshots loaded), save it in commons
+      if (!userOwnsProject || some(state.versions, snapshot => snapshot.projectId === rollup.project.id)) {
+        return {
+          versions: state.versions,
+          projects: { ...state.projects, [rollup.project.id]: rollup },
+        };
       }
       return state;
     }

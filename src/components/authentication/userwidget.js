@@ -19,8 +19,8 @@ import { connect } from 'react-redux';
 
 import { uiSetGrunt, uiShowAuthenticationForm, uiShowMenu } from '../../actions/ui';
 import { userLogout } from '../../actions/user';
-import Box2D from '../../containers/graphics/geometry/box2d';
-import Vector2D from '../../containers/graphics/geometry/vector2d';
+import Box2D from '../../graphics/geometry/box2d';
+import Vector2D from '../../graphics/geometry/vector2d';
 import '../../styles/userwidget.css';
 
 class UserWidget extends Component {

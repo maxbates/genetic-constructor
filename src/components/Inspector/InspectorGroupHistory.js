@@ -36,6 +36,9 @@ export class InspectorGroupHistory extends Component {
     project: PropTypes.shape({
       id: PropTypes.string.isRequired,
       owner: PropTypes.string.isRequired,
+      metadata: PropTypes.shape({
+        name: PropTypes.string,
+      }).isRequired,
     }).isRequired,
     userId: PropTypes.string.isRequired,
     userOwnsProject: PropTypes.bool.isRequired,
@@ -186,9 +189,15 @@ export class InspectorGroupHistory extends Component {
             />
           );
 
-          const widgets = snapshot.isPublished() ?
-            [(<img src="/images/ui/commonsVersion.svg" role="presentation" key={snapshot.snapshotUUID} />)] :
-            [];
+          const widgets = snapshot.isPublished()
+            ? [(
+              <img
+                src="/images/ui/commonsVersion.svg"
+                role="presentation"
+                key={snapshot.snapshotUUID}
+              />
+            )]
+            : [];
 
           return (
             <Expando

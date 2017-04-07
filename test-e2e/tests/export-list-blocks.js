@@ -8,6 +8,8 @@ var size = require('../fixtures/size');
 var searchFor = require('../fixtures/search-for');
 var openInventoryPanel = require('../fixtures/open-inventory-panel');
 var rightClickAt = require('../fixtures/rightClickAt');
+var openEgfProject = require('../fixtures/open-egf-project');
+var saveCurrentProject = require('../fixtures/save-current-project');
 
 module.exports = {
   'Export a project with a regular construct and a template' : function (browser) {
@@ -27,21 +29,13 @@ module.exports = {
     searchFor(browser, 'Ncbi', 'Runx1');
     dragFromTo(browser, '.InventoryItem-item', 10, 10, '.inter-construct-drop-target', 50, 4);
 
-    // click the my projects inventory tab and expect a project.
-    openInventoryPanel(browser, 'Templates');
-    browser
-      // expand 1st project
-      .pause(2000)
-      .click('.inventory-project-tree .tree div:nth-of-type(1) .expando')
-      .pause(2000)
-      // expect 14 template constructs in expanded project
-      .assert.countelements('.inventory-project-tree [data-testid^="block"]', 14);
-
+    openEgfProject(browser);
 
     // drag the first construct into the canvas
-    dragFromTo(browser, '.inventory-project-tree [data-testid^="block"]', 50, 10, '.inter-construct-drop-target', 50, 4);
-    browser
-      .pause(3000);
+    dragFromTo(browser, '[data-testid^="block"]', 50, 10, '.inter-construct-drop-target', 50, 4);
+
+    saveCurrentProject(browser);
+
     // export the project via its context menu
     openInventoryPanel(browser, 'Projects');
     rightClickAt(browser, '.inventory-project-tree .expando', 4, 4 );

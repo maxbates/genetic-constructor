@@ -48,11 +48,19 @@ export const checkDockerInstalled = () => promisedExec('docker -v', {}, { commen
       const version = findVersions(result, { loose: true });
       console.log(`Found version ${version}`);
 
-      const [/*match*/, major, minor] = /^(\d+?)\.(\d+?)\.(.+)$/.exec(version);
+      const [/*match*/, major, minor] = /(\d+?)\.(\d+?)\.(.+)$/.exec(version);
       // we ignore the 'Z' version of Docker but keep in mind it may not always be an integer
-      if (major < 1 || minor < 12) {
-        console.error(colors.red('Docker version > 1.12 is required'));
-        throw Error('Docker > 1.12 required');
+
+      let versionOk = false;
+      if (parseInt(major, 10) >= 17 && parseInt(minor, 10) >= 3) { // new, free version
+        versionOk = true;
+      } else if (parseInt(major, 10) === 1 && parseInt(minor, 10) >= 12) { // old version
+        versionOk = true;
+      }
+
+      if (!versionOk) {
+        console.error(colors.red('Docker version > 17.03 is required'));
+        throw Error('Docker > 17.03 required');
       }
     });
 

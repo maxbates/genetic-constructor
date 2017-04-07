@@ -44,7 +44,6 @@
   box-sizing: border-box;
 }
 
-
 /* overlaid panel for handling mouse inputs and displaying overlaid UI affordances/glyphs */
 .scenegraph-userinterface {
   position: absolute;
@@ -91,43 +90,6 @@
   box-sizing: border-box;
   border: 1px solid var(--colors-selected);
 }
-
-.construct-viewer {
-  margin: 0rem 1rem 0 1rem;
-  width: calc(100% - 2rem);
-  background: transparent;
-  position: relative;
-
-  .title-and-toolbar-container {
-    position: absolute;
-    width: calc(100% - 35px);
-    right: 0;
-    top: 0;
-    height: 32px;
-  }
-
-  .title-and-toolbar-unfocused {
-    opacity: 0.5;
-  }
-
-  .lockIcon {
-    position: absolute;
-    left: -19px;
-    top: 6px;
-  }
-
-  .sceneGraphContainer {
-    overflow: hidden;
-    position: relative;
-  }
-}
-.construct-viewer-focused {
-  background-color: var(--colors-darkGrey);
-}
-.construct-viewer:last-child {
-  margin-bottom: 5rem;
-}
-
 
 /*indicate an role glyph block has children, clicking toggle the associated*/
 /*nested construct*/

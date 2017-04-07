@@ -25,7 +25,7 @@ import fields from './fields/index';
 import * as validators from './fields/validators';
 
 const sequenceMd5Validator = validators.sequenceMd5({ real: true });
-const sequenceValidator = validators.sequence();
+const sequenceValidator = validators.sequence({ loose: true });
 
 const idValidator = (value) => {
   if (!idRegex().test(value)) {
@@ -41,15 +41,15 @@ const seqObjectBlocksValidator = validators.objectOf((value, key) => {
 });
 
 /*
-versions:
-1
-  starting point
-2
-  - add project.owner (not required)
-  - add metadata.keywords = [] (required) (Project + Blocks)
+ versions:
+ 1
+ starting point
+ 2
+ - add project.owner (not required)
+ - add metadata.keywords = [] (required) (Project + Blocks)
  */
 //help track data model to aid migrations
-export const currentDataModelVersion = 3;
+export const currentDataModelVersion = 4;
 
 const rollupFields = {
   //schema is validated on save, should always be at current version (should be upgraded on load)

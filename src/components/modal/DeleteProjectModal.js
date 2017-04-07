@@ -49,7 +49,6 @@ class DeleteProjectModal extends Component {
     blockCreate: PropTypes.func.isRequired,
     projectAddConstruct: PropTypes.func.isRequired,
     projectCreate: PropTypes.func.isRequired,
-    projectSave: PropTypes.func.isRequired,
     projectLoad: PropTypes.func.isRequired,
     projectOpen: PropTypes.func.isRequired,
     projectDelete: PropTypes.func.isRequired,
@@ -97,27 +96,37 @@ class DeleteProjectModal extends Component {
     }
 
     const projectId = this.props.projectId;
+    const deletingCurrentProject = projectId === this.props.currentProjectId;
 
     //make sure we have another project
-    const nextProject = _(this.props.projects)
-    .filter(project => !project.rules.frozen)
-    .orderBy(['metadata.created'], ['desc'])
-    .find(manifest => manifest.id !== projectId);
+    //if we are deleting the current project, find another
+    //if we are deleting one that is not the open one, we're fine
+    let nextProjectId = deletingCurrentProject
+      ?
+      _(this.props.projects)
+      .filter(project => !project.rules.frozen) //ignore un-owned projects
+      .orderBy(['metadata.created'], ['desc'])
+      .map(manifest => manifest.id)
+      .find(manifestId => manifestId !== projectId)
+      :
+      this.props.currentProjectId;
 
-    //if no other projects, create and save another one first
-    if (!nextProject) {
+    //if no other projects, create another and note to open it
+    if (!nextProjectId) {
       const newProject = this.createNewProject();
-      return this.props.projectSave(newProject.project.id, true)
-      .then(() => this.props.projectDelete(projectId));
+      nextProjectId = newProject.project.id;
     }
 
     //to gracefully delete...
     //load another project, avoiding this one
-    this.props.projectLoad(nextProject.id, false, [projectId])
+    this.props.projectLoad(nextProjectId, false, [projectId])
     //open the new project, skip saving the previous one
     .then(roll => this.props.projectOpen(roll.project.id, true))
     //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
-    .then(() => this.props.projectDelete(projectId));
+    //make sure not to call this.props.projectId as it may have changed by now due to props propagation after page nav
+    .then(() => {
+      this.props.projectDelete(projectId);
+    });
   }
 
   //todo - share with InventoryProjectTree better
@@ -169,6 +178,7 @@ class DeleteProjectModal extends Component {
 
 export default connect((state, props) => {
   const projectId = state.ui.modals.projectDeleteForceProjectId || props.currentProjectId;
+
   return {
     projectId,
     projects: state.projects,

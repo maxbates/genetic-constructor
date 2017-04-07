@@ -1,11 +1,13 @@
 import path from 'path';
 import fs from 'fs';
-import merge from 'lodash.merge';
+import { find, merge } from 'lodash';
 import webpack from 'webpack';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 const DEBUG = !process.argv.includes('--release');
-const VERBOSE = process.argv.includes('--verbose');
-const DEBUG_REDUX = process.env.DEBUG && process.env.DEBUG.indexOf('redux') >= 0; //hook for devtools etc.
+const VERBOSE = process.argv.includes('--webpack-verbose');
+const DEBUG_REDUX = !!process.env.DEBUG_REDUX || (process.env.DEBUG && process.env.DEBUG.indexOf('redux') >= 0); //hook for devtools etc.
+
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
   'Android >= 4',
@@ -21,8 +23,10 @@ const AUTOPREFIXER_BROWSERS = [
 const dataPath = path.resolve(__dirname, '../data');
 const sourcePath = path.resolve(__dirname, '../src');
 const serverSourcePath = path.resolve(__dirname, '../server');
-const pluginsSourcePath = path.resolve(__dirname, '../plugins');
 const buildPath = path.resolve(__dirname, '../build');
+const buildStaticPath = path.resolve(__dirname, '../build/static');
+const classesModulePath = path.resolve(__dirname, '../constructor-classes');
+const commonsPath = path.resolve(__dirname, '../commons');
 
 const GLOBALS = {
   'process.env.NODE_ENV': DEBUG ? '"dev"' : '"production"',
@@ -39,10 +43,45 @@ const nodeModules = fs.readdirSync('node_modules')
   {},
 );
 
+const clientSidePlugins = [
+  // Assign the module and chunk ids by occurrence count
+  // https://webpack.github.io/docs/list-of-plugins.html#occurrenceorderplugin
+  new webpack.optimize.OccurenceOrderPlugin(true),
+
+  //Print errors, don't allow modules with errors
+  //https://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
+  new webpack.NoErrorsPlugin(),
+
+  // Define free variables
+  // https://webpack.github.io/docs/list-of-plugins.html#defineplugin
+  new webpack.DefinePlugin({
+    ...GLOBALS,
+    'process.env.BROWSER': true,
+  }),
+  ...(DEBUG ? [] : [
+      // Search for equal or similar files and deduplicate them in the output
+      // https://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
+    new webpack.optimize.DedupePlugin(),
+
+      // Minimize all JavaScript output of chunks
+      // https://github.com/mishoo/UglifyJS2#compressor-options
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        screw_ie8: true, // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
+        warnings: VERBOSE,
+      },
+    }),
+
+      // A plugin for a more aggressive chunk merging strategy
+      // https://webpack.github.io/docs/list-of-plugins.html#aggressivemergingplugin
+    new webpack.optimize.AggressiveMergingPlugin(),
+  ]),
+];
+
 //common configuration
-const config = {
+export const config = {
   output: {
-    path: buildPath,
+    path: buildStaticPath,
     publicPath: '/static/',
   },
 
@@ -53,12 +92,18 @@ const config = {
         loader: 'json-loader',
       },
       {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader!postcss-loader',
+      },
+      {
         test: /\.jsx?$/,
         loader: 'babel-loader',
+        //explicitly declare folders
         include: [
+          classesModulePath,
           sourcePath,
           serverSourcePath,
-          pluginsSourcePath,
+          commonsPath,
           dataPath,
         ],
         exclude: /node_modules/,
@@ -69,10 +114,6 @@ const config = {
           presets: ['stage-2', 'react', 'es2015'],
           plugins: ['transform-class-properties', 'transform-decorators-legacy', 'add-module-exports', 'transform-runtime'],
         },
-      },
-      {
-        test: /\.css$/,
-        loader: 'style-loader!css-loader!postcss-loader',
       },
       {
         test: /\.jade$/,
@@ -130,40 +171,7 @@ export const clientConfig = merge({}, config, {
 
   target: 'web',
 
-  plugins: [
-    // Assign the module and chunk ids by occurrence count
-    // https://webpack.github.io/docs/list-of-plugins.html#occurrenceorderplugin
-    new webpack.optimize.OccurenceOrderPlugin(true),
-
-    //Print errors, don't allow modules with errors
-    //https://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
-    new webpack.NoErrorsPlugin(),
-
-    // Define free variables
-    // https://webpack.github.io/docs/list-of-plugins.html#defineplugin
-    new webpack.DefinePlugin({
-      ...GLOBALS,
-      'process.env.BROWSER': true,
-    }),
-    ...(DEBUG ? [] : [
-      // Search for equal or similar files and deduplicate them in the output
-      // https://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
-      new webpack.optimize.DedupePlugin(),
-
-      // Minimize all JavaScript output of chunks
-      // https://github.com/mishoo/UglifyJS2#compressor-options
-      new webpack.optimize.UglifyJsPlugin({
-        compress: {
-          screw_ie8: true, // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
-          warnings: VERBOSE,
-        },
-      }),
-
-      // A plugin for a more aggressive chunk merging strategy
-      // https://webpack.github.io/docs/list-of-plugins.html#aggressivemergingplugin
-      new webpack.optimize.AggressiveMergingPlugin(),
-    ]),
-  ],
+  plugins: clientSidePlugins,
 
   // Choose a developer tool to enhance debugging
   // http://webpack.github.io/docs/configuration.html#devtool
@@ -177,7 +185,6 @@ export const serverConfig = merge({}, config, {
   resolve: {
     root: serverSourcePath,
     alias: {
-      gd_plugins: `${buildPath}/plugins`,
       gd_extensions: `${buildPath}/node_modules`,
     },
   },
@@ -190,6 +197,9 @@ export const serverConfig = merge({}, config, {
   target: 'node',
 
   plugins: [
+    //this will ignore in webpack, but not babel-node
+    //new webpack.NormalModuleReplacementPlugin(/\.css$/, 'node-noop'),
+
     new webpack.optimize.OccurenceOrderPlugin(true),
 
     // Define free variables
@@ -221,4 +231,53 @@ export const serverConfig = merge({}, config, {
   devtool: 'cheap-module-source-map',
 });
 
-export default [clientConfig, serverConfig];
+//todo - not sure if this will work on the client
+export const classesConfig = merge({}, config, {
+  context: classesModulePath,
+
+  entry: './bundle.js',
+
+  output: {
+    filename: 'index.js',
+    path: classesModulePath,
+    libraryTarget: 'commonjs2',
+  },
+
+  target: 'node',
+
+  plugins: clientSidePlugins,
+
+  node: serverConfig.node,
+
+  externals: {},
+
+  devtool: 'cheap-module-source-map',
+});
+
+export const commonsConfig = merge({}, clientConfig, {
+  context: commonsPath,
+  resolve: { root: commonsPath },
+
+  entry: [
+    './app/client.js',
+  ],
+
+  output: {
+    filename: 'commons.js',
+  },
+
+  stats: {
+    children: false,
+  },
+});
+
+//update commons config to extract CSS into separate stylesheet
+//todo - this prevents SVGs from bundling with rest of code
+const cssExtractor = new ExtractTextPlugin('commons.css');
+commonsConfig.plugins.push(cssExtractor);
+const loader = find(commonsConfig.module.loaders, mod => mod.loader.startsWith('style'));
+merge(loader, {
+  loader: cssExtractor.extract(['css', 'postcss']),
+});
+
+export default [clientConfig, commonsConfig, serverConfig];

@@ -1,0 +1,75 @@
+@import '../../../src/styles/variables.css';
+
+:root {
+  --text-width: 460px;
+}
+
+.Project {
+  a {
+    color: var(--colors-selected);
+  }
+
+  &-header {
+
+    &-separator {
+      display: inline-block;
+      height: 12px;
+      width: 12px;
+      margin: 0 0.75rem;
+      background: url('/images/ui/breadcrumb.svg');
+      background-size: contain;
+    }
+  }
+
+  &-overview {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .InfoTable {
+      width: var(--text-width);
+    }
+  }
+
+  &-preview {
+
+    &-title {
+
+    }
+
+    &-stats {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+
+      &-stat {
+
+        &:after {
+          content: '•';
+          padding: 0 0.5rem;
+        }
+
+        &:last-child:after {
+          content: ''
+        }
+
+      }
+    }
+  }
+
+  &-constructs {
+
+  }
+
+  &-license {
+
+  }
+
+  &-what {
+
+  }
+
+  &-textblock {
+    width: var(--text-width);
+  }
+}

@@ -25,6 +25,7 @@ export const initialState = {
   orderId: null,
   showAbout: false,
   gruntMessage: null,
+  gruntTime: 5000,
   showGenBankImport: false,
   userWidgetVisible: true,
   spinMessage: '',
@@ -41,6 +42,7 @@ export const initialState = {
   unpublishDialog: false,
   unpublishDialogVersion: undefined,
   projectDeleteDialog: false,
+  projectDeleteForceProjectId: null,
 };
 
 export default function modals(state = initialState, action) {
@@ -80,8 +82,8 @@ export default function modals(state = initialState, action) {
       return { ...state, userWidgetVisible };
 
     case ActionTypes.UI_SET_GRUNT :
-      const { gruntMessage } = action;
-      return { ...state, gruntMessage };
+      const { gruntMessage, gruntTime } = action;
+      return { ...state, gruntMessage, gruntTime };
 
     case ActionTypes.UI_SHOW_MENU :
       const { menuItems, menuPosition, menuHat } = action;
@@ -136,8 +138,8 @@ export default function modals(state = initialState, action) {
       return { ...state, unpublishDialog, unpublishDialogVersion };
 
     case ActionTypes.UI_SHOW_PROJECT_DELETE_DIALOG:
-      const { projectDeleteDialog } = action;
-      return { ...state, projectDeleteDialog };
+      const { projectDeleteDialog, projectDeleteForceProjectId } = action;
+      return { ...state, projectDeleteDialog, projectDeleteForceProjectId };
 
     case LOCATION_CHANGE :
       const toKeep = ['gruntMessage'].reduce((acc, field) => Object.assign(acc, { [field]: state[field] }), {});

@@ -23,7 +23,7 @@ import { abort, commit, transact } from '../../store/undo/actions';
 import { blockSetPalette } from '../../actions/blocks';
 import { getPaletteName } from '../../utils/color/index';
 
-import InputSimple from './../InputSimple';
+import InputSimple from '../formElements/InputSimple';
 import FormKeywords from '../formElements/FormKeywords';
 import InspectorRow from './InspectorRow';
 import OrderList from './OrderList';

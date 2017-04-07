@@ -22,7 +22,6 @@ import * as blockPersistence from './persistence/blocks';
 import * as projectVersions from './persistence/projectVersions';
 import * as projectPersistence from './persistence/projects';
 import * as commons from './persistence/commons';
-import jobFileRouter from './routerJobs';
 import projectFileRouter from './routerProjectFiles';
 import sequenceRouter from './routerSequences';
 import snapshotRouter from './routerSnapshots';
@@ -64,9 +63,6 @@ router.use('/commons', commonsRouter);
 router.use('/sequence', sequenceRouter);
 
 router.use('/loadersupport', loaderSupportRouter);
-
-/* job files */
-router.use('/jobs/:projectId', userOwnsProjectMiddleware, jobFileRouter);
 
 /* project files */
 router.use('/file/:projectId', userOwnsProjectMiddleware, projectFileRouter);
@@ -166,12 +162,7 @@ router.route('/projects/:projectId')
     updated: info.updated,
     id: info.id,
   }))
-  .catch((err) => {
-    if (err === errorInvalidModel) {
-      return res.status(422).send(errorInvalidModel);
-    }
-    next(err);
-  });
+  .catch(next);
 })
 .delete((req, res, next) => {
   const { projectId, user, projectDoesNotExist } = req;

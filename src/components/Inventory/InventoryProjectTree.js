@@ -44,7 +44,7 @@ import {
 } from '../../actions/ui';
 import { block as blockDragType } from '../../constants/DragTypes';
 import Rollup from '../../models/Rollup';
-import DnD from '../../containers/graphics/dnd/dnd';
+import DnD from '../../graphics/dnd/dnd';
 import * as instanceMap from '../../store/instanceMap';
 import { commit, transact } from '../../store/undo/actions';
 import Spinner from '../ui/Spinner';

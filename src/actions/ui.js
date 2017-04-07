@@ -198,10 +198,11 @@ export const uiShowUserWidget = userWidgetVisible => (dispatch, getState) => {
   return userWidgetVisible;
 };
 
-export const uiSetGrunt = gruntMessage => (dispatch, getState) => {
+export const uiSetGrunt = (gruntMessage, gruntTime = 5000) => (dispatch, getState) => {
   dispatch({
     type: ActionTypes.UI_SET_GRUNT,
     gruntMessage,
+    gruntTime,
   });
   return gruntMessage;
 };

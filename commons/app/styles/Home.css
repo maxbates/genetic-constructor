@@ -1,0 +1,56 @@
+@import '../../../src/styles/variables.css';
+
+:root {
+  --space-card: 20px;
+}
+
+.Home {
+  font-family: var(--font-family-light);
+
+  &-splash {
+    margin: 2rem;
+    text-align: center;
+    color: var(--colors-nearlyBlack);
+
+    &-heading {
+      font-weight: 100;
+      font-size: 64px;
+      text-transform: uppercase;
+      line-height: 1em;
+      margin: 2rem 0;
+    }
+
+    &-subheading {
+      margin: 0;
+      font-size: 18px;
+    }
+  }
+
+  &-stats {
+    text-align: center;
+    margin: var(--space-card) 0;
+    color: var(--colors-selected);
+    font-size: 18px;
+
+    &-stat {
+      &:after {
+        content: '•';
+        padding: 0 5px;
+      }
+
+      &:last-child:after {
+        content: '';
+      }
+    }
+  }
+
+  &-projects {
+    margin: var(--space-card) 0;
+    display: flex;
+    flex-wrap: wrap;
+
+    > * {
+      flex-shrink: 0;
+    }
+  }
+}

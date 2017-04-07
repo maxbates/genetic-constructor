@@ -1,0 +1,61 @@
+@import '../../../src/styles/variables.css';
+
+:root {
+  --width-card: 220px;
+  --space-card: 20px;
+  --width-corner: 15px;
+}
+
+.ProjectCard {
+  position: relative;
+  padding: 15px;
+  margin: 0 var(--space-card) var(--space-card) 0;
+  width: var(--width-card);
+  height: var(--width-card);
+  background-color: var(--colors-darkerGrey);
+  border-radius: var(--space-card);
+  transition: transform var(--timing-fast) ease-out;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &:nth-child(4n) {
+    margin-right: 0;
+  }
+
+  a {
+    display: block;
+    height: 100%;
+  }
+
+  &-corner {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border: var(--space-card) solid transparent;
+  }
+
+  &-metadata {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  &-name {
+    flex-shrink: 0;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 17px 5px 10px;
+  }
+
+  &-description {
+    font-size: 14px;
+    line-height: 1.43;
+    color: var(--colors-white);
+  }
+}

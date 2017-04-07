@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import { reportError } from '../../middleware/reporting';
 import { projectGetCurrentId, projectGetVersion } from '../../selectors/projects';
 import { uiSetGrunt } from '../../actions/ui';
-import Selector from '../../containers/orders/selector';
+import Selector from '../orders/selector';
 import { userGetUser } from '../../selectors/user';
 import '../../styles/InspectorGroupFeedback.css';
 

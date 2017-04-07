@@ -17,16 +17,16 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import { sanitize } from '../../../commons/sanitize';
 import { block as blockDragType } from '../../constants/DragTypes';
 import { SHARING_IN_PUBLIC_INVENTORY } from '../../constants/links';
-
 import { blockStash } from '../../actions/blocks';
 import { focusPrioritize, focusForceProject, focusForceBlocks } from '../../actions/focus';
 import { projectLoad, projectOpen, projectStash, projectClone } from '../../actions/projects';
 import { projectGet } from '../../selectors/projects';
 import { commonsQuery, commonsRetrieveProject } from '../../actions/commons';
 import { uiShowMenu, inspectorSelectTab, inspectorToggleVisibility } from '../../actions/ui';
-import DnD from '../../containers/graphics/dnd/dnd';
+import DnD from '../../graphics/dnd/dnd';
 import InventoryProjectTree from './InventoryProjectTree';
 import Tree from '../ui/Tree';
 import Spinner from '../ui/Spinner';
@@ -57,10 +57,6 @@ export class InventoryGroupCommons extends Component {
     inspectorToggleVisibility: PropTypes.func.isRequired,
     inspectorSelectTab: PropTypes.func.isRequired,
   };
-
-  static onCommonsProjectDrag(snapshot, globalPoint) {
-    //todo - should we do anything on dragging the project?
-  }
 
   static onCommonsConstructDrag(block, globalPoint) {
     DnD.startDrag(InventoryProjectTree.makeDnDProxy(block), globalPoint, {
@@ -125,6 +121,10 @@ export class InventoryGroupCommons extends Component {
         action: this.onOpenCommonsProject.bind(this, snapshot),
       },
       {
+        text: 'Open in The Commons',
+        action: this.onOpenInCommons.bind(this, snapshot),
+      },
+      {
         text: 'Duplicate Project',
         action: () => {
           const { projectId } = snapshot;
@@ -149,6 +149,13 @@ export class InventoryGroupCommons extends Component {
     .then(() => this.props.projectOpen(projectId));
   };
 
+  onOpenInCommons = (snapshot, evt) => {
+    const sanitizedName = sanitize(snapshot.tags.projectName);
+    const url = `/commons/${sanitizedName}?projectId=${snapshot.projectId}`;
+
+    window.open(url, '_blank');
+  };
+
   onFilterChange = (filter) => {
     this.setState({ filter });
   };
@@ -170,6 +177,7 @@ export class InventoryGroupCommons extends Component {
       return {
         block,
         text: block.getName(),
+        testid: block.id,
         items: [], //only one level allowed
         selectedAlt: this.props.focus.forceBlocks[0] === block,
         onClick: () => this.props.focusForceBlocks([block]),
@@ -255,13 +263,11 @@ export class InventoryGroupCommons extends Component {
 
     return snapshots.map(snapshot => ({
       text: snapshot.tags.projectName || 'Untitled Project',
-      testid: `commons/${snapshot.owner}/${snapshot.projectId}`,
-      bold: false,
+      testid: `commons/${snapshot.projectId}/${snapshot.owner}`,
       selected: currentProjectId === snapshot.projectId,
       selectedAlt: focus.forceProject && snapshot.projectId === focus.forceProject.id,
       onClick: isOpen => this.onClickSnapshot(snapshot, isOpen),
       onContextMenu: evt => this.onSnapshotContextMenu(snapshot, evt),
-      // startDrag: globalPoint => InventoryGroupCommons.onCommonsProjectDrag(snapshot, globalPoint),
       items: this.getCommonsProjectBlocks(snapshot),
       showArrowWhenEmpty: true,
       labelWidgets: [
@@ -281,7 +287,7 @@ export class InventoryGroupCommons extends Component {
     const { loading, groupBy } = this.state;
     const grouped = this.createGroupedSnapshots();
 
-    const treeItems = _.map(grouped, (groupSnapshots, key) => {
+    const treeItems = _.sortBy(_.map(grouped, (groupSnapshots, key) => {
       const innerItems = this.createProjectSnapshotTrees(groupSnapshots);
 
       //get text here to handle scenario fo users with same name
@@ -291,11 +297,12 @@ export class InventoryGroupCommons extends Component {
 
       return {
         text,
-        selected: groupBy === 'author' && key === this.props.userId,
+        key,
+        bold: groupBy === 'author' && key === this.props.userId,
         items: innerItems,
         testid: `commons/${key}`,
       };
-    });
+    }), ({ key }) => key === this.props.userId ? -1 : 1);
 
     const currentList = <Tree items={treeItems} />;
 

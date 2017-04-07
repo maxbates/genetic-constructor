@@ -19,12 +19,12 @@ import { connect } from 'react-redux';
 
 import { uiSetGrunt, uiSpin } from '../../actions/ui';
 import { role as roleDragType } from '../../constants/DragTypes';
-import DnD from '../../containers/graphics/dnd/dnd';
-import MouseTrap from '../../containers/graphics/mousetrap';
+import DnD from '../../graphics/dnd/dnd';
+import MouseTrap from '../../graphics/mousetrap';
 import { symbols as inventoryRoles, sortOrder } from '../../inventory/roles';
 import Block from '../../models/Block';
 import '../../styles/InventoryGroupRole.css';
-import RoleSvg from '../RoleSvg';
+import RoleSvg from '../ui/RoleSvg';
 
 class InventoryGroupRole extends Component {
   static propTypes = {
@@ -119,7 +119,7 @@ class InventoryGroupRole extends Component {
       source: 'inventory',
     }, {
       onDropFailure: (error, target) => {
-        this.props.uiSetGrunt(`There was an error creating a block for ${this.state.current.metadata.name}`);
+        this.props.uiSetGrunt(`There was an error creating a block for ${this.state.current.name}`);
         this.props.uiSpin();
       },
     });

@@ -1,27 +1,59 @@
 @import 'variables.css';
 
-.order-button {
-  position: absolute;
-  right: 2px;
-  top: 8px;
-  text-transform: uppercase;
-  background-color: var(--colors-mediumDarkGrey);
-  color: var(--colors-lighterGrey);
-  padding: 0.25em 0.5em;
-  margin-right: 0.5rem;
-  border: 0;
-  border-radius: 2px;
-  transition: background-color var(--timing-fast) ease-out;
-
-  &:focus {
-    outline: none;
-  }
-  &:active {
-    color: var(--colors-selected);
-  }
-  &:hover {
-    background-color: var(--colors-nearlyBlack);
-  }
+:root {
+  --corner-size: 30px;
+  --corner-side-length: 15px;
 }
 
+.construct-viewer {
+  margin: 0rem 1rem 0 1rem;
+  width: calc(100% - 2rem);
+  background: transparent;
+  position: relative;
 
+  .title-and-toolbar {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity var(--timing-fast) ease-out;
+
+    &-container {
+      position: absolute;
+      width: calc(100% - 35px);
+      right: 0;
+      top: 0;
+      height: 32px;
+    }
+  }
+
+  .sceneGraphContainer {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .corner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border: var(--corner-side-length) solid;
+    border-right-color: transparent !important;
+    border-bottom-color: transparent !important;
+    opacity: 0.5;
+  }
+
+  &-focused {
+    transition: background var(--timing-fast) ease-out;
+    background: var(--colors-darkGrey);
+
+    .corner,
+    .title-and-toolbar {
+      opacity: 1;
+    }
+  }
+
+  &:last-child {
+    margin-bottom: 5rem;
+  }
+}

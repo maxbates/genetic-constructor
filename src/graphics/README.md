@@ -1,0 +1,1 @@
+Directory for the block scene graph and other graphics components

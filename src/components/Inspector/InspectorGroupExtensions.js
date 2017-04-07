@@ -20,7 +20,6 @@ import {
   extensionAuthor,
   extensionDescription,
   extensionName,
-  extensionRegion,
   extensionType,
   manifestIsClient,
   manifestIsServer,
@@ -52,9 +51,13 @@ class InspectorGroupExtensions extends Component {
     this.expectExtensions();
   }
 
-  checkExtensionActive = extension => this.props.config.extensions[extension] && this.props.config.extensions[extension].active;
+  checkExtensionActive = extension => (this.props.config.extensions[extension] && this.props.config.extensions[extension].active) || false;
 
   extensionToggled = (extensionName) => {
+    if (extensionName === 'GC-Sequence-Viewer') {
+      return;
+    }
+
     const update = Object.assign({}, this.props.config, {
       extensions: {
         [extensionName]: {
@@ -86,16 +89,15 @@ class InspectorGroupExtensions extends Component {
           Author: extensionAuthor(extension),
           Client: manifestIsClient(extension),
           isServer: manifestIsServer(extension),
-          Region: extensionRegion(extension),
         };
-        // hack to prevent sequence viewer being turned off
-        const headerWidgets = extension.name === 'GC-Sequence-Viewer' ?
-          [] : [(
-            <Switch
-              key={index}
-              on={this.checkExtensionActive(extension.name)}
-              switched={() => this.extensionToggled(extension.name)}
-            />
+
+        const headerWidgets = [(
+          <Switch
+            key={index}
+            disabled={extension.name === 'GC-Sequence-Viewer'}
+            on={this.checkExtensionActive(extension.name)}
+            switched={() => this.extensionToggled(extension.name)}
+          />
           )];
 
         const items = [

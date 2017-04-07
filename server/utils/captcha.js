@@ -31,7 +31,7 @@ export function verifyCaptcha(response, secret = captchaSecret) {
   })
   .then(resp => resp.json())
   .then((result) => {
-    console.log(result);
+    //console.log(result);
     if (result.success === true) {
       return result;
     }

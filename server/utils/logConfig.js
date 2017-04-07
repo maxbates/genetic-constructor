@@ -28,7 +28,7 @@ const prodLogger = morgan.compile(prodLogFormat);
 // assumes a local developer won't set NODE_ENV
 function chooseLogFormat() {
   console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
-  console.log(`VERBOSE_REQUEST_LOGS: ${process.env.VERBOSE_REQUEST_LOGS}`);
+  console.log(`[logging] VERBOSE_REQUEST_LOGS: ${process.env.VERBOSE_REQUEST_LOGS || false}`);
 
   if (process.env.VERBOSE_REQUEST_LOGS === 'true') {
     return expandedLogger;

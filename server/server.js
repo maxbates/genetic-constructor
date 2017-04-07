@@ -15,25 +15,28 @@
  */
 import fs from 'fs';
 import path from 'path';
-
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import express from 'express';
-
 import colors from 'colors/safe';
 
 import pkg from '../package.json';
-import dataRouter from './data/router';
-import extensionsRouter from './extensions/router';
-import checkUserSetup from './onboarding/userSetup';
-import orderRouter from './order/router';
-import reportRouter from './report/index';
 import { API_END_POINT, HOST_NAME, HOST_PORT } from './urlConstants';
+import logger from './utils/logConfig';
+
+import dataRouter from './data/router';
+import jobRouter from './jobs/router';
+import extensionsRouter from './extensions/router';
+import orderRouter from './order/router';
+import reportRouter from './report/router';
+import commonsRouter from '../commons/router';
+import s3MockRouter from './files/s3mockRouter';
+import { s3MockPath } from './data/middleware/filePaths';
 import { registrationHandler } from './user/updateUserHandler';
 import userRouter from './user/userRouter';
+import checkUserSetup from './onboarding/userSetup';
 import { pruneUserObject } from './user/utils';
 import checkPortFree from './utils/checkPortFree';
-import logger from './utils/logConfig';
 import customErrorMiddleware from './errors/customErrorMiddleware';
 import lastDitchErrorMiddleware from './errors/lastDitchErrorMiddleware';
 
@@ -42,15 +45,16 @@ import lastDitchErrorMiddleware from './errors/lastDitchErrorMiddleware';
 //where the server will be listening
 const hostPath = `http://${HOST_NAME}:${HOST_PORT}/`;
 
-//file paths depending on if building or not
-//note that currently, you basically need to use npm run start in order to serve the client bundle + webpack middleware
-const createBuildPath = (isBuild, notBuild = isBuild) => path.join(__dirname, (process.env.BUILD ? isBuild : notBuild));
+// file paths depending on if building or not
+// use `npm run start` in order to serve the client bundle + webpack middleware
+// use `npm run start-instance` to build and serve client bundles
+// NB - server is not currently built when run, so process.env.BUILD is not set
+const createBuildPath = (isBuild, notBuild = isBuild) => path.join((process.env.BUILD ? '../build' : __dirname), (process.env.BUILD ? isBuild : notBuild));
 const pathContent = createBuildPath('content', '../src/content');
 const pathDocs = createBuildPath('jsdoc', `../docs/jsdoc/genetic-constructor/${pkg.version}`);
 const pathImages = createBuildPath('images', '../src/images');
 const pathPublic = createBuildPath('public', '../src/public');
-const pathClientBundle = createBuildPath('client.js', '../build/client.js');
-const pathLanding = createBuildPath('public/landing', '../src/public/landing');
+const pathPublicStatic = createBuildPath('static', '../build/static');
 
 //create server app
 const app = express();
@@ -81,7 +85,7 @@ app.set('view engine', 'pug');
 // in deployed environment this API will be available on a different host, and not at this route endpoint
 //note - should come before local auth setup, so that mockUser setup can call storage without middleware in place
 if (!process.env.STORAGE_API) {
-  console.log('[DB Storage] DB Storage API mounted locally at /api/');
+  console.log('[DB] Storage API mounted locally at /api/');
   app.use(require('gctor-storage').mockReqLog); // the storage routes expect req.log to be defined
   app.use('/api', require('gctor-storage').routes);
 }
@@ -114,6 +118,9 @@ if (process.env.BIO_NANO_AUTH) {
     emailDirectory: 'emails',
     verifyLanding: '/homepage',
     loginPath: '/homepage/signin',
+    addNewRegToSendGrid: true,
+    contactList: 1049400,
+    defaultSendGridList: 1049400,
   };
   app.use(initAuthMiddleware(authConfig));
 } else {
@@ -141,15 +148,22 @@ app.use('/user', userRouter);
 // PRIMARY ROUTES
 
 app.use('/data', dataRouter);
+app.use('/jobs', jobRouter);
 app.use('/order', orderRouter);
 app.use('/extensions', extensionsRouter);
 app.use('/report', reportRouter);
+app.use('/commons', commonsRouter);
+
+if (process.env.NODE_ENV !== 'production') {
+  //mock s3 routes for jobs/extensions etc. so read/write don't fail
+  app.use(`/${s3MockPath}`, s3MockRouter);
+}
 
 // STATIC ROUTES
 
 app.use('/images', express.static(pathImages));
 app.use('/help/docs', express.static(pathDocs));
-app.use('/landing', express.static(pathLanding));
+app.use('/static', express.static(pathPublicStatic)); //browsersync proxy gets priority
 app.use(express.static(pathPublic));
 
 app.get('/version', (req, res) => {
@@ -168,13 +182,6 @@ app.get('*', (req, res) => {
   //on root request (ignoring query params), if not logged in, show them the landing page
   if ((req.path === '' || req.path === '/') && !req.user) {
     res.sendFile(`${pathPublic}/landing.html`);
-    return;
-  }
-
-  // client bundle may be requested at multiple relative paths
-  if (req.url.indexOf('client.js') >= 0) {
-    //should only hit this when proxy is not set up (i.e. not in development)
-    res.sendFile(pathClientBundle);
     return;
   }
 
@@ -207,8 +214,8 @@ function handleError(err) {
   console.log(colors.bgRed('Error starting server. Terminating...'));
   console.log(colors.red(err));
   console.log(err.stack);
-  //87 is totally arbitrary, but listen for it in runServer.js
-  process.exit(87);
+  //42 is totally arbitrary, but listen for it in runServer.js
+  process.exit(42);
 }
 
 function startServer() {
@@ -251,5 +258,10 @@ if (process.env.SERVER_MANUAL !== 'true') {
 } else {
   console.log('Server ready, will start listening manually...');
 }
+
+//explicit listener for termination event for webpack etc, to kill process and not hog the port
+process.on('SIGTERM', () => {
+  process.exit(0);
+});
 
 export default app;

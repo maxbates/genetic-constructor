@@ -164,10 +164,11 @@ export const snapshotWrite = (
     invariant(Array.isArray(snapshotBody.keywords) && snapshotBody.keywords.every(word => typeof word === 'string'), 'keywords must be array of strings');
     invariant(typeof type === 'string', 'type must be a string');
 
-    //assign author and projectName to the snapshot
+    //assign author, projectName, number of base pairs to the snapshot
     Object.assign(snapshotBody.tags, {
       author: (user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : 'Anonymous',
       projectName: project.project.metadata.name || 'Untitled Project',
+      basePairs: _.reduce(project.blocks, (acc, block) => acc + (block.sequence.length || 0), 0),
     });
 
     logger(`[snapshotWrite] writing @ V${Number.isInteger(version) ? version : '[latest]'} on ${projectId} - ${snapshotBody.message}`);

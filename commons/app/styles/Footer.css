@@ -1,0 +1,38 @@
+@import '../../../src/styles/variables.css';
+
+.Footer {
+  margin-top: 4rem;
+  border-top: 1px solid var(--colors-lighterGrey);
+  padding: 1rem 0 1rem;
+
+  &-row {
+    padding: 0 0 2rem;
+  }
+
+  &-links {
+    display: flex;
+    flex-direction: row;
+  }
+
+  &-column {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  h4 {
+    margin: 0.5rem 0 1rem;
+    padding: 0;
+    font-size: 1.25rem;
+  }
+
+  a {
+    &, &:visited {
+      color: var(--colors-grey);
+    }
+
+    &:hover {
+      color: var(--colors-darkerGrey);
+    }
+  }
+}

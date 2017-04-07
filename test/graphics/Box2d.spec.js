@@ -1,6 +1,6 @@
-import Box2D from '../../src/containers/graphics/geometry/box2d';
-import Vector2D from '../../src/containers/graphics/geometry/vector2d';
-import {nearly} from '../../src/containers/graphics/utils';
+import Box2D from '../../src/graphics/geometry/box2d';
+import Vector2D from '../../src/graphics/geometry/vector2d';
+import {nearly} from '../../src/graphics/utils';
 import chai from 'chai';
 
 describe('Box2D', () => {

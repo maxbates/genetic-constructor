@@ -1,10 +1,8 @@
 webapp:
-  extends:
-    file: docker-compose-common.yml
-    service: webapp
   build: .
   links:
     - db
+    - redis
   command:
     npm run start-instance
   ports:
@@ -13,9 +11,21 @@ webapp:
     PORT: 3000
     NO_DOCKER: "true"
     PGHOST: db
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
+    REDIS_DB: 1
 
 db:
   extends:
     file: ./storage-ext/docker-compose-common.yml
     service: db
   build: ./storage-ext/postgres/
+
+redis:
+  restart: always
+  image: redis:3.2.0-alpine
+  command: redis-server /usr/local/etc/redis/redis.conf
+  ports:
+    - "6379:6379"
+  volumes:
+    - ./redis.conf:/usr/local/etc/redis/redis.conf

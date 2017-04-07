@@ -18,10 +18,6 @@ import { mapValues } from 'lodash';
 
 const logger = debug('constructor:schemas');
 
-if (process.env.NODE_ENV !== 'production' && !logger.enabled) {
-  console.log('To enable logging of schema validation errors, set env var DEBUG=constructor:schemas, or localStorage.debug = "constructor:schemas"'); //eslint-disable-line
-}
-
 /**
  * Schemas are used internally for ensure data is consistent and valid, and guarantee the presence of various fields.
  * Schemas provide functions for scaffolding, used internally by models, to ensure the presence and correctness of Instance fields.

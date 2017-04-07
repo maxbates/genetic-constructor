@@ -1,0 +1,29 @@
+{
+  "name": "blast",
+  "version": "1.0.0",
+  "description": "Run BLAST searches to find similar sequences and grow combinatorial spaces.",
+  "author": "Autodesk Life Sciences",
+  "geneticConstructor": {
+    "readable": "BLAST",
+    "type": "BLAST",
+    "client": [
+      {
+        "file": "blockMenuItem.js",
+        "region": "menu:block"
+      }
+    ],
+    "router": "router.js",
+    "job": "jobProcessor.js"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "biojs-io-blast": "0.0.10",
+    "body-parser": "^1.17.1",
+    "bull": "^2.2.3",
+    "constructor-classes": "maxbates/constructor-classes",
+    "debug": "^2.6.3",
+    "express": "^4.15.2",
+    "isomorphic-fetch": "^2.2.1",
+    "query-string": "^4.3.2"
+  }
+}

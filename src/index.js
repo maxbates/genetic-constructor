@@ -19,6 +19,7 @@ import { Provider } from 'react-redux';
 
 import * as actionTypes from './constants/ActionTypes';
 import extensions from './extensions/_expose';
+import * as jobs from './middleware/jobs';
 import routes from './routes';
 import orchestrator from './store/api';
 import store, { getState, lastAction, subscribe as storeSubscribe } from './store/index';
@@ -47,6 +48,7 @@ render(
 const exposed = global.constructor = {};
 Object.assign(exposed, {
   extensions,
+  jobs,
   constants: {
     actionTypes,
   },

@@ -47,12 +47,12 @@ import {
   uiShowGenBankImport,
 } from '../actions/ui';
 import { transact, commit } from '../store/undo/actions';
-import Box2D from '../containers/graphics/geometry/box2d';
-import Vector2D from '../containers/graphics/geometry/vector2d';
+import Box2D from '../graphics/geometry/box2d';
+import Vector2D from '../graphics/geometry/vector2d';
 import TitleAndToolbar from '../components/toolbars/title-and-toolbar';
 import { downloadProject } from '../middleware/utils/downloadProject';
 import GlobalNav from './GlobalNav/GlobalNav';
-import ConstructViewer from '../containers/graphics/views/constructviewer';
+import ConstructViewer from '../graphics/views/constructviewer';
 
 import '../styles/ProjectHeader.css';
 
@@ -235,7 +235,7 @@ class ProjectHeader extends Component {
       },
       {
         text: 'Publish Project...',
-        disabled: this.props.readOnly || (this.props.projectVersionIsPublished && !this.props.projectIsDirty),
+        disabled: this.props.readOnly || (this.props.projectVersionIsPublished && !this.props.projectIsDirty) || (this.props.project.components.length === 0),
         action: this.onShareProject,
       },
       {
@@ -261,7 +261,7 @@ class ProjectHeader extends Component {
       this.props.uiSetGrunt('This is a sample project and cannot be deleted.');
     } else {
       //load another project, avoiding this one
-      this.props.projectLoad(null, false, [project.id])
+      this.props.projectLoad(null, [project.id])
       //open the new project, skip saving the previous one
       .then(rollup => this.props.projectOpen(rollup.project.id, true))
       //delete after we've navigated so dont trigger project page to complain about not being able to laod the project
